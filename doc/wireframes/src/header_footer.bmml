@@ -1,0 +1,134 @@
+<mockup version="1.0" skin="sketch" measuredW="1320" measuredH="826" mockupW="1260" mockupH="760">
+  <controls>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::Image" x="92" y="92" w="-1" h="-1" measuredW="161" measuredH="47" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>login%26bm%3Blogin.bmml%26bm%3Blogin.bmml%26bm%3Blogin.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2232%2C26%2C193%2C73%22%20href%3D%22login.bmml%22%20alt%3D%22login%22%20id%3D%222%22/%3E</map>
+        <src>./assets/bloodhound_logo.png</src>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="23" controlTypeID="com.balsamiq.mockups::Button" x="491" y="148" w="129" h="40" measuredW="135" measuredH="27" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <customData>%253Ctoggle%253Egreybox%253C/toggle%253E</customData>
+        <href>tickets_dashboardCreateTicket%26bm%3Btickets_dashboardCreateTicket.bmml%26bm%3Btickets_dashboardCreateTicket.bmml%26bm%3Btickets_dashboardCreateTicket.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22431%2C82%2C560%2C122%22%20href%3D%22tickets_dashboardCreateTicket.bmml%22%20alt%3D%22tickets_dashboardCreateTicket%22%20id%3D%2223%22/%3E</map>
+        <menuIcon>false</menuIcon>
+        <rotation>90</rotation>
+        <size>18</size>
+        <text>Create%20Ticket</text>
+      </controlProperties>
+    </control>
+    <control controlID="24" controlTypeID="com.balsamiq.mockups::Label" x="102" y="198" w="-1" h="-1" measuredW="548" measuredH="24" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_navigation%26bm%3Btickets_navigation.bmml%26bm%3Btickets_navigation.bmml%26bm%3Btickets_navigation.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2242%2C132%2C590%2C156%22%20href%3D%22tickets_navigation.bmml%22%20alt%3D%22tickets_navigation%22%20id%3D%2224%22/%3E</map>
+        <size>16</size>
+        <text>%5BNavigation%5D%20%3E%20%5BTickets%5D%20%3E%20%5BProject%5D%20%3E%20%5BSubproject%5D%20%3E%20%5BRelease%5D%20%3E%20%5BMilestone%5D%20%3E%20Ticket</text>
+      </controlProperties>
+    </control>
+    <control controlID="30" controlTypeID="com.balsamiq.mockups::Label" x="1088" y="123" w="-1" h="-1" measuredW="124" measuredH="22" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>login%26bm%3Blogin.bmml%26bm%3Blogin.bmml%26bm%3Blogin.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221028%2C57%2C1152%2C79%22%20href%3D%22login.bmml%22%20alt%3D%22login%22%20id%3D%2230%22/%3E</map>
+        <size>14</size>
+        <text>Hi%20Joachim%21%20%28%5Blogout%5D%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="31" controlTypeID="com.balsamiq.mockups::Label" x="1227" y="123" w="-1" h="-1" measuredW="57" measuredH="22" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>settings%26bm%3Bsettings.bmml%26bm%3Bsettings.bmml%26bm%3Bsettings.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221167%2C57%2C1224%2C79%22%20href%3D%22settings.bmml%22%20alt%3D%22settings%22%20id%3D%2231%22/%3E</map>
+        <size>14</size>
+        <text>%5BSettings%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="32" controlTypeID="com.balsamiq.mockups::Canvas" x="60" y="66" w="1260" h="760" measuredW="100" measuredH="70" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+      </controlProperties>
+    </control>
+    <control controlID="33" controlTypeID="com.balsamiq.mockups::Link" x="1210" y="198" w="-1" h="-1" measuredW="62" measuredH="24" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>reports%26bm%3Breports.bmml%26bm%3Breports.bmml%26bm%3Breports.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221150%2C132%2C1212%2C156%22%20href%3D%22reports.bmml%22%20alt%3D%22reports%22%20id%3D%2233%22/%3E</map>
+        <size>16</size>
+        <text>Reports</text>
+      </controlProperties>
+    </control>
+    <control controlID="34" controlTypeID="com.balsamiq.mockups::Link" x="1088" y="198" w="-1" h="-1" measuredW="107" measuredH="24" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>customQuery%26bm%3BcustomQuery.bmml%26bm%3BcustomQuery.bmml%26bm%3BcustomQuery.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221028%2C132%2C1135%2C156%22%20href%3D%22customQuery.bmml%22%20alt%3D%22customQuery%22%20id%3D%2234%22/%3E</map>
+        <size>16</size>
+        <text>Custom%20Query</text>
+      </controlProperties>
+    </control>
+    <control controlID="35" controlTypeID="__group__" x="95" y="148" w="375" h="40" measuredW="375" measuredH="40" zOrder="8" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::RoundButton" x="0" y="2" w="299" h="37" measuredW="32" measuredH="32" zOrder="0" locked="false" isInGroup="35">
+          <controlProperties>
+            <align>left</align>
+            <markup>false</markup>
+            <shape>roundRect</shape>
+            <text>-Search%20anything-</text>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::Button" x="293" y="0" w="82" h="40" measuredW="78" measuredH="27" zOrder="1" locked="false" isInGroup="35">
+          <controlProperties>
+            <color>16770457</color>
+            <href>search%26bm%3Bsearch.bmml%26bm%3Bsearch.bmml%26bm%3Bsearch.bmml</href>
+            <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22328%2C82%2C410%2C122%22%20href%3D%22search.bmml%22%20alt%3D%22search%22%20id%3D%221%22/%3E</map>
+            <size>18</size>
+            <text>Search</text>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="43" controlTypeID="__group__" x="92" y="162" w="1192" h="365" measuredW="1192" measuredH="365" zOrder="1" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::Canvas" x="0" y="31" w="1192" h="334" measuredW="100" measuredH="70" zOrder="3" locked="false" isInGroup="43">
+          <controlProperties>
+            <borderStyle>roundedSolid</borderStyle>
+            <color>15658734</color>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::RoundButton" x="906" y="0" w="92" h="36" measuredW="32" measuredH="32" zOrder="0" locked="false" isInGroup="43">
+          <controlProperties>
+            <bold>true</bold>
+            <color>15658734</color>
+            <shape>roundRect</shape>
+            <size>18</size>
+            <text>Products</text>
+          </controlProperties>
+        </control>
+        <control controlID="2" controlTypeID="com.balsamiq.mockups::RoundButton" x="1002" y="2" w="92" h="36" measuredW="32" measuredH="32" zOrder="1" locked="false" isInGroup="43">
+          <controlProperties>
+            <bold>false</bold>
+            <shape>roundRect</shape>
+            <size>18</size>
+            <text>Wiki</text>
+          </controlProperties>
+        </control>
+        <control controlID="3" controlTypeID="com.balsamiq.mockups::RoundButton" x="1098" y="2" w="92" h="36" measuredW="32" measuredH="32" zOrder="2" locked="false" isInGroup="43">
+          <controlProperties>
+            <bold>false</bold>
+            <shape>roundRect</shape>
+            <size>18</size>
+            <text>Source</text>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="44" controlTypeID="com.balsamiq.mockups::Canvas" x="93" y="192" w="1191" h="32" measuredW="100" measuredH="70" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+        <color>14540253</color>
+      </controlProperties>
+    </control>
+    <control controlID="45" controlTypeID="com.balsamiq.mockups::HRule" x="92" y="192" w="905" h="-1" measuredW="100" measuredH="5" zOrder="13" locked="false" isInGroup="-1"/>
+    <control controlID="46" controlTypeID="com.balsamiq.mockups::VRule" x="92" y="194" w="-1" h="34" measuredW="5" measuredH="100" zOrder="11" locked="false" isInGroup="-1"/>
+    <control controlID="47" controlTypeID="com.balsamiq.mockups::VRule" x="1280" y="194" w="-1" h="34" measuredW="5" measuredH="100" zOrder="12" locked="false" isInGroup="-1"/>
+    <control controlID="48" controlTypeID="com.balsamiq.mockups::HRule" x="1088" y="192" w="195" h="-1" measuredW="100" measuredH="5" zOrder="14" locked="false" isInGroup="-1"/>
+  </controls>
+</mockup>
