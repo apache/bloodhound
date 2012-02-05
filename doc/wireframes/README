@@ -2,17 +2,9 @@ Images created in this directory are created in Balsamiq
 
 src/ contains the Balsamiq source files.
 
-Further information based on an email from Joachim Dreimann:
-
-Balsamiq is donated freely to Open Source projects. Balsamiq's policy on this
-is published here:
-    http://support.balsamiq.com/customer/portal/articles/105924-can-i-get-mockups-for-free-
+Balsamiq has kindly provided the project with a license to use their software. Contributors may drop an email to mpoole@apache.org or speak to mpoole on freenode IRC for the details.
 
 It can also be run in the browser. Some features linking individual mockups
 won't work that way, but editing individual ones works fine:
     http://builds.balsamiq.com/b/mockups-web-demo/
-
-Once Bloodhound is a more mature, active project we can also apply for free
-myBalsamiq access for committers, which would be an online-only environment
-with both edits and a repository.
 
