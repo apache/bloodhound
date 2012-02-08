@@ -1,0 +1,8 @@
+This directory contains reference html files from which templates will be
+derived.
+
+Supporting files are contained in the following subdirectories as appropriate:
+    css/
+    img/
+    js/
+
