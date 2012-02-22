@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<html>
+<head>
+	<title>MultiSite Version 14.3 - Apache Bloodhound</title>
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+	<script src="js/dashboard.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="row" style="position:relative;">
+			<div class="span4"><a href="dashboard.html"><img src="img/bloodhound_logo.png" alt="Bloodhound Logo" height="47" width="161"/></a></div>
+			<div class="span8" style="position:absolute; bottom:25%; right:-40%;">
+				Hi Joachim (<a href="#">logout</a>)&nbsp;&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;&nbsp;<a href="#">Help</a>
+			</div>
+		</div>
+		<div class="row" style="position:relative;">
+			<div class="span4">
+			<form class="form-inline">
+				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." />
+				<input type="button" value="Search" href="#" class="btn btn-warning" />
+			</form>
+			</div>
+			<div class="span4"><a href="#" class="btn">Create Ticket</a></div>
+			<div class="span4">
+				<ul class="nav nav-tabs pull-right">
+					<li class="active"><a href="dashboard.html">Tickets</a></li>
+					<li><a href="#">Wiki</a></li>
+					<li><a href="#">Source</a></li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="#">SuperAdmin</a></li>
+							<li><a href="#">Tag Cloud</a></li>
+							<li><a href="#">Blog</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Something</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+      		<div class="span12">
+      			<ul class="breadcrumb">
+      				<li><a href="#">Products</a> <span class="divider">/</span></li>
+      				<li><a href="product.html">MultiSite</a> <span class="divider">/</span></li>
+      				<li class="active"><a href="#">Version 14.3</a></li>
+      				<li class="pull-right"><a href="#">Custom Query</a>&nbsp;&nbsp;&nbsp;<a href="#">Reports</a></li>
+				</ul>
+			</div>
+      		<div class="span3" style="text-align:right;"></div>
+     	</div>
+     	<br />
+		<div class="row">
+      		<div class="span8">
+      			<h1 style="display:inline;">Version 14.3</h1>
+   			      		<br><br>
+      			      		<div class="well">
+						<strong>Due in 3 weeks</strong> (15 Feb, 2012) <a href="#">Change</a><div class="pull-right">75% completed</div>
+							<div class="progress progress-success">
+								<div class="bar" style="width: 75%;"></div>
+							</div>
+							<a href="#">Complete (75)</a><a href="#" class="pull-right">Incomplete (25)</a>
+				<p>Note to maintainers
+					<ul>
+						<li>Move tickets from <a href="#">next-minor-0.14.x</a> to here once you know you're going to fix them for the <a href="#">0.14.2</a> release.</li>
+						<li>There should be no enhancements here, only defects</li>
+						<li>There should be only <strong>major</strong> defects here anyway, focus is now on <a href="#">0.15</a></li>
+					</ul>
+				</p>
+				</div>
+				<div class="btn-toolbar">
+				<div class="btn-group offset1"  data-toggle="buttons-radio">
+					<a class="btn active" href="#">Milestones</a>
+					<a class="btn" href="#">My tickets</a>
+					<a class="btn" href="#">All tickets</a>
+				</div>
+				<div class="btn-group">
+					<a class="btn" href="#">Projects</a>
+					<a class="btn" href="#">Components</a>
+				</div>
+				</div>
+				<br>
+      			<div class="tabbable tabs-left">
+					<ul class="nav nav-tabs" style="text-align:right;">
+						<li><a href="#"><span class="label">Undefined</span></a></li>
+						<li><a href="#14.3">3</a></li>
+						<li class="active"><a href="#14.3"><span class="label label-warning">Current</span> 2</a></li>
+						<li><a href="#">1</a></li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane active" id="14.3">
+						<h3><a href="milestone.html">Milestone 2</a></h3>
+						<strong>Due in 3 days</strong> (3 Feb, 2012) <a href="#">Change</a><div class="pull-right">24% completed</div>
+							<div class="progress progress-danger">
+								<div class="bar" style="width: 24%;"></div>
+							</div>
+							<a href="#">Complete (24)</a><a href="#" class="pull-right">Incomplete (76)</a><br/>
+							<p>Nay lad ipsum dolor sit t'foot o' our <a href="#">stairs ah'll box</a> thi ears big girl's blouse ey up donec ee by gum ah'll learn thi soft southern pansy at mardy bum phasellus soft southern pansy.</p>
+						</div>
+						<div class="tab-pane" id="14.2">
+							<h3><a href="#">Version 14.2</a></h3>
+							<div class="progress progress-info">
+								<div class="bar" style="width: 40%;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br>
+				
+		<!-- 
+      		# Components will be displayed in the place where currently Milestones are displayed, when selected via the button-bar.
+      	
+      		<div class="well">
+      			<h3 style="display:inline;">Components</h3>&nbsp;&nbsp;&nbsp;<a href="#">View all</a>
+      			<p style="font-size:medium; line-height:150%"><a href="#">APIs</a>&nbsp;&nbsp;&nbsp;<a href="#">Branding</a>&nbsp;&nbsp;&nbsp;<a href="#">Website</a>&nbsp;&nbsp;&nbsp;<a href="#">Database</a>&nbsp;&nbsp;&nbsp;<a href="#">Interface</a></p>
+      			</div>
+      	-->
+      	
+      		</div>
+      		<div class="span4"><h1>Activity</h1>
+      		    <br />
+      		<table class="table table-striped">
+      			<thead>
+      				<tr><th>Today</th></tr>
+      			</thead>
+      			<tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+      			<tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+				<tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+      			<tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+      			<tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+      		</table>
+      		<table class="table table-striped">
+      			<thead>
+      			<tr>
+      				<th>Yesterday</th>
+      			</tr>
+      			</thead>
+      		     <tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+      			<tr>
+      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+      			</tr>
+      		</table>
+      		</div>
+     	</div>
+     	<div class="row">
+     	    <br />
+     		<div class="span8" style="color:grey;">Powered by <a href="#">Bloodhound</a>. Standing on the shoulders of <a href="#">Trac 0.13</a>. <a href="abc"></a></div>
+     		<div class="span4" style="text-align:right; color:grey;">Visit Bloodhound at <a href="">http://bloodhound.io</a></div>
+     	</div>
+    </div>
+    <br />
+</body>
+</html>
+
