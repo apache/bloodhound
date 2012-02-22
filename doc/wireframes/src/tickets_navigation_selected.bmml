@@ -1,0 +1,165 @@
+<mockup version="1.0" skin="sketch" measuredW="1320" measuredH="780" mockupW="1260" mockupH="760">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::Component" x="60" y="20" w="1260" h="760" measuredW="1260" measuredH="760" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221161%2C125%2C1223%2C149%22%20href%3D%22reports.bmml%22%20alt%3D%22reports%22%20id%3D%2233%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%2232%2C26%2C193%2C73%22%20href%3D%22login.bmml%22%20alt%3D%22login%22%20id%3D%222%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221040%2C126%2C1147%2C150%22%20href%3D%22customQuery.bmml%22%20alt%3D%22customQuery%22%20id%3D%2234%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%2232%2C82%2C120%2C122%22%20href%3D%22tickets_dashboard.bmml%22%20alt%3D%22tickets_dashboard%22%20id%3D%2221_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22122%2C82%2C272%2C122%22%20href%3D%22repo_browser.bmml%22%20alt%3D%22repo_browser%22%20id%3D%2221_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22274%2C82%2C350%2C122%22%20href%3D%22notes_main.bmml%22%20alt%3D%22notes_main%22%20id%3D%2221_2%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%221095%2C82%2C1224%2C122%22%20href%3D%22tickets_dashboardCreateTicket.bmml%22%20alt%3D%22tickets_dashboardCreateTicket%22%20id%3D%2223%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%2236%2C124%2C587%2C148%22%20href%3D%22tickets_navigation.bmml%22%20alt%3D%22tickets_navigation%22%20id%3D%2224%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221167%2C57%2C1224%2C79%22%20href%3D%22settings.bmml%22%20alt%3D%22settings%22%20id%3D%2231%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%22982%2C82%2C1058%2C122%22%20href%3D%22search.bmml%22%20alt%3D%22search%22%20id%3D%2229%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221028%2C57%2C1152%2C79%22%20href%3D%22login.bmml%22%20alt%3D%22login%22%20id%3D%2230%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221161%2C125%2C1223%2C149%22%20href%3D%22reports.bmml%22%20alt%3D%22reports%22%20id%3D%2233%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%2232%2C26%2C193%2C73%22%20href%3D%22login.bmml%22%20alt%3D%22login%22%20id%3D%222%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221040%2C126%2C1147%2C150%22%20href%3D%22customQuery.bmml%22%20alt%3D%22customQuery%22%20id%3D%2234%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%2232%2C82%2C120%2C122%22%20href%3D%22tickets_dashboard.bmml%22%20alt%3D%22tickets_dashboard%22%20id%3D%2221_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22122%2C82%2C272%2C122%22%20href%3D%22repo_browser.bmml%22%20alt%3D%22repo_browser%22%20id%3D%2221_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22274%2C82%2C350%2C122%22%20href%3D%22notes_main.bmml%22%20alt%3D%22notes_main%22%20id%3D%2221_2%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%221095%2C82%2C1224%2C122%22%20href%3D%22tickets_dashboardCreateTicket.bmml%22%20alt%3D%22tickets_dashboardCreateTicket%22%20id%3D%2223%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%2236%2C124%2C587%2C148%22%20href%3D%22tickets_navigation.bmml%22%20alt%3D%22tickets_navigation%22%20id%3D%2224%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221167%2C57%2C1224%2C79%22%20href%3D%22settings.bmml%22%20alt%3D%22settings%22%20id%3D%2231%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%22982%2C82%2C1058%2C122%22%20href%3D%22search.bmml%22%20alt%3D%22search%22%20id%3D%2229%22/%3E%3Carea%20shape%3D%22rect%22%20coords%3D%221028%2C57%2C1152%2C79%22%20href%3D%22login.bmml%22%20alt%3D%22login%22%20id%3D%2230%22/%3E</map>
+        <src>./assets/header_footer.bmml</src>
+      </controlProperties>
+    </control>
+    <control controlID="1" controlTypeID="com.balsamiq.mockups::FieldSet" x="100" y="196" w="1180" h="554" measuredW="200" measuredH="170" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::Title" x="113" y="174" w="-1" h="-1" measuredW="186" measuredH="50" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Navigation</text>
+      </controlProperties>
+    </control>
+    <control controlID="8" controlTypeID="com.balsamiq.mockups::RoundButton" x="130" y="239" w="421" h="36" measuredW="32" measuredH="32" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <markup>false</markup>
+        <shape>roundRect</shape>
+        <text>-Search%20for%20Projects%2C%20Releases%2C%20Milestones%20or%20Tickets-</text>
+      </controlProperties>
+    </control>
+    <control controlID="23" controlTypeID="com.balsamiq.mockups::Link" x="130" y="685" w="-1" h="-1" measuredW="128" measuredH="28" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_addnewProject%26bm%3Btickets_addnewProject.bmml%26bm%3Btickets_addnewProject.bmml%26bm%3Btickets_addnewProject.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2270%2C665%2C198%2C693%22%20href%3D%22tickets_addnewProject.bmml%22%20alt%3D%22tickets_addnewProject%22%20id%3D%2223%22/%3E</map>
+        <size>20</size>
+        <state>up</state>
+        <text>+%20Add%20Project</text>
+      </controlProperties>
+    </control>
+    <control controlID="24" controlTypeID="com.balsamiq.mockups::Link" x="384" y="685" w="-1" h="-1" measuredW="160" measuredH="28" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_addnewSubproject%26bm%3Btickets_addnewSubproject.bmml%26bm%3Btickets_addnewSubproject.bmml%26bm%3Btickets_addnewSubproject.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22324%2C665%2C484%2C693%22%20href%3D%22tickets_addnewSubproject.bmml%22%20alt%3D%22tickets_addnewSubproject%22%20id%3D%2224%22/%3E</map>
+        <size>20</size>
+        <text>+%20Add%20Subproject</text>
+      </controlProperties>
+    </control>
+    <control controlID="25" controlTypeID="com.balsamiq.mockups::Link" x="384" y="713" w="-1" h="-1" measuredW="165" measuredH="28" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_addnewComponent%26bm%3Btickets_addnewComponent.bmml%26bm%3Btickets_addnewComponent.bmml%26bm%3Btickets_addnewComponent.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22324%2C693%2C489%2C721%22%20href%3D%22tickets_addnewComponent.bmml%22%20alt%3D%22tickets_addnewComponent%22%20id%3D%2225%22/%3E</map>
+        <size>20</size>
+        <text>+%20Add%20Component</text>
+      </controlProperties>
+    </control>
+    <control controlID="26" controlTypeID="com.balsamiq.mockups::Link" x="616" y="685" w="-1" h="-1" measuredW="139" measuredH="28" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_addnewRelease%26bm%3Btickets_addnewRelease.bmml%26bm%3Btickets_addnewRelease.bmml%26bm%3Btickets_addnewRelease.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22556%2C665%2C695%2C693%22%20href%3D%22tickets_addnewRelease.bmml%22%20alt%3D%22tickets_addnewRelease%22%20id%3D%2226%22/%3E</map>
+        <size>20</size>
+        <text>+%20Add%20Release</text>
+      </controlProperties>
+    </control>
+    <control controlID="27" controlTypeID="com.balsamiq.mockups::Link" x="856" y="685" w="-1" h="-1" measuredW="147" measuredH="28" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_addnewMilestone%26bm%3Btickets_addnewMilestone.bmml%26bm%3Btickets_addnewMilestone.bmml%26bm%3Btickets_addnewMilestone.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22796%2C665%2C943%2C693%22%20href%3D%22tickets_addnewMilestone.bmml%22%20alt%3D%22tickets_addnewMilestone%22%20id%3D%2227%22/%3E</map>
+        <size>20</size>
+        <text>+%20Add%20Milestone</text>
+      </controlProperties>
+    </control>
+    <control controlID="28" controlTypeID="com.balsamiq.mockups::Link" x="1070" y="685" w="-1" h="-1" measuredW="121" measuredH="28" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_addnewTicket%26bm%3Btickets_addnewTicket.bmml%26bm%3Btickets_addnewTicket.bmml%26bm%3Btickets_addnewTicket.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221010%2C665%2C1131%2C693%22%20href%3D%22tickets_addnewTicket.bmml%22%20alt%3D%22tickets_addnewTicket%22%20id%3D%2228%22/%3E</map>
+        <size>20</size>
+        <text>+%20Add%20Ticket</text>
+      </controlProperties>
+    </control>
+    <control controlID="29" controlTypeID="com.balsamiq.mockups::Paragraph" x="130" y="331" w="158" h="156" measuredW="200" measuredH="140" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <size>18</size>
+        <text>-uberSVN-%0A-WANdisco-%0A-wandisco.com-%0A%5BMultiSite%5D%0A-Access%20Control%20Pro-%0A-Bloodhound-%0A-SVN%20App%20Store-</text>
+      </controlProperties>
+    </control>
+    <control controlID="30" controlTypeID="com.balsamiq.mockups::Paragraph" x="616" y="331" w="170" h="246" measuredW="200" measuredH="140" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <size>18</size>
+        <text>%5BRelease%2014.3%5D%0A-Release%2014.2.2-%0A-Release%2014.2.1-%0A-Release%2014.2-%0A-Release%2014.1-%0A-*Release%2014*-%0A-Release%2013.5-%0A-Release%2013.4-%0A-Release%2013.3.1-%0A-Release%2013.3-%0A-Release%2013.2-</text>
+      </controlProperties>
+    </control>
+    <control controlID="31" controlTypeID="com.balsamiq.mockups::Paragraph" x="856" y="331" w="146" h="74" measuredW="200" measuredH="140" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <size>18</size>
+        <text>%5BMilestone%203%5D%0A-Milestone%202-%0A-Milestone%201-</text>
+      </controlProperties>
+    </control>
+    <control controlID="32" controlTypeID="com.balsamiq.mockups::Paragraph" x="384" y="331" w="120" h="74" measuredW="200" measuredH="140" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <size>18</size>
+        <text>-Subproject%20%231-%0A%5BSubproject%20%232%5D%0A-Subproject%20%233-</text>
+      </controlProperties>
+    </control>
+    <control controlID="33" controlTypeID="com.balsamiq.mockups::Paragraph" x="384" y="487" w="128" h="111" measuredW="200" measuredH="140" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <size>18</size>
+        <text>-Component%20%231-%0A-Component%20%232-%0A-Component%20%233-%0A%5BComponent%20%234%5D%0A-Component%20%235-</text>
+      </controlProperties>
+    </control>
+    <control controlID="34" controlTypeID="com.balsamiq.mockups::Paragraph" x="1070" y="331" w="70" h="246" measuredW="200" measuredH="140" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <href>tickets_ticketView%26bm%3Btickets_ticketView.bmml%26bm%3Btickets_ticketView.bmml%26bm%3Btickets_ticketView.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221010%2C311%2C1080%2C557%22%20href%3D%22tickets_ticketView.bmml%22%20alt%3D%22tickets_ticketView%22%20id%3D%2234%22/%3E</map>
+        <size>18</size>
+        <text>%5BE-3938%5D%0A%5BE-3828%5D%0A%5BE-3817%5D%0A%5BE-3804%5D%0A%5BE-3796%5D%0A%5BE-5476%5D%0A%5BE-3766%5D%0A%5BE-3740%5D%0A%5BE-3735%5D%0A%5BE-3731%5D%0A%5BE-3729%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="35" controlTypeID="com.balsamiq.mockups::Label" x="205" y="396" w="-1" h="-1" measuredW="43" measuredH="21" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_projectView%26bm%3Btickets_projectView.bmml%26bm%3Btickets_projectView.bmml%26bm%3Btickets_projectView.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22145%2C376%2C188%2C397%22%20href%3D%22tickets_projectView.bmml%22%20alt%3D%22tickets_projectView%22%20id%3D%2235%22/%3E</map>
+        <text>%28%5BView%5D%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="36" controlTypeID="com.balsamiq.mockups::Label" x="504" y="354" w="-1" h="-1" measuredW="43" measuredH="21" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_subProjectView%26bm%3Btickets_subProjectView.bmml%26bm%3Btickets_subProjectView.bmml%26bm%3Btickets_subProjectView.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22444%2C334%2C487%2C355%22%20href%3D%22tickets_subProjectView.bmml%22%20alt%3D%22tickets_subProjectView%22%20id%3D%2236%22/%3E</map>
+        <text>%28%5BView%5D%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="37" controlTypeID="com.balsamiq.mockups::Label" x="508" y="556" w="-1" h="-1" measuredW="43" measuredH="21" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_componentView%26bm%3Btickets_componentView.bmml%26bm%3Btickets_componentView.bmml%26bm%3Btickets_componentView.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22448%2C536%2C491%2C557%22%20href%3D%22tickets_componentView.bmml%22%20alt%3D%22tickets_componentView%22%20id%3D%2237%22/%3E</map>
+        <text>%28%5BView%5D%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::Label" x="734" y="331" w="-1" h="-1" measuredW="43" measuredH="21" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_releaseView%26bm%3Btickets_releaseView.bmml%26bm%3Btickets_releaseView.bmml%26bm%3Btickets_releaseView.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22674%2C311%2C717%2C332%22%20href%3D%22tickets_releaseView.bmml%22%20alt%3D%22tickets_releaseView%22%20id%3D%2238%22/%3E</map>
+        <text>%28%5BView%5D%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="39" controlTypeID="com.balsamiq.mockups::Label" x="956" y="331" w="-1" h="-1" measuredW="43" measuredH="21" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>tickets_milestoneView%26bm%3Btickets_milestoneView.bmml%26bm%3Btickets_milestoneView.bmml%26bm%3Btickets_milestoneView.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22896%2C311%2C939%2C332%22%20href%3D%22tickets_milestoneView.bmml%22%20alt%3D%22tickets_milestoneView%22%20id%3D%2239%22/%3E</map>
+        <text>%28%5BView%5D%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="40" controlTypeID="com.balsamiq.mockups::Button" x="558" y="239" w="85" h="36" measuredW="74" measuredH="27" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>16770457</color>
+        <href>tickets_navigation_selected%26bm%3Btickets_navigation_selected.bmml%26bm%3Btickets_navigation_selected.bmml%26bm%3Btickets_navigation_selected.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22498%2C219%2C583%2C255%22%20href%3D%22tickets_navigation_selected.bmml%22%20alt%3D%22tickets_navigation_selected%22%20id%3D%2240%22/%3E</map>
+        <size>16</size>
+        <text>Search</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
