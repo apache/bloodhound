@@ -21,10 +21,12 @@ from trac.core import Component, TracError, implements
 from trac.resource import ResourceNotFound
 from trac.db import Table, Column, DatabaseManager
 from trac.env import IEnvironmentSetupParticipant
+from trac.resource import Resource
 
 DB_VERSION = 1
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
+
 class ModelBase(object):
     """Base class for the models to factor out common features
     Derived classes should provide a meta dictionary to describe the table like:
@@ -46,11 +48,16 @@ class ModelBase(object):
         self._data = {}
         self._exists = False
         self._env = env
-        self._all_fields = self._meta['key_fields'] + self._meta['non_key_fields']
+        self._all_fields = self._meta['key_fields'] + \
+                           self._meta['non_key_fields']
         if keys is not None:
             self._get_row(keys)
         else:
             self._update_from_row(None)
+    
+    def update_field_dict(self, field_dict):
+        """Updates the object's copy of the db fields (no db transaction)"""
+        self._data.update(field_dict)
     
     def __getattr__(self, name):
         """Overridden to allow table.field style field access."""
@@ -119,7 +126,7 @@ class ModelBase(object):
     
     def insert(self):
         """Create new record in the database"""
-        if self._exists or len(self.select(self._env, 
+        if self._exists or len(self.select(self._env, where =
                                 dict([(k,self._data[k])
                                       for k in self._meta['key_fields']]))):
             sdata = {'keys':','.join(['%s="%s"' % (k, self._data[k])
@@ -166,7 +173,7 @@ class ModelBase(object):
             self._old_data.update(self._data)
     
     @classmethod
-    def select(cls, env, where=None):
+    def select(cls, env, db=None, where=None):
         """Query the database to get a set of records back"""
         rows = []
         fields = cls._meta['key_fields']+cls._meta['non_key_fields']
@@ -193,6 +200,11 @@ class Product(ModelBase):
             'key_fields':['prefix',],
             'non_key_fields':['name', 'description', 'owner'],
             }
+    
+    @property
+    def resource(self):
+        """Allow Product to be treated as a Resource"""
+        return Resource('product', self.name)
     
     def delete(self, resources_to=None):
         """ override the delete method so that we can move references to this
@@ -287,6 +299,7 @@ class MultiProductEnvironmentProvider(Component):
                 db("""
                     INSERT INTO system (name, value) VALUES ('%s','%s')
                     """  % (DB_SYSTEM_KEY, DB_VERSION))
+                db("ALTER TABLE ticket ADD COLUMN product TEXT")
                 self.log.debug("creating initial db tables for %s plugin." % 
                                PLUGIN_NAME)
                 
