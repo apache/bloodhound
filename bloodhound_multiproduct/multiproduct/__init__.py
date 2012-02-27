@@ -18,4 +18,4 @@
 
 """multiproduct module"""
 from model import MultiProductEnvironmentProvider
-
+from ticket_web_ui import ProductTicketModule
