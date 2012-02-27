@@ -17,10 +17,12 @@
 #  under the License.
 
 """Models to support multi-product"""
+from pkg_resources import resource_filename
 from trac.core import Component, TracError, implements
 from trac.resource import ResourceNotFound
 from trac.db import Table, Column, DatabaseManager
 from trac.env import IEnvironmentSetupParticipant
+from trac.web.chrome import ITemplateProvider
 from trac.resource import Resource
 
 DB_VERSION = 1
@@ -245,9 +247,9 @@ class ProductResourceMap(ModelBase):
         self.update()
 
 class MultiProductEnvironmentProvider(Component):
-    """Provides the means to create the db tables"""
+    """Creates the database tables and template directories"""
     
-    implements(IEnvironmentSetupParticipant)
+    implements(IEnvironmentSetupParticipant, ITemplateProvider)
     
     SCHEMA = [
         Table('bloodhound_product', key = 'prefix') [
@@ -308,4 +310,13 @@ class MultiProductEnvironmentProvider(Component):
                     for statement in db_connector.to_sql(table):
                         db(statement)
                 db_installed_version = self.get_version()
+    
+    # ITemplateProvider methods
+    def get_templates_dirs(self):
+        """provide the plugin templates"""
+        return [resource_filename(__name__, 'templates')]
+    
+    def get_htdocs_dirs(self):
+        """proved the plugin htdocs"""
+        return []
 
