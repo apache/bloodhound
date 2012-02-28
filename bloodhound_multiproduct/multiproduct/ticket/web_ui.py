@@ -30,7 +30,7 @@ from trac.util.datefmt import from_utimestamp
 from trac.util.translation import _, tag_
 from genshi.builder import tag
 
-from model import Product
+from multiproduct.model import Product
 
 PRODUCT_RE = re.compile(r'^/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 TICKET_RE = re.compile(r'/ticket/(?P<ticket>[0-9]+)$')
