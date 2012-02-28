@@ -40,7 +40,8 @@ class ProductTicketModule(TicketModule):
     # IRequestHandler methods
     def match_request(self, req):
         """Override of TicketModule match_request"""
-        match = PRODUCT_RE.match(req.path_info)
+        pathinfo = req.path_info[:]
+        match = PRODUCT_RE.match(pathinfo)
         if match:
             pid = match.group('pid')
             products = Product.select(self.env, where={'prefix':pid})
@@ -48,18 +49,20 @@ class ProductTicketModule(TicketModule):
                 req.args['productid'] = match.group('pid')
                 req.args['product'] = products[0].name
                 pathinfo = match.group('pathinfo')
-                # is it a newticket request:
-                if pathinfo == "/newticket":
-                    return True
-                tmatch = TICKET_RE.match(pathinfo)
-                if tmatch:
-                    req.args['id'] = tmatch.group('ticket')
-                    return True
+            
+        # is it a newticket request:
+        if pathinfo == "/newticket":
+            return True
+        tmatch = TICKET_RE.match(pathinfo)
+        if tmatch:
+            req.args['id'] = tmatch.group('ticket')
+            return True
     
     def process_request(self, req):
         """Override for TicketModule process_request"""
         if 'id' in req.args:
-            if req.path_info == '/' + req.args['product'] + '/newticket':
+            if (req.path_info == '/newticket' or
+               '/' + req.args['product'] + '/newticket'):
                 raise TracError(_("id can't be set for a new ticket request"))
             return self._process_ticket_request(req)
             #switch to the surrogate key
