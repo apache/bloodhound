@@ -23,6 +23,7 @@ setup(
     name = 'BloodhoundMultiProduct',
     version = '0.0.1',
     packages = ['multiproduct', 'tests',],
+    package_data = {'multiproduct' : ['templates/*.html',]},
     entry_points = {'trac.plugins':['multiproduct = multiproduct',],},
     test_suite = "tests",
 )
