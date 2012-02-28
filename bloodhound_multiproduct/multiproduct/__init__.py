@@ -18,4 +18,5 @@
 
 """multiproduct module"""
 from model import MultiProductEnvironmentProvider
+from product_admin import ProductAdminPanel
 from ticket_web_ui import ProductTicketModule
