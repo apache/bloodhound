@@ -61,8 +61,10 @@ class ProductTicketModule(TicketModule):
     def process_request(self, req):
         """Override for TicketModule process_request"""
         if 'id' in req.args:
-            if (req.path_info == '/newticket' or
-               '/' + req.args['product'] + '/newticket'):
+            pathinfo = req.path_info
+            prod = req.args.get('product')
+            if ((prod is not None and pathinfo == '/' + prod + '/newticket') or
+                (pathinfo == '/newticket')):
                 raise TracError(_("id can't be set for a new ticket request"))
             return self._process_ticket_request(req)
             #switch to the surrogate key
