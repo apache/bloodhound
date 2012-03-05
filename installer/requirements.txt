@@ -1,0 +1,7 @@
+Pygments
+pytz
+Babel
+Genshi
+-e svn+https://svn.github.com/bloodhound-trac/trac.git#egg=Trac
+-e svn+https://trac-hacks.org/svn/accountmanagerplugin/0.11#egg=TracAccountManager
+-e svn+https://svn.apache.org/repos/asf/incubator/bloodhound/trunk/bloodhound_multiproduct#egg=BloodhoundMultiProduct
