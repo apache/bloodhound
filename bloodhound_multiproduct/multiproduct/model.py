@@ -29,6 +29,23 @@ DB_VERSION = 1
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
 
+def dict_to_kv_str(data=None, sep=' AND '):
+    """Converts a dictionary into a string and a list suitable for using as part
+    of an SQL where clause like:
+        ('key0=%s AND key1=%s', ['value0','value1'])
+    The sep argument allows ' AND ' to be changed for ',' for UPDATE purposes
+    """
+    if data is None:
+        return ('', [])
+    return (sep.join(['%s=%%s' % k for k in data.keys()]), data.values())
+
+def fields_to_kv_str(fields, data, sep=' AND '):
+    """Converts a list of fields and a dictionary containing those fields into a
+    string and a list suitable for using as part of an SQL where clause like:
+        ('key0=%s,key1=%s', ['value0','value1'])
+    """
+    return dict_to_kv_str(dict([(f, data[f]) for f in fields]), sep)
+
 class ModelBase(object):
     """Base class for the models to factor out common features
     Derived classes should provide a meta dictionary to describe the table like:
@@ -94,8 +111,7 @@ class ModelBase(object):
     def _get_row(self, keys):
         """queries the database and stores the result in the model"""
         row = None
-        key_fields = self._meta['key_fields']
-        where = ','.join(['%s="%s"' % (k, keys[k]) for k in key_fields])
+        where, values = fields_to_kv_str(self._meta['key_fields'], keys)
         fields = ','.join(self._meta['key_fields']+self._meta['non_key_fields'])
         sdata = {'fields':fields,
                  'where':where}
@@ -104,7 +120,7 @@ class ModelBase(object):
         sql = """SELECT %(fields)s FROM %(table_name)s
                  WHERE %(where)s""" % sdata
         with self._env.db_query as db:
-            for row in db(sql):
+            for row in db(sql, values):
                 self._update_from_row(row)
                 break
             else:
@@ -115,13 +131,13 @@ class ModelBase(object):
         """Deletes the matching record from the database"""
         if not self._exists:
             raise TracError('%(object_name)s does not exist' % self._meta)
-        sdata = {'where':','.join(['%s="%s"' % (k, self._data[k])
-                                   for k in self._meta['key_fields']])}
+        where, values = fields_to_kv_str(self._meta['key_fields'], self._data)
+        sdata = {'where': where}
         sdata.update(self._meta)
         sql = """DELETE FROM %(table_name)s
                  WHERE %(where)s""" % sdata
         with self._env.db_transaction as db:
-            db(sql)
+            db(sql, values)
             self._exists = False
             self._data = dict([(k, None) for k in self._data.keys()])
             self._old_data.update(self._data)
@@ -131,7 +147,7 @@ class ModelBase(object):
         if self._exists or len(self.select(self._env, where =
                                 dict([(k,self._data[k])
                                       for k in self._meta['key_fields']]))):
-            sdata = {'keys':','.join(['%s="%s"' % (k, self._data[k])
+            sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
                                      for k in self._meta['key_fields']])}
             sdata.update(self._meta)
             raise TracError('%(object_name)s %(keys)s already exists' %
@@ -145,13 +161,13 @@ class ModelBase(object):
                                 sdata)
         fields = self._meta['key_fields']+self._meta['non_key_fields']
         sdata = {'fields':','.join(fields),
-                 'values':','.join(['"%s"' % self._data[f] for f in fields])}
+                 'values':','.join(['%s'] * len(fields))}
         sdata.update(self._meta)
         
         sql = """INSERT INTO %(table_name)s (%(fields)s)
                  VALUES (%(values)s)""" % sdata
         with self._env.db_transaction as db:
-            db(sql)
+            db(sql, [self._data[f] for f in fields])
             self._exists = True
             self._old_data.update(self._data)
 
@@ -163,15 +179,17 @@ class ModelBase(object):
             if self._data[key] != self._old_data[key]:
                 raise TracError('%s cannot be changed' % key)
         
-        sdata = {'where':','.join(['%s="%s"' % (k, self._data[k])
-                                   for k in self._meta['key_fields']]),
-                 'values':','.join(['%s="%s"' % (k, self._data[k]) 
-                                    for k in self._meta['non_key_fields']])}
+        setsql, setvalues = fields_to_kv_str(self._meta['non_key_fields'],
+                                             self._data, sep=',')
+        where, values = fields_to_kv_str(self._meta['key_fields'], self._data)
+        
+        sdata = {'where': where,
+                 'values': setsql}
         sdata.update(self._meta)
         sql = """UPDATE %(table_name)s SET %(values)s
                  WHERE %(where)s""" % sdata
         with self._env.db_transaction as db:
-            db(sql)
+            db(sql, setvalues + values)
             self._old_data.update(self._data)
     
     @classmethod
@@ -182,12 +200,11 @@ class ModelBase(object):
         
         sdata = {'fields':','.join(fields),}
         sdata.update(cls._meta)
-        sql = 'SELECT %(fields)s FROM %(table_name)s' % sdata
-        wherestr = ''
-        if where is not None:
-            wherestr = ' WHERE ' + ','.join(['%s="%s"' % (k, v) 
-                                             for k, v in where.iteritems()])
-        for row in env.db_query(sql+wherestr):
+        sql = r'SELECT %(fields)s FROM %(table_name)s' % sdata
+        wherestr, values = dict_to_kv_str(where)
+        if wherestr:
+            wherestr = ' WHERE ' + wherestr
+        for row in env.db_query(sql + wherestr, values):
             # we won't know which class we need until called
             model = cls.__new__(cls)
             data = dict([(fields[i], row[i]) for i in range(len(fields))])
@@ -269,8 +286,8 @@ class MultiProductEnvironmentProvider(Component):
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
         rows = self.env.db_query("""
-            SELECT value FROM system WHERE name = '%s'
-            """ % DB_SYSTEM_KEY)
+            SELECT value FROM system WHERE name = %s
+            """, (DB_SYSTEM_KEY,))
         return int(rows[0][0]) if rows else -1
     
     # IEnvironmentSetupParticipant methods

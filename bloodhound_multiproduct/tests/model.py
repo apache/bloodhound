@@ -18,7 +18,6 @@
 
 """Tests for multiproduct/model.py"""
 import unittest
-import os
 import tempfile
 import shutil
 
@@ -72,14 +71,17 @@ class ProductTestCase(unittest.TestCase):
         product2.insert()
         product3.insert()
         
-        products = list(Product.select(self.env, {'prefix':'tp'}))
+        products = list(Product.select(self.env, where={'prefix':'tp'}))
         self.assertEqual(1, len(products))
-        products = list(Product.select(self.env, {'name':'test project'}))
+        products = list(Product.select(self.env, where={'name':'test project'}))
         self.assertEqual(3, len(products))
+        products = list(Product.select(self.env, where={'prefix':'tp3',
+                                                        'name':'test project'}))
+        self.assertEqual(1, len(products))
     
     def test_update(self):
         """tests that we can use update to push data to the database"""
-        product = list(Product.select(self.env, {'prefix':'tp'}))[0]
+        product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         self.assertEqual('test project', product._data['name'])
         
         new_data = {'prefix':'tp', 
@@ -88,7 +90,7 @@ class ProductTestCase(unittest.TestCase):
         product._data.update(new_data)
         product.update()
         
-        comp_product = list(Product.select(self.env, {'prefix':'tp'}))[0]
+        comp_product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         self.assertEqual('updated', comp_product._data['name'])
     
     def test_update_key_change(self):
@@ -96,7 +98,7 @@ class ProductTestCase(unittest.TestCase):
         bad_data = {'prefix':'tp0', 
                     'name':'update', 
                     'description':'nothing'}
-        product = list(Product.select(self.env, {'prefix':'tp'}))[0]
+        product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         product._data.update(bad_data)
         self.assertRaises(TracError, product.update)
     
@@ -107,7 +109,7 @@ class ProductTestCase(unittest.TestCase):
         product._data.update(data)
         product.insert()
         
-        check_products = list(Product.select(self.env, {'prefix':'new'}))
+        check_products = list(Product.select(self.env, where={'prefix':'new'}))
         
         self.assertEqual(product._data['prefix'],
                          check_products[0]._data['prefix'])
@@ -124,15 +126,15 @@ class ProductTestCase(unittest.TestCase):
     
     def test_delete(self):
         """test that we are able to delete Products"""
-        product = list(Product.select(self.env, {'prefix':'tp'}))[0]
+        product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         product.delete()
         
-        post = list(Product.select(self.env, {'prefix':'tp'}))
+        post = list(Product.select(self.env, where={'prefix':'tp'}))
         self.assertEqual(0, len(post))
         
     def test_delete_twice(self):
         """test that we error when deleting twice on the same key"""
-        product = list(Product.select(self.env, {'prefix':'tp'}))[0]
+        product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         product.delete()
         
         self.assertRaises(TracError, product.delete)
@@ -142,7 +144,7 @@ class ProductTestCase(unittest.TestCase):
         prefix = self.default_data['prefix']
         name = self.default_data['name']
         description = self.default_data['description']
-        product = list(Product.select(self.env, {'prefix':prefix}))[0]
+        product = list(Product.select(self.env, where={'prefix':prefix}))[0]
         self.assertEqual(prefix, product.prefix)
         self.assertEqual(name, product.name)
         self.assertEqual(description, product.description)
@@ -150,7 +152,7 @@ class ProductTestCase(unittest.TestCase):
     def test_field_set(self):
         """tests that we can use table.field = something to set field data"""
         prefix = self.default_data['prefix']
-        product = list(Product.select(self.env, {'prefix':prefix}))[0]
+        product = list(Product.select(self.env, where={'prefix':prefix}))[0]
         
         new_description = 'test change of description'
         product.description = new_description
