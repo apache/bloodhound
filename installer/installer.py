@@ -27,8 +27,12 @@ import platform
 import sys
 from getpass import getpass
 
-from virtualenv import create_environment
+import virtualenv
 from createdigest import htdigest_create
+
+if not hasattr(virtualenv, 'logger'):
+    virtualenv.logger = virtualenv.Logger([(virtualenv.Logger.LEVELS[-1], 
+                                          sys.stdout)])
 
 DEFAULT_DB_USER = 'bloodhound'
 DEFAULT_DB_NAME = 'bloodhound'
@@ -119,7 +123,8 @@ def do_install(options):
     bindir = os.path.join(options.venvpath,'bin')
     admin = os.path.join(bindir, 'trac-admin')
     
-    create_environment(options.venvpath, site_packages=options.syspackages)
+    virtualenv.create_environment(options.venvpath, 
+                                  site_packages=options.syspackages)
     
     def run_pip(venvpath, requirements):
         """Run pip install"""
