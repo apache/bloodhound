@@ -1,0 +1,5844 @@
+# Armenian (Republic of Armenia) translations for Trac.
+# Copyright (C) 2010 Edgewall Software
+# This file is distributed under the same license as the Trac project.
+# Instigate Training Center: Narine Martirosyan <training@instigate.am>, 2010
+msgid ""
+msgstr ""
+"Project-Id-Version: Trac 0.12\n"
+"Report-Msgid-Bugs-To: trac-dev@googlegroups.com\n"
+"POT-Creation-Date: 2010-05-24 23:55+0200\n"
+"PO-Revision-Date: 2010-06-04 10:09+0400\n"
+"Last-Translator: \n"
+"Language-Team: hy_AM <trac-dev@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: tracopt/mimeview/php.py:97
+msgid "You appear to be using the PHP CGI binary. Trac requires the CLI version for syntax highlighting."
+msgstr "Դուք օգտագործում եք բինար PHP CGI։ Trac-ը պահանջում է CLI տարբերակը շարահյուսական գունավորման համար։"
+
+#: tracopt/ticket/deleter.py:69
+#: tracopt/ticket/deleter.py:82
+#: trac/ticket/templates/report_list.html:35
+msgid "Delete"
+msgstr "Ջնջել"
+
+#: tracopt/ticket/deleter.py:70
+#: tracopt/ticket/templates/ticket_delete.html:43
+msgid "Delete ticket"
+msgstr "Ստեղծել խնդիրը"
+
+#: tracopt/ticket/deleter.py:83
+#, python-format
+msgid "Delete comment %(num)s"
+msgstr "Ջնջել #%(num)s մեկնաբանությունը"
+
+#: tracopt/ticket/deleter.py:130
+#, python-format
+msgid "The ticket #%(id)s has been deleted."
+msgstr "#%(id)s զեկույցը ջնջված է։"
+
+#: tracopt/ticket/deleter.py:137
+#, python-format
+msgid "The ticket comment %(num)s on ticket #%(id)s has been deleted."
+msgstr "Խնդրի %(num)s մեկնաբանությունը #%(id)s խնդրի համար ջնջված է։"
+
+#: tracopt/ticket/deleter.py:156
+#, python-format
+msgid "Comment %(num)s not found"
+msgstr "%(num)s մեկնաբանությունը չի գտնվել"
+
+#: tracopt/ticket/templates/ticket_delete.html:11
+#, python-format
+msgid "Delete Ticket #%(id)s"
+msgstr "Ջնջել խնդիր #%(id)s"
+
+#: tracopt/ticket/templates/ticket_delete.html:12
+#: tracopt/ticket/templates/ticket_delete.html:49
+#, python-format
+msgid "Delete comment %(num)s on Ticket #%(id)s"
+msgstr "Ջնջել %(num)s մեկնաբանությունը #%(id)s խնդրի համար"
+
+#: tracopt/ticket/templates/ticket_delete.html:20
+#, python-format
+msgid "Delete [1:Ticket #%(id)s]"
+msgstr "Ջնջել [1:Ticket #%(id)s]"
+
+#: tracopt/ticket/templates/ticket_delete.html:33
+msgid "Are you sure you want to delete this ticket?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս խնդիրը։"
+
+#: tracopt/ticket/templates/ticket_delete.html:34
+#, python-format
+msgid ""
+"(comments: %(comments)s,\n"
+"                 attachments: %(attachments)s)"
+msgstr ""
+"(comments: %(comments)s,\n"
+"                 կցված նյութերը: %(attachments)s)"
+
+#: tracopt/ticket/templates/ticket_delete.html:37
+#: tracopt/ticket/templates/ticket_delete.html:68
+#: trac/templates/attachment.html:70
+#: trac/wiki/templates/wiki_delete.html:46
+msgid "This is an irreversible operation."
+msgstr "Տվյալ գործողությունն անդառնալի է։"
+
+#: tracopt/ticket/templates/ticket_delete.html:42
+#: tracopt/ticket/templates/ticket_delete.html:72
+#: trac/admin/templates/admin_components.html:55
+#: trac/admin/templates/admin_enums.html:24
+#: trac/admin/templates/admin_milestones.html:68
+#: trac/admin/templates/admin_versions.html:45
+#: trac/templates/attachment.html:63
+#: trac/templates/attachment.html:76
+#: trac/ticket/templates/milestone_delete.html:40
+#: trac/ticket/templates/milestone_edit.html:94
+#: trac/ticket/templates/report_delete.html:21
+#: trac/ticket/templates/report_edit.html:44
+#: trac/ticket/templates/ticket_change.html:49
+#: trac/versioncontrol/templates/admin_repositories.html:84
+#: trac/wiki/templates/wiki_delete.html:50
+#: trac/wiki/templates/wiki_edit_form.html:77
+#: trac/wiki/templates/wiki_rename.html:32
+msgid "Cancel"
+msgstr "Մերժել"
+
+#: tracopt/ticket/templates/ticket_delete.html:56
+msgid "comment:"
+msgstr "Մեկնաբանություն․"
+
+#: tracopt/ticket/templates/ticket_delete.html:58
+#: trac/ticket/templates/ticket.html:142
+#, python-format
+msgid "Changed %(date)s ago by %(author)s"
+msgstr "Փոփոխված է %(date)s առաջ %(author)s-ի կողմից"
+
+#: tracopt/ticket/templates/ticket_delete.html:68
+msgid "Are you sure you want to delete this ticket comment?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս խնդրի մեկնաբանությունը։"
+
+#: tracopt/ticket/templates/ticket_delete.html:73
+msgid "Delete comment"
+msgstr "Ջնջել մեկնաբանությունը"
+
+#: trac/about.py:47
+#: trac/templates/about.html:10
+#: trac/templates/about.html:29
+msgid "About Trac"
+msgstr "Trac-ի մասին"
+
+#: trac/attachment.py:152
+#, python-format
+msgid "Attachment '%(title)s' does not exist."
+msgstr "'%(title)s' կցված նյութը գոյություն չունի։"
+
+#: trac/attachment.py:154
+msgid "Invalid Attachment"
+msgstr "Անթույլատրելի կցում"
+
+#: trac/attachment.py:194
+msgid "Could not delete attachment"
+msgstr "Հնարավոր չէ հեռացնել կցված նյութը"
+
+#: trac/attachment.py:210
+#, python-format
+msgid "Cannot reparent attachment \"%(att)s\" as it already exists in %(realm)s:%(id)s"
+msgstr "Չի հաջողվում կրկին կցել \"%(att)s\" քանի որ այն արդեն գոյություն ունի %(realm)s:%(id)s"
+
+#: trac/attachment.py:229
+#, python-format
+msgid "Could not reparent attachment %(name)s"
+msgstr "Հնարավոր չէ կռկին անգամ կցել %(name)s"
+
+#: trac/attachment.py:346
+#, python-format
+msgid "Attachment '%(filename)s' not found"
+msgstr "'%(filename)s' կցված նյութը գտնված չէ"
+
+#: trac/attachment.py:420
+msgid "Bad request"
+msgstr "Սխալ հարցում"
+
+#: trac/attachment.py:437
+#, python-format
+msgid "Back to %(parent)s"
+msgstr "Վերադառնալ %(parent)s-ին"
+
+#: trac/attachment.py:530
+#, python-format
+msgid "%(attachment)s attached to %(resource)s"
+msgstr "%(attachment)s կցված է %(resource)s"
+
+#: trac/attachment.py:587
+#, python-format
+msgid "Unparented attachment %(id)s"
+msgstr "Անթույլատրելի կցում․ %(id)s"
+
+#: trac/attachment.py:595
+#, python-format
+msgid "Attachment '%(id)s' in %(parent)s"
+msgstr "'%(id)s' կցված նյութը %(parent)s-ում"
+
+#: trac/attachment.py:598
+#, python-format
+msgid "Attachments of %(parent)s"
+msgstr "%(parent)s-ի կցված նյութերը"
+
+#: trac/attachment.py:615
+msgid "%(parent)s doesn't exist, can't create attachment"
+msgstr "%(parent)s գոյություն չունի, չի հաջողվել ստեղծել կցումը։"
+
+#: trac/attachment.py:622
+#: trac/attachment.py:645
+#: trac/admin/web_ui.py:425
+#: trac/admin/web_ui.py:428
+#: trac/admin/web_ui.py:432
+msgid "No file uploaded"
+msgstr "Ոչ մի Ֆայլ վեր բեռնավորված չէ"
+
+#: trac/attachment.py:630
+msgid "Can't upload empty file"
+msgstr "Հնարավոր չէ վեր բեռնավորել դատարկ ֆայլ"
+
+#: trac/attachment.py:635
+#, python-format
+msgid "Maximum attachment size: %(num)s bytes"
+msgstr "Կցված նյութի առավելագույն չափը՝ %(num)s բայթ"
+
+#: trac/attachment.py:636
+msgid "Upload failed"
+msgstr "Ուղարկելը խափանվեց"
+
+#: trac/attachment.py:658
+#, python-format
+msgid "Attachment field %(field)s is invalid: %(message)s"
+msgstr "Կցված նյութի %(field)s դաշտը անթույլատրելի է․ %(message)s"
+
+#: trac/attachment.py:662
+#, python-format
+msgid "Invalid attachment: %(message)s"
+msgstr "Անթույլատրելի կցում․ %(message)s"
+
+#: trac/attachment.py:672
+#, python-format
+msgid "You don't have permission to replace the attachment %(name)s. You can only replace your own attachments. Replacing other's attachments requires ATTACHMENT_DELETE permission."
+msgstr "Դուք չունեք թույլտվություն փոխարինելու %(name)s կցված նյութը։ Դուք կարող եք փոխարինել միայն Ձեր սեփական կցված նյութը։ Այլ կցվածների փոխարինումը պահանջում է ATTACHMENT_DELETE թույլտվություն։"
+
+#: trac/attachment.py:704
+#, python-format
+msgid "%(attachment)s (delete)"
+msgstr "%(attachment)s (հեռացնել)"
+
+#: trac/attachment.py:765
+#: trac/versioncontrol/web_ui/browser.py:646
+#: trac/wiki/web_ui.py:68
+msgid "Plain Text"
+msgstr "Հասարակ Տեքստ"
+
+#: trac/attachment.py:771
+#: trac/versioncontrol/web_ui/browser.py:652
+msgid "Original Format"
+msgstr "Սկզբնական Ֆորմատ"
+
+#: trac/attachment.py:813
+#: trac/attachment.py:819
+#: trac/templates/list_of_attachments.html:20
+#: trac/templates/list_of_attachments.html:21
+#: trac/ticket/templates/ticket_change.html:21
+#: trac/ticket/templates/ticket_change.html:22
+msgid "Download"
+msgstr "Բեռնել"
+
+#: trac/attachment.py:914
+#, python-format
+msgid "Invalid resource identifier '%(id)s'"
+msgstr "Անթույլատրելի ռեսուրսի իդենտիֆիկատոր '%(id)s'"
+
+#: trac/attachment.py:950
+#: trac/admin/templates/admin_components.html:80
+#: trac/admin/templates/admin_enums.html:48
+#: trac/admin/templates/admin_milestones.html:104
+#: trac/admin/templates/admin_versions.html:77
+#: trac/templates/about.html:84
+#: trac/templates/error.html:160
+#: trac/ticket/admin.py:209
+#: trac/ticket/admin.py:400
+#: trac/ticket/admin.py:559
+#: trac/versioncontrol/admin.py:110
+#: trac/versioncontrol/templates/admin_repositories.html:125
+#: trac/web/session.py:314
+msgid "Name"
+msgstr "Անվանում"
+
+#: trac/attachment.py:950
+msgid "Size"
+msgstr "Չափ"
+
+#: trac/attachment.py:950
+#: trac/templates/history_view.html:30
+#: trac/ticket/templates/ticket.html:361
+#: trac/versioncontrol/templates/revisionlog.html:98
+msgid "Author"
+msgstr "Հեղինակ"
+
+#: trac/attachment.py:950
+#: trac/templates/history_view.html:29
+msgid "Date"
+msgstr "Ամսաթիվ"
+
+#: trac/attachment.py:951
+#: trac/templates/attachment.html:93
+#: trac/ticket/api.py:289
+#: trac/ticket/templates/ticket_box.html:60
+msgid "Description"
+msgstr "Նկարագրություն"
+
+#: trac/attachment.py:976
+#: trac/wiki/admin.py:104
+#, python-format
+msgid "File '%(name)s' exists"
+msgstr "'%(name)s' ֆայլն արդեն գոյություն ունի"
+
+#: trac/config.py:39
+msgid "Configuration Error"
+msgstr "Կարգավորման սխալ"
+
+#: trac/config.py:403
+#, python-format
+msgid "[%(section)s] %(entry)s: expected integer, got %(value)s"
+msgstr "[%(section)s] %(entry)s: սպասվող ամբողջ թիվ, ընդունվեց %(value)s"
+
+#: trac/config.py:421
+#, python-format
+msgid "[%(section)s] %(entry)s: expected float, got %(value)s"
+msgstr "[%(section)s] %(entry)s: սպասվող ամբողջ թիվ, ընդունվեց %(value)s"
+
+#: trac/config.py:605
+#, python-format
+msgid "[%(section)s] %(entry)s: expected one of (%(choices)s), got %(value)s"
+msgstr "[%(section)s] %(entry)s: սպասվում է (%(choices)s)-ից մեկը, ստացվել է %(value)s"
+
+#: trac/core.py:33
+msgid "Trac Error"
+msgstr "Trac-ի սխալ"
+
+#: trac/env.py:153
+msgid "Visit the Trac open source project at<br /><a href=\"http://trac.edgewall.org/\">http://trac.edgewall.org/</a>"
+msgstr "Այցելեք Trac բաց կոդով պրոյեկտ <br /><a href=\"http://trac.edgewall.org/\">http://trac.edgewall.org/</a>"
+
+#: trac/env.py:582
+msgid "Database newer than Trac version"
+msgstr "Տվյալների բազան ավելի նոր է, քան Trac-ի տարբերակը"
+
+#: trac/env.py:599
+#, python-format
+msgid "No upgrade module for version %(num)i (%(version)s.py)"
+msgstr "Նորացման մոդուլը %(num)i (%(version)s.py) տարբերակի համար գտնված չէ"
+
+#: trac/env.py:645
+msgid "Missing environment variable \"TRAC_ENV\". Trac requires this variable to point to a valid Trac environment."
+msgstr "\"TRAC_ENV\" միջավայրի փոփոխականը բացակայում է։ Trac-ին անհրաժեշտ է, որ տրված փոփոխականը ցույց տա  Trac միջավայրի ճիշտ ճանապարհի վրա։"
+
+#: trac/env.py:677
+#, python-format
+msgid ""
+"The Trac Environment needs to be upgraded.\n"
+"\n"
+"Run \"trac-admin %(path)s upgrade\""
+msgstr ""
+"Պահանջվում է թարմացնել Trac Միջավայրը։\n"
+"\n"
+"Աշխատեցրեք  \"trac-admin %(path)s upgrade\""
+
+#: trac/env.py:711
+msgid "Copying resources from:"
+msgstr "Ռեսուրսների պատճենում հետևյալից․"
+
+#: trac/env.py:727
+msgid "Creating scripts."
+msgstr "Սկրիպտերի ստեղծում։"
+
+#: trac/env.py:742
+#, python-format
+msgid "hotcopy can't overwrite existing '%(dest)s'"
+msgstr "պատճենում գործողությունը չի կարող վերգրել գոյություն ունեցող \"%(dest)s\"-ը"
+
+#: trac/env.py:752
+#, python-format
+msgid "Hotcopying %(src)s to %(dst)s ..."
+msgstr "%(src)s պատճենում  %(dst)s ..."
+
+#: trac/env.py:767
+msgid "The following errors happened while copying the environment:"
+msgstr "Հետևյալ սխալները առաջացել են միջավայրի  պատճենման ժամանակ․"
+
+#: trac/env.py:778
+msgid "Hotcopy done."
+msgstr "Hotcopy կատարված է։"
+
+#: trac/env.py:783
+#: trac/admin/api.py:130
+msgid "Invalid arguments"
+msgstr "Սխալ արգումենտներ"
+
+#: trac/env.py:786
+msgid "Database is up to date, no upgrade necessary."
+msgstr "Տվյալների բազան նոր է, կարիք չկա թարմացնելու։"
+
+#: trac/env.py:794
+#, python-format
+msgid ""
+"Backup failed with '%(msg)s'.\n"
+"Use '--no-backup' to upgrade without doing a backup."
+msgstr ""
+"Արխիվացումը խափանվեց '%(msg)s'-ով.\n"
+"Օգտագործեք \"--no-backup\" առանց արխիվացման թարմացնելու համար։"
+
+#: trac/env.py:808
+msgid ""
+"Warning: the wiki-macros directory in the environment is non-empty, but Trac\n"
+"doesn't load plugins from there anymore. Please remove it by hand."
+msgstr ""
+"Զգուշացում՝ wiki-macros կատալոգը դատարկ չէ․ բայց Trac\n"
+"այլևս այդտեղից չի բեռնում փլագինները։ Խնդրում ենք ջնջել այն ձեռքով։"
+
+#: trac/env.py:819
+#, python-format
+msgid ""
+"Error while removing wiki-macros: %(err)s\n"
+"Trac doesn't load plugins from wiki-macros anymore. Please remove it by hand."
+msgstr "Սխալ է տեղի ունեցել wiki-macros: %(err)s հեռացնելիս․ Խնդրում ենք ջնջել այն ձեռքով։"
+
+#: trac/env.py:821
+#, python-format
+msgid ""
+"Upgrade done.\n"
+"\n"
+"You may want to upgrade the Trac documentation now by running:\n"
+"\n"
+"  trac-admin %(path)s wiki upgrade"
+msgstr ""
+"Թարմացումը կատարված է։\n"
+"\n"
+"Հնարավոր է դուէ ցանկանում եք թարմացնել Trac-ի փաստաթղթերը՝ աշխատեցնելով:\n"
+"\n"
+"  trac-admin %(path)s wiki upgrade"
+
+#: trac/notification.py:155
+msgid "TLS enabled but server does not support TLS"
+msgstr "TLS-ը միացված է, սակայն սերվերը չի ապահովում TLS"
+
+#: trac/notification.py:303
+#, python-format
+msgid "Invalid email encoding setting: %(pref)s"
+msgstr "Էլեկտրոնային փոստի կոդավորման ոչ ճիշտ կարգավորումներ: %(pref)s"
+
+#: trac/notification.py:317
+msgid "Unable to send email due to identity crisis."
+msgstr "Հնարավոր չէ ուղարկել նամակը իդենտիֆիկացման կրիզիսի պատճառով։"
+
+#: trac/notification.py:321
+#, python-format
+msgid "Neither %(from_)s nor %(reply_to)s are specified in the configuration."
+msgstr "Կարգավորման մեջ նշված չէ ոչ %(from_)s ոչ էլ %(reply_to)s։"
+
+#: trac/notification.py:322
+msgid "SMTP Notification Error"
+msgstr "SMTP զգուշացման սխալ"
+
+#: trac/notification.py:331
+msgid "Header length is too short"
+msgstr "Վերնագրի երկարությունը չափազանց կարճ է"
+
+#: trac/perm.py:48
+#, python-format
+msgid "%(perm)s privileges are required to perform this operation on %(resource)s"
+msgstr "Այս գործողությունը %(resource)s-ի վրա կատարելու համար անհրաժեշտ են %(perm)s արտոնություններ"
+
+#: trac/perm.py:50
+#, python-format
+msgid "%(perm)s privileges are required to perform this operation"
+msgstr "Այս գործողությունը կատարելու համար անհրաժեշտ են %(perm)s արտոնություններ"
+
+#: trac/perm.py:55
+msgid "Insufficient privileges to perform this operation."
+msgstr "Այս գործողությունը կատարելու համար արտոնությունները բավարար չեն։"
+
+#: trac/perm.py:333
+#, python-format
+msgid "%(name)s is not a valid action."
+msgstr "%(name)s-ը թույլատրելի գործողություն չէ։"
+
+#: trac/perm.py:643
+msgid "User"
+msgstr "Օգտագործող"
+
+#: trac/perm.py:643
+#: trac/admin/templates/admin_perms.html:70
+#: trac/ticket/templates/ticket.html:339
+msgid "Action"
+msgstr "Գործողություն"
+
+#: trac/perm.py:645
+msgid "Available actions:"
+msgstr "Առկա գործողություները․"
+
+#: trac/perm.py:656
+#: trac/admin/web_ui.py:333
+msgid "All upper-cased tokens are reserved for permission names"
+msgstr "Մեծատառերով գրված բոլոր բառերը վերապահված են թույլտվության անունների համար "
+
+#: trac/resource.py:336
+#, python-format
+msgid "%(name)s at version %(version)s"
+msgstr "%(name)s %(version)s տարբերակում"
+
+#: trac/admin/api.py:134
+#: trac/admin/console.py:254
+msgid "Command not found"
+msgstr "Հրամանը գտնված չէ"
+
+#: trac/admin/console.py:111
+#: trac/ticket/templates/report_edit.html:34
+msgid "Error:"
+msgstr "Սխալ․"
+
+#: trac/admin/console.py:130
+#, python-format
+msgid ""
+"Welcome to trac-admin %(version)s\n"
+"Interactive Trac administration console.\n"
+"Copyright (c) 2003-2010 Edgewall Software\n"
+"\n"
+"Type:  '?' or 'help' for help on commands.\n"
+"        "
+msgstr ""
+"Բարի գալուստ trac-admin %(version)s\n"
+"Դիալոգային Trac ադմինիստրացիոն միջավայր:\n"
+"Copyright (c) 2003-2010 Edgewall Software\n"
+"\n"
+"Տպեք:  '?' կամ 'help' հրամանների օգնության համար։\n"
+"        "
+
+#: trac/admin/console.py:164
+#, python-format
+msgid "Failed to open environment: %(err)s"
+msgstr "Միջավայրի բացումը խափանվեց։ %(err)s"
+
+#: trac/admin/console.py:234
+#, python-format
+msgid "Completion error: %(err)s"
+msgstr "Եզրափակման սխալ`%(err)s"
+
+#: trac/admin/console.py:287
+#, python-format
+msgid "No documentation found for '%(cmd)s'"
+msgstr "\"%(cmd)s\"-ի համար թղթաբանություն չգտնվեց"
+
+#: trac/admin/console.py:289
+#, python-format
+msgid "trac-admin - The Trac Administration Console %(version)s"
+msgstr "trac-admin - Trac-ի ադմինիստրացիոն Console %(version)s"
+
+#: trac/admin/console.py:293
+msgid "Usage: trac-admin </path/to/projenv> [command [subcommand] [option ...]]\n"
+msgstr "Օգտագործումը: trac-admin </path/to/projenv> [command [subcommand] [option ...]]\n"
+
+#: trac/admin/console.py:296
+msgid "Invoking trac-admin without command starts interactive mode.\n"
+msgstr "Կանչելով trac-admin-ը առանց հրամանների՝ սկսվում է դիալոգային ռեժիմը։\n"
+
+#: trac/admin/console.py:336
+#, python-format
+msgid "Creating a new Trac environment at %(envname)s"
+msgstr "Նոր Trac միջավայրի ստեղծում %(envname)s-ում"
+
+#: trac/admin/console.py:338
+msgid ""
+"\n"
+"Trac will first ask a few questions about your environment \n"
+"in order to initialize and prepare the project database.\n"
+"\n"
+" Please enter the name of your project.\n"
+" This name will be used in page titles and descriptions.\n"
+msgstr ""
+"\n"
+"Նախ և առաջ Trac-ը կտա մի քանի հարցեր Ձեր միջավայրի մասին, \n"
+"որպեսզի ինիցիալիզացնի և պատրաստի պրոյեկտի տվյալների բազան։\n"
+"\n"
+"Մուտքագրեք Ձեր պրոյեկտի անվանումը։\n"
+"Այս անունը կօգտագործվի էջերի վերնագրում և նկարագրության մեջ։\n"
+
+#: trac/admin/console.py:346
+#, python-format
+msgid "Project Name [%(default)s]> "
+msgstr "Պրոյեկտի Անվանումը [%(default)s]> "
+
+#: trac/admin/console.py:348
+msgid ""
+" \n"
+" Please specify the connection string for the database to use.\n"
+" By default, a local SQLite database is created in the environment\n"
+" directory. It is also possible to use an already existing\n"
+" PostgreSQL database (check the Trac documentation for the exact\n"
+" connection string syntax).\n"
+msgstr ""
+" \n"
+" Որոշեք միացման տողը տվյալների բազան օգտագործելու համար։\n"
+" Լռությամբ ստեղծվում է մի լոկալ SQLite տվյալների բազա միջավայրի\n"
+" կատալոգում։ Նաև հնարավոր է օգտագործել արդեն գոյություն\n"
+" ունեցող PostgreSQL տվյալների բազա (կարդացեք Trac-ի թղթաբանությունը\n"
+" միացման տողի ճիշտ շարահյուսության համար)։\n"
+
+#: trac/admin/console.py:356
+#, python-format
+msgid "Database connection string [%(default)s]> "
+msgstr "Տվյալների բազայի միացման տող [%(default)s]> "
+
+#: trac/admin/console.py:363
+#, python-format
+msgid "Initenv for '%(env)s' failed."
+msgstr "Initenv '%(env)s'-ի համար խափանվեց։"
+
+#: trac/admin/console.py:366
+msgid "Does an environment already exist?"
+msgstr "%(name)s տարբերակն արդեն գոյություն ունի։"
+
+#: trac/admin/console.py:370
+msgid "Directory exists and is not empty."
+msgstr "կատալոգը գոյություն ունի և այն դատարկ չէ։"
+
+#: trac/admin/console.py:398
+msgid "Creating and Initializing Project"
+msgstr "Պրոյեկտի ստեղծում և Ինիցիալիզացում"
+
+#: trac/admin/console.py:415
+msgid "Failed to create environment."
+msgstr "Միջավայրի բացումը խափանվեց։"
+
+#: trac/admin/console.py:421
+msgid " Installing default wiki pages"
+msgstr "Լռությամբ wiki էջերի տեղադրում"
+
+#: trac/admin/console.py:430
+msgid " Indexing default repository"
+msgstr "Բազայի ինդեքսավորում"
+
+#: trac/admin/console.py:433
+msgid ""
+"\n"
+"---------------------------------------------------------------------\n"
+"Warning: couldn't index the default repository.\n"
+"\n"
+"This can happen for a variety of reasons: wrong repository type, \n"
+"no appropriate third party library for this repository type,\n"
+"no actual repository at the specified repository path...\n"
+"\n"
+"You can nevertheless start using your Trac environment, but \n"
+"you'll need to check again your trac.ini file and the [trac] \n"
+"repository_type and repository_path settings.\n"
+msgstr ""
+"\n"
+"---------------------------------------------------------------------\n"
+"Նախազգուշացում․ հնարավոր չէ ինդեքսավորել բազան.\n"
+"\n"
+"Սա կարող է պատահել մի քանի պատճառներով․ բազայի սխալ տեսակ, \n"
+"ոչ համապատասխան երրորդ կողմի գրադարան այս բազայի տեսակի համար,\n"
+"գոյություն չունի բազա նշված բազայի ճանապարհում...\n"
+"\n"
+"Այնուամենայնիվ Դուք կարող եք սկսել օգտագործել Ձեր Trac միջավայրը,\n"
+"բայց Դուք կարիք կունենաք ստուգել Ձեր trac.ini ֆայլը և [trac] \n"
+"repository_type և repository_path կարգավորումները,  Trac-ի բազայի բրոուզերը\n"
+"ակտիվացնելու համար:\n"
+
+#: trac/admin/console.py:476
+#, python-format
+msgid ""
+"\n"
+"---------------------------------------------------------------------\n"
+"Project environment for '%(project_name)s' created.\n"
+"\n"
+"You may now configure the environment by editing the file:\n"
+"\n"
+"  %(config_path)s\n"
+"\n"
+"If you'd like to take this new project environment for a test drive,\n"
+"try running the Trac standalone web server `tracd`:\n"
+"\n"
+"  tracd --port 8000 %(project_path)s\n"
+"\n"
+"Then point your browser to http://localhost:8000/%(project_dir)s.\n"
+"There you can also browse the documentation for your installed\n"
+"version of Trac, including information on further setup (such as\n"
+"deploying Trac to a real web server).\n"
+"\n"
+"The latest documentation can also always be found on the project\n"
+"website:\n"
+"\n"
+"  http://trac.edgewall.org/\n"
+"\n"
+"Congratulations!\n"
+msgstr ""
+"\n"
+"---------------------------------------------------------------------\n"
+"Պրոյեկտի միջավայրը '%(project_name)s'-ի համար ստեղծված է.\n"
+"\n"
+"Այժմ Դուք կարող եք կարգավորել միջավայրը՝ խմբագրելով ֆայլը:\n"
+"\n"
+"  %(config_path)s\n"
+"\n"
+"Եթե կցանկանաք տեստավորել այս նոր պրոյեկտի միջավայրը,\n"
+"փորձեք աշխատեցնել Trac-ի ինքնավար `tracd` վեբ սերվերը :\n"
+"  tracd --port 8000 %(project_path)s\n"
+"\n"
+"Այնուհետև Ձեր բրոուզերում տեղադրեք  http://localhost:8000/%(project_dir)s.\n"
+"Այնտեղ Դուք կարող եք նաև որոնել թղթաբանություն Trac-ի՝\n"
+" Ձեր տեղադրած տարբերակի համար, որը պարունակում է ինֆոր-\n"
+"մացիա հետագա տեղադրման մասին (այնպիսին ինչպիսին\n"
+"Trac-ի գործածումը իրական վեբ սերվերում).\n"
+"\n"
+"Վերջին թղթաբանությունը կարող եք գտնել պրոյեկտի\n"
+"վեբկայքում․\n"
+"\n"
+"  http://trac.edgewall.org/\n"
+"\n"
+"Շնորհավորում ենք !\n"
+
+#: trac/admin/console.py:536
+#, python-format
+msgid "Non-ascii environment path '%(path)s' not supported."
+msgstr "'%(path)s' non-ascii միջավայրի ճանապարհը ապահովված չէ։"
+
+#: trac/admin/web_ui.py:64
+msgid "Admin"
+msgstr "Ադմինիստրատոր"
+
+#: trac/admin/web_ui.py:65
+#: trac/admin/templates/admin.html:16
+msgid "Administration"
+msgstr "Ադմինիստրացում"
+
+#: trac/admin/web_ui.py:81
+msgid "No administration panels available"
+msgstr "Ադմինիստրացիոն վահանակները հասանելի չեն"
+
+#: trac/admin/web_ui.py:107
+#: trac/admin/web_ui.py:111
+msgid "Unknown administration panel"
+msgstr "Անհայտ ադմինիստրացման պանել"
+
+#: trac/admin/web_ui.py:185
+#: trac/ticket/admin.py:65
+#: trac/ticket/admin.py:90
+#: trac/ticket/admin.py:275
+#: trac/ticket/admin.py:457
+#: trac/ticket/admin.py:609
+#: trac/ticket/admin.py:695
+#: trac/ticket/report.py:189
+#: trac/ticket/roadmap.py:687
+#: trac/versioncontrol/admin.py:198
+msgid "Your changes have been saved."
+msgstr "Ձեր փոփոխությունները պահպանված են։"
+
+#: trac/admin/web_ui.py:190
+#: trac/ticket/admin.py:68
+msgid "Error writing to trac.ini, make sure it is writable by the web server. Your changes have not been saved."
+msgstr "Սխալ՝ trac.ini-ում գրելիս, համոզվեք, որ այն գրելի է վեբ սերվերի կողմից։ Ձեր փոփոխությունները պահպանված չեն։"
+
+#: trac/admin/web_ui.py:203
+#: trac/admin/web_ui.py:231
+#: trac/admin/web_ui.py:319
+#: trac/admin/web_ui.py:401
+#: trac/prefs/web_ui.py:86
+#: trac/prefs/templates/prefs_general.html:9
+msgid "General"
+msgstr "Ընդհանուր"
+
+#: trac/admin/web_ui.py:203
+#: trac/admin/templates/admin_basics.html:13
+msgid "Basic Settings"
+msgstr "Հիմնական Կարգավորումները"
+
+#: trac/admin/web_ui.py:231
+#: trac/admin/templates/admin_logging.html:10
+#: trac/admin/templates/admin_logging.html:22
+msgid "Logging"
+msgstr "Գրանցում"
+
+#: trac/admin/web_ui.py:240
+#: trac/ticket/templates/milestone_delete.html:31
+#: trac/ticket/templates/milestone_edit.html:73
+msgid "None"
+msgstr "Ոչ մի"
+
+#: trac/admin/web_ui.py:241
+msgid "Console"
+msgstr "Console"
+
+#: trac/admin/web_ui.py:243
+#: trac/templates/attachment.html:32
+msgid "File"
+msgstr "Ֆայլ"
+
+#: trac/admin/web_ui.py:245
+msgid "Syslog"
+msgstr "Համակարգային պատմություն"
+
+#: trac/admin/web_ui.py:247
+msgid "Windows event log"
+msgstr "Windows-ի իրադարձությունների պատմություն"
+
+#: trac/admin/web_ui.py:260
+#, python-format
+msgid "Unknown log type %(type)s"
+msgstr "Պատմության անհայտ  %(type)s տեսակ"
+
+#: trac/admin/web_ui.py:261
+msgid "Invalid log type"
+msgstr "Պատմության սխալ տեսակ"
+
+#: trac/admin/web_ui.py:275
+#, python-format
+msgid "Unknown log level %(level)s"
+msgstr "Պատմության անհայտ  %(level)s մակարդակ"
+
+#: trac/admin/web_ui.py:276
+msgid "Invalid log level"
+msgstr "Պատմության սխալ մակարդակ"
+
+#: trac/admin/web_ui.py:289
+msgid "You must specify a log file"
+msgstr "Անհրաժեշտ է նշել պատմության ֆայլը"
+
+#: trac/admin/web_ui.py:290
+msgid "Missing field"
+msgstr "Դաշտը բացակայում է"
+
+#: trac/admin/web_ui.py:319
+#: trac/admin/templates/admin_perms.html:10
+msgid "Permissions"
+msgstr "Թույլտվությունները"
+
+#: trac/admin/web_ui.py:340
+msgid "Unknown action"
+msgstr "Անհայտ գործողություն"
+
+#: trac/admin/web_ui.py:344
+#, python-format
+msgid "The subject %(subject)s has been granted the permission %(action)s."
+msgstr "%(subject)s սուբյեկտին տրվել է %(action)s թույլտվությունը։"
+
+#: trac/admin/web_ui.py:349
+#, python-format
+msgid "The permission %(action)s was already granted to %(subject)s."
+msgstr "%(subject)s-ը արդեն ունի %(action)s թույլտվություն։"
+
+#: trac/admin/web_ui.py:365
+#, python-format
+msgid "The subject %(subject)s has been added to the group %(group)s."
+msgstr "%(subject)s սուբյեկտն ավելացվել է %(group)s խմբում։"
+
+#: trac/admin/web_ui.py:370
+#, python-format
+msgid "The subject %(subject)s was already added to the group %(group)s."
+msgstr "%(subject)s սուբյեկտն արդեն գտնվում է %(group)s խմբում։"
+
+#: trac/admin/web_ui.py:383
+msgid "The selected permissions have been revoked."
+msgstr "Նշված թույլտվությունները չեղյալ են հայտարարվել։"
+
+#: trac/admin/web_ui.py:401
+#: trac/admin/templates/admin_plugins.html:10
+msgid "Plugins"
+msgstr "Փլագիններ"
+
+#: trac/admin/web_ui.py:435
+msgid "Uploaded file is not a Python source file or egg"
+msgstr "Ուղարկված ֆայլը չի համարվում Python-ի սկզբնական կոդ կամ .egg ֆորմատ"
+
+#: trac/admin/web_ui.py:440
+#, python-format
+msgid "Plugin %(name)s already installed"
+msgstr "%(name)s փլագինն արդեն տեղադրված է"
+
+#: trac/admin/web_ui.py:513
+msgid "The following component has been disabled:"
+msgid_plural "The following components have been disabled:"
+msgstr[0] "Հետևյալ բաղադրիչն ցույց է տրվել․"
+msgstr[1] "Հետևյալ բաղադրիչները ցույց են տրվել․"
+
+#: trac/admin/web_ui.py:518
+msgid "The following component has been enabled:"
+msgid_plural "The following components have been enabled:"
+msgstr[0] "Հետևյալ բաղադրիչը ակտիվացված է․"
+msgstr[1] "Հետևյալ բաղադրիչները ակտիվացված են․"
+
+#: trac/admin/templates/admin.html:10
+msgid "Administration:"
+msgstr "Ադմինիստրացում․"
+
+#: trac/admin/templates/admin_basics.html:9
+msgid "Basics"
+msgstr "Հիմնականը"
+
+#: trac/admin/templates/admin_basics.html:17
+msgid "Project"
+msgstr "Պրոյեկտ"
+
+#: trac/admin/templates/admin_basics.html:19
+#: trac/admin/templates/admin_components.html:37
+#: trac/admin/templates/admin_components.html:66
+#: trac/admin/templates/admin_enums.html:21
+#: trac/admin/templates/admin_enums.html:35
+#: trac/admin/templates/admin_milestones.html:22
+#: trac/admin/templates/admin_milestones.html:80
+#: trac/admin/templates/admin_versions.html:21
+#: trac/admin/templates/admin_versions.html:56
+#: trac/versioncontrol/templates/admin_repositories.html:50
+#: trac/versioncontrol/templates/admin_repositories.html:95
+#: trac/versioncontrol/templates/admin_repositories.html:112
+msgid "Name:"
+msgstr "Անվանումը․"
+
+#: trac/admin/templates/admin_basics.html:24
+#: trac/versioncontrol/templates/admin_repositories.html:62
+msgid "URL:"
+msgstr "Հղում․"
+
+#: trac/admin/templates/admin_basics.html:29
+#: trac/ticket/templates/ticket.html:255
+msgid "Description:"
+msgstr "Նկարագրումը․"
+
+#: trac/admin/templates/admin_basics.html:36
+#: trac/admin/templates/admin_components.html:99
+#: trac/admin/templates/admin_enums.html:70
+#: trac/admin/templates/admin_logging.html:54
+#: trac/admin/templates/admin_milestones.html:129
+#: trac/admin/templates/admin_plugins.html:165
+#: trac/admin/templates/admin_versions.html:94
+msgid "Apply changes"
+msgstr "Կիրառել փոփոխությունները"
+
+#: trac/admin/templates/admin_components.html:10
+#: trac/ticket/admin.py:76
+msgid "Components"
+msgstr "Կոմպոնենտները"
+
+#: trac/admin/templates/admin_components.html:14
+msgid "Manage Components"
+msgstr "Ղեկավարել կոմպոնենտները"
+
+#: trac/admin/templates/admin_components.html:18
+msgid "Owner:"
+msgstr "Սեփականատեր․"
+
+#: trac/admin/templates/admin_components.html:35
+msgid "Modify Component:"
+msgstr "Փոխել կոմպոնենտները․"
+
+#: trac/admin/templates/admin_components.html:42
+msgid ""
+"Description (you may use\n"
+"                [1:WikiFormatting]\n"
+"                here):"
+msgstr ""
+"Նկարագրումը (կարող եք օգտագործել\n"
+"                [1:WikiFormatting]\n"
+"                այստեղ)․"
+
+#: trac/admin/templates/admin_components.html:56
+#: trac/admin/templates/admin_enums.html:25
+#: trac/admin/templates/admin_milestones.html:69
+#: trac/admin/templates/admin_versions.html:46
+#: trac/versioncontrol/templates/admin_repositories.html:85
+msgid "Save"
+msgstr "Պահպանել"
+
+#: trac/admin/templates/admin_components.html:64
+msgid "Add Component:"
+msgstr "Ավելացնել Մեկնաբանություն․"
+
+#: trac/admin/templates/admin_components.html:70
+#: trac/admin/templates/admin_enums.html:38
+#: trac/admin/templates/admin_milestones.html:93
+#: trac/admin/templates/admin_perms.html:39
+#: trac/admin/templates/admin_perms.html:61
+#: trac/admin/templates/admin_versions.html:67
+#: trac/versioncontrol/templates/admin_repositories.html:102
+#: trac/versioncontrol/templates/admin_repositories.html:116
+msgid "Add"
+msgstr "Ավելացնել"
+
+#: trac/admin/templates/admin_components.html:80
+#: trac/ticket/admin.py:209
+#: trac/ticket/api.py:283
+#: trac/ticket/web_ui.py:1352
+msgid "Owner"
+msgstr "Սեփականատեր"
+
+#: trac/admin/templates/admin_components.html:80
+#: trac/admin/templates/admin_enums.html:48
+#: trac/admin/templates/admin_milestones.html:104
+#: trac/admin/templates/admin_versions.html:77
+msgid "Default"
+msgstr "Լռությամբ"
+
+#: trac/admin/templates/admin_components.html:98
+#: trac/admin/templates/admin_enums.html:69
+#: trac/admin/templates/admin_milestones.html:128
+#: trac/admin/templates/admin_perms.html:88
+#: trac/admin/templates/admin_versions.html:93
+#: trac/versioncontrol/templates/admin_repositories.html:145
+msgid "Remove selected items"
+msgstr "Ջնջել նշված էլեմենտները"
+
+#: trac/admin/templates/admin_components.html:101
+#: trac/admin/templates/admin_enums.html:72
+#: trac/admin/templates/admin_milestones.html:131
+#: trac/admin/templates/admin_versions.html:96
+msgid ""
+"You can remove all items from this list to completely hide this\n"
+"              field from the user interface."
+msgstr "Դուք կարող եք հեռացնել ցուցակի բոլոր էլեմենտները՝ տվյալ դաշտը օգտագործողի ինտերֆեյսից թաքցնելու համար։"
+
+#: trac/admin/templates/admin_components.html:107
+#: trac/admin/templates/admin_enums.html:78
+#: trac/admin/templates/admin_milestones.html:137
+#: trac/admin/templates/admin_versions.html:102
+msgid ""
+"As long as you don't add any items to the list, this field\n"
+"            will remain completely hidden from the user interface."
+msgstr ""
+"Քանի դեռ այս ցուցակում չկա էլեմենտ, տվյալ դաշտը\n"
+"            չի երևա օգտագործողի ինտերֆեյսում։"
+
+#: trac/admin/templates/admin_enums.html:14
+#, python-format
+msgid "Manage %(label_plural)s"
+msgstr "Ղեկավարել %(label_plural)s"
+
+#: trac/admin/templates/admin_enums.html:19
+#, python-format
+msgid "Modify %(label_singular)s"
+msgstr "Փոփոխել %(label_singular)s"
+
+#: trac/admin/templates/admin_enums.html:33
+#, python-format
+msgid "Add %(label_singular)s"
+msgstr "Ավելացնել %(label_singular)s"
+
+#: trac/admin/templates/admin_enums.html:48
+msgid "Order"
+msgstr "Կարգը"
+
+#: trac/admin/templates/admin_logging.html:26
+#: trac/templates/about.html:79
+msgid "Configuration"
+msgstr "Կարգավորում"
+
+#: trac/admin/templates/admin_logging.html:28
+#: trac/versioncontrol/templates/admin_repositories.html:18
+msgid "Type:"
+msgstr "Տեսակը․"
+
+#: trac/admin/templates/admin_logging.html:37
+msgid "Log level:"
+msgstr "Պատմության մակարդակ․"
+
+#: trac/admin/templates/admin_logging.html:45
+msgid "Log file:"
+msgstr "Պատմության ֆայլը․"
+
+#: trac/admin/templates/admin_logging.html:48
+#, python-format
+msgid ""
+"If you specify a relative path, the log file will be stored inside the\n"
+"            [1:log] directory of the project environment ([2:%(dir)s])."
+msgstr ""
+"Հարաբերական ճանապարհ նշելու դեպքում պատմության ֆայլը կպահպանվի\n"
+" պրոյեկտի միջավայրի [1:log] կատալոգում ([2:%(dir)s])։"
+
+#: trac/admin/templates/admin_milestones.html:10
+#: trac/ticket/admin.py:241
+#: trac/ticket/roadmap.py:875
+msgid "Milestones"
+msgstr "Ուղենիշերը"
+
+#: trac/admin/templates/admin_milestones.html:14
+msgid "Manage Milestones"
+msgstr "Ղեկավարել Ուղենիշերը"
+
+#: trac/admin/templates/admin_milestones.html:20
+msgid "Modify Milestone:"
+msgstr "Ուղենիշերի փոփոխում․"
+
+#: trac/admin/templates/admin_milestones.html:25
+#: trac/admin/templates/admin_milestones.html:85
+#: trac/ticket/templates/milestone_edit.html:50
+msgid "Due:"
+msgstr "Կատարման ժամկետ․"
+
+#: trac/admin/templates/admin_milestones.html:26
+#: trac/admin/templates/admin_milestones.html:29
+#: trac/admin/templates/admin_milestones.html:39
+#: trac/admin/templates/admin_milestones.html:43
+#: trac/admin/templates/admin_milestones.html:87
+#: trac/admin/templates/admin_milestones.html:89
+#: trac/admin/templates/admin_versions.html:27
+#: trac/admin/templates/admin_versions.html:30
+#: trac/admin/templates/admin_versions.html:60
+#: trac/admin/templates/admin_versions.html:63
+#: trac/ticket/templates/milestone_edit.html:51
+#: trac/ticket/templates/milestone_edit.html:54
+#: trac/ticket/templates/milestone_edit.html:63
+#: trac/ticket/templates/milestone_edit.html:66
+#, python-format
+msgid "Format: %(datehint)s"
+msgstr "Ֆորմատ՝ %(datehint)s"
+
+#: trac/admin/templates/admin_milestones.html:35
+#: trac/ticket/templates/milestone_edit.html:59
+msgid "Completed:"
+msgstr "Ավարտված է․"
+
+#: trac/admin/templates/admin_milestones.html:57
+#: trac/admin/templates/admin_versions.html:35
+#: trac/ticket/templates/milestone_edit.html:85
+#: trac/versioncontrol/templates/admin_repositories.html:73
+msgid "Description (you may use [1:WikiFormatting] here):"
+msgstr "Նկարագրություն (Դուք կարող եք օգտագործել [1:WikiFormatting] այստեղ)․"
+
+#: trac/admin/templates/admin_milestones.html:78
+msgid "Add Milestone:"
+msgstr "Ուղենիշի ավելացում․"
+
+#: trac/admin/templates/admin_milestones.html:104
+#: trac/ticket/admin.py:400
+msgid "Due"
+msgstr "Կատարման ժամկետ"
+
+#: trac/admin/templates/admin_milestones.html:104
+#: trac/ticket/admin.py:400
+msgid "Completed"
+msgstr "Ավարտված է"
+
+#: trac/admin/templates/admin_milestones.html:104
+#: trac/ticket/web_ui.py:184
+msgid "Tickets"
+msgstr "Խնդիրներ"
+
+#: trac/admin/templates/admin_perms.html:14
+msgid "Manage Permissions"
+msgstr "Թույլտվությունների Ղեկավարում"
+
+#: trac/admin/templates/admin_perms.html:19
+msgid "Grant Permission:"
+msgstr "Թույլտրել․"
+
+#: trac/admin/templates/admin_perms.html:22
+#: trac/admin/templates/admin_perms.html:49
+msgid "Subject:"
+msgstr "Թեմա․"
+
+#: trac/admin/templates/admin_perms.html:26
+msgid "Action:"
+msgstr "Գործողություն․"
+
+#: trac/admin/templates/admin_perms.html:34
+msgid ""
+"Grant permission for an action to a subject, which can be either a user\n"
+"          or a group."
+msgstr "Թույլատրել գործողությունը սուբյեկտին՝ օգտագործողին կամ խմբին։"
+
+#: trac/admin/templates/admin_perms.html:46
+msgid "Add Subject to Group:"
+msgstr "Ավելացնել Թեմա Խմբում․"
+
+#: trac/admin/templates/admin_perms.html:53
+msgid "Group:"
+msgstr "Խումբ․"
+
+#: trac/admin/templates/admin_perms.html:57
+msgid "Add a user or group to an existing permission group."
+msgstr "Ավելացնել օգտագործողին կամ խումբը գոյություն ունեցող թույլտվության խմբին։"
+
+#: trac/admin/templates/admin_perms.html:70
+msgid "Subject"
+msgstr "Թեմա"
+
+#: trac/admin/templates/admin_perms.html:92
+msgid ""
+"Note that [1:Subject] or [2:Group] names can't be all upper-case,\n"
+"      as that is reserved for permission names."
+msgstr "Անունները չեն կարող միայն մեծատառերով գրված լինել, քանի որ այդպիսի բառերը վերապահված են արտոնությունների անունների համար։"
+
+#: trac/admin/templates/admin_plugins.html:42
+msgid "Manage Plugins"
+msgstr "Փլագինների Ղեկավարում"
+
+#: trac/admin/templates/admin_plugins.html:46
+msgid "Install Plugin:"
+msgstr "Տեղադրել Փլագինը․"
+
+#: trac/admin/templates/admin_plugins.html:48
+msgid "File: [1:]"
+msgstr "Ֆայլ․ [1:]"
+
+#: trac/admin/templates/admin_plugins.html:53
+msgid ""
+"The web server does not have sufficient permissions to store files in\n"
+"            the environment plugins directory."
+msgstr "Վեբ սերվերը բավարար արտոնություն չունի միջավայրի plugins կատալոգում ֆայլերը պահելու համար։"
+
+#: trac/admin/templates/admin_plugins.html:57
+msgid "Upload a plugin packaged as Python egg."
+msgstr "Վերբեռնել փլագինը Python-ի .egg ֆորմատով։"
+
+#: trac/admin/templates/admin_plugins.html:62
+msgid "Install"
+msgstr "Տեղադրել"
+
+#: trac/admin/templates/admin_plugins.html:85
+#: trac/templates/diff_view.html:51
+#: trac/versioncontrol/templates/changeset.html:142
+msgid "Author:"
+msgstr "Հեղինակ․"
+
+#: trac/admin/templates/admin_plugins.html:94
+msgid "Home page:"
+msgstr "Գլխավոր էջ․"
+
+#: trac/admin/templates/admin_plugins.html:101
+msgid "License:"
+msgstr "Լիցենզիա․"
+
+#: trac/admin/templates/admin_plugins.html:111
+msgid "Show all descriptions"
+msgstr "Ցույց տալ բոլոր նկարագրությունները"
+
+#: trac/admin/templates/admin_plugins.html:113
+msgid "Hide all descriptions"
+msgstr "Թաքցնել բոլոր նկարագրությունները"
+
+#: trac/admin/templates/admin_plugins.html:115
+#: trac/ticket/admin.py:76
+#: trac/ticket/api.py:296
+msgid "Component"
+msgstr "Բաղադրիչ"
+
+#: trac/admin/templates/admin_plugins.html:118
+msgid "Enabled"
+msgstr "Ակտիվացված է"
+
+#: trac/admin/templates/admin_plugins.html:127
+msgid "Toggle the module description"
+msgstr "Ցույց տալ/թաքցնել մոդուլի նկարագրությունը"
+
+#: trac/admin/templates/admin_plugins.html:143
+msgid "Toggle the component description"
+msgstr "Ցույց տալ/թաքցնել բաղադրիչի նկարագրությունը"
+
+#: trac/admin/templates/admin_versions.html:10
+#: trac/ticket/admin.py:440
+msgid "Versions"
+msgstr "Տարբերակներ"
+
+#: trac/admin/templates/admin_versions.html:14
+msgid "Manage Versions"
+msgstr "Տարբերակների Ղեկավարում"
+
+#: trac/admin/templates/admin_versions.html:19
+msgid "Modify Version:"
+msgstr "Փոփոխել Տարբերակը․"
+
+#: trac/admin/templates/admin_versions.html:26
+msgid "Date:"
+msgstr "Ամսաթիվ․"
+
+#: trac/admin/templates/admin_versions.html:54
+msgid "Add Version:"
+msgstr "Ավելացնել Տարբերակ․"
+
+#: trac/admin/templates/admin_versions.html:59
+msgid "Released:"
+msgstr "Թողարկված է․"
+
+#: trac/admin/templates/admin_versions.html:77
+msgid "Released"
+msgstr "Թողարկված է"
+
+#: trac/db/api.py:132
+#, python-format
+msgid "Unsupported database type \"%(scheme)s\""
+msgstr "Տվյալների բազայի չապահովված \"%(scheme)s\" տեսակ"
+
+#: trac/db/api.py:162
+#, python-format
+msgid "Unknown scheme \"%(scheme)s\"; database connection string must start with {scheme}:/"
+msgstr "Անհայտ սխեմա - \"%(scheme)s\"; տվյալների բազայի հետ կապվելու տողը պետք է սկսվի {scheme}:/"
+
+#: trac/db/mysql_backend.py:80
+msgid "Cannot load Python bindings for MySQL"
+msgstr "Հնարավոր չէ բեռնել Python-ի կապերը MySQL-ի համար"
+
+#: trac/db/pool.py:118
+#, python-format
+msgid "Unable to get database connection within %(time)d seconds"
+msgstr ""
+"Հնարավոր չէ կապ հաստատել տվյալների բազայի հետ  %(time)d վայրկյանի \"\n"
+"\"ընթացքում "
+
+#: trac/db/postgres_backend.py:81
+msgid "Cannot load Python bindings for PostgreSQL"
+msgstr "Հնարավոր չէ բեռնել Python-ի կապերը PostgreSQL-ի համար"
+
+#: trac/db/sqlite_backend.py:154
+msgid "Cannot load Python bindings for SQLite"
+msgstr "Հնարավոր չէ բեռնել Python-ի կապերը SQLite-ի համար"
+
+#: trac/db/sqlite_backend.py:157
+#: trac/db/sqlite_backend.py:161
+msgid "Need at least PySqlite %(version)s or higher"
+msgstr "Պահանջվում է նվազագույնը PySqlite %(version)s կամ ավելի բարձր"
+
+#: trac/db/sqlite_backend.py:186
+#, python-format
+msgid "Database already exists at %(path)s"
+msgstr "Տվյալների բազան արդեն գոյություն ունի %(path)s-ում"
+
+#: trac/db/sqlite_backend.py:246
+#, python-format
+msgid "Database \"%(path)s\" not found."
+msgstr "Տվյալների բազայի \"%(path)s\" ճանապարհը չի գտնվել։"
+
+#: trac/db/sqlite_backend.py:255
+#, python-format
+msgid "The user %(user)s requires read _and_ write permissions to the database file %(path)s and the directory it is located in."
+msgstr "%(user)s օգտագործողին անհրաժեշտ է գրելու և կարդալու թույլտվություն տվյալների բազայի ֆայլի %(path)s և այդ ֆայլը պարունակող կատալոգի համար։"
+
+#: trac/mimeview/api.py:675
+#: trac/mimeview/api.py:686
+#, python-format
+msgid "No available MIME conversions from %(old)s to %(new)s"
+msgstr "Ոչ մի հասանելի MIME ձևափոխություն %(old)s ից %(new)s"
+
+#: trac/mimeview/api.py:801
+#, python-format
+msgid "HTML preview using %(renderer)s failed (%(err)s)"
+msgstr "%(renderer)s-ի օգտագործմամբ HTML-ի նախնական դիտումը խափանվեց (%(err)s)"
+
+#: trac/mimeview/api.py:831
+#, python-format
+msgid "Can't use %(annotator)s annotator: %(error)s"
+msgstr "Չի հաջողվում օգտագործել %(annotator)s։ %(error)s"
+
+#: trac/mimeview/api.py:1080
+#: trac/templates/error.html:148
+msgid "Line"
+msgstr "Տող"
+
+#: trac/mimeview/api.py:1080
+msgid "Line numbers"
+msgstr "Տողերի համարները"
+
+#: trac/mimeview/patch.py:172
+#, python-format
+msgid "new file %(new)s"
+msgstr "նոր ֆայլ %(new)s"
+
+#: trac/mimeview/patch.py:176
+#, python-format
+msgid "deleted file %(deleted)s"
+msgstr "ջնջված ֆայլ %(deleted)s"
+
+#: trac/mimeview/patch.py:248
+msgid "this hunk was shorter than expected"
+msgstr "այս կտորն ավելի կարճ է, քան սպասվում է"
+
+#: trac/mimeview/pygments.py:126
+#: trac/prefs/templates/prefs_pygments.html:9
+msgid "Syntax Highlighting"
+msgstr "Շարահյուսական գունավորում"
+
+#: trac/mimeview/pygments.py:135
+#: trac/prefs/web_ui.py:143
+msgid "Your preferences have been saved."
+msgstr "Ձեր նախընտրությունները պահպանված են։"
+
+#: trac/prefs/web_ui.py:52
+#: trac/prefs/templates/prefs.html:16
+msgid "Preferences"
+msgstr "Նախընտրություններ"
+
+#: trac/prefs/web_ui.py:75
+msgid "Unknown preference panel"
+msgstr "Անհայտ կարգավորումների վահանակ"
+
+#: trac/prefs/web_ui.py:87
+#: trac/prefs/templates/prefs_datetime.html:10
+msgid "Date & Time"
+msgstr "Ամսաթիվ և ժամանակ"
+
+#: trac/prefs/web_ui.py:88
+#: trac/prefs/templates/prefs_keybindings.html:10
+msgid "Keyboard Shortcuts"
+msgstr "Աշխատող Ստեղներ"
+
+#: trac/prefs/web_ui.py:90
+#: trac/prefs/templates/prefs_language.html:9
+msgid "Language"
+msgstr "Լեզու"
+
+#: trac/prefs/web_ui.py:92
+#: trac/prefs/templates/prefs_advanced.html:9
+msgid "Advanced"
+msgstr "Լրացուցիչ"
+
+#: trac/prefs/templates/prefs.html:10
+msgid "Preferences:"
+msgstr "Նախընտրություններ․"
+
+#: trac/prefs/templates/prefs.html:17
+msgid ""
+"This page lets you customize your personal settings for this site.\n"
+"      These settings are stored on the server and are identified by a session\n"
+"      key stored in a browser cookie. That cookie allows your settings to be\n"
+"      restored on subsequent visits."
+msgstr "Այս էջը թույլ է տալիս փոփոխել Ձեր անձնական կարգավորումները այս կայքի համար։ Այդ կարգավորումները պահպանվում են սերվերում և ակտիվացվում են հետագա  այցելությունների ժամանակ cookie-ի օգնությամբ։"
+
+#: trac/prefs/templates/prefs.html:33
+msgid "Save changes"
+msgstr "Պահպանել փոփոխությունները"
+
+#: trac/prefs/templates/prefs_advanced.html:14
+msgid "Session key:"
+msgstr "Սեսիայի հիմնաբառը․"
+
+#: trac/prefs/templates/prefs_advanced.html:18
+msgid ""
+"The session key is used to identify stored custom\n"
+"      settings and session data on the server. Although it is\n"
+"      automatically generated by default, you may change it to something\n"
+"      easier to remember at any time if you wish to load your settings\n"
+"      in a different web browser."
+msgstr "Սեսիայի հիմնաբառն օգտագործվում է ընտրված կարգավորումների և սերվերում պահվող տվյալների իդենտիֆիկացիայի համար։ Չնայած որ այն լռելիությամբ ավտոմատ ստեղծվում է, այն կարելի է փոփոխել, հեշտ հիշելու համար, որպեսզի ուղարկել կարգավորումները ուրիշ բրոուզերներին։"
+
+#: trac/prefs/templates/prefs_advanced.html:26
+msgid "Restore session:"
+msgstr "Վերականգնել սեսիան․"
+
+#: trac/prefs/templates/prefs_advanced.html:29
+msgid "Load"
+msgstr "Բեռնել"
+
+#: trac/prefs/templates/prefs_advanced.html:30
+msgid ""
+"You may load a previously created session by entering the\n"
+"      corresponding session key below. This lets you share settings between\n"
+"      multiple computers and web browsers."
+msgstr "Կարելի է բեռնել նախապես ստեղծված սեսիան` գրելով սեսիայի հիմնաբառը այդ տողում։ Դա թույլ է տալիս բաշխել կարգավորումները տարբեր համակարգիչների և բրոուզերների միջև։"
+
+#: trac/prefs/templates/prefs_datetime.html:16
+msgid "Time zone:"
+msgstr "Ժամանակի տիրույթ․"
+
+#: trac/prefs/templates/prefs_datetime.html:18
+msgid "Default time zone"
+msgstr "Լռությամբ ժամանակի տիրույթ"
+
+#: trac/prefs/templates/prefs_datetime.html:25
+msgid ""
+"Configuring your time zone will result in all\n"
+"      dates and times displayed on this site to use your time zone\n"
+"      instead of that of the server."
+msgstr "Ձեր ժամանակի տիրույթի կարգավորումը կբերի նրան, որ այս կայքում բոլոր ամսաթվերը և ժամանակները կցուցադրվեն ըստ Ձեր ժամանակի տիրույթի՝ սերվերի կողմից տրամադրվողի փոխարեն։"
+
+#: trac/prefs/templates/prefs_datetime.html:31
+#, python-format
+msgid "Example: The current time is [1:%(time)s] (UTC)."
+msgstr "Օրինակ՝ ընթացիկ ժամանակը [1:%(time)s] (UTC):"
+
+#: trac/prefs/templates/prefs_datetime.html:34
+#, python-format
+msgid ""
+"In your time zone %(tz)s, this would be displayed as\n"
+"            [1:%(formatted)s]."
+msgstr ""
+"Ձեր ժամային գոտում %(tz)s, սա ցույց կտրվի որպես\n"
+"            [1:%(formatted)s]."
+
+#: trac/prefs/templates/prefs_datetime.html:40
+#, python-format
+msgid ""
+"In the default time zone, this would be displayed as\n"
+"            [1:%(formatted)s]."
+msgstr ""
+"Լռելայն ժամային գոտում, սա ցույց կտրվի որպես\n"
+"            [1:%(formatted)s]."
+
+#: trac/prefs/templates/prefs_datetime.html:47
+msgid ""
+"Note: Universal Co-ordinated Time (UTC) is also known as Greenwich Mean Time (GMT).[1:]\n"
+"        A positive offset is used to indicate a timezone at the east of Greenwich, i.e. ahead of Universal Time."
+msgstr "Դրական տեղաշարժը օգտագործվում է Գրինվիչից արևելք, այսինքն՝ Universal Time-ի  ժամանակային տիրույթից առաջ։"
+
+#: trac/prefs/templates/prefs_general.html:15
+msgid "Full name:"
+msgstr "Ամբողջական անունը․"
+
+#: trac/prefs/templates/prefs_general.html:20
+msgid "Email address:"
+msgstr "Էլեկտրոնային փոստի հասցե․"
+
+#: trac/prefs/templates/prefs_general.html:26
+msgid ""
+"This information is used to automatically populate some forms\n"
+"        on this site with your contact details."
+msgstr "Այս ինֆորմացիան օգտագործվում է այս կայքում ձեր տվյալներով որոշ ֆորմաների ավտոմատ լրացման համար։"
+
+#: trac/prefs/templates/prefs_general.html:30
+msgid ""
+"This information is used to associate your login name with your\n"
+"        email address and full name, which is used for email\n"
+"        notification and RSS feeds, for example."
+msgstr "Այս ինֆորմացիան օգտագործվում է Ձեր մուտքագրման անունը Ձեր էլէկտրոնային փոստի և լրիվ անվան հետ կապելու համար, որը, օրինակ, օգտագործվում է էլեկտրոնային փոստ ուղարկելու և RSS նորությունների համար։"
+
+#: trac/prefs/templates/prefs_keybindings.html:18
+msgid "Enable access keys"
+msgstr "Ակտիվացնել աշխատող ստեղները"
+
+#: trac/prefs/templates/prefs_keybindings.html:21
+msgid ""
+"This site provides keyboard shortcuts for\n"
+"      faster access to certain functions of this site. As these shortcuts can\n"
+"      cause conflicts with shortcuts provided by the desktop system or\n"
+"      web browser, they are disabled by default. See\n"
+"      [1:TracAccessibility]\n"
+"      for more information on access keys."
+msgstr "Այս կայքը նախատեսում է աշխատող ստեղներ որոշ ֆունկցիաների արագ հասանելիության համար։ Քանի որ սրանք կարող են ընդհարվեն համակարգի և բրոուզերի կողմից օգտագործվող ստեղների հետ, լռությամբ անջատված են։ Տես [1:TracAccessibility] հավելյար ինֆորմացիայի համար։"
+
+#: trac/prefs/templates/prefs_language.html:14
+msgid "Language:"
+msgstr "Լեզու․"
+
+#: trac/prefs/templates/prefs_language.html:16
+msgid "default language"
+msgstr "լռությամբ լեզու"
+
+#: trac/prefs/templates/prefs_language.html:21
+msgid ""
+"Configuring your language will result in all text\n"
+"      displayed on this site to use your language instead of that of the\n"
+"      server."
+msgstr "Ձեր լեզվի կարգավորումը կբերի նրան, որ այս կայքում բոլոր տեքստերը կցուցադրվեն ըստ Ձեր լեզվի` սերվերի կողմից տրամադրվողի փոխարեն։"
+
+#: trac/prefs/templates/prefs_language.html:25
+msgid ""
+"The 'default language' option uses the browser's\n"
+"        language negotiation feature to select the appropriate language."
+msgstr "\"Լռությամբ լեզու\" կարգավորումն օգտագործում է բրոուզերի համապատասխան լեզու ընտրելու հնարավորությունը։"
+
+#: trac/prefs/templates/prefs_pygments.html:36
+msgid ""
+"The Pygments syntax highlighter can be used with\n"
+"      different coloring styles."
+msgstr "Pygments-ի շարահյուսական գունավորիչը կարող է օգտագործվել տարբեր գունային թեմաներում։"
+
+#: trac/prefs/templates/prefs_pygments.html:38
+msgid "Style:"
+msgstr "Ոճ․"
+
+#: trac/prefs/templates/prefs_pygments.html:43
+msgid "Preview:"
+msgstr "Նախնական դիտում․"
+
+#: trac/search/web_ui.py:63
+#: trac/search/templates/search.html:10
+#: trac/search/templates/search.html:23
+#: trac/search/templates/search.html:28
+#: trac/templates/theme.html:29
+msgid "Search"
+msgstr "Փնտրում"
+
+#: trac/search/web_ui.py:153
+#, python-format
+msgid "Browse repository path %(path)s"
+msgstr "Փնտրել ռեպոզիտորիայի %(path)s ճանապարհը"
+
+#: trac/search/web_ui.py:193
+#, python-format
+msgid "Search query too short. Query must be at least %(num)s characters long."
+msgstr "Շատ կարճ փնտրման հարցում։ Հարցման երկարությունը պետք է լինի առնվազն %(num)s սիմվոլ։"
+
+#: trac/search/web_ui.py:232
+#: trac/ticket/query.py:763
+#: trac/ticket/report.py:397
+msgid "Next Page"
+msgstr "Հաջորդ Էջ"
+
+#: trac/search/web_ui.py:238
+#: trac/ticket/query.py:768
+#: trac/ticket/report.py:400
+msgid "Previous Page"
+msgstr "Նախորդ Էջ"
+
+#: trac/search/templates/search.html:10
+#: trac/search/templates/search.html:40
+#: trac/ticket/templates/query_results.html:20
+#: trac/ticket/templates/report_view.html:79
+msgid "Results"
+msgstr "Արդյունքներ"
+
+#: trac/search/templates/search.html:48
+#, python-format
+msgid "Quickjump to %(name)s"
+msgstr "Արագ անցում դեպի %(name)s"
+
+#: trac/search/templates/search.html:56
+#, python-format
+msgid "By %(author)s"
+msgstr "%(author)s կողմից"
+
+#: trac/search/templates/search.html:65
+#: trac/ticket/templates/report_view.html:87
+#: trac/ticket/templates/report_view.html:193
+msgid "No matches found."
+msgstr "Համապատասխան ոչինչ չի գտնվել։"
+
+#: trac/search/templates/search.html:69
+msgid ""
+"[1:Note:] See [2:TracSearch]\n"
+"        for help on searching."
+msgstr "[1:Note:] Տես [2:TracSearch] փնտրման օգնության համար։"
+
+#: trac/templates/about.html:26
+msgid "Trac: Integrated SCM & Project Management"
+msgstr "Trac: Ինտեգրված SCM և Պրոյեկտի Ղեկավարում"
+
+#: trac/templates/about.html:30
+msgid ""
+"Trac is a web-based software project management and bug/issue\n"
+"        tracking system emphasizing ease of use and low ceremony.\n"
+"        It provides an integrated Wiki, an interface to version control\n"
+"        systems, and a number of convenient ways to stay on top of events\n"
+"        and changes within a project."
+msgstr "Trac-ը web հիմքի վրա պրոյեկտների ղեկավարման համակարգ է, որն իր մեջ ներառում է թերությունների/խնդիրների ղեկավարման համակարգ, որը հեշտացնում է օգտագործումն ու թեթևացնում աշխատանքը։ Այն ապահովում է ներդրված Wiki, տարբերակների հսկողության համակարգի ինտերֆեյս և մի շարք հարմար մեթոդներ պրոյեկտում պատահարներն ու փոփոխություները վերահսկելու համար։"
+
+#: trac/templates/about.html:36
+msgid ""
+"Trac is distributed under the modified BSD License.[1:]\n"
+"        The complete text of the license can be found\n"
+"        [2:online]\n"
+"        as well as in the [3:COPYING] file included in the distribution."
+msgstr ""
+"Trac-ը տարածված է փոփոխված BSD լիցենզիայով։[1:]\n"
+"        Լիցենզիայի ամբողջ տեքստը կարող եք գտնել\n"
+"        [2:online]\n"
+"        ինչպես նաև [3:COPYING] ֆայլում ներառված փաթեթի մեջ։"
+
+#: trac/templates/about.html:41
+msgid "python powered"
+msgstr "python աջակցող"
+
+#: trac/templates/about.html:44
+msgid ""
+"Please visit the Trac open source project:\n"
+"        [1:http://trac.edgewall.org/]"
+msgstr "Այցելեք Trac բաց կոդով պրոյեկտ․"
+
+#: trac/templates/about.html:46
+msgid ""
+"Copyright © 2003-2010\n"
+"        [1:Edgewall Software]"
+msgstr ""
+"Copyright © 2003-2010\n"
+"        [1:Edgewall Software]"
+
+#: trac/templates/about.html:54
+msgid "System Information"
+msgstr "Ինֆորմացիա համակարգի մասին"
+
+#: trac/templates/about.html:64
+msgid "Installed Plugins"
+msgstr "Տեղադրված Փլագիններ"
+
+#: trac/templates/about.html:72
+#: trac/templates/error.html:192
+#: trac/web/main.py:604
+msgid "N/A"
+msgstr "Առկա չէ"
+
+#: trac/templates/about.html:83
+msgid "Section"
+msgstr "Բաժին"
+
+#: trac/templates/about.html:85
+#: trac/templates/error.html:160
+msgid "Value"
+msgstr "Արժեք"
+
+#: trac/templates/attach_file_form.html:15
+msgid "Attach file"
+msgstr "Կցել ֆայլը"
+
+#: trac/templates/attachment.html:12
+msgid "– Attachment"
+msgstr "Ավելացնել կցվող նյութ"
+
+#: trac/templates/attachment.html:13
+msgid "– Attachments"
+msgstr "Կցված նյութեր"
+
+#: trac/templates/attachment.html:14
+#, python-format
+msgid "%(filename)s on %(parent)s – Attachment"
+msgstr "%(filename)s  %(parent)s մեջ - Կցում"
+
+#: trac/templates/attachment.html:29
+#, python-format
+msgid "Add Attachment to [1:%(parent)s]"
+msgstr "%(parent)s-ի կցված նյութերը"
+
+#: trac/templates/attachment.html:33
+#, python-format
+msgid "(size limit %(value)s)"
+msgstr "(առավելագույն չափը %(value)s)"
+
+#: trac/templates/attachment.html:37
+msgid "Attachment Info"
+msgstr "Տեղեկություն կցվող նյութի մասին"
+
+#: trac/templates/attachment.html:40
+#: trac/ticket/templates/ticket.html:366
+#: trac/wiki/templates/wiki_edit_form.html:46
+msgid "Your email or username:"
+msgstr "Ձեր էլեկտրոնային փոստը կամ օգտագործողի անունը․"
+
+#: trac/templates/attachment.html:46
+msgid "Description of the file (optional):"
+msgstr "Ֆայլի նկարագրություն (պարտադիր չէ)․"
+
+#: trac/templates/attachment.html:52
+msgid "Replace existing attachment of the same name"
+msgstr "Փոխարինել նույն անունով առկա կցման նյութը"
+
+#: trac/templates/attachment.html:62
+msgid "Add attachment"
+msgstr "Ավելացնել կցվող նյութ"
+
+#: trac/templates/attachment.html:70
+msgid "Are you sure you want to delete this attachment?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս կցվող նյութը։"
+
+#: trac/templates/attachment.html:77
+#: trac/templates/attachment.html:119
+msgid "Delete attachment"
+msgstr "Ջնջել կցված նյութը"
+
+#: trac/templates/attachment.html:86
+msgid "Attach another file"
+msgstr "Կցեք մեկ ուրիշ ֆայլ"
+
+#: trac/templates/attachment.html:98
+#: trac/templates/list_of_attachments.html:22
+#: trac/templates/macros.html:19
+#: trac/util/text.py:277
+#: trac/versioncontrol/templates/browser.html:110
+#: trac/versioncontrol/templates/dir_entries.html:16
+#, python-format
+msgid "%(size)s bytes"
+msgstr "%(size)s բայթ"
+
+#: trac/templates/attachment.html:96
+#, python-format
+msgid ""
+"File %(file)s,\n"
+"                [1:%(size)s]\n"
+"                (added by %(author)s, %(date)s ago)"
+msgstr ""
+"%(file)s ֆայլը, [1:%(size)s] չափի\n"
+"                (ավելացված է %(author)s-ի կողմից,  %(date)s առաջ)"
+
+#: trac/templates/diff_div.html:72
+#, python-format
+msgid ""
+"Property %(name)s\n"
+"                  changed from %(old)s to %(new)s"
+msgstr ""
+"%(name)s հատկությունը\n"
+"\t\t   փոփոխված է %(old)s %(new)s"
+
+#: trac/templates/diff_div.html:76
+#, python-format
+msgid "Property %(name)s set to %(value)s"
+msgstr "%(name)s հատկության արժեքը դրված է %(value)s"
+
+#: trac/templates/diff_div.html:79
+#, python-format
+msgid "Property %(name)s deleted"
+msgstr "%(name)s բաղադրիչը գոյություն չունի։"
+
+#: trac/templates/diff_div.html:86
+msgid "Differences"
+msgstr "Տարբերություններ"
+
+#: trac/templates/diff_options.html:10
+msgid "View differences"
+msgstr "Դիտել տարբերությունները"
+
+#: trac/templates/diff_options.html:13
+msgid "inline"
+msgstr "գործող"
+
+#: trac/templates/diff_options.html:15
+msgid "side by side"
+msgstr "հարևանությամբ"
+
+#: trac/templates/diff_options.html:18
+msgid ""
+"[1:[2:]\n"
+"             Show]\n"
+"      [3:[4:]\n"
+"             lines around each change]"
+msgstr ""
+"[1:[2:]\n"
+"             Ցույց տալ]\n"
+"      [3:[4:]\n"
+"             տող յուրաքանչյուր փոփոխության համար]"
+
+#: trac/templates/diff_options.html:28
+msgid "Show the changes in full context"
+msgstr "Ցույց տալ փոփոխություները ամբողջությամբ"
+
+#: trac/templates/diff_options.html:32
+msgid "Ignore:"
+msgstr "Անտեսել․"
+
+#: trac/templates/diff_options.html:36
+msgid "Blank lines"
+msgstr "Դատարկ տողեր"
+
+#: trac/templates/diff_options.html:41
+msgid "Case changes"
+msgstr "Դեպքի փոփոխություններ"
+
+#: trac/templates/diff_options.html:46
+msgid "White space changes"
+msgstr "Բացակի փոփոխություններ"
+
+#: trac/templates/diff_options.html:50
+#: trac/ticket/templates/milestone_view.html:57
+#: trac/ticket/templates/query.html:209
+#: trac/ticket/templates/report_view.html:49
+#: trac/ticket/templates/roadmap.html:29
+#: trac/timeline/templates/timeline.html:31
+#: trac/versioncontrol/templates/revisionlog.html:67
+msgid "Update"
+msgstr "Թարմացնել"
+
+#: trac/templates/diff_view.html:18
+#, python-format
+msgid ""
+"Changes between\n"
+"          [1:Version %(old)s] and\n"
+"          [2:Version %(new)s] of\n"
+"          [3:%(name)s]"
+msgstr ""
+"Փոփոխված է\n"
+"          [1:Version %(old)s] և\n"
+"          [2:Version %(new)s] միջև\n"
+"          [3:%(name)s]"
+
+#: trac/templates/diff_view.html:23
+#, python-format
+msgid ""
+"Changes between\n"
+"          [1:Initial Version] and\n"
+"          [2:Version %(new)s] of\n"
+"          [3:%(name)s]"
+msgstr ""
+"Փոփոխված է\n"
+"          [1:Initial Version] և\n"
+"          [2:Version %(new)s] միջև \n"
+"          [3:%(name)s] մեջ"
+
+#: trac/templates/diff_view.html:28
+#, python-format
+msgid ""
+"Changes from\n"
+"          [1:Version %(new)s] of\n"
+"          [2:%(name)s]"
+msgstr ""
+"Փոփոխված է\n"
+"          [1:Version %(new)s] \n"
+"          [2:%(name)s] մեջ"
+
+#: trac/templates/diff_view.html:43
+#: trac/versioncontrol/templates/changeset.html:136
+msgid "Timestamp:"
+msgstr "Ժամանականշան․"
+
+#: trac/templates/diff_view.html:45
+#: trac/templates/diff_view.html:53
+#: trac/templates/diff_view.html:59
+msgid "(multiple changes)"
+msgstr "(մի քանի փոփոխություններ)"
+
+#: trac/templates/diff_view.html:47
+#, python-format
+msgid "%(date)s (%(duration)s ago)"
+msgstr "%(date)s (%(duration)s առաջ)"
+
+#: trac/templates/diff_view.html:55
+#, python-format
+msgid "(IP: %(ipnr)s)"
+msgstr "IP-հասցե։ %(ipnr)s"
+
+#: trac/templates/diff_view.html:57
+#: trac/ticket/templates/ticket_notify_email.txt:21
+msgid "Comment:"
+msgstr "Մեկնաբանություն․"
+
+#: trac/templates/diff_view.html:65
+#: trac/versioncontrol/templates/changeset.html:198
+#: trac/versioncontrol/templates/revisionlog.html:73
+msgid "Legend:"
+msgstr "Նշանակություն․"
+
+#: trac/templates/diff_view.html:67
+#: trac/versioncontrol/templates/changeset.html:200
+msgid "Unmodified"
+msgstr "Անփոփոխ"
+
+#: trac/templates/diff_view.html:68
+#: trac/versioncontrol/templates/changeset.html:201
+#: trac/versioncontrol/templates/revisionlog.html:75
+msgid "Added"
+msgstr "Ավելացված"
+
+#: trac/templates/diff_view.html:69
+#: trac/versioncontrol/templates/changeset.html:202
+#: trac/versioncontrol/templates/revisionlog.html:77
+msgid "Removed"
+msgstr "Հեռացված"
+
+#: trac/templates/diff_view.html:70
+#: trac/ticket/api.py:325
+#: trac/versioncontrol/templates/changeset.html:204
+#: trac/versioncontrol/templates/revisionlog.html:79
+#: trac/wiki/admin.py:200
+msgid "Modified"
+msgstr "Փոփոխված"
+
+#: trac/templates/error.html:10
+#: trac/templates/index.html:18
+#: trac/web/main.py:526
+msgid "Error"
+msgstr "Սխալ"
+
+#: trac/templates/error.html:65
+msgid "Create"
+msgstr "Ստեղծված է"
+
+#: trac/templates/error.html:80
+msgid "Oops…"
+msgstr "Վայ․․․"
+
+#: trac/templates/error.html:82
+msgid "Trac detected an internal error:"
+msgstr "Trac-ը հայտնաբերել է ներքին սխալ․"
+
+#: trac/templates/error.html:87
+msgid ""
+"There was an internal error in Trac.\n"
+"                It is recommended that you notify your local\n"
+"                [1:\n"
+"                    Trac administrator] with the information needed to\n"
+"                reproduce the issue."
+msgstr ""
+"Հայտնաբերվել է ներքին սխալ Trac-ում։\n"
+"\t\t\t\tԽորհուրդ է տրվում տեղեկացնել ձեր լոկալ\n"
+"                [1:\n"
+"                    Trac administrator]-ին՝ ապահովելով նրան սխալի վերարտադրման համար անհրաժեշտ ինֆորմացիայով։"
+
+#: trac/templates/error.html:95
+#, python-format
+msgid "To that end, you could %(create)s a ticket."
+msgstr "Դրա համար, դուք կարող եք %(create)s խնդիր։"
+
+#: trac/templates/error.html:97
+msgid "The action that triggered the error was:"
+msgstr "Սխալ առաջացրած գործողությունը հետևյալն է․"
+
+#: trac/templates/error.html:102
+msgid "This is probably a local installation issue."
+msgstr "Սա, հավանաբար, լոկալ տեղադրման արդյունք է։"
+
+#: trac/templates/error.html:103
+#, python-format
+msgid ""
+"You should %(create)s a ticket at the admin Trac to report\n"
+"                    the issue."
+msgstr ""
+"Դուք պետք է %(create)s խնդիր ադմինիտրատորի Trac-ում տեղեկացնելու\n"
+"                    պրոբլեմի մասին."
+
+#: trac/templates/error.html:109
+msgid "Found a bug in Trac?"
+msgstr "Գտել եք թերություն Trac-ու՞մ։"
+
+#: trac/templates/error.html:110
+msgid ""
+"If you think this should work and you can reproduce the problem,\n"
+"              you should consider creating a bug report."
+msgstr "Եթե դուք մտածում եք, որ սա պետք է աշխատի և դուք կարող եք վերարտադրել պրոբլեմը,\"\" դուք պետք է հաղորդեք Trac-ի թիմին։"
+
+#: trac/templates/error.html:113
+#, python-format
+msgid "Note that the %(name)s plugin seems to be involved."
+msgstr "Նկատեք, որ %(name)s փլագինը թվում է թե ներառված է․"
+
+#: trac/templates/error.html:116
+msgid "Note that the following plugins seem to be involved:"
+msgstr "Նկատեք, որ հետևյալ փլագինները թվում են ներառված․"
+
+#: trac/templates/error.html:120
+msgid "Please report this issue to the plugin maintainer."
+msgstr "Զեկուցել արդյունքը փլագինի աջակցողին։"
+
+#: trac/templates/error.html:122
+msgid ""
+"Before you do that, though, please first try\n"
+"                [1:[2:searching]\n"
+"                for similar issues], as it is quite likely that this problem\n"
+"                has been reported before. For questions about installation\n"
+"                and configuration of Trac or its plugins, please try the\n"
+"                [3:mailing list]\n"
+"                instead of creating a ticket."
+msgstr ""
+"Մինչև գործելը մտածեք, խնդրում ենք նախ փորձեք\n"
+"                [1:[2:փնտրել]\n"
+"                նմանատիպ արդյունքների համար], քանի որ, շատ հնարավոր է այդ պրոբլեմն արդեն հաղորդված է եղել։ Trac-ի կամ իր փլագինների տեղադրման և կարգավորման համար, խնդրում ենք փորձել\n"
+"\t\t\t\t[3:փոստային ցուցակ]\n"
+"                խնդիրը լրացնելու փոխարեն։"
+
+#: trac/templates/error.html:131
+#, python-format
+msgid ""
+"Otherwise, please %(create)s a new bug report\n"
+"                describing the problem and explain how to reproduce it."
+msgstr "Հակառակ դեպքում, խնդրում ենք %(create)s նոր թերության զեկույց՝ նկարագրելով պրոբլեմը և բացատրելով, թե ինչպես այն վերարտադրել։"
+
+#: trac/templates/error.html:135
+msgid "Python Traceback"
+msgstr "Python-ի դիտարկումը"
+
+#: trac/templates/error.html:136
+msgid "Most recent call last:"
+msgstr "Ամենավերջին զանգը տևել է․"
+
+#: trac/templates/error.html:140
+#, python-format
+msgid ""
+"[1:File \"%(file)s\",\n"
+"                        line [2:%(line)s], in]\n"
+"                        [3:%(function)s]"
+msgstr ""
+"Ֆայլ \"%(file)s\",\n"
+"                        տող [2:%(line)s], in]\n"
+"                        [3:%(function)s]"
+
+#: trac/templates/error.html:146
+msgid "Code fragment:"
+msgstr "Ծրագրից հատված․"
+
+#: trac/templates/error.html:158
+msgid "Local variables:"
+msgstr "Լոկալ փոփոխականնեեր․"
+
+#: trac/templates/error.html:172
+#, python-format
+msgid "File \"%(file)s\", line %(line)s, in %(function)s"
+msgstr "Ֆայլ \"%(file)s\", տող %(line)s, %(function)s մեջ"
+
+#: trac/templates/error.html:175
+msgid "Switch to plain text view"
+msgstr "Անցնել հասարակ տեքստի դիտմանը"
+
+#: trac/templates/error.html:178
+msgid "System Information:"
+msgstr "Համակարգային ինֆորմացիա․"
+
+#: trac/templates/error.html:186
+msgid "Enabled Plugins:"
+msgstr "Ակտիվ Փլագիններ․"
+
+#: trac/templates/error.html:202
+msgid "TracGuide"
+msgstr "TracՈւղեցույց"
+
+#: trac/templates/error.html:202
+msgid "— The Trac User and Administration Guide"
+msgstr "— Trac-ի օգտագործման ու կառավարման ուղեցույցը"
+
+#: trac/templates/history_view.html:16
+#, python-format
+msgid "Change History for [1:%(name)s]"
+msgstr "Փոփոխել Պատմությունը [1:%(name)s] համար"
+
+#: trac/templates/history_view.html:22
+#: trac/templates/history_view.html:55
+#: trac/versioncontrol/templates/diff_form.html:58
+#: trac/versioncontrol/templates/revisionlog.html:88
+#: trac/versioncontrol/templates/revisionlog.html:182
+msgid "View changes"
+msgstr "Դիտել փոփոխությունները"
+
+#: trac/templates/history_view.html:24
+msgid "Change history"
+msgstr "Փոփոխել պատմությունը"
+
+#: trac/templates/history_view.html:28
+#: trac/ticket/admin.py:440
+#: trac/ticket/api.py:297
+msgid "Version"
+msgstr "Տարբերակ"
+
+#: trac/templates/history_view.html:31
+msgid "Comment"
+msgstr "Մեկնաբանություն"
+
+#: trac/templates/history_view.html:43
+msgid "View this version"
+msgstr "Դիտել այս տարբերակը"
+
+#: trac/templates/history_view.html:46
+#, python-format
+msgid "IP-Address: %(ipnr)s"
+msgstr "IP-հասցե։ %(ipnr)s"
+
+#: trac/templates/index.html:8
+#: trac/templates/index.html:12
+msgid "Available Projects"
+msgstr "Հասանելի պրոյեկտներ"
+
+#: trac/templates/layout.html:21
+#, python-format
+msgid "Search %(project)s"
+msgstr "Վերադառնալ %(project)s-ին"
+
+#: trac/templates/layout.html:50
+msgid "Download in other formats:"
+msgstr "Բեռնավորեք այլ ֆորմատներով․"
+
+#: trac/templates/list_of_attachments.html:19
+msgid "View attachment"
+msgstr "Ավելացնել կցվող նյութ"
+
+#: trac/templates/list_of_attachments.html:18
+#, python-format
+msgid ""
+"[1:%(file)s]\n"
+"      [2:[3:]]\n"
+"       ([4:%(size)s]) -\n"
+"      added by [5:%(author)s] %(date)s ago."
+msgstr ""
+"[1:%(file)s]\n"
+"        [2:[3:]]\n"
+"        ([4:%(size)s]) - ավելացված է [5:%(author)s] կողմից\n"
+"        %(date)s առաջ."
+
+#: trac/templates/list_of_attachments.html:29
+#: trac/templates/list_of_attachments.html:40
+#: trac/ticket/templates/ticket.html:389
+msgid "Attachments"
+msgstr "Կցված նյութեր"
+
+#: trac/templates/macros.html:37
+#: trac/templates/macros.html:38
+msgid "Previous"
+msgstr "Նախորդ"
+
+#: trac/templates/macros.html:47
+#: trac/templates/macros.html:48
+msgid "Next"
+msgstr "Հաջորդ"
+
+#: trac/templates/preview_file.html:15
+msgid "(The file is empty)"
+msgstr "(Ֆայլը դատարկ է)"
+
+#: trac/templates/preview_file.html:19
+#, python-format
+msgid "[1:HTML preview not available], since the file size exceeds %(size)s bytes."
+msgstr "[1:HTML preview not available] սկսած այն պահից, երբ ֆայլի չափը կգերազանցի %(size)s բայթ։"
+
+#: trac/templates/preview_file.html:22
+msgid "[1:HTML preview not available], since no preview renderer could handle it."
+msgstr "քանի որ չի գտնվել համապատասխան մշակման ծրագիր։"
+
+#: trac/templates/preview_file.html:26
+msgid "Try [1:downloading] the file instead."
+msgstr "ֆայլը փոխարենը։"
+
+#: trac/templates/progress_bar.html:26
+#, python-format
+msgid "%(count)s/%(total)s %(title)s"
+msgstr "%(count)s/%(total)s %(title)s"
+
+#: trac/templates/progress_bar.html:36
+#, python-format
+msgid "Number of %(unit)s:"
+msgstr "%(unit)s քանակը՝"
+
+#: trac/templates/progress_bar.html:40
+#, python-format
+msgid ""
+"[1:[2:%(title)s:]]\n"
+"          [3:[4:%(count)s]]"
+msgstr ""
+"[1:[2:%(title)s:]]\n"
+"          [3:[4:%(count)s]]"
+
+#: trac/templates/progress_bar.html:47
+#, python-format
+msgid ""
+"[1:[2:Total:]]\n"
+"      [3:[4:%(count)s]]"
+msgstr ""
+"[1:[2:Total:]]\n"
+"      [3:[4:%(count)s]]"
+
+#: trac/templates/theme.html:27
+msgid "Search:"
+msgstr "Փնտրում․"
+
+#: trac/templates/theme.html:40
+msgid "Context Navigation"
+msgstr "Կոնտեքստային ուղղորդում"
+
+#: trac/templates/theme.html:50
+msgid "Warning:"
+msgstr "Զգուշացում․"
+
+#: trac/templates/theme.html:69
+#, python-format
+msgid ""
+"Powered by [1:[2:Trac %(version)s]][3:]\n"
+"        By [4:Edgewall Software]."
+msgstr ""
+"Ստեղծված է [1:[2:Trac %(version)s]][3:]\n"
+"           [4:Edgewall Software]-ի կողմից։"
+
+#: trac/ticket/admin.py:36
+msgid "(Undefined)"
+msgstr "(Անորոշ)"
+
+#: trac/ticket/admin.py:47
+msgid "Ticket System"
+msgstr "Խնդիրների Համակարգ"
+
+#: trac/ticket/admin.py:112
+#, python-format
+msgid "The component \"%(name)s\" has been added."
+msgstr "\"%(name)s\" բաղադրիչն ավելացված է։"
+
+#: trac/ticket/admin.py:117
+#: trac/ticket/model.py:841
+#: trac/ticket/model.py:862
+msgid "Invalid component name."
+msgstr "Սխալ բաղադրիչի անուն։"
+
+#: trac/ticket/admin.py:118
+#, python-format
+msgid "Component %(name)s already exists."
+msgstr "%(name)s բաղադրիչն արդեն գոյություն ունի։"
+
+#: trac/ticket/admin.py:125
+msgid "No component selected"
+msgstr "Ոչ մի բաղադրիչ ընտրված չէ"
+
+#: trac/ticket/admin.py:133
+msgid "The selected components have been removed."
+msgstr "Ընտրված բաղադրիչները ջնջված են։"
+
+#: trac/ticket/admin.py:241
+#: trac/ticket/api.py:295
+#: trac/ticket/templates/milestone_view.html:10
+#: trac/ticket/templates/milestone_view.html:23
+msgid "Milestone"
+msgstr "Ուղենիշ"
+
+#: trac/ticket/admin.py:270
+#: trac/ticket/roadmap.py:663
+msgid "Completion date may not be in the future"
+msgstr "Եզրափակման ամսաթիվը կարող է չլինել ապագայում"
+
+#: trac/ticket/admin.py:272
+msgid "Invalid Completion Date"
+msgstr "Սխալ եզրափակման ամսաթիվ"
+
+#: trac/ticket/admin.py:299
+#, python-format
+msgid "The milestone \"%(name)s\" has been added."
+msgstr "\"%(name)s\" ուղենիշն ավելացված է։"
+
+#: trac/ticket/admin.py:304
+#: trac/ticket/model.py:978
+#: trac/ticket/model.py:1002
+msgid "Invalid milestone name."
+msgstr "Սխալ ուղենիշի անուն։"
+
+#: trac/ticket/admin.py:305
+#, python-format
+msgid "Milestone %(name)s already exists."
+msgstr "%(name)s ուղենիշն արդեն գոյություն ունի։"
+
+#: trac/ticket/admin.py:313
+msgid "No milestone selected"
+msgstr "Ոչ մի ուղենիշ ընտրված չէ"
+
+#: trac/ticket/admin.py:321
+msgid "The selected milestones have been removed."
+msgstr "Նշված ուղենիշերը ջնջված են։"
+
+#: trac/ticket/admin.py:480
+#, python-format
+msgid "The version \"%(name)s\" has been added."
+msgstr "\"%(name)s\" տարբերակն ավելացված է։"
+
+#: trac/ticket/admin.py:485
+#: trac/ticket/model.py:1121
+#: trac/ticket/model.py:1141
+msgid "Invalid version name."
+msgstr "Սխալ տարբերակի անուն։"
+
+#: trac/ticket/admin.py:486
+#, python-format
+msgid "Version %(name)s already exists."
+msgstr "%(name)s տարբերակն արդեն գոյություն ունի։"
+
+#: trac/ticket/admin.py:493
+msgid "No version selected"
+msgstr "Ոչ մի տարբերակ ընտրված չէ"
+
+#: trac/ticket/admin.py:501
+msgid "The selected versions have been removed."
+msgstr "Նշված տարբերակները ջնջված են։"
+
+#: trac/ticket/admin.py:559
+msgid "Time"
+msgstr "Ժամանակ"
+
+#: trac/ticket/admin.py:627
+#, python-format
+msgid "The %(field)s value \"%(name)s\" has been added."
+msgstr "%(field)s \"%(name)s\" ավելացված է։"
+
+#: trac/ticket/admin.py:633
+#, python-format
+msgid "Invalid %(type)s value."
+msgstr "Սխալ %(type)s անուն։"
+
+#: trac/ticket/admin.py:635
+#, python-format
+msgid "%(type)s value \"%(name)s\" already exists"
+msgstr "%(type)s %(name)s արդեն գոյություն ունի"
+
+#: trac/ticket/admin.py:642
+#, python-format
+msgid "No %s selected"
+msgstr "Ոչ մի %s նշված չէ"
+
+#: trac/ticket/admin.py:650
+#, python-format
+msgid "The selected %(field)s values have been removed."
+msgstr "Նշված %(field)s-երը ջնջված են։"
+
+#: trac/ticket/admin.py:672
+msgid "Error writing to trac.ini, make sure it is writable by the web server. The default value has not been saved."
+msgstr "Սխալ՝ trac.ini-ում գրելուց, համոզվեք, որ այն փոփոխելի է web սերվերի կողմից։ Լռությամբ արժեքը չի պահպանվել։"
+
+#: trac/ticket/admin.py:684
+msgid "Order numbers must be unique"
+msgstr "Հրամանի համարները չպետք է կրկնվեն"
+
+#: trac/ticket/admin.py:746
+msgid "Possible Values"
+msgstr "Հնարավոր Արժեքներ"
+
+#: trac/ticket/admin.py:768
+#, python-format
+msgid "Invalid up/down value: %(value)s"
+msgstr "Սխալ վերև/ներքև արժեք: %(value)s"
+
+#: trac/ticket/admin.py:789
+#: trac/ticket/api.py:294
+msgid "Priority"
+msgstr "Առաջնահերթություն"
+
+#: trac/ticket/admin.py:789
+msgid "Priorities"
+msgstr "Առաջնահերթություններ"
+
+#: trac/ticket/admin.py:795
+#: trac/ticket/api.py:299
+msgid "Resolution"
+msgstr "Որոշում"
+
+#: trac/ticket/admin.py:795
+msgid "Resolutions"
+msgstr "Որոշումներ"
+
+#: trac/ticket/admin.py:801
+#: trac/ticket/api.py:298
+msgid "Severity"
+msgstr "Խստություն"
+
+#: trac/ticket/admin.py:801
+msgid "Severities"
+msgstr "Խստություններ"
+
+#: trac/ticket/admin.py:807
+msgid "Ticket Type"
+msgstr "Խնդրի Տեսակը"
+
+#: trac/ticket/admin.py:807
+msgid "Ticket Types"
+msgstr "Խնդրի Տեսակները"
+
+#: trac/ticket/admin.py:835
+msgid "<number> must be a number"
+msgstr "<number> պետք է լինի թիվ"
+
+#: trac/ticket/admin.py:840
+#, python-format
+msgid "Ticket #%(num)s and all associated data removed."
+msgstr "%(num)s խնդիրը և նրա հետ կապված բոլոր տվյալները հեռացված են։"
+
+#: trac/ticket/api.py:277
+msgid "Summary"
+msgstr "Ամփոփում"
+
+#: trac/ticket/api.py:279
+#: trac/ticket/templates/ticket.html:362
+msgid "Reporter"
+msgstr "Զեկուցող"
+
+#: trac/ticket/api.py:292
+#: trac/versioncontrol/admin.py:110
+#: trac/versioncontrol/templates/admin_repositories.html:125
+msgid "Type"
+msgstr "Տեսակ"
+
+#: trac/ticket/api.py:293
+msgid "Status"
+msgstr "Կարգավիճակ"
+
+#: trac/ticket/api.py:318
+msgid "Keywords"
+msgstr "Հիմնաբառեր"
+
+#: trac/ticket/api.py:319
+msgid "Cc"
+msgstr "ՊՃ"
+
+#: trac/ticket/api.py:323
+msgid "Created"
+msgstr "Ստեղծված է"
+
+#: trac/ticket/api.py:483
+#, python-format
+msgid "Comment %(cnum)s for Ticket #%(id)s"
+msgstr "%(cnum)s մեկնաբանություն #%(id)s Խնդրի համար"
+
+#: trac/ticket/api.py:504
+#, python-format
+msgid "Ticket #%(shortname)s"
+msgstr "Խնդիր #%(shortname)s"
+
+#: trac/ticket/default_workflow.py:233
+msgid "Current state no longer exists"
+msgstr "Ընթացիկ վիճակն արդեն գոյություն չունի"
+
+#: trac/ticket/default_workflow.py:235
+msgid "The ticket will be disowned"
+msgstr "Խնդրի տերը կփոխվի"
+
+#: trac/ticket/default_workflow.py:253
+#: trac/ticket/default_workflow.py:272
+#, python-format
+msgid "to %(owner)s"
+msgstr "Ուղենիշ %(owner)s"
+
+#: trac/ticket/default_workflow.py:255
+#: trac/ticket/default_workflow.py:275
+#, python-format
+msgid "The owner will be changed from %(current_owner)s"
+msgstr "Տերը կփոխվի %(current_owner)s-ից"
+
+#: trac/ticket/default_workflow.py:263
+#, python-format
+msgid "to %(owner)s "
+msgstr "Ուղենիշ %(owner)s"
+
+#: trac/ticket/default_workflow.py:265
+#, python-format
+msgid "The owner will be changed from %(current_owner)s to %(selected_owner)s"
+msgstr "Տերը կփոխվի %(current_owner)s-ից %(selected_owner)s-ի"
+
+#: trac/ticket/default_workflow.py:280
+#, python-format
+msgid "The owner will be changed from %(current_owner)s to %(authname)s"
+msgstr "Տերը կփոխվի %(current_owner)s-ից %(authname)s-ի"
+
+#: trac/ticket/default_workflow.py:290
+msgid "Your workflow attempts to set a resolution but none is defined (configuration issue, please contact your Trac admin)."
+msgstr "Ձեր աշխատանքի արդյունքում փորձ է կատարվում նշել գործողությունը, բայց որևէ գործողություն որոշված չէ (կարգավորումների խնդիր, դիմեք Ձեր Trac ադմինիստրատորին)"
+
+#: trac/ticket/default_workflow.py:298
+#: trac/ticket/default_workflow.py:308
+#, python-format
+msgid "as %(resolution)s"
+msgstr "որպես %(resolution)s"
+
+#: trac/ticket/default_workflow.py:300
+#, python-format
+msgid "The resolution will be set to %(name)s"
+msgstr "Որոշումը կնշվի որպես %(name)s"
+
+#: trac/ticket/default_workflow.py:311
+msgid "The resolution will be set"
+msgstr "Որոշումը կնշվի"
+
+#: trac/ticket/default_workflow.py:313
+msgid "The resolution will be deleted"
+msgstr "Որոշումը կնշվի"
+
+#: trac/ticket/default_workflow.py:316
+#, python-format
+msgid "as %(status)s "
+msgstr "որպես %(status)s "
+
+#: trac/ticket/default_workflow.py:320
+#, python-format
+msgid "Next status will be '%(name)s'"
+msgstr "Հաջորդ կարգավիճակը կլինի '%(name)s'"
+
+#: trac/ticket/model.py:105
+#, python-format
+msgid "Ticket %(id)s does not exist."
+msgstr "%(id)s Խնդիրը գոյություն չունի։"
+
+#: trac/ticket/model.py:106
+msgid "Invalid ticket number"
+msgstr "Սխալ խնդրի համար"
+
+#: trac/ticket/model.py:143
+msgid "Multi-values fields not supported yet"
+msgstr "Մի քանի արժեքներով դաշտերը դեռ ապահովված չեն"
+
+#: trac/ticket/model.py:657
+#, python-format
+msgid "%(type)s %(name)s does not exist."
+msgstr "%(type)s %(name)s գոյություն չունի։"
+
+#: trac/ticket/model.py:701
+#: trac/ticket/model.py:728
+#, python-format
+msgid "Invalid %(type)s name."
+msgstr "Սխալ %(type)s անուն։"
+
+#: trac/ticket/model.py:806
+#, python-format
+msgid "Component %(name)s does not exist."
+msgstr "%(name)s բաղադրիչը գոյություն չունի։"
+
+#: trac/ticket/model.py:922
+#, python-format
+msgid "Milestone %(name)s does not exist."
+msgstr "%(name)s ուղենիշը գոյություն չունի։"
+
+#: trac/ticket/model.py:923
+msgid "Invalid milestone name"
+msgstr "Սխալ ուղենիշի անուն"
+
+#: trac/ticket/model.py:1065
+msgid "Open (by due date)"
+msgstr "Բացված (ըստ կատարման ամսաթվի)"
+
+#: trac/ticket/model.py:1066
+msgid "Open (no due date)"
+msgstr "Բաց է (առանց կատարման ժամկետ)"
+
+#: trac/ticket/model.py:1069
+msgid "Closed"
+msgstr "Փակված"
+
+#: trac/ticket/model.py:1086
+#, python-format
+msgid "Version %(name)s does not exist."
+msgstr "%(name)s տարբերակը գոյություն չունի։"
+
+#: trac/ticket/query.py:54
+msgid "Invalid query constraint value"
+msgstr "Սխալ հարցման սահմանափակման արժեք"
+
+#: trac/ticket/query.py:88
+#, python-format
+msgid "Query page %(page)s is invalid."
+msgstr "%(page)s հարցման էջը անվավեր է։"
+
+#: trac/ticket/query.py:103
+#, python-format
+msgid "Query max %(max)s is invalid."
+msgstr "%(max)s հարցումն անվավեր է։"
+
+#: trac/ticket/query.py:159
+msgid "Query filter requires field and constraints separated by a \"=\""
+msgstr "Հարցման ֆիլտրը պահանջում է դաշտն ու սահմանափակումները առանաձնացնել \"=\"-ով"
+
+#: trac/ticket/query.py:172
+msgid "Query filter requires field name"
+msgstr "Հարցման ֆիլտրը պահանջում է դաշտի անուն"
+
+#: trac/ticket/query.py:305
+#, python-format
+msgid "Page %(page)s is beyond the number of pages in the query"
+msgstr "%(page)s էջը հարցման էջերի սահմանային քանակից դուրս է"
+
+#: trac/ticket/query.py:562
+#, python-format
+msgid "Invalid ticket id list: %(value)s"
+msgstr "Անթույլատրելի խնդրի համարների ցուցակ․ %(value)s"
+
+#: trac/ticket/query.py:662
+#: trac/ticket/query.py:670
+msgid "contains"
+msgstr "պարունակում է"
+
+#: trac/ticket/query.py:663
+#: trac/ticket/query.py:671
+msgid "doesn't contain"
+msgstr "չի պարունակում"
+
+#: trac/ticket/query.py:664
+msgid "begins with"
+msgstr "սկսվում է հետևյալով"
+
+#: trac/ticket/query.py:665
+msgid "ends with"
+msgstr "վերջանում է հետևյալով"
+
+#: trac/ticket/query.py:666
+#: trac/ticket/query.py:674
+#: trac/ticket/query.py:678
+msgid "is"
+msgstr "է"
+
+#: trac/ticket/query.py:667
+#: trac/ticket/query.py:675
+#: trac/ticket/query.py:679
+msgid "is not"
+msgstr "ոչ"
+
+#: trac/ticket/query.py:709
+#: trac/ticket/query.py:715
+msgid "Ticket"
+msgstr "Խնդիր"
+
+#: trac/ticket/query.py:776
+#: trac/ticket/report.py:406
+#, python-format
+msgid "Page %(num)d"
+msgstr "%(num)d էջը"
+
+#: trac/ticket/query.py:825
+#: trac/ticket/report.py:273
+#: trac/ticket/report.py:566
+#: trac/ticket/web_ui.py:130
+#: trac/timeline/web_ui.py:220
+#: trac/versioncontrol/web_ui/log.py:304
+msgid "RSS Feed"
+msgstr "RSS Նորություններ"
+
+#: trac/ticket/query.py:827
+#: trac/ticket/report.py:275
+#: trac/ticket/report.py:568
+#: trac/ticket/web_ui.py:126
+msgid "Comma-delimited Text"
+msgstr "Ստորակետով բաժանված տեքստ"
+
+#: trac/ticket/query.py:829
+#: trac/ticket/report.py:277
+#: trac/ticket/report.py:570
+#: trac/ticket/web_ui.py:128
+msgid "Tab-delimited Text"
+msgstr "Tab-ով բաժանված տեքստ"
+
+#: trac/ticket/query.py:851
+#: trac/ticket/report.py:72
+msgid "View Tickets"
+msgstr "Դիտել Խնդիրները"
+
+#: trac/ticket/query.py:1058
+#: trac/ticket/query.py:1069
+#: trac/ticket/report.py:133
+msgid "Custom Query"
+msgstr "Սովորական Հարցում"
+
+#: trac/ticket/query.py:1068
+#: trac/ticket/report.py:123
+#: trac/ticket/report.py:124
+#: trac/ticket/report.py:126
+#: trac/ticket/templates/report_list.html:10
+#: trac/ticket/templates/report_list.html:15
+msgid "Available Reports"
+msgstr "Հասանելի Զեկույցներ"
+
+#: trac/ticket/query.py:1151
+#, python-format
+msgid "[Error: %(error)s]"
+msgstr "[Սխալ: %(error)s]"
+
+#: trac/ticket/query.py:1285
+msgid "No results"
+msgstr "Արդյունք չկա"
+
+#: trac/ticket/query.py:1303
+#, python-format
+msgid "%(groupvalue)s %(groupname)s tickets matching %(query)s"
+msgstr "%(groupvalue)s %(groupname)s խնդիրների համապատասխանեցում %(query)s-ին"
+
+#: trac/ticket/query.py:1326
+#, python-format
+msgid "%(groupvalue)s %(groupname)s tickets:"
+msgstr "%(groupvalue)s %(groupname)s խնդիրներ․"
+
+#: trac/ticket/report.py:159
+msgid "The report has been created."
+msgstr "Հաշվետվությունը ստեղծված է։"
+
+#: trac/ticket/report.py:172
+#, python-format
+msgid "The report {%(id)d} has been deleted."
+msgstr "{%(id)d} զեկույցը ջնջված է։"
+
+#: trac/ticket/report.py:199
+#, python-format
+msgid "Delete Report {%(num)s} %(title)s"
+msgstr "Ջնջել հետևյալ հաշվետվությունը {%(num)s} %(title)s"
+
+#: trac/ticket/report.py:204
+#: trac/ticket/report.py:217
+#: trac/ticket/report.py:296
+#, python-format
+msgid "Report {%(num)s} does not exist."
+msgstr "%(num)s զեկույցը գոյություն չունի։"
+
+#: trac/ticket/report.py:205
+#: trac/ticket/report.py:218
+#: trac/ticket/report.py:297
+msgid "Invalid Report Number"
+msgstr "Անթույլատրելի Զեկույցի Համար"
+
+#: trac/ticket/report.py:230
+msgid "Create New Report"
+msgstr "Ստեղծել Նոր Զեկույց"
+
+#: trac/ticket/report.py:234
+#, python-format
+msgid "Edit Report {%(num)d} %(title)s"
+msgstr "Խմբագրել {%(num)d} %(title)s Զեկույցը"
+
+#: trac/ticket/report.py:302
+#, python-format
+msgid "Report failed: %(error)s"
+msgstr "Զեկույցը ձախողվեց։ %(error)s"
+
+#: trac/ticket/report.py:317
+#, python-format
+msgid "When specified, the report number should be \"%(num)s\"."
+msgstr "Երբ որոշված է, զեկույցների թիվը պետք է լինի \"%(num)s\"։"
+
+#: trac/ticket/report.py:388
+#, python-format
+msgid "Report execution failed: %(error)s"
+msgstr "Զեկույցի կատարումը ձախողվեց։ %(error)s"
+
+#: trac/ticket/report.py:574
+msgid "SQL Query"
+msgstr "SQL Հարցում"
+
+#: trac/ticket/report.py:598
+#, python-format
+msgid "The following arguments are missing: %(args)s"
+msgstr "Հետևյալ արգումենտները բացակայում են։ %(args)s"
+
+#: trac/ticket/report.py:612
+#, python-format
+msgid "Report {%(num)s} has no SQL query."
+msgstr "%(num)s զեկույցում չկա ոչ մի SQL հարցում։"
+
+#: trac/ticket/report.py:642
+#, python-format
+msgid "Query parameter \"sort=%(sort_col)s\"  is invalid"
+msgstr "Հարցման \"sort=%(sort_col)s\" պարամետրն անթույլատրելի է։"
+
+#: trac/ticket/roadmap.py:205
+msgid "ticket status"
+msgstr "խնդրի կարգավիճակ"
+
+#: trac/ticket/roadmap.py:205
+msgid "tickets"
+msgstr "խնդիրներ"
+
+#: trac/ticket/roadmap.py:215
+#, python-format
+msgid "'%(group1)s' and '%(group2)s' milestone groups both are declared to be \"catch-all\" groups. Please check your configuration."
+msgstr "%(group1)s' և '%(group2)s' ուղենիշերի խմբերը հայտարարված են որպես \"catch-all\" խմբեր։ Խնդրում ենք ստուգել Ձեր կարգավորումները։"
+
+#: trac/ticket/roadmap.py:231
+#, python-format
+msgid "'%(groupname)s' milestone group reused status '%(status)s' already taken by other groups. Please check your configuration."
+msgstr "%(groupname)s' ուղենիշի խմբի օգտագործած '%(status)s' կարգավիճակն արդեն վերցված է ուրիշ խմբերի կողմից։ Խնդրում ենք ստուգել Ձեր կարգավորումները։"
+
+#: trac/ticket/roadmap.py:314
+#: trac/ticket/roadmap.py:436
+#: trac/ticket/roadmap.py:571
+#: trac/ticket/templates/roadmap.html:10
+#: trac/ticket/templates/roadmap.html:15
+msgid "Roadmap"
+msgstr "Ուղեցույց"
+
+#: trac/ticket/roadmap.py:364
+msgid "iCalendar"
+msgstr "iCalendar"
+
+#: trac/ticket/roadmap.py:445
+#: trac/ticket/roadmap.py:845
+#, python-format
+msgid "Milestone %(name)s"
+msgstr "Ուղենիշ %(name)s"
+
+#: trac/ticket/roadmap.py:464
+#, python-format
+msgid "Ticket #%(num)s: %(summary)s"
+msgstr "Խնդիր #%(num)s: %(summary)s"
+
+#: trac/ticket/roadmap.py:525
+msgid "Milestones reached"
+msgstr "Ավարտված ուղենիշերը"
+
+#: trac/ticket/roadmap.py:553
+#, python-format
+msgid "Milestone %(name)s completed"
+msgstr "Ուղենիշ %(name)s"
+
+#: trac/ticket/roadmap.py:613
+#, python-format
+msgid "The milestone \"%(name)s\" has been deleted."
+msgstr "\"%(name)s\" ուղենիշը ջնջված է։"
+
+#: trac/ticket/roadmap.py:652
+#, python-format
+msgid "Milestone \"%(name)s\" already exists, please choose another name."
+msgstr "\"%(name)s\" ուղենիշն արդեն գոյություն ունի, խնդրում ենք ընտրել մեկ այլ անուն։"
+
+#: trac/ticket/roadmap.py:655
+msgid "You must provide a name for the milestone."
+msgstr "Դուք պետք է ուղենիշին անուն տաք։"
+
+#: trac/ticket/web_ui.py:55
+msgid "Invalid Ticket"
+msgstr "Սխալ Խնդիր"
+
+#: trac/ticket/web_ui.py:152
+#: trac/ticket/templates/ticket.html:14
+msgid "New Ticket"
+msgstr "Նոր Խնդիր"
+
+#: trac/ticket/web_ui.py:168
+msgid "id can't be set for a new ticket request."
+msgstr "համարը չի կարող նշվել նոր խնդրի հարցման համար։"
+
+#: trac/ticket/web_ui.py:217
+#: trac/ticket/web_ui.py:268
+#: trac/versioncontrol/web_ui/changeset.py:1026
+#, python-format
+msgid "%(title)s: %(message)s"
+msgstr "%(title)s: %(message)s"
+
+#: trac/ticket/web_ui.py:231
+msgid "Opened and closed tickets"
+msgstr "Բացված և փակված խնդիրներ"
+
+#: trac/ticket/web_ui.py:233
+msgid "Ticket updates"
+msgstr "Խնդրի թարմացումներ"
+
+#: trac/ticket/web_ui.py:239
+msgid "created"
+msgstr "ստեղծված է"
+
+#: trac/ticket/web_ui.py:240
+msgid "reopened"
+msgstr "վերաբացված է"
+
+#: trac/ticket/web_ui.py:241
+msgid "closed"
+msgstr "փակված է"
+
+#: trac/ticket/web_ui.py:242
+msgid "updated"
+msgstr "թարմավցած է"
+
+#: trac/ticket/web_ui.py:262
+#: trac/ticket/web_ui.py:1066
+#, python-format
+msgid "%(labels)s changed"
+msgid_plural "%(labels)s changed"
+msgstr[0] "%(labels)s փոփոխվել է"
+msgstr[1] "%(labels)s փոփոխվել են"
+
+#: trac/ticket/web_ui.py:345
+#, python-format
+msgid "Ticket %(ticketref)s (%(summary)s) %(verb)s"
+msgstr "Խնդիր %(ticketref)s (%(summary)s) %(verb)s"
+
+#: trac/ticket/web_ui.py:500
+#, python-format
+msgid "The action \"%(name)s\" is not available."
+msgstr "\"%(name)s\" տարբերակն ավելացված է։"
+
+#: trac/ticket/web_ui.py:526
+#, python-format
+msgid "Please review your configuration, probably starting with %(section)s in your %(tracini)s."
+msgstr "Խնդրում ենք վերանայել ձեք կարգավորումները, հավանաբար սկսած %(section)s ձեր %(tracini)s-ի մեջ։"
+
+#: trac/ticket/web_ui.py:580
+#: trac/ticket/web_ui.py:797
+msgid "Ticket #%(id)s"
+msgstr "Խնդիր #%(id)s"
+
+#: trac/ticket/web_ui.py:631
+msgid "Previous Ticket"
+msgstr "Նախորդ Խնդիր"
+
+#: trac/ticket/web_ui.py:631
+msgid "Next Ticket"
+msgstr "Հաջորդ Խնդիր"
+
+#: trac/ticket/web_ui.py:632
+msgid "Back to Query"
+msgstr "Վերադառնալ Հարցմանը"
+
+#: trac/ticket/web_ui.py:714
+#: trac/ticket/web_ui.py:863
+#: trac/ticket/web_ui.py:871
+msgid "Ticket History"
+msgstr "Խնդրի Պատմություն"
+
+#: trac/ticket/web_ui.py:718
+#: trac/ticket/web_ui.py:918
+#, python-format
+msgid "Back to Ticket #%(num)s"
+msgstr "Վերադառնալ #%(num)s Խնդրին"
+
+#: trac/ticket/web_ui.py:760
+msgid "No differences to show"
+msgstr "Ոչ մի տարբերություն ցույց տալու համար"
+
+#: trac/ticket/web_ui.py:803
+#: trac/ticket/web_ui.py:860
+#: trac/ticket/web_ui.py:868
+#: trac/ticket/web_ui.py:939
+#: trac/ticket/web_ui.py:984
+#: trac/ticket/web_ui.py:991
+#: trac/wiki/web_ui.py:431
+#: trac/wiki/web_ui.py:437
+#: trac/wiki/web_ui.py:626
+#: trac/wiki/web_ui.py:640
+#, python-format
+msgid "Version %(num)s"
+msgstr "Տարբերակ %(num)s"
+
+#: trac/ticket/web_ui.py:806
+#: trac/ticket/web_ui.py:942
+msgid "Initial Version"
+msgstr "Նախնական Տարբերակ"
+
+#: trac/ticket/web_ui.py:806
+#: trac/ticket/web_ui.py:942
+msgid "initial"
+msgstr "սկզբնական"
+
+#: trac/ticket/web_ui.py:825
+msgid "Property %(label)s %(rendered)s"
+msgstr "Հատկություն %(label)s %(rendered)s"
+
+#: trac/ticket/web_ui.py:870
+#: trac/ticket/web_ui.py:993
+#: trac/versioncontrol/web_ui/changeset.py:370
+#: trac/wiki/web_ui.py:450
+msgid "Previous Change"
+msgstr "Նախորդ Փոփոխությունը"
+
+#: trac/ticket/web_ui.py:870
+#: trac/ticket/web_ui.py:993
+#: trac/versioncontrol/web_ui/changeset.py:370
+#: trac/wiki/web_ui.py:450
+msgid "Next Change"
+msgstr "Հաջորդ Փոփոխությունը"
+
+#: trac/ticket/web_ui.py:876
+msgid "Ticket Diff"
+msgstr "Խնդրի Փոփոխությունները"
+
+#: trac/ticket/web_ui.py:897
+msgid "''Initial version''"
+msgstr "''Նախնական տարբերակ''"
+
+#: trac/ticket/web_ui.py:910
+#: trac/ticket/web_ui.py:987
+#: trac/ticket/web_ui.py:994
+msgid "Ticket Comment History"
+msgstr "Խնդրի Մեկնաբանության Պատմություն"
+
+#: trac/ticket/web_ui.py:912
+#: trac/ticket/web_ui.py:936
+#: trac/ticket/web_ui.py:1001
+#, python-format
+msgid "Ticket #%(num)s, comment %(cnum)d"
+msgstr "Խնդիր #%(num)s, մեկնաբանություն %(cnum)d"
+
+#: trac/ticket/web_ui.py:959
+#, python-format
+msgid "No version %(version)d for comment %(cnum)d on ticket #%(ticket)s"
+msgstr "Բացակայում է %(version)d տարբերակը %(cnum)d մեկնաբանութան համար #%(ticket)s խնռրի մեջ"
+
+#: trac/ticket/web_ui.py:999
+msgid "Ticket Comment Diff"
+msgstr "Խնդրի Մեկնաբանության Տարբերություն"
+
+#: trac/ticket/web_ui.py:1070
+msgid "%(labels)s set"
+msgid_plural "%(labels)s set"
+msgstr[0] "%(labels)s դրված է"
+msgstr[1] "%(labels)s դրված են"
+
+#: trac/ticket/web_ui.py:1074
+msgid "%(labels)s deleted"
+msgid_plural "%(labels)s deleted"
+msgstr[0] "%(labels)s հեռացված է"
+msgstr[1] "%(labels)s հեռացված են"
+
+#: trac/ticket/web_ui.py:1075
+#: trac/ticket/web_ui.py:1626
+msgid "; "
+msgstr "; "
+
+#: trac/ticket/web_ui.py:1096
+msgid "No permission to edit the ticket description."
+msgstr "Չկա թույլտվություն խնդրի նկարագիրը խմբագրելու համար։"
+
+#: trac/ticket/web_ui.py:1102
+msgid "No permission to change the ticket reporter."
+msgstr "Չկա թույլտվություն խնդրի հեղինակին փոխելու համար։"
+
+#: trac/ticket/web_ui.py:1107
+msgid "No permission to change ticket fields."
+msgstr "Չկա թույլատվություն խնդրի դաշտերը փոփոխելու համար։"
+
+#: trac/ticket/web_ui.py:1116
+msgid "No permissions to add a comment."
+msgstr "Չկա թույլտվություն մեկնաբանություն ավելացնելու համար։"
+
+#: trac/ticket/web_ui.py:1122
+msgid "Sorry, can not save your changes. This ticket has been modified by someone else since you started"
+msgstr "Ներեցեք, Ձեր փոփոխությունները չեն կարող պահպանվել։ Ձեր սկսելուց հետո այս խնդիրը փոփոխվել է ուրիշի կողմից"
+
+#: trac/ticket/web_ui.py:1129
+msgid "Tickets must contain a summary."
+msgstr "Խնդիրները պետք է պարունակեն ամփոփում։"
+
+#: trac/ticket/web_ui.py:1147
+msgid "field %(name)s must be set"
+msgstr "%(name)s դաշտը պետք է արժեքավորվի"
+
+#: trac/ticket/web_ui.py:1153
+#, python-format
+msgid "Ticket description is too long (must be less than %(num)s characters)"
+msgstr "Խնդրի նկարագրությունը շատ երկար է (պետք է լինի %(num)s սիմվոլից պակաս)"
+
+#: trac/ticket/web_ui.py:1160
+#, python-format
+msgid "Ticket comment is too long (must be less than %(num)s characters)"
+msgstr "Խնդրի նկարագրությունը շատ երկար է (պետք է լինի %(num)s սիմվոլից պակաս)"
+
+#: trac/ticket/web_ui.py:1175
+msgid "Invalid comment threading identifier"
+msgstr "Անթույլատրելի thread պրոցեսի նկարագրության իդենտիֆիկատոր"
+
+#: trac/ticket/web_ui.py:1182
+#, python-format
+msgid "The ticket field '%(field)s' is invalid: %(message)s"
+msgstr "Խնդրի '%(field)s' դաշտը անվավեր է: %(message)s"
+
+#: trac/ticket/web_ui.py:1201
+#, python-format
+msgid "The ticket has been created, but an error occurred while sending notifications: %(message)s"
+msgstr "Խնդիրը ստեղծվել է, սակայն առաջացել է սխալ զգուշացում ուղարկելուց․ %(message)s"
+
+#: trac/ticket/web_ui.py:1211
+#, python-format
+msgid "Your ticket %(ticketref)s has been created, but you don't have permission to view it."
+msgstr "Ձեր խնդիրը (%(ticketref)s) ստեղծվել է, բայց դուք չունեք թույլտվություն դիտելու այն։"
+
+#. TRANSLATOR: The 'change' has been saved... (link)
+#: trac/ticket/web_ui.py:1242
+msgid "change"
+msgstr "փոփոխություն"
+
+#: trac/ticket/web_ui.py:1248
+#, python-format
+msgid "The %(change)s has been saved, but an error occurred while sending notifications: %(message)s"
+msgstr "%(change)s պահպանվել է, սակայն առաջացել է սխալ զգուշացում ուղարկելուց․ %(message)s"
+
+#: trac/ticket/web_ui.py:1382
+msgid "Add to Cc"
+msgstr "Ավելացնել Cc-ին"
+
+#: trac/ticket/web_ui.py:1383
+msgid "Remove from Cc"
+msgstr "Ջնջել Cc-ից"
+
+#: trac/ticket/web_ui.py:1384
+msgid "Add/Remove from Cc"
+msgstr "Ավելացնել/Ջնջել Cc-ից"
+
+#: trac/ticket/web_ui.py:1385
+msgid "<Author field>"
+msgstr "<Հեղինակային դաշտ>"
+
+#: trac/ticket/web_ui.py:1406
+#: trac/ticket/templates/query.html:102
+msgid "yes"
+msgstr "այո"
+
+#: trac/ticket/web_ui.py:1406
+#: trac/ticket/templates/query.html:105
+msgid "no"
+msgstr "ոչ"
+
+#: trac/ticket/web_ui.py:1592
+msgid "set"
+msgstr "դարձել է"
+
+#: trac/ticket/web_ui.py:1592
+msgid "unset"
+msgstr "հաջորդ"
+
+#: trac/ticket/web_ui.py:1595
+#: trac/versioncontrol/templates/changeset.html:189
+#: trac/versioncontrol/templates/revisionlog.txt:12
+msgid "modified"
+msgstr "փոփոխված"
+
+#. TRANSLATOR: modified ('diff') (link)
+#: trac/ticket/web_ui.py:1600
+#: trac/ticket/templates/ticket.html:180
+#: trac/ticket/templates/ticket_box.html:64
+#: trac/wiki/web_ui.py:722
+msgid "diff"
+msgstr "տարբերություն"
+
+#: trac/ticket/web_ui.py:1601
+#, python-format
+msgid "modified (%(diff)s)"
+msgstr "Վերջին անգամ փոփոխված է %(diff)s առաջ"
+
+#: trac/ticket/web_ui.py:1622
+#, python-format
+msgid "%(items)s added"
+msgid_plural "%(items)s added"
+msgstr[0] "%(items)s փոփոխվել է"
+msgstr[1] "%(items)s փոփոխվել են"
+
+#: trac/ticket/web_ui.py:1624
+#, python-format
+msgid "%(items)s removed"
+msgid_plural "%(items)s removed"
+msgstr[0] "%(items)s ջնջված է"
+msgstr[1] "%(items)s ջնջված են"
+
+#: trac/ticket/web_ui.py:1633
+#, python-format
+msgid "%(value)s deleted"
+msgstr "%(value)s (հեռացնել)"
+
+#: trac/ticket/web_ui.py:1635
+#, python-format
+msgid "set to %(value)s"
+msgstr "դրված է %(value)s"
+
+#: trac/ticket/web_ui.py:1638
+#, python-format
+msgid "changed from %(old)s to %(new)s"
+msgstr "Ոչ մի հասանելի MIME ձևափոխություն %(old)s ից %(new)s"
+
+#: trac/ticket/templates/milestone_delete.html:10
+#: trac/ticket/templates/milestone_delete.html:22
+msgid "Delete Milestone"
+msgstr "Ջնջել Ուղենիշը"
+
+#: trac/ticket/templates/milestone_delete.html:27
+msgid "Are you sure you want to delete this milestone?"
+msgstr "Դուք համոզվա՞ծ եք, որ ցանկանում էք ջնջել այս ուղենիշը։"
+
+#: trac/ticket/templates/milestone_delete.html:29
+msgid "Retarget associated tickets to milestone"
+msgstr "Վերակցել միախմբված խնդիրները ուղենշին"
+
+#: trac/ticket/templates/milestone_delete.html:41
+#: trac/ticket/templates/milestone_view.html:107
+msgid "Delete milestone"
+msgstr "Ջնջել ուղենիշը"
+
+#: trac/ticket/templates/milestone_delete.html:45
+msgid ""
+"[1:Note:] See\n"
+"      [2:TracRoadmap] for help on using\n"
+"      the roadmap."
+msgstr ""
+"[1:Note:] Տես\n"
+"        [2:TracRoadmap] ուղեցույցի օգտագործման մասին իմանալու համար։"
+
+#: trac/ticket/templates/milestone_edit.html:11
+#: trac/ticket/templates/milestone_edit.html:36
+msgid "Edit Milestone"
+msgstr "Ուղենիշի խմբագրում"
+
+#: trac/ticket/templates/milestone_edit.html:12
+#: trac/ticket/templates/milestone_edit.html:37
+msgid "New Milestone"
+msgstr "Նոր Ուղենիշ"
+
+#: trac/ticket/templates/milestone_edit.html:44
+msgid "Name of the milestone:"
+msgstr "Ուղենիշի անունը․"
+
+#: trac/ticket/templates/milestone_edit.html:49
+msgid "Schedule"
+msgstr "Ժամանակացույց"
+
+#: trac/ticket/templates/milestone_edit.html:71
+msgid "Retarget associated open tickets to milestone:"
+msgstr "Վերակցել միախմբված բացված խնդիրները ուղենիշին․"
+
+#: trac/ticket/templates/milestone_edit.html:92
+#: trac/ticket/templates/ticket.html:398
+#: trac/ticket/templates/ticket_change.html:47
+#: trac/wiki/templates/wiki_edit_form.html:70
+#: trac/wiki/templates/wiki_edit_form.html:75
+msgid "Submit changes"
+msgstr "Գրանցել փոփոխությունները"
+
+#: trac/ticket/templates/milestone_edit.html:93
+msgid "Add milestone"
+msgstr "Ուղենիշի ավելացում"
+
+#: trac/ticket/templates/milestone_edit.html:98
+#: trac/ticket/templates/milestone_view.html:113
+#: trac/ticket/templates/roadmap.html:79
+msgid ""
+"[1:Note:] See\n"
+"        [2:TracRoadmap] for help on using\n"
+"        the roadmap."
+msgstr ""
+"[1:Note:] Տես\n"
+"        [2:TracRoadmap] ուղեցույցի օգտագործման մասին իմանալու համար։"
+
+#: trac/ticket/templates/milestone_view.html:11
+msgid "Edit this milestone"
+msgstr "Ուղենիշի խմբագրում"
+
+#: trac/ticket/templates/milestone_view.html:27
+#: trac/ticket/templates/roadmap.html:42
+#, python-format
+msgid "Completed %(duration)s ago (%(date)s)"
+msgstr ""
+"Ավարտված է %(duration)s առաջ\n"
+"              (%(date)s)"
+
+#: trac/ticket/templates/milestone_view.html:32
+#: trac/ticket/templates/roadmap.html:47
+#, python-format
+msgid "[1:%(duration)s late] (%(date)s)"
+msgstr ""
+"[1:%(duration)s ուշ]\n"
+"              (%(date)s)"
+
+#: trac/ticket/templates/milestone_view.html:37
+#: trac/ticket/templates/roadmap.html:52
+#, python-format
+msgid "Due in %(duration)s (%(date)s)"
+msgstr ""
+"Մինչև %(duration)s\n"
+"                  (%(date)s)"
+
+#: trac/ticket/templates/milestone_view.html:41
+#: trac/ticket/templates/roadmap.html:56
+msgid "No date set"
+msgstr "Ոչ մի ամսաթիվ նշված չէ"
+
+#: trac/ticket/templates/milestone_view.html:51
+#, python-format
+msgid "%(stat_title)s by"
+msgstr "%(stat_title)s"
+
+#: trac/ticket/templates/milestone_view.html:65
+msgid "(none)"
+msgstr "(ոչ մի)"
+
+#: trac/ticket/templates/milestone_view.html:101
+msgid "Edit milestone"
+msgstr "Ուղենիշի խմբագրում"
+
+#: trac/ticket/templates/query.html:29
+#: trac/ticket/templates/query_results.html:28
+#: trac/ticket/templates/report_view.html:21
+#: trac/ticket/templates/report_view.html:87
+#, python-format
+msgid "%(num)s match"
+msgid_plural "%(num)s matches"
+msgstr[0] "%(num)s համապատասխանություն"
+msgstr[1] "%(num)s համապատասխանություններ"
+
+#: trac/ticket/templates/query.html:38
+msgid "Filters"
+msgstr "Ֆիլտրեր"
+
+#: trac/ticket/templates/query.html:39
+msgid "Query filters"
+msgstr "Հարցումը ֆիլտրում է"
+
+#: trac/ticket/templates/query.html:45
+#: trac/ticket/templates/query.html:143
+msgid "Or"
+msgstr "Կամ"
+
+#: trac/ticket/templates/query.html:73
+msgid "or"
+msgstr "կամ"
+
+#: trac/ticket/templates/query.html:115
+msgid ""
+"[1:between]\n"
+"                            [2:]\n"
+"                            [3:and]\n"
+"                            [4:]"
+msgstr ""
+"[1:between]\n"
+"                            [2:]\n"
+"                            [3:and]\n"
+"                            [4:]"
+
+#: trac/ticket/templates/query.html:129
+msgid "And"
+msgstr "Եվ"
+
+#: trac/ticket/templates/query.html:162
+msgid "Columns"
+msgstr "Սյուներ"
+
+#: trac/ticket/templates/query.html:176
+msgid "Group results by"
+msgstr "Խմբավորել արդյունքներն ըստ"
+
+#: trac/ticket/templates/query.html:187
+msgid "descending"
+msgstr "նվազող"
+
+#: trac/ticket/templates/query.html:191
+msgid "Show under each result:"
+msgstr "Ցուցադրել ամեն արդյունքի տակ․"
+
+#: trac/ticket/templates/query.html:201
+#: trac/ticket/templates/report_view.html:27
+msgid "Max items per page"
+msgstr "Էլեմենտների մաքսիմալ քանակը ամեն էջում"
+
+#: trac/ticket/templates/query.html:245
+#, python-format
+msgid "Edit report {%(id)s} corresponding to this query"
+msgstr "Խմբագրել {%(id)s} ամփոփագիրը համապատսխան այս հարցմանը"
+
+#: trac/ticket/templates/query.html:245
+msgid "Edit query"
+msgstr "Խմբագրել հարցումը"
+
+#: trac/ticket/templates/query.html:254
+msgid "Save query"
+msgstr "Պահպանել հարցումը"
+
+#: trac/ticket/templates/query.html:254
+#, python-format
+msgid "Save updated query in report {%(id)s}"
+msgstr "Պահպանել թարմացված հարցումը զեկույցում {%(id)s}"
+
+#: trac/ticket/templates/query.html:254
+msgid "Create new report from current query"
+msgstr "Ստեղծել նոր զեկույց ընթացիկ հարցումից"
+
+#: trac/ticket/templates/query.html:262
+#, python-format
+msgid "Delete report {%(id)s} corresponding to this query"
+msgstr "Ջնջել {%(id)s} ամփոփագիրը համապատասխան այս հարցմանը"
+
+#: trac/ticket/templates/query.html:262
+msgid "Delete query"
+msgstr "Ջնջել հարցումը"
+
+#: trac/ticket/templates/query.html:269
+msgid ""
+"[1:Note:] See [2:TracQuery]\n"
+"        for help on using queries."
+msgstr ""
+"[1:Note:] Տես [2:TracQuery]\n"
+"        հարցումների օգտագործման օգնության համար։"
+
+#: trac/ticket/templates/query_results.html:35
+msgid "(ascending)"
+msgstr "(նվազող)"
+
+#: trac/ticket/templates/query_results.html:35
+msgid "(descending)"
+msgstr "(նվազող)"
+
+#: trac/ticket/templates/query_results.html:36
+#: trac/versioncontrol/templates/sortable_th.html:18
+#, python-format
+msgid "Sort by %(col)s %(direction)s"
+msgstr "Սորտավորել ըստ %(col)s %(direction)s"
+
+#: trac/ticket/templates/query_results.html:45
+msgid "No tickets found"
+msgstr "Ոչ մի խնդիր գտնված չէ"
+
+#: trac/ticket/templates/query_results.html:59
+#: trac/ticket/templates/query_results.html:62
+msgid "View ticket"
+msgstr "Դիտել խնդիրը"
+
+#: trac/ticket/templates/query_results.html:67
+#: trac/ticket/templates/report_view.html:170
+msgid "View milestone"
+msgstr "Դիտել ուղենիշը"
+
+#: trac/ticket/templates/query_results.html:78
+#, python-format
+msgid ""
+"Reported by [1:%(author)s],\n"
+"                      %(date)s ago."
+msgstr ""
+"Զեկուցված է [1:%(author)s]-ի կողմից,\n"
+"                      %(date)s առաջ։"
+
+#: trac/ticket/templates/query_results.html:85
+msgid "(this ticket)"
+msgstr "(այս խնդիրը)"
+
+#: trac/ticket/templates/query_results.html:101
+msgid "(more results for this group on next page)"
+msgstr "(ավելի շատ արդյունքներ այս խմբի համար հաջորդ էջում)"
+
+#: trac/ticket/templates/report_delete.html:17
+msgid "Are you sure you want to delete this report?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս զեկույցը։"
+
+#: trac/ticket/templates/report_delete.html:22
+#: trac/ticket/templates/report_list.html:34
+#: trac/ticket/templates/report_view.html:75
+msgid "Delete report"
+msgstr "Ջնջել զեկույցը"
+
+#: trac/ticket/templates/report_delete.html:26
+#: trac/ticket/templates/report_edit.html:49
+#: trac/ticket/templates/report_list.html:52
+#: trac/ticket/templates/report_view.html:195
+msgid ""
+"[1:Note:]\n"
+"        See [2:TracReports] for help on using and creating reports."
+msgstr ""
+"[1:Note:]\n"
+"       Տես [2:TracReports] զեկույցների ստեղծման և օգտագործման օգնության համար։"
+
+#: trac/ticket/templates/report_edit.html:16
+msgid "New Report"
+msgstr "Դիտել զեկույցը"
+
+#: trac/ticket/templates/report_edit.html:21
+msgid "Report Title:"
+msgstr "Զեկույցի Վերնագիր․"
+
+#: trac/ticket/templates/report_edit.html:25
+msgid "Description: (you may use [1:WikiFormatting] here)"
+msgstr "Նկարագրություն։ (Դուք կարող եք օգտագործել [1:WikiFormatting] այստեղ)"
+
+#: trac/ticket/templates/report_edit.html:36
+msgid ""
+"Query for Report: (can be either SQL or, if starting with [1:query:],\n"
+"              a [2:TracQuery] expression)"
+msgstr "Հարցում Զեկույցի համար։ (կարող է լինել SQL կամ [2:TracQuery] արտահայտություն, եթե սկսվում է [1:query:]-ով)"
+
+#: trac/ticket/templates/report_edit.html:43
+msgid "Save report"
+msgstr "Պահպանել զեկույցը"
+
+#: trac/ticket/templates/report_list.html:23
+msgid "Report"
+msgstr "Զեկույց"
+
+#: trac/ticket/templates/report_list.html:24
+#: trac/wiki/admin.py:200
+msgid "Title"
+msgstr "Վերնագիր"
+
+#: trac/ticket/templates/report_list.html:25
+#: trac/wiki/templates/wiki_edit.html:68
+#: trac/wiki/templates/wiki_edit.html:141
+msgid "Actions"
+msgstr "Գործողություններ"
+
+#: trac/ticket/templates/report_list.html:30
+#: trac/ticket/templates/report_list.html:31
+#: trac/ticket/templates/report_view.html:121
+msgid "View report"
+msgstr "Դիտել զեկույցը"
+
+#: trac/ticket/templates/report_list.html:32
+#: trac/ticket/templates/report_view.html:63
+msgid "Edit report"
+msgstr "Խմբագրել զեկույցը"
+
+#: trac/ticket/templates/report_list.html:33
+#: trac/ticket/templates/ticket.html:148
+#: trac/wiki/templates/wiki_edit.html:124
+msgid "Edit"
+msgstr "Խմբագրել"
+
+#: trac/ticket/templates/report_list.html:38
+msgid "No reports available."
+msgstr "Ոչ մի հասանելի զեկույց։"
+
+#: trac/ticket/templates/report_list.html:47
+msgid "Create new report"
+msgstr "Ստեղծել նոր զեկույց"
+
+#: trac/ticket/templates/report_view.html:32
+msgid "Arguments"
+msgstr "Արգումենտներ"
+
+#: trac/ticket/templates/report_view.html:33
+msgid "Report arguments"
+msgstr "Զեկուցել արգումենտները"
+
+#: trac/ticket/templates/report_view.html:69
+msgid "Copy report"
+msgstr "Զեկույցի պատճենում"
+
+#: trac/ticket/templates/report_view.html:128
+#: trac/ticket/templates/report_view.html:136
+#, python-format
+msgid "View %(realm)s"
+msgstr "Տեսնել %(realm)s"
+
+#: trac/ticket/templates/roadmap.html:21
+msgid "Show completed milestones"
+msgstr "Դիտել արդեն ավարտված ուղենիշերը"
+
+#: trac/ticket/templates/roadmap.html:26
+msgid "Hide milestones with no due date"
+msgstr "Թաքցնել ժամկետները առանց վերջնաժամկետի"
+
+#: trac/ticket/templates/roadmap.html:37
+msgid "Milestone:"
+msgstr "Ուղենիշ․"
+
+#: trac/ticket/templates/roadmap.html:75
+msgid "Add new milestone"
+msgstr "Նոր ուղենիշի ավելացում"
+
+#: trac/ticket/templates/ticket.html:80
+msgid "Go to the ticket editor"
+msgstr "Դեպի խնդրի խմբագրիչ"
+
+#: trac/ticket/templates/ticket.html:80
+msgid "Modify"
+msgstr "Փոփոխել"
+
+#: trac/ticket/templates/ticket.html:84
+msgid "Ticket #"
+msgstr "Խնդիր #"
+
+#: trac/ticket/templates/ticket.html:91
+msgid "at [1:Initial Version]"
+msgstr "Նախնական Տարբերակ"
+
+#: trac/ticket/templates/ticket.html:94
+#, python-format
+msgid "at [1:Version %(version)s]"
+msgstr "%(version)s տարբերակում"
+
+#: trac/ticket/templates/ticket.html:98
+msgid "Create New Ticket"
+msgstr "Ստեղծել Նոր Խնդիր"
+
+#: trac/ticket/templates/ticket.html:113
+msgid "Change History"
+msgstr "Փոխել Պատմությունը"
+
+#: trac/ticket/templates/ticket.html:128
+#: trac/ticket/templates/ticket.html:217
+msgid "in reply to:"
+msgstr "ի պատասխան․"
+
+#: trac/ticket/templates/ticket.html:133
+msgid "follow-up:"
+msgid_plural "follow-ups:"
+msgstr[0] "աշխատանք"
+msgstr[1] "աշխատանքներ"
+
+#: trac/ticket/templates/ticket.html:148
+#, python-format
+msgid "Edit comment %(cnum)s"
+msgstr "Խմբագրել %(cnum)s մեկնաբանությունը"
+
+#: trac/ticket/templates/ticket.html:155
+#: trac/ticket/templates/ticket_box.html:73
+msgid "Reply"
+msgstr "Պատասխան"
+
+#: trac/ticket/templates/ticket.html:155
+#, python-format
+msgid "Reply to comment %(cnum)s"
+msgstr "Պատասխանել %(cnum)s մեկնաբանությանը"
+
+#: trac/ticket/templates/ticket.html:162
+#, python-format
+msgid ""
+"Version %(version)s, edited %(date)s ago\n"
+"                      by %(author)s"
+msgstr "%(version)s տարբերակ, խմբագրված %(author)s-ի կողմից %(date)s առաջ"
+
+#: trac/ticket/templates/ticket.html:166
+#, python-format
+msgid ""
+"Last edited %(date)s ago\n"
+"                      by %(author)s"
+msgstr ""
+"Վերջին անգամ խմբագրված է %(date)s օր առաջ\n"
+"                      %(author)s-ի կողմից"
+
+#: trac/ticket/templates/ticket.html:172
+#: trac/versioncontrol/templates/changeset.html:129
+msgid "previous"
+msgstr "նախորդ"
+
+#: trac/ticket/templates/ticket.html:176
+msgid "next"
+msgstr "հաջորդ"
+
+#: trac/ticket/templates/ticket.html:196
+msgid "View ticket fields and description"
+msgstr "Դիտել խնդրի դաշտերն ու նկարագրությունը"
+
+#: trac/ticket/templates/ticket.html:196
+msgid "View"
+msgstr "Դիտում"
+
+#: trac/ticket/templates/ticket.html:199
+msgid "Add a comment"
+msgstr "Ավելացնել մեկնաբանություն"
+
+#: trac/ticket/templates/ticket.html:203
+msgid ""
+"You may use\n"
+"              [1:WikiFormatting]\n"
+"              here."
+msgstr ""
+"Դուք կարող եք օգտագործել\n"
+"              [1:WikiFormatting]\n"
+"              այստեղ։"
+
+#: trac/ticket/templates/ticket.html:210
+msgid ""
+"Warnings are shown at the [1:top of the page]. The ticket validation\n"
+"            may have failed."
+msgstr ""
+"Նախազգուշացումները ցույց են տրվում [1:էջի վերևում]։ Խնդրի վավերացումը\n"
+"\t     հնարավոր է չի հաջողվել։"
+
+#: trac/ticket/templates/ticket.html:220
+#, python-format
+msgid "Changed by %(author)s"
+msgstr "Փոփոխված է %(author)s կողմից"
+
+#: trac/ticket/templates/ticket.html:227
+msgid "Modify Ticket"
+msgstr "Փոփոխել Խնդիր"
+
+#: trac/ticket/templates/ticket.html:233
+msgid "Change Properties"
+msgstr "Փոխել Հատկությունները"
+
+#: trac/ticket/templates/ticket.html:234
+msgid "Properties"
+msgstr "Հատկություններ"
+
+#: trac/ticket/templates/ticket.html:238
+msgid "Summary:"
+msgstr "Ամփոփում․"
+
+#: trac/ticket/templates/ticket.html:246
+msgid "Reporter:"
+msgstr "Զեկուցող․"
+
+#: trac/ticket/templates/ticket.html:258
+msgid ""
+"You may use\n"
+"                          [1:WikiFormatting] here."
+msgstr ""
+"Դուք կարող եք օգտագործել\n"
+"              [1:WikiFormatting]\n"
+"              այստեղ։"
+
+#: trac/ticket/templates/ticket.html:274
+#: trac/ticket/templates/ticket_box.html:43
+#, python-format
+msgid "%(field)s:"
+msgstr "%(field)s:"
+
+#: trac/ticket/templates/ticket.html:313
+msgid "This checkbox allows you to add or remove yourself from the CC list."
+msgstr "Հնարավորություն է տալիս ավելացնել կամ ջնջել ձեզ CC ցուցակից։"
+
+#: trac/ticket/templates/ticket.html:319
+msgid "Space or comma delimited email addresses and usernames are accepted."
+msgstr "Բացակով կամ ստորակետով բաժանված փոստային հասցեները և օգտագործողի անունները թույլատրելի են։"
+
+#: trac/ticket/templates/ticket.html:375
+#: trac/wiki/templates/wiki_edit_form.html:50
+msgid "E-mail address and user name can be saved in the [1:Preferences]."
+msgstr "Էլեկտրոնային փոստի հասցեն և օգտագործողի անունը կարող են պահպանվել"
+
+#: trac/ticket/templates/ticket.html:383
+msgid "I have files to attach to this ticket"
+msgstr "Ես ունեմ ֆայլեր այս խնդրին կցելու համար"
+
+#: trac/ticket/templates/ticket.html:389
+msgid "Go to the list of attachments"
+msgstr "Դեպի կցված նյութերի ցանկ"
+
+#: trac/ticket/templates/ticket.html:397
+#: trac/ticket/templates/ticket_change.html:45
+#: trac/wiki/templates/wiki_edit.html:70
+#: trac/wiki/templates/wiki_edit.html:128
+#: trac/wiki/templates/wiki_edit_form.html:39
+#: trac/wiki/templates/wiki_edit_form.html:68
+msgid "Preview"
+msgstr "Նախնական դիտում"
+
+#: trac/ticket/templates/ticket.html:398
+msgid "Create ticket"
+msgstr "Ստեղծել խնդիր"
+
+#: trac/ticket/templates/ticket.html:403
+msgid ""
+"[1:Note:] See\n"
+"        [2:TracTickets] for help on using\n"
+"        tickets."
+msgstr ""
+"[1:Note:] Տես\n"
+"        [2:TracTickets] խնդիրների օգտագործման օգնության համար։"
+
+#: trac/ticket/templates/ticket_box.html:19
+#, python-format
+msgid "Opened %(created)s ago"
+msgstr "Բացված է %(created)s առաջ"
+
+#: trac/ticket/templates/ticket_box.html:20
+#, python-format
+msgid "Last modified %(modified)s ago"
+msgstr "Վերջին անգամ փոփոխված է %(modified)s առաջ"
+
+#: trac/ticket/templates/ticket_box.html:21
+msgid "(ticket not yet created)"
+msgstr "(խնդիրը դեռ ստեղծված չէ)"
+
+#: trac/ticket/templates/ticket_box.html:29
+msgid "Reported by:"
+msgstr "Զեկուցված հետևյալի կողմից․"
+
+#: trac/ticket/templates/ticket_box.html:33
+msgid "Owned by:"
+msgstr "Պատկանող․"
+
+#: trac/ticket/templates/ticket_box.html:63
+#, python-format
+msgid "(last modified by %(author)s)"
+msgstr "(վերջին անգամ փոփոխված է %(author)s կողմից)"
+
+#: trac/ticket/templates/ticket_box.html:73
+msgid "Reply, quoting this description"
+msgstr "Պատասխանեք՝ նշելով նկարագրությունը"
+
+#: trac/ticket/templates/ticket_change.html:19
+#, python-format
+msgid ""
+"[1:[2:%(name)s]]\n"
+"          [3:[4:]]\n"
+"          added"
+msgstr ""
+"[1:[2:%(name)s]]\n"
+"          [3:[4:]]\n"
+"          ավելացված է"
+
+#: trac/ticket/templates/ticket_change.html:26
+#, python-format
+msgid "changed from [1:%(old)s] to [2:%(new)s]"
+msgstr "փոփոխված է [1:%(old)s] [2:%(new)s]"
+
+#: trac/ticket/templates/ticket_change.html:29
+#, python-format
+msgid "set to [1:%(value)s]"
+msgstr "դրված է [1:%(value)s]"
+
+#: trac/ticket/templates/ticket_change.html:32
+#, python-format
+msgid "[1:%(value)s] deleted"
+msgstr "[1:%(value)s] ջնջված է"
+
+#: trac/ticket/templates/ticket_change.html:45
+#, python-format
+msgid "Preview changes to comment %(cnum)s"
+msgstr "Նախապես դիտել մեկնաբանելու %(cnum)s"
+
+#: trac/ticket/templates/ticket_change.html:47
+#, python-format
+msgid "Submit changes to comment %(cnum)s"
+msgstr "Հաստատել փոփոխությունները մեկնաբանուլու %(cnum)s"
+
+#: trac/ticket/templates/ticket_change.html:49
+msgid "Cancel comment edit"
+msgstr "Մերժել մեկնաբանության խմբագրումը"
+
+#: trac/ticket/templates/ticket_notify_email.txt:9
+#, python-format
+msgid "Changes (by %(author)s):"
+msgstr "Փոփոխված %(author)s կողմից"
+
+#: trac/ticket/templates/ticket_notify_email.txt:15
+#, python-format
+msgid "Description changed by %(author)s:"
+msgstr "Նկարագրությունը փոխվեց %(author)s կողմից․"
+
+#: trac/ticket/templates/ticket_notify_email.txt:21
+#, python-format
+msgid "Comment (by %(author)s):"
+msgstr "Մեկնաբանված ( %(author)s)-ի կողմից՝"
+
+#: trac/ticket/templates/ticket_notify_email.txt:29
+#, python-format
+msgid "Ticket URL: <%(link)s>"
+msgstr "Խնդիր URL: <%(link)s>"
+
+#: trac/timeline/web_ui.py:76
+#: trac/timeline/templates/timeline.html:10
+#: trac/timeline/templates/timeline.html:16
+msgid "Timeline"
+msgstr "Ժամանակացույց"
+
+#: trac/timeline/web_ui.py:233
+#: trac/timeline/web_ui.py:241
+msgid "Previous Period"
+msgstr "Նախորդ Ինտերվալ"
+
+#: trac/timeline/web_ui.py:240
+#: trac/timeline/web_ui.py:241
+msgid "Next Period"
+msgstr "Հաջորդ Ինտերվալ"
+
+#: trac/timeline/web_ui.py:301
+#, python-format
+msgid "%(date)s in Timeline"
+msgstr "%(date)s Ժամանակացույցում"
+
+#. TRANSLATOR: ...want to see the 'other kinds of events' from... (link)
+#: trac/timeline/web_ui.py:348
+msgid "other kinds of events"
+msgstr "այլ տեսակի պատահարներ"
+
+#: trac/timeline/web_ui.py:353
+#, python-format
+msgid "Event provider %(name)s failed for filters %(kinds)s: "
+msgstr "Պատահարի հեղինակի %(name)s խախանվեց %(kinds)s ֆիլտրի համար․ "
+
+#: trac/timeline/web_ui.py:356
+#, python-format
+msgid "You may want to see the %(other_events)s from the Timeline or notify your Trac administrator about the error (detailed information was written to the log)."
+msgstr "Դուք կարող եք տեսնել %(other_events)s Ժամանակացույցից կամ տեղեկացնել ձեր Trac ադմինիստրատորին սխալների մասին (մանրամասն ինֆորմացիան կգրվի պատմությունում)։"
+
+#: trac/timeline/templates/timeline.html:19
+msgid ""
+"[1:View changes from [2:]] [3:]\n"
+"        and [4:[5:] days back][6:]\n"
+"        [7:done by [8:]]"
+msgstr ""
+"[1:Դիտել փոփոխությունները սկսած [2:]] [3:]\n"
+"        և [4:[5:] օր առաջ][6:]\n"
+"        [7:Հեղինակ : [8:]]"
+
+#: trac/timeline/templates/timeline.html:36
+msgid "Today"
+msgstr "Այսօր"
+
+#: trac/timeline/templates/timeline.html:36
+msgid "Yesterday"
+msgstr "Երեկ"
+
+#: trac/timeline/templates/timeline.html:42
+#, python-format
+msgid ""
+"[1:%(time)s] %(title)s\n"
+"                  by [2:%(author)s]"
+msgstr ""
+"[1:%(time)s] %(title)s\n"
+"                  (%(author)s)"
+
+#: trac/timeline/templates/timeline.html:58
+msgid ""
+"[1:Note:] See [2:TracTimeline]\n"
+"        for information about the timeline view."
+msgstr ""
+"[1:Note:] Տես [2:TracTimeline]\n"
+"        ժամանակացույցի տեսքի մասին ինֆորմացիայի համարր։"
+
+#: trac/util/datefmt.py:79
+#, python-format
+msgid "%(num)d year"
+msgid_plural "%(num)d years"
+msgstr[0] "%(num)d տարի"
+msgstr[1] "%(num)d տարիներ"
+
+#: trac/util/datefmt.py:80
+#, python-format
+msgid "%(num)d month"
+msgid_plural "%(num)d months"
+msgstr[0] "%(num)d ամիս"
+msgstr[1] "%(num)d ամիսներ"
+
+#: trac/util/datefmt.py:81
+#, python-format
+msgid "%(num)d week"
+msgid_plural "%(num)d weeks"
+msgstr[0] "%(num)d շաբաթ"
+msgstr[1] "%(num)d շաբաթներ"
+
+#: trac/util/datefmt.py:82
+#, python-format
+msgid "%(num)d day"
+msgid_plural "%(num)d days"
+msgstr[0] "%(num)d օր"
+msgstr[1] "%(num)d օրեր"
+
+#: trac/util/datefmt.py:83
+#, python-format
+msgid "%(num)d hour"
+msgid_plural "%(num)d hours"
+msgstr[0] "%(num)d ժամ"
+msgstr[1] "%(num)d ժամեր"
+
+#: trac/util/datefmt.py:84
+#, python-format
+msgid "%(num)d minute"
+msgid_plural "%(num)d minutes"
+msgstr[0] "%(num)d րոպե"
+msgstr[1] "%(num)d րոպեներ"
+
+#: trac/util/datefmt.py:103
+#, python-format
+msgid "%(num)i second"
+msgid_plural "%(num)i seconds"
+msgstr[0] "%(num)i վայրկյան"
+msgstr[1] "%(num)i վայրկյաներ"
+
+#: trac/util/datefmt.py:247
+#, python-format
+msgid "\"%(date)s\" is an invalid date, or the date format is not known. Try \"%(hint)s\" instead."
+msgstr "\"%(date)s\" անվավեր ամսաթիվ է, կամ ամսաթվի ֆորմատը անհայտ է. Փորձեք \"%(hint)s\"."
+
+#: trac/util/datefmt.py:249
+#: trac/util/datefmt.py:257
+msgid "Invalid Date"
+msgstr "Պատմության սխալ տեսակ"
+
+#: trac/util/datefmt.py:255
+#, python-format
+msgid "The date \"%(date)s\" is outside valid range. Try a date closer to present time."
+msgstr "\"%(date)s\" անսաթիվը անվավեր է. Փորձեք ամսաթիվ, որը մոտ է ներկա ժամանակին։"
+
+#: trac/util/presentation.py:254
+#, python-format
+msgid "%(last)d of %(total)d"
+msgstr "%(last)d-ը %(total)d-ից"
+
+#: trac/util/presentation.py:256
+#, python-format
+msgid "%(start)d - %(stop)d of %(total)d"
+msgstr "%(start)d - %(stop)d %(total)d-ից"
+
+#: trac/versioncontrol/admin.py:110
+msgid "Alias"
+msgstr "Փոխանուններ"
+
+#: trac/versioncontrol/admin.py:110
+#: trac/versioncontrol/templates/admin_repositories.html:125
+msgid "Directory"
+msgstr "Կատալոգ"
+
+#: trac/versioncontrol/admin.py:116
+msgid "Cannot synchronize a single revision on multiple repositories"
+msgstr "Չի հաջողվում սինխրոնիզացնել միակ ռեպոզիտորիան բազմակի ռեպոզիտորիաներում"
+
+#: trac/versioncontrol/admin.py:124
+#: trac/versioncontrol/admin.py:182
+#: trac/versioncontrol/web_ui/browser.py:352
+#: trac/versioncontrol/web_ui/changeset.py:247
+#: trac/versioncontrol/web_ui/changeset.py:1090
+#: trac/versioncontrol/web_ui/log.py:87
+#: trac/versioncontrol/web_ui/log.py:395
+#, python-format
+msgid "Repository '%(repo)s' not found"
+msgstr "%(repo)s էջը գոյություն չունի"
+
+#: trac/versioncontrol/admin.py:128
+#, python-format
+msgid "%(rev)s resynced on %(reponame)s."
+msgstr "%(rev)s վերասինխրոնիզացված է %(reponame)s մեջ։"
+
+#: trac/versioncontrol/admin.py:135
+#, python-format
+msgid "Resyncing repository history for %(reponame)s... "
+msgstr "Բազայի պատմության վերասինխրոնիզացում %(reponame)s համար․․․ "
+
+#: trac/versioncontrol/admin.py:142
+#, python-format
+msgid "%(num)s revision cached."
+msgid_plural "%(num)s revisions cached."
+msgstr[0] "%(num)s ռեվիզիան պահպանված է։"
+msgstr[1] "%(num)s ռեվիզիաները պահպանված են։"
+
+#: trac/versioncontrol/admin.py:144
+msgid "Done."
+msgstr "Կատարված է։"
+
+#: trac/versioncontrol/admin.py:166
+msgid "Version Control"
+msgstr "Տարբերակի վերահսկում"
+
+#: trac/versioncontrol/admin.py:167
+#: trac/versioncontrol/templates/admin_repositories.html:10
+msgid "Repositories"
+msgstr "Ռեպոզիտորիայի մուտքագրումներ"
+
+#: trac/versioncontrol/admin.py:203
+#: trac/versioncontrol/admin.py:242
+#, python-format
+msgid "You should now run %(resync)s to synchronize Trac with the repository."
+msgstr "ՀԻմա դուք պետք է աշխատեցնեք %(resync)s Trac-ը սռեպոզիտորիայի հետ սինխրոնիզացնելու համար։"
+
+#: trac/versioncontrol/admin.py:208
+#, python-format
+msgid "You may have to run %(resync)s to synchronize Trac with the repository."
+msgstr "Դուք չպետք է աշխատեցնեք %(resync)s Trac-ը սռեպոզիտորիայի հետ սինխրոնիզացնելու համար։"
+
+#: trac/versioncontrol/admin.py:216
+#, python-format
+msgid "You will need to update your post-commit hook to call %(cset_added)s with the new repository name."
+msgstr "Դուք կարիք կունենաք թարմացնելու հաստատումից հետո կեռիկը %(cset_added)s կանչելու համար նոր ռեպոզիտորիայի անունով։"
+
+#: trac/versioncontrol/admin.py:238
+#, python-format
+msgid "The repository \"%(name)s\" has been added."
+msgstr "\"%(name)s\" տարբերակն ավելացված է։"
+
+#: trac/versioncontrol/admin.py:248
+#, python-format
+msgid "You should also set up a post-commit hook on the repository to call %(cset_added)s for each committed changeset."
+msgstr "Դուք պետք է նաև ստեղծեք հաստատումից հետո կեռիկ ռեպոզիտորիայում %(cset_added)s կանչելու համար յուրաքանչյուր հաստատված փոփխությունների համար։"
+
+#: trac/versioncontrol/admin.py:254
+msgid "Missing arguments to add a repository."
+msgstr "Բացակայող արգումենտներ ռեպոզիտորիա ավելացնելու համար։"
+
+#: trac/versioncontrol/admin.py:263
+#, python-format
+msgid "The alias \"%(name)s\" has been added."
+msgstr "\"%(name)s\" ուղենիշն ավելացված է։"
+
+#: trac/versioncontrol/admin.py:266
+msgid "Missing arguments to add an alias."
+msgstr "Բացակայող արգումենտներ փոխանունը ավելացնելու համար։"
+
+#: trac/versioncontrol/admin.py:279
+msgid "The selected repositories have been removed."
+msgstr "Նշված տարբերակները ջնջված են։"
+
+#: trac/versioncontrol/admin.py:282
+msgid "No repositories were selected."
+msgstr "Ընտրված ռեպոզիտորիաներ չկան։"
+
+#: trac/versioncontrol/api.py:32
+#: trac/versioncontrol/templates/admin_repositories.html:20
+#: trac/versioncontrol/templates/admin_repositories.html:33
+#: trac/versioncontrol/templates/admin_repositories.html:132
+#: trac/versioncontrol/templates/admin_repositories.html:134
+#: trac/versioncontrol/web_ui/browser.py:822
+#: trac/versioncontrol/web_ui/changeset.py:865
+#: trac/versioncontrol/web_ui/changeset.py:1009
+msgid "(default)"
+msgstr "Լռությամբ"
+
+#: trac/versioncontrol/api.py:183
+#, python-format
+msgid "Invalid key \"%(key)s\""
+msgstr "Անթույլատրելի գործողություն \"%(key)s"
+
+#: trac/versioncontrol/api.py:190
+#, python-format
+msgid "You should now run \"repository resync %(name)s\"."
+msgstr "Հիմա դուք պետք է աշխատեցնեք \"repository resync %(name)s\"։"
+
+#: trac/versioncontrol/api.py:193
+#, python-format
+msgid "You may have to run \"repository resync %(name)s\"."
+msgstr "Մի գուցե դուք պետք է աշխատեցնեք \"repository resync %(name)s\"։"
+
+#: trac/versioncontrol/api.py:201
+#: trac/versioncontrol/api.py:264
+msgid "The repository directory must be absolute"
+msgstr "Ռեպոզիտորիայի կատալոգը պետք է վավերական լինի"
+
+#: trac/versioncontrol/api.py:206
+#, python-format
+msgid "The repository type '%(type)s' is not supported"
+msgstr "Ռեվիզիայի '%(type)s' տեսակը չի ապահովվում"
+
+#: trac/versioncontrol/api.py:338
+#, python-format
+msgid "Can't synchronize with repository \"%(name)s\" (%(error)s). Look in the Trac log for more information."
+msgstr "Հնարավոր չէ սինխրոնիզացնել ռեպոզիտորիայի հետ \"%(name)s\" (%(error)s)։ Տեղեկությունների համար տես Trac-ի պատմության ֆայլը։"
+
+#: trac/versioncontrol/api.py:357
+#, python-format
+msgid "Changeset %(rev)s in %(repo)s"
+msgstr "Փոփոխությունների %(rev)s բազմությունը %(repo)s մեջ"
+
+#: trac/versioncontrol/api.py:359
+#, python-format
+msgid "Changeset %(rev)s"
+msgstr "%(rev)s փոփոխություններ"
+
+#: trac/versioncontrol/api.py:367
+msgid "directory"
+msgstr "Կատալոգ"
+
+#: trac/versioncontrol/api.py:369
+msgid "file"
+msgstr "Ֆայլ"
+
+#: trac/versioncontrol/api.py:371
+#, python-format
+msgid " at version %(rev)s"
+msgstr "%(rev)s տարբերակում"
+
+#: trac/versioncontrol/api.py:373
+msgid "path"
+msgstr "Ճանապարհ"
+
+#: trac/versioncontrol/api.py:376
+#, python-format
+msgid " in %(repo)s"
+msgstr "%(repo)s տարբերակում"
+
+#. TRANSLATOR: file /path/to/file.py at version 13 in reponame
+#: trac/versioncontrol/api.py:378
+#, python-format
+msgid "%(kind)s %(id)s%(at_version)s%(in_repo)s"
+msgstr "%(kind)s %(id)s%(at_version)s%(in_repo)s"
+
+#: trac/versioncontrol/api.py:381
+#, python-format
+msgid "Repository %(repo)s"
+msgstr "Փնտրել ռեպոզիտորիայի %(repo)s ճանապարհը"
+
+#: trac/versioncontrol/api.py:686
+#, python-format
+msgid "Unsupported version control system \"%(name)s\": %(error)s"
+msgstr "Չապահովված \"%(name)s\" տարբերակի վերահսկման համակարգ։ \"%(error)s\""
+
+#: trac/versioncontrol/api.py:689
+#, python-format
+msgid "Unsupported version control system \"%(name)s\": Can't find an appropriate component, maybe the corresponding plugin was not enabled? "
+msgstr "Չապահովված \"%(name)s\" տարբերակի վերահսկման համակարգ։ Հնարավոր չէ գտնել համապատասխան բաղադրիչ, միգուցե համապատասխան փլագինը միացված չէ՞։ "
+
+#: trac/versioncontrol/api.py:697
+#, python-format
+msgid "No changeset %(rev)s in the repository"
+msgstr "Ռեպոզիտորիայում չկան %(rev)s փոփոխությունները"
+
+#: trac/versioncontrol/api.py:699
+msgid "No such changeset"
+msgstr "Չկան այդպիսի փոփոխություններ"
+
+#: trac/versioncontrol/api.py:705
+#, python-format
+msgid "No node %(path)s at revision %(rev)s"
+msgstr "Բացակայում է %(path)s հագույցը %(rev)s ռեվիզիայում"
+
+#: trac/versioncontrol/api.py:707
+#, python-format
+msgid "%(msg)s: No node %(path)s at revision %(rev)s"
+msgstr "%(msg)s` Բացակայում է %(path)s հագույցը %(rev)s ռեվիզիայում"
+
+#: trac/versioncontrol/api.py:709
+msgid "No such node"
+msgstr "Չկա այդպիսի հանգույց"
+
+#: trac/versioncontrol/cache.py:149
+msgid "The 'repository_dir' has changed, a 'trac-admin $ENV repository resync' operation is needed."
+msgstr "\"repository_dir\"-ը փոփոխվել է, անհրաժեշտ է \"trac-admin resync\" գործողություն։"
+
+#: trac/versioncontrol/svn_authz.py:73
+#, python-format
+msgid "Line %(lineno)d: Entry before first section header"
+msgstr "Տող %(lineno)d՝ Գրառումը առաջին հատվածի գլխամասից առաջ"
+
+#: trac/versioncontrol/svn_authz.py:77
+#, python-format
+msgid "Line %(lineno)d: Invalid entry"
+msgstr "Տող %(lineno)d՝ անվավեր գրառում"
+
+#: trac/versioncontrol/svn_fs.py:275
+#, python-format
+msgid "Subversion >= 1.0 required, found %(version)s"
+msgstr "Պահանջվում է Subversion >= 1.0: Գտնվել է %(version)s"
+
+#: trac/versioncontrol/svn_fs.py:330
+#, python-format
+msgid "%(path)s does not appear to be a Subversion repository."
+msgstr "Հավանաբար %(path)s-ը Subversion ռեպոզիտորիա չէ։"
+
+#: trac/versioncontrol/svn_fs.py:337
+#, python-format
+msgid "Couldn't open Subversion repository %(path)s: %(svn_error)s"
+msgstr "Հնարավոր չէ բացել Subversion %(path)s ռեպոզիտորիան: %(svn_error)s"
+
+#: trac/versioncontrol/svn_fs.py:617
+#, python-format
+msgid "Diff mismatch: Base is a %(oldnode)s (%(oldpath)s in revision %(oldrev)s) and Target is a %(newnode)s (%(newpath)s in revision %(newrev)s)."
+msgstr "Diff-ի անհամապատասխանություն։ Հիմքը %(oldnode)s է (%(oldpath)s-ը %(oldrev)s ռեվիզիայում) և Վերջնակետը %(newnode)s է (%(newpath)s-ը %(newrev)s ռեվիզիայում)։"
+
+#: trac/versioncontrol/svn_fs.py:766
+#, python-format
+msgid "svn blame failed on %(path)s: %(error)s"
+msgstr "svn blame-ը խափանվեց %(path)s վրա: %(error)s"
+
+#: trac/versioncontrol/svn_prop.py:111
+msgid "No svn:externals configured in trac.ini"
+msgstr "trac.ini ֆայլում svn:externals-ը կարգավորված չէ"
+
+#: trac/versioncontrol/svn_prop.py:148
+msgid "merged"
+msgstr "միավորված"
+
+#: trac/versioncontrol/svn_prop.py:148
+msgid "blocked"
+msgstr "փակ"
+
+#: trac/versioncontrol/svn_prop.py:192
+msgid "eligible"
+msgstr "իրավասու"
+
+#: trac/versioncontrol/svn_prop.py:206
+msgid "(toggle deleted branches)"
+msgstr "(փոխանջատել հեռացված ճյուղերը)"
+
+#: trac/versioncontrol/svn_prop.py:234
+msgid "View merge source"
+msgstr "Դիտել միավորված կոդը"
+
+#: trac/versioncontrol/svn_prop.py:245
+msgid "No revisions"
+msgstr "Չկան ռեվիզիաներ"
+
+#: trac/versioncontrol/svn_prop.py:281
+msgid "merged: "
+msgstr "միավորված։ "
+
+#: trac/versioncontrol/svn_prop.py:281
+msgid "blocked: "
+msgstr "փակ։ "
+
+#: trac/versioncontrol/svn_prop.py:282
+msgid "reverse-merged: "
+msgstr "հակառակ միավորված։ "
+
+#: trac/versioncontrol/svn_prop.py:282
+msgid "un-blocked: "
+msgstr "բաց։ "
+
+#: trac/versioncontrol/svn_prop.py:293
+msgid " (added)"
+msgstr " (ավելացված)"
+
+#: trac/versioncontrol/svn_prop.py:321
+msgid "removed"
+msgstr "հեռացված"
+
+#: trac/versioncontrol/svn_prop.py:324
+msgid " (with no actual effect on merging)"
+msgstr "(առանց միաձուլման վրա որևէ ազդեցության)"
+
+#: trac/versioncontrol/svn_prop.py:325
+#, python-format
+msgid "Property %(prop)s changed"
+msgstr "%(prop)s հատկությունը փոփոխվել է"
+
+#: trac/versioncontrol/templates/admin_repositories.html:14
+msgid "Manage Repositories"
+msgstr "Տարբերակների Ղեկավարում"
+
+#: trac/versioncontrol/templates/admin_repositories.html:24
+msgid "Default:"
+msgstr "Լռությամբ"
+
+#: trac/versioncontrol/templates/admin_repositories.html:30
+msgid "Repository:"
+msgstr "Բազայի ինդեքսավորում"
+
+#: trac/versioncontrol/templates/admin_repositories.html:43
+msgid "Modify Repository:"
+msgstr "Բազայի ինդեքսավորում"
+
+#: trac/versioncontrol/templates/admin_repositories.html:44
+msgid "View Repository:"
+msgstr "Դիտել ռեվիզիան։"
+
+#: trac/versioncontrol/templates/admin_repositories.html:45
+msgid ""
+"[1:Note:]\n"
+"            This repository is defined in [2:[3:trac.ini]]\n"
+"            and cannot be edited on this page."
+msgstr ""
+"[1:Note:]\n"
+"            Այս ռեպոզիտորիան սահմանված է [2:[3:trac.ini]] մեջ\n"
+"            և չի կարող խմբագրվել այս էջում։"
+
+#: trac/versioncontrol/templates/admin_repositories.html:59
+#: trac/versioncontrol/templates/admin_repositories.html:99
+msgid "Directory:"
+msgstr "Կատալոգ"
+
+#: trac/versioncontrol/templates/admin_repositories.html:67
+msgid "Hide from repository index"
+msgstr "Ցույց չտալ ռեպոզիտորիայի ինդեքսից"
+
+#: trac/versioncontrol/templates/admin_repositories.html:93
+msgid "Add Repository:"
+msgstr "Բազայի ինդեքսավորում"
+
+#: trac/versioncontrol/templates/admin_repositories.html:110
+msgid "Add Alias:"
+msgstr "Ավելացնել փոխանուն"
+
+#: trac/versioncontrol/templates/admin_repositories.html:125
+msgid "Revision"
+msgstr "ռեվիզիայում․"
+
+#: trac/versioncontrol/templates/admin_repositories.html:137
+#, python-format
+msgid "Alias of %(repo)s"
+msgstr "%(repo)s տարբերակում"
+
+#: trac/versioncontrol/templates/admin_repositories.html:144
+msgid "Refresh"
+msgstr "Նախընտրություններ"
+
+#: trac/versioncontrol/templates/browser.html:13
+#, python-format
+msgid "%(basename)s in %(dirname)s"
+msgstr "%(basename)s %(dirname)s մեջ"
+
+#: trac/versioncontrol/templates/browser.html:54
+msgid "Default Repository"
+msgstr "Բազայի ինդեքսավորում"
+
+#: trac/versioncontrol/templates/browser.html:61
+msgid "Hint: clear the field to view latest revision"
+msgstr "Հուշում: ջնջել դաշտը վերջին ռեվիզիան տեսնելու համար"
+
+#: trac/versioncontrol/templates/browser.html:61
+msgid "View revision:"
+msgstr "Դիտել ռեվիզիան։"
+
+#: trac/versioncontrol/templates/browser.html:71
+msgid "Visit:"
+msgstr "Այց։"
+
+#: trac/versioncontrol/templates/browser.html:79
+msgid "Go!"
+msgstr "Առաջ՜"
+
+#: trac/versioncontrol/templates/browser.html:79
+msgid "Jump to the chosen preselected path"
+msgstr "Անցնել նախօրոք ընտրած ճանապարհին"
+
+#: trac/versioncontrol/templates/browser.html:92
+msgid "Parent Directory"
+msgstr "Ծնող Կատալոգ"
+
+#: trac/versioncontrol/templates/browser.html:98
+msgid "No files found"
+msgstr "Ոչ մի ֆայլ չի գտնվել"
+
+#: trac/versioncontrol/templates/browser.html:106
+#: trac/wiki/templates/wiki_edit.html:112
+#: trac/wiki/templates/wiki_view.html:32
+msgid "Revision info"
+msgstr "Ռեվիզիայի տեղեկություն"
+
+#: trac/versioncontrol/templates/browser.html:108
+#, python-format
+msgid ""
+"Revision [1:%(rev)s],\n"
+"            [2:%(size)s]\n"
+"            checked in by %(author)s, %(date)s ago\n"
+"            ([3:diff])"
+msgstr ""
+"[1:%(rev)s] ռեվիզիա, [2:%(size)s]\n"
+"            մուտքագրված %(author)s կողմից, %(date)s առաջ ([3:diff])"
+
+#: trac/versioncontrol/templates/browser.html:140
+#, python-format
+msgid "Property [1:%(name)s] set to %(value)s"
+msgstr "[1:%(name)s] հատկությունը դրված է %(value)s"
+
+#: trac/versioncontrol/templates/browser.html:154
+msgid "Repository Index"
+msgstr "Ռեպոզիտորիայի մուտքագրումներ"
+
+#: trac/versioncontrol/templates/browser.html:164
+msgid ""
+"[1:Note:] See [2:TracBrowser]\n"
+"        for help on using the repository browser."
+msgstr ""
+"[1:Note:] Տես [2:TracBrowser]\n"
+"        ռեպոզիտորիայի բրոուզերի օգտագործման մասին իմանալու համար։"
+
+#: trac/versioncontrol/templates/browser.html:176
+msgid "View changes..."
+msgstr "Դիտել փոփոխությունները․․․"
+
+#: trac/versioncontrol/templates/browser.html:176
+msgid "Select paths and revs for Diff"
+msgstr "Ընտրեք ճանապարհները և ռեվիզիաները տարբերությունները ցույց տալու համար"
+
+#: trac/versioncontrol/templates/changeset.html:36
+#: trac/versioncontrol/templates/changeset.html:46
+#: trac/versioncontrol/templates/changeset.html:48
+#: trac/versioncontrol/templates/changeset.html:58
+#: trac/versioncontrol/templates/changeset.html:68
+#: trac/versioncontrol/templates/changeset.html:70
+msgid "Show full changeset"
+msgstr "Ցույց տալ բոլոր փոփոխությունները"
+
+#: trac/versioncontrol/templates/changeset.html:37
+#: trac/versioncontrol/templates/changeset.html:40
+#: trac/versioncontrol/templates/changeset.html:45
+#: trac/versioncontrol/templates/changeset.html:47
+#: trac/versioncontrol/templates/changeset.html:59
+#: trac/versioncontrol/templates/changeset.html:62
+#: trac/versioncontrol/templates/changeset.html:67
+#: trac/versioncontrol/templates/changeset.html:69
+#: trac/versioncontrol/templates/changeset.html:105
+msgid "Show entry in browser"
+msgstr "Ցույց տալ մուտքագրումը բրոուզերում"
+
+#: trac/versioncontrol/templates/changeset.html:35
+#, python-format
+msgid ""
+"Changeset [1:%(new_rev)s] in %(reponame)s\n"
+"              for [2:%(new_path)s]"
+msgstr ""
+"Փոփոխվել է [1:%(new_rev)s] %(reponame)s-ի մեջ\n"
+"              [2:%(new_path)s] համար"
+
+#: trac/versioncontrol/templates/changeset.html:41
+#: trac/versioncontrol/templates/changeset.html:63
+msgid "Show revision log"
+msgstr "Ցույց տալ ռեվիզիայի պատմությունը"
+
+#: trac/versioncontrol/templates/changeset.html:39
+#, python-format
+msgid ""
+"Changes in [1:%(new_path)s]\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]] in %(reponame)s"
+msgstr ""
+"Փոփոխվել է [1:%(new_path)s]-ի \n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]] %(reponame)s-ի մեջ"
+
+#: trac/versioncontrol/templates/changeset.html:43
+#, python-format
+msgid ""
+"Changes in %(reponame)s\n"
+"              from [1:%(old_path)s]\n"
+"              at [2:r%(old_rev)s]\n"
+"              to [3:%(new_path)s]\n"
+"              at [4:r%(new_rev)s]"
+msgstr ""
+"Փոփոխվել է %(reponame)s-ի մեջ\n"
+"              [1:%(old_path)s]-ից\n"
+"              [2:r%(old_rev)s]\n"
+"              ->[3:%(new_path)s]\n"
+"              [4:r%(new_rev)s]"
+
+#: trac/versioncontrol/templates/changeset.html:50
+#, python-format
+msgid "Changeset [1:%(new_rev)s] in %(reponame)s"
+msgstr "Ռեպոզիտորիայում չկան [1:%(new_rev)s] %(reponame)s փոփոխությունները"
+
+#: trac/versioncontrol/templates/changeset.html:57
+#, python-format
+msgid ""
+"Changeset [1:%(new_rev)s]\n"
+"              for [2:%(new_path)s]"
+msgstr ""
+"Փոփոխություններ [1:%(new_rev)s]\n"
+"\t\tfor [2:%(new_path)s]"
+
+#: trac/versioncontrol/templates/changeset.html:61
+#, python-format
+msgid ""
+"Changes in [1:%(new_path)s]\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]]"
+msgstr ""
+"Փոփոխվել է [1:%(new_path)s]-ի մեջ\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]]"
+
+#: trac/versioncontrol/templates/changeset.html:65
+#, python-format
+msgid ""
+"Changes\n"
+"              from [1:%(old_path)s]\n"
+"              at [2:r%(old_rev)s]\n"
+"              to [3:%(new_path)s]\n"
+"              at [4:r%(new_rev)s]"
+msgstr ""
+"Փոփոխվել է\n"
+"              [1:%(old_path)s]-ից\n"
+"              [2:r%(old_rev)s]\n"
+"              -> [3:%(new_path)s]\n"
+"              [4:r%(new_rev)s]"
+
+#: trac/versioncontrol/templates/changeset.html:72
+#, python-format
+msgid "Changeset [1:%(new_rev)s]"
+msgstr "%(new_rev)s փոփոխություններ"
+
+#: trac/versioncontrol/templates/changeset.html:101
+#, python-format
+msgid "Show what was removed (content at revision %(old_rev)s)"
+msgstr "Ցույց տալ թե ինչն է ռեղափոխվել (պարունակությունը %(old_rev)s ռեվիզիայում)"
+
+#: trac/versioncontrol/templates/changeset.html:106
+msgid "(root)"
+msgstr "(արմատ)"
+
+#: trac/versioncontrol/templates/changeset.html:112
+#, python-format
+msgid "Show original file (revision %(old_rev)s)"
+msgstr "Ցույց տալ օռիգինալ ֆայլը (ռեվիզիա %(old_rev)s)"
+
+#: trac/versioncontrol/templates/changeset.html:111
+#, python-format
+msgid ""
+"(%(kind)s from [1:\n"
+"                %(old_path)s])"
+msgstr ""
+"Մինչև %(kind)s [1:\n"
+"                  (%(old_path)s])"
+
+#: trac/versioncontrol/templates/changeset.html:119
+#: trac/versioncontrol/templates/changeset.html:122
+msgid "Show differences"
+msgstr "Տարբերությունների ցուցադրում"
+
+#: trac/versioncontrol/templates/changeset.html:119
+msgid "view diffs"
+msgstr "տեսնել տարբերությունները"
+
+#: trac/versioncontrol/templates/changeset.html:122
+#, python-format
+msgid "%(num)d diff"
+msgid_plural "%(num)d diffs"
+msgstr[0] "%(num)d տարբերություն"
+msgstr[1] "%(num)d տարբերություններ"
+
+#: trac/versioncontrol/templates/changeset.html:125
+#, python-format
+msgid "%(num)d prop"
+msgid_plural "%(num)d props"
+msgstr[0] "%(num)d օբյեկտ"
+msgstr[1] "%(num)d օբյեկտներ"
+
+#: trac/versioncontrol/templates/changeset.html:129
+msgid "Show previous version in browser"
+msgstr "Ցուցադրել նախորդ տարբերակը բրոուզերում"
+
+#: trac/versioncontrol/templates/changeset.html:139
+msgid "(less than one hour ago)"
+msgstr "(ավելի քիչ քան մեկ ժամ առաջ"
+
+#: trac/versioncontrol/templates/changeset.html:140
+#, python-format
+msgid "(%(age)s ago)"
+msgstr "(%(age)s առաջ)"
+
+#: trac/versioncontrol/templates/changeset.html:154
+msgid "Message:"
+msgstr "Հաղորդագրություն։"
+
+#: trac/versioncontrol/templates/changeset.html:166
+msgid "Location:"
+msgstr "Տեղակայում․"
+
+#: trac/versioncontrol/templates/changeset.html:170
+msgid "File:"
+msgid_plural "Files:"
+msgstr[0] "Ֆայլ․"
+msgstr[1] "Ֆայլեր․"
+
+#: trac/versioncontrol/templates/changeset.html:170
+msgid "(No files)"
+msgstr "Պատմության ֆայլը․"
+
+#: trac/versioncontrol/templates/changeset.html:175
+#, python-format
+msgid "%(num)d added"
+msgid_plural "%(num)d added"
+msgstr[0] "%(num)d օր"
+msgstr[1] "%(num)d օրեր"
+
+#: trac/versioncontrol/templates/changeset.html:176
+#, python-format
+msgid "%(num)d deleted"
+msgid_plural "%(num)d deleted"
+msgstr[0] "%(num)d շաբաթ"
+msgstr[1] "%(num)d շաբաթներ"
+
+#: trac/versioncontrol/templates/changeset.html:177
+#, python-format
+msgid "%(num)d edited"
+msgid_plural "%(num)d edited"
+msgstr[0] "%(num)d րոպե"
+msgstr[1] "%(num)d րոպեներ"
+
+#: trac/versioncontrol/templates/changeset.html:178
+#, python-format
+msgid "%(num)d copied"
+msgid_plural "%(num)d copied"
+msgstr[0] "%(num)d օբյեկտ"
+msgstr[1] "%(num)d օբյեկտներ"
+
+#: trac/versioncontrol/templates/changeset.html:179
+#, python-format
+msgid "%(num)d moved"
+msgid_plural "%(num)d moved"
+msgstr[0] "%(num)d ամիս"
+msgstr[1] "%(num)d ամիսներ"
+
+#: trac/versioncontrol/templates/changeset.html:185
+#: trac/versioncontrol/templates/revisionlog.txt:12
+msgid "added"
+msgstr "ավելացված է"
+
+#: trac/versioncontrol/templates/changeset.html:186
+#: trac/versioncontrol/templates/revisionlog.txt:12
+msgid "deleted"
+msgstr "ջնջված է"
+
+#: trac/versioncontrol/templates/changeset.html:187
+#: trac/versioncontrol/templates/revisionlog.txt:12
+msgid "copied"
+msgstr "պատճենված"
+
+#: trac/versioncontrol/templates/changeset.html:188
+#: trac/versioncontrol/templates/revisionlog.txt:12
+msgid "moved"
+msgstr "տեղափոխված"
+
+#: trac/versioncontrol/templates/changeset.html:211
+msgid ""
+"[1:Note:] See [2:TracChangeset]\n"
+"          for help on using the changeset viewer."
+msgstr ""
+"[1:Note:] Տես [2:TracChangeset]\n"
+"          փոփոխությունների դիտարկչի օգտագործման մասին իմանալու համար։"
+
+#: trac/versioncontrol/templates/diff_form.html:10
+#: trac/versioncontrol/templates/diff_form.html:21
+msgid "Prepare Diff"
+msgstr "Նախապատրաստել Տարբերությունները"
+
+#: trac/versioncontrol/templates/diff_form.html:27
+msgid "Select the base and the target for the diff:"
+msgstr "Ընտրեք ակունքային և նպատակային ճանապարհները տարբերության համար․"
+
+#: trac/versioncontrol/templates/diff_form.html:30
+msgid "From:"
+msgstr "Սկսած։"
+
+#: trac/versioncontrol/templates/diff_form.html:34
+#: trac/versioncontrol/templates/diff_form.html:44
+msgid "at revision:"
+msgstr "ռեվիզիայում․"
+
+#: trac/versioncontrol/templates/diff_form.html:40
+msgid "To:"
+msgstr "Մինչև․"
+
+#: trac/versioncontrol/templates/diff_form.html:50
+msgid ""
+"For either path, you can start typing the path and will be\n"
+"              presented a list of existing directories and files to select\n"
+"              from. Select an entry by clicking on it, or by using the\n"
+"              up/down cursor keys and hitting tab."
+msgstr ""
+"Կամայական ճանապարհի համար դուք կարող եք սկսել մուտքագրել այն և \n"
+"             կներկայացվի առկա դիրեկտորիաների ու ֆայլերի ցանկը ընտրելու համար։              Ընտրեք տողը նշելով այն, կամ օգտագործելով կուրսորի վերև/ներքև \n"
+"              ստեղները և սեղմելով tab-ը։"
+
+#: trac/versioncontrol/templates/diff_form.html:62
+msgid ""
+"[1:Note:] See\n"
+"        [2:TracChangeset]\n"
+"        for help on using the diff feature."
+msgstr ""
+"[1:Note:] Տես\n"
+"        [2:TracChangeset]\n"
+"        տարբերությունները դիտելու հնարավորության մասին իմանալու համար։"
+
+#: trac/versioncontrol/templates/dir_entries.html:11
+msgid "View Directory"
+msgstr "Ծնող Կատալոգ"
+
+#: trac/versioncontrol/templates/dir_entries.html:11
+msgid "View File"
+msgstr "տեսնել տարբերությունները"
+
+#: trac/versioncontrol/templates/dir_entries.html:19
+#: trac/versioncontrol/templates/repository_index.html:23
+msgid "View Revision Log"
+msgstr "Դիտել Ռեվիզիայի Պատմությունը"
+
+#: trac/versioncontrol/templates/dir_entries.html:20
+#: trac/versioncontrol/templates/repository_index.html:24
+msgid "View Changeset"
+msgstr "Դիտել փոփոխությունները"
+
+#: trac/versioncontrol/templates/dirlist_thead.html:9
+#: trac/versioncontrol/templates/revisionlog.html:96
+#: trac/versioncontrol/web_ui/browser.py:766
+msgid "Rev"
+msgstr "Ռեվ"
+
+#: trac/versioncontrol/templates/dirlist_thead.html:12
+#: trac/versioncontrol/web_ui/browser.py:450
+msgid "Last Change"
+msgstr "Վերջին Փոփոխություն"
+
+#: trac/versioncontrol/templates/path_links.html:16
+msgid "Go to repository root"
+msgstr "Տեղափոխվել ռեպոզիտորիայի արմատ"
+
+#: trac/versioncontrol/templates/path_links.html:16
+msgid "Go to repository index"
+msgstr "Տեղափոխվել ռեպոզիտորիայի ինդեքս"
+
+#: trac/versioncontrol/templates/path_links.html:26
+#, python-format
+msgid "View %(name)s"
+msgstr "Ուղենիշ %(name)s"
+
+#: trac/versioncontrol/templates/path_links.html:32
+#, python-format
+msgid "View changeset %(rev)s"
+msgstr "%(rev)s փոփոխություններ"
+
+#: trac/versioncontrol/templates/repository_index.html:15
+msgid "View Root Directory"
+msgstr "Դեպի ծնող կատալոգ"
+
+#: trac/versioncontrol/templates/revisionlog.html:10
+msgid "(log)"
+msgstr "(պատմություն)"
+
+#: trac/versioncontrol/templates/revisionlog.html:23
+msgid "Revision Log Mode:"
+msgstr "Ռեվիզիայի պատմության Վիճակ՝ "
+
+#: trac/versioncontrol/templates/revisionlog.html:27
+msgid "Stop on copy"
+msgstr "Կանգնել պատճենահանման ժամանակ"
+
+#: trac/versioncontrol/templates/revisionlog.html:33
+msgid "Follow copies"
+msgstr "Հետևեք պատճեններին"
+
+#: trac/versioncontrol/templates/revisionlog.html:39
+msgid "Show only adds and deletes"
+msgstr "Ցույց տալ միայն ավելացումները և ջնջումները"
+
+#: trac/versioncontrol/templates/revisionlog.html:44
+msgid ""
+"[1:\n"
+"              View log starting at\n"
+"              [2:]\n"
+"            ]\n"
+"            [3:\n"
+"              and back to\n"
+"              [4:]\n"
+"            ]"
+msgstr ""
+"[1:\n"
+"              Դիտել log-ը սկսած \n"
+"              [2:]\n"
+"            ]\n"
+"            [3:\n"
+"              և վերադառնալ\n"
+"              [4:]\n"
+"            ]"
+
+#: trac/versioncontrol/templates/revisionlog.html:54
+msgid ""
+"[1:\n"
+"              Show at most\n"
+"              [2:]\n"
+"              revisions per page.\n"
+"            ]"
+msgstr ""
+"[1:\n"
+"\t\tՑույց տալ առավելագույնը\n"
+"              [2:]\n"
+"              ռեվիզիա մեկ էջում.\n"
+"            ]"
+
+#: trac/versioncontrol/templates/revisionlog.html:62
+msgid "Show full log messages"
+msgstr "Ցույց տալ պատմության ամբողջական հաղորդագրությունները"
+
+#: trac/versioncontrol/templates/revisionlog.html:80
+msgid "Copied or renamed"
+msgstr "Պատճենված է կամ անվանափոխված"
+
+#: trac/versioncontrol/templates/revisionlog.html:88
+#: trac/versioncontrol/templates/revisionlog.html:182
+msgid "Diff from Old Revision to New Revision (as selected in the Diff column)"
+msgstr "Հին Ռեվիզիայի և Նոր Ռեվիզիայի տարբերությունները (ընտրեք դրանք ստորև)"
+
+#: trac/versioncontrol/templates/revisionlog.html:94
+msgid "Old / New"
+msgstr "Հին / Նոր"
+
+#: trac/versioncontrol/templates/revisionlog.html:94
+msgid "Diff"
+msgstr "Տարբերություն"
+
+#: trac/versioncontrol/templates/revisionlog.html:97
+msgid "Age"
+msgstr "փոփոխություն"
+
+#: trac/versioncontrol/templates/revisionlog.html:99
+msgid "Log Message"
+msgstr "Պատմության Հաղորդագրություն"
+
+#: trac/versioncontrol/templates/revisionlog.html:106
+msgid "No revisions found"
+msgstr "Ոչ մի ռեվիզիա գտնված չէ"
+
+#: trac/versioncontrol/templates/revisionlog.html:120
+#, python-format
+msgid "copied from [1:%(path)s]:"
+msgstr "պատճենահանված է [1:%(path)s]-ից․"
+
+#: trac/versioncontrol/templates/revisionlog.html:126
+#, python-format
+msgid "From [%(rev)s]"
+msgstr "%(rev)s տարբերակում"
+
+#: trac/versioncontrol/templates/revisionlog.html:129
+#, python-format
+msgid "To [%(rev)s]"
+msgstr "%(rev)s տարբերակում"
+
+#: trac/versioncontrol/templates/revisionlog.html:135
+msgid "View log starting at this revision"
+msgstr "Տես պատմությունը սկսած այս ռեվիզիայից"
+
+#: trac/versioncontrol/templates/revisionlog.html:142
+#, python-format
+msgid "Browse at revision %(rev)s"
+msgstr "%(rev)s տարբերակում"
+
+#: trac/versioncontrol/templates/revisionlog.html:146
+#, python-format
+msgid "View removal changeset [%(rev)s]"
+msgstr "%(rev)s փոփոխություններ"
+
+#: trac/versioncontrol/templates/revisionlog.html:148
+#, python-format
+msgid "View changeset [%(rev)s] restricted to %(path)s"
+msgstr "Ցույց տալ [%(rev)s] փոփոխությունները %(path)s ճանապարհի սահմաններում"
+
+#: trac/versioncontrol/templates/revisionlog.html:187
+msgid ""
+"[1:Note:] See [2:TracRevisionLog]\n"
+"        for help on using the revision log."
+msgstr ""
+"[1:Note:] Տես [2:TracRevisionLog]\n"
+"ռեվիզիայի պատմության օգտագործման մասին իմանալու համար:"
+
+#: trac/versioncontrol/templates/revisionlog.txt:2
+#, python-format
+msgid "ChangeLog for %(path)s%(in_repo)s"
+msgstr "Ռեպոզիտորիայի փոփոխությունները %(path)s%(in_repo)s"
+
+#: trac/versioncontrol/templates/revisionlog.txt:4
+#, python-format
+msgid "Generated by Trac %(version)s"
+msgstr "Գեներացված է Trac-ի %(version)s տարբերակով"
+
+#: trac/versioncontrol/web_ui/browser.py:298
+msgid "Browse Source"
+msgstr "Փնտրել Աղբյուրը"
+
+#: trac/versioncontrol/web_ui/browser.py:375
+msgid "Invalid changeset number"
+msgstr "Անվավեր Փոփոխության Համար"
+
+#: trac/versioncontrol/web_ui/browser.py:433
+#: trac/versioncontrol/web_ui/browser.py:443
+#, python-format
+msgid "Revision %(num)s"
+msgstr "Ռեվիզիա  %(num)s"
+
+#: trac/versioncontrol/web_ui/browser.py:444
+msgid "Previous Revision"
+msgstr "Նախորդ Ռեվիզիա"
+
+#: trac/versioncontrol/web_ui/browser.py:444
+msgid "Next Revision"
+msgstr "Հաջորդ Ռեվիզիա"
+
+#: trac/versioncontrol/web_ui/browser.py:445
+msgid "Latest Revision"
+msgstr "Վերջին Ռեվիզիա"
+
+#: trac/versioncontrol/web_ui/browser.py:449
+#: trac/versioncontrol/web_ui/log.py:300
+msgid "Parent directory"
+msgstr "Ծնող Կատալոգ"
+
+#: trac/versioncontrol/web_ui/browser.py:455
+msgid "Normal"
+msgstr "Նորմալ"
+
+#: trac/versioncontrol/web_ui/browser.py:456
+msgid "View file without annotations"
+msgstr "Ցուցադրել ֆայլը առանց մեկնաբանությունների"
+
+#: trac/versioncontrol/web_ui/browser.py:461
+msgid "Annotate"
+msgstr "Մեկնաբանել"
+
+#: trac/versioncontrol/web_ui/browser.py:462
+msgid "Annotate each line with the last changed revision (this can be time consuming...)"
+msgstr "Մեկնաբանել ամեն տողը ըստ վերջին փոփոխված ռեվիզիայի (սա կարող է ժամանակատար լինել․․․)"
+
+#: trac/versioncontrol/web_ui/browser.py:469
+msgid "Revision Log"
+msgstr "Ռեվիզիայի Պատմություն"
+
+#: trac/versioncontrol/web_ui/browser.py:475
+msgid "Repository URL"
+msgstr "Ռեպոզիտորիայի մուտքագրումներ"
+
+#: trac/versioncontrol/web_ui/browser.py:589
+#: trac/versioncontrol/web_ui/changeset.py:363
+msgid "Zip Archive"
+msgstr "Zip Արխիվ"
+
+#: trac/versioncontrol/web_ui/browser.py:766
+msgid "Revision in which the line changed"
+msgstr "Ռեվիզիա, որտեղ տողը փոփոխվել է"
+
+#: trac/versioncontrol/web_ui/browser.py:824
+#, python-format
+msgid "View repository %(repo)s"
+msgstr "Փնտրել ռեպոզիտորիայի %(repo)s ճանապարհը"
+
+#: trac/versioncontrol/web_ui/changeset.py:240
+#, python-format
+msgid "Can't compare across different repositories: %(old)s vs. %(new)s"
+msgstr "Չի հաջողվում համեմատել տարբեր ռեպոզիտորաների միջև՝ %(old)s և %(new)s"
+
+#: trac/versioncontrol/web_ui/changeset.py:249
+msgid "No repository specified and no default repository configured."
+msgstr "Ռեպոզիտորիան նշված չէ և բացակայում է կարգավորված լռելյամբ ռեպոզիտորիա։"
+
+#: trac/versioncontrol/web_ui/changeset.py:261
+msgid "Invalid Changeset Number"
+msgstr "Անվավեր Փոփոխության Համար"
+
+#: trac/versioncontrol/web_ui/changeset.py:361
+msgid "Unified Diff"
+msgstr "Ստանդարտ Տարբերություն"
+
+#: trac/versioncontrol/web_ui/changeset.py:372
+msgid "Previous Changeset"
+msgstr "Նախորդ Փոփոխություններ"
+
+#: trac/versioncontrol/web_ui/changeset.py:372
+msgid "Next Changeset"
+msgstr "Հաջորդ Փոփոխություններ"
+
+#: trac/versioncontrol/web_ui/changeset.py:376
+msgid "Reverse Diff"
+msgstr "Հակառակ Տարբերություն"
+
+#: trac/versioncontrol/web_ui/changeset.py:414
+#, python-format
+msgid "Changeset %(id)s for %(path)s"
+msgstr "%(id)s փոփոխություններ %(path)s համար"
+
+#: trac/versioncontrol/web_ui/changeset.py:417
+#: trac/versioncontrol/web_ui/changeset.py:443
+#: trac/versioncontrol/web_ui/changeset.py:465
+#, python-format
+msgid "Changeset %(id)s"
+msgstr "%(id)s փոփոխություններ"
+
+#: trac/versioncontrol/web_ui/changeset.py:492
+#, python-format
+msgid "Show revision %(rev)s of this file in browser"
+msgstr "Ցույց տալ այս ֆայլի %(rev)s ռեվիզիան բրոուզերում"
+
+#: trac/versioncontrol/web_ui/changeset.py:638
+#, python-format
+msgid "Show the changeset %(id)s restricted to %(path)s"
+msgstr "Ցույց տալ %(id)s փոփոխությունները %(path)s ճանապարհի սահմաններում"
+
+#: trac/versioncontrol/web_ui/changeset.py:650
+#, python-format
+msgid "Show the %(range)s differences restricted to %(path)s"
+msgstr "Ցույց տալ փոփոխությունների %(range)s-ը %(path)s ճանապարհի սահմաններում"
+
+#. TRANSLATOR: 'latest' (revision)
+#: trac/versioncontrol/web_ui/changeset.py:790
+msgid "latest"
+msgstr "Ֆիլտրեր"
+
+#: trac/versioncontrol/web_ui/changeset.py:793
+#, python-format
+msgid "Diff [%(old_rev)s:%(new_rev)s] for %(path)s"
+msgstr "Տարբերվում է [%(old_rev)s:%(new_rev)s] for %(path)s համար"
+
+#: trac/versioncontrol/web_ui/changeset.py:799
+#, python-format
+msgid "Diff from %(old_path)s@%(old_rev)s to %(new_path)s@%(new_rev)s"
+msgstr "Տարբերվում է %(old_path)s@%(old_rev)s %(new_path)s@%(new_rev)s"
+
+#: trac/versioncontrol/web_ui/changeset.py:871
+msgid "Changesets in all repositories"
+msgstr "Ռեպոզիտորիայում չկան %(rev)s փոփոխությունները"
+
+#: trac/versioncontrol/web_ui/changeset.py:873
+msgid "Repository changesets"
+msgstr "Ռեպոզիտորիայի մուտքագրումներ"
+
+#: trac/versioncontrol/web_ui/changeset.py:1013
+#, python-format
+msgid "Changeset in %(repo)s "
+msgid_plural "Changesets in %(repo)s "
+msgstr[0] "%(repo)s փոփոխություններ"
+msgstr[1] "%(repo)s փոփոխություններ"
+
+#: trac/versioncontrol/web_ui/changeset.py:1015
+msgid "Changeset "
+msgid_plural "Changesets "
+msgstr[0] "Փոփոխություններ"
+msgstr[1] "Փոփոխություններ"
+
+#: trac/versioncontrol/web_ui/changeset.py:1086
+#, python-format
+msgid "No permission to view changeset %(rev)s on %(repos)s"
+msgstr "Անբավարար իրավունքներ %(rev)s %(repos)s փոփոխություններին դիմելու համար"
+
+#: trac/versioncontrol/web_ui/changeset.py:1092
+#: trac/versioncontrol/web_ui/log.py:397
+msgid "No default repository defined"
+msgstr "Բացակայում է լռելյամբ սահմանված ռեպոզիտորիա"
+
+#: trac/versioncontrol/web_ui/changeset.py:1131
+msgid "Changesets"
+msgstr "Փոփոխությունների խումբ"
+
+#: trac/versioncontrol/web_ui/log.py:199
+#, python-format
+msgid "The file or directory '%(path)s' doesn't exist at revision %(rev)s or at any previous revision."
+msgstr "Ֆայլը կամ \"%(path)s\" կատալոգը գոյություն չունեն ինչպես %(rev)s ռեվիզիայում, այնպես էլ նախորդողներում։"
+
+#: trac/versioncontrol/web_ui/log.py:199
+msgid "Nonexistent path"
+msgstr "Գոյություն չունեցող ճանապարհ"
+
+#: trac/versioncontrol/web_ui/log.py:227
+#, python-format
+msgid "Revision Log (restarting at %(path)s, rev. %(rev)s)"
+msgstr "Փոփոխությունների Պատմություն (սկսած %(path)s-ից, ռեվ․ %(rev)s)"
+
+#: trac/versioncontrol/web_ui/log.py:308
+msgid "ChangeLog"
+msgstr "Փոփոխության պատմություն"
+
+#: trac/versioncontrol/web_ui/log.py:310
+msgid "View Latest Revision"
+msgstr "Դիտել Վերջին Ռեվիզիաները"
+
+#: trac/versioncontrol/web_ui/log.py:314
+msgid "Older Revisions"
+msgstr "Ավելի հին Ռեվիզիաներ"
+
+#: trac/versioncontrol/web_ui/log.py:393
+msgid "No permission to view change log"
+msgstr "չկա թույլտվաություն դիտելու այս wiki էջը"
+
+#. TRANSLATOR: You can 'search' in the repository history... (link)
+#: trac/versioncontrol/web_ui/util.py:65
+msgid "search"
+msgstr "փնտրել"
+
+#: trac/versioncontrol/web_ui/util.py:69
+#, python-format
+msgid "You can %(search)s in the repository history to see if that path existed but was later removed"
+msgstr "Դուք կարող եք %(search)s ռեպոզիտորիայի պատմությունում, որպեսզի տեսնեք արդյոք ճանապարհը գոյություն ունեցել է և ջնջվել է։"
+
+#: trac/web/api.py:236
+#, python-format
+msgid "Invalid URL encoding (was %(path_info)r)"
+msgstr "Անվավեր կոդավորված URL (նախկինում %(path_info)r)"
+
+#: trac/web/api.py:474
+#, python-format
+msgid "File %(path)s not found"
+msgstr "Տվյալների բազայի \"%(path)s\" ճանապարհը չի գտնվել։"
+
+#: trac/web/auth.py:100
+#, python-format
+msgid "logged in as %(user)s"
+msgstr "Մուտք է եղել որպես %(user)s"
+
+#: trac/web/auth.py:103
+msgid "Logout"
+msgstr "Ելք"
+
+#: trac/web/auth.py:106
+msgid "Login"
+msgstr "Մուտք"
+
+#. TRANSLATOR: ... refer to the 'installation documentation'. (link)
+#: trac/web/auth.py:138
+msgid "installation documentation"
+msgstr "ինստալյացիայի փաստաթուղթ"
+
+#: trac/web/auth.py:139
+msgid "Configuring Authentication"
+msgstr "Կարգավորում"
+
+#: trac/web/auth.py:142
+#, python-format
+msgid "Authentication information not available. Please refer to the %(inst_doc)s."
+msgstr "Վավերացման ինֆորմացիան հասանելի չէ։ Խնդրում ենք հղվել %(inst_doc)s։"
+
+#: trac/web/auth.py:150
+#, python-format
+msgid "Already logged in as %(user)s."
+msgstr "Արդեն մուտք է եղել որպես %(user)s։"
+
+#: trac/web/chrome.py:567
+#, python-format
+msgid "Error with navigation contributor \"%(name)s\""
+msgstr "Ուղղորդման սխալ \"%(name)s\""
+
+#: trac/web/chrome.py:857
+msgid "(unknown template location)"
+msgstr "(շաբլոնի անհայտ տեղակայում)"
+
+#: trac/web/chrome.py:858
+#, python-format
+msgid "Genshi %(error)s error while rendering template %(location)s"
+msgstr "Genshi %(error)s սխալ մինչ %(location)s շաբլոնը ներկայացնելը "
+
+#: trac/web/chrome.py:894
+#: trac/web/chrome.py:902
+msgid "anonymous"
+msgstr "անանուն"
+
+#: trac/web/main.py:227
+msgid "Secure cookies are enabled, you must use https to submit forms."
+msgstr "Անվտանգ քուքիները ակտիվացված են, դուք պետք է օգտագործեք https որպեսզի ներկայացնեք ձևերը։"
+
+#: trac/web/main.py:230
+msgid "Do you have cookies enabled?"
+msgstr "Դուք ակտիվացրել եք՞ քուքիները։"
+
+#: trac/web/main.py:231
+#, python-format
+msgid "Missing or invalid form token. %(msg)s"
+msgstr "Ֆորմայի թոքենը բացակայում է կամ անվավեր է։ %(msg)s"
+
+#: trac/web/main.py:531
+#, python-format
+msgid "Error: %(message)s"
+msgstr "HTML անալիզի սխալ։ %(message)s"
+
+#. TRANSLATOR: ... not logged in, you may want to 'do so' now (link)
+#: trac/web/main.py:547
+msgid "do so"
+msgstr "արա էսպես"
+
+#: trac/web/main.py:549
+#, python-format
+msgid "You are currently not logged in. You may want to %(do_so)s now."
+msgstr "Դուք այս պահին մուտք եղած չեք։ Ցանկության դեպքում կարող եք %(do_so)s գործողությունն անել։"
+
+#: trac/web/main.py:607
+msgid "''System information not available''\n"
+msgstr "''Համակարգի մասին հասանելի չէ''\n"
+
+#: trac/web/main.py:608
+msgid "''Plugin information not available''\n"
+msgstr "''Փլագինի ինֆորմացիան հասանելի չէ''\n"
+
+#: trac/web/main.py:632
+#, python-format
+msgid ""
+"==== How to Reproduce ====\n"
+"\n"
+"While doing a %(method)s operation on `%(path_info)s`, Trac issued an internal error.\n"
+"\n"
+"''(please provide additional details here)''\n"
+"\n"
+"Request parameters:\n"
+"{{{\n"
+"%(req_args)s\n"
+"}}}\n"
+"\n"
+"User agent: `#USER_AGENT#`\n"
+"\n"
+"==== System Information ====\n"
+"%(sys_info)s\n"
+"==== Enabled Plugins ====\n"
+"%(enabled_plugins)s\n"
+"==== Python Traceback ====\n"
+"{{{\n"
+"%(traceback)s}}}"
+msgstr ""
+"==== Ինչպես վերարտադրել ====\n"
+"\n"
+"%(method)s գործողության `%(path_info)s`-ում կատարման ըթացքում, Trac-ը գրանցել է ներքին սխալ։\n"
+"\n"
+"\"(խնդրում է տրամադրել հավելյալ մանրամասներ այստեղ )\"\n"
+"\n"
+"Պահանջվող պարամետրեր․\n"
+"{{{\n"
+"%(req_args)s\n"
+"}}}\n"
+"\n"
+"Օգտագործողի ագենտ․ `#USER_AGENT#`\n"
+"\n"
+"==== Համակարգի մասին ինֆորմացիա ====\n"
+"%(sys_info)s\n"
+"==== Ակտիվ փլագիններ ====\n"
+"%(enabled_plugins)s\n"
+"==== Python Traceback ====\n"
+"{{{\n"
+"%(traceback)s}}}"
+
+#: trac/web/session.py:203
+#, python-format
+msgid "Session '%(id)s' already exists.<br />Please choose a different session ID."
+msgstr "'%(id)s' ուղենիշն արդեն գոյություն ունի, խնդրում ենք ընտրել մեկ այլ անուն։"
+
+#: trac/web/session.py:205
+msgid "Error renaming session"
+msgstr "Վերականգնել սեսիան․"
+
+#: trac/web/session.py:312
+msgid "No SID found"
+msgstr "Ոչ մի ֆայլ չի գտնվել"
+
+#: trac/web/session.py:314
+msgid "SID"
+msgstr "SID"
+
+#: trac/web/session.py:314
+msgid "Email"
+msgstr "Էլեկտրոնային փոստ"
+
+#: trac/web/session.py:318
+msgid "Session already exists. Unable to add a duplicate session."
+msgstr "Սեսիան արդեն գոյություն ունի․ Չի հաջովել ավելացնել կրկնօրինակ սեսիա։"
+
+#: trac/web/session.py:325
+msgid "Unable to set session attribute on a non-existent SID"
+msgstr "Չի հաջողվել դնել սեսիայի հատկանիշը գոյություն ունեցող SID-ի համար"
+
+#: trac/web/session.py:438
+#, python-format
+msgid "Session id %(sid)s not found"
+msgstr "%(sid)s էջը գոյություն չունի"
+
+#: trac/wiki/admin.py:116
+#, python-format
+msgid "'%(name)s' is not a file"
+msgstr "\"%(name)s\" ֆայլի անուն չէ"
+
+#: trac/wiki/admin.py:168
+#: trac/wiki/admin.py:265
+#, python-format
+msgid "  %(page)s imported from %(filename)s"
+msgstr " %(page)s ներմուծված %(filename)s-ից"
+
+#: trac/wiki/admin.py:200
+msgid "Edits"
+msgstr "Խմբագրումներ"
+
+#: trac/wiki/admin.py:206
+#: trac/wiki/web_ui.py:295
+msgid "A new name is mandatory for a rename."
+msgstr "Նոր անունը պառտադիր է վերանվանման համար։"
+
+#: trac/wiki/admin.py:210
+#: trac/wiki/web_ui.py:299
+#, python-format
+msgid "The page %(name)s already exists."
+msgstr "%(name)s արդեն գոյություն ունի"
+
+#: trac/wiki/admin.py:224
+msgid "Deleted pages"
+msgstr "Ջնջված էջեր"
+
+#: trac/wiki/admin.py:243
+#, python-format
+msgid "'%(name)s' is not a directory"
+msgstr "\"%(name)s\" կատալոգ չէ"
+
+#: trac/wiki/api.py:361
+msgid "no permission to view this wiki page"
+msgstr "չկա թույլտվաություն դիտելու այս wiki էջը"
+
+#: trac/wiki/formatter.py:174
+#, python-format
+msgid "HTML parsing error: %(message)s"
+msgstr "HTML անալիզի սխալ։ %(message)s"
+
+#: trac/wiki/formatter.py:178
+msgid "Error: Forbidden character sequence \"--\" in htmlcomment wiki code block"
+msgstr "Սխալ՝ \"--\" անթույլատրելի սիմվոլների հաջորդականություն htmlcomment wiki կոդի բլոկում"
+
+#: trac/wiki/formatter.py:252
+#, python-format
+msgid "!#%(name)s must contain at most one table"
+msgstr "!#%(name)s պետք է պարունակի առավելագույնը մեկ աղյուսակ"
+
+#: trac/wiki/formatter.py:256
+#, python-format
+msgid "!#%(name)s must contain at least one table cell (and table cells only)"
+msgstr "!#%(name)s պետք է պարունակի առնվազն աղյուսակի մեկ բջիջ (և միայն աղյուսակի)"
+
+#: trac/wiki/formatter.py:627
+#: trac/wiki/interwiki.py:88
+#, python-format
+msgid "%(target)s in %(name)s"
+msgstr " %(target)s ներմուծված %(name)s-ից"
+
+#: trac/wiki/intertrac.py:55
+#, python-format
+msgid "Can't view %(link)s:"
+msgstr "Հնարավոր չէ դիտել %(link)s-ը․"
+
+#: trac/wiki/macros.py:519
+#, python-format
+msgid "No image \"%(id)s\" attached to %(parent)s"
+msgstr "Բացակայում է \"%(id)s\" նկարը կցված %(parent)s"
+
+#: trac/wiki/macros.py:562
+#, python-format
+msgid "Error: Can't get description for macro %(name)s"
+msgstr "Սխալ՝ հնարավոր չէ գտնել %(name)s մակրոյի նկարագրությունը"
+
+#: trac/wiki/macros.py:580
+msgid "Aliases:"
+msgstr "Փոխանուններ։"
+
+#: trac/wiki/macros.py:583
+msgid "Sorry, no documentation found"
+msgstr "\"%(cmd)s\" համար թղթաբանություն չգտնվեց"
+
+#: trac/wiki/macros.py:648
+msgid "MIME Types"
+msgstr "Խնդրի Տեսակները"
+
+#: trac/wiki/macros.py:706
+msgid "Table of Contents"
+msgstr "Բովանդակություն"
+
+#: trac/wiki/model.py:123
+msgid "Page not modified"
+msgstr "Էջը չի փոփոխվել"
+
+#: trac/wiki/model.py:174
+#, python-format
+msgid "Can't rename to existing %(name)s page."
+msgstr "Չի հաջողվել վերանվանել գոյություն ունեցող %(name)s էջին։"
+
+#: trac/wiki/web_ui.py:87
+#: trac/wiki/web_ui.py:729
+msgid "Wiki"
+msgstr "Վիկի"
+
+#: trac/wiki/web_ui.py:89
+msgid "Help/Guide"
+msgstr "Օգնություն/ուղեցույց"
+
+#: trac/wiki/web_ui.py:125
+#, python-format
+msgid "No version \"%(num)s\" for Wiki page \"%(name)s\""
+msgstr "\"%(name)s\" Wiki էջի \"%(num)s\" տարբերակ չկա"
+
+#: trac/wiki/web_ui.py:190
+#, python-format
+msgid "The wiki page is too long (must be less than %(num)s characters)"
+msgstr "Wiki էջը չափազանց երկար է (պետք է լինի %(num)s նիշից քիչ)"
+
+#: trac/wiki/web_ui.py:200
+#, python-format
+msgid "The Wiki page field '%(field)s' is invalid: %(message)s"
+msgstr "Wiki էջի '%(field)s' դաշտն անսարք է․ %(message)s"
+
+#: trac/wiki/web_ui.py:204
+#, python-format
+msgid "Invalid Wiki page: %(message)s"
+msgstr "Անսարք Wiki էջ՝ %(message)s"
+
+#. TRANSLATOR: wiki page
+#: trac/wiki/web_ui.py:231
+msgid "currently edited"
+msgstr "ներկայումս խմբագրված է"
+
+#: trac/wiki/web_ui.py:265
+#, python-format
+msgid "The page %(name)s has been deleted."
+msgstr "%(name)s էջը ջնջված է։"
+
+#: trac/wiki/web_ui.py:270
+#, python-format
+msgid "The versions %(from_)d to %(to)d of the page %(name)s have been deleted."
+msgstr "%(name)s էջի %(from_)d-ից %(to)d տարբերակները ջնջվել են։"
+
+#: trac/wiki/web_ui.py:274
+#, python-format
+msgid "The version %(version)d of the page %(name)s has been deleted."
+msgstr "%(name)s էջի %(version)d տարբերակը ջնջված է։"
+
+#: trac/wiki/web_ui.py:297
+msgid "The new name must be different from the old name."
+msgstr "Նոր անունը պետք է պարբերվի հին անվանումից։"
+
+#: trac/wiki/web_ui.py:309
+#, python-format
+msgid "See [wiki:\"%(name)s\"]."
+msgstr "Տես [wiki:\"%(name)s\"]:"
+
+#: trac/wiki/web_ui.py:333
+#, python-format
+msgid "Your changes have been saved in version %(version)s."
+msgstr "Ձեր փոփոխությունները պահպանված են։ %(version)s տարբերակում։"
+
+#: trac/wiki/web_ui.py:338
+msgid "Page not modified, showing latest version."
+msgstr "Էջը փոփոխված չէ, ցուցադրվում է վերջին տարբերակը։"
+
+#: trac/wiki/web_ui.py:381
+#, python-format
+msgid "Version %(num)s of page \"%(name)s\" does not exist"
+msgstr "\"%(name)s\" էջի %(num)s տարբերակը գոյություն չունի"
+
+#: trac/wiki/web_ui.py:433
+msgid "Page history"
+msgstr "Էջի պատմություն"
+
+#: trac/wiki/web_ui.py:451
+msgid "Wiki History"
+msgstr "Wiki Պատմություն"
+
+#: trac/wiki/web_ui.py:537
+#, python-format
+msgid "Page %(name)s does not exist"
+msgstr "%(name)s էջը գոյություն չունի"
+
+#: trac/wiki/web_ui.py:551
+#, python-format
+msgid "Back to %(wikipage)s"
+msgstr "Վերադառնալ %(wikipage)s-ին"
+
+#: trac/wiki/web_ui.py:579
+#, python-format
+msgid "Page %(name)s not found"
+msgstr "%(name)s էջը գոյություն չունի"
+
+#: trac/wiki/web_ui.py:631
+msgid "View latest version"
+msgstr "Դիտել վերջին տարբերակը"
+
+#: trac/wiki/web_ui.py:635
+msgid "View parent page"
+msgstr "Դիտել ծնող էջը"
+
+#: trac/wiki/web_ui.py:644
+msgid "Previous Version"
+msgstr "Նախորդ Տարբերակը"
+
+#: trac/wiki/web_ui.py:644
+msgid "Next Version"
+msgstr "Հաջորդ Տարբերակը"
+
+#: trac/wiki/web_ui.py:645
+msgid "View Latest Version"
+msgstr "Դիտել Վերջին Տարբերակը"
+
+#: trac/wiki/web_ui.py:648
+msgid "Up"
+msgstr "Վերև"
+
+#: trac/wiki/web_ui.py:673
+msgid "Start Page"
+msgstr "Սկզբնական Էջ"
+
+#: trac/wiki/web_ui.py:674
+msgid "Index"
+msgstr "Ինդեքս"
+
+#: trac/wiki/web_ui.py:676
+msgid "History"
+msgstr "Պատմություն"
+
+#: trac/wiki/web_ui.py:683
+msgid "Wiki changes"
+msgstr "Wiki փոփոխություններ"
+
+#: trac/wiki/web_ui.py:712
+#, python-format
+msgid "%(page)s edited"
+msgstr "%(page)s խմբագրված են"
+
+#: trac/wiki/web_ui.py:714
+#, python-format
+msgid "%(page)s created"
+msgstr "%(page)s ստեղծված է"
+
+#: trac/wiki/templates/wiki_delete.html:19
+#, python-format
+msgid "Delete versions %(from)s to %(to)s of [1:%(name)s]"
+msgstr "[1:%(name)s] էջի %(from)s-ից %(to)s տարբերակները ջնջվել են։"
+
+#: trac/wiki/templates/wiki_delete.html:22
+#, python-format
+msgid "Delete version %(version)s of [1:%(name)s]"
+msgstr "Ջնջել %(version)s տարբերակը [1:%(name)s]"
+
+#: trac/wiki/templates/wiki_delete.html:25
+#, python-format
+msgid "Delete [1:%(name)s]"
+msgstr "Ուղենիշ [1:%(name)s]"
+
+#: trac/wiki/templates/wiki_delete.html:33
+#, python-format
+msgid "Are you sure you want to delete versions %(from)s to %(to)s of this page?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս զեկույցը։ %(from)s - %(to)s"
+
+#: trac/wiki/templates/wiki_delete.html:36
+#, python-format
+msgid "Are you sure you want to delete version %(version)s of this page?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս զեկույցը։ %(version)s"
+
+#: trac/wiki/templates/wiki_delete.html:39
+msgid "Are you sure you want to completely delete this page?"
+msgstr "Դուք վստա՞հ եք, որ ցանկանում եք ջնջել այս զեկույցը։"
+
+#: trac/wiki/templates/wiki_delete.html:42
+msgid "This is the only version the page, so the page will be removed completely!"
+msgstr "Սա էջի միակ տարբերակն է, հետևաբար էջը կհեռացվի ամբողջովին։"
+
+#: trac/wiki/templates/wiki_delete.html:51
+msgid "Delete those versions"
+msgstr "Ջնջել այս տարբերակը"
+
+#: trac/wiki/templates/wiki_delete.html:51
+#: trac/wiki/templates/wiki_view.html:117
+msgid "Delete this version"
+msgstr "Ջնջել այս տարբերակը"
+
+#: trac/wiki/templates/wiki_delete.html:51
+#: trac/wiki/templates/wiki_view.html:119
+msgid "Delete page"
+msgstr "Ջնջել էջը"
+
+#: trac/wiki/templates/wiki_diff.html:17
+#, python-format
+msgid "Delete version %(old_version)d to version %(version)d"
+msgstr "Փոխարինել %(old_version)d տարբերակը %(version)d-ով"
+
+#: trac/wiki/templates/wiki_diff.html:18
+#, python-format
+msgid "Delete version %(version)d"
+msgstr "Ջնջել %(version)d տարբերակը"
+
+#: trac/wiki/templates/wiki_edit.html:67
+#: trac/wiki/templates/wiki_edit.html:140
+msgid "Go to Save, Preview, Review or Cancel buttons"
+msgstr "Դեպի \"Պահպանել\", \"Նախնական դիտում\", \"Վերանայել\" կամ \"Մերժել\" կոճակները"
+
+#: trac/wiki/templates/wiki_edit.html:69
+msgid "See the diffs"
+msgstr "Դիտել տարբերությունները"
+
+#: trac/wiki/templates/wiki_edit.html:69
+#: trac/wiki/templates/wiki_edit_form.html:38
+msgid "Review"
+msgstr "Վերանայել"
+
+#: trac/wiki/templates/wiki_edit.html:70
+msgid "See the preview"
+msgstr "Դիտել նախնական տեսքը"
+
+#: trac/wiki/templates/wiki_edit.html:73
+msgid "Editing"
+msgstr "Խմբագրում"
+
+#: trac/wiki/templates/wiki_edit.html:75
+msgid "Someone else has modified that page since you started your edits."
+msgstr "Ձեր խմբագրումը սկսելուց հետո այդ էջը փոփոխվել է։"
+
+#: trac/wiki/templates/wiki_edit.html:76
+msgid ""
+"[1:If you save right away, you risk to revert those changes]\n"
+"        (highlighted below as deletions)."
+msgstr "Եթե անմիջապես պահպանեք, Դուք կարող եք վերադարձնել այդ փոփոխությունները"
+
+#: trac/wiki/templates/wiki_edit.html:78
+msgid ""
+"Please review all those changes and manually merge them with your\n"
+"        own changes. [1:]\n"
+"        If you're unsure about what you're doing, please press [2:Cancel]\n"
+"        (losing your changes) and start editing the latest version of the page\n"
+"        again."
+msgstr ""
+"Խնդրում ենք վերանայել բոլոր այդ փոփոխությունները և ձեռքով միացնել դրանք\n"
+"\t ձեր տարներակի հետ: [1:]\n"
+"        Եթե դուք վստահ չեք ձեր արվածի համար, խնդրում ենք սեղմել [2:Cancel]\n"
+"        (կորցնելով ձեր փոփոխությունները) և սկսել խմբագրել էջի վերջին\n"
+"        տարբերակը կրկին։"
+
+#: trac/wiki/templates/wiki_edit.html:114
+#, python-format
+msgid "Change information for future version %(version)s (modified by %(author)s):"
+msgstr "Փոխել ինֆորմացիան ապագա տարբերակի համար %(version)s (փոփոխված է %(author)s կողմից)."
+
+#: trac/wiki/templates/wiki_edit.html:124
+msgid "Go to the editor"
+msgstr "Դեպի խմբագրիչ"
+
+#: trac/wiki/templates/wiki_edit.html:127
+#: trac/wiki/templates/wiki_edit_form.html:74
+msgid "Review Changes"
+msgstr "Վերանայել Փոփոխությունները"
+
+#: trac/wiki/templates/wiki_edit.html:129
+msgid "No changes"
+msgstr "Ոչ մի փոփոխություն"
+
+#: trac/wiki/templates/wiki_edit.html:146
+msgid ""
+"Sorry, this page has been modified by somebody else since you started\n"
+"            editing. Your changes cannot be saved."
+msgstr "Ներեցեք, այս էջը փոփոխվել է մեկ ուրիշի կողմից նախքան Դուք սկսել եք խմբագրել։ Ձեր կողմից արված փոփոխությունները չեն կարող պահպանվել։"
+
+#: trac/wiki/templates/wiki_edit_form.html:16
+msgid "Adjust edit area height:"
+msgstr "Կարգավորել խմբագրման տարածքի բարձրությունը․"
+
+#: trac/wiki/templates/wiki_edit_form.html:24
+msgid "Selecting and pressing 'Preview' enters a two-column [edit|preview] mode"
+msgstr "\"Նախնական դիտում\" նշելով և սեղմելով կակտիվանա երկու-սյուն [խմբագրում/նախնական դիտում] վիճակը"
+
+#: trac/wiki/templates/wiki_edit_form.html:24
+msgid "Edit side-by-side"
+msgstr "Խմբագրել հարևանությամբ"
+
+#: trac/wiki/templates/wiki_edit_form.html:32
+msgid ""
+"[1:Note:] See [2:WikiFormatting] and\n"
+"        [3:TracWiki] for help on editing wiki content."
+msgstr ""
+"[1:Note:] Տես [2:WikiFormatting] և\n"
+"        [3:TracWiki] wiki պարունակությունը խմբագրելու մասին իմանալու համար։"
+
+#: trac/wiki/templates/wiki_edit_form.html:38
+msgid "See the start of the diffs"
+msgstr "Դիտել տարբերությունների սկիզբը"
+
+#: trac/wiki/templates/wiki_edit_form.html:39
+msgid "See the start of the preview"
+msgstr "Դիտել նախնական տեսքի սկիզբը"
+
+#: trac/wiki/templates/wiki_edit_form.html:43
+msgid "Change information"
+msgstr "Փոխել ինֆորմացիան"
+
+#: trac/wiki/templates/wiki_edit_form.html:54
+msgid "Comment about this change (optional):"
+msgstr "Մեկնաբանություն այս փոփոխության մասին (ոչ պարտադիր)․"
+
+#: trac/wiki/templates/wiki_edit_form.html:61
+msgid "Page is read-only"
+msgstr "Էջը միայն ընթերցելու համար է"
+
+#: trac/wiki/templates/wiki_edit_form.html:69
+msgid "Merge changes"
+msgstr "Միավորել փոփոխությունները"
+
+#: trac/wiki/templates/wiki_edit_form.html:73
+msgid "Preview Page"
+msgstr "Նախնական Դիտման Էջ"
+
+#: trac/wiki/templates/wiki_page_path.html:6
+msgid "View WikiStart"
+msgstr "Դիտել WikiStart"
+
+#: trac/wiki/templates/wiki_page_path.html:6
+msgid "wiki:"
+msgstr "wiki:"
+
+#: trac/wiki/templates/wiki_page_path.html:8
+#, python-format
+msgid "View %(path)s"
+msgstr "%(path)s տեսք"
+
+#: trac/wiki/templates/wiki_rename.html:15
+#, python-format
+msgid "Rename [1:%(name)s]"
+msgstr "Ուղենիշ %(name)s"
+
+#: trac/wiki/templates/wiki_rename.html:19
+msgid "Renaming the page will rename all existing versions of the page in place."
+msgstr "Էջի վերանվանումը կվերանվանի էջի բոլոր գոյություն ունեցող տարբերակները։"
+
+#: trac/wiki/templates/wiki_rename.html:19
+msgid "The complete history of the page will be moved to the new location."
+msgstr "Էջի ամբողջական պատմությունը կտեղափոխվի նոր տեղակայման տեղը։"
+
+#: trac/wiki/templates/wiki_rename.html:23
+msgid "New name:"
+msgstr "Ամբողջական անունը․"
+
+#: trac/wiki/templates/wiki_rename.html:27
+msgid "Leave a redirection page at the old location"
+msgstr "Թողնել վերահասցեավորման էջը նախկին տեղակայման տեղը"
+
+#: trac/wiki/templates/wiki_rename.html:33
+#: trac/wiki/templates/wiki_view.html:108
+msgid "Rename page"
+msgstr "Գլխավոր էջ․"
+
+#: trac/wiki/templates/wiki_view.html:14
+#: trac/wiki/templates/wiki_view.html:84
+msgid "Edit this page"
+msgstr "Խմբագրել այս էջը"
+
+#: trac/wiki/templates/wiki_view.html:34
+#, python-format
+msgid ""
+"Version %(version)s (modified by %(author)s, %(date)s ago)\n"
+"               ([1:diff])"
+msgstr "Տարբերակ %(version)s (փոփոխված %(author)s կողմից, %(date)s առաջ)"
+
+#: trac/wiki/templates/wiki_view.html:47
+#, python-format
+msgid "Version %(version)s by %(author)s: %(comment)s"
+msgstr "Տարբերակ %(version)s (փոփոխված %(author)s կողմից, %(comment)s առաջ)"
+
+#: trac/wiki/templates/wiki_view.html:47
+#, python-format
+msgid "Version %(version)s by %(author)s"
+msgstr "Տարբերակ %(version)s (փոփոխված %(author)s կողմից"
+
+#: trac/wiki/templates/wiki_view.html:54
+#, python-format
+msgid "[1:Last modified] %(reldate)s ago"
+msgstr "[1:Վերջին անգամ փոփոխված է] %(reldate)s առաջ"
+
+#: trac/wiki/templates/wiki_view.html:61
+#, python-format
+msgid "The page %(name)s does not exist. You can create it here."
+msgstr "%(name)s էջը գոյություն չունի։ Դուք կարող եք այն ստեղծել ասյտեղ։"
+
+#: trac/wiki/templates/wiki_view.html:63
+msgid "You could also create the same page higher in the hierarchy:"
+msgstr "Դուք կարող եք նաև ստեղծել նույն էջը հիերարխիայի ավելի բարձր մակարդակում․"
+
+#: trac/wiki/templates/wiki_view.html:87
+msgid "Create this page"
+msgstr "Ստեղծել այս էջը"
+
+#: trac/wiki/templates/wiki_view.html:89
+msgid "Using the template:"
+msgstr "Շաբլոնի օգտագործում․"
+
+#: trac/wiki/templates/wiki_view.html:92
+msgid "(blank page)"
+msgstr "(դատարկ էջ)"
+
+#: trac/wiki/templates/wiki_view.html:128
+msgid "The following pages have a name similar to this page, and may be related:"
+msgstr "Հետևյալ էջերի անունները նման են այս էջի անվանը և հնարավոր է իրար հետ կապված են․"
+

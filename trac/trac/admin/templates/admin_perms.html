@@ -1,0 +1,105 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="admin.html" />
+  <head>
+    <title>Permissions</title>
+  </head>
+
+  <body>
+    <h2>Manage Permissions</h2>
+
+    <py:if test="'PERMISSION_GRANT' in perm">
+    <form id="addperm" class="addnew" method="post" action="">
+      <fieldset>
+        <legend>Grant Permission:</legend>
+        <table>
+          <tr class="field">
+            <th><label for="gp_subject">Subject:</label></th>
+            <td><input id="gp_subject" type="text" name="subject" /></td>
+          </tr>
+          <tr class="field">
+            <th><label for="action">Action:</label></th>
+            <td>
+              <select id="action" name="action">
+                <option py:for="action in sorted(actions)">$action</option>
+              </select>
+            </td>
+          </tr>
+        </table>
+        <p class="help">
+          Grant permission for an action to a subject, which can be either a user
+          or a group.
+        </p>
+        <div class="buttons">
+          <input type="submit" name="add" value="${_('Add')}" />
+        </div>
+      </fieldset>
+    </form>
+
+    <form id="addsubj" class="addnew" method="post" action="">
+      <fieldset>
+        <legend>Add Subject to Group:</legend>
+        <table>
+          <tr class="field">
+            <th><label for="sg_subject">Subject:</label></th>
+            <td><input id="sg_subject" type="text" name="subject" /></td>
+          </tr>
+          <tr class="field">
+            <th><label for="sg_group">Group:</label></th>
+            <td><input id="sg_group" type="text" name="group" /></td>
+          </tr>
+        </table>
+        <p class="help">
+          Add a user or group to an existing permission group.
+        </p>
+        <div class="buttons">
+          <input type="submit" name="add" value="${_('Add')}"/>
+        </div>
+      </fieldset>
+    </form>
+    </py:if>
+
+    <form id="revokeform" method="post" py:with="revoke_perm = 'PERMISSION_REVOKE' in perm" action="">
+      <table class="listing" id="permlist">
+        <thead>
+          <tr><th>Subject</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr py:for="idx, (subject, perm_group) in enumerate(groupby(sorted(perms), key=lambda tmp: tmp[0]))"
+              class="${'odd' if idx % 2 else 'even'}">
+            <td>$subject</td>
+            <td>
+              <py:for each="cnt, (subject,action) in enumerate(perm_group)"
+                      py:with="subject_action='%s:%s' % (unicode_to_base64(subject),
+                                                         unicode_to_base64(action));
+                               subject_action_id='sa-%d-%d' % (idx, cnt)">
+                <!--! base64 make it safe to use ':' as separator when passing
+                      both subject and action as one query parameter -->
+                <div>
+                  <input py:if="revoke_perm" type="checkbox"
+                         id="$subject_action_id"
+                         name="sel" value="$subject_action" />
+                  <label for="$subject_action_id">$action</label>
+                </div>
+              </py:for>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="buttons" py:if="revoke_perm">
+        <input type="submit" name="remove" value="${_('Remove selected items')}" />
+      </div>
+    </form>
+
+    <p class="help" i18n:msg="">
+      Note that <em>Subject</em> or <em>Group</em> names can't be all upper-case,
+      as that is reserved for permission names.
+    </p>
+  </body>
+
+</html>
