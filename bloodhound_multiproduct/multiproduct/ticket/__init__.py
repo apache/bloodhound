@@ -18,4 +18,4 @@
 
 """multiproduct ticket related functionality and overrides"""
 from web_ui import ProductTicketModule
-from api import ProductTicketSystem
+from api import ProductTicketFields
