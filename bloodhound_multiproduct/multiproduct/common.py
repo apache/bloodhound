@@ -16,6 +16,22 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""multiproduct ticket related functionality and overrides"""
-from web_ui import ProductTicketModule, ProductReportModule
-from api import ProductTicketFields
+import re
+
+from multiproduct.model import Product
+
+PRODUCT_RE = re.compile(r'^/(?P<pid>[^/]*)(?P<pathinfo>.*)')
+
+def match_product_path(env, req):
+    """Matches a product in pathinfo, stores the associated product id and
+    returns what is left"""
+    pathinfo = req.path_info[:]
+    match = PRODUCT_RE.match(pathinfo)
+    if match:
+        pid = match.group('pid')
+        products = Product.select(env, where={'prefix':pid})
+        if len(products) == 1:
+            req.args['productid'] = match.group('pid')
+            req.args['product'] = products[0].name
+            pathinfo = match.group('pathinfo')
+    return pathinfo

@@ -22,6 +22,7 @@ import re
 
 from trac.core import TracError
 from trac.ticket.web_ui import TicketModule
+from trac.ticket.report import ReportModule
 from trac.attachment import AttachmentModule
 from trac.ticket.api import TicketSystem
 from trac.resource import Resource, get_resource_shortname
@@ -30,26 +31,18 @@ from trac.util.datefmt import from_utimestamp
 from trac.util.translation import _, tag_
 from genshi.builder import tag
 
-from multiproduct.model import Product
+from multiproduct.common import match_product_path
 
-PRODUCT_RE = re.compile(r'^/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 TICKET_RE = re.compile(r'/ticket/(?P<ticket>[0-9]+)$')
+REPORT_RE = re.compile(r'/report(?:/(?:([0-9]+)|-1))?$')
+
 class ProductTicketModule(TicketModule):
     """Product Overrides for the TicketModule"""
     
     # IRequestHandler methods
     def match_request(self, req):
         """Override of TicketModule match_request"""
-        pathinfo = req.path_info[:]
-        match = PRODUCT_RE.match(pathinfo)
-        if match:
-            pid = match.group('pid')
-            products = Product.select(self.env, where={'prefix':pid})
-            if len(products) == 1:
-                req.args['productid'] = match.group('pid')
-                req.args['product'] = products[0].name
-                pathinfo = match.group('pathinfo')
-            
+        pathinfo = match_product_path(self.env, req)
         # is it a newticket request:
         if pathinfo == "/newticket":
             return True
@@ -137,3 +130,19 @@ class ProductTicketModule(TicketModule):
         for result in AttachmentModule(self.env).get_search_results(
             req, ticket_realm, terms):
             yield result
+
+class ProductReportModule(ReportModule):
+    """replacement for ReportModule"""
+    
+    # IRequestHandler methods
+    def match_request(self, req):
+        """Override of ReportModule match_request"""
+        pathinfo = match_product_path(self.env, req)
+        match = REPORT_RE.match(pathinfo)
+        if match:
+            if match.group(1):
+                req.args['id'] = match.group(1)
+            return True
+    
+    #def process_request(self, req):
+    # not yet required

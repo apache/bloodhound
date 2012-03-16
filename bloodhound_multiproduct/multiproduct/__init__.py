@@ -20,3 +20,4 @@
 from model import MultiProductEnvironmentProvider
 from product_admin import ProductAdminPanel
 import multiproduct.ticket
+import common
