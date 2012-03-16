@@ -24,6 +24,7 @@ from trac.db import Table, Column, DatabaseManager
 from trac.env import IEnvironmentSetupParticipant
 from trac.web.chrome import ITemplateProvider
 from trac.resource import Resource
+from trac.ticket.api import TicketSystem
 
 DB_VERSION = 1
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
@@ -141,6 +142,7 @@ class ModelBase(object):
             self._exists = False
             self._data = dict([(k, None) for k in self._data.keys()])
             self._old_data.update(self._data)
+            TicketSystem(self._env).reset_ticket_fields()
     
     def insert(self):
         """Create new record in the database"""
@@ -170,6 +172,7 @@ class ModelBase(object):
             db(sql, [self._data[f] for f in fields])
             self._exists = True
             self._old_data.update(self._data)
+            TicketSystem(self._env).reset_ticket_fields()
 
     def update(self):
         """Update the matching record in the database"""
@@ -191,6 +194,7 @@ class ModelBase(object):
         with self._env.db_transaction as db:
             db(sql, setvalues + values)
             self._old_data.update(self._data)
+            TicketSystem(self._env).reset_ticket_fields()
     
     @classmethod
     def select(cls, env, db=None, where=None):
