@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<html>
+<head>
+	<title>wiki-5476 - Apache Bloodhound</title>
+</head>
+<body>
+	<div class="container">
+		<header>
+		<div class="row">
+			<div class="span6">
+				<div id="logo" style="position:relative;">
+					<p style="margin-top:20px; margin-bottom:0px; line-height:65%; font-weight:lighter;">Apache<sup style="font-size:65%;">TM</sup></p>
+					<p style="margin-top:0px; font-weight:bold; font-size:120%;">Bloodhound</p>
+					<img src="img/logo.png" alt="Bloodhound Logo" height="40" width="55" style="position:absolute;
+					top:-15px; left:100px;"/>
+				</div>
+			</div>
+			<div class="span6">
+				<div class="pull-right" style="margin-top:5px; margin-right:20px;">Hi Joachim (<a href="#">logout</a>) <a href="#" style="margin-left:10px;">Preferences</a><a href="#" style="margin-left:10px;">Help</a></div>
+			</div>
+		</div>
+		<div class="row">
+<!-- Search box -->
+			<div class="span4">
+			<form class="form-inline" style="margin-bottom:0px;">
+				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." style="margin-bottom:0px;" />
+				<input type="button" value="Search" href="search.html" class="btn btn-warning" />
+			</form>
+			</div>
+
+<!-- Create button -->
+			<div class="span4">
+			  	<button class="btn btn-primary" href="#">Create Ticket</a>
+			</div>
+			
+<!-- Main navigation tabs -->
+			<div class="span4">
+				<ul class="nav nav-tabs pull-right" style="margin-bottom:0px; border-bottom: 0px;">
+					<li class="active"><a href="dashboard.html">Tickets</a></li>
+					<li><a href="wiki.html">Wiki</a></li>
+					<li><a href="source.html">Source</a></li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="#">SuperAdmin</a></li>
+							<li><a href="#">Tag Cloud</a></li>
+							<li><a href="#">Blog</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Something</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+<!-- Breadcrumb -->
+		<div class="row">
+      		<div class="span12">
+      			<ul class="breadcrumb">
+      				<li><a href="dashboard.html">Dashboard</a> <span class="divider">/</span></li>
+      				<li><a href="product.html">MultiSite</a> <span class="divider">/</span></li>
+      				<li><a href="version.html">14.3</a> <span class="divider">/</span></li>
+      				<li><a href="milestone.html">Milestone 2</a> <span class="divider">/</span></li>
+      				<li class="active"><a href="#">wiki-5476</a></li>
+      				<li class="pull-right"><a href="#">Custom Query</a><a href="#" style="margin-left:15px;">Reports</a></li>
+				</ul>
+			</div>
+     	</div>
+		</header>     	
+
+<!--	#	Header ends 
+		#	Main body begins	-->
+
+		<div class="row">
+<!-- Main element starts -->
+      		<div class="span8" id="content">
+      			<div style="position: relative;"><h1 style="display:inline;">wiki-5476</h1>
+      			<p>Content</p>
+				</div>
+			</div>
+<!-- Activity starts -->
+			<div id="Activity" class="span4">
+				<h1>Activity</h1>
+      			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
+      		</div>	
+     	</div>
+<!-- Activity ends -->
+     	
+     	<div class="row">
+     	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
+     		<div class="span12" style="color:grey; margin-top:10px;">Powered by <a href="#" style="color:#565656;">Bloodhound</a>. Standing on the shoulders of <a href="#" style="color:#565656;">Trac 0.13</a>.</div>
+     		</div>
+     	</footer>
+     	</div>
+    </div>
+    <br />
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="js/bootstrap-button.js"></script>
+</body>
+</html>
+
