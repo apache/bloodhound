@@ -3,53 +3,43 @@
 <html>
 <head>
 	<title>Dashboard - Apache Bloodhound</title>
-	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
-	<script src="js/dashboard.js"></script>
 </head>
 <body>
 	<div class="container">
-		<div class="row" style="position:relative;">
-			<div class="span4"><a href="dashboard.html"><img src="img/bloodhound_logo.png" alt="Bloodhound Logo" height="47" width="161"/></a></div>
-			<div class="span8" style="position:absolute; bottom:25%; right:-40%;">
-			<!-- The alignment of this element is set to the value below just for the mockup, in the final implementation it should align on the right with the other elements of the navigation. -->
-				Hi Joachim (<a href="#">logout</a>)&nbsp;&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;&nbsp;<a href="#">Help</a>
+		<header>
+		<div class="row">
+			<div class="span6">
+				<div id="logo" style="position:relative;">
+					<p style="margin-top:20px; margin-bottom:0px; line-height:65%; font-weight:lighter;">Apache<sup style="font-size:65%;">TM</sup></p>
+					<p style="margin-top:0px; font-weight:bold; font-size:120%;">Bloodhound</p>
+					<img src="img/logo.png" alt="Bloodhound Logo" height="40" width="55" style="position:absolute;
+					top:-15px; left:100px;"/>
+				</div>
+			</div>
+			<div class="span6">
+				<div class="pull-right" style="margin-top:5px; margin-right:20px;">Hi Joachim (<a href="#">logout</a>) <a href="preferences.html" style="margin-left:10px;">Preferences</a><a href="help.html" style="margin-left:10px;">Help</a></div>
 			</div>
 		</div>
-		
-		<div class="row" style="position:relative;">
+		<div class="row">
 <!-- Search box -->
 			<div class="span4">
-			<form class="form-inline">
-				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." />
-				<input type="button" value="Search" href="#" class="btn btn-warning" />
+			<form class="form-inline" style="margin-bottom:0px;">
+				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." style="margin-bottom:0px;" />
+				<input type="button" value="Search" href="search.html" class="btn btn-warning" />
 			</form>
 			</div>
 
 <!-- Create button -->
 			<div class="span4">
-				<div class="btn-group">
-			  		<a class="btn btn-inverse" href="#">Create Ticket</a>
-			  		<a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">
-			    		<span class="caret"></span>
-			  		</a>
-			  		<ul class="dropdown-menu">
-			  			<li><a href="#">Milestone</a></li>
-			  			<li><a href="#">Version</a></li>
-			  			<li><a href="#">Product</a></li>
-			  			<li class="divider"></li>
-						<li><a href="#">Project</a></li>
-			    		<li><a href="#">Component</a></li>
-			  		</ul>
-				</div>
+			  	<button class="btn btn-primary" href="#">Create Ticket</a>
 			</div>
 			
 <!-- Main navigation tabs -->
 			<div class="span4">
-				<ul class="nav nav-tabs pull-right">
+				<ul class="nav nav-tabs pull-right" style="margin-bottom:0px; border-bottom: 0px;">
 					<li class="active"><a href="dashboard.html">Tickets</a></li>
-					<li><a href="#">Wiki</a></li>
-					<li><a href="#">Source</a></li>
+					<li><a href="wiki.html">Wiki</a></li>
+					<li><a href="source.html">Source</a></li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
 						<ul class="dropdown-menu">
@@ -68,35 +58,34 @@
 		<div class="row">
       		<div class="span12">
       			<ul class="breadcrumb">
-      				<li><a href="#">Breadcrumb</a> <span class="divider">/</span></li>
       				<li class="active"><a href="#">Dashboard</a></li>
-      				<li class="pull-right"><a href="#">Custom Query</a>&nbsp;&nbsp;&nbsp;<a href="#">Reports</a></li>
+      				<li class="pull-right"><a href="customquery.html">Custom Query</a><a href="reports.html" style="margin-left:15px;">Reports</a></li>
 				</ul>
 			</div>
      	</div>
-     	
+		</header>     	
+
 <!--	#	Header ends 
 		#	Main body begins	-->
 
 		<div class="row">
+<!-- Main element starts -->
       		<div class="span8" id="content">
-      			<h1>Dashboard</h1>
+      			<div style="position: relative;"><h1 style="display:inline;">Dashboard</h1>
       			
 <!-- Dashboard button toolbar -->
-      		<div class="btn-toolbar">
-      			<div class="btn-group offset1"  data-toggle="buttons-radio">
-      				<a class="btn" href="#">Products</a>
-      				<a class="btn active" href="#">My tickets</a>
-      				<a class="btn" href="#">All tickets</a>
+      		<div class="btn-toolbar" style="position: absolute; bottom: -9px; left: 180px;">
+      			<div class="btn-group"  data-toggle="buttons-radio">
+      				<button class="btn" href="#">Products</button>
+      				<button class="btn active" href="#">My tickets</button>
+      				<button class="btn" href="#">All tickets</button>
+      				<button class="btn" href="#">Projects</button>
+      				<button class="btn" href="#">Components</button>
       			</div>
-      			<div class="btn-group">
-      				<a class="btn" href="#">Projects</a>
-      				<a class="btn" href="#">Components</a>
-      			</div>
-      		</div>
+      		</div></div>
       		
 <!-- My tickets table -->
-      		<table class="table table-condensed" id="myTickets">
+      		<table class="table table-condensed" id="myTickets" style="margin-top:8px;">
       		<thead>
       			<tr>
       				<th style="text-align:right;">Date</th>
@@ -108,107 +97,107 @@
       		</thead>
       		<tr>
       			<td style="text-align:right;">Today</td>
-      			<td><a href="#"><a href="#">wiki-5476</a></a></td>
+      			<td><a href="ticket.html">wiki-5476</a></td>
       			<td>All Tickets report on this site: Example.com/bh</td>
-      			<td>Me (<a href="#">view all</a>)</td>
+      			<td>Me (<a href="myprofile.html">view all</a>)</td>
       			<td>High</td>
       		</tr>
 				<tr>
       			<td></td>
-      			<td><a href="#">E-5476</a></td>
+      			<td><a href="ticket.html">E-5476</a></td>
       			<td>Grouping doesn't work in ...</td>
-      			<td><a href="#">Warren</a></td>
+      			<td><a href="profile.html">Warren</a></td>
       			<td>High</td>
       		</tr>
 				<tr>
       			<td></td>
-      			<td><a href="#">EF-492</a></td>
+      			<td><a href="ticket.html">EF-492</a></td>
       			<td>Protocol http is hard coded in ...</td>
-      			<td>Me (<a href="#">view all</a>)</td>
+      			<td>Me (<a href="myprofile.html">view all</a>)</td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 			<tr>
       			<td></td>
-      			<td><a href="#">ipad-2911</a></td>
+      			<td><a href="ticket.html">ipad-2911</a></td>
       			<td>Fix header graphic</td>
-      			<td><a href="#">Vince</a></td>
+      			<td><a href="profile.html">Vince</a></td>
       			<td style="text-align:right;">Med</td>
       		</tr>
       		<tr>
       			<td style="text-align:right;">Yesterday</td>
-      			<td><a href="#">E-1920</a></td>
+      			<td><a href="ticket.html">E-1920</a></td>
       			<td>SQL report realm/id decoration</td>
-      			<td><a href="#">Montgomery</a></td>
+      			<td><a href="profile.html">Montgomery</a></td>
       			<td>High</td>
       		</tr>
 				<tr>
       			<td></td>
-      			<td><a href="#">TR-2930</a></td>
+      			<td><a href="ticket.html">TR-2930</a></td>
       			<td>Change main button</td>
-      			<td>Me (<a href="#">view all</a>)</td>
+      			<td>Me (<a href="myprofile.html">view all</a>)</td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 				<tr>
       			<td></td>
-      			<td><a href="#">mobile-281</a></td>
+      			<td><a href="ticket.html">mobile-281</a></td>
       			<td>AttachmentManipulators cannot ...</td>
-      			<td><a href="#">Seraphinia</a></td>
+      			<td><a href="profile.html">Seraphinia</a></td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 			<tr>
       			<td style="text-align:right;">15 Mar</td>
-      			<td><a href="#">PL-8491</a></td>
+      			<td><a href="ticket.html">PL-8491</a></td>
       			<td>Use of svn:mime-type: text/x-trac-wiki ...</td>
-      			<td><a href="#">Gambolputty</a></td>
+      			<td><a href="profile.html">Gambolputty</a></td>
       			<td>High</td>
       		</tr>
       		<tr>
       			<td></td>
-      			<td><a href="#">ipad-2841</a></td>
+      			<td><a href="ticket.html">ipad-2841</a></td>
       			<td>uber logo placement</td>
-      			<td><a href="#">Deepakeesh</a></td>
+      			<td><a href="profile.html">Deepakeesh</a></td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 				<tr>
       			<td></td>
-      			<td><a href="#">J-2913</a></td>
+      			<td><a href="ticket.html">J-2913</a></td>
       			<td>[PATCH] Empty folders excluded ...</td>
-      			<td><a href="#">Thandayutha</a></td>
+      			<td><a href="profile.html">Thandayutha</a></td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 				<tr>
       			<td style="text-align:right;">16 Mar</td>
-      			<td><a href="#">mobile-6932</a></td>
+      			<td><a href="ticket.html">mobile-6932</a></td>
       			<td>Permission check of Repository ...</td>
-      			<td>Me (<a href="#">view all</a>)</td>
+      			<td>Me (<a href="myprofile.html">view all</a>)</td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 			<tr>
       			<td></td>
-      			<td><a href="#">J-2941</a></td>
+      			<td><a href="ticket.html">J-2941</a></td>
       			<td>Load front banner</td>
-      			<td><a href="#">David</a></td>
+      			<td><a href="profile.html">David</a></td>
       			<td style="text-align:right;">Low</td>
       		</tr>
       		<tr>
       			<td style="text-align:right;">21 Mar</td>
-      			<td><a href="#">ipad-1823</a></td>
+      			<td><a href="ticket.html">ipad-1823</a></td>
       			<td>resync single revision doesn't resync ...</td>
-      			<td><a href="#">Caroline</a></td>
+      			<td><a href="profile.html">Caroline</a></td>
       			<td>High</td>
       		</tr>
 				<tr>
       			<td style="text-align:right;">23 Mar</td>
-      			<td><a href="#">PO-1824</a></td>
+      			<td><a href="ticket.html">PO-1824</a></td>
       			<td>Update jquery to 1.4.4</td>
-      			<td>Me (<a href="#">view all</a>)</td>
+      			<td>Me (<a href="myprofile.html">view all</a>)</td>
       			<td style="text-align:right;">Med</td>
       		</tr>
 				<tr>
       			<td style="text-align:right;">24 Mar</td>
-      			<td><a href="#">G-1938</a></td>
+      			<td><a href="ticket.html">G-1938</a></td>
       			<td>Wrong wrapping field with long and ...</td>
-      			<td><a href="#">Gary</a></td>
+      			<td><a href="profile.html">Gary</a></td>
       			<td style="text-align:right;">Med</td>
       		</tr>
       		</table>
@@ -222,57 +211,25 @@
       		</div>
       		
 <!-- Activity starts -->
-      		<div class="span4" id="activity"><h1>Activity</h1>
-      		    <br />
-      		<table class="table table-striped">
-      			<thead>
-      				<tr><th>Today</th></tr>
-      			</thead>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-				<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      		</table>
-      		<table class="table table-striped">
-      			<thead>
-      			<tr>
-      				<th>Yesterday</th>
-      			</tr>
-      			</thead>
-      		     <tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      		</table>
+			<div id="Activity" class="span4">
+				<h1>Activity</h1>
+      			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
       		</div>
+      		
      	</div>
-     	<div class="row" id="footer">
-     	    <br />
-     		<div class="span8" style="color:grey;">Powered by <a href="#">Bloodhound</a>. Standing on the shoulders of <a href="#">Trac 0.13</a>. <a href="abc"></a></div>
-     		<div class="span4" style="text-align:right; color:grey;">Visit Bloodhound at <a href="">http://bloodhound.io</a></div>
+<!-- Activity ends -->
+     	
+<!-- Footer -->
+     	<div class="row">
+     	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
+     		<div class="span12" style="color:grey; margin-top:10px;">Powered by <a href="#" style="color:#565656;">Bloodhound</a>. Standing on the shoulders of <a href="#" style="color:#565656;">Trac 0.13</a>.</div>
+     		</div>
+     	</footer>
      	</div>
     </div>
-    <br />
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="js/bootstrap-button.js"></script>
 </body>
 </html>
 
