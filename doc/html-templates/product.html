@@ -3,31 +3,42 @@
 <html>
 <head>
 	<title>MultiSite - Apache Bloodhound</title>
-	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
-	<script src="js/dashboard.js"></script>
 </head>
 <body>
 	<div class="container">
-		<div class="row" style="position:relative;">
-			<div class="span4"><a href="dashboard.html"><img src="img/bloodhound_logo.png" alt="Bloodhound Logo" height="47" width="161"/></a></div>
-			<div class="span8" style="position:absolute; bottom:25%; right:-40%;">
-				Hi Joachim (<a href="#">logout</a>)&nbsp;&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;&nbsp;<a href="#">Help</a>
+		<div class="row">
+			<div class="span6">
+				<div id="logo" style="position:relative;">
+					<p style="margin-top:20px; margin-bottom:0px; line-height:65%; font-weight:lighter;">Apache<sup style="font-size:65%;">TM</sup></p>
+					<p style="margin-top:0px; font-weight:bold; font-size:120%;">Bloodhound</p>
+					<img src="img/logo.png" alt="Bloodhound Logo" height="40" width="55" style="position:absolute;
+					top:-15px; left:100px;"/>
+				</div>
+			</div>
+			<div class="span6">
+				<div class="pull-right" style="margin-top:5px; margin-right:20px;">Hi Joachim (<a href="#">logout</a>) <a href="#" style="margin-left:10px;">Preferences</a><a href="#" style="margin-left:10px;">Help</a></div>
 			</div>
 		</div>
-		<div class="row" style="position:relative;">
+		<div class="row">
+<!-- Search box -->
 			<div class="span4">
-			<form class="form-inline">
-				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." />
-				<input type="button" value="Search" href="#" class="btn btn-warning" />
+			<form class="form-inline" style="margin-bottom:0px;">
+				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." style="margin-bottom:0px;" />
+				<input type="button" value="Search" href="search.html" class="btn btn-warning" />
 			</form>
 			</div>
-			<div class="span4"><a href="#" class="btn">Create Ticket</a></div>
+
+<!-- Create button -->
 			<div class="span4">
-				<ul class="nav nav-tabs pull-right">
+			  	<button class="btn btn-primary" href="#">Create Ticket</a>
+			</div>
+			
+<!-- Main navigation tabs -->
+			<div class="span4">
+				<ul class="nav nav-tabs pull-right" style="margin-bottom:0px; border-bottom: 0px;">
 					<li class="active"><a href="dashboard.html">Tickets</a></li>
-					<li><a href="#">Wiki</a></li>
-					<li><a href="#">Source</a></li>
+					<li><a href="wiki.html">Wiki</a></li>
+					<li><a href="source.html">Source</a></li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
 						<ul class="dropdown-menu">
@@ -42,14 +53,13 @@
 			</div>
       		<div class="span12">
       			<ul class="breadcrumb">
-      				<li><a href="#">Products</a> <span class="divider">/</span></li>
+      				<li><a href="dashboard.html">Dashboard</a> <span class="divider">/</span></li>
       				<li class="active"><a href="#">MultiSite</a></li>
-      				<li class="pull-right"><a href="#">Custom Query</a>&nbsp;&nbsp;&nbsp;<a href="#">Reports</a></li>
+      				<li class="pull-right"><a href="#">Custom Query</a><a href="#" style="margin-left:15px;">Reports</a></li>
 				</ul>
 			</div>
       		<div class="span3" style="text-align:right;"></div>
      	</div>
-     	<br />
 		<div class="row">
       		<div class="span8">
       			<h1 style="display:inline;">MultiSite</h1>
@@ -75,16 +85,24 @@
       			<div class="tabbable tabs-left">
 					<ul class="nav nav-tabs" style="text-align:right;">
 						<li><a href="#"><span class="label">Undefined</span></a></li>
-						<li><a href="#14.3">15</a></li>
-						<li class="active"><a href="#14.3"><span class="label label-warning">Current</span> 14.3</a></li>
-						<li><a href="#">14.2</a></li>
-						<li><a href="#">14.1</a></li>
-						<li><a href="#">14</a></li>
+						<li><a href="#14.3">14.3<br /><br /><div class="progress progress-warning">
+							<div class="bar" style="width: 35%;"></div>
+						</div></a></li>
+						<li class="active"><a href="#14.3"><span class="label label-warning" style="">14.3</span>
+						<br /><br /><div class="progress progress-success">
+							<div class="bar" style="width: 75%;"></div>
+						</div></a></li>
+						<li><a href="#">14.2<br /><br /><div class="progress progress-success">
+							<div class="bar" style="width: 100%;"></div>
+						</div></a></li>
+						<li><a href="#">14.1<br /><br /><div class="progress progress-success">
+							<div class="bar" style="width: 100%;"></div>
+						</div></a></li>
 						<li><a href="#">&laquo; Previous</a></li>
 					</ul>
 					<div class="tab-content">
 						<div class="tab-pane active" id="14.3">
-						<h3><a href="version.html">Version 14.3</a></h3>
+						<h3><a href="version.html">Version 14.3</a> <span class="label label-warning">Current</span></h3>
 						<strong>Due in 3 weeks</strong> (15 Feb, 2012) <a href="#">Change</a><div class="pull-right">75% completed</div>
 							<div class="progress progress-success">
 								<div class="bar" style="width: 75%;"></div>
@@ -98,12 +116,8 @@
 								</ul>
 							</p>
 						</div>
-						<div class="tab-pane" id="14.2">
-							<h3><a href="#">Version 14.2</a></h3>
-							<div class="progress progress-info">
-								<div class="bar" style="width: 40%;"></div>
-							</div>
-						</div>
+						<div class="tab-pane" id="14.2"></div>
+						<div class="tab-pane" id="14.1"></div>
 					</div>
 				</div>
       	<!-- 
@@ -116,57 +130,24 @@
       		
       	-->
       		</div>
-      		<div class="span4"><h1>Activity</h1>
-      		    <br />
-      		<table class="table table-striped">
-      			<thead>
-      				<tr><th>Today</th></tr>
-      			</thead>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-				<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      		</table>
-      		<table class="table table-striped">
-      			<thead>
-      			<tr>
-      				<th>Yesterday</th>
-      			</tr>
-      			</thead>
-      		     <tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      			<tr>
-      				<td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-      				<div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-      			</tr>
-      		</table>
+<!-- Activity starts -->
+			<div id="Activity" class="span4">
+				<h1>Activity</h1>
+      			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
       		</div>
      	</div>
+     	
+<!-- Footer -->
      	<div class="row">
-     	    <br />
-     		<div class="span8" style="color:grey;">Powered by <a href="#">Bloodhound</a>. Standing on the shoulders of <a href="#">Trac 0.13</a>. <a href="abc"></a></div>
-     		<div class="span4" style="text-align:right; color:grey;">Visit Bloodhound at <a href="">http://bloodhound.io</a></div>
+     	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
+     		<div class="span12" style="color:grey; margin-top:10px;">Powered by <a href="#" style="color:#565656;">Bloodhound</a>. Standing on the shoulders of <a href="#" style="color:#565656;">Trac 0.13</a>.</div>
+     		</div>
+     	</footer>
      	</div>
     </div>
-    <br />
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="js/bootstrap-button.js"></script>
 </body>
 </html>
 
