@@ -96,7 +96,6 @@ class TicketQueryWidget(WidgetBase):
                 exc.title = data.get('title', 'TracQuery')
             raise
         else:
-            merge_links(srcreq=fakereq, dstreq=req)
             qryctx = Context.from_request(fakereq)
             query = data['query']
             idxs = count()

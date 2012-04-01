@@ -24,6 +24,7 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Implementing dashboard user interface.
 """
 
+from itertools import izip
 import pkg_resources
 import re
 
@@ -124,7 +125,8 @@ class DashboardModule(Component):
                             {'args' : {'max' : 10,
                                     'query' : dashboard_query,
                                     'title' : 'Dashboard'}
-                            }]
+                            }],
+                    'altlinks' : False
                 },
                 {
                     'c' : TimelineWidget(self.env),
@@ -143,7 +145,7 @@ class DashboardModule(Component):
         data_strm = (w['c'].render_widget(*w['args']) for w in widgets_spec)
         return [{'title' : data['title'], 
                 'content' : render(wctx.req, template, data['data'], fragment=True),
-                'ctxtnav' : data.get('ctxtnav'), 
-                'altlinks' : data.get('altlinks')} \
-                for template, data, wctx in data_strm]
+                'ctxtnav' : w.get('ctxtnav', True) and data.get('ctxtnav') or None, 
+                'altlinks' : w.get('altlinks', True) and data.get('altlinks') or None} \
+                for w, (template, data, wctx) in izip(widgets_spec, data_strm)]
 

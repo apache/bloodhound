@@ -95,7 +95,6 @@ class TicketReportWidget(WidgetBase):
                 exc.title = data.get('title', 'TracReports')
             raise
         else:
-            merge_links(srcreq=fakereq, dstreq=req)
             title = data.get('title', '%s {%s}' % (_('Report'), rptid))
             rptctx = Context.from_request(fakereq, 'report', rptid)
             return 'widget_grid.html', \
