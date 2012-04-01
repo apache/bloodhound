@@ -55,20 +55,27 @@ def test_suite():
   from doctest import NORMALIZE_WHITESPACE, ELLIPSIS, REPORT_UDIFF
   from dutest import MultiTestLoader
   from unittest import defaultTestLoader
-  
-  from __init__ import DocTestWidgetLoader, ticket_data
-  
+
+  from bhdashboard.tests import DocTestWidgetLoader, ticket_data, trac_version
+
   magic_vars = dict(ticket_data=ticket_data)
+  if trac_version < (0, 13): # FIXME: Should it be (0, 12) ?
+    kwargs = {'enable': ['trac.[a-uw-z]*', 'tracrpc.*', 'bhdashboard.*']}
+  else:
+    kwargs = {
+            'enable': ['trac.*', 'tracrpc.*', 'bhdashboard.*'],
+            'disable': ['trac.versioncontrol.*']
+        }
+
   l = MultiTestLoader(
         [defaultTestLoader, \
           DocTestWidgetLoader(extraglobs=magic_vars, \
-                            enable=['trac.[a-uw-z]*', 'tracrpc.*', \
-                                        'bhdashboard.*'], \
                             default_data=True, \
                             optionflags=ELLIPSIS | REPORT_UDIFF | \
-                                        NORMALIZE_WHITESPACE) \
+                                        NORMALIZE_WHITESPACE, \
+                            **kwargs) \
         ])
-  
+
   import sys
   return l.loadTestsFromModule(sys.modules[__name__])
 
@@ -113,7 +120,7 @@ def prepare_ticket_workflow(tcktrpc, ticket_data, auth_req):
   ticket workflow. Needed for TracRpc>=1.0.6
   """
   from time import sleep
-  
+
   TICKET_ACTIONS = {'accepted': 'accept', 'closed' : 'resolve',
                     'assigned': 'reassign'}
   sleep(1)
@@ -150,7 +157,8 @@ __test__ = {
       """,
     '|TicketReport: Render My Tickets report' : r"""
 
-      # Add tickets
+      Add tickets
+
       >>> from tracrpc.ticket import TicketRPC
       >>> tcktrpc = TicketRPC(env)
       >>> for td in ticket_data :
@@ -171,11 +179,13 @@ __test__ = {
       ...   # RPC considers ticket workflow
       ...   prepare_ticket_workflow(tcktrpc, ticket_data, auth_req)
       ...
-      
-      # Check everything is ok with tickets
+
+      Check everything is ok with tickets
+
       >>> for tid in xrange(1, 10):
       ...   d = tcktrpc.get(auth_req, tid)[-1]
       ...   print tuple(d.get(attr) or '' for attr in TICKET_ATTRS)
+      ...
       (u'Ticket 1', u'Description 1', u'major', u'milestone1', 
           u'defect', u'murphy', u'accepted', u'component1', u'1.0')
       (u'Ticket 2', u'Description 2', u'major', u'milestone4', 
@@ -199,57 +209,65 @@ __test__ = {
       ...     'args' : {'id' : 7}
       ...   }))
       ...
-      ('widget_grid.html', [], <Context >)
+      ('widget_grid.html', [], <...Context >)
 
-      >>> pprint(widget.render_widget('TicketReport', auth_ctx, {
+      >>> template, data, rptctx = widget.render_widget('TicketReport', auth_ctx, {
       ...     'args' : {'id' : 7}
-      ...   }))
+      ...   })
       ...
-      ('widget_grid.html',
-       [{u'__color__': u'3',
-         u'__group__': u'Accepted',
-         u'_changetime': ...,
-         u'_description': u'Description 1',
-         u'_reporter': u'murphy',
-         u'component': u'component1',
-         u'created': ...,
-         u'milestone': u'milestone1',
-         u'priority': u'major',
-         u'summary': u'Ticket 1',
-         u'ticket': 1,
-         u'type': u'defect',
-         u'version': u'1.0'},
-        {u'__color__': u'3',
-         u'__group__': u'Accepted',
-         u'_changetime': ...,
-         u'_description': u'Description 2',
-         u'_reporter': u'murphy',
-         u'component': None,
-         u'created': ...,
-         u'milestone': u'milestone4',
-         u'priority': u'major',
-         u'summary': u'Ticket 2',
-         u'ticket': 2,
-         u'type': u'task',
-         u'version': None},
-        {u'__color__': u'4',
-         u'__group__': u'Owned',
-         u'_changetime': ...,
-         u'_description': u'Description 5',
-         u'_reporter': u'murphy',
-         u'component': None,
-         u'created': ...,
-         u'milestone': u'milestone3',
-         u'priority': u'minor',
-         u'summary': u'Ticket 5',
-         u'ticket': 5,
-         u'type': u'task',
-         u'version': u'2.0'}],
-       <Context >)
+      >>> template
+      'widget_grid.html'
+
+      In Trac=0.13 (0.12 ?) My Tickets report adds another group
+      So perform common check in here.
+
+      >>> pprint([x for x in data if x.get('__group__') != 'Reported'])
+      [{u'__color__': u'3',
+        u'__group__': u'Accepted',
+        u'_changetime': ...,
+        u'_description': u'Description 1',
+        u'_reporter': u'murphy',
+        u'component': u'component1',
+        u'created': ...,
+        u'milestone': u'milestone1',
+        u'priority': u'major',
+        u'summary': u'Ticket 1',
+        u'ticket': 1,
+        u'type': u'defect',
+        u'version': u'1.0'},
+       {u'__color__': u'3',
+        u'__group__': u'Accepted',
+        u'_changetime': ...,
+        u'_description': u'Description 2',
+        u'_reporter': u'murphy',
+        u'component': None,
+        u'created': ...,
+        u'milestone': u'milestone4',
+        u'priority': u'major',
+        u'summary': u'Ticket 2',
+        u'ticket': 2,
+        u'type': u'task',
+        u'version': None},
+       {u'__color__': u'4',
+        u'__group__': u'Owned',
+        u'_changetime': ...,
+        u'_description': u'Description 5',
+        u'_reporter': u'murphy',
+        u'component': None,
+        u'created': ...,
+        u'milestone': u'milestone3',
+        u'priority': u'minor',
+        u'summary': u'Ticket 5',
+        u'ticket': 5,
+        u'type': u'task',
+        u'version': u'2.0'}]
+      >>> rptctx is auth_ctx
+      True
       """,
     '|TicketReport: Render a subset of My Tickets report' : r"""
 
-      # Add tickets
+      Add tickets
+
       >>> from tracrpc.ticket import TicketRPC
       >>> tcktrpc = TicketRPC(env)
       >>> for td in ticket_data :
@@ -270,8 +288,9 @@ __test__ = {
       ...   # RPC considers ticket workflow
       ...   prepare_ticket_workflow(tcktrpc, ticket_data, auth_req)
       ...
-      
-      # Check everything is ok with tickets
+
+      Check everything is ok with tickets
+
       >>> for tid in xrange(1, 10):
       ...   d = tcktrpc.get(auth_req, tid)[-1]
       ...   print tuple(d.get(attr) or '' for attr in TICKET_ATTRS)
@@ -325,7 +344,7 @@ __test__ = {
          u'ticket': 2,
          u'type': u'task',
          u'version': None}],
-       <Context >)
+       <...Context >)
       """,
     '|TicketReport: Invalid widget name' : r"""
       >>> widget.render_widget('OlkswSk', ctx, {
@@ -364,7 +383,8 @@ __test__ = {
       """,
     '|TicketReport: Invalid widget parameter' : r"""
 
-      # Add tickets
+      Add tickets
+
       >>> from tracrpc.ticket import TicketRPC
       >>> tcktrpc = TicketRPC(env)
       >>> for td in ticket_data :
@@ -385,8 +405,9 @@ __test__ = {
       ...   # RPC considers ticket workflow
       ...   prepare_ticket_workflow(tcktrpc, ticket_data, auth_req)
       ...
-      
-      # Check everything is ok with tickets
+
+      Check everything is ok with tickets
+
       >>> for tid in xrange(1, 10):
       ...   d = tcktrpc.get(auth_req, tid)[-1]
       ...   print tuple(d.get(attr) or '' for attr in TICKET_ATTRS)
@@ -427,7 +448,7 @@ __test__ = {
          u'ticket': 1,
          u'type': u'defect',
          u'version': u'1.0'}],
-       <Context >)
+       <...Context >)
       """,
     '|TicketReport: Invalid report definition' : r"""
       >>> raise NotImplementedError()

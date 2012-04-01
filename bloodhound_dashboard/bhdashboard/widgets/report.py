@@ -93,12 +93,8 @@ class TicketReportWidget(WidgetBase):
                           been granted to the client performing the 
                           request. Otherwise it is empty.
         """
-        if 'REPORT_SQL_VIEW' in req.perm:
-            sql = "SELECT id,title,query,description from report " \
-                   "WHERE id=%s" % (id,)
-        else :
-            sql = "SELECT id,title,NULL,description from report " \
-                   "WHERE id=%s" % (id,)
+        sql = "SELECT id,title,query,description from report " \
+                "WHERE id=%s" % (id,)
         db = self.env.get_db_cnx()
         cursor = db.cursor()
         try:

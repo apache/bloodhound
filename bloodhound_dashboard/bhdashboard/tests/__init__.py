@@ -55,16 +55,25 @@ class EnvironmentStub(EnvironmentStub):
   def enable_component(self, clsdef):
     r"""Enable a plugin temporarily at testing time.
     """
-    if clsdef not in self.enabled_components :
-      self.enabled_components.append(clsdef)
+    if trac_version <= (0.13):      # Check whether this should be 0.12 instead
+      # `enabled_components` should be enough in this case
+      if clsdef not in self.enabled_components :
+        self.enabled_components.append(clsdef)
+    else:
+      # Use environment configuration otherwise
+      raise NotImplementedError("TODO: Enable components in Trac>=0.13")
 
   def disable_component(self, clsdef):
     r"""Disable a plugin temporarily at testing time.
     """
-    try:
-      self.enabled_components.remove(clsdef)
-    except ValueError :
-      self.log.warning("Component %s was not enabled", clsdef)
+    if trac_version < (0, 13):
+      try:
+        self.enabled_components.remove(clsdef)
+      except ValueError :
+        self.log.warning("Component %s was not enabled", clsdef)
+    else:
+      # Use environment configuration otherwise
+      raise NotImplementedError("TODO: Disable components in Trac>=0.13")
 
   def rip_component(self, cls):
     r"""Disable a plugin forever and RIP it using the super-laser beam.
@@ -120,7 +129,7 @@ from types import MethodType
 from bhdashboard.util import dummy_request
 
 # Hide this module from tracebacks written into test results.
-__unittest = False
+__unittest = True
 
 class DocTestTracLoader(DocTestLoader):
   r"""A generic XUnit loader that allows to load doctests written 
@@ -138,7 +147,7 @@ class DocTestTracLoader(DocTestLoader):
 
   def __init__(self, dt_finder=None, globs=None, extraglobs=None, \
                           load=None, default_data=False, enable=None, \
-                          **opts):
+                          disable=None, **opts):
     r"""Initialization. It basically works like `DocTestLoader`'s 
     initializer but creates also the Trac environment used for 
     testing purposes. The default behavior is to create an instance 
@@ -174,16 +183,24 @@ class DocTestTracLoader(DocTestLoader):
                             components need to be enabled by default 
                             at testing time. This parameter should be 
                             handled by `createTracEnv` method.
+    @param disable          a list of UNIX patterns specifying which 
+                            components need to be disabled by default 
+                            at testing time. Ignored in Trac<=0.11 .
+                            This parameter should be 
+                            handled by `createTracEnv` method.
     """
     super(DocTestTracLoader, self).__init__(dt_finder, globs, \
                                               extraglobs, **opts)
+    if trac_version >= (0, 13) :
+        opts['disable'] = disable
     self.env = self.createTracEnv(default_data, enable, **opts)
     self.load_components(load is None and self.default_packages or load)
 
   # Load trac built-in components by default
   default_packages = ['trac']
 
-  def createTracEnv(self, default_data=False, enable=None, **params):
+  def createTracEnv(self, default_data=False, enable=None, 
+      disable=None, **params):
     r"""Create the Trac environment used for testing purposes. The 
     default behavior is to create an instance of `EnvironmentStub` 
     class. Subclasses can override this decision and add more specific 
@@ -197,9 +214,16 @@ class DocTestTracLoader(DocTestLoader):
     @param enable           a list of UNIX patterns specifying which 
                             components need to be enabled by default 
                             at testing time.
+    @param disable          a list of UNIX patterns specifying which 
+                            components need to be disabled by default 
+                            at testing time. Ignored in Trac<0.13
     @return                 the environment used for testing purpose.
     """
-    return EnvironmentStub(default_data, enable)
+    if trac_version >= (0, 13):
+      kwargs = {'disable' : disable}
+    else :
+      kwargs = {}
+    return EnvironmentStub(default_data, enable, **kwargs)
 
   def load_components(self, pkgs):
     r"""Load some packages to ensure that the components they 
@@ -242,6 +266,9 @@ class DocTestTracLoader(DocTestLoader):
       running the doctests. Besides, clean up environment data and 
       include only default data.
       """
+      from pprint import pprint
+      from trac.core import ComponentMeta
+
       globs = self.globalns
       req = self.new_request(args=dict())
       auth_req = self.new_request(uname=self.username, args=dict())
