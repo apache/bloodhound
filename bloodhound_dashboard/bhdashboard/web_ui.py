@@ -35,9 +35,12 @@ from trac.mimeview.api import Context
 from trac.util.translation import _
 from trac.ticket.query import QueryModule
 from trac.ticket.report import ReportModule
+from trac.util.compat import groupby
 from trac.web.api import IRequestHandler
 from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
                             INavigationContributor, ITemplateProvider
+
+from bhdashboard.api import DashboardSystem
 
 class DashboardModule(Component):
     implements(IRequestHandler, INavigationContributor, ITemplateProvider)
@@ -140,7 +143,6 @@ class DashboardModule(Component):
                     ],
                 'widgets' : [
                         {
-                            'c' : TicketQueryWidget(self.env), 
                             'args' : ['TicketQuery', ctx, 
                                     {'args' : {'max' : 10,
                                             'query' : dashboard_query,
@@ -149,11 +151,9 @@ class DashboardModule(Component):
                             'altlinks' : False
                         },
                         {
-                            'c' : TimelineWidget(self.env),
                             'args' : ['Timeline', ctx, {'args' : {}}]
                         },
                         {
-                            'c' : TicketFieldCloudWidget(self.env),
                             'args' : ['TicketFieldCloud', ctx, 
                                     {'args' : {'field' : 'component',
                                             'verbose' : True}
@@ -175,6 +175,18 @@ class DashboardModule(Component):
         """
         # TODO: Implement dynamic dashboard specification
         widgets_spec = schema.pop('widgets', [])
+        widgets_index = dict([k, list(v)] for k,v in \
+                groupby(widgets_spec, lambda w : w['args'][0]))
+        for wp in DashboardSystem(self.env).widget_providers:
+            for wnm in wp.get_widgets():
+                substitutions = widgets_index.pop(wnm, [])
+                i = -1
+                for i, w in enumerate(substitutions):
+                    w['c'] = wp
+                self.log.debug('Widget %s (%s substitutions)', wnm, i + 1)
+        if len(widgets_index) > 0:
+            raise LookupError('Unknown provider for widgets %s', 
+                    ' , '.join(widgets_index.keys()))
         chrome = Chrome(self.env)
         render = chrome.render_template
         data_strm = (w['c'].render_widget(*w['args']) for w in widgets_spec)

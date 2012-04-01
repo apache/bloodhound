@@ -92,7 +92,7 @@ class ILayoutProvider(Interface):
 class DashboardSystem(Component):
     implements(IPermissionRequestor)
 
-    providers = ExtensionPoint(IWidgetProvider)
+    widget_providers = ExtensionPoint(IWidgetProvider)
 
     # IPermissionRequestor methods
     def get_permission_actions(self):
