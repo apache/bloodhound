@@ -71,7 +71,7 @@
 #ctxtnav ul>li.icon {
   background-position: center center;
   background-repeat: no-repeat;
-  padding: 15px 35px 16px;
+  padding: 1px 35px 0px;
 }
 
 #ctxtnav li {
