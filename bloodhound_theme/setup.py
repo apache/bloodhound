@@ -22,12 +22,14 @@ from setuptools import setup
 
 setup(
   name = 'BloodhoundTheme',
-  version = '1.0',
+  version = '1.0.1',
   description = "Look and feel of Bloodhound issue tracker",
   license = "Apache License v2",
   keywords = "trac plugin theme bloodhound",
   packages = ['bhtheme'],
-  package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/images/*.*', 'templates/*.*']},
+  package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/images/*.*', 
+                              'htdocs/scripts/*.*', 'htdocs/css/*.*', 
+                              'templates/*.*']},
   classifiers = [
       'Framework :: Trac',
     ],

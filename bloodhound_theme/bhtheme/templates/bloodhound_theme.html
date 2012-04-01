@@ -5,122 +5,259 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
+  <py:match path="head" once="true"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
+    <title py:with="title = list(select('title/text()'))">
+      <py:if test="title">${title} – </py:if>${project.name or 'Apache(TM) Bloodhound'}
+    </title>
+    <py:if test="chrome.links">
+      <py:for each="rel, links in chrome.links.items()">
+        <link rel="${rel}" py:for="link in links" py:attrs="link"/>
+      </py:for>
+    </py:if>
+    <py:if test="'SEARCH_VIEW' in perm" id="search">
+      <link type="application/opensearchdescription+xml" rel="search"
+            href="${href.search('opensearch')}" title="Search $project.name"/>
+    </py:if>
+    <script py:for="script in chrome.scripts"
+            type="${script.type}" src="${script.href}"></script>
+    <script src="${href.chrome('theme/scripts/jquery-1.7.1.min.js')}"></script>
+    <script src="${href.chrome('theme/scripts/bootstrap-dropdown.js')}"></script>
+    <script src="${href.chrome('theme/scripts/dashboard.js')}"></script>
+    ${Markup('&lt;!--[if lt IE 7]&gt;')}
+    <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
+    ${Markup('&lt;![endif]--&gt;')}
+    ${select("*[local-name() != 'title']")}
+  </head></py:match>
 
-  <div py:def="navigation(category, skip)" id="${category}" class="nav">
-    <ul py:if="chrome.nav[category]">
-      <li py:for="idx, item in  enumerate(i for i in chrome.nav[category] if i.name not in skip)"
-          class="${classes(first_last(idx, chrome.nav[category]), active=item.active)} id_${item.name}">${item.label}</li>
-    </ul>
-  </div>
-
-  <py:match path="body" once="true" buffer="false"><body class="bh_body">
-    <div class="fixed-wrapper" 
-        py:with="logo_size = (chrome.logo.width or 170, chrome.logo.height or 48)">
-      <div id="metapanel" class="ui-corner-bottom" >  
-        ${navigation("metanav", [])}
+  <body>
+    <div class="container">
+      <div class="row" style="position:relative;">
+        <div class="span4">
+          <!-- TODO: Support different logo dimensions -->
+          <img src="${chrome.logo.src or href.chrome('theme/images/bh_logo.png')}" 
+              alt="Bloodhound Logo" height="47" width="161" />
+        </div>
+        <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav)">
+          <div class="span8" style="position:absolute; bottom:25%; right:-45%;">
+            <span id="nav_login">${meta_items.login.label}</span>
+            <span py:if="'logout' in meta_items" id="nav_logout">
+              ${meta_items.logout.label}
+            </span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <span py:if="'prefs' in meta_items"><i class="icon-cog"></i>
+              ${meta_items.prefs.label}
+            </span>
+          </div>
+        </py:with>
       </div>
-      <div id="banner">
-        <div id="header">
-          <div style="vertical-align: middle; height: ${logo_size[1]}px;"> 
-            <div style="float: left;height: ${logo_size[1]}px;">
-              <a id="logo" 
-                  href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}">
-                <img 
-                    src="${chrome.logo.src or href.chrome('theme/bh_logo.png')}" 
-                    alt="${chrome.logo.alt or 'Bloodhound issue tracker'}" 
-                    height="${logo_size[1]}px" width="${logo_size[0]}px" />
-              </a> 
-            </div>
-            <div id="pname"> ${project.name} </div>
-            <div id="psum"> ${project.descr or project.description} </div>
-          </div>
-        </div>
+    <div class="row" style="position:relative;">
+      <div class="span4">
+      <form class="form-inline">
+        <input type="text" class="span3" placeholder="Search anything. Try #EF-492."/>
+        <input type="button" value="Search" href="#" class="btn btn-warning"/>
+      </form>
       </div>
-      <script src="${href.chrome('theme/theme.js')}"></script>
-      <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px" 
-          class="ui-corner-all">
-        <div id="mainnav-scroll">
-          ${navigation("mainnav", [])}
-        </div>
-        <div id="shortcuts">
-          <div class="last">
-            <img src="${href('chrome/theme/user.png')}" width="26px" height="26px"/>
-          </div>
-          <div py:if="'SEARCH_VIEW' in perm">
-            <form id="search" action="${href.search()}" method="get">
-              <label for="proj-search">Search:</label>
-              <input type="text" id="proj-search" name="q" size="10" accesskey="f" value="" />
-              <input style="display:none;" type="submit" value=" " />
-            </form>
-          </div>
-          <div>
-            <button id="newticket">
-              Create Ticket
-              <span class="icon icon_add"></span>
-            </button>
-          </div>
-          <div class="first">
-            <img src="${href('chrome/theme/left.png')}" width="20px" height="26px" onclick="move('#mainnav ul', BACK)"/>
-            <img src="${href('chrome/theme/right.png')}" width="20px" height="26px" onclick="move('#mainnav ul', FORWARD)" />
-          </div>
-        </div>
-      </div>
-      <div id="outer-wrapper" style="top:${max(60, int(logo_size[1])) + 48}px">
-        <div id="ctxtnav" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
-          <ul py:choose=""
-              class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-            <li py:when="chrome.ctxtnav"
-                py:for="i, elm in enumerate(chrome.ctxtnav)"
-                py:with="is_text = not hasattr(elm, 'attrib'); is_active = is_text or str(elm.attrib.get('href')) == str(href(req.path_info + (req.query_string and '?' + req.query_string or '') ))"
-                class="${classes(first_last(i, chrome.ctxtnav), active=is_active)} ui-corner-top ui-state-default ${is_active and 'ui-tabs-selected ui-state-active' or None} ${is_text and 'navtext' or None}">${elm}</li>
-            <li py:otherwise="" 
-                class="icon icon_bh ui-corner-top ui-state-default ui-tabs-selected ui-state-active"></li>
-          </ul>
-        </div>
-        <div id="main-wrapper" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-          <div id="main-scroll">
-            <div id="main">
-              <div id="warning" py:if="chrome.warnings" class="system-message">
-                <py:choose test="len(chrome.warnings)">
-                  <py:when test="1">
-                    <strong>Warning:</strong> ${chrome.warnings[0]}
-                  </py:when>
-                  <py:otherwise>
-                    <strong>Warnings:</strong>
-                    <ul><li py:for="w in chrome.warnings">$w</li></ul>
-                  </py:otherwise>
-                </py:choose>
-              </div>
-              <div id="notice" py:if="chrome.notices" class="system-message">
-                <py:choose test="len(chrome.notices)">
-                  <py:when test="1">
-                    <strong>Notice:</strong> ${chrome.notices[0]}
-                  </py:when>
-                  <py:otherwise>
-                    <strong>Notices:</strong>
-                    <ul><li py:for="w in chrome.notices">$w</li></ul>
-                  </py:otherwise>
-                </py:choose>
-              </div>
-        
-              ${select('*|text()')}
-          
-            
-            </div>  
-          </div>
-        </div>
-        <div id="footer" xml:lang="en"><br/>
-          <a id="bhpowered" href="http://incubator.apache.org/bloodhound/"><img
-              src="${href.chrome('theme/bh_logo_mini.png')}" height="15"
-              alt="Powered by Bloodhound"/></a>
-
-          <p class="left">
-            Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> <a href="${href.about()}"><strong>Bloodhound</strong></a>. 
-            Standing on the shoulders of <a href="http://trac.edgewall.org/"><strong>Trac ${trac.version}</strong></a>
-          </p>
-          <p class="right">${chrome.footer}</p>
-        </div>
+      <div class="span4"><a href="#" class="btn">Create Ticket</a></div>
+      <div class="4">
+        <ul class="nav nav-tabs pull-right">
+          <li class="active"><a href="#">Tickets</a></li>
+          <li><a href="#">Wiki</a></li>
+          <li><a href="#">Source</a></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">SuperAdmin</a></li>
+              <li><a href="#">Tag Cloud</a></li>
+              <li><a href="#">Blog</a></li>
+              <li class="divider"></li>
+              <li><a href="#">View more</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
-  </body></py:match>
-</html>
+       <div class="row" style="background-color:#f6f6f6;">
+          <div class="span9"><a href="#">Breadcrumb</a> &gt; Dashboard</div>
+          <div class="span3" style="text-align:right;"><a href="#">Custom Query</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">Reports</a></div>
+       </div>
+       <br/>
+    <div class="row">
+          <div class="span8"><h1 style="display:inline;">Dashboard</h1>&nbsp;&nbsp;&nbsp;<a href="#">More</a>&nbsp;&nbsp;<a href="#">Unassigned</a>
+          <br/><br/>
+          <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th style="text-align:right;">Date</th>
+              <th>Ticket</th>
+              <th>Summary</th>
+              <th>Owner</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody><tr>
+            <td style="text-align:right;">Today</td>
+            <td><a href="#"></a><a href="#">wiki-5476</a></td>
+            <td>All Tickets report on this site: Example.com/bh</td>
+            <td>Me (<a href="#">view all</a>)</td>
+            <td>High</td>
+          </tr>
+        <tr>
+            <td></td>
+            <td><a href="#">E-5476</a></td>
+            <td>Grouping doesn't work in ...</td>
+            <td><a href="#">Warren</a></td>
+            <td>High</td>
+          </tr>
+        <tr>
+            <td></td>
+            <td><a href="#">EF-492</a></td>
+            <td>Protocol http is hard coded in ...</td>
+            <td>Me (<a href="#">view all</a>)</td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+      <tr>
+            <td></td>
+            <td><a href="#">ipad-2911</a></td>
+            <td>Fix header graphic</td>
+            <td><a href="#">Vince</a></td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+          <tr>
+            <td style="text-align:right;">Yesterday</td>
+            <td><a href="#">E-1920</a></td>
+            <td>SQL report realm/id decoration</td>
+            <td><a href="#">Montgomery</a></td>
+            <td>High</td>
+          </tr>
+        <tr>
+            <td></td>
+            <td><a href="#">TR-2930</a></td>
+            <td>Change main button</td>
+            <td>Me (<a href="#">view all</a>)</td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+        <tr>
+            <td></td>
+            <td><a href="#">mobile-281</a></td>
+            <td>AttachmentManipulators cannot ...</td>
+            <td><a href="#">Seraphinia</a></td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+      <tr>
+            <td style="text-align:right;">15 Mar</td>
+            <td><a href="#">PL-8491</a></td>
+            <td>Use of svn:mime-type: text/x-trac-wiki ...</td>
+            <td><a href="#">Gambolputty</a></td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><a href="#">ipad-2841</a></td>
+            <td>uber logo placement</td>
+            <td><a href="#">Deepakeesh</a></td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+        <tr>
+            <td></td>
+            <td><a href="#">J-2913</a></td>
+            <td>[PATCH] Empty folders excluded ...</td>
+            <td><a href="#">Thandayutha</a></td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+        <tr>
+            <td style="text-align:right;">16 Mar</td>
+            <td><a href="#">mobile-6932</a></td>
+            <td>Permission check of Repository ...</td>
+            <td>Me (<a href="#">view all</a>)</td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+      <tr>
+            <td></td>
+            <td><a href="#">J-2941</a></td>
+            <td>Load front banner</td>
+            <td><a href="#">David</a></td>
+            <td style="text-align:right;">Low</td>
+          </tr>
+          <tr>
+            <td style="text-align:right;">21 Mar</td>
+            <td><a href="#">ipad-1823</a></td>
+            <td>resync single revision doesn't resync ...</td>
+            <td><a href="#">Caroline</a></td>
+            <td>High</td>
+          </tr>
+        <tr>
+            <td style="text-align:right;">23 Mar</td>
+            <td><a href="#">PO-1824</a></td>
+            <td>Update jquery to 1.4.4</td>
+            <td>Me (<a href="#">view all</a>)</td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+        <tr>
+            <td style="text-align:right;">24 Mar</td>
+            <td><a href="#">G-1938</a></td>
+            <td>Wrong wrapping field with long and ...</td>
+            <td><a href="#">Gary</a></td>
+            <td style="text-align:right;">Med</td>
+          </tr>
+          </tbody></table>
+          <div class="well">
+          <h3 style="display:inline;">Projects</h3>&nbsp;&nbsp;&nbsp;<a href="#">View all</a>
+          <p style="font-size:medium; line-height:150%"><a href="#">uberSVN</a>&nbsp;&nbsp;&nbsp;<a href="#">WANdisco</a>&nbsp;&nbsp;&nbsp;<a href="#">wandisco.com</a>&nbsp;&nbsp;&nbsp;<a href="#">MultiSite</a>&nbsp;&nbsp;&nbsp;<a href="#">Access Control Pro</a></p>
+          </div>
+          </div>
+          <div class="span4"><h1>Activity</h1>
+              <br/>
+          <table class="table table-striped">
+            <thead>
+              <tr><th>Today</th></tr>
+            </thead>
+            <tbody><tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+            <tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+        <tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+            <tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+            <tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+          </tbody></table>
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>Yesterday</th>
+            </tr>
+            </thead>
+               <tbody><tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+            <tr>
+              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
+              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
+            </tr>
+          </tbody></table>
+          </div>
+       </div>
+       <div class="row">
+           <br/>
+         <div class="span8" style="color:grey;">Powered by <a href="#">Bloodhound</a>. Standing on the shoulders of <a href="#">Trac 0.13</a>. <a href="http://dl.dropbox.com/u/59840506/Bloodhound/bh-html/abc"></a></div>
+         <div class="span4" style="text-align:right; color:grey;">Visit Bloodhound at <a href="">http://bloodhound.io</a></div>
+       </div>
+    </div>
+    <br/>
+
+
+
+</body></html>
