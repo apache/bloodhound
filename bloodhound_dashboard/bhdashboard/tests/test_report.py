@@ -35,6 +35,10 @@ are loaded. Besides the following values are (auto-magically)
 made available in the global namespace (i.e. provided that 
 the test name be written like `|widget_name: Descriptive message`):
 
+  - __tester__  An instance of `unittest.TestCase` representing the 
+                test case for the statement under test. Useful 
+                when specific assertions (e.g. `assertEquals`) 
+                are needed.
   - req         A dummy request object setup for anonymous access.
   - auth_req    A dummy request object setup like if user `murphy` was  
                 accessing the site.
@@ -89,7 +93,7 @@ from datetime import datetime, time, date
 from itertools import izip
 from pprint import pprint
 
-from __init__ import clear_perm_cache
+from bhdashboard.tests import clear_perm_cache
 
 def print_report_metadata(report_desc):
   for attrnm in ('id', 'title', 'description', 'query'):
@@ -211,12 +215,13 @@ __test__ = {
       ...     'args' : {'id' : 7}
       ...   }))
       ...
-      ('widget_grid.html', [], <...Context >)
+      ('widget_grid.html', {'data': [], 'title': <Element "a">}, <...Context >)
 
       >>> template, data, rptctx = widget.render_widget('TicketReport', auth_ctx, {
       ...     'args' : {'id' : 7}
       ...   })
       ...
+      >>> data = data['data']
       >>> template
       'widget_grid.html'
       >>> rptctx is auth_ctx
@@ -334,7 +339,7 @@ __test__ = {
       ...   }))
       ...
       ('widget_grid.html',
-       [{u'__color__': u'3',
+       {'data': [{u'__color__': u'3',
          u'__group__': u'Accepted',
          u'_changetime': ...,
          u'_description': u'Description 1',
@@ -360,6 +365,7 @@ __test__ = {
          u'ticket': 2,
          u'type': u'task',
          u'version': None}],
+        'title': <Element "a">},
        <...Context >)
       """,
     '|TicketReport: Invalid widget name' : r"""
@@ -451,7 +457,7 @@ __test__ = {
       ...   }))
       ...
       ('widget_grid.html',
-       [{u'__color__': u'3',
+       {'data': [{u'__color__': u'3',
          u'__group__': u'Accepted',
          u'_changetime': ...,
          u'_description': u'Description 1',
@@ -464,6 +470,7 @@ __test__ = {
          u'ticket': 1,
          u'type': u'defect',
          u'version': u'1.0'}],
+        'title': <Element "a">},
        <...Context >)
       """,
     '|TicketReport: Invalid report definition' : r"""

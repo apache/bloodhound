@@ -1,5 +1,17 @@
 
-Outstanding tasks
------------------
+#----------------
+# Outstanding tasks
+#-----------------
 
-- 
+[ticket/t1]
+id =
+summary = Configure multiple dashboard layouts
+description = Provide an extension point interface so that components
+    will be able to specify custom templates implementing different
+    dashboard layouts. Include the following by default
+    [[BR]]
+      - Two-columns
+      - One-column
+      - Banner + two columns layouts
+keywords = dashboard extension layout interface
+

@@ -53,6 +53,7 @@ def dummy_request(env, uname=None):
         'authname': rd.authenticate,
         'chrome': chrome.prepare_request,
         'hdf': getattr(rd, '_get_hdf', None),
+        'locale' : getattr(rd, '_get_locale', None),
         'perm': rd._get_perm,
         'session': rd._get_session,
         'tz': rd._get_timezone,

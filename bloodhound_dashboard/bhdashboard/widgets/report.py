@@ -27,6 +27,7 @@ Widgets displaying report data.
 from datetime import datetime, date, time
 from itertools import imap, islice
 
+from genshi.builder import tag
 from trac.core import implements, TracError
 from trac.ticket.report import ReportModule
 from trac.util.translation import _
@@ -72,7 +73,13 @@ class TicketReportWidget(WidgetBase):
                 exc.title = 'TracReports'
             raise
         else:
-            return 'widget_grid.html', data, context
+            title = metadata.get('title', '%s #%s' % (_('Report'), rptid))
+            return 'widget_grid.html', \
+                    {
+                        'title' : tag.a(title, href=req.href('report', rptid)),
+                        'data' : data
+                    }, \
+                    context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 

@@ -27,10 +27,14 @@ Implementing dashboard user interface.
 import pkg_resources
 import re
 
+from genshi.builder import tag
 from trac.core import Component, implements
 from trac.config import Option
+from trac.mimeview.api import Context
+from trac.util.translation import _
 from trac.web.api import IRequestHandler
-from trac.web.chrome import INavigationContributor, ITemplateProvider
+from trac.web.chrome import Chrome, INavigationContributor, \
+                            ITemplateProvider, add_stylesheet
 
 class DashboardModule(Component):
     implements(IRequestHandler, INavigationContributor, ITemplateProvider)
@@ -47,6 +51,15 @@ class DashboardModule(Component):
         """Initially this will render static widgets. With time it will be 
         more and more dynamic and flexible.
         """
+        #add_stylesheet(req, 'dashboard/reset-fonts-grids.css')
+        add_stylesheet(req, 'dashboard/grids.css')
+        add_stylesheet(req, 'dashboard/skin.css')
+        return 'bhdb_one_col.html', \
+                {
+                    'widgets' : self.expand_widget_data(req), 
+                    'title' : _('Dashboard')
+                }, \
+                None
 
     # INavigationContributor methods
     def get_active_navigation_item(self, req):
@@ -67,8 +80,9 @@ class DashboardModule(Component):
         """
         resource_filename = pkg_resources.resource_filename
         return [
-                ('dashboard', resource_filename('bhdashboard', 'htdocs')),
-                ('widgets', resource_filename('bhdashboard.widgets', 'htdocs'))]
+                 ('dashboard', resource_filename('bhdashboard', 'htdocs')),
+                 #('widgets', resource_filename('bhdashboard.widgets', 'htdocs'))
+                 ]
 
     def get_templates_dirs(self):
         """List `templates` folders for dashboard and widgets.
@@ -76,4 +90,22 @@ class DashboardModule(Component):
         resource_filename = pkg_resources.resource_filename
         return [resource_filename('bhdashboard', 'templates'),
                 resource_filename('bhdashboard.widgets', 'templates')]
+
+    # Public API
+    def expand_widget_data(self, req):
+        """Expand raw widget data and format it for use in template
+
+        Notes: So far it only renders a single report widget and there's no
+        chance to customize this at all.
+        """
+        # TODO: Implement dynamic dashboard specification
+        from bhdashboard.widgets.report import TicketReportWidget
+        w = TicketReportWidget(self.env)
+        ctx = Context.from_request(req)
+        args = ('TicketReport', ctx, {'args' : {'id' : 7, 'limit' : 10}})
+        chrome = Chrome(self.env)
+        template, data, _ = w.render_widget(*args)
+        render = chrome.render_template
+        return [{'title' : data['title'], 
+                'content' : render(req, template, data['data'], fragment=True)}]
 
