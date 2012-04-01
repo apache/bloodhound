@@ -103,14 +103,22 @@ class DashboardModule(Component):
         chance to customize this at all.
         """
         # TODO: Implement dynamic dashboard specification
+        from bhdashboard.widgets.query import TicketQueryWidget
         from bhdashboard.widgets.report import TicketReportWidget
         from bhdashboard.widgets.timeline import TimelineWidget
 
         ctx = Context.from_request(req)
+        dashboard_query = 'status=accepted&status=assigned&status=new' \
+                '&status=reopened&group=time&col=id&col=summary&col=owner' \
+                '&col=status&col=priority&order=priority&groupdesc=1&desc=1'
         widgets_spec = [
                 {
-                    'c' : TicketReportWidget(self.env), 
-                    'args' : ['TicketReport', ctx, {'args' : {'id' : 3}}]
+                    'c' : TicketQueryWidget(self.env), 
+                    'args' : ['TicketQuery', ctx, 
+                            {'args' : {'max' : 10,
+                                    'query' : dashboard_query,
+                                    'title' : 'Dashboard'}
+                            }]
                 },
                 {
                     'c' : TimelineWidget(self.env),

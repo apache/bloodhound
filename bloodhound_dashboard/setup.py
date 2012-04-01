@@ -105,7 +105,9 @@ ENTRY_POINTS = r"""
                [trac.plugins]
                bhdashboard.api = bhdashboard.api
                bhdashboard.web_ui = bhdashboard.web_ui
+               bhdashboard.widgets.query = bhdashboard.widgets.query
                bhdashboard.widgets.report = bhdashboard.widgets.report
+               bhdashboard.widgets.timeline = bhdashboard.widgets.timeline
                """
 
 setup(

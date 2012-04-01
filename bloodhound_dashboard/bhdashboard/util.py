@@ -28,6 +28,7 @@ from functools import update_wrapper
 import inspect
 from pkg_resources import get_distribution
 from urlparse import urlparse
+from wsgiref.util import setup_testing_defaults
 
 from trac.core import Component, implements
 from trac.web.api import Request
@@ -37,11 +38,13 @@ from trac.web.main import RequestDispatcher
 from bhdashboard.api import DashboardSystem, IWidgetProvider, InvalidIdentifier
 
 def dummy_request(env, uname=None):
-    environ = {
-                'trac.base_url' : str(env._abs_href()), 
+    environ = {}
+    setup_testing_defaults(environ)
+    environ.update({
                 'REQUEST_METHOD' : 'GET',
-                'SCRIPT_NAME' : urlparse(str(env._abs_href())).path
-                }
+                'SCRIPT_NAME' : urlparse(str(env._abs_href())).path,
+                'trac.base_url' : str(env._abs_href()), 
+                })
     req = Request(environ, lambda *args, **kwds: None)
     # Intercept redirection
     req.redirect = lambda *args, **kwds: None
