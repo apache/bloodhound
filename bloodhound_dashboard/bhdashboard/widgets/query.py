@@ -86,6 +86,7 @@ class TicketQueryWidget(WidgetBase):
                 except TypeError:
                     pass
             args.update({'page' : page, 'max': maxrows})
+            self.log.debug("Ticket query for widget %s", args)
 
             qrymdl = self.env[QueryModule]
             if qrymdl is None :

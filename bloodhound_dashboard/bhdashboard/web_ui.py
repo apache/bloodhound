@@ -121,9 +121,13 @@ class DashboardModule(Component):
         from bhdashboard.widgets.ticket import TicketFieldCloudWidget
         from bhdashboard.widgets.timeline import TimelineWidget
 
-        dashboard_query = 'status=accepted&status=assigned&status=new' \
+        all_query = 'status=accepted&status=assigned&status=new' \
                 '&status=reopened&group=time&col=id&col=summary&col=owner' \
                 '&col=status&col=priority&order=priority&groupdesc=1&desc=1'
+        mine_query = 'status=accepted&status=assigned&status=new' \
+                '&status=reopened&owner=murphy&group=time&col=id&col=summary' \
+                '&col=owner&col=status&col=priority&order=priority' \
+                '&groupdesc=1&desc=1'
         layout = BootstrapLayout(self.env)
         schema = {
                 'div' : [
@@ -132,7 +136,7 @@ class DashboardModule(Component):
                             'div' : [
                                     {
                                         '_class' : 'span8',
-                                        'widgets' : [0,2]
+                                        'widgets' : [0]
                                     },
                                     {
                                         '_class' : 'span4',
@@ -143,25 +147,14 @@ class DashboardModule(Component):
                     ],
                 'widgets' : [
                         {
-                            'args' : ['TicketQuery', None, 
-                                    {'args' : {'max' : 10,
-                                            'query' : dashboard_query,
-                                            'title' : 'Dashboard'}
-                                    }],
-                            'altlinks' : False
-                        },
-                        {
-                            'args' : ['Timeline', None, {'args' : {}}]
-                        },
-                        {
                             'args' : ['Container', None, 
                                     {'args' : {'layout' : 'bootstrap_btnbar',
-                                            'schema' : """
+                                            'schema' : '''
                                             {
                                               "toolbar" : [
                                                   ["Products", null],
-                                                  ["My Tickets", 1],
-                                                  ["All tickets", 2],
+                                                  ["My Tickets", 2],
+                                                  ["All tickets", 1],
                                                   ["|", null],
                                                   ["Projects", null],
                                                   ["Components", 0]
@@ -177,25 +170,37 @@ class DashboardModule(Component):
                                                 },
                                                 {
                                                   "args" : [
-                                                      "TicketFieldCloud", 
-                                                      null, 
+                                                      "TicketQuery", null, 
                                                       {"args" : {
-                                                          "field" : "milestone",
-                                                          "verbose" : false}}]
+                                                          "max" : 10,
+                                                          "query" : "''' + 
+                                                              all_query + 
+                                                          '''",
+                                                          "title" : "All Tickets"}
+                                                      }],
+                                                  "altlinks" : false
                                                 },
                                                 {
                                                   "args" : [
-                                                      "TicketFieldCloud", 
-                                                      null, 
+                                                      "TicketQuery", null, 
                                                       {"args" : {
-                                                          "field" : "type",
-                                                          "verbose" : true}}]
+                                                          "max" : 10,
+                                                          "query" : "''' + 
+                                                              mine_query + 
+                                                          '''",
+                                                          "title" : "My Tickets"}
+                                                      }],
+                                                  "altlinks" : false
                                                 }
                                               ]
                                             }
-                                            """
+                                            ''',
+                                            'title' : _("Dashboard")
                                             }
                                     }]
+                        },
+                        {
+                            'args' : ['Timeline', None, {'args' : {}}]
                         },
                     ]
             }

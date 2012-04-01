@@ -76,7 +76,7 @@ class ContainerWidget(WidgetBase):
 
         return layout_data['template'], \
                 {
-                    'title' : '',
+                    'title' : title,
                     'data' : dict(
                             context=context,
                             layout=schema,
