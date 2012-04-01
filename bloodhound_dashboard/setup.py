@@ -107,6 +107,7 @@ ENTRY_POINTS = r"""
                bhdashboard.web_ui = bhdashboard.web_ui
                bhdashboard.widgets.query = bhdashboard.widgets.query
                bhdashboard.widgets.report = bhdashboard.widgets.report
+               bhdashboard.widgets.ticket = bhdashboard.widgets.ticket
                bhdashboard.widgets.timeline = bhdashboard.widgets.timeline
                """
 

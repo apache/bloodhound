@@ -1,0 +1,18 @@
+
+<div id="content" class="well"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <h3 style="display: inline;">$heading</h3>
+  <p style="font-size: medium; line-height: 150%;">
+    <py:for each="item in items"
+        py:with="_max = bounds.max ; _min = bounds.min" >
+      <a href="${item_link(item)}" 
+          style="font-size: ${int(28 - (13 / (_max - _min)) * (_max - item[1]) )}px">
+        ${item[0]} <py:if test="verbose">(${item[1]})</py:if>
+      </a>
+      &nbsp;&nbsp;
+    </py:for>
+  </p>
+</div>

@@ -69,7 +69,7 @@ class TicketQueryWidget(WidgetBase):
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
     def render_widget(self, name, context, options):
-        """Execute stored report and render data using a grid
+        """Execute custom query and render data using a grid
         """
         data = None
         req = context.req

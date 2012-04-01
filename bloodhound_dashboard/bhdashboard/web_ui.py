@@ -110,7 +110,7 @@ class DashboardModule(Component):
         """
         # TODO: Implement dynamic dashboard specification
         from bhdashboard.widgets.query import TicketQueryWidget
-        from bhdashboard.widgets.report import TicketReportWidget
+        from bhdashboard.widgets.ticket import TicketFieldCloudWidget
         from bhdashboard.widgets.timeline import TimelineWidget
 
         ctx = Context.from_request(req)
@@ -129,6 +129,13 @@ class DashboardModule(Component):
                 {
                     'c' : TimelineWidget(self.env),
                     'args' : ['Timeline', ctx, {'args' : {}}]
+                },
+                {
+                    'c' : TicketFieldCloudWidget(self.env),
+                    'args' : ['TicketFieldCloud', ctx, 
+                            {'args' : {'field' : 'component',
+                                    'verbose' : True}
+                            }]
                 },
             ]
         chrome = Chrome(self.env)

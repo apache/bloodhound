@@ -37,6 +37,10 @@ from trac.web.main import RequestDispatcher
 
 from bhdashboard.api import DashboardSystem, IWidgetProvider, InvalidIdentifier
 
+#------------------------------------------------------
+#    Request handling
+#------------------------------------------------------
+
 def dummy_request(env, uname=None):
     environ = {}
     setup_testing_defaults(environ)
@@ -76,6 +80,10 @@ def merge_links(srcreq, dstreq, exclude=None):
             if rel not in exclude:
                 for link in links:
                     add_link(dstreq, rel, **link)
+
+#------------------------------------------------------
+#    Widget helpers
+#------------------------------------------------------
 
 class WidgetBase(Component):
     """Abstract base class for widgets"""
@@ -122,6 +130,10 @@ def check_widget_name(f):
         return f(self, name, *args, **kwargs)
     return widget_name_checker
 
+#------------------------------------------------------
+#    Function decorators and wrappers
+#------------------------------------------------------
+
 def pretty_wrapper(wrapped, *decorators):
     """Apply multiple decorators to a given function and make the result 
     look like wrapped function.
@@ -144,4 +156,26 @@ trac_version = tuple(int(i) for i in get_distribution('Trac').parsed_version \
 trac_tags = (
         (0, 13), # TODO: Find the exact version ( Trac=0.12 ? )
     )
+
+#------------------------------------------------------
+#    Miscellaneous
+#------------------------------------------------------
+
+def minmax(seq, accessor=lambda x: x):
+    """Retrieve lower and upper bounds in a squence
+    """
+    minval = maxval = None
+    seq = iter(seq)
+    try:
+        minval = maxval = accessor(seq.next())
+    except StopIteration:
+        pass
+    for x in seq:
+        value = accessor(x)
+        if value > maxval:
+            maxval = value
+        if value < minval:
+            minval = value
+    return dict(min=minval, max=maxval)
+
 
