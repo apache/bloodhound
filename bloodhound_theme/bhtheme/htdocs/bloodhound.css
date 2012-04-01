@@ -331,6 +331,31 @@ table.progress td.closed {
   text-decoration: none;
 }
 
+/* jQuery UI generic container */
+
+.ui-box {
+  padding: 0.2em;
+  position: relative;
+}
+
+.ui-box .ui-box-header {
+  padding: 0.2em;
+  position: relative;
+}
+
+.ui-box .ui-box-title {
+  line-height: 1.8em;
+  margin: 0 0.3em;
+  text-align: center;
+}
+
+.ui-box .ui-box-panel {
+  background: none repeat scroll 0 0 transparent;
+  border-width: 0;
+  display: block;
+  padding: 1em 1.4em;
+}
+
 /*
 * jQuery UI CSS Framework
 * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
