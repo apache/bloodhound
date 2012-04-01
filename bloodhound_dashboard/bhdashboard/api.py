@@ -26,6 +26,7 @@ The core of the dashboard architecture.
 __metaclass__ = type
 
 from datetime import date, time, datetime, timedelta
+from sys import version_info
 
 from trac.core import Component, ExtensionPoint, implements, \
         Interface, TracError
@@ -93,6 +94,7 @@ class DashboardSystem(Component):
     implements(IPermissionRequestor)
 
     widget_providers = ExtensionPoint(IWidgetProvider)
+    layout_providers = ExtensionPoint(ILayoutProvider)
 
     # IPermissionRequestor methods
     def get_permission_actions(self):
@@ -124,8 +126,29 @@ class DashboardSystem(Component):
                     return None
         return (get_and_check(param) for param in params)
 
+    def _resolve(self, objnm, epnm, accessor, errmsg='Invalid object name %s'):
+        """Determine the provider implementing a given widget / layout / ...
+
+        :param objnm:     name used to lookup provider
+        :param epnm:      attribute name used for entry point
+        :param accessor:  function used to determine names bound to provider
+        """
+        for p in getattr(self, epnm):
+            if objnm in accessor(self, p):
+                return p
+        else:
+            raise LookupError(errmsg % (objnm,))
+
+    def resolve_layout(self, nm):
+        return self._resolve(nm, 'layout_providers', 
+                lambda _, lp: lp.get_layouts() , "No provider for layout %s")
+
+    def resolve_widget(self, nm):
+        return self._resolve(nm, 'widget_providers', 
+                lambda _, wp: wp.get_widgets() , "No provider for widget %s")
+
 #--------------------------------------
-# Exfeption classes
+# Exception classes
 #--------------------------------------
 
 # Maybe it is better to move these to a separate file 
@@ -229,4 +252,25 @@ class EnumField:
                 _('Expected one of `%s` but got `%s`') % (self.choices, value),
                 title=_('Enum conversion error'))
         return value
+
+class JsonField:
+    """Deserialize JSON string
+    """
+    def __init__(self):
+        """Initialize JSON field converter
+        """
+        # TODO: Add further options
+
+    def __call__(self, value):
+        """Perform the actual conversion
+        """
+        try:
+            if version_info < (2, 6):
+                from simplejson import loads
+            else:
+                from json import loads
+        except ImportError :
+            raise TracError('Unable to load library to parse JSON string')
+        else:
+            return loads(value)
 

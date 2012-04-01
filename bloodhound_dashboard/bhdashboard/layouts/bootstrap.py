@@ -30,8 +30,7 @@ from trac.web.chrome import add_stylesheet
 from bhdashboard.api import ILayoutProvider
 
 class BootstrapLayout(Component):
-    """Display a tag cloud representing frequency of values assigned to 
-    ticket fields.
+    """Implement some basic bootstrap layouts
     """
     implements(ILayoutProvider)
 
@@ -39,7 +38,7 @@ class BootstrapLayout(Component):
     def get_layouts(self):
         """Supported layouts.
         """
-        yield 'bootstrap'
+        yield 'bootstrap_grid'
 
     def get_layout_description(self, name):
         """Return plain text description of the layout with specified name.

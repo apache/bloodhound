@@ -120,7 +120,6 @@ class DashboardModule(Component):
         from bhdashboard.widgets.ticket import TicketFieldCloudWidget
         from bhdashboard.widgets.timeline import TimelineWidget
 
-        ctx = Context.from_request(req)
         dashboard_query = 'status=accepted&status=assigned&status=new' \
                 '&status=reopened&group=time&col=id&col=summary&col=owner' \
                 '&col=status&col=priority&order=priority&groupdesc=1&desc=1'
@@ -143,7 +142,7 @@ class DashboardModule(Component):
                     ],
                 'widgets' : [
                         {
-                            'args' : ['TicketQuery', ctx, 
+                            'args' : ['TicketQuery', None, 
                                     {'args' : {'max' : 10,
                                             'query' : dashboard_query,
                                             'title' : 'Dashboard'}
@@ -151,10 +150,10 @@ class DashboardModule(Component):
                             'altlinks' : False
                         },
                         {
-                            'args' : ['Timeline', ctx, {'args' : {}}]
+                            'args' : ['Timeline', None, {'args' : {}}]
                         },
                         {
-                            'args' : ['TicketFieldCloud', ctx, 
+                            'args' : ['TicketFieldCloud', None, 
                                     {'args' : {'field' : 'component',
                                             'verbose' : True}
                                     }]
@@ -162,7 +161,8 @@ class DashboardModule(Component):
                     ]
             }
 
-        template = layout.expand_layout('bootstrap', ctx, {
+        ctx = Context.from_request(req)
+        template = layout.expand_layout('bootstrap_grid', ctx, {
                 'schema' : schema
             })['template']
         return template, schema
@@ -177,12 +177,14 @@ class DashboardModule(Component):
         widgets_spec = schema.pop('widgets', [])
         widgets_index = dict([k, list(v)] for k,v in \
                 groupby(widgets_spec, lambda w : w['args'][0]))
+        ctx = Context.from_request(req)
         for wp in DashboardSystem(self.env).widget_providers:
             for wnm in wp.get_widgets():
                 substitutions = widgets_index.pop(wnm, [])
                 i = -1
                 for i, w in enumerate(substitutions):
                     w['c'] = wp
+                    w['args'][1] = ctx
                 self.log.debug('Widget %s (%s substitutions)', wnm, i + 1)
         if len(widgets_index) > 0:
             raise LookupError('Unknown provider for widgets %s', 
