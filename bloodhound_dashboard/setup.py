@@ -109,6 +109,7 @@ ENTRY_POINTS = r"""
                bhdashboard.api = bhdashboard.api
                bhdashboard.layouts.bootstrap = bhdashboard.layouts.bootstrap
                bhdashboard.web_ui = bhdashboard.web_ui
+               bhdashboard.widgets.containers = bhdashboard.widgets.containers
                bhdashboard.widgets.query = bhdashboard.widgets.query
                bhdashboard.widgets.report = bhdashboard.widgets.report
                bhdashboard.widgets.ticket = bhdashboard.widgets.ticket

@@ -153,9 +153,42 @@ class DashboardModule(Component):
                             'args' : ['Timeline', None, {'args' : {}}]
                         },
                         {
-                            'args' : ['TicketFieldCloud', None, 
-                                    {'args' : {'field' : 'component',
-                                            'verbose' : True}
+                            'args' : ['Container', None, 
+                                    {'args' : {'layout' : 'bootstrap_grid',
+                                            'schema' : """
+                                            {
+                                              "div" : [{
+                                                "_class" : "row",
+                                                "div" : [{
+                                                    "_class" : "span3",
+                                                    "widgets" : [0]
+                                                  },
+                                                  {
+                                                    "_class" : "span5",
+                                                    "widgets" : [1]
+                                                  }]
+                                                }],
+                                              "widgets" : [
+                                                {
+                                                  "args" : [
+                                                      "TicketFieldCloud", 
+                                                      null, 
+                                                      {"args" : {
+                                                          "field" : "component",
+                                                          "verbose" : true}}]
+                                                },
+                                                {
+                                                  "args" : [
+                                                      "TicketFieldCloud", 
+                                                      null, 
+                                                      {"args" : {
+                                                          "field" : "type",
+                                                          "verbose" : true}}]
+                                                }
+                                              ]
+                                            }
+                                            """
+                                            }
                                     }]
                         },
                     ]

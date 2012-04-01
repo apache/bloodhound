@@ -52,6 +52,7 @@ class BootstrapLayout(Component):
         req = context.req
         add_stylesheet(req, 'dashboard/bootstrap.css')
         return {
-              'template' : 'bootstrap.html',
+              'template' : options.get('embed') and \
+                      'bs_grid.html' or 'bs_grid_full.html',
             }
 

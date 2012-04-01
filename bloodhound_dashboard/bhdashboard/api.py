@@ -88,6 +88,10 @@ class ILayoutProvider(Interface):
         :param options: additional options supplied in so as to adapt layout
                 considering data specific to this request. This allows to 
                 customize (parts of) the layout for a given request.
+                Suported options are :
+
+                :field schema:  data to be used in order to populate layout
+                :field embed:   embed layout inside another page (true / false)
         """
 
 class DashboardSystem(Component):
@@ -164,15 +168,16 @@ class InvalidIdentifier(WidgetException):
 
 class InvalidWidgetArgument(WidgetException):
     """Something went wrong with widget parameter"""
-    
+
     title = 'Invalid Argument'
-    
+
     def __init__(self, argname, message, title=None, show_traceback=False):
+        message = _("Invalid argument `") + argname + "`. " + message
         TracError.__init__(self, message, title, show_traceback)
         self.argname = argname
-    
+
     def __unicode__(self):
-        return unicode(_("Invalid argument `") + self.argname + "`. " + \
+        return unicode(
                 self.message)
 
 #--------------------------------------
