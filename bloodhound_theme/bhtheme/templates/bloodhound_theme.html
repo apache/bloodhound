@@ -53,25 +53,23 @@
       </div>
     <div class="row" style="position:relative;">
       <div class="span4">
-      <form class="form-inline">
+      <form class="form-inline" action="${href.search()}" method="get">
         <input type="text" class="span3" placeholder="Search anything. Try #EF-492."/>
-        <input type="button" value="Search" href="#" class="btn btn-warning"/>
+        <input type="submit" value="Search" class="btn btn-warning"/>
       </form>
       </div>
       <div class="span4"><a href="#" class="btn">Create Ticket</a></div>
       <div class="4">
-        <ul class="nav nav-tabs pull-right">
-          <li class="active"><a href="#">Tickets</a></li>
-          <li><a href="#">Wiki</a></li>
-          <li><a href="#">Source</a></li>
+        <ul py:if="chrome.nav.mainnav" class="nav nav-tabs pull-right"
+            py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
+          <!-- TODO: Parameterize visible mainnav items in trac.ini -->
+          <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show or i.active)" 
+              class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li><a href="#">SuperAdmin</a></li>
-              <li><a href="#">Tag Cloud</a></li>
-              <li><a href="#">Blog</a></li>
-              <li class="divider"></li>
-              <li><a href="#">View more</a></li>
+              <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show and not i.active)" 
+                  class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
             </ul>
           </li>
         </ul>
