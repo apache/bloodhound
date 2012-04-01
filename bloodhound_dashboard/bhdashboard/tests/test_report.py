@@ -51,12 +51,14 @@ the test name be written like `|widget_name: Descriptive message`):
 #    Test artifacts
 #------------------------------------------------------
 
+from bhdashboard.tests import trac_version, trac_tags
+
 def test_suite():
   from doctest import NORMALIZE_WHITESPACE, ELLIPSIS, REPORT_UDIFF
   from dutest import MultiTestLoader
   from unittest import defaultTestLoader
 
-  from bhdashboard.tests import DocTestWidgetLoader, ticket_data, trac_version
+  from bhdashboard.tests import DocTestWidgetLoader, ticket_data
 
   magic_vars = dict(ticket_data=ticket_data)
   if trac_version < (0, 13): # FIXME: Should it be (0, 12) ?
@@ -217,9 +219,11 @@ __test__ = {
       ...
       >>> template
       'widget_grid.html'
+      >>> rptctx is auth_ctx
+      True
 
       In Trac=0.13 (0.12 ?) My Tickets report adds another group
-      So perform common check in here.
+      So perform common check in here ...
 
       >>> pprint([x for x in data if x.get('__group__') != 'Reported'])
       [{u'__color__': u'3',
@@ -261,8 +265,20 @@ __test__ = {
         u'ticket': 5,
         u'type': u'task',
         u'version': u'2.0'}]
-      >>> rptctx is auth_ctx
-      True
+
+      ... and check for Trac=0.13 in here ;)
+
+      >>> reported_tickets = [x for x in data \
+      ...                       if x.get('__group__') == 'Reported']
+      ...
+      >>> if trac_version < trac_tags[0]:
+      ...   __tester__.assertEquals(reported_tickets, [])
+      ... else:
+      ...   __tester__.assertEquals(
+      ...       [x['ticket'] for x in reported_tickets],
+      ...       [3, 6]
+      ...     )
+      ...
       """,
     '|TicketReport: Render a subset of My Tickets report' : r"""
 
