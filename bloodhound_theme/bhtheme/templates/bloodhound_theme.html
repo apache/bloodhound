@@ -1,0 +1,106 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+
+  <ul py:def="navigation(category, skip)" class="menu">
+    <li id="${category}" class="nav">
+      <ul py:if="chrome.nav[category]">
+        <li py:for="idx, item in  enumerate(i for i in chrome.nav[category] if i.name not in skip)"
+            class="${classes(first_last(idx, chrome.nav[category]), active=item.active)} id_${item.name}">${item.label}</li>
+      </ul>
+    </li>
+  </ul>
+
+  <py:match path="body" once="true" buffer="false"><body class="bh_body">
+    <div class="fixed-wrapper" 
+        py:with="logo_size = (chrome.logo.width or 170, chrome.logo.height or 48)">
+      <div id="banner" py:choose="" >
+        <div id="header">
+          <div py:when="chrome.logo.src" 
+              style="vertical-align: middle; height: ${logo_size[1]}px;"> 
+            <div style="float: left;height: ${logo_size[1]}px;">
+              <a id="logo" href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}">
+                  <img 
+                      src="${chrome.logo.src}" alt="${chrome.logo.alt}" 
+                      height="${logo_size[1]}px" width="${logo_size[0]}px" />
+              </a> 
+            </div>
+            <div id="pname"> ${project.name} </div>
+            <div id="psum"> ${project.descr or project.description} </div>
+          </div>
+          <h1 py:otherwise="">
+            <a href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}">
+              ${project.name}
+            </a>
+          </h1>
+        </div>
+      </div>
+      <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px">
+        <!-- TODO: mainnav + search box -->
+      </div>
+      <div id="outer-wrapper" style="top:${max(60, int(logo_size[1])) + 48}px">
+        <ul id="ctxtnav">
+          <!-- TODO: ctxtnav -->
+        </ul>
+        <div id="main-wrapper">
+          <div id="main-scroll">
+            <div id="main">
+              <div id="warning" py:if="chrome.warnings" class="system-message">
+                <py:choose test="len(chrome.warnings)">
+                  <py:when test="1">
+                    <strong>Warning:</strong> ${chrome.warnings[0]}
+                  </py:when>
+                  <py:otherwise>
+                    <strong>Warnings:</strong>
+                    <ul><li py:for="w in chrome.warnings">$w</li></ul>
+                  </py:otherwise>
+                </py:choose>
+              </div>
+              <div id="notice" py:if="chrome.notices" class="system-message">
+                <py:choose test="len(chrome.notices)">
+                  <py:when test="1">
+                    <strong>Notice:</strong> ${chrome.notices[0]}
+                  </py:when>
+                  <py:otherwise>
+                    <strong>Notices:</strong>
+                    <ul><li py:for="w in chrome.notices">$w</li></ul>
+                  </py:otherwise>
+                </py:choose>
+              </div>
+        
+              ${select('*|text()')}
+          
+            
+            </div>  
+            <py:for each="obj,title in [(chrome, 'Chome'), (chrome.logo, 'Logo')]">
+              <h2>$title</h2>
+              <ul>
+                <li py:for="x in obj">
+                  <b>$x</b> <span>${obj[x]}</span>
+                </li>
+              </ul>
+            </py:for>
+          </div>
+        </div>
+        <div id="footer" xml:lang="en">
+          <a id="bhpowered" href="http://incubator.apache.org/bloodhound/"><img
+              src="${href.chrome('theme/bh_logo_mini.png')}" height="30"
+              width="107" alt="Powered by Bloodhound"/></a>
+					<a id="tracpowered" href="http://trac.edgewall.org/"><img 
+							src="/trac/project/chrome/common/trac_logo_mini.png" height="30" 
+							width="107" alt="Trac Powered" /></a>
+          <p class="left">
+            Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> <a href="${href.about()}"><strong>Bloodhound ${trac.version}</strong></a>. <br/>
+            based on <a href="http://trac.edgewall.org/"><strong>Trac</strong></a>
+            by <a href="http://www.edgewall.org/">Edgewall Software</a>.
+          </p>
+          <p class="right">${chrome.footer}</p>
+        </div>
+      </div>
+    </div>
+  </body></py:match>
+</html>

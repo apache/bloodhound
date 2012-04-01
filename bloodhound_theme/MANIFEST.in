@@ -1,0 +1,4 @@
+
+graft bhtheme/htdocs
+graft bhtheme/templates
+
