@@ -17,21 +17,20 @@
     <div py:when="numrows" class="numrows">($numrows total rows)</div>
   </py:choose>
 
-  <py:for each="value_for_group, row_group in row_groups">
-    <h2 class="report-result" py:if="value_for_group">$value_for_group
-    <span class="numrows" py:with="cnt = len(row_group)">(${cnt or 'No'} row${cnt != 1 and 's' or ''})</span></h2>
-    <table class="listing tickets'">
-      <thead>
-        <tr py:for="header_group in header_groups">
-          <th py:for="header in header_group" py:if="not header.hidden" py:with="fullrow = header is header_group[-1]"
-              colspan="${fullrow and '100' or None}">
-            ${header.title}
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <py:for each="row in row_group">
+  <table class="table table-condensed" 
+      py:with="use_groups = len(row_groups) &gt; 1 or row_groups[0][0] is not None">
+    <thead>
+      <tr py:for="header_group in header_groups">
+        <th py:if="use_groups"></th>
+        <th py:for="header in header_group" py:if="not header.hidden" py:with="fullrow = header is header_group[-1]"
+            colspan="${fullrow and '100' or None}">
+          ${header.title}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <py:for each="(value_for_group, row_group) in row_groups">
+        <py:for each="idx, row in enumerate(row_group)">
           <tr py:for="cell_group in row.cell_groups"
             py:with="fullrow = len(cell_group) == 1;
                      td_attrs = fullrow and {'class': 'fullrow', 'colspan': 100} or {}"
@@ -41,6 +40,9 @@
             }${'__style__' in row and row.__style__+';' or None
             }${fullrow and 'border: none; padding: 0;' or None}">
 
+            <td py:if="use_groups" style="background: none; color: #333333;">
+              <py:if test="idx == 0">$value_for_group</py:if>
+            </td>
             <py:for each="cell in cell_group">
               <py:if test="not cell.header.hidden">
                 <py:with vars="col = cell.header.col.strip('_')">
@@ -121,8 +123,8 @@
             </py:for>
           </tr>
         </py:for>
-      </tbody>
-    </table>
-  </py:for>
+      </py:for>
+    </tbody>
+  </table>
 </div>
 
