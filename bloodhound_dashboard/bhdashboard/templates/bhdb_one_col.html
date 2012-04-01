@@ -7,6 +7,12 @@
   <xi:include href="layout.html" />
   <head>
     <title>$title</title>
+    <style py:if="default.height is not None">
+      .ui-box-panel {
+        max-height:${default.height}px !important;
+        overflow: auto;
+      }
+    </style>
   </head>
   <body class="yui-skin-sam">
     <div id="doc3" class="yui-t7">

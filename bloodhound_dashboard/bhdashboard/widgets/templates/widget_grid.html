@@ -3,17 +3,19 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <div py:if="numrows" class="numrows">($numrows total rows)</div>
   <!-- TODO: Add description icon plus tooltip -->
   <!-- div py:if="description" id="description" xml:space="preserve">
     ${wiki_to_html(context, description)}
   </div -->
-  <div py:if="paginator.has_more_pages">
-    <h2 class="report-result">
-      Results <span class="numresults">(${paginator.displayed_items()})</span>
-    </h2>
-    <xi:include href="page_index.html" />
-  </div>
+  <py:choose test="">
+    <div py:when="paginator.has_more_pages">
+      <h2 class="report-result">
+        Results <span class="numresults">(${paginator.displayed_items()})</span>
+      </h2>
+      <!-- xi:include href="page_index.html" / -->
+    </div>
+    <div py:when="numrows" class="numrows">($numrows total rows)</div>
+  </py:choose>
 
   <py:for each="value_for_group, row_group in row_groups">
     <h2 class="report-result" py:if="value_for_group">$value_for_group

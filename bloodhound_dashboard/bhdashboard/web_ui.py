@@ -29,7 +29,7 @@ import re
 
 from genshi.builder import tag
 from trac.core import Component, implements
-from trac.config import Option
+from trac.config import Option, IntOption
 from trac.mimeview.api import Context
 from trac.util.translation import _
 from trac.web.api import IRequestHandler
@@ -41,6 +41,8 @@ class DashboardModule(Component):
 
     mainnav_label = Option('dashboard', 'mainnav', 'Dashboard', \
                             """Dashboard label in mainnav""")
+    default_widget_height = IntOption('widgets', 'default_height', 320, \
+                            """Default widget height in pixels""")
 
     # IRequestHandler methods
     def match_request(self, req):
@@ -55,8 +57,12 @@ class DashboardModule(Component):
         add_stylesheet(req, 'dashboard/skin.css')
         return 'bhdb_one_col.html', \
                 {
+                    'context' : Context.from_request(req),
                     'widgets' : self.expand_widget_data(req), 
-                    'title' : _('Dashboard')
+                    'title' : _(self.mainnav_label),
+                    'default' : {
+                            'height' : self.default_widget_height or None
+                        }
                 }, \
                 None
 
@@ -101,7 +107,7 @@ class DashboardModule(Component):
         from bhdashboard.widgets.report import TicketReportWidget
         w = TicketReportWidget(self.env)
         ctx = Context.from_request(req)
-        args = ('TicketReport', ctx, {'args' : {'id' : 7, 'limit' : 10}})
+        args = ('TicketReport', ctx, {'args' : {'id' : 3}})
         chrome = Chrome(self.env)
         template, data, _ = w.render_widget(*args)
         render = chrome.render_template
