@@ -33,6 +33,9 @@
           </div>
         </div>
       </div>
+      <div id="metapanel" class="ui-corner-bottom" >  
+        ${navigation("metanav", [])}
+      </div>
       <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px" 
           class="ui-corner-all">
         ${navigation("mainnav", [])}
@@ -101,26 +104,6 @@
           
             
             </div>  
-            <py:for each="obj,title in [(chrome, 'Chome'), (chrome.logo, 'Logo')]">
-              <h2>$title</h2>
-              <ul>
-                <li py:for="x in obj">
-                  <b>$x</b> <span>${obj[x]}</span>
-                </li>
-              </ul>
-            </py:for>
-            <h2>Request</h2>
-            <ul>
-              <li>
-                <b>PATH_INFO</b> <span> ${repr(req.path_info)} </span>
-              </li>
-              <li>
-                <b>QUERY_STRING</b> <span> ${repr(req.query_string)} </span>
-              </li>
-            </ul>
-            <h2>Debug</h2>
-            <ul>
-            </ul>
           </div>
         </div>
         <div id="footer" xml:lang="en">

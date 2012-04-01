@@ -51,6 +51,13 @@
   font-weight: bold;
 }
 
+#metapanel {
+  background-color: #2d2d2d;
+  float: right;
+  left: auto;
+  top: -15px;
+}
+
 #mainpanel {
   background-image: url("mainnavbg.png");
   background-repeat: repeat-x;
@@ -187,16 +194,12 @@ a.prev:hover, a.next:hover {
 }
 
 #mainnav :link, #mainnav :visited {
-  background: none;
-  border: none;
   color: #ffffff;
 }
 
-#mainnav :link:hover, #mainnav :visited:hover {
-  background: none;
-  border: none;
-}
-
+.nav :link, .nav :visited,
+#mainnav :link, #mainnav :visited,
+#mainnav :link:hover, #mainnav :visited:hover,
 #mainnav .active :link:hover, #mainnav .active :visited:hover,
 #mainnav .active :link, #mainnav .active :visited {
   background: none;
@@ -233,6 +236,31 @@ a.prev:hover, a.next:hover {
   background-repeat: no-repeat;
   border: 2px solid #3a70b8;
   padding-right: 16px;
+}
+
+#metanav, #metapanel {
+  float: right;
+}
+
+#metanav ul {
+  padding: 0px;
+}
+
+#metanav .active {
+  font-weight: bold;
+}
+
+#metanav .last, #metanav .last:hover {
+  border-right: none;
+}
+
+#metanav li, #metanav li:hover {
+  border-right: 1px solid #666666;
+}
+
+#metanav :link, #metanav :visited, 
+#metanav :link:hover, #metanav :visited:hover {
+  color: #cccccc;
 }
 
 /* Forms & inputs */
