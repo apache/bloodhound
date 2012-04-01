@@ -125,15 +125,15 @@ class DashboardModule(Component):
         schema = {
                 'div' : [
                         {
-                            'class' : 'row',
+                            '_class' : 'row',
                             'div' : [
                                     {
-                                        'class' : 'span8',
-                                        'widgets' : [1,3]
+                                        '_class' : 'span8',
+                                        'widgets' : [0,2]
                                     },
                                     {
-                                        'class' : 'span4',
-                                        'widgets' : [2]
+                                        '_class' : 'span4',
+                                        'widgets' : [1]
                                     }
                                 ]
                         }

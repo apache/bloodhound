@@ -33,23 +33,21 @@
     ${w.content}
   </div>
 
+  <div py:def="bsdiv(ui)" class="${ui._class}">
+    <py:choose test="">
+      <py:when test="ui.div">
+        <py:for each="_ui in ui.div">${bsdiv(_ui)}</py:for>
+      </py:when>
+      <py:when test="ui.widgets">
+        <py:for each="widx in ui.widgets">
+          ${widget_container(widgets[widx])}
+        </py:for>
+      </py:when>
+    </py:choose>
+  </div>
+
   <body>
-    <div class="row">
-      <div class="span8">
-        <py:for each="(i, w) in enumerate(widgets)">
-          <py:if test="i &amp; 1 == 0">
-            ${widget_container(w)}
-          </py:if>
-        </py:for>
-      </div>
-      <div class="span4">
-        <py:for each="(i, w) in enumerate(widgets)">
-          <py:if test="i &amp; 1 == 1">
-            ${widget_container(w)}
-          </py:if>
-        </py:for>
-      </div>
-    </div>
+    <py:for each="ui in layout.div">${bsdiv(ui)}</py:for>
     <div id="ft" class="row">
       <div id="help">
         <strong>Note:</strong> See 
