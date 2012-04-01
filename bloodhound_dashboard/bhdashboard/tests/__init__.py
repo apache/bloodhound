@@ -39,6 +39,13 @@ import sys
 trac_version = tuple(int(i) for i in get_distribution('Trac').parsed_version \
                             if i.startswith('0'))
 
+# The exact moments (versions) where some things started to change
+# in such a manner that break previous test code
+
+trac_tags = (
+        (0, 13), # TODO: Find the exact version ( Trac=0.12 ? )
+    )
+
 #------------------------------------------------------
 #    Trac environments used for testing purposes
 #------------------------------------------------------
@@ -55,7 +62,7 @@ class EnvironmentStub(EnvironmentStub):
   def enable_component(self, clsdef):
     r"""Enable a plugin temporarily at testing time.
     """
-    if trac_version <= (0.13):      # Check whether this should be 0.12 instead
+    if trac_version < trac_tags[0]:
       # `enabled_components` should be enough in this case
       if clsdef not in self.enabled_components :
         self.enabled_components.append(clsdef)
@@ -66,7 +73,7 @@ class EnvironmentStub(EnvironmentStub):
   def disable_component(self, clsdef):
     r"""Disable a plugin temporarily at testing time.
     """
-    if trac_version < (0, 13):
+    if trac_version < trac_tags[0]:
       try:
         self.enabled_components.remove(clsdef)
       except ValueError :
@@ -191,7 +198,7 @@ class DocTestTracLoader(DocTestLoader):
     """
     super(DocTestTracLoader, self).__init__(dt_finder, globs, \
                                               extraglobs, **opts)
-    if trac_version >= (0, 13) :
+    if trac_version >= trac_tags[0]:
         opts['disable'] = disable
     self.env = self.createTracEnv(default_data, enable, **opts)
     self.load_components(load is None and self.default_packages or load)
@@ -219,7 +226,7 @@ class DocTestTracLoader(DocTestLoader):
                             at testing time. Ignored in Trac<0.13
     @return                 the environment used for testing purpose.
     """
-    if trac_version >= (0, 13):
+    if trac_version >= trac_tags[0]:
       kwargs = {'disable' : disable}
     else :
       kwargs = {}
@@ -283,7 +290,7 @@ class DocTestTracLoader(DocTestLoader):
       db = self.env.get_db_cnx()
       cursor = db.cursor()
       for table in db_default.schema:
-        if trac_version < (0, 13) : # FIXME: Should it be (0, 12) ?
+        if trac_version < trac_tags[0]: # FIXME: Should it be (0, 12) ?
             cursor.execute("DELETE FROM " + table.name)
         else:
             cursor.execute("DROP TABLE " + table.name)
