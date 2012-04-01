@@ -21,9 +21,10 @@ from genshi.core import Markup, Stream, TEXT
 from genshi.filters import Transformer
 from genshi.input import HTML
 from trac.core import *
+from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
-from trac.web.api import Request, IRequestFilter, ITemplateStreamFilter
+from trac.web.api import Request, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome
 from trac.web.main import RequestDispatcher
 
@@ -72,7 +73,7 @@ class BloodhoundTheme(ThemeBase):
         return True
 
 class QuickCreateTicketDialog(Component):
-    implements(IRequestFilter)
+    implements(IRequestFilter, IRequestHandler)
 
     # IRequestFilter(Interface):
 
@@ -95,5 +96,60 @@ class QuickCreateTicketDialog(Component):
                         for f in tm._prepare_fields(fakereq, ticket))
             data['qct'] = { 'fields' : fields }
         return template, data, content_type
+
+    # IRequestHandler methods
+
+    def match_request(self, req):
+        """Handle requests sent to /qct
+        """
+        return req.path_info == '/qct'
+
+    def process_request(self, req):
+        """Forward new ticket request to `trac.ticket.web_ui.TicketModule`
+        but return plain text suitable for AJAX requests.
+        """
+        try:
+            tm = self.env[TicketModule]
+            if tm is None:
+                raise TracError('Unable to load TicketModule (disabled)?')
+            req.perm.require('TICKET_CREATE')
+            summary = req.args.pop('field_summary', '')
+            desc = ",, ... via ''Bloodhound'' quick create ticket dialog,,"
+            attrs = dict([k[6:], v] for k,v in req.args.iteritems() \
+                                    if k.startswith('field_'))
+            ticket_id = self.create(req, summary, desc, attrs, False)
+        except Exception, exc:
+            self.log.exception("BH: Quick create ticket failed %s" % (exc,))
+            req.send(str(exc), 'plain/text', 500)
+        else:
+            req.send(str(ticket_id), 'plain/text')
+
+    # Public API
+    def create(self, req, summary, description, attributes = {}, notify=False):
+        """ Create a new ticket, returning the ticket ID. 
+
+        PS: Borrowed from XmlRpcPlugin.
+        """
+        t = Ticket(self.env)
+        t['summary'] = summary
+        t['description'] = description
+        t['reporter'] = req.authname
+        for k, v in attributes.iteritems():
+            t[k] = v
+        t['status'] = 'new'
+        t['resolution'] = ''
+        t.insert()
+        # Call ticket change listeners
+        ts = TicketSystem(self.env)
+        for listener in ts.change_listeners:
+            listener.ticket_created(t)
+        if notify:
+            try:
+                tn = TicketNotifyEmail(self.env)
+                tn.notify(t, newticket=True)
+            except Exception, e:
+                self.log.exception("Failure sending notification on creation "
+                                   "of ticket #%s: %s" % (t.id, e))
+        return t.id
 
 
