@@ -243,11 +243,12 @@ a.prev:hover, a.next:hover {
 }
 
 #metanav ul {
-  padding: 0px;
+  padding: 2px 0 0 0;
 }
 
 #metanav .active {
-  font-weight: bold;
+  border-top: 2px solid #CC3333;
+	font-weight: bold;
 }
 
 #metanav .last, #metanav .last:hover {
