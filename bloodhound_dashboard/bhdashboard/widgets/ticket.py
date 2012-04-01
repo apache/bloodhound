@@ -21,7 +21,7 @@
 
 r"""Project dashboard for Apache(TM) Bloodhound
 
-Widgets displaying timeline data.
+Widgets displaying ticket data.
 """
 
 from itertools import imap, islice

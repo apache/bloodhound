@@ -60,17 +60,17 @@ class DashboardModule(Component):
             add_ctxtnav(req, _('Custom Query'), req.href.query())
         if self.env[ReportModule] is not None:
             add_ctxtnav(req, _('Reports'), req.href.report())
-        add_stylesheet(req, 'dashboard/bootstrap.css')
-        return 'bootstrap_two_col_2_1.html', \
-                {
+        template, layout_data = self.expand_layout_data(req)
+        widgets = self.expand_widget_data(req, layout_data) 
+        return template, {
                     'context' : Context.from_request(req),
-                    'widgets' : self.expand_widget_data(req), 
+                    'layout' : layout_data,
+                    'widgets' : widgets,
                     'title' : _(self.mainnav_label),
                     'default' : {
                             'height' : self.default_widget_height or None
                         }
-                }, \
-                None
+                }, None
 
     # INavigationContributor methods
     def get_active_navigation_item(self, req):
@@ -99,17 +99,20 @@ class DashboardModule(Component):
         """List `templates` folders for dashboard and widgets.
         """
         resource_filename = pkg_resources.resource_filename
-        return [resource_filename('bhdashboard', 'templates'),
+        return [resource_filename('bhdashboard.layouts', 'templates'),
                 resource_filename('bhdashboard.widgets', 'templates')]
 
     # Public API
-    def expand_widget_data(self, req):
-        """Expand raw widget data and format it for use in template
+    def expand_layout_data(self, req):
+        """Determine the template needed to render a specific layout
+        and the data needed to place the widgets at expected
+        location.
 
-        Notes: So far it only renders a single report widget and there's no
-        chance to customize this at all.
+        Notes: So far it only renders a few widgets and there's no
+        chance to customize this view at all.
         """
-        # TODO: Implement dynamic dashboard specification
+        # TODO: Retrieve layout definition from somewhere
+        from bhdashboard.layouts.bootstrap import BootstrapLayout
         from bhdashboard.widgets.query import TicketQueryWidget
         from bhdashboard.widgets.ticket import TicketFieldCloudWidget
         from bhdashboard.widgets.timeline import TimelineWidget
@@ -118,28 +121,60 @@ class DashboardModule(Component):
         dashboard_query = 'status=accepted&status=assigned&status=new' \
                 '&status=reopened&group=time&col=id&col=summary&col=owner' \
                 '&col=status&col=priority&order=priority&groupdesc=1&desc=1'
-        widgets_spec = [
-                {
-                    'c' : TicketQueryWidget(self.env), 
-                    'args' : ['TicketQuery', ctx, 
-                            {'args' : {'max' : 10,
-                                    'query' : dashboard_query,
-                                    'title' : 'Dashboard'}
-                            }],
-                    'altlinks' : False
-                },
-                {
-                    'c' : TimelineWidget(self.env),
-                    'args' : ['Timeline', ctx, {'args' : {}}]
-                },
-                {
-                    'c' : TicketFieldCloudWidget(self.env),
-                    'args' : ['TicketFieldCloud', ctx, 
-                            {'args' : {'field' : 'component',
-                                    'verbose' : True}
-                            }]
-                },
-            ]
+        layout = BootstrapLayout(self.env)
+        schema = {
+                'div' : [
+                        {
+                            'class' : 'row',
+                            'div' : [
+                                    {
+                                        'class' : 'span8',
+                                        'widgets' : [1,3]
+                                    },
+                                    {
+                                        'class' : 'span4',
+                                        'widgets' : [2]
+                                    }
+                                ]
+                        }
+                    ],
+                'widgets' : [
+                        {
+                            'c' : TicketQueryWidget(self.env), 
+                            'args' : ['TicketQuery', ctx, 
+                                    {'args' : {'max' : 10,
+                                            'query' : dashboard_query,
+                                            'title' : 'Dashboard'}
+                                    }],
+                            'altlinks' : False
+                        },
+                        {
+                            'c' : TimelineWidget(self.env),
+                            'args' : ['Timeline', ctx, {'args' : {}}]
+                        },
+                        {
+                            'c' : TicketFieldCloudWidget(self.env),
+                            'args' : ['TicketFieldCloud', ctx, 
+                                    {'args' : {'field' : 'component',
+                                            'verbose' : True}
+                                    }]
+                        },
+                    ]
+            }
+
+        template = layout.expand_layout('bootstrap', ctx, {
+                'schema' : schema
+            })['template']
+        return template, schema
+
+    def expand_widget_data(self, req, schema):
+        """Expand raw widget data and format it for use in template
+
+        Notes: So far it only renders a few widgets and there's no
+        chance to customize this view at all.
+        """
+        # TODO: Implement dynamic dashboard specification
+        widgets_spec = schema.pop('widgets', [])
         chrome = Chrome(self.env)
         render = chrome.render_template
         data_strm = (w['c'].render_widget(*w['args']) for w in widgets_spec)

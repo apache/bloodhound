@@ -88,10 +88,13 @@ DIST_NM = 'BloodhoundDashboardPlugin'
 PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                             # Package data
                             ['../CHANGES', '../TODO', '../COPYRIGHT', 
-                              '../NOTICE', '../README', '../TESTING_README'
-                              'templates/*', 'htdocs/*'],
+                              '../NOTICE', '../README', '../TESTING_README'],
                           ), 
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
+                            # Package data
+                            ['templates/*', 'htdocs/*'],
+                          ), 
+            'bhdashboard.layouts' : ('bhdashboard/layouts',     # Package dir
                             # Package data
                             ['templates/*', 'htdocs/*'],
                           ), 
@@ -104,6 +107,7 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
 ENTRY_POINTS = r"""
                [trac.plugins]
                bhdashboard.api = bhdashboard.api
+               bhdashboard.layouts.bootstrap = bhdashboard.layouts.bootstrap
                bhdashboard.web_ui = bhdashboard.web_ui
                bhdashboard.widgets.query = bhdashboard.widgets.query
                bhdashboard.widgets.report = bhdashboard.widgets.report

@@ -62,6 +62,33 @@ class IWidgetProvider(Interface):
 
     # TODO: Add methods to specify widget metadata (e.g. parameters)
 
+class ILayoutProvider(Interface):
+    """Extension point interface implemented by components adding layouts
+    to the dashboard.
+
+    PS: Such components should implement `trac.mimeview.api.IContentConverter`
+    interface so as to save and load layout definition when necessary.
+    The pseudo-mimetype identifying layout data will be
+    `application/x-trac-layout-<layout_name>`.
+    Nonetheless they can delegate that task to other components too.
+    Let's all hail the Trac component model !
+    """
+    def get_layouts():
+        """Return an iterable listing the names of the provided layouts."""
+
+    def get_layout_description(name):
+        """Return plain text description of the layout with specified name."""
+
+    def expand_layout(name, context, options):
+        """Provide the information needed to render layout identified by
+        `name`.
+        
+        :param context: rendering context
+        :param options: additional options supplied in so as to adapt layout
+                considering data specific to this request. This allows to 
+                customize (parts of) the layout for a given request.
+        """
+
 class DashboardSystem(Component):
     implements(IPermissionRequestor)
 
