@@ -125,7 +125,7 @@ class DashboardModule(Component):
                 '&status=reopened&group=time&col=id&col=summary&col=owner' \
                 '&col=status&col=priority&order=priority&groupdesc=1&desc=1'
         mine_query = 'status=accepted&status=assigned&status=new' \
-                '&status=reopened&owner=murphy&group=time&col=id&col=summary' \
+                '&status=reopened&owner=$USER&group=time&col=id&col=summary' \
                 '&col=owner&col=status&col=priority&order=priority' \
                 '&groupdesc=1&desc=1'
         layout = BootstrapLayout(self.env)

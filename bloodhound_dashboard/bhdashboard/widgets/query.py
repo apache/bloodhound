@@ -79,14 +79,16 @@ class TicketQueryWidget(WidgetBase):
 
             fakereq = dummy_request(self.env, req.authname)
             fakereq.args = args = parse_qs(qstr)
+            fakereq.arg_list = []
             for k,v in args.items():
+                # Patch for 0.13
+                fakereq.arg_list.extend((k, _v) for _v in v)
                 try:
                     if len(v) == 1:
                         args[k] = v[0]
                 except TypeError:
                     pass
             args.update({'page' : page, 'max': maxrows})
-            self.log.debug("Ticket query for widget %s", args)
 
             qrymdl = self.env[QueryModule]
             if qrymdl is None :
