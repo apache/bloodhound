@@ -180,6 +180,14 @@ class DashboardModule(Component):
                                                       "TicketFieldCloud", 
                                                       null, 
                                                       {"args" : {
+                                                          "field" : "milestone",
+                                                          "verbose" : false}}]
+                                                },
+                                                {
+                                                  "args" : [
+                                                      "TicketFieldCloud", 
+                                                      null, 
+                                                      {"args" : {
                                                           "field" : "type",
                                                           "verbose" : true}}]
                                                 }
