@@ -32,7 +32,7 @@ from wsgiref.util import setup_testing_defaults
 
 from trac.core import Component, implements
 from trac.web.api import Request
-from trac.web.chrome import Chrome
+from trac.web.chrome import add_link, Chrome
 from trac.web.main import RequestDispatcher
 
 from bhdashboard.api import DashboardSystem, IWidgetProvider, InvalidIdentifier
@@ -66,6 +66,13 @@ def dummy_request(env, uname=None):
     })
     return req
 
+def merge_links(srcreq, dstreq):
+    """Incorporate links in `srcreq` into `dstreq`.
+    """
+    if 'links' in srcreq.chrome:
+        for rel, links in srcreq.chrome['links'].iteritems():
+            for link in links:
+                add_link(dstreq, rel, **link)
 
 class WidgetBase(Component):
     """Abstract base class for widgets"""

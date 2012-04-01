@@ -38,7 +38,8 @@ from trac.web.api import RequestDone
 
 from bhdashboard.util import WidgetBase, InvalidIdentifier, \
                               check_widget_name, dummy_request, \
-                              pretty_wrapper, trac_version, trac_tags
+                              merge_links, pretty_wrapper, trac_version, \
+                              trac_tags
 
 class TicketQueryWidget(WidgetBase):
     """Display tickets matching a TracQuery using a grid
@@ -95,6 +96,7 @@ class TicketQueryWidget(WidgetBase):
                 exc.title = data.get('title', 'TracQuery')
             raise
         else:
+            merge_links(srcreq=fakereq, dstreq=req)
             qryctx = Context.from_request(fakereq)
             query = data['query']
             idxs = count()

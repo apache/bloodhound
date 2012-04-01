@@ -37,7 +37,8 @@ from trac.web.api import RequestDone
 
 from bhdashboard.util import WidgetBase, InvalidIdentifier, \
                               check_widget_name, dummy_request, \
-                              pretty_wrapper, trac_version, trac_tags
+                              merge_links, pretty_wrapper, trac_version, \
+                              trac_tags
 
 class TicketReportWidget(WidgetBase):
     """Display tickets in saved report using a grid
@@ -94,6 +95,7 @@ class TicketReportWidget(WidgetBase):
                 exc.title = data.get('title', 'TracReports')
             raise
         else:
+            merge_links(srcreq=fakereq, dstreq=req)
             title = data.get('title', '%s {%s}' % (_('Report'), rptid))
             rptctx = Context.from_request(fakereq, 'report', rptid)
             return 'widget_grid.html', \

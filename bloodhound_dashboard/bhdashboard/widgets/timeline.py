@@ -35,7 +35,8 @@ from trac.util.translation import _
 from bhdashboard.api import DateField, EnumField, ListField
 from bhdashboard.util import WidgetBase, InvalidIdentifier, \
                               check_widget_name, dummy_request, \
-                              pretty_wrapper, trac_version, trac_tags
+                              merge_links, pretty_wrapper, trac_version, \
+                              trac_tags
 
 class TimelineWidget(WidgetBase):
     """Display activity feed.
@@ -104,6 +105,7 @@ class TimelineWidget(WidgetBase):
                 exc.title = data.get('title', 'TracReports')
             raise
         else:
+            merge_links(srcreq=fakereq, dstreq=req)
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
             return 'widget_timeline.html', \

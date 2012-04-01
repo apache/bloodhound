@@ -17,7 +17,7 @@
     <div py:when="numrows" class="numrows">($numrows total rows)</div>
   </py:choose>
 
-  <table class="table table-condensed" 
+  <table class="table table-condensed tickets" 
       py:with="use_groups = len(row_groups) &gt; 1 or row_groups[0][0] is not None">
     <thead>
       <tr py:for="header_group in header_groups">
@@ -40,7 +40,7 @@
             }${'__style__' in row and row.__style__+';' or None
             }${fullrow and 'border: none; padding: 0;' or None}">
 
-            <td py:if="use_groups" style="background: none; color: #333333;">
+            <td py:if="use_groups" style="background: none repeat scroll 0 0 #FFFFFF; color: #333333;">
               <py:if test="idx == 0">$value_for_group</py:if>
             </td>
             <py:for each="cell in cell_group">
