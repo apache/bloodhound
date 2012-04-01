@@ -1,0 +1,63 @@
+
+= Project dashboard for Apache(TM) Bloodhound =
+
+ Add custom dashboards in multiple pages of Bloodhound sites.
+
+== !ToDo ==
+
+Outstanding tasks are :
+
+[[TicketQuery(component=bhdashboard&priority=major, format=list, rows=id|summary)]]
+
+== Dependencies ==
+
+This plugin depends on the following components to be installed:
+
+
+  - [http:trac.edgewall.org Trac]  ,,Since version 
+    ''' 1.0 ''',, . 
+
+
+== Installation ==
+
+This plugin has been tested with 
+[http://trac.edgewall.org/ Trac]  [http://trac.edgewall.org/wiki/0.11 0.11]  [http://trac.edgewall.org/wiki/0.12 0.12]  [http://trac.edgewall.org/wiki/0.13 0.13] .
+
+The first step to make it work is to [wiki:TracPlugins install this plugin] 
+either for a particular environment or otherwise make it available to
+all the environments:
+
+{{{
+$ easy_install /path/to/unpacked/BloodhoundDashboardPlugin-x.y.z.zip
+}}}
+
+,, where ''x.y.z'' is the version of the plugin,,
+
+... or alternately ...
+
+{{{
+$ easy_install BloodhoundDashboardPlugin
+}}}
+
+In case of having internet connection and access to 
+[http://pypi.python.org/pypi PyPI] or a simlar repository, both these 
+methods '''should''' automatically retrieve the [#Dependencies external 
+dependencies] from there.
+
+== Configuration ==
+
+In order to enable [wiki:/En/Devel/BloodhoundDashboardPlugin BloodhoundDashboardPlugin] plugin, 
+the only thing to do is to add the following lines to [wiki:TracIni trac.ini].
+
+{{{
+[components]
+bhdashboard.* = enabled
+}}}
+
+== Bug / feature requests ==
+
+Existing bugs and feature requests for [wiki:/En/Devel/BloodhoundDashboardPlugin BloodhoundDashboardPlugin] are
+[query:status=new|assigned|reopened&component=bhdashboard here].
+If you have any issues, please create a [/newticket?component=bhdashboard new ticket].
+
+

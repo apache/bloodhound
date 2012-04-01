@@ -1,0 +1,53 @@
+
+= Testing Bloodhound Dashboard plugin =
+
+== Overview ==
+
+This plugin makes use of `setuptools` `test` command. Therefore all 
+test-support libraries needed to run the test suite should be installed 
+automatically (... considering the fact that they are listed in 
+`tests_require` and `install_requires` entries in `setup.ini` script ;).
+Recommended is the use of virtual Python environments. 
+
+== How to run tests ==
+
+All tests are written in files under `bhdashboard/tests` folder 
+(sub-modules of `bhdashboard.tests`) having names starting with prefix 
+`test_`. The following command should be enough so as to run tests 
+in one such module :
+
+{{{
+#!sh
+
+$ /path/to/python setup.py test -m bhdashboard.tests.test_<something>
+
+}}}
+
+... where `<something>` should be replaced to match the name of an existing 
+file containing tests e.g.
+
+{{{
+#!sh
+
+$ /path/to/python setup.py test -m bhdashboard.tests.test_report
+
+}}}
+
+== Continuous integration ==
+
+*TODO*
+
+== How do we run tests ==
+
+At present members of the team run tests on their computers as mentioned below :
+
+  - ''Python'' '''2.6''' virtual environment , Trac '''0.11.7''' .
+
+Besides there's a whole continuous integration infrastructure behind the 
+project (but that's TBD so far, should be documented later so that's in the 
+*TODO* list).
+
+PS: ... much more details missing here BTW ... should be added as soon 
+as possible ;) . Unfortunately weeks only have 7 days , 
+days only have 24 hours ... :-/
+
