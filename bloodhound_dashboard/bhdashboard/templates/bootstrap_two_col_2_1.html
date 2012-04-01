@@ -7,21 +7,15 @@
   <xi:include href="layout.html" />
   <head>
     <title>$title</title>
-    <style py:if="default.height is not None">
-      .ui-box-panel {
-        max-height:${default.height}px !important;
-        overflow: auto;
-      }
-    </style>
-    <style>
-      .ui-box {
-        margin: 10px;
-      }
-    </style>
   </head>
 
   <div py:def="widget_container(w)" role="application">
-    <h1>${w.title}</h1>
+    <h1 style="display: inline;">${w.title}</h1>
+    <py:if test="w.ctxtnav">
+      <py:for each="itm in w.ctxtnav">
+        &nbsp;&nbsp;$itm
+      </py:for>
+    </py:if>
     <br/>
     ${w.content}
   </div>

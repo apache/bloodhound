@@ -29,6 +29,7 @@ from itertools import imap, islice
 
 from genshi.builder import tag
 from trac.core import implements, TracError
+from trac.mimeview.api import Context
 from trac.resource import ResourceNotFound
 from trac.ticket.report import ReportModule
 from trac.util.translation import _
@@ -94,12 +95,18 @@ class TicketReportWidget(WidgetBase):
             raise
         else:
             title = data.get('title', '%s {%s}' % (_('Report'), rptid))
+            rptctx = Context.from_request(fakereq, 'report', rptid)
             return 'widget_grid.html', \
                     {
-                        'title' : tag.a(title, href=req.href('report', rptid)),
-                        'data' : data
+                        'title' : title,
+                        'data' : data,
+                        'ctxtnav' : [
+                            tag.a(_('More'), href=req.href('report', rptid)),
+                            ('REPORT_MODIFY' in req.perm(rptctx.resource)) and \
+                                tag.a(_('Edit'), href=req.href('report', rptid, action='edit')) or None,
+                            ]
                     }, \
-                    context('report', rptid)
+                    rptctx
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 

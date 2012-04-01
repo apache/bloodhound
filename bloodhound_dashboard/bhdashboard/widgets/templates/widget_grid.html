@@ -9,10 +9,10 @@
   </div -->
   <py:choose test="">
     <div py:when="paginator.has_more_pages">
-      <h2 class="report-result">
+      <div class="report-result" style="float: left; margin-right: 1.6em;">
         Results <span class="numresults">(${paginator.displayed_items()})</span>
-      </h2>
-      <!-- xi:include href="page_index.html" / -->
+      </div>
+      <xi:include href="page_index.html" />
     </div>
     <div py:when="numrows" class="numrows">($numrows total rows)</div>
   </py:choose>

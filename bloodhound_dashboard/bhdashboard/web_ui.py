@@ -121,6 +121,7 @@ class DashboardModule(Component):
         render = chrome.render_template
         data_strm = (w['c'].render_widget(*w['args']) for w in widgets_spec)
         return [{'title' : data['title'], 
-                'content' : render(req, template, data['data'], fragment=True)} \
-                for template, data, _ in data_strm]
+                'content' : render(wctx.req, template, data['data'], fragment=True),
+                'ctxtnav' : data.get('ctxtnav')} \
+                for template, data, wctx in data_strm]
 
