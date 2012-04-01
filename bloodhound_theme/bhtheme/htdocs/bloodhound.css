@@ -6,12 +6,6 @@
   padding: 0px 8px;
 }
 
-#ctxtnav ul>li.icon {
-  background-position: center center;
-  background-repeat: no-repeat;
-  padding: 15px 35px 16px;
-}
-
 .icon_add {
   background-image: url("icon_add.png") !important;
 }
@@ -72,6 +66,16 @@
   height: auto;
   margin: 0px;
   padding: 0px;
+}
+
+#ctxtnav ul>li.icon {
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 15px 35px 16px;
+}
+
+#ctxtnav li {
+  height: 30px;
 }
 
 #main-wrapper {
@@ -183,6 +187,7 @@ a.prev:hover, a.next:hover {
   padding-left: 0;
   padding-top: 1px;
   text-align: left;
+  width: 999999px;
 }
 
 #mainnav li {
@@ -196,10 +201,12 @@ a.prev:hover, a.next:hover {
 }
 
 #mainnav .first {
-  -moz-border-radius-topleft: 6px;
-  -webkit-border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-top-left-radius: 6px;
   -moz-border-radius-bottomleft: 6px;
+  -moz-border-radius-topleft: 6px;
   -webkit-border-bottom-left-radius: 6px;
+  -webkit-border-top-left-radius: 6px;
 }
 
 #mainnav :link, #mainnav :visited {
@@ -270,6 +277,10 @@ a.prev:hover, a.next:hover {
 #metanav :link, #metanav :visited, 
 #metanav :link:hover, #metanav :visited:hover {
   color: #cccccc;
+}
+
+#newticket {
+  white-space: nowrap;
 }
 
 /* Forms & inputs */
@@ -581,15 +592,15 @@ table.progress td.closed {
 ----------------------------------*/
 
 /* Corner radius */
-.ui-corner-tl { -moz-border-radius-topleft: 6px; -webkit-border-top-left-radius: 6px; }
-.ui-corner-tr { -moz-border-radius-topright: 6px; -webkit-border-top-right-radius: 6px; }
-.ui-corner-bl { -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; }
-.ui-corner-br { -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; }
-.ui-corner-top { -moz-border-radius-topleft: 6px; -webkit-border-top-left-radius: 6px; -moz-border-radius-topright: 6px; -webkit-border-top-right-radius: 6px; }
-.ui-corner-bottom { -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; }
-.ui-corner-right {  -moz-border-radius-topright: 6px; -webkit-border-top-right-radius: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; }
-.ui-corner-left { -moz-border-radius-topleft: 6px; -webkit-border-top-left-radius: 6px; -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; }
-.ui-corner-all { -moz-border-radius: 6px; -webkit-border-radius: 6px; }
+.ui-corner-tl { border-top-left-radius: 6px; -moz-border-radius-topleft: 6px; -webkit-border-top-left-radius: 6px; }
+.ui-corner-tr { border-bottom-right-radius: 6px; -moz-border-radius-topright: 6px; -webkit-border-top-right-radius: 6px; }
+.ui-corner-bl { border-bottom-left-radius: 6px; -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; }
+.ui-corner-br { border-bottom-right-radius: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; }
+.ui-corner-top { border-top-left-radius: 6px; -moz-border-radius-topleft: 6px; -webkit-border-top-left-radius: 6px; border-top-right-radius: 6px; -moz-border-radius-topright: 6px; -webkit-border-top-right-radius: 6px; }
+.ui-corner-bottom { border-bottom-left-radius: 6px; -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; }
+.ui-corner-right {  border-top-right-radius: 6px; -moz-border-radius-topright: 6px; -webkit-border-top-right-radius: 6px; border-bottom-right-radius: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; }
+.ui-corner-left { border-top-left-radius: 6px; -moz-border-radius-topleft: 6px; -webkit-border-top-left-radius: 6px; border-bottom-left-radius: 6px; -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; }
+.ui-corner-all { border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px; }
 
 /* Overlays */
 .ui-widget-overlay { background: #e0ecff url(images/ui-bg_flat_0_e0ecff_40x100.png) 50% 50% repeat-x; opacity: .50;filter:Alpha(Opacity=50); }
