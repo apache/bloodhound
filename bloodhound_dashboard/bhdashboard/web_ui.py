@@ -51,7 +51,6 @@ class DashboardModule(Component):
         """Initially this will render static widgets. With time it will be 
         more and more dynamic and flexible.
         """
-        #add_stylesheet(req, 'dashboard/reset-fonts-grids.css')
         add_stylesheet(req, 'dashboard/grids.css')
         add_stylesheet(req, 'dashboard/skin.css')
         return 'bhdb_one_col.html', \

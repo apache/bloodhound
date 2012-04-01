@@ -1,7 +1,126 @@
 
-<div xmlns="http://www.w3.org/1999/xhtml"
+<div class="report"
+      xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <strong>It works</strong>
+  <div py:if="numrows" class="numrows">($numrows total rows)</div>
+  <!-- TODO: Add description icon plus tooltip -->
+  <!-- div py:if="description" id="description" xml:space="preserve">
+    ${wiki_to_html(context, description)}
+  </div -->
+  <div py:if="paginator.has_more_pages">
+    <h2 class="report-result">
+      Results <span class="numresults">(${paginator.displayed_items()})</span>
+    </h2>
+    <xi:include href="page_index.html" />
+  </div>
+
+  <py:for each="value_for_group, row_group in row_groups">
+    <h2 class="report-result" py:if="value_for_group">$value_for_group
+    <span class="numrows" py:with="cnt = len(row_group)">(${cnt or 'No'} row${cnt != 1 and 's' or ''})</span></h2>
+    <table class="listing tickets'">
+      <thead>
+        <tr py:for="header_group in header_groups">
+          <th py:for="header in header_group" py:if="not header.hidden" py:with="fullrow = header is header_group[-1]"
+              colspan="${fullrow and '100' or None}">
+            ${header.title}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <py:for each="row in row_group">
+          <tr py:for="cell_group in row.cell_groups"
+            py:with="fullrow = len(cell_group) == 1;
+                     td_attrs = fullrow and {'class': 'fullrow', 'colspan': 100} or {}"
+            class="${'__color__' in row and 'color'+row.__color__+'-' or ''}${row.__idx__ % 2 and 'odd' or 'even'}"
+            style="${'__bgcolor__' in row and 'background: '+row.__bgcolor__+';' or None
+            }${'__fgcolor__' in row and 'color: '+row.__fgcolor__+';' or None
+            }${'__style__' in row and row.__style__+';' or None
+            }${fullrow and 'border: none; padding: 0;' or None}">
+
+            <py:for each="cell in cell_group">
+              <py:if test="not cell.header.hidden">
+                <py:with vars="col = cell.header.col.strip('_')">
+                  <py:choose>
+
+                    <!--! for the report listing -->
+                    <py:when test="col == 'report'">
+                      <td class="$col" py:attrs="td_attrs">
+                        <a title="View report" href="${href.report(cell.value)}">{$cell.value}</a>
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:when test="col == 'title'">
+                      <td class="$col" py:attrs="td_attrs">
+                        <a title="View report" href="${href.report(row.id)}">$cell.value</a>
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <!--! for the ticket listing -->
+                    <py:when test="col in ('ticket', 'id')">
+                      <td class="ticket" py:attrs="td_attrs">
+                        <a title="View ${row.resource.realm}" href="${url_of(row.resource)}">#$cell.value</a>
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:when test="col == 'summary' and row.id">
+                      <td class="$col" py:attrs="td_attrs">
+                        <a title="View ${row.resource.realm}" href="${url_of(row.resource)}">$cell.value</a>
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <!--! generic fields -->
+                    <py:when test="col == 'time'">
+                      <td class="date" py:attrs="td_attrs">${cell.value != '' and format_time(int(cell.value)) or '--'}
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:when test="col in ('date', 'created', 'modified')">
+                      <td class="date" py:attrs="td_attrs">${cell.value != '' and format_date(int(cell.value)) or '--'}
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:when test="col == 'datetime'">
+                      <td class="date" py:attrs="td_attrs">${cell.value != '' and format_datetime(int(cell.value)) or '--'}
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:when test="col == 'description'">
+                      <td class="$col" py:attrs="td_attrs" xml:space="preserve">
+                        ${wiki_to_html(context(row.resource), cell.value)}
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:when test="col == 'milestone'">
+                      <td class="$col" py:attrs="td_attrs">
+                        <a title="View milestone" href="${href.milestone(cell.value)}">$cell.value</a>
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:when>
+
+                    <py:otherwise>
+                      <td class="$col" py:attrs="td_attrs">$cell.value
+                        <hr py:if="fullrow"/>
+                      </td>
+                    </py:otherwise>
+
+                  </py:choose>
+                </py:with>
+              </py:if>
+            </py:for>
+          </tr>
+        </py:for>
+      </tbody>
+    </table>
+  </py:for>
 </div>
 

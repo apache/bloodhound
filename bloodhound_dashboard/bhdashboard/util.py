@@ -26,6 +26,7 @@ Helper functions and classes.
 
 from functools import update_wrapper
 import inspect
+from pkg_resources import get_distribution
 from urlparse import urlparse
 
 from trac.core import Component, implements
@@ -115,4 +116,18 @@ def pretty_wrapper(wrapped, *decorators):
     for f in decorators:
         wrapper = f(wrapper)
     return update_wrapper(wrapper, wrapped)
+
+#------------------------------------------------------
+#    Context information
+#------------------------------------------------------
+
+trac_version = tuple(int(i) for i in get_distribution('Trac').parsed_version \
+                            if i.startswith('0'))
+
+# The exact moments (versions) where some things started to change
+# in such a manner that break previous test code
+
+trac_tags = (
+        (0, 13), # TODO: Find the exact version ( Trac=0.12 ? )
+    )
 

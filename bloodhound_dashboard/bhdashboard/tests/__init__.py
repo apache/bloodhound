@@ -23,28 +23,15 @@ The test suites have been run using Trac=0.11.1 , Trac=0.11.5 , Trac=0.11.7
 
 __metaclass__ = type
 
+import sys
+
 from trac.core import ComponentMeta
 from trac.db.api import _parse_db_str, DatabaseManager
 from trac.mimeview.api import Context
 from trac.test import EnvironmentStub
 from trac.util.compat import set
 
-from pkg_resources import get_distribution
-import sys
-
-#------------------------------------------------------
-#    Context information
-#------------------------------------------------------
-
-trac_version = tuple(int(i) for i in get_distribution('Trac').parsed_version \
-                            if i.startswith('0'))
-
-# The exact moments (versions) where some things started to change
-# in such a manner that break previous test code
-
-trac_tags = (
-        (0, 13), # TODO: Find the exact version ( Trac=0.12 ? )
-    )
+from bhdashboard.util import trac_version, trac_tags
 
 #------------------------------------------------------
 #    Trac environments used for testing purposes

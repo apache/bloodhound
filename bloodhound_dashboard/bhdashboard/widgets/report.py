@@ -29,11 +29,14 @@ from itertools import imap, islice
 
 from genshi.builder import tag
 from trac.core import implements, TracError
+from trac.resource import ResourceNotFound
 from trac.ticket.report import ReportModule
 from trac.util.translation import _
+from trac.web.api import RequestDone
 
 from bhdashboard.util import WidgetBase, InvalidIdentifier, \
-                              check_widget_name, pretty_wrapper
+                              check_widget_name, dummy_request, \
+                              pretty_wrapper, trac_version, trac_tags
 
 class TicketReportWidget(WidgetBase):
     """Display tickets in saved report using a grid
@@ -48,10 +51,13 @@ class TicketReportWidget(WidgetBase):
                         'required' : True,
                         'type' : int,
                     },
-                'limit' : {
-                        'default' : 0,
-                        'desc' : """Number of results to retrieve""",
+                'page' : {
+                        'default' : 1,
+                        'desc' : """Retrieve results in given page.""",
                         'type' : int,
+                },
+                'user' : {
+                        'desc' : """Render the report for a given user.""",
                 },
             }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
@@ -59,126 +65,41 @@ class TicketReportWidget(WidgetBase):
     def render_widget(self, name, context, options):
         """Execute stored report and render data using a grid
         """
-        metadata = data = None
+        data = None
         req = context.req
         try:
-            rptid, limit = self.bind_params(name, options, 'id', 'limit')
-            metadata = self.get(req, rptid)
-            # TODO: Should metadata also contain columns definition ?
-            data = list(self.execute(req, rptid, limit))
-        except TracError, exc:
-            if metadata is not None :
-                exc.title = metadata.get('title', 'TracReports')
+            params = ('id', 'page', 'user')
+            rptid, page, user = self.bind_params(name, options, *params)
+            user = user or req.authname
+
+            rptreq = dummy_request(self.env, req.authname)
+            rptreq.args = {'page' : page, 'user' : user}
+            del rptreq.redirect     # raise RequestDone as usual
+
+            rptmdl = self.env[ReportModule]
+            if rptmdl is None :
+                raise TracError('Report module not available (disabled?)')
+            if trac_version < trac_tags[0]:
+                args = rptreq, self.env.get_db_cnx(), rptid
             else:
-                exc.title = 'TracReports'
+                args = rptreq, rptid
+            data = rptmdl._render_view(*args)[1]
+        except ResourceNotFound, exc:
+            raise InvalidIdentifier(unicode(exc))
+        except RequestDone:
+            raise TracError('Cannot execute report. Redirection needed')
+        except TracError, exc:
+            if data is not None:
+                exc.title = data.get('title', 'TracReports')
             raise
         else:
-            title = metadata.get('title', '%s #%s' % (_('Report'), rptid))
+            title = data.get('title', '%s {%s}' % (_('Report'), rptid))
             return 'widget_grid.html', \
                     {
                         'title' : tag.a(title, href=req.href('report', rptid)),
                         'data' : data
                     }, \
-                    context
+                    context('report', rptid)
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-
-    # Internal methods
-
-    # These have been imported verbatim from existing 
-    # `tracgviz.rpc.ReportRPC` class in TracGViz plugin ;)
-    def get(self, req, id):
-        r"""Return information about an specific report as a dict 
-        containing the following fields.
-        
-        - id :            the report ID.
-        - title:          the report title.
-        - description:    the report description.
-        - query:          the query string used to select the tickets 
-                          to be included in this report. This field 
-                          is returned only if `REPORT_SQL_VIEW` has 
-                          been granted to the client performing the 
-                          request. Otherwise it is empty.
-        """
-        sql = "SELECT id,title,query,description from report " \
-                "WHERE id=%s" % (id,)
-        db = self.env.get_db_cnx()
-        cursor = db.cursor()
-        try:
-            cursor.execute(sql)
-            for report_info in cursor:
-                return dict(zip(['id','title','query','description'], report_info))
-            else:
-                return None
-        finally:
-            cursor.close()
-
-    def _execute_sql(self, req, id, sql, limit=0):
-        r"""Execute a SQL report and return no more than `limit` rows 
-        (or all rows if limit == 0).
-        """
-        repmdl = ReportModule(self.env)
-        db = self.env.get_db_cnx()
-        try:
-            args = repmdl.get_var_args(req)
-        except ValueError,e:
-            raise ValueError(_('Report failed: %(error)s', error=e))
-        try:
-            try:
-                # Paginated exec (>=0.11)
-                exec_proc = repmdl.execute_paginated_report
-                kwargs = dict(limit=limit)
-            except AttributeError:
-                # Legacy exec (<=0.10)
-                if limit > 0:
-                    exec_proc = lambda *args, **kwargs: \
-                        islice(repmdl.execute_report(*args, **kwargs), limit)
-                else:
-                    exec_proc = repmdl.execute_report
-                kwargs = {}
-            return exec_proc(req, db, id, sql, args, **kwargs)[:2]
-        except Exception, e:
-            db.rollback()
-            raise 
-
-    def execute(self, req, id, limit=0):
-        r"""Execute a Trac report.
-
-        @param id     the report ID.
-        @return       a list containing the data provided by the 
-                      target report.
-        @throws       `NotImplementedError` if the report definition 
-                      consists of saved custom query specified 
-                      using a URL.
-        @throws       `QuerySyntaxError` if the report definition 
-                      consists of a `TracQuery` containing syntax errors.
-        @throws       `Exception` in case of detecting any other error.
-        """
-        report_spec = self.get(req, id)
-        if report_spec is None:
-            raise InvalidIdentifier('Report %s does not exist' % (id,))
-        sql = report_spec['query']
-        query = ''.join([line.strip() for line in sql.splitlines()])
-        if query and (query[0] == '?' or query.startswith('query:?')):
-            raise NotImplementedError('Saved custom queries specified ' \
-                                  'using URLs are not supported.')
-        elif query.startswith('query:'):
-            query = Query.from_string(self.env, query[6:], report=id)
-            server_url = urlparse(req.base_url)
-            server_href = Href(urlunparse((server_url.scheme, \
-                                        server_url.netloc, \
-                                        '', '', '', '')))
-            def rel2abs(row):
-                """Turn relative value in 'href' into absolute URLs."""
-                self.log.debug('IG: Query Row %s', row)
-                url = row['href']
-                urlobj = urlparse(url)
-                if not urlobj.netloc:
-                    row['href'] = server_href(url)
-                return row
-            
-            return imap(rel2abs, query.execute(req))
-        else:
-            cols, results = self._execute_sql(req, id, sql, limit=limit)
-            return (dict(zip(cols, list(row))) for row in results)
 
