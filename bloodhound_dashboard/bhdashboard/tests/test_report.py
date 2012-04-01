@@ -132,10 +132,8 @@ __test__ = {
       >>> from bhdashboard.api import IWidgetProvider
       >>> from bhdashboard.widgets.report import *
       >>> allcls = ComponentMeta._registry.get(IWidgetProvider, [])
-      >>> for wpcls in (TicketReportWidget,):
-      ...   print wpcls in allcls
-      ...
-      True
+      >>> [wpcls in allcls for wpcls in (TicketReportWidget,)]
+      [True]
       """,
     '|TicketReport: Metadata' : r"""
       >>> list(widget.get_widgets())

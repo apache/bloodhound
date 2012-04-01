@@ -29,7 +29,15 @@ from trac.mimeview.api import Context
 from trac.test import EnvironmentStub
 from trac.util.compat import set
 
+from pkg_resources import get_distribution
 import sys
+
+#------------------------------------------------------
+#    Context information
+#------------------------------------------------------
+
+trac_version = tuple(int(i) for i in get_distribution('Trac').parsed_version \
+                            if i.startswith('0'))
 
 #------------------------------------------------------
 #    Trac environments used for testing purposes
@@ -248,7 +256,10 @@ class DocTestTracLoader(DocTestLoader):
       db = self.env.get_db_cnx()
       cursor = db.cursor()
       for table in db_default.schema:
-        cursor.execute("DELETE FROM " + table.name)
+        if trac_version < (0, 13) : # FIXME: Should it be (0, 12)
+            cursor.execute("DELETE FROM " + table.name)
+        else:
+            cursor.execute("DROP TABLE " + table.name)
       db.commit()
 
       self.env.reset_db(default_data=True)

@@ -52,7 +52,7 @@ def dummy_request(env, uname=None):
     req.callbacks.update({
         'authname': rd.authenticate,
         'chrome': chrome.prepare_request,
-        'hdf': rd._get_hdf,
+        'hdf': getattr(rd, '_get_hdf', None),
         'perm': rd._get_perm,
         'session': rd._get_session,
         'tz': rd._get_timezone,
