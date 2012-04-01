@@ -44,35 +44,38 @@
             <span py:if="'logout' in meta_items" id="nav_logout">
               ${meta_items.logout.label}
             </span>
-            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;
             <span py:if="'prefs' in meta_items"><i class="icon-cog"></i>
               ${meta_items.prefs.label}
+            </span>
+            <span py:if="'help' in meta_items"><i class="icon-question-sign"></i>
+              ${meta_items.help.label}
             </span>
           </div>
         </py:with>
       </div>
       <div class="row" style="position:relative;">
         <div class="span4">
-        <form class="form-inline" action="${href.search()}" method="get">
-          <input type="text" class="span3" name="q"
-              placeholder="Search anything. Try #EF-492." />
-          <input type="submit" value="Search" class="btn btn-warning"/>
-        </form>
+          <form class="form-inline" action="${href.search()}" method="get">
+            <input type="text" class="span3" name="q"
+                placeholder="Search anything. Try #EF-492." />
+            <input type="submit" value="Search" class="btn btn-warning"/>
+          </form>
         </div>
         <div class="span4"><a href="#" class="btn">Create Ticket</a></div>
-        <div class="4">
+        <div class="span4">
           <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
               class="nav nav-tabs pull-right"
               py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
             <!-- TODO: Parameterize visible mainnav items in trac.ini -->
             <li py:if="chrome.nav.mainnav"
-                py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show or i.active)" 
+                py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
                 class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
-            <li class="dropdown">
+            <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li py:if="chrome.nav.mainnav"
-                    py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show and not i.active)" 
+                    py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show)" 
                     class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
                 <py:if test="chrome.nav.metanav">
                   <li class="divider"></li>
@@ -85,23 +88,25 @@
             </li>
           </ul>
         </div>
-      </div>
-      <div class="row" style="background-color:#f6f6f6;">
-        <div class="span9" py:choose="">
-          <xi:include py:when="value_of('resourcepath_template')" 
-              href="${resourcepath_template}" />
-          <py:otherwise>&nbsp;</py:otherwise>
+        <div class="span12">
+          <ul class="breadcrumb">
+            <li py:choose="">
+              <xi:include py:when="value_of('resourcepath_template')" 
+                  href="${resourcepath_template}" />
+              <py:otherwise>&nbsp;</py:otherwise>
+            </li>
+            <li class="pull-right">
+              <py:for py:if="chrome.ctxtnav"
+                  py:with="max_idx = len(chrome.ctxtnav) - 1"
+                  each="idx, item in enumerate(chrome.ctxtnav)">
+                $item
+                <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
+              </py:for>
+            </li>
+          </ul>
         </div>
-        <div class="span3" style="text-align:right;">
-          <py:for py:if="chrome.ctxtnav"
-              py:with="max_idx = len(chrome.ctxtnav) - 1"
-              each="idx, item in enumerate(chrome.ctxtnav)">
-            $item
-            <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
-          </py:for>
-        </div>
+        <div style="text-align: right;" class="span3"></div>
       </div>
-      <br/>
       <div id="warning" py:if="chrome.warnings" class="system-message">
         <py:choose test="len(chrome.warnings)">
           <strong>Warning:</strong>
