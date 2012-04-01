@@ -113,7 +113,7 @@ setup(
     version=latest,
     description=DESC.split('\n', 1)[0],
     requires = ['trac'],
-    tests_require = ['dutest>=0.2.4'],
+    tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
     install_requires = [
         'setuptools>=0.6b1',
         'Trac>=0.11',

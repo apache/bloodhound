@@ -82,6 +82,10 @@ class DashboardSystem(Component):
                 if param_spec.get('required'):
                     raise InvalidWidgetArgument(p,
                             "Required parameter expected")
+                elif param_spec.get('default') is not None :
+                    return param_spec['default']
+                else:
+                    return None
         return (get_and_check(param) for param in params)
 
 # Maybe it is better to move these to a separate file 

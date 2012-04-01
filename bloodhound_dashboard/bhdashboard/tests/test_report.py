@@ -62,9 +62,10 @@ def test_suite():
   l = MultiTestLoader(
         [defaultTestLoader, \
           DocTestWidgetLoader(extraglobs=magic_vars, \
-                            enable=['trac.[a-uw-z]*', 'bhdashboard.*'], \
+                            enable=['trac.[a-uw-z]*', 'tracrpc.*', \
+                                        'bhdashboard.*'], \
                             default_data=True, \
-                            optionflags=ELLIPSIS | # REPORT_UDIFF | \
+                            optionflags=ELLIPSIS | REPORT_UDIFF | \
                                         NORMALIZE_WHITESPACE) \
         ])
   
@@ -148,16 +149,183 @@ __test__ = {
                   'type': <type 'int'>}}
       """,
     '|TicketReport: Render My Tickets report' : r"""
-      >>> widget.render_widget('TicketReport', ctx, {
-      ...     'args' : {'id' : 7}
-      ...   })
+
+      # Add tickets
+      >>> from tracrpc.ticket import TicketRPC
+      >>> tcktrpc = TicketRPC(env)
+      >>> for td in ticket_data :
+      ...   tcktrpc.create(auth_req, *td)
+      ... 
+      1
+      2
+      3
+      4
+      5
+      6
+      7
+      8
+      9
+
+      >>> if all(tcktrpc.get(auth_req, tid)[-1].get('status') == 'new' \
+      ...            for tid in xrange(1, 10)):
+      ...   # RPC considers ticket workflow
+      ...   prepare_ticket_workflow(tcktrpc, ticket_data, auth_req)
       ...
+      
+      # Check everything is ok with tickets
+      >>> for tid in xrange(1, 10):
+      ...   d = tcktrpc.get(auth_req, tid)[-1]
+      ...   print tuple(d.get(attr) or '' for attr in TICKET_ATTRS)
+      (u'Ticket 1', u'Description 1', u'major', u'milestone1', 
+          u'defect', u'murphy', u'accepted', u'component1', u'1.0')
+      (u'Ticket 2', u'Description 2', u'major', u'milestone4', 
+          u'task', u'murphy', u'accepted', '', '')
+      (u'Ticket 3', u'Description 3', u'critical', u'milestone3', 
+          u'enhancement', u'tester', u'new', '', u'2.0')
+      (u'Ticket 4', u'Description 4', u'minor', u'milestone3', 
+          u'task', u'murphy', u'closed', u'component1', u'1.0')
+      (u'Ticket 5', u'Description 5', u'minor', u'milestone3', 
+          u'task', u'murphy', u'new', '', u'2.0')
+      (u'Ticket 6', u'Description 6', u'minor', u'milestone1', 
+          u'task', u'tester', u'assigned', u'component2', u'1.0')
+      (u'Ticket 7', u'Description 7', u'critical', '', u'enhancement', 
+          u'murphy', u'closed', '', '')
+      (u'Ticket 8', u'Description 8', u'major', '', u'task', 
+          u'murphy', u'closed', u'component1', '')
+      (u'Ticket 9', u'Description 9', u'minor', '', u'enhancement', 
+          u'tester', u'closed', '', u'2.0')
+
+      >>> pprint(widget.render_widget('TicketReport', ctx, {
+      ...     'args' : {'id' : 7}
+      ...   }))
+      ...
+      ('widget_grid.html', [], <Context >)
+
+      >>> pprint(widget.render_widget('TicketReport', auth_ctx, {
+      ...     'args' : {'id' : 7}
+      ...   }))
+      ...
+      ('widget_grid.html',
+       [{u'__color__': u'3',
+         u'__group__': u'Accepted',
+         u'_changetime': ...,
+         u'_description': u'Description 1',
+         u'_reporter': u'murphy',
+         u'component': u'component1',
+         u'created': ...,
+         u'milestone': u'milestone1',
+         u'priority': u'major',
+         u'summary': u'Ticket 1',
+         u'ticket': 1,
+         u'type': u'defect',
+         u'version': u'1.0'},
+        {u'__color__': u'3',
+         u'__group__': u'Accepted',
+         u'_changetime': ...,
+         u'_description': u'Description 2',
+         u'_reporter': u'murphy',
+         u'component': None,
+         u'created': ...,
+         u'milestone': u'milestone4',
+         u'priority': u'major',
+         u'summary': u'Ticket 2',
+         u'ticket': 2,
+         u'type': u'task',
+         u'version': None},
+        {u'__color__': u'4',
+         u'__group__': u'Owned',
+         u'_changetime': ...,
+         u'_description': u'Description 5',
+         u'_reporter': u'murphy',
+         u'component': None,
+         u'created': ...,
+         u'milestone': u'milestone3',
+         u'priority': u'minor',
+         u'summary': u'Ticket 5',
+         u'ticket': 5,
+         u'type': u'task',
+         u'version': u'2.0'}],
+       <Context >)
       """,
     '|TicketReport: Render a subset of My Tickets report' : r"""
-      >>> widget.render_widget('TicketReport', ctx, {
-      ...     'args' : {'id' : 7}
-      ...   })
+
+      # Add tickets
+      >>> from tracrpc.ticket import TicketRPC
+      >>> tcktrpc = TicketRPC(env)
+      >>> for td in ticket_data :
+      ...   tcktrpc.create(auth_req, *td)
+      ... 
+      1
+      2
+      3
+      4
+      5
+      6
+      7
+      8
+      9
+
+      >>> if all(tcktrpc.get(auth_req, tid)[-1].get('status') == 'new' \
+      ...            for tid in xrange(1, 10)):
+      ...   # RPC considers ticket workflow
+      ...   prepare_ticket_workflow(tcktrpc, ticket_data, auth_req)
       ...
+      
+      # Check everything is ok with tickets
+      >>> for tid in xrange(1, 10):
+      ...   d = tcktrpc.get(auth_req, tid)[-1]
+      ...   print tuple(d.get(attr) or '' for attr in TICKET_ATTRS)
+      (u'Ticket 1', u'Description 1', u'major', u'milestone1', 
+          u'defect', u'murphy', u'accepted', u'component1', u'1.0')
+      (u'Ticket 2', u'Description 2', u'major', u'milestone4', 
+          u'task', u'murphy', u'accepted', '', '')
+      (u'Ticket 3', u'Description 3', u'critical', u'milestone3', 
+          u'enhancement', u'tester', u'new', '', u'2.0')
+      (u'Ticket 4', u'Description 4', u'minor', u'milestone3', 
+          u'task', u'murphy', u'closed', u'component1', u'1.0')
+      (u'Ticket 5', u'Description 5', u'minor', u'milestone3', 
+          u'task', u'murphy', u'new', '', u'2.0')
+      (u'Ticket 6', u'Description 6', u'minor', u'milestone1', 
+          u'task', u'tester', u'assigned', u'component2', u'1.0')
+      (u'Ticket 7', u'Description 7', u'critical', '', u'enhancement', 
+          u'murphy', u'closed', '', '')
+      (u'Ticket 8', u'Description 8', u'major', '', u'task', 
+          u'murphy', u'closed', u'component1', '')
+      (u'Ticket 9', u'Description 9', u'minor', '', u'enhancement', 
+          u'tester', u'closed', '', u'2.0')
+
+      >>> pprint(widget.render_widget('TicketReport', auth_ctx, {
+      ...     'args' : {'id' : 7, 'limit' : 2}
+      ...   }))
+      ...
+      ('widget_grid.html',
+       [{u'__color__': u'3',
+         u'__group__': u'Accepted',
+         u'_changetime': ...,
+         u'_description': u'Description 1',
+         u'_reporter': u'murphy',
+         u'component': u'component1',
+         u'created': ...,
+         u'milestone': u'milestone1',
+         u'priority': u'major',
+         u'summary': u'Ticket 1',
+         u'ticket': 1,
+         u'type': u'defect',
+         u'version': u'1.0'},
+        {u'__color__': u'3',
+         u'__group__': u'Accepted',
+         u'_changetime': ...,
+         u'_description': u'Description 2',
+         u'_reporter': u'murphy',
+         u'component': None,
+         u'created': ...,
+         u'milestone': u'milestone4',
+         u'priority': u'major',
+         u'summary': u'Ticket 2',
+         u'ticket': 2,
+         u'type': u'task',
+         u'version': None}],
+       <Context >)
       """,
     '|TicketReport: Invalid widget name' : r"""
       >>> widget.render_widget('OlkswSk', ctx, {
@@ -187,7 +355,7 @@ __test__ = {
       InvalidWidgetArgument: Invalid argument `id`. Required parameter expected
 
       >>> widget.render_widget('TicketReport', ctx, {
-      ...     'args' : {}
+      ...     'args' : {'limit' : 4}
       ...   })
       ...
       Traceback (most recent call last):
@@ -195,10 +363,71 @@ __test__ = {
       InvalidWidgetArgument: Invalid argument `id`. Required parameter expected
       """,
     '|TicketReport: Invalid widget parameter' : r"""
-      >>> widget.render_widget('TicketReport', ctx, {
-      ...     'args' : {'newjums' : 7, 'id' : 3}
-      ...   })
+
+      # Add tickets
+      >>> from tracrpc.ticket import TicketRPC
+      >>> tcktrpc = TicketRPC(env)
+      >>> for td in ticket_data :
+      ...   tcktrpc.create(auth_req, *td)
+      ... 
+      1
+      2
+      3
+      4
+      5
+      6
+      7
+      8
+      9
+
+      >>> if all(tcktrpc.get(auth_req, tid)[-1].get('status') == 'new' \
+      ...            for tid in xrange(1, 10)):
+      ...   # RPC considers ticket workflow
+      ...   prepare_ticket_workflow(tcktrpc, ticket_data, auth_req)
       ...
+      
+      # Check everything is ok with tickets
+      >>> for tid in xrange(1, 10):
+      ...   d = tcktrpc.get(auth_req, tid)[-1]
+      ...   print tuple(d.get(attr) or '' for attr in TICKET_ATTRS)
+      (u'Ticket 1', u'Description 1', u'major', u'milestone1', 
+          u'defect', u'murphy', u'accepted', u'component1', u'1.0')
+      (u'Ticket 2', u'Description 2', u'major', u'milestone4', 
+          u'task', u'murphy', u'accepted', '', '')
+      (u'Ticket 3', u'Description 3', u'critical', u'milestone3', 
+          u'enhancement', u'tester', u'new', '', u'2.0')
+      (u'Ticket 4', u'Description 4', u'minor', u'milestone3', 
+          u'task', u'murphy', u'closed', u'component1', u'1.0')
+      (u'Ticket 5', u'Description 5', u'minor', u'milestone3', 
+          u'task', u'murphy', u'new', '', u'2.0')
+      (u'Ticket 6', u'Description 6', u'minor', u'milestone1', 
+          u'task', u'tester', u'assigned', u'component2', u'1.0')
+      (u'Ticket 7', u'Description 7', u'critical', '', u'enhancement', 
+          u'murphy', u'closed', '', '')
+      (u'Ticket 8', u'Description 8', u'major', '', u'task', 
+          u'murphy', u'closed', u'component1', '')
+      (u'Ticket 9', u'Description 9', u'minor', '', u'enhancement', 
+          u'tester', u'closed', '', u'2.0')
+
+      >>> pprint(widget.render_widget('TicketReport', auth_ctx, {
+      ...     'args' : {'newjums' : 7, 'id' : 7, 'limit' : 1}
+      ...   }))
+      ...
+      ('widget_grid.html',
+       [{u'__color__': u'3',
+         u'__group__': u'Accepted',
+         u'_changetime': ...,
+         u'_description': u'Description 1',
+         u'_reporter': u'murphy',
+         u'component': u'component1',
+         u'created': ...,
+         u'milestone': u'milestone1',
+         u'priority': u'major',
+         u'summary': u'Ticket 1',
+         u'ticket': 1,
+         u'type': u'defect',
+         u'version': u'1.0'}],
+       <Context >)
       """,
     '|TicketReport: Invalid report definition' : r"""
       >>> raise NotImplementedError()

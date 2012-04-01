@@ -256,7 +256,7 @@ class DocTestTracLoader(DocTestLoader):
       db = self.env.get_db_cnx()
       cursor = db.cursor()
       for table in db_default.schema:
-        if trac_version < (0, 13) : # FIXME: Should it be (0, 12)
+        if trac_version < (0, 13) : # FIXME: Should it be (0, 12) ?
             cursor.execute("DELETE FROM " + table.name)
         else:
             cursor.execute("DROP TABLE " + table.name)
@@ -342,6 +342,9 @@ class DocTestWidgetLoader(DocTestTracLoader):
           self.setup_widget(widgetns)
         except InvalidIdentifier:
           self.partial_setup()
+
+  # Load trac built-in components and RPC handlers by default
+  default_packages = ['trac']
 
 #------------------------------------------------------
 #    Helper functions used in test cases

@@ -25,7 +25,7 @@ Widgets displaying report data.
 """
 
 from datetime import datetime, date, time
-from itertools import imap
+from itertools import imap, islice
 
 from trac.core import implements, TracError
 from trac.ticket.report import ReportModule
@@ -64,7 +64,7 @@ class TicketReportWidget(WidgetBase):
             rptid, limit = self.bind_params(name, options, 'id', 'limit')
             metadata = self.get(req, rptid)
             # TODO: Should metadata also contain columns definition ?
-            data = list(self.execute(req, rptid))
+            data = list(self.execute(req, rptid, limit))
         except TracError, exc:
             if metadata is not None :
                 exc.title = metadata.get('title', 'TracReports')
@@ -72,7 +72,7 @@ class TicketReportWidget(WidgetBase):
                 exc.title = 'TracReports'
             raise
         else:
-            return 'widget_grid', data, context
+            return 'widget_grid.html', data, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 
@@ -127,7 +127,11 @@ class TicketReportWidget(WidgetBase):
                 kwargs = dict(limit=limit)
             except AttributeError:
                 # Legacy exec (<=0.10)
-                exec_proc = repmdl.execute_report
+                if limit > 0:
+                    exec_proc = lambda *args, **kwargs: \
+                        islice(repmdl.execute_report(*args, **kwargs), limit)
+                else:
+                    exec_proc = repmdl.execute_report
                 kwargs = {}
             return exec_proc(req, db, id, sql, args, **kwargs)[:2]
         except Exception, e:
