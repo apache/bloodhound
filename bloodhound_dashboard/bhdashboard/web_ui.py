@@ -53,9 +53,8 @@ class DashboardModule(Component):
         """Initially this will render static widgets. With time it will be 
         more and more dynamic and flexible.
         """
-        add_stylesheet(req, 'dashboard/grids.css')
-        add_stylesheet(req, 'dashboard/skin.css')
-        return 'bhdb_two_col.html', \
+        add_stylesheet(req, 'dashboard/bootstrap.css')
+        return 'bootstrap_two_col_2_1.html', \
                 {
                     'context' : Context.from_request(req),
                     'widgets' : self.expand_widget_data(req), 
@@ -115,15 +114,7 @@ class DashboardModule(Component):
                 },
                 {
                     'c' : TimelineWidget(self.env),
-                    'args' : ['Timeline', ctx, {'args' : {'max' : 10}}]
-                },
-                {
-                    'c' : TicketReportWidget(self.env), 
-                    'args' : ['TicketReport', ctx, {'args' : {'id' : 5}}]
-                },
-                {
-                    'c' : TicketReportWidget(self.env), 
-                    'args' : ['TicketReport', ctx, {'args' : {'id' : 4}}]
+                    'args' : ['Timeline', ctx, {'args' : {}}]
                 },
             ]
         chrome = Chrome(self.env)

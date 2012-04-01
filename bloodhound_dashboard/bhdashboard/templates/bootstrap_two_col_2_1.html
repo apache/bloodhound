@@ -1,0 +1,54 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>$title</title>
+    <style py:if="default.height is not None">
+      .ui-box-panel {
+        max-height:${default.height}px !important;
+        overflow: auto;
+      }
+    </style>
+    <style>
+      .ui-box {
+        margin: 10px;
+      }
+    </style>
+  </head>
+
+  <div py:def="widget_container(w)" role="application">
+    <h1>${w.title}</h1>
+    <br/>
+    ${w.content}
+  </div>
+
+  <body>
+    <div class="row">
+      <div class="span8">
+        <py:for each="(i, w) in enumerate(widgets)">
+          <py:if test="i &amp; 1 == 0">
+            ${widget_container(w)}
+          </py:if>
+        </py:for>
+      </div>
+      <div class="span4">
+        <py:for each="(i, w) in enumerate(widgets)">
+          <py:if test="i &amp; 1 == 1">
+            ${widget_container(w)}
+          </py:if>
+        </py:for>
+      </div>
+    </div>
+    <div id="ft" class="row">
+      <div id="help">
+        <strong>Note:</strong> See 
+        <a href="${href.wiki('BloodhoundDashboard')}">BloodhoundDashboard</a>
+        for help on using the dashboard.
+      </div>
+    </div>  
+  </body>
+</html>

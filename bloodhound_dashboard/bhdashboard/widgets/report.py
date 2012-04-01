@@ -72,17 +72,17 @@ class TicketReportWidget(WidgetBase):
             rptid, page, user = self.bind_params(name, options, *params)
             user = user or req.authname
 
-            rptreq = dummy_request(self.env, req.authname)
-            rptreq.args = {'page' : page, 'user' : user}
-            del rptreq.redirect     # raise RequestDone as usual
+            fakereq = dummy_request(self.env, req.authname)
+            fakereq.args = {'page' : page, 'user' : user}
+            del fakereq.redirect     # raise RequestDone as usual
 
             rptmdl = self.env[ReportModule]
             if rptmdl is None :
                 raise TracError('Report module not available (disabled?)')
             if trac_version < trac_tags[0]:
-                args = rptreq, self.env.get_db_cnx(), rptid
+                args = fakereq, self.env.get_db_cnx(), rptid
             else:
-                args = rptreq, rptid
+                args = fakereq, rptid
             data = rptmdl._render_view(*args)[1]
         except ResourceNotFound, exc:
             raise InvalidIdentifier(unicode(exc))
