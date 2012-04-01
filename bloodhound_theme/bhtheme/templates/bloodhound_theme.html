@@ -73,6 +73,22 @@
           </form>
         </div>
         <div class="span4">
+          <py:def function="field_select(field, value)">
+            <select id="field-${field.name}" name="field_${field.name}"
+                class="input-mini" data-empty="true" data-field="${field.name}">
+              <option py:if="field.optional"></option>
+              <option py:for="option in field.options"
+                      selected="${value == option or None}"
+                      py:content="option"></option>
+              <optgroup py:for="optgroup in field.optgroups"
+                        py:if="optgroup.options"
+                        label="${optgroup.label}">
+                <option py:for="option in optgroup.options"
+                        selected="${value == option or None}"
+                        py:content="option"></option>
+              </optgroup>
+            </select>
+          </py:def>
           <py:def function="qct_box()">
             <label for="qct_summary">Summary</label>
             <input class="input-medium" type="text" id="qct_summary"
@@ -83,20 +99,23 @@
             <div class="form-horizontal">
               <label class="control-label" for="qct_version">Version</label>
               <div class="controls">
-                <input name="qct_version" class="input-mini" type="text" 
-                    placeholder="Version" />
+                <!-- input name="qct_version" class="input-mini" type="text" 
+                    placeholder="Version" / -->
+                ${field_select(qct.fields.version, None)}
                 <p class="help-block">Most recent by default</p>
               </div>
               <label class="control-label" for="qct_type">Type</label>
               <div class="controls">
-                <input name="qct_type" class="input-mini" type="text" 
-                    placeholder="Type" />
+                <!-- input name="qct_type" class="input-mini" type="text" 
+                    placeholder="Type" / -->
+                ${field_select(qct.fields.type, None)}
                 <p class="help-block">Select ticket type</p>
               </div>
               <label class="control-label" for="qct_component">Component</label>
               <div class="controls">
-                <input name="qct_component" class="input-mini" type="text" 
-                    placeholder="Component" />
+                <!-- input name="qct_component" class="input-mini" type="text" 
+                    placeholder="Component" / -->
+                ${field_select(qct.fields.component, None)}
                 <p class="help-block">Select component</p>
               </div>
             </div>
@@ -113,39 +132,37 @@
               </div>
             </div>
           </py:def>
-          <div class="btn-group">
-            <a href="${href.newticket()}" class="btn btn-inverse">
-              Create Ticket
-            </a>
-            <a href="#" class="btn btn-inverse dropdown-toggle"
-                data-toggle="dropdown">
-              <i class="caret"></i>
-            </a>
-            <div id="qct-box" class="dropdown-menu">
-              <style>
-                #qct-box .help-block { white-space: nowrap; }
-                #qct-box .form-horizontal .controls .help-block { 
-                  margin-left: -20px;
-                }
-                #qct-box .form-horizontal .controls { margin-left: 90px; }
-                #qct-box .form-horizontal .control-label { width : 70px; }
-              </style>
-              <div class="popover-title"><h3>Create Ticket</h3></div>
-              <div class="popover-content">
-              ${qct_box()}
+          <py:choose test="">
+            <py:when test="qct">
+              <div class="btn-group">
+                <a href="${href.newticket()}" class="btn btn-inverse">
+                  Create Ticket
+                </a>
+                <a href="#" class="btn btn-inverse dropdown-toggle"
+                    data-toggle="dropdown">
+                  <i class="caret"></i>
+                </a>
+                <div id="qct-box" class="dropdown-menu">
+                  <style>
+                    #qct-box .help-block { white-space: nowrap; }
+                    #qct-box .form-horizontal .controls .help-block { 
+                      margin-left: -20px;
+                    }
+                    #qct-box .form-horizontal .controls { margin-left: 90px; }
+                    #qct-box .form-horizontal .control-label { width : 70px; }
+                    #qct-box .input-mini { width : 100px; }
+                  </style>
+                  <div class="popover-title"><h3>Create Ticket</h3></div>
+                  <div class="popover-content">
+                  ${qct_box()}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <!-- div class="btn-group">
-            <a href="${href.newticket()}" class="btn btn-inverse">
-              Create Ticket
-            </a>
-            <a href="#" class="btn btn-inverse popover-target" 
-                rel="popover" title="Create Ticket"
-                data-content="Here" data-placement="bottom">
-              <i class="caret"></i>
-            </a>
-          </div -->
+            </py:when>
+            <py:otherwise>
+              &nbsp;
+            </py:otherwise>
+          </py:choose>
         </div>
         <div class="span4">
           <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
