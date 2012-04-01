@@ -16,8 +16,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from genshi.core import Stream
 from trac.core import *
-from themeengine.api import ThemeBase
+
+from themeengine.api import IThemeProvider, ThemeBase
 
 class BloodhoundTheme(ThemeBase):
     """Look and feel of Bloodhound issue tracker."""
