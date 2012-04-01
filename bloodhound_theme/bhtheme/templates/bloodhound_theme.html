@@ -16,34 +16,30 @@
   <py:match path="body" once="true" buffer="false"><body class="bh_body">
     <div class="fixed-wrapper" 
         py:with="logo_size = (chrome.logo.width or 170, chrome.logo.height or 48)">
-      <div id="banner" py:choose="" >
+      <div id="banner">
         <div id="header">
-          <div py:when="chrome.logo.src" 
-              style="vertical-align: middle; height: ${logo_size[1]}px;"> 
+          <div style="vertical-align: middle; height: ${logo_size[1]}px;"> 
             <div style="float: left;height: ${logo_size[1]}px;">
-              <a id="logo" href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}">
-                  <img 
-                      src="${chrome.logo.src}" alt="${chrome.logo.alt}" 
-                      height="${logo_size[1]}px" width="${logo_size[0]}px" />
+              <a id="logo" 
+                  href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}">
+                <img 
+                    src="${chrome.logo.src or href.chrome('theme/bh_logo.png')}" 
+                    alt="${chrome.logo.alt or 'Bloodhound issue tracker'}" 
+                    height="${logo_size[1]}px" width="${logo_size[0]}px" />
               </a> 
             </div>
             <div id="pname"> ${project.name} </div>
             <div id="psum"> ${project.descr or project.description} </div>
           </div>
-          <h1 py:otherwise="">
-            <a href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}">
-              ${project.name}
-            </a>
-          </h1>
         </div>
       </div>
       <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px" 
-					class="ui-corner-all">
+          class="ui-corner-all">
         ${navigation("mainnav", [])}
-				<div id="shortcuts">
-					<div class="last">
-						<img src="${href('chrome/theme/user.png')}" width="26px" height="26px"/>
-					</div>
+        <div id="shortcuts">
+          <div class="last">
+            <img src="${href('chrome/theme/user.png')}" width="26px" height="26px"/>
+          </div>
           <div py:if="'SEARCH_VIEW' in perm">
             <form id="search" action="${href.search()}" method="get">
               <label for="proj-search">Search:</label>
@@ -51,24 +47,28 @@
               <input style="display:none;" type="submit" value=" " />
             </form>
           </div>
-					<div>
-					  <button id="newticket">
-							Create Ticket
-							<span class="icon icon_add"></span>
-						</button>
-					</div>
-					<div class="first">
-						<img src="${href('chrome/theme/left.png')}" width="20px" height="26px" />
-						<img src="${href('chrome/theme/right.png')}" width="20px" height="26px" />
-					</div>
-				</div>
+          <div>
+            <button id="newticket">
+              Create Ticket
+              <span class="icon icon_add"></span>
+            </button>
+          </div>
+          <div class="first">
+            <img src="${href('chrome/theme/left.png')}" width="20px" height="26px" />
+            <img src="${href('chrome/theme/right.png')}" width="20px" height="26px" />
+          </div>
+        </div>
       </div>
       <div id="outer-wrapper" style="top:${max(60, int(logo_size[1])) + 48}px">
         <div id="ctxtnav" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
-          <ul py:if="chrome.ctxtnav" class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-              <li py:for="i, elm in enumerate(chrome.ctxtnav)"
-                  py:with="is_active = str(elm.attrib.get('href')) == str(href(req.path_info + (req.query_string and '?' + req.query_string or '') ))"
-                  class="${classes(first_last(i, chrome.ctxtnav), active=is_active)} ui-corner-top ui-state-default ${is_active and 'ui-tabs-selected ui-state-active' or None}">${elm}</li>
+          <ul py:choose=""
+              class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <li py:when="chrome.ctxtnav"
+                py:for="i, elm in enumerate(chrome.ctxtnav)"
+                py:with="is_active = str(elm.attrib.get('href')) == str(href(req.path_info + (req.query_string and '?' + req.query_string or '') ))"
+                class="${classes(first_last(i, chrome.ctxtnav), active=is_active)} ui-corner-top ui-state-default ${is_active and 'ui-tabs-selected ui-state-active' or None}">${elm}</li>
+            <li py:otherwise="" 
+                class="icon icon_bh ui-corner-top ui-state-default ui-tabs-selected ui-state-active"></li>
           </ul>
         </div>
         <div id="main-wrapper" class="ui-tabs-panel ui-widget-content ui-corner-bottom">

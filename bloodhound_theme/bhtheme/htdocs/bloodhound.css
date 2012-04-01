@@ -3,11 +3,21 @@
 
 .icon {
   margin: 0px 2px;
-	padding: 0px 8px;
+  padding: 0px 8px;
+}
+
+#ctxtnav ul>li.icon {
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 15px 35px 16px;
 }
 
 .icon_add {
-  background-image: url("icon_add.png");
+  background-image: url("icon_add.png") !important;
+}
+
+.icon_bh {
+  background-image: url("icon_bh.png") !important;
 }
 
 /* Layout */
@@ -130,7 +140,7 @@ a.prev:hover, a.next:hover {
 .nav li:hover, 
 .nav li:hover>:link, .nav li:hover>:visited {
   background: none;
-	border: none;
+  border: none;
 }
 
 :visited, :link {
@@ -149,20 +159,20 @@ a.prev:hover, a.next:hover {
 
 #mainnav {
   border: none;
-	background: none;
+  background: none;
 }
 
 #mainnav ul {
-	font-size: 14px;
-	padding-left: 0;
-	padding-top: 1px;
-	text-align: left;
+  font-size: 14px;
+  padding-left: 0;
+  padding-top: 1px;
+  text-align: left;
 }
 
 #mainnav li {
   border-right: 1px solid #ffffff;
   padding-bottom: 8px;
-	padding-top: 8px;
+  padding-top: 8px;
 }
 
 #mainnav li.active {
@@ -171,45 +181,45 @@ a.prev:hover, a.next:hover {
 
 #mainnav .first {
   -moz-border-radius-topleft: 6px;
-	-webkit-border-top-left-radius: 6px;
-	-moz-border-radius-bottomleft: 6px;
-	-webkit-border-bottom-left-radius: 6px;
+  -webkit-border-top-left-radius: 6px;
+  -moz-border-radius-bottomleft: 6px;
+  -webkit-border-bottom-left-radius: 6px;
 }
 
 #mainnav :link, #mainnav :visited {
   background: none;
-	border: none;
-	color: #ffffff;
+  border: none;
+  color: #ffffff;
 }
 
 #mainnav :link:hover, #mainnav :visited:hover {
   background: none;
-	border: none;
+  border: none;
 }
 
 #mainnav .active :link:hover, #mainnav .active :visited:hover,
 #mainnav .active :link, #mainnav .active :visited {
   background: none;
-	border: none;
+  border: none;
 }
 
 #shortcuts {
   background-image: url("mainnavbg.png");
   height: 33px;
-	float: right;
+  float: right;
   padding-right: 5px;
   padding-top: 5px;
   position: relative;
   right: 3px;
   top: -33px;
-	width: 320px;
+  width: 320px;
 }
 
 #shortcuts>div {
-	border-right: 1px solid #999999;
+  border-right: 1px solid #999999;
   float: right;
-	height: 26px;
-	padding-left: 2px;
+  height: 26px;
+  padding-left: 2px;
 }
 
 #shortcuts .first ,
@@ -218,11 +228,11 @@ a.prev:hover, a.next:hover {
 }
 
 #search input {
-	background-image: url("icon_search.png");
+  background-image: url("icon_search.png");
   background-position: right center;
-	background-repeat: no-repeat;
-	border: 2px solid #3a70b8;
-	padding-right: 16px;
+  background-repeat: no-repeat;
+  border: 2px solid #3a70b8;
+  padding-right: 16px;
 }
 
 /* Forms & inputs */
