@@ -106,7 +106,8 @@ class TicketReportWidget(WidgetBase):
                             tag.a(_('More'), href=req.href('report', rptid)),
                             ('REPORT_MODIFY' in req.perm(rptctx.resource)) and \
                                 tag.a(_('Edit'), href=req.href('report', rptid, action='edit')) or None,
-                            ]
+                            ],
+                        'altlinks' : fakereq.chrome.get('links', {}).get('alternate')
                     }, \
                     rptctx
 

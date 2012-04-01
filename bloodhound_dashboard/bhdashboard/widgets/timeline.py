@@ -111,7 +111,8 @@ class TimelineWidget(WidgetBase):
             return 'widget_timeline.html', \
                     {
                         'title' : _('Activity'),
-                        'data' : data
+                        'data' : data, 
+                        'altlinks' : fakereq.chrome.get('links', {}).get('alternate')
                     }, \
                     context
 

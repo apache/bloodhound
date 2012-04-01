@@ -66,13 +66,16 @@ def dummy_request(env, uname=None):
     })
     return req
 
-def merge_links(srcreq, dstreq):
+def merge_links(srcreq, dstreq, exclude=None):
     """Incorporate links in `srcreq` into `dstreq`.
     """
+    if exclude is None:
+        exclude = ['alternate']
     if 'links' in srcreq.chrome:
         for rel, links in srcreq.chrome['links'].iteritems():
-            for link in links:
-                add_link(dstreq, rel, **link)
+            if rel not in exclude:
+                for link in links:
+                    add_link(dstreq, rel, **link)
 
 class WidgetBase(Component):
     """Abstract base class for widgets"""

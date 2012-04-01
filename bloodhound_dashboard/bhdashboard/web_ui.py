@@ -32,9 +32,11 @@ from trac.core import Component, implements
 from trac.config import Option, IntOption
 from trac.mimeview.api import Context
 from trac.util.translation import _
+from trac.ticket.query import QueryModule
+from trac.ticket.report import ReportModule
 from trac.web.api import IRequestHandler
-from trac.web.chrome import Chrome, INavigationContributor, \
-                            ITemplateProvider, add_stylesheet
+from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
+                            INavigationContributor, ITemplateProvider
 
 class DashboardModule(Component):
     implements(IRequestHandler, INavigationContributor, ITemplateProvider)
@@ -53,6 +55,10 @@ class DashboardModule(Component):
         """Initially this will render static widgets. With time it will be 
         more and more dynamic and flexible.
         """
+        if self.env[QueryModule] is not None:
+            add_ctxtnav(req, _('Custom Query'), req.href.query())
+        if self.env[ReportModule] is not None:
+            add_ctxtnav(req, _('Reports'), req.href.report())
         add_stylesheet(req, 'dashboard/bootstrap.css')
         return 'bootstrap_two_col_2_1.html', \
                 {
@@ -130,6 +136,7 @@ class DashboardModule(Component):
         data_strm = (w['c'].render_widget(*w['args']) for w in widgets_spec)
         return [{'title' : data['title'], 
                 'content' : render(wctx.req, template, data['data'], fragment=True),
-                'ctxtnav' : data.get('ctxtnav')} \
+                'ctxtnav' : data.get('ctxtnav'), 
+                'altlinks' : data.get('altlinks')} \
                 for template, data, wctx in data_strm]
 

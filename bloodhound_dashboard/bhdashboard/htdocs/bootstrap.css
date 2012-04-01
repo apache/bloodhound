@@ -1739,6 +1739,17 @@ table .span12 {
 .btn-small .icon {
   margin-top: -1px;
 }
+/* <patch> */
+.btn-mini { 
+  font-size: 11px !important;
+  line-height: 14px !important;
+  padding: 2px 6px !important;
+}
+.btn-mini .icon {
+  margin-left: 0px;
+  margin-top: -1px;
+}
+/* </patch> */
 .btn-primary,
 .btn-primary:hover,
 .btn-warning,
@@ -2019,6 +2030,11 @@ button.btn.small, input[type="submit"].btn.small {
 .btn-small .caret {
   margin-top: 4px;
 }
+/* <patch> */
+.btn-mini .caret {
+  margin-top: 4px !important;
+}
+/* </patch> */
 .alert {
   padding: 8px 35px 8px 14px;
   margin-bottom: 18px;
