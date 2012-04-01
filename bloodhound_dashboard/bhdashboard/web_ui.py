@@ -154,20 +154,17 @@ class DashboardModule(Component):
                         },
                         {
                             'args' : ['Container', None, 
-                                    {'args' : {'layout' : 'bootstrap_grid',
+                                    {'args' : {'layout' : 'bootstrap_btnbar',
                                             'schema' : """
                                             {
-                                              "div" : [{
-                                                "_class" : "row",
-                                                "div" : [{
-                                                    "_class" : "span3",
-                                                    "widgets" : [0]
-                                                  },
-                                                  {
-                                                    "_class" : "span5",
-                                                    "widgets" : [1]
-                                                  }]
-                                                }],
+                                              "toolbar" : [
+                                                  ["Products", null],
+                                                  ["My Tickets", 1],
+                                                  ["All tickets", 2],
+                                                  ["|", null],
+                                                  ["Projects", null],
+                                                  ["Components", 0]
+                                                ],
                                               "widgets" : [
                                                 {
                                                   "args" : [

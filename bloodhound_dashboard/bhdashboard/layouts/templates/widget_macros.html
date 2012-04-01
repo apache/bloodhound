@@ -1,0 +1,30 @@
+<html 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:strip="" >
+
+  <div py:def="widget_container(w)" role="application">
+    <h1 style="display: inline;">${w.title}</h1>
+    <py:if test="w.ctxtnav">
+      <py:for each="itm in w.ctxtnav">
+        &nbsp;&nbsp;$itm
+      </py:for>
+    </py:if>
+    &nbsp;&nbsp;
+    <div class="btn-group" py:if="w.altlinks" style="display: inline-block;">
+      <a class="btn btn-mini dropdown-toggle" href="#" data-toggle="dropdown">
+        <i class="icon-download-alt"></i>Download<b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        <li py:for="idx, link in enumerate(w.altlinks)"
+            class="${first_last(idx, w.altlinks)}">
+          <a rel="nofollow" href="${link.href}" class="link.class"
+              py:content="link.title"></a>
+        </li>
+      </ul>
+    </div>
+    <br/>
+    ${w.content}
+  </div>
+</html>

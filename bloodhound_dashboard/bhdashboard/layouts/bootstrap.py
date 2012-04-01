@@ -39,20 +39,57 @@ class BootstrapLayout(Component):
         """Supported layouts.
         """
         yield 'bootstrap_grid'
+        yield 'bootstrap_btnbar'
 
     def get_layout_description(self, name):
         """Return plain text description of the layout with specified name.
         """
-        return "Bootstrap grid system " \
-                "http://twitter.github.com/bootstrap/scaffolding.html#layouts"
+        return { 
+                'bootstrap_grid' : "Bootstrap grid system " \
+                    "http://twitter.github.com/bootstrap/scaffolding.html#layouts",
+                'bootstrap_btnbar' : "Button toolbar acting as tabs nav"
+            }[name]
 
     def expand_layout(self, name, context, options):
         """Specify bootstrap layout template
         """
         req = context.req
         add_stylesheet(req, 'dashboard/bootstrap.css')
-        return {
-              'template' : options.get('embed') and \
-                      'bs_grid.html' or 'bs_grid_full.html',
+
+        if name == 'bootstrap_btnbar':
+            self._process_btnbar(options)
+
+        results = {
+                ('bootstrap_grid', False) : {
+                        'template' : 'bs_grid_full.html',
+                    },
+                ('bootstrap_grid', True) : {
+                        'template' : 'bs_grid.html',
+                    },
+                ('bootstrap_btnbar', False) : {
+                        'template' : 'bs_btnbar_full.html',
+                    },
+                ('bootstrap_btnbar', True) : {
+                        'template' : 'bs_btnbar.html',
+                    },
             }
+        return results[( name , bool(options.get('embed')) )]
+
+    # Internal methods
+    def _process_btnbar(self, options):
+        """Determine toolbar groups
+        """
+        layout_data = options['schema']
+        orig_tb = layout_data.get('toolbar', [])
+        ready = layout_data.get('ready')
+        if not ready:
+            layout_data['toolbar'] = tb = [[]]
+            last_group = tb[0]
+            for caption, idx in orig_tb:
+                if caption == '|' :
+                    last_group = []
+                    tb.append(last_group)
+                else:
+                    last_group.append({ 'caption' : caption, 'widget' :idx })
+        layout_data['ready'] = True
 
