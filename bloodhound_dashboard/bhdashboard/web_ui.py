@@ -105,12 +105,23 @@ class DashboardModule(Component):
         """
         # TODO: Implement dynamic dashboard specification
         from bhdashboard.widgets.report import TicketReportWidget
-        w = TicketReportWidget(self.env)
+        from bhdashboard.widgets.timeline import TimelineWidget
+
         ctx = Context.from_request(req)
-        args = ('TicketReport', ctx, {'args' : {'id' : 3}})
+        widgets_spec = [
+                {
+                    'c' : TicketReportWidget(self.env), 
+                    'args' : ['TicketReport', ctx, {'args' : {'id' : 3}}]
+                },
+                {
+                    'c' : TimelineWidget(self.env),
+                    'args' : ['Timeline', ctx, {'args' : {'max' : 10}}]
+                }
+            ]
         chrome = Chrome(self.env)
-        template, data, _ = w.render_widget(*args)
         render = chrome.render_template
+        data_strm = (w['c'].render_widget(*w['args']) for w in widgets_spec)
         return [{'title' : data['title'], 
-                'content' : render(req, template, data['data'], fragment=True)}]
+                'content' : render(req, template, data['data'], fragment=True)} \
+                for template, data, _ in data_strm]
 

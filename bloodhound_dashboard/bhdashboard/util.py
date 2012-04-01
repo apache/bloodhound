@@ -39,6 +39,7 @@ from bhdashboard.api import DashboardSystem, IWidgetProvider, InvalidIdentifier
 def dummy_request(env, uname=None):
     environ = {
                 'trac.base_url' : str(env._abs_href()), 
+                'REQUEST_METHOD' : 'GET',
                 'SCRIPT_NAME' : urlparse(str(env._abs_href())).path
                 }
     req = Request(environ, lambda *args, **kwds: None)

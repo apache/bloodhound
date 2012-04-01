@@ -23,11 +23,20 @@ r"""Project dashboard for Apache(TM) Bloodhound
 
 The core of the dashboard architecture.
 """
+__metaclass__ = type
+
+from datetime import date, time, datetime, timedelta
 
 from trac.core import Component, ExtensionPoint, implements, \
         Interface, TracError
 from trac.perm import IPermissionRequestor
+from trac.util.compat import set
+from trac.util.datefmt import parse_date
 from trac.util.translation import _
+
+#--------------------------------------
+# Core classes and interfaces
+#--------------------------------------
 
 class IWidgetProvider(Interface):
     r"""Extension point interface for components providing widgets.
@@ -88,6 +97,10 @@ class DashboardSystem(Component):
                     return None
         return (get_and_check(param) for param in params)
 
+#--------------------------------------
+# Exfeption classes
+#--------------------------------------
+
 # Maybe it is better to move these to a separate file 
 # (if this gets as big as it seems it will be)
 
@@ -111,4 +124,82 @@ class InvalidWidgetArgument(WidgetException):
     def __unicode__(self):
         return unicode(_("Invalid argument `") + self.argname + "`. " + \
                 self.message)
+
+#--------------------------------------
+# Default field types
+#--------------------------------------
+
+class DateField:
+    """Convert datetime field
+    """
+    def __init__(self, fmt="%Y-%m-%d %H:%M:%S", tz=None):
+        """Initialize datetime field converter
+
+        :param fmt:       format string used to interpret dates and times
+        """
+        self.fmt = fmt
+        self.tz = tz
+
+    def __call__(self, value, fmt=None):
+        """Perform the actual conversion
+        """
+        if isinstance(value, (date, time, datetime, timedelta)):
+            return value
+        elif isinstance(value, basestring):
+            try:
+                return parse_date(value, self.tz)
+            except TracError, exc:
+                try:
+                    fmt = fmt or self.fmt
+                    return datetime.strptime(value, fmt)
+                except:
+                    raise InvalidWidgetArgument(
+                            error=exc, title=_('Datetime conversion error'))
+        elif isinstance(value, int):
+            return datetime.utcfromtimestamp(value)
+        else:
+            raise InvalidWidgetArgument(
+                    "Invalid format `%s` for value `%s`" % (fmt, value),
+                    title=_('Datetime conversion error'))
+
+class ListField:
+    """Convert list field
+    """
+    def __init__(self, sep=','):
+        """Initialize list field converter
+
+        :param sep:       character used to delimit list items
+        """
+        self.sep = sep
+
+    def __call__(self, value):
+        """Perform the actual conversion
+        """
+        if isinstance(value, basestring):
+            return value.split(self.sep)
+        else:
+            try:
+                return list(value)
+            except Exception, exc:
+                raise InvalidWidgetArgument(error=exc, 
+                        title=_('List conversion error'))
+
+class EnumField:
+    """Convert enum field
+    """
+    def __init__(self, *choices):
+        """Initialize enum field converter
+
+        :param choices:       allowed values
+        """
+        self.choices = set(choices)
+
+    def __call__(self, value):
+        """Perform the actual conversion
+        """
+        if value not in self.choices:
+            raise InvalidWidgetArgument(
+                _('Expected one of `%s` but got `%s`') % (self.choices, value),
+                title=_('Enum conversion error'))
+        return value
 

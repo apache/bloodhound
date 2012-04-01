@@ -15,3 +15,16 @@ description = Provide an extension point interface so that components
       - Banner + two columns layouts
 keywords = dashboard extension layout interface
 
+[ticket/t2]
+id =
+summary = Insert pagination links in tickets report widget
+description = Insert pagination links in tickets report widget
+keywords = dashboard widget ticket report pagination
+
+[ticket/t3]
+id = 
+summary = Insert altlikns at the bottom of widgets
+description = Provide a separate panel at the bottom of widgets 
+    so as to display alternate (e.g. download) links.
+keywords = dashboard download alternate navigation
+

@@ -1,0 +1,24 @@
+
+<div id="content" class="timeline"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:for each="day, events in groupby(events, key=lambda e: format_date(e.date))">
+    <h2>${day}: ${day == today and 'Today' or day == yesterday and 'Yesterday' or None}</h2>
+    <dl>
+      <py:for each="event in events"
+        py:with="highlight = precision and precisedate and timedelta(0) &lt;= (event.date - precisedate) &lt; precision">
+        <dt class="${classes(event.kind, highlight=highlight)}">
+          <a href="${event.render('url', context)}">
+            <span class="time">${format_time(event.date, str('%H:%M'))}</span> ${event.render('title', context)}
+            <py:if test="event.author">by <span class="author">${format_author(event.author)}</span></py:if>
+          </a>
+        </dt>
+        <dd class="${classes(event.kind, highlight=highlight)}">
+          ${event.render('description', context)}
+        </dd>
+      </py:for>
+    </dl>
+  </py:for>
+</div>
