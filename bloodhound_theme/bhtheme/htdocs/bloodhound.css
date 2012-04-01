@@ -78,6 +78,11 @@
   height: 30px;
 }
 
+.ui-tabs .ui-tabs-nav .navtext {
+  height: 23px !important;
+  padding: 7px 1em 0.5em 1em;
+}
+
 #main-wrapper {
   border: 1px solid #c9c9c9;
   border-top: none;
@@ -180,6 +185,7 @@ a.prev:hover, a.next:hover {
 #mainnav {
   border: none;
   background: none;
+  margin-top: 7px;
 }
 
 #mainnav ul {
@@ -275,7 +281,8 @@ a.prev:hover, a.next:hover {
 }
 
 #metanav :link, #metanav :visited, 
-#metanav :link:hover, #metanav :visited:hover {
+#metanav :link:hover, #metanav :visited:hover,
+#metanav li {
   color: #cccccc;
 }
 

@@ -71,8 +71,8 @@
               class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
             <li py:when="chrome.ctxtnav"
                 py:for="i, elm in enumerate(chrome.ctxtnav)"
-                py:with="is_active = str(elm.attrib.get('href')) == str(href(req.path_info + (req.query_string and '?' + req.query_string or '') ))"
-                class="${classes(first_last(i, chrome.ctxtnav), active=is_active)} ui-corner-top ui-state-default ${is_active and 'ui-tabs-selected ui-state-active' or None}">${elm}</li>
+                py:with="is_text = not hasattr(elm, 'attrib'); is_active = is_text or str(elm.attrib.get('href')) == str(href(req.path_info + (req.query_string and '?' + req.query_string or '') ))"
+                class="${classes(first_last(i, chrome.ctxtnav), active=is_active)} ui-corner-top ui-state-default ${is_active and 'ui-tabs-selected ui-state-active' or None} ${is_text and 'navtext' or None}">${elm}</li>
             <li py:otherwise="" 
                 class="icon icon_bh ui-corner-top ui-state-default ui-tabs-selected ui-state-active"></li>
           </ul>
