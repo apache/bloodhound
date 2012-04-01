@@ -51,222 +51,70 @@
           </div>
         </py:with>
       </div>
-    <div class="row" style="position:relative;">
-      <div class="span4">
-      <form class="form-inline" action="${href.search()}" method="get">
-        <input type="text" class="span3" placeholder="Search anything. Try #EF-492."/>
-        <input type="submit" value="Search" class="btn btn-warning"/>
-      </form>
+      <div class="row" style="position:relative;">
+        <div class="span4">
+        <form class="form-inline" action="${href.search()}" method="get">
+          <input type="text" class="span3" name="q"
+              placeholder="Search anything. Try #EF-492." />
+          <input type="submit" value="Search" class="btn btn-warning"/>
+        </form>
+        </div>
+        <div class="span4"><a href="#" class="btn">Create Ticket</a></div>
+        <div class="4">
+          <ul py:if="chrome.nav.mainnav" class="nav nav-tabs pull-right"
+              py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
+            <!-- TODO: Parameterize visible mainnav items in trac.ini -->
+            <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show or i.active)" 
+                class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show and not i.active)" 
+                    class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="span4"><a href="#" class="btn">Create Ticket</a></div>
-      <div class="4">
-        <ul py:if="chrome.nav.mainnav" class="nav nav-tabs pull-right"
-            py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
-          <!-- TODO: Parameterize visible mainnav items in trac.ini -->
-          <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show or i.active)" 
-              class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show and not i.active)" 
-                  class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
-            </ul>
-          </li>
-        </ul>
+      <div class="row" style="background-color:#f6f6f6;">
+        <div class="span9" py:choose="">
+          <xi:include py:when="value_of('resourcepath_template')" 
+              href="${resourcepath_template}" />
+          <py:otherwise>&nbsp;</py:otherwise>
+        </div>
+        <div class="span3" style="text-align:right;">
+          <py:for py:if="chrome.ctxtnav"
+              py:with="max_idx = len(chrome.ctxtnav) - 1"
+              each="idx, item in enumerate(chrome.ctxtnav)">
+            $item
+            <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
+          </py:for>
+        </div>
       </div>
-    </div>
-       <div class="row" style="background-color:#f6f6f6;">
-          <div class="span9" py:choose="">
-            <xi:include py:when="value_of('resourcepath_template')" 
-                href="${resourcepath_template}" />
-            <py:otherwise>&nbsp;</py:otherwise>
-          </div>
-          <div class="span3" style="text-align:right;">
-            <py:for py:if="chrome.ctxtnav"
-                py:with="max_idx = len(chrome.ctxtnav) - 1"
-                each="idx, item in enumerate(chrome.ctxtnav)">
-              $item
-              <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
-            </py:for>
-          </div>
-       </div>
-       <br/>
-    <div class="row">
-          <div class="span8"><h1 style="display:inline;">Dashboard</h1>&nbsp;&nbsp;&nbsp;<a href="#">More</a>&nbsp;&nbsp;<a href="#">Unassigned</a>
-          <br/><br/>
-          <table class="table table-condensed">
-          <thead>
-            <tr>
-              <th style="text-align:right;">Date</th>
-              <th>Ticket</th>
-              <th>Summary</th>
-              <th>Owner</th>
-              <th>Priority</th>
-            </tr>
-          </thead>
-          <tbody><tr>
-            <td style="text-align:right;">Today</td>
-            <td><a href="#"></a><a href="#">wiki-5476</a></td>
-            <td>All Tickets report on this site: Example.com/bh</td>
-            <td>Me (<a href="#">view all</a>)</td>
-            <td>High</td>
-          </tr>
-        <tr>
-            <td></td>
-            <td><a href="#">E-5476</a></td>
-            <td>Grouping doesn't work in ...</td>
-            <td><a href="#">Warren</a></td>
-            <td>High</td>
-          </tr>
-        <tr>
-            <td></td>
-            <td><a href="#">EF-492</a></td>
-            <td>Protocol http is hard coded in ...</td>
-            <td>Me (<a href="#">view all</a>)</td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-      <tr>
-            <td></td>
-            <td><a href="#">ipad-2911</a></td>
-            <td>Fix header graphic</td>
-            <td><a href="#">Vince</a></td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-          <tr>
-            <td style="text-align:right;">Yesterday</td>
-            <td><a href="#">E-1920</a></td>
-            <td>SQL report realm/id decoration</td>
-            <td><a href="#">Montgomery</a></td>
-            <td>High</td>
-          </tr>
-        <tr>
-            <td></td>
-            <td><a href="#">TR-2930</a></td>
-            <td>Change main button</td>
-            <td>Me (<a href="#">view all</a>)</td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-        <tr>
-            <td></td>
-            <td><a href="#">mobile-281</a></td>
-            <td>AttachmentManipulators cannot ...</td>
-            <td><a href="#">Seraphinia</a></td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-      <tr>
-            <td style="text-align:right;">15 Mar</td>
-            <td><a href="#">PL-8491</a></td>
-            <td>Use of svn:mime-type: text/x-trac-wiki ...</td>
-            <td><a href="#">Gambolputty</a></td>
-            <td>High</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><a href="#">ipad-2841</a></td>
-            <td>uber logo placement</td>
-            <td><a href="#">Deepakeesh</a></td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-        <tr>
-            <td></td>
-            <td><a href="#">J-2913</a></td>
-            <td>[PATCH] Empty folders excluded ...</td>
-            <td><a href="#">Thandayutha</a></td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-        <tr>
-            <td style="text-align:right;">16 Mar</td>
-            <td><a href="#">mobile-6932</a></td>
-            <td>Permission check of Repository ...</td>
-            <td>Me (<a href="#">view all</a>)</td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-      <tr>
-            <td></td>
-            <td><a href="#">J-2941</a></td>
-            <td>Load front banner</td>
-            <td><a href="#">David</a></td>
-            <td style="text-align:right;">Low</td>
-          </tr>
-          <tr>
-            <td style="text-align:right;">21 Mar</td>
-            <td><a href="#">ipad-1823</a></td>
-            <td>resync single revision doesn't resync ...</td>
-            <td><a href="#">Caroline</a></td>
-            <td>High</td>
-          </tr>
-        <tr>
-            <td style="text-align:right;">23 Mar</td>
-            <td><a href="#">PO-1824</a></td>
-            <td>Update jquery to 1.4.4</td>
-            <td>Me (<a href="#">view all</a>)</td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-        <tr>
-            <td style="text-align:right;">24 Mar</td>
-            <td><a href="#">G-1938</a></td>
-            <td>Wrong wrapping field with long and ...</td>
-            <td><a href="#">Gary</a></td>
-            <td style="text-align:right;">Med</td>
-          </tr>
-          </tbody></table>
-          <div class="well">
-          <h3 style="display:inline;">Projects</h3>&nbsp;&nbsp;&nbsp;<a href="#">View all</a>
-          <p style="font-size:medium; line-height:150%"><a href="#">uberSVN</a>&nbsp;&nbsp;&nbsp;<a href="#">WANdisco</a>&nbsp;&nbsp;&nbsp;<a href="#">wandisco.com</a>&nbsp;&nbsp;&nbsp;<a href="#">MultiSite</a>&nbsp;&nbsp;&nbsp;<a href="#">Access Control Pro</a></p>
-          </div>
-          </div>
-          <div class="span4"><h1>Activity</h1>
-              <br/>
-          <table class="table table-striped">
-            <thead>
-              <tr><th>Today</th></tr>
-            </thead>
-            <tbody><tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-            <tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-        <tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-            <tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-            <tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-          </tbody></table>
-          <table class="table table-striped">
-            <thead>
-            <tr>
-              <th>Yesterday</th>
-            </tr>
-            </thead>
-               <tbody><tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-            <tr>
-              <td><a href="#">Warren</a> commented on <a href="#">E-5476</a> (Fix header graphic) saying:
-              <div style="color:grey;">"The header graphic is going to need a re-think"</div></td>
-            </tr>
-          </tbody></table>
-          </div>
-       </div>
-       <div class="row">
-           <br/>
-         <div class="span8" style="color:grey;">Powered by <a href="#">Bloodhound</a>. Standing on the shoulders of <a href="#">Trac 0.13</a>. <a href="http://dl.dropbox.com/u/59840506/Bloodhound/bh-html/abc"></a></div>
-         <div class="span4" style="text-align:right; color:grey;">Visit Bloodhound at <a href="">http://bloodhound.io</a></div>
-       </div>
+      <br/>
+      <div id="warning" py:if="chrome.warnings" class="system-message">
+        <py:choose test="len(chrome.warnings)">
+          <strong>Warning:</strong>
+          <py:when test="1">${chrome.warnings[0]}</py:when>
+          <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
+        </py:choose>
+      </div>
+      <div id="notice" py:if="chrome.notices" class="system-message">
+        <py:choose test="len(chrome.notices)">
+          <py:when test="1">${chrome.notices[0]}</py:when>
+          <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
+        </py:choose>
+      </div>
+      ${select('*|text()|comment()')}
+      <div class="row">
+        <br/>
+        <div class="span8" style="color:grey;">
+          Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> <a href="${href.about()}"><strong>Bloodhound</strong></a>.
+          Standing on the shoulders of 
+          <a href="http://trac.edgewall.org/"><strong>Trac ${trac.version}</strong></a>.
+        </div>
+        <div class="span4" style="text-align:right; color:grey;">${chrome.footer}</div>
+      </div>
     </div>
     <br/>
-
-
-
 </body></py:match></html>
