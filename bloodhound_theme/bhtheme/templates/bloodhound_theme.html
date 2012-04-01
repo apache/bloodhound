@@ -40,13 +40,17 @@
         </div>
       </div>
       <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px">
-        <!-- TODO: mainnav + search box -->
+        ${navigation("mainnav", [])}
       </div>
       <div id="outer-wrapper" style="top:${max(60, int(logo_size[1])) + 48}px">
-        <ul id="ctxtnav">
-          <!-- TODO: ctxtnav -->
-        </ul>
-        <div id="main-wrapper">
+        <div id="ctxtnav" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+          <ul py:if="chrome.ctxtnav" class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+              <li py:for="i, elm in enumerate(chrome.ctxtnav)"
+                  py:with="is_active = str(elm.attrib.get('href')) == str(href(req.path_info + (req.query_string and '?' + req.query_string or '') ))"
+                  class="${classes(first_last(i, chrome.ctxtnav), active=is_active)} ui-corner-top ui-state-default ${is_active and 'ui-tabs-selected ui-state-active' or None}">${elm}</li>
+          </ul>
+        </div>
+        <div id="main-wrapper" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
           <div id="main-scroll">
             <div id="main">
               <div id="warning" py:if="chrome.warnings" class="system-message">
@@ -84,15 +88,27 @@
                 </li>
               </ul>
             </py:for>
+            <h2>Request</h2>
+            <ul>
+              <li>
+                <b>PATH_INFO</b> <span> ${repr(req.path_info)} </span>
+              </li>
+              <li>
+                <b>QUERY_STRING</b> <span> ${repr(req.query_string)} </span>
+              </li>
+            </ul>
+            <h2>Debug</h2>
+            <ul>
+            </ul>
           </div>
         </div>
         <div id="footer" xml:lang="en">
           <a id="bhpowered" href="http://incubator.apache.org/bloodhound/"><img
               src="${href.chrome('theme/bh_logo_mini.png')}" height="30"
               width="107" alt="Powered by Bloodhound"/></a>
-					<a id="tracpowered" href="http://trac.edgewall.org/"><img 
-							src="/trac/project/chrome/common/trac_logo_mini.png" height="30" 
-							width="107" alt="Trac Powered" /></a>
+          <a id="tracpowered" href="http://trac.edgewall.org/"><img 
+              src="/trac/project/chrome/common/trac_logo_mini.png" height="30" 
+              width="107" alt="Trac Powered" /></a>
           <p class="left">
             Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> <a href="${href.about()}"><strong>Bloodhound ${trac.version}</strong></a>. <br/>
             based on <a href="http://trac.edgewall.org/"><strong>Trac</strong></a>

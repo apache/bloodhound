@@ -27,7 +27,7 @@ setup(
   license = "Apache License v2",
   keywords = "trac plugin theme bloodhound",
   packages = ['bhtheme'],
-  package_data = {'bhtheme': ['htdocs/*.*', 'templates/*.*']},
+  package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/images/*.*', 'templates/*.*']},
   classifiers = [
       'Framework :: Trac',
     ],
