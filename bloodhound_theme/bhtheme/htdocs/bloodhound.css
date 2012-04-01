@@ -1,4 +1,15 @@
 
+/* Generic styles */
+
+.icon {
+  margin: 0px 2px;
+	padding: 0px 8px;
+}
+
+.icon_add {
+  background-image: url("icon_add.png");
+}
+
 /* Layout */
 
 .bh_body {
@@ -111,11 +122,15 @@
 
 /* Trac generics */
 
-:link:hover, :visited:hover, .nav li:hover, 
-.nav li:hover>:link, .nav li:hover>:visited,
+:link:hover, :visited:hover, 
 a.prev:hover, a.next:hover {
   background-color: #3366ff;
   color: #FFFFFF;
+}
+.nav li:hover, 
+.nav li:hover>:link, .nav li:hover>:visited {
+  background: none;
+	border: none;
 }
 
 :visited, :link {
@@ -128,6 +143,86 @@ a.prev:hover, a.next:hover {
 .ui-widget-header :visited:hover {
   background: none;
   border: none;
+}
+
+/* Navigation */
+
+#mainnav {
+  border: none;
+	background: none;
+}
+
+#mainnav ul {
+	font-size: 14px;
+	padding-left: 0;
+	padding-top: 1px;
+	text-align: left;
+}
+
+#mainnav li {
+  border-right: 1px solid #ffffff;
+  padding-bottom: 8px;
+	padding-top: 8px;
+}
+
+#mainnav li.active {
+  background-image: url("mainnavactivebg.png");
+}
+
+#mainnav .first {
+  -moz-border-radius-topleft: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-moz-border-radius-bottomleft: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+}
+
+#mainnav :link, #mainnav :visited {
+  background: none;
+	border: none;
+	color: #ffffff;
+}
+
+#mainnav :link:hover, #mainnav :visited:hover {
+  background: none;
+	border: none;
+}
+
+#mainnav .active :link:hover, #mainnav .active :visited:hover,
+#mainnav .active :link, #mainnav .active :visited {
+  background: none;
+	border: none;
+}
+
+#shortcuts {
+  background-image: url("mainnavbg.png");
+  height: 33px;
+	float: right;
+  padding-right: 5px;
+  padding-top: 5px;
+  position: relative;
+  right: 3px;
+  top: -33px;
+	width: 320px;
+}
+
+#shortcuts>div {
+	border-right: 1px solid #999999;
+  float: right;
+	height: 26px;
+	padding-left: 2px;
+}
+
+#shortcuts .first ,
+#shortcuts .last {
+  border: none;
+}
+
+#search input {
+	background-image: url("icon_search.png");
+  background-position: right center;
+	background-repeat: no-repeat;
+	border: 2px solid #3a70b8;
+	padding-right: 16px;
 }
 
 /* Forms & inputs */

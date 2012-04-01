@@ -6,14 +6,12 @@
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
 
-  <ul py:def="navigation(category, skip)" class="menu">
-    <li id="${category}" class="nav">
-      <ul py:if="chrome.nav[category]">
-        <li py:for="idx, item in  enumerate(i for i in chrome.nav[category] if i.name not in skip)"
-            class="${classes(first_last(idx, chrome.nav[category]), active=item.active)} id_${item.name}">${item.label}</li>
-      </ul>
-    </li>
-  </ul>
+  <div py:def="navigation(category, skip)" id="${category}" class="nav">
+    <ul py:if="chrome.nav[category]">
+      <li py:for="idx, item in  enumerate(i for i in chrome.nav[category] if i.name not in skip)"
+          class="${classes(first_last(idx, chrome.nav[category]), active=item.active)} id_${item.name}">${item.label}</li>
+    </ul>
+  </div>
 
   <py:match path="body" once="true" buffer="false"><body class="bh_body">
     <div class="fixed-wrapper" 
@@ -39,8 +37,31 @@
           </h1>
         </div>
       </div>
-      <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px">
+      <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px" 
+					class="ui-corner-all">
         ${navigation("mainnav", [])}
+				<div id="shortcuts">
+					<div class="last">
+						<img src="${href('chrome/theme/user.png')}" width="26px" height="26px"/>
+					</div>
+          <div py:if="'SEARCH_VIEW' in perm">
+            <form id="search" action="${href.search()}" method="get">
+              <label for="proj-search">Search:</label>
+              <input type="text" id="proj-search" name="q" size="10" accesskey="f" value="" />
+              <input style="display:none;" type="submit" value=" " />
+            </form>
+          </div>
+					<div>
+					  <button id="newticket">
+							Create Ticket
+							<span class="icon icon_add"></span>
+						</button>
+					</div>
+					<div class="first">
+						<img src="${href('chrome/theme/left.png')}" width="20px" height="26px" />
+						<img src="${href('chrome/theme/right.png')}" width="20px" height="26px" />
+					</div>
+				</div>
       </div>
       <div id="outer-wrapper" style="top:${max(60, int(logo_size[1])) + 48}px">
         <div id="ctxtnav" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
