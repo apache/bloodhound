@@ -164,6 +164,15 @@ a.prev:hover, a.next:hover {
 
 /* Navigation */
 
+#mainnav-scroll {
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 330px;
+  top: 0;
+}
+
 #mainnav {
   border: none;
   background: none;
@@ -214,7 +223,6 @@ a.prev:hover, a.next:hover {
   padding-top: 5px;
   position: relative;
   right: 3px;
-  top: -33px;
   width: 320px;
 }
 
@@ -248,7 +256,7 @@ a.prev:hover, a.next:hover {
 
 #metanav .active {
   border-top: 2px solid #CC3333;
-	font-weight: bold;
+  font-weight: bold;
 }
 
 #metanav .last, #metanav .last:hover {

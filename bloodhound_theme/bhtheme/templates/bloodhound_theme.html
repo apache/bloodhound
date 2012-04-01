@@ -16,6 +16,9 @@
   <py:match path="body" once="true" buffer="false"><body class="bh_body">
     <div class="fixed-wrapper" 
         py:with="logo_size = (chrome.logo.width or 170, chrome.logo.height or 48)">
+      <div id="metapanel" class="ui-corner-bottom" >  
+        ${navigation("metanav", [])}
+      </div>
       <div id="banner">
         <div id="header">
           <div style="vertical-align: middle; height: ${logo_size[1]}px;"> 
@@ -33,12 +36,12 @@
           </div>
         </div>
       </div>
-      <div id="metapanel" class="ui-corner-bottom" >  
-        ${navigation("metanav", [])}
-      </div>
+      <script src="${href.chrome('theme/theme.js')}"></script>
       <div id="mainpanel" style="top:${max(60, int(logo_size[1]))}px" 
           class="ui-corner-all">
-        ${navigation("mainnav", [])}
+        <div id="mainnav-scroll">
+          ${navigation("mainnav", [])}
+        </div>
         <div id="shortcuts">
           <div class="last">
             <img src="${href('chrome/theme/user.png')}" width="26px" height="26px"/>
@@ -57,8 +60,8 @@
             </button>
           </div>
           <div class="first">
-            <img src="${href('chrome/theme/left.png')}" width="20px" height="26px" />
-            <img src="${href('chrome/theme/right.png')}" width="20px" height="26px" />
+            <img src="${href('chrome/theme/left.png')}" width="20px" height="26px" onclick="move('#mainnav ul', BACK)"/>
+            <img src="${href('chrome/theme/right.png')}" width="20px" height="26px" onclick="move('#mainnav ul', FORWARD)" />
           </div>
         </div>
       </div>
