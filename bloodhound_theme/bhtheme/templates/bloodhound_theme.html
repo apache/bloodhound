@@ -30,7 +30,7 @@
     ${select("*[local-name() != 'title']")}
   </head></py:match>
 
-  <body>
+  <py:match path="body" once="true" buffer="false"><body>
     <div class="container">
       <div class="row" style="position:relative;">
         <div class="span4">
@@ -76,8 +76,19 @@
       </div>
     </div>
        <div class="row" style="background-color:#f6f6f6;">
-          <div class="span9"><a href="#">Breadcrumb</a> &gt; Dashboard</div>
-          <div class="span3" style="text-align:right;"><a href="#">Custom Query</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">Reports</a></div>
+          <div class="span9" py:choose="">
+            <xi:include py:when="value_of('resourcepath_template')" 
+                href="${resourcepath_template}" />
+            <py:otherwise>&nbsp;</py:otherwise>
+          </div>
+          <div class="span3" style="text-align:right;">
+            <py:for py:if="chrome.ctxtnav"
+                py:with="max_idx = len(chrome.ctxtnav) - 1"
+                each="idx, item in enumerate(chrome.ctxtnav)">
+              $item
+              <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
+            </py:for>
+          </div>
        </div>
        <br/>
     <div class="row">
@@ -258,4 +269,4 @@
 
 
 
-</body></html>
+</body></py:match></html>
