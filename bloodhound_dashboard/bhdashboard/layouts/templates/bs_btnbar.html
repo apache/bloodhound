@@ -6,12 +6,14 @@
 
   <xi:include href="widget_macros.html" />
 
-  <div class="btn-toolbar">
-    <div data-toggle="buttons-radio" class="btn-group offset1"
+  <div class="btn-toolbar" data-toggle="buttons-radio">
+    <div class="btn-group offset1"
         py:for="g in layout.toolbar" >
-      <a href="#" class="btn" py:for="tb_item in g">
+      <button href="#" disabled="${tb_item.widget is None and 'true' or None}" 
+          class="btn ${tb_item.widget is None and 'disabled' or None}" 
+          py:for="tb_item in g">
         ${tb_item.caption}
-      </a>
+      </button>
     </div>
   </div>
 </html>

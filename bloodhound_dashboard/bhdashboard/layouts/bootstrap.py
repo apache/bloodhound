@@ -25,7 +25,7 @@ Widgets displaying ticket data.
 """
 
 from trac.core import Component, implements, TracError
-from trac.web.chrome import add_stylesheet
+from trac.web.chrome import add_stylesheet, add_script
 
 from bhdashboard.api import ILayoutProvider
 
@@ -57,7 +57,7 @@ class BootstrapLayout(Component):
         add_stylesheet(req, 'dashboard/bootstrap.css')
 
         if name == 'bootstrap_btnbar':
-            self._process_btnbar(options)
+            self._process_btnbar(req, options)
 
         results = {
                 ('bootstrap_grid', False) : {
@@ -76,9 +76,10 @@ class BootstrapLayout(Component):
         return results[( name , bool(options.get('embed')) )]
 
     # Internal methods
-    def _process_btnbar(self, options):
+    def _process_btnbar(self, req, options):
         """Determine toolbar groups
         """
+        add_script(req, 'layouts/bootstrap-button.js')
         layout_data = options['schema']
         orig_tb = layout_data.get('toolbar', [])
         ready = layout_data.get('ready')

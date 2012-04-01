@@ -96,6 +96,7 @@ class DashboardModule(Component):
         return [
                  ('dashboard', resource_filename('bhdashboard', 'htdocs')),
                  #('widgets', resource_filename('bhdashboard.widgets', 'htdocs'))
+                 ('layouts', resource_filename('bhdashboard.layouts', 'htdocs'))
                  ]
 
     def get_templates_dirs(self):

@@ -88,7 +88,8 @@ DIST_NM = 'BloodhoundDashboardPlugin'
 PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                             # Package data
                             ['../CHANGES', '../TODO', '../COPYRIGHT', 
-                              '../NOTICE', '../README', '../TESTING_README'],
+                              '../NOTICE', '../README', '../TESTING_README',
+                              'htdocs/*'],
                           ), 
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
                             # Package data
