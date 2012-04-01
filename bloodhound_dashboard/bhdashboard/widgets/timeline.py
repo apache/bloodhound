@@ -24,7 +24,7 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Widgets displaying timeline data.
 """
 
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from itertools import imap, islice
 
 from genshi.builder import tag
@@ -83,8 +83,8 @@ class TimelineWidget(WidgetBase):
             start, days, user, precision, filters, count = \
                     self.bind_params(name, options, *params)
 
-            mockreq = dummy_request(self.env, req.authname)
-            mockreq.args = {
+            fakereq = dummy_request(self.env, req.authname)
+            fakereq.args = {
                     'author' : user or '',
                     'daysback' : days or '',
                     'max' : count,
@@ -92,18 +92,20 @@ class TimelineWidget(WidgetBase):
                     'user' : user
                 }
             if start is not None:
-                mockreq.args['from'] = start.strftime('%x %X')
+                fakereq.args['from'] = start.strftime('%x %X')
 
             timemdl = self.env[TimelineModule]
             if timemdl is None :
                 raise TracError('Timeline module not available (disabled?)')
 
-            data = timemdl.process_request(mockreq)[1]
+            data = timemdl.process_request(fakereq)[1]
         except TracError, exc:
             if data is not None:
                 exc.title = data.get('title', 'TracReports')
             raise
         else:
+            data['today'] = today = datetime.now(req.tz)
+            data['yesterday'] = today - timedelta(days=1)
             return 'widget_timeline.html', \
                     {
                         'title' : _('Activity'),

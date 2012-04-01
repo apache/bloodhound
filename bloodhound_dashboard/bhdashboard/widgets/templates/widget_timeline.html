@@ -2,7 +2,8 @@
 <div id="content" class="timeline"
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:with="today = format_date(today); yesterday = format_date(yesterday)">
 
   <table py:for="day, events in groupby(events, key=lambda e: format_date(e.date))"
       class="table table-striped">
