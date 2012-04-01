@@ -55,7 +55,7 @@ class DashboardModule(Component):
         """
         add_stylesheet(req, 'dashboard/grids.css')
         add_stylesheet(req, 'dashboard/skin.css')
-        return 'bhdb_one_col.html', \
+        return 'bhdb_two_col.html', \
                 {
                     'context' : Context.from_request(req),
                     'widgets' : self.expand_widget_data(req), 
@@ -116,7 +116,15 @@ class DashboardModule(Component):
                 {
                     'c' : TimelineWidget(self.env),
                     'args' : ['Timeline', ctx, {'args' : {'max' : 10}}]
-                }
+                },
+                {
+                    'c' : TicketReportWidget(self.env), 
+                    'args' : ['TicketReport', ctx, {'args' : {'id' : 5}}]
+                },
+                {
+                    'c' : TicketReportWidget(self.env), 
+                    'args' : ['TicketReport', ctx, {'args' : {'id' : 4}}]
+                },
             ]
         chrome = Chrome(self.env)
         render = chrome.render_template
