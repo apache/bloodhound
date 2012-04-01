@@ -61,16 +61,26 @@
         </div>
         <div class="span4"><a href="#" class="btn">Create Ticket</a></div>
         <div class="4">
-          <ul py:if="chrome.nav.mainnav" class="nav nav-tabs pull-right"
+          <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
+              class="nav nav-tabs pull-right"
               py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
             <!-- TODO: Parameterize visible mainnav items in trac.ini -->
-            <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show or i.active)" 
+            <li py:if="chrome.nav.mainnav"
+                py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show or i.active)" 
                 class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show and not i.active)" 
+                <li py:if="chrome.nav.mainnav"
+                    py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show and not i.active)" 
                     class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+                <py:if test="chrome.nav.metanav">
+                  <li class="divider"></li>
+                  <li py:for="idx, item in enumerate(chrome.nav.metanav)"
+                      class="${classes(first_last(idx, chrome.nav.metanav), active=item.active)}">
+                    ${item.label}
+                  </li>
+                </py:if>
               </ul>
             </li>
           </ul>
