@@ -159,6 +159,7 @@ class DashboardModule(Component):
                                                   ["Projects", null],
                                                   ["Components", 0]
                                                 ],
+                                              "active" : 1,
                                               "widgets" : [
                                                 {
                                                   "args" : [

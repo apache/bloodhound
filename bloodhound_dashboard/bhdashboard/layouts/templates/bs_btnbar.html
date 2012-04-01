@@ -11,7 +11,7 @@
         py:for="g in layout.toolbar" >
       <button data-target="#tb-item-${tb_item.id}" data-toggle="tab" 
           disabled="${tb_item.widget is None and 'true' or None}" 
-          class="btn ${tb_item.widget is None and 'disabled' or None}" 
+          class="btn ${tb_item.widget is None and 'disabled' or None} ${tb_item.active and 'active' or None}" 
           py:for="tb_item in g">
         ${tb_item.caption}
       </button>
@@ -20,7 +20,8 @@
   <div class="tab-content">
     <py:for each="g in layout.toolbar">
       <div py:for="tb_item in g" py:if="tb_item.widget is not None"
-          class="tab-pane" id="tb-item-${tb_item.id}">
+          class="tab-pane ${tb_item.active and 'active' or None}" 
+          id="tb-item-${tb_item.id}">
         ${widget_container(widgets[tb_item.widget])}
       </div>
     </py:for>

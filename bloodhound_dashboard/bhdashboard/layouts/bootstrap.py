@@ -89,13 +89,14 @@ class BootstrapLayout(Component):
         if not ready:
             layout_data['toolbar'] = tb = [[]]
             last_group = tb[0]
-            for caption, idx in orig_tb:
+            active = layout_data.get('active')
+            for i, (caption, idx) in enumerate(orig_tb):
                 if caption == '|' :
                     last_group = []
                     tb.append(last_group)
                 else:
                     last_group.append(
                             { 'caption' : caption, 'widget' :idx, 
-                              'id' : uuid4().hex })
+                              'id' : uuid4().hex, 'active' : i == active })
         layout_data['ready'] = True
 
