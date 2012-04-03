@@ -16,7 +16,7 @@
 					top:-15px; left:100px;"/>
 				</div>
 			</div>
-			<div class="span6">
+			<div class="span6" id="user-details">
 				<div class="pull-right" style="margin-top:5px; margin-right:20px;">Hi Joachim (<a href="#">logout</a>) <a href="#" style="margin-left:10px;">Preferences</a><a href="#" style="margin-left:10px;">Help</a></div>
 			</div>
 		</div>
@@ -28,12 +28,10 @@
 				<input type="button" value="Search" href="search.html" class="btn btn-warning" />
 			</form>
 			</div>
-
 <!-- Create button -->
 			<div class="span4">
-			  	<button class="btn btn-primary" href="#">Create Ticket</a>
-			</div>
-			
+			  	<button class="btn btn-primary" href="#">+ Ticket</button>
+			</div>	
 <!-- Main navigation tabs -->
 			<div class="span4">
 				<ul class="nav nav-tabs pull-right" style="margin-bottom:0px; border-bottom: 0px;">
@@ -53,7 +51,6 @@
 				</ul>
 			</div>
 		</div>
-		
 <!-- Breadcrumb -->
 		<div class="row">
       		<div class="span12">
@@ -62,7 +59,7 @@
       				<li><a href="product.html">MultiSite</a> <span class="divider">/</span></li>
       				<li><a href="version.html">14.3</a> <span class="divider">/</span></li>
       				<li><a href="milestone.html">Milestone 2</a> <span class="divider">/</span></li>
-      				<li class="active"><a href="#">wiki-5476</a></li>
+      				<li class="active"><a href="#">AP-5476</a></li>
       				<li class="pull-right"><a href="#">Custom Query</a><a href="#" style="margin-left:15px;">Reports</a></li>
 				</ul>
 			</div>
@@ -76,55 +73,106 @@
 <!-- Main element starts -->
       		<div class="span8" id="content">
       			<div style="position: relative;">
-      				<div style="display:inline; position: absolute; left: 60px;">
-      					<h1>wiki-5476</h1>
-      					<p style="margin-top: -5px;">Due in <time datetime="2012-04-27"><a href="#">2 days</a></time>, assigned to <a href="profile.html">Fred Feuerstein</a></p>
-      				</div>
-      				<div id="priority" style="position: relative; top:10px;">
-      					<p style="font-size:150%;"><a href="#">High</a></p>
-      					<p style="position:absolute;top: 20px;">Priority</p>
-      				</div>
+      				<hgroup style="display:inline; position: absolute; left: 60px;">
+      					<h1>AP-5476</h1>
+      					<h6 style="margin-top: -5px;">Due in <time datetime="2012-04-27"><a href="#">2 days</a></time>, assigned to <a href="profile.html">Fred Feuerstein</a></h6>
+      				</hgroup>
 <!-- Status Bar -->
-      				<div style="position: absolute; top: 75px; left: 60px; text-align: center;" id="status bar">
-      					<div id="status" style="float: left;">
-      						<p style="margin-bottom:-5px;">Status</p>
+      				<div style="position: absolute; top: 65px; left: 30px; text-align: center;" id="status bar">
+      					<div style="background-color: #FEFFF0; height: 45px; width: 583px; position: absolute; top: -5px; left: -18px; z-index: -1;"></div>
+	      				<div id="priority" style="float: left;">
+	      					<p style="margin-bottom:-4px;">Priority</p>
+	      					<p style="font-size:150%;"><a href="#">High</a></p>
+	      				</div>
+      					<div id="status" style="float: left; margin-left: 50px;">
+      						<p style="margin-bottom:-4px;">Status</p>
       						<p style="font-size:150%;"><a href="#">Reviewed</a></p>
       					</div>
       					<div id="type" style="float: left; margin-left: 50px;">
-      						<p style="margin-bottom:-5px;">Type</p>
+      						<p style="margin-bottom:-4px;">Type</p>
       						<p style="font-size:150%;"><a href="#">Defect</a></p>
       					</div>
       					<div id="component" style="float: left; margin-left: 50px;">
-      						<p style="margin-bottom:-5px;">Components</p>
+      						<p style="margin-bottom:-4px;">Components</p>
       						<p style="font-size:150%;"><a href="#">Interface</a></p>
       					</div>
       					<div id="Projects" style="float: left; margin-left: 50px;">
-      						<p style="margin-bottom:-5px;">Projects</p>
+      						<p style="margin-bottom:-4px;">Projects</p>
       						<p style="font-size:150%;"><a href="#" style="color: grey;">+ Assign</a></p>
       					</div>
       				</div>
 				</div>
 				
 <!-- Description -->
-				<button class="btn btn-mini disabled" style="position: relative; top: 175px;">Saved</button>
-				<div id="description" style="position: relative; top: 90px; left: 60px; width: 520px;">
-					<h3>All Tickets report on this site: Example.com/bh</h3>
-					<p>What you're reading now is the description. While doing a GET operation on /, Trac issued an internal error.<br>
-					(please provide additional details here)<br>
-					Request parameters:<br>
-					{}<br>
-					User agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; ko-kr) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4</p>
+				<div id="description" style="position: relative; top: 120px; left: 60px; width: 520px;">
+					<h3>SQL report realm/id decoration</h3>
 					<div>
-						<i class="icon-tags" style="position: absolute; left: -20px;" ></i>
-						<p><a href="#">bloodhound</a>, <a href="#">design</a></p>
+						<i class="icon-tags" style="position: absolute; left: -20px;"></i>
+						<p>Tags: <a href="#">bloodhound</a>, <a href="#">design</a>, <a href="#">SQL</a></p>
 					</div>
-					<button class="btn">Add attachment</button>
+					<h6 style="position: absolute; left: -50px; display: inline;">15 Jan</h6>
+					<p id="full_description">
+					What you're reading now is the description. While doing a GET operation on /, Trac issued an internal error.<br>
+					Request parameters:<br>
+					<q>{} User agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; ko-kr) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4</q></p>
+					<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
 				</div>
 <!-- Comments -->
-				<div id="comments" style="position: relative; top: 125px; left: 60px;">
-					<h3>Comments</h3>
-					
+				<div id="comments" style="position: relative; top: 145px; left: 60px; width: 520px;">
+					<h3 style="margin-bottom: 10px;">Comments</h3>
+					<div id="comment1" style="position: relative;">
+						<hgroup style="position: relative;">
+							<h6 style="position: absolute; left: -50px; display: inline;">15 Jan</h6>
+							<h4>Karl Krombacher</h4>
+						</hgroup>
+						<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
+					</div>
+					<div id="comment2" style="position: relative;">
+						<hgroup style="position: relative;">
+							<h6 style="position: absolute; left: -50px; display: inline;">18 Jan</h6>
+							<h4>Warren Worcester</h4>
+						</hgroup>
+						<p>Just tested this on the windows server 2008.
+							<ul>
+								<li>11.10 was installed.</li>
+								<li>Purchased/installed Jenkins</li>
+								<li>updated conf file to have ump and update server details</li>
+								<li>restarted uber</li>
+								<li>updated directly to 11.12</li>
+								<li>After the update, I can't get to the ui.</li>
+							</ul>
+						</p>
+					</div>
+					<div id="comment3" style="position: relative;">
+						<hgroup style="position: relative;">
+							<h6 style="position: absolute; left: -70px; display: inline;">Yesterday</h6>
+							<h4>Fred Feuerstein</h4>
+						</hgroup>
+						<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
+						<div id="attachment" style="position: relative;">
+							<img src="http://placekitten.com/60/60" height="60" width="60" class="thumbnail" style="margin-bottom: 10px;" />
+							<p style="position: absolute; bottom: 15px; left: 80px;"><a href="#">placekitten.jpg</a></p>
+						</div>
+					</div>
+					<div id="comment4" style="position: relative;">
+						<hgroup style="position: relative;">
+							<h6 style="position: absolute; left: -80px; display: inline;">2 hours ago</h6>
+							<h4>Rudolf Rotnase</h4>
+						</hgroup>
+						<p>Just tested this on the windows server 2008.
+							<ul>
+								<li>11.10 was installed.</li>
+								<li>Purchased/installed Jenkins</li>
+								<li>updated conf file to have ump and update server details</li>
+								<li>restarted uber</li>
+								<li>updated directly to 11.12</li>
+								<li>After the update, I can't get to the ui.</li>
+							</ul>
+						</p>
+					</div>
+					<button class="btn" style="margin-top: 20px;"><i class="icon-comment"></i> Add comment</button>
 				</div>
+				<div style="height:140px;"></div>
 			</div>
 <!-- Activity starts -->
 			<div id="Activity" class="span4">
