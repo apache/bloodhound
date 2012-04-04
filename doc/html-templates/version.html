@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="css/bloodhound-custom.css" />
 <html>
 <head>
 	<title>14.3 - MultiSite - Apache Bloodhound</title>
 </head>
 <body>
 	<div class="container">
+	<header>
 		<div class="row">
 			<div class="span6">
 				<div id="logo" style="position:relative;">
@@ -30,7 +32,7 @@
 
 <!-- Create button -->
 			<div class="span4">
-			  	<button class="btn btn-primary" href="#">Create Ticket</a>
+			  	<button class="btn btn-primary" href="#">Create Ticket</button>
 			</div>
 			
 <!-- Main navigation tabs -->
@@ -61,24 +63,55 @@
 				</ul>
 			</div>
      	</div>
+     	</header>
 		<div class="row">
-      		<div class="span8">
-      			<h1 style="display:inline;">Version 14.3</h1>
-   			      		<br><br>
-      			      		<div class="well">
-						<strong>Due in 3 weeks</strong> (15 Feb, 2012) <a href="#">Change</a><div class="pull-right">75% completed</div>
-							<div class="progress progress-success">
+      		<div class="span8" id="content">
+			<div id="stickyStatus">
+				<div id="whitebox"></div>
+				<div style="position: absolute; z-index: 20;">
+					<hgroup>
+						<h1>14.3</h1>
+						<h6>Due in <time datetime="2012-05-27"><a href="#">3 weeks</a></time>, assigned to <a href="profile.html">Werner Hoffer</a></h6>
+					</hgroup>
+					<div id="statusBar">
+					<div id="statusBarBox"></div>
+						<div style="width: 150px; margin-left: 40px;" class="first">
+							<p style="margin-bottom:-2px;">75% complete</p>
+							<div class="progress">
 								<div class="bar" style="width: 75%;"></div>
 							</div>
-							<a href="#">Complete (75)</a><a href="#" class="pull-right">Incomplete (25)</a>
-				<p>Note to maintainers
-					<ul>
-						<li>Move tickets from <a href="#">next-minor-0.14.x</a> to here once you know you're going to fix them for the <a href="#">0.14.2</a> release.</li>
-						<li>There should be no enhancements here, only defects</li>
-						<li>There should be only <strong>major</strong> defects here anyway, focus is now on <a href="#">0.15</a></li>
-					</ul>
-				</p>
+						</div>
+					<div id="status" class="other">
+						<p style="margin-bottom:-2px;">In progress</p>
+						<p style="font-size:150%;"><a href="#">4</a></p>
+					</div>
+					<div id="type" class="other">
+						<p style="margin-bottom:-2px;">Open</p>
+						<p style="font-size:150%;"><a href="#">25</a></p>
+					</div>
+					<div id="type" class="other">
+						<p style="margin-bottom:-2px;">Complete</p>
+						<p style="font-size:150%;"><a href="#">75</a></p>
+					</div>
 				</div>
+				</div>
+			</div>
+			<div id="belowStatus">
+			      <div class="well">
+				      <h3>Sit amet vestibulum</h3>
+				      <div>
+				      	<p><i class="icon-tags"></i> <a href="#">Trac</a>, <a href="#">components</a></p>
+				      </div>
+					<p>Note to maintainers:</p>
+					<ul>
+						<li>Move tickets from next-minor-0.14.x to here once you know you're going to fix them for the 0.14.2 release.</li>
+						<li>There should be no enhancements here, only defects</li>
+						<li>There should be only major defects here anyway, focus is now on 0.15</li>
+					</ul>
+					
+					<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
+		</div>
+
 				<div class="btn-toolbar">
 				<div class="btn-group offset1"  data-toggle="buttons-radio">
 					<a class="btn active" href="#">Milestones</a>
@@ -108,7 +141,7 @@
 						<label style="font-size:14pt;">Summary</label>
 						<input type="text" class="span5">
 						<br /><br />
-						<div class="row">
+						
 							<div class="span2">
 								<a href="#" style="font-size:14pt;">+ Attach files</a><br />Upload or link to files.
 								<br /><br />
@@ -119,36 +152,24 @@
 								<br /><br />
 								<a href="#" style="font-size:14pt;">+ Component</a><br />Upload or link to files.
 							</div>
-						</div>
-						<br />
-						<button class="btn btn-primary" style="font-size:14pt;">Create</button>&nbsp;&nbsp;&nbsp;<a href="#">Cancel</a>
+						
+						<button class="btn btn-primary" style="margin-right: 15px;">Create</button><a href="#">Cancel</a>
 						</form>
-
-						</div>
-						<div class="tab-pane" id="14.2">
-							<h3><a href="#">Version 14.2</a></h3>
-							<div class="progress progress-info">
-								<div class="bar" style="width: 40%;"></div>
-							</div>
 						</div>
 					</div>
 				</div>
-				<br>
-				
-		<!-- 
-      		# Components will be displayed in the place where currently Milestones are displayed, when selected via the button-bar.
-      	
-      		<div class="well">
-      			<h3 style="display:inline;">Components</h3>&nbsp;&nbsp;&nbsp;<a href="#">View all</a>
-      			<p style="font-size:medium; line-height:150%"><a href="#">APIs</a>&nbsp;&nbsp;&nbsp;<a href="#">Branding</a>&nbsp;&nbsp;&nbsp;<a href="#">Website</a>&nbsp;&nbsp;&nbsp;<a href="#">Database</a>&nbsp;&nbsp;&nbsp;<a href="#">Interface</a></p>
-      			</div>
-      	-->
-      	
       		</div>
+      		<!-- This is only here to force the footer further down! -->
+      		<div style="height:350px;"></div>
+      		<!-- Likely due to a poisition: style that I got wrong somewhere in the 'content' div -->
+      		</div>
+      			
 <!-- Activity starts -->
-			<div id="Activity" class="span4">
+			<div id="activity" class="span4">
+				<div id="stickyactivity">
 				<h1>Activity</h1>
       			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
+	      		</div>
       		</div>
      	</div>
      	
@@ -164,6 +185,8 @@
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="js/bootstrap-button.js"></script>
+    <script type="text/javascript" src="js/bloodhound-activitysize.js"></script>
+    <script type="text/javascript" src="js/bloodhound-stickyscroll.js"></script>
 </body>
 </html>
 

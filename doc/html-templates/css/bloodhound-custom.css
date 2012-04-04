@@ -1,0 +1,53 @@
+div#stickyStatus {
+	position: relative;
+	width: 620px;
+}
+
+div#belowStatus {
+	position: relative;
+	top: 135px;
+}
+
+div#stickyStatus hgroup {
+	position: absolute;
+	left: 60px;
+	width: 620px;
+}
+
+div#stickyStatus h6 {
+	margin-top: -5px;
+}
+
+div#stickyStatus #whitebox {
+	position: absolute;
+	z-index: 10;
+	background-color: white;
+	height: 115px;
+	width: 620px;
+}
+
+div#stickyStatus #statusBar {
+	position: relative;
+	top: 65px;
+	left: 30px;
+	width: 580px;
+	text-align: center;
+}
+
+div#stickyStatus #statusBarBox {
+	background-color: #FEFFF0;
+	height: 45px;
+	width: 583px;
+	position: absolute;
+	top: -5px;
+	left: -18px;
+	z-index: -1;
+}
+
+div#stickyStatus .first {
+	float: left;
+}
+div#stickyStatus .other {
+	float: left;
+	margin-left: 50px;
+}
