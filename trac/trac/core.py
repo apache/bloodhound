@@ -94,7 +94,23 @@ class ComponentMeta(type):
     def __new__(mcs, name, bases, d):
         """Create the component class."""
 
-        new_class = type.__new__(mcs, name, bases, d)
+        def nonrecursive_init(cls):
+            """Replaces __init__ of the class with one that checks for
+            recursion"""
+            original_init = cls.__init__
+            compmgrs = set()
+            def new_init(self, *args, **kwargs):
+                """Only run the original __init__ once per component manager"""
+                if self.compmgr not in compmgrs:
+                    try:
+                        compmgrs.add(self.compmgr)
+                        original_init(self, *args, **kwargs)
+                    finally:
+                        compmgrs.remove(self.compmgr)
+            cls.__init__ = new_init
+            return cls
+
+        new_class = nonrecursive_init(type.__new__(mcs, name, bases, d))
         if name == 'Component':
             # Don't put the Component base class in the registry
             return new_class
