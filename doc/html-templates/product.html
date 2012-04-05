@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="css/bloodhound-custom.css" />
 <html>
 <head>
 	<title>MultiSite - Apache Bloodhound</title>
 </head>
 <body>
 	<div class="container">
+	<header>
 		<div class="row">
 			<div class="span6">
 				<div id="logo" style="position:relative;">
@@ -30,7 +32,7 @@
 
 <!-- Create button -->
 			<div class="span4">
-			  	<button class="btn btn-primary" href="#">Create Ticket</a>
+			  	<button class="btn btn-primary" href="#">Create Ticket</button>
 			</div>
 			
 <!-- Main navigation tabs -->
@@ -60,83 +62,152 @@
 			</div>
       		<div class="span3" style="text-align:right;"></div>
      	</div>
+		</header>
 		<div class="row">
-      		<div class="span8">
-      			<h1 style="display:inline;">MultiSite</h1>
-      			<br><br><div class="well">
-					<p><strong>This is the product description.</strong> Nay lad ipsum dolor sit t'foot o' our <a href="#">stairs ah'll box</a> thi ears big girl's blouse ey up donec ee by gum ah'll learn thi soft southern pansy at mardy bum phasellus soft southern pansy.</p>
-					<ul>
-						<li>Michael palin gi' o'er felis nah <a href="#">then mi bloomin' 'eck</a> t' molestie nunc accumsan.</li>
-						<li>Varius tempor gerritetten eget <a href="#">'sup wi' 'im.</a><a href="#" class="btn btn-info btn-small pull-right">More</a></li>
-					</ul>
-				</div>
-				<div class="btn-toolbar">
-				<div class="btn-group offset1"  data-toggle="buttons-radio">
-					<a class="btn active" href="#">Versions</a>
-					<a class="btn" href="#">My tickets</a>
-					<a class="btn" href="#">All tickets</a>
-				</div>
-				<div class="btn-group">
-					<a class="btn" href="#">Projects</a>
-					<a class="btn" href="#">Components</a>
-				</div>
-				</div>
-				<br>
-      			<div class="tabbable tabs-left">
-					<ul class="nav nav-tabs" style="text-align:right;">
-						<li><a href="#"><span class="label">Undefined</span></a></li>
-						<li><a href="#14.3">14.3<br /><br /><div class="progress progress-warning">
-							<div class="bar" style="width: 35%;"></div>
-						</div></a></li>
-						<li class="active"><a href="#14.3"><span class="label label-warning" style="">14.3</span>
-						<br /><br /><div class="progress progress-success">
-							<div class="bar" style="width: 75%;"></div>
-						</div></a></li>
-						<li><a href="#">14.2<br /><br /><div class="progress progress-success">
-							<div class="bar" style="width: 100%;"></div>
-						</div></a></li>
-						<li><a href="#">14.1<br /><br /><div class="progress progress-success">
-							<div class="bar" style="width: 100%;"></div>
-						</div></a></li>
-						<li><a href="#">&laquo; Previous</a></li>
-					</ul>
-					<div class="tab-content">
-						<div class="tab-pane active" id="14.3">
-						<h3><a href="version.html">Version 14.3</a> <span class="label label-warning">Current</span></h3>
-						<strong>Due in 3 weeks</strong> (15 Feb, 2012) <a href="#">Change</a><div class="pull-right">75% completed</div>
-							<div class="progress progress-success">
-								<div class="bar" style="width: 75%;"></div>
+			<div id="content" class="span8">
+				<div id="stickyStatus">
+					<div id="whitebox"></div>
+					<div style="position: absolute; z-index: 20;">
+					<hgroup>
+						<h1>MultiSite</h1>
+						<h6>Owned by <a href="profile.html">Warren Warwick</a></h6>
+					</hgroup>
+					<div id="statusBar">
+					<div id="statusBarBox"></div>
+						<div style="width: 150px; margin-left: 40px;" class="first">
+							<p style="margin-bottom:-2px;">24% complete</p>
+							<div class="progress">
+								<div class="bar" style="width: 24%;"></div>
 							</div>
-							<a href="#">Complete (75)</a><a href="#" class="pull-right">Incomplete (25)</a><br/>
-							<p>Note to maintainers
-								<ul>
-									<li>Move tickets from <a href="#">next-minor-0.14.x</a> to here once you know you're going to fix them for the <a href="#">0.14.2</a> release.</li>
-									<li>There should be no enhancements here, only defects</li>
-									<li>There should be only <strong>major</strong> defects here anyway, focus is now on <a href="#">0.15</a></li>
-								</ul>
-							</p>
 						</div>
-						<div class="tab-pane" id="14.2"></div>
-						<div class="tab-pane" id="14.1"></div>
+					<div id="status" class="other">
+						<p style="margin-bottom:-2px;">In progress</p>
+						<p style="font-size:150%;"><a href="#">14</a></p>
+					</div>
+					<div id="type" class="other">
+						<p style="margin-bottom:-2px;">Open</p>
+						<p style="font-size:150%;"><a href="#">20</a></p>
+					</div>
+					<div id="type" class="other">
+						<p style="margin-bottom:-2px;">Complete</p>
+						<p style="font-size:150%;"><a href="#">24</a></p>
 					</div>
 				</div>
-      	<!-- 
-      		# Components will be displayed in the place where currently Versions are displayed, when selected via the button-bar.
-      	
-      		<div class="well">
-      			<h3 style="display:inline;">Components</h3>&nbsp;&nbsp;&nbsp;<a href="#">View all</a>
-      			<p style="font-size:medium; line-height:150%"><a href="#">APIs</a>&nbsp;&nbsp;&nbsp;<a href="#">Branding</a>&nbsp;&nbsp;&nbsp;<a href="#">Website</a>&nbsp;&nbsp;&nbsp;<a href="#">Database</a>&nbsp;&nbsp;&nbsp;<a href="#">Interface</a></p>
-      		</div> 
-      		
-      	-->
-      		</div>
+			</div>
+		</div>
+		<div id="belowStatus">
+			<div id="description" class="well">
+				<h3>Replication, mirroring and clustering for enterprise performance</h3>
+				<div>
+					<p><i class="icon-tags"></i> <a href="#">Apache Subversion</a>, <a href="#">replication</a>, <a href="#">mirroring</a>, <a href="#">clustering</a>, <a href="#">enterprise performance</a>, <a href="#">scalability</a>, <a href="#">backup</a>, <a href="#">distributed</a></p>
+				</div>
+				<p>This is the product description. Nay lad ipsum dolor sit t'foot o' our stairs ah'll box thi ears big girl's blouse ey up donec ee by gum ah'll learn thi soft southern pansy at mardy bum phasellus soft southern pansy.</p>
+				<ul>
+					<li>Michael palin gi' o'er felis nah then mi bloomin' 'eck t' molestie nunc accumsan.</li>
+					<li>Varius tempor gerritetten eget 'sup wi' 'im.</li>
+				</ul>
+				<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
+			</div>
+			<div id="Versions">
+				<h2>Versions</h2>
+				<a href="">Add new</a>
+				<ul class="oocss">
+					<li><a href="version.html"><h3>14.3 Rutland</h3></a><h6>Due in <time datetime="2012-05-27"><a href="#">3 weeks</a></time>, assigned to <a href="profile.html">Werner Hoffer</a></h6>
+						<ul class="statusitems">
+							<li style="margin-right: 80px;"><p style="position: relative; top: -17px;">75% complete</p>
+							<div class="progress" style="position: relative; top: -17px; left: -50%;">
+								<div class="bar" style="width: 75%;"></div>
+							</div></li>
+							<li><p>In progress</p><a href="#">14</a></li>
+							<li><p>Open</p><a href="#">20</a></li>
+							<li><p>Complete</p><a href="#">24</a></li>
+						</ul>
+					</li>
+					<li><a href="#"><h3>14.2.2 - Bugfix</h3></a><h6>Due in <time datetime="2012-05-27"><a href="#">6 days</a></time>, assigned to <a href="profile.html">Werner Hoffer</a></h6>
+						<ul class="statusitems">
+							<li style="margin-right: 80px;"><p style="position: relative; top: -17px;">90% complete</p>
+							<div class="progress" style="position: relative; top: -17px; left: -50%;">
+								<div class="bar" style="width: 90%;"></div>
+							</div></li>
+							<li><p>In progress</p><a href="#">14</a></li>
+							<li><p>Open</p><a href="#">20</a></li>
+							<li><p>Complete</p><a href="#">24</a></li>
+						</ul>
+					</li>
+					<li><a href="#"><h3>14.2.1 - Bugfix release</h3></a><h6>Completed <time datetime="2012-05-27"><a href="#">2 months ago</a></time>, owned by <a href="profile.html">Werner Hoffer</a></h6>
+						<ul class="statusitems">
+							<li style="margin-right: 80px;"><p style="position: relative; top: -17px;">100% complete</p>
+							<div class="progress" style="position: relative; top: -17px; left: -50%;">
+								<div class="bar" style="width: 100%;"></div>
+							</div></li>
+							<li><p>In progress</p><a href="#">14</a></li>
+							<li><p>Open</p><a href="#">20</a></li>
+							<li><p>Complete</p><a href="#">24</a></li>
+						</ul>
+					</li>
+				</ul>
+				<a href="">View more</a>
+			</div>
+  		</div>
+	</div>
+<!-- Buttonbar and below					<div class="btn-toolbar">
+      							<div class="btn-group offset1"  data-toggle="buttons-radio">
+      								<a class="btn active" href="#">Versions</a>
+      								<a class="btn" href="#">My tickets</a>
+      								<a class="btn" href="#">All tickets</a>
+      							</div>
+      							<div class="btn-group">
+      								<a class="btn" href="#">Projects</a>
+      								<a class="btn" href="#">Components</a>
+      							</div>
+      							</div>
+      			      			<div class="tabbable tabs-left">
+      							<ul class="nav nav-tabs" style="text-align:right;">
+      								<li><a href="#"><span class="label">Undefined</span></a></li>
+      								<li><a href="#14.3">14.3<br /><br /><div class="progress progress-warning">
+      									<div class="bar" style="width: 35%;"></div>
+      								</div></a></li>
+      								<li class="active"><a href="#14.3"><span class="label label-warning" style="">14.3</span>
+      								<br /><br /><div class="progress progress-success">
+      									<div class="bar" style="width: 75%;"></div>
+      								</div></a></li>
+      								<li><a href="#">14.2<br /><br /><div class="progress progress-success">
+      									<div class="bar" style="width: 100%;"></div>
+      								</div></a></li>
+      								<li><a href="#">14.1<br /><br /><div class="progress progress-success">
+      									<div class="bar" style="width: 100%;"></div>
+      								</div></a></li>
+      								<li><a href="#">&laquo; Previous</a></li>
+      							</ul>
+      							<div class="tab-content"  style="width: auto;">
+      								<div class="tab-pane active" id="14.3">
+      								<h3><a href="version.html">Version 14.3</a> <span class="label label-warning">Current</span></h3>
+      								<strong>Due in 3 weeks</strong> (15 Feb, 2012) <a href="#">Change</a><div class="pull-right">75% completed</div>
+      									<div class="progress progress-success">
+      										<div class="bar" style="width: 75%;"></div>
+      									</div>
+      									<a href="#">Complete (75)</a><a href="#" class="pull-right">Incomplete (25)</a><br/>
+      									<p>Note to maintainers
+      										<ul>
+      											<li>Move tickets from <a href="#">next-minor-0.14.x</a> to here once you know you're going to fix them for the <a href="#">0.14.2</a> release.</li>
+      											<li>There should be no enhancements here, only defects</li>
+      											<li>There should be only <strong>major</strong> defects here anyway, focus is now on <a href="#">0.15</a></li>
+      										</ul>
+      									</p>
+      								</div>
+      								<div class="tab-pane" id="14.2"></div>
+      								<div class="tab-pane" id="14.1"></div>
+      							</div>
+						</div>-->
 <!-- Activity starts -->
-			<div id="Activity" class="span4">
-				<h1>Activity</h1>
-      			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
+			<div id="activity" class="span4">
+					<h1>Activity</h1>
+	      			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 600px; width: 100%;"></iframe>
       		</div>
      	</div>
-     	
+     	<!-- This is only here to force the footer further down! -->
+     	<div style="height:200px;"></div>
+     	<!-- Likely due to a position: style that I got wrong somewhere in the 'content' div -->
 <!-- Footer -->
      	<div class="row">
      	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
@@ -148,6 +219,7 @@
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="js/bootstrap-button.js"></script>
+    <script type="text/javascript" src="js/bloodhound-stickyscroll.js"></script>
 </body>
 </html>
 

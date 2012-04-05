@@ -1,6 +1,7 @@
+/* @group Sticky Status */
+
 div#stickyStatus {
 	position: relative;
-	width: 620px;
 }
 
 div#belowStatus {
@@ -27,27 +28,78 @@ div#stickyStatus #whitebox {
 }
 
 div#stickyStatus #statusBar {
-	position: relative;
+	position: absolute;
 	top: 65px;
 	left: 30px;
 	width: 580px;
 	text-align: center;
 }
 
-div#stickyStatus #statusBarBox {
+div#statusBarBox {
 	background-color: #FEFFF0;
 	height: 45px;
 	width: 583px;
 	position: absolute;
 	top: -5px;
 	left: -18px;
-	z-index: -1;
+	z-index: -50;
 }
 
-div#stickyStatus .first {
+div#statusBar .first {
 	float: left;
 }
-div#stickyStatus .other {
+div#statusBar .other {
 	float: left;
 	margin-left: 50px;
 }
+
+/* @end */
+
+/* @group OOCSS */
+
+ul.oocss {
+	list-style-type: none;
+	padding-left: 30px;
+	margin: 0;
+}
+
+ul.oocss h3,
+ul.oocss h6 {
+	display: inline;
+}
+
+ul.oocss h3 {
+	margin-right: 20px;
+}
+
+/* @end */
+
+/* @group Status items */
+
+ul.statusitems {
+	list-style-type: none;
+	margin: 0;
+	text-align: center;
+	border-bottom: 1px dashed gray;
+}
+
+ul.statusitems li {
+	display: inline-block;
+	margin-right: 50px;
+}
+
+ul.statusitems li p {
+	margin-bottom: -2px;
+}
+
+ul.statusitems li a {
+	font-size: 150%;
+}
+
+ul.statusitems li .progress {
+	width: 200%;
+	margin-bottom: 0px;
+	margin-top: 0;
+}
+
+/* @end */

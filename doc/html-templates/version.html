@@ -97,21 +97,19 @@
 				</div>
 			</div>
 			<div id="belowStatus">
-			      <div class="well">
-				      <h3>Sit amet vestibulum</h3>
-				      <div>
-				      	<p><i class="icon-tags"></i> <a href="#">Trac</a>, <a href="#">components</a></p>
-				      </div>
+				<div class="well">
+					<h3>Sit amet vestibulum</h3>
+					<div>
+						<p><i class="icon-tags"></i> <a href="#">Trac</a>, <a href="#">components</a></p>
+					</div>
 					<p>Note to maintainers:</p>
 					<ul>
 						<li>Move tickets from next-minor-0.14.x to here once you know you're going to fix them for the 0.14.2 release.</li>
 						<li>There should be no enhancements here, only defects</li>
 						<li>There should be only major defects here anyway, focus is now on 0.15</li>
 					</ul>
-					
 					<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
-		</div>
-
+				</div>
 				<div class="btn-toolbar">
 				<div class="btn-group offset1"  data-toggle="buttons-radio">
 					<a class="btn active" href="#">Milestones</a>
@@ -127,41 +125,31 @@
       			<div class="tabbable tabs-left">
 					<ul class="nav nav-tabs" style="text-align:right;">
 						<li class="active"><a href="#Undefined"><span class="label">Undefined</span></a></li>
-						<li><a href="#14.3">Super Singularity</a></li>
-						<li><a href="#14.3"><span class="label label-warning">Aktueller Meilenstein</span></a></li>
-						<li><a href="#">Etapa Anterior</a></li>
+						<li><a href="#14.3">Singularity</a></li>
+						<li><a href="#14.3"><span class="label label-warning">Aktuell</span></a></li>
+						<li><a href="#">Anterior</a></li>
 					</ul>
-					<div class="tab-content">
+					<div class="tab-content" style="width: auto;">
 						<div class="tab-pane active" id="Undefined">
-						<h3>Create Milestone</a></h3>
-						<br />
-						<form method="post" action="">
-						<label style="font-size:14pt;">Name</label>
-						<input type="text" class="span5">
-						<label style="font-size:14pt;">Summary</label>
-						<input type="text" class="span5">
-						<br /><br />
-						
-							<div class="span2">
-								<a href="#" style="font-size:14pt;">+ Attach files</a><br />Upload or link to files.
-								<br /><br />
-								<a href="#" style="font-size:14pt;">+ Set owner</a><br />This is you by default.
-							</div>
-							<div class="span2">
-								<a href="#" style="font-size:14pt;">+ Due date</a><br />Upload or link to files.
-								<br /><br />
-								<a href="#" style="font-size:14pt;">+ Component</a><br />Upload or link to files.
-							</div>
-						
-						<button class="btn btn-primary" style="margin-right: 15px;">Create</button><a href="#">Cancel</a>
-						</form>
+							<h3>Create Milestone</h3>
+							<form method="post" class="form-horizontal">
+							<label>Name</label>
+							<input type="text" />
+							<label>Summary</label>
+							<input type="text" />
+							</form>
+								<a href="#" style="font-size:14pt;">+ Attach files</a><p>Upload or link to files.</p>
+								<a href="#" style="font-size:14pt;">+ Set owner</a><p>This is you by default.</p>
+								<a href="#" style="font-size:14pt;">+ Due date</a><p>Upload or link to files.</p>
+								<a href="#" style="font-size:14pt;">+ Component</a><p>Upload or link to files.</p>
+							<button class="btn btn-primary" style="margin-right: 15px;">Create</button><a href="#">Cancel</a>
 						</div>
 					</div>
 				</div>
       		</div>
       		<!-- This is only here to force the footer further down! -->
       		<div style="height:350px;"></div>
-      		<!-- Likely due to a poisition: style that I got wrong somewhere in the 'content' div -->
+      		<!-- Likely due to a position: style that I got wrong somewhere in the 'content' div -->
       		</div>
       			
 <!-- Activity starts -->
@@ -174,13 +162,12 @@
      	</div>
      	
 <!-- Footer -->
-     	<div class="row">
      	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
+     	<div class="row">
      		<div class="span12" style="color:grey; margin-top:10px;">Powered by <a href="#" style="color:#565656;">Bloodhound</a>. Standing on the shoulders of <a href="#" style="color:#565656;">Trac 0.13</a>.</div>
      		</div>
-
-     	</footer>
      	</div>
+     	</footer>
     </div>
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
