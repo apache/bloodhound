@@ -65,7 +65,7 @@ def dummy_request(env, uname=None):
 class BloodhoundTheme(ThemeBase):
     """Look and feel of Bloodhound issue tracker.
     """
-    template = htdocs = css = screenshot = True
+    template = htdocs = css = screenshot = disable_trac_css = True
 
     # Internal methods
     def is_theme_active(self, req):

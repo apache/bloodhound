@@ -11,6 +11,7 @@
       <py:when test="title">${title}</py:when>
       <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
     </title>
+    <link rel="stylesheet" href="/main/chrome/theme/bootstrap.css" type="text/css" />
     <py:if test="chrome.links">
       <py:for each="rel, links in chrome.links.items()">
         <link rel="${rel}" py:for="link in links" py:attrs="link"/>
@@ -38,6 +39,7 @@
     <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
     ${Markup('&lt;![endif]--&gt;')}
     ${select("*[local-name() != 'title']")}
+
   </head></py:match>
 
   <py:match path="body" once="true" buffer="false"><body>
@@ -66,7 +68,7 @@
       </div>
       <div class="row" style="position:relative;">
         <div class="span4">
-          <form class="form-inline" action="${href.search()}" method="get">
+          <form id="mainsearch" class="form-inline" action="${href.search()}" method="get">
             <input type="text" class="span3" name="q"
                 placeholder="Search anything. Try #EF-492." />
             <input type="submit" value="Search" class="btn btn-warning"/>
@@ -172,6 +174,7 @@
         <div class="span4">
           <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
               class="nav nav-tabs pull-right"
+              id="mainnav"
               py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
             <!-- TODO: Parameterize visible mainnav items in trac.ini -->
             <li py:if="chrome.nav.mainnav"
