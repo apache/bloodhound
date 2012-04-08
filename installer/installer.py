@@ -39,6 +39,18 @@ DEFAULT_DB_NAME = 'bloodhound'
 DEFAULT_ADMIN_USER = 'admin'
 
 BASE_CONFIG = """
+[components]
+bhtheme.* = enabled
+bhdashboard.* = enabled
+multiproduct.* = enabled
+themeengine.* = enabled
+trac.ticket.web_ui.ticketmodule = disabled
+
+[header_logo]
+src = 
+
+[theme]
+theme = bloodhound
 """
 
 ACCOUNTMGRSTR = """
@@ -66,13 +78,7 @@ acct_mgr.guard.accountguard = enabled
 acct_mgr.htfile.htdigeststore = enabled
 acct_mgr.web_ui.accountmodule = enabled
 acct_mgr.web_ui.loginmodule = enabled
-multiproduct.model.multiproductenvironmentprovider = enabled
-multiproduct.product_admin.productadminpanel = enabled
-multiproduct.product_admin.productpermissions = enabled
-multiproduct.ticket.api.productticketfields = enabled
-multiproduct.ticket.web_ui.productticketmodule = enabled
 trac.web.auth.loginmodule = disabled
-trac.ticket.web_ui.ticketmodule = disabled
 """
 
 def install_virtualenv(venvpath, syspackages):
