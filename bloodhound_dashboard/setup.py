@@ -23,7 +23,10 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from bhdashboard.__init__ import __doc__ as DESC
+DESC = """Project dashboard for Apache(TM) Bloodhound
+
+Add custom dashboards in multiple pages of Bloodhound sites.
+"""
 
 versions = [
     (1, 0, 0),
