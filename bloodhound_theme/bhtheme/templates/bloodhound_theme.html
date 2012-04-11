@@ -29,10 +29,10 @@
         type="text/javascript"></script>
     <script src="${href.chrome('theme/scripts/bootstrap-dropdown.js')}"
         type="text/javascript"></script>
-    <!-- script src="${href.chrome('theme/scripts/bootstrap-tooltip.js')}"
+    <script src="${href.chrome('theme/scripts/bootstrap-tooltip.js')}"
         type="text/javascript"></script>
     <script src="${href.chrome('theme/scripts/bootstrap-popover.js')}"
-        type="text/javascript"></script -->
+        type="text/javascript"></script> 
     <script src="${href.chrome('theme/scripts/dashboard.js')}"
         type="text/javascript"></script>
     ${Markup('&lt;!--[if lt IE 7]&gt;')}
@@ -125,7 +125,9 @@
           <py:choose test="">
             <py:when test="qct">
               <div class="btn-group">
-                <a href="${href.newticket()}" class="btn btn-inverse">
+                <a href="${href.newticket()}" class="btn btn-inverse"
+                    id="qct-newticket" rel="popover" title="Ticket "
+                    data-content="Alert box">
                   Create Ticket
                 </a>
                 <a href="#" class="btn btn-inverse dropdown-toggle"

@@ -67,11 +67,6 @@ class BloodhoundTheme(ThemeBase):
     """
     template = htdocs = css = screenshot = disable_trac_css = True
 
-    # Internal methods
-    def is_theme_active(self, req):
-        # TODO: Implement
-        return True
-
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 

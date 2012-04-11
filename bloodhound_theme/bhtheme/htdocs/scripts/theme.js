@@ -1,7 +1,9 @@
 
 
 $( function () {
-    // Do not close dropdown menu if user clicks on form controls
+    //$('#qct-newticket').popover({});
+    
+    // Do not close dropdown menu if user interacts with form controls
     $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu select')
         .click(function (e) { e.stopPropagation(); });
 
