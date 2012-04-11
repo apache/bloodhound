@@ -218,18 +218,21 @@
         </div>
         <div style="text-align: right;" class="span3"></div>
       </div>
-      <div id="warning" py:if="chrome.warnings" class="system-message">
-        <py:choose test="len(chrome.warnings)">
-          <strong>Warning:</strong>
-          <py:when test="1">${chrome.warnings[0]}</py:when>
-          <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
-        </py:choose>
-      </div>
-      <div id="notice" py:if="chrome.notices" class="system-message">
-        <py:choose test="len(chrome.notices)">
-          <py:when test="1">${chrome.notices[0]}</py:when>
-          <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
-        </py:choose>
+      <div class="span12" py:if="chrome.warnings or chrome.notices">
+        <div id="warning" py:if="chrome.warnings" class="alert">
+          <py:choose test="len(chrome.warnings)">
+            <span class="label label-warning">Warning</span>
+            <py:when test="1">${chrome.warnings[0]}</py:when>
+            <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
+          </py:choose>
+        </div>
+        <div id="notice" py:if="chrome.notices" class="alert alert-success">
+          <py:choose test="len(chrome.notices)">
+            <span class="label label-success">Success</span>
+            <py:when test="1">${chrome.notices[0]}</py:when>
+            <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
+          </py:choose>
+        </div>
       </div>
       ${select('*|text()|comment()')}
       <div class="row">
