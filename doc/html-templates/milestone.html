@@ -9,17 +9,7 @@
 	<div class="container">
 	<header>
 		<div class="row">
-			<div class="span6">
-				<div id="logo" style="position:relative;">
-					<p style="margin-top:20px; margin-bottom:0px; line-height:65%; font-weight:lighter;">Apache<sup style="font-size:65%;">TM</sup></p>
-					<p style="margin-top:0px; font-weight:bold; font-size:120%;">Bloodhound</p>
-					<img src="img/logo.png" alt="Bloodhound Logo" height="40" width="55" style="position:absolute;
-					top:-15px; left:100px;"/>
-				</div>
-			</div>
-			<div class="span6">
-				<div class="pull-right" style="margin-top:5px; margin-right:20px;">Hi Joachim (<a href="#">logout</a>) <a href="#" style="margin-left:10px;">Preferences</a><a href="#" style="margin-left:10px;">Help</a></div>
-			</div>
+			<div id="logo-container"></div>
 		</div>
 		<div class="row">
 <!-- Search box -->
@@ -107,159 +97,37 @@
 							<p>Sodales donec sem risus bibendum semper. Velit et mauris. Vestibulum sit quam mollis massa consectetuer nonummy mattis imperdiet. Ornare varius natoque. Tortor amet venenatis pede.</p>
 							<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
 				</div>
-				<div class="btn-toolbar">
-					<div class="btn-group offset1"  data-toggle="buttons-radio">
-						<a class="btn active" href="#">My tickets</a>
-						<a class="btn" href="#">All tickets</a>
-					</div>
-					<div class="btn-group">
-						<a class="btn" href="#">Projects</a>
-						<a class="btn" href="#">Components</a>
-					</div>
-				</div>
-      			<table class="table table-condensed">
-      		<thead>
-      			<tr>
-      				<th style="text-align:right;">Date</th>
-      				<th>Ticket</th>
-      				<th>Summary</th>
-      				<th>Owner</th>
-      				<th>Priority</th>
-      			</tr>
-      		</thead>
-      		<tr>
-      			<td style="text-align:right;">Today</td>
-      			<td><a href="#"><a href="#">wiki-5476</a></a></td>
-      			<td>All Tickets report on this site: Example.com/bh</td>
-      			<td>Me (<a href="#">view all</a>)</td>
-      			<td>High</td>
-      		</tr>
-				<tr>
-      			<td></td>
-      			<td><a href="#">E-5476</a></td>
-      			<td>Grouping doesn't work in ...</td>
-      			<td><a href="#">Warren</a></td>
-      			<td>High</td>
-      		</tr>
-				<tr>
-      			<td></td>
-      			<td><a href="#">EF-492</a></td>
-      			<td>Protocol http is hard coded in ...</td>
-      			<td>Me (<a href="#">view all</a>)</td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-			<tr>
-      			<td></td>
-      			<td><a href="#">ipad-2911</a></td>
-      			<td>Fix header graphic</td>
-      			<td><a href="#">Vince</a></td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-      		<tr>
-      			<td style="text-align:right;">Yesterday</td>
-      			<td><a href="#">E-1920</a></td>
-      			<td>SQL report realm/id decoration</td>
-      			<td><a href="#">Montgomery</a></td>
-      			<td>High</td>
-      		</tr>
-				<tr>
-      			<td></td>
-      			<td><a href="#">TR-2930</a></td>
-      			<td>Change main button</td>
-      			<td>Me (<a href="#">view all</a>)</td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-				<tr>
-      			<td></td>
-      			<td><a href="#">mobile-281</a></td>
-      			<td>AttachmentManipulators cannot ...</td>
-      			<td><a href="#">Seraphinia</a></td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-			<tr>
-      			<td style="text-align:right;">15 Mar</td>
-      			<td><a href="#">PL-8491</a></td>
-      			<td>Use of svn:mime-type: text/x-trac-wiki ...</td>
-      			<td><a href="#">Gambolputty</a></td>
-      			<td>High</td>
-      		</tr>
-      		<tr>
-      			<td></td>
-      			<td><a href="#">ipad-2841</a></td>
-      			<td>uber logo placement</td>
-      			<td><a href="#">Deepakeesh</a></td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-				<tr>
-      			<td></td>
-      			<td><a href="#">J-2913</a></td>
-      			<td>[PATCH] Empty folders excluded ...</td>
-      			<td><a href="#">Thandayutha</a></td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-				<tr>
-      			<td style="text-align:right;">16 Mar</td>
-      			<td><a href="#">mobile-6932</a></td>
-      			<td>Permission check of Repository ...</td>
-      			<td>Me (<a href="#">view all</a>)</td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-			<tr>
-      			<td></td>
-      			<td><a href="#">J-2941</a></td>
-      			<td>Load front banner</td>
-      			<td><a href="#">David</a></td>
-      			<td style="text-align:right;">Low</td>
-      		</tr>
-      		<tr>
-      			<td style="text-align:right;">21 Mar</td>
-      			<td><a href="#">ipad-1823</a></td>
-      			<td>resync single revision doesn't resync ...</td>
-      			<td><a href="#">Caroline</a></td>
-      			<td>High</td>
-      		</tr>
-				<tr>
-      			<td style="text-align:right;">23 Mar</td>
-      			<td><a href="#">PO-1824</a></td>
-      			<td>Update jquery to 1.4.4</td>
-      			<td>Me (<a href="#">view all</a>)</td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-				<tr>
-      			<td style="text-align:right;">24 Mar</td>
-      			<td><a href="#">G-1938</a></td>
-      			<td>Wrong wrapping field with long and ...</td>
-      			<td><a href="#">Gary</a></td>
-      			<td style="text-align:right;">Med</td>
-      		</tr>
-      		</table>
+
+				<div id="ticketlist-container"></div>
       			
 				<!-- This is only here to force the footer further down! -->
 				<div style="height:150px;"></div>
       			<!-- Likely due to a poisition: style that I got wrong somewhere in the 'content' div -->
       		</div>
       		</div>
-<!-- Activity starts -->
-      		<div id="activity" class="span4">
-      		<div id="stickyactivity">
-      			<h1>Activity</h1>
-      		    <iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
-      		</div>
-     	</div>
+<!-- Activity -->
+			<div id="activity" class="span4">
+				<div id="stickyActivity">
+					<h1>Activity</h1>
+				</div>
+				<div id="activity-container"></div>
+			</div>
      	</div>
 <!-- Footer -->
-     	<div class="row">
-     	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
-     		<div class="span12" style="color:grey; margin-top:10px;">Powered by <a href="#" style="color:#565656;">Bloodhound</a>. Standing on the shoulders of <a href="#" style="color:#565656;">Trac 0.13</a>.</div>
-     		</div>
-     	</footer>
-     	</div>
+     	<div class="row" id="footer-container"></div>
+     	
     </div>
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="js/bootstrap-button.js"></script>
     <script type="text/javascript" src="js/bloodhound-activitysize.js"></script>
     <script type="text/javascript" src="js/bloodhound-stickyscroll.js"></script>
+    <script type="text/javascript">
+        $('div#logo-container').load('placeholders/header.html #logo-user');
+        $('div#ticketlist-container').load('placeholders/ticketlist.html #myAll');
+        $('div#activity-container').load('placeholders/activity.html');
+        $('div#footer-container').load('placeholders/header.html footer');
+    </script>
 </body>
 </html>
 

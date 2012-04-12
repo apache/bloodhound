@@ -2,6 +2,7 @@
 
 div#stickyStatus {
 	position: relative;
+	top: 0px;
 }
 
 div#belowStatus {
@@ -25,6 +26,7 @@ div#stickyStatus #whitebox {
 	background-color: white;
 	height: 115px;
 	width: 620px;
+	border-bottom: 2px solid white;
 }
 
 div#stickyStatus #statusBar {
@@ -59,17 +61,11 @@ div#statusBar .other {
 
 ul.oocss {
 	list-style-type: none;
-	padding-left: 30px;
-	margin: 0;
+	margin: 0px;
 }
 
-ul.oocss h3,
 ul.oocss h6 {
-	display: inline;
-}
-
-ul.oocss h3 {
-	margin-right: 20px;
+	margin-top: -5px;
 }
 
 /* @end */
@@ -79,27 +75,56 @@ ul.oocss h3 {
 ul.statusitems {
 	list-style-type: none;
 	margin: 0;
-	text-align: center;
-	border-bottom: 1px dashed gray;
 }
 
 ul.statusitems li {
 	display: inline-block;
-	margin-right: 50px;
+	text-align: center;
+	margin-right: 30px;
+}
+
+ul.statusitems li.first {
+	text-align: left;
+	width: 200px;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 ul.statusitems li p {
 	margin-bottom: -2px;
 }
 
-ul.statusitems li a {
-	font-size: 150%;
+ul.statusitems li p + a {
+	font-size: 120%;
+}
+
+ul.statusitems .progressbar {
+	position: relative;
+	top: -17px;
+	width: 85px;
 }
 
 ul.statusitems li .progress {
-	width: 200%;
 	margin-bottom: 0px;
-	margin-top: 0;
+	margin-top: 0px;
 }
 
 /* @end */
+
+.section {
+	margin-bottom: 20px;
+}
+
+.section h2 {
+	position: relative;
+	display: inline;
+	margin-right: 10px;
+}
+
+.section .well {
+	display: inline;
+	padding:4px;
+	position: relative;
+	top: -6px;
+	color: whiteSmoke;
+}

@@ -9,17 +9,7 @@
 	<div class="container">
 	<header>
 		<div class="row">
-			<div class="span6">
-				<div id="logo" style="position:relative;">
-					<p style="margin-top:20px; margin-bottom:0px; line-height:65%; font-weight:lighter;">Apache<sup style="font-size:65%;">TM</sup></p>
-					<p style="margin-top:0px; font-weight:bold; font-size:120%;">Bloodhound</p>
-					<img src="img/logo.png" alt="Bloodhound Logo" height="40" width="55" style="position:absolute;
-					top:-15px; left:100px;"/>
-				</div>
-			</div>
-			<div class="span6">
-				<div class="pull-right" style="margin-top:5px; margin-right:20px;">Hi Joachim (<a href="#">logout</a>) <a href="#" style="margin-left:10px;">Preferences</a><a href="#" style="margin-left:10px;">Help</a></div>
-			</div>
+			<div id="logo-container"></div>
 		</div>
 		<div class="row">
 <!-- Search box -->
@@ -110,18 +100,6 @@
 					</ul>
 					<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
 				</div>
-				<div class="btn-toolbar">
-				<div class="btn-group offset1"  data-toggle="buttons-radio">
-					<a class="btn active" href="#">Milestones</a>
-					<a class="btn" href="#">My tickets</a>
-					<a class="btn" href="#">All tickets</a>
-				</div>
-				<div class="btn-group">
-					<a class="btn" href="#">Projects</a>
-					<a class="btn" href="#">Components</a>
-				</div>
-				</div>
-				<br>
       			<div class="tabbable tabs-left">
 					<ul class="nav nav-tabs" style="text-align:right;">
 						<li class="active"><a href="#Undefined"><span class="label">Undefined</span></a></li>
@@ -148,32 +126,34 @@
 				</div>
       		</div>
       		<!-- This is only here to force the footer further down! -->
-      		<div style="height:350px;"></div>
+      		<div style="height:150px;"></div>
       		<!-- Likely due to a position: style that I got wrong somewhere in the 'content' div -->
       		</div>
       			
-<!-- Activity starts -->
+<!-- Activity -->
 			<div id="activity" class="span4">
-				<div id="stickyactivity">
-				<h1>Activity</h1>
-      			<iframe name="activity-iframe" src="activity-iframe.html" frameborder="0" border="0" cellspacing="0" style="border-style: none; height: 450px; width: 100%;"></iframe>
-	      		</div>
-      		</div>
+				<div id="stickyActivity">
+					<h1>Activity</h1>
+				</div>
+				<div id="activity-container"></div>
+			</div>
      	</div>
      	
 <!-- Footer -->
-     	<footer style="border-top: 1px solid #EEE; margin-top:20px;">
-     	<div class="row">
-     		<div class="span12" style="color:grey; margin-top:10px;">Powered by <a href="#" style="color:#565656;">Bloodhound</a>. Standing on the shoulders of <a href="#" style="color:#565656;">Trac 0.13</a>.</div>
-     		</div>
-     	</div>
-     	</footer>
+     	<div class="row" id="footer-container"></div>
+     	
     </div>
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="js/bootstrap-button.js"></script>
     <script type="text/javascript" src="js/bloodhound-activitysize.js"></script>
     <script type="text/javascript" src="js/bloodhound-stickyscroll.js"></script>
+    <script type="text/javascript">
+        $('div#logo-container').load('placeholders/header.html #logo-user');
+        $('div#ticketlist-container').load('placeholders/ticketlist.html #myHigh');
+        $('div#activity-container').load('placeholders/activity.html');
+        $('div#footer-container').load('placeholders/header.html footer');
+    </script>
 </body>
 </html>
 
