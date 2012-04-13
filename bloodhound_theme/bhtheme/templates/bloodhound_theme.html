@@ -51,18 +51,19 @@
               alt="Bloodhound Logo" height="47" width="161" />
         </div>
         <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav)">
-          <div class="span8" style="position:absolute; bottom:25%; right:-45%;">
+          <div class="span8">
+          	<div class="pull-right" style="margin-top: 5px; margin-right: 20px;">
             <span id="nav_login">${meta_items.login.label}</span>
             <span py:if="'logout' in meta_items" id="nav_logout">
               ${meta_items.logout.label}
             </span>
-            &nbsp;&nbsp;
             <span py:if="'prefs' in meta_items"><i class="icon-cog"></i>
               ${meta_items.prefs.label}
             </span>
             <span py:if="'help' in meta_items"><i class="icon-question-sign"></i>
               ${meta_items.help.label}
             </span>
+	          </div>
           </div>
         </py:with>
       </div>
@@ -124,17 +125,13 @@
           </py:def>
           <py:choose test="">
             <py:when test="qct">
-              <div class="btn-group">
-                <a href="${href.newticket()}" class="btn btn-inverse"
+            	<div class="btn-group">
+                <a href="#" class="btn btn-primary dropdown-toggle"
                     id="qct-newticket" rel="popover" title="Ticket "
-                    data-content="Alert box">
+                    data-content="Alert box" data-toggle="dropdown">
                   Create Ticket
                 </a>
-                <a href="#" class="btn btn-inverse dropdown-toggle"
-                    data-toggle="dropdown">
-                  <i class="caret"></i>
-                </a>
-                <div id="qct-box" class="dropdown-menu">
+                <div id="qct-box" class="dropdown-menu" style="width: 300px;">
                   <style>
                     #qct-box .help-block { white-space: nowrap; }
                     #qct-box .form-horizontal .controls .help-block { 
@@ -144,7 +141,7 @@
                     #qct-box .form-horizontal .control-label { width : 70px; }
                     #qct-box .input-mini { width : 100px; }
                   </style>
-                  <div class="popover-title"><h3>Create Ticket</h3></div>
+                  <div class="popover-title"><a href="${href.newticket()}"><h3>Create Ticket</h3></a></div>
                   <div class="popover-content">
                     <form id="qct-form" name="qct" method="post">
                       <div id="qct-fieldset">
@@ -166,8 +163,8 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </py:when>
+                </div>
+              </py:when>
             <py:otherwise>
               &nbsp;
             </py:otherwise>
