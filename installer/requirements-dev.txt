@@ -1,0 +1,11 @@
+Pygments
+pytz
+Babel
+Genshi
+-e ../trac
+-e svn+https://trac-hacks.org/svn/accountmanagerplugin/0.11#egg=TracAccountManager
+-e ../bloodhound_multiproduct
+-e svn+https://trac-hacks.org/svn/themeengineplugin/0.11#egg=TracThemeEngine
+-e ../bloodhound_theme
+-e ../bloodhound_dashboard
+
