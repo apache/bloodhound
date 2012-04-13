@@ -6,3 +6,35 @@
   margin-bottom: 0px;
 }
 
+/* Section folding */
+.foldable :link, .foldable :visited {
+  background: url(../common/expanded.png) 0 50% no-repeat;
+  border: none;
+  padding-left: 16px;
+}
+.collapsed > .foldable :link, .collapsed > .foldable :visited {
+  background-image: url("../common/collapsed.png");
+}
+.collapsed > div, .collapsed > table, .collapsed > ul, .collapsed > dl { display: none }
+
+/* Heading anchors */
+.anchor:link, .anchor:visited {
+  border: none;
+  color: #d7d7d7;
+  font-size: .8em;
+  vertical-align: text-top;
+}
+* > .anchor:link, * > .anchor:visited {
+  visibility: hidden;
+}
+h1:hover .anchor, h2:hover .anchor, h3:hover .anchor,
+h4:hover .anchor, h5:hover .anchor, h6:hover .anchor,
+span:hover .anchor {
+  visibility: visible;
+  text-decoration: none;
+}
+
+h1:target, h2:target, h3:target, h4:target, h5:target, h6:target,
+span:target {
+  background: #ffb;
+}
