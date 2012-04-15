@@ -56,6 +56,7 @@ src =
 [mainnav]
 roadmap = disabled
 timeline = disabled
+tickets.label = Tickets
 
 [theme]
 theme = bloodhound
