@@ -53,6 +53,10 @@ trac.ticket.web_ui.ticketmodule = disabled
 [header_logo]
 src = 
 
+[mainnav]
+roadmap = disabled
+timeline = disabled
+
 [theme]
 theme = bloodhound
 """
