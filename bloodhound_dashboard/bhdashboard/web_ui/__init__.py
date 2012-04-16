@@ -43,7 +43,7 @@ from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
                             INavigationContributor, ITemplateProvider
 
 from bhdashboard.api import DashboardSystem
-from bhdashboard import json
+from bhdashboard import _json
 
 class DashboardModule(Component):
     """Web frontend for dashboard infrastructure.
