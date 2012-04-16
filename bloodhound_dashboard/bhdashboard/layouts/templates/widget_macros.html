@@ -42,18 +42,18 @@
   <!--
   Sample layout tag 
 
-  <bh:layout type="LayoutName">
+  <bh:layout urn="LayoutName">
     <bh:schema>
       JSON object describing positioning and ...
     </bh:schema>
     <bh:widgets>
-      <bh:w id="simple_widget" type="WidgetName" altlinks="false">
+      <bh:w id="simple_widget" urn="WidgetName" altlinks="false">
         <bh:args>
           <bh:arg name="arg1">value1</bh:arg>
           <bh:arg name="arg2">value2</bh:arg>
         </bh:args>
       </bh:w>
-      <bh:l id="nested_layout" type="LayoutName">
+      <bh:l id="nested_layout" urn="LayoutName">
         <bh:schema>
           JSON object describing positioning and ...
         </bh:schema>
@@ -67,7 +67,7 @@
   <py:match path="bh:layout">
     <py:choose test="">
       <py:when test="bhdb">
-        ${bhdb.embed_layout(context, layout=select('@type'), schema=select('bh:schema'), widgets=select('bh:widgets'))}
+        ${bhdb.embed_layout(context, layout=select('@urn'), schema=select('bh:schema'), widgets=select('bh:widgets'))}
       </py:when>
       <py:otherwise>
         ${bhnotfound()}
@@ -77,7 +77,7 @@
   <!-- 
   Sample widget tag
 
-  <bh:widget id="simple_widget" type="WidgetName" altlinks="false">
+  <bh:widget id="simple_widget" urn="WidgetName" altlinks="false">
     <bh:args>
       <bh:arg name="arg1">value1</bh:arg>
       <bh:arg name="arg2">value2</bh:arg>
@@ -88,7 +88,7 @@
   <py:match path="bh:widget">
     <py:choose test="">
       <py:when test="bhdb"
-          py:with="wnm = unicode(select('@type')); args = unicode(select('bh:args/text()')) or {}; altlinks = unicode(select('@altlinks')) != 'false'; ctxtnav = unicode(select('@ctxtnav')) != 'false';">
+          py:with="wnm = unicode(select('@urn')); args = unicode(select('bh:args/text()')) or {}; altlinks = unicode(select('@altlinks')) != 'false'; ctxtnav = unicode(select('@ctxtnav')) != 'false';">
         ${widget_container(bhdb.expand_widget(context, dict(args=[wnm, None, {'args': args}], altlinks=altlinks, ctxtnav=ctxtnav)))}
       </py:when>
       <py:otherwise>
