@@ -144,6 +144,24 @@ def pretty_wrapper(wrapped, *decorators):
     return update_wrapper(wrapper, wrapped)
 
 #------------------------------------------------------
+#    Trac core
+#------------------------------------------------------
+
+def resolve_ep_class(interface, component, clsnm, **kwargs):
+    r"""Retrieve the class implementing an interface (by name)
+    """
+    ep = ExtensionPoint(interface)
+    for c in ep.extensions(component):
+        if c.__class__.__name__ == clsnm :
+            return c
+    else:
+        if 'default' in kwargs:
+            return kwargs['default']
+        else:
+            raise LookupError('No match found for class %s implementing %s' % 
+                    (clsnm, interface) )
+
+#------------------------------------------------------
 #    Context information
 #------------------------------------------------------
 

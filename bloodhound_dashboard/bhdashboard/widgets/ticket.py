@@ -29,13 +29,18 @@ from itertools import imap, islice
 from genshi.builder import tag
 from trac.core import implements, TracError
 from trac.ticket.api import TicketSystem
+from trac.ticket.roadmap import apply_ticket_permissions, get_ticket_stats, \
+                            ITicketGroupStatsProvider, RoadmapModule
 from trac.util.translation import _
+from trac.web.chrome import add_stylesheet
 
 from bhdashboard.api import DateField, EnumField, InvalidWidgetArgument, \
                             ListField
+from bhdashboard.widgets.query import exec_query
 from bhdashboard.util import WidgetBase, check_widget_name, \
-                              dummy_request, merge_links, minmax, \
-                              pretty_wrapper, trac_version, trac_tags
+                            dummy_request, merge_links, minmax, \
+                            pretty_wrapper, resolve_ep_class, \
+                            trac_version, trac_tags
 
 class TicketFieldCloudWidget(WidgetBase):
     """Display a tag cloud representing frequency of values assigned to 
@@ -116,3 +121,70 @@ class TicketFieldCloudWidget(WidgetBase):
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 
+class TicketGroupStatsWidget(WidgetBase):
+    """Display progress bar illustrating statistics gathered on a group
+    of tickets.
+    """
+    def get_widget_params(self, name):
+        """Return a dictionary containing arguments specification for
+        the widget with specified name.
+        """
+        return {
+                'query' : {
+                        'default' : 'status!=closed',
+                        'desc' : """Query string""",
+                    },
+                'stats_provider' : {
+                        'desc' : """Name of the component implementing
+        `ITicketGroupStatsProvider`, which is used to collect statistics 
+        on groups of tickets.""",
+                        'default' : 'DefaultTicketGroupStatsProvider'
+                    },
+                'skin' : {
+                        'desc' : """Look and feel of the progress bar""",
+                        'type' : EnumField('info', 'success', 'warning', 
+                                'danger',
+                                'info-stripped', 'success-stripped', 
+                                'warning-stripped', 'danger-stripped')
+                    },
+                'title' : {
+                        'desc' : """Widget title""",
+                    },
+                'legend' : {
+                        'desc' : """Text on top of the progress bar""",
+                    },
+                'desc' : {
+                        'desc' : """Descriptive (wiki) text""",
+                    },
+            }
+    get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
+
+    def render_widget(self, name, context, options):
+        """Prepare ticket stats
+        """
+        req = context.req
+        params = ('query', 'stats_provider', 'skin', 'title', 'legend', 'desc')
+        qstr, pnm, skin, title, legend, desc = \
+                self.bind_params(name, options, *params)
+        statsp = resolve_ep_class(ITicketGroupStatsProvider, self, pnm,
+                                    default=RoadmapModule(self.env).stats_provider)
+        skin = (skin or '').split('-', 2)
+        progress_css = 'progress ' + ' '.join('progress-'+c for c in skin if c)
+
+        tickets = exec_query(self.env, req, qstr)
+        tickets = apply_ticket_permissions(self.env, req, tickets)
+        stat = get_ticket_stats(self.stats_provider, tickets)
+
+        add_stylesheet('dashboard/bootstrap.css')
+        return 'widget_progress.html', \
+                {
+                    'title' : title,
+                    'data' : dict(
+                            desc=desc,
+                            legend=legend,
+                            stats=stat,
+                        ), 
+                }, \
+                context
+
+    render_widget = pretty_wrapper(render_widget, check_widget_name)

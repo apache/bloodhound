@@ -32,7 +32,7 @@ from genshi.builder import tag
 from trac.core import implements, TracError
 from trac.mimeview.api import Context
 from trac.resource import Resource, ResourceNotFound
-from trac.ticket.query import QueryModule
+from trac.ticket.query import Query, QueryModule
 from trac.util.translation import _
 from trac.web.api import RequestDone
 
@@ -136,3 +136,11 @@ class TicketQueryWidget(WidgetBase):
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 
+#--------------------------------------
+# Query functions and methods
+#--------------------------------------
+
+def exec_query(env, req, qstr='status!=closed'):
+    """ Perform a ticket query, returning a list of ticket ID's. 
+    """
+    return Query.from_string(env, qstr).execute(req)

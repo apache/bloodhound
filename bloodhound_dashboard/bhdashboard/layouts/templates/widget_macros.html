@@ -2,7 +2,10 @@
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
     xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
     py:strip="" >
+
+  <!-- Helper functions (py:def) -->
 
   <div py:def="widget_container(w)" role="application">
     <h1 style="display: inline;">${w.title}</h1>
@@ -27,4 +30,70 @@
     <br/>
     ${w.content}
   </div>
+
+  <!-- Widget markup (py:match) -->
+
+  <div py:def="bhnotfound()" class="alert alert-error">
+    <span class="label label-important">Error</span>
+    Dashboard data is missing . 
+    Is <code>bhdashboard.web_ui.DashboardModule</code> component disabled?
+  </div>
+
+  <!--
+  Sample layout tag 
+
+  <bh:layout type="LayoutName">
+    <bh:schema>
+      JSON object describing positioning and ...
+    </bh:schema>
+    <bh:widgets>
+      <bh:w id="simple_widget" type="WidgetName" altlinks="false">
+        <bh:args>
+          <bh:arg name="arg1">value1</bh:arg>
+          <bh:arg name="arg2">value2</bh:arg>
+        </bh:args>
+      </bh:w>
+      <bh:l id="nested_layout" type="LayoutName">
+        <bh:schema>
+          JSON object describing positioning and ...
+        </bh:schema>
+        <bh:widgets>
+          ... Same as before ...
+        </bh:widgets>
+      </bh:l>
+    </bh:widgets>
+  </bh:layout>
+  -->
+  <py:match path="bh:layout">
+    <py:choose test="">
+      <py:when test="bhdb">
+        ${bhdb.embed_layout(context, layout=select('@type'), schema=select('bh:schema'), widgets=select('bh:widgets'))}
+      </py:when>
+      <py:otherwise>
+        ${bhnotfound()}
+      </py:otherwise>
+    </py:choose>
+  </py:match>
+  <!-- 
+  Sample widget tag
+
+  <bh:widget id="simple_widget" type="WidgetName" altlinks="false">
+    <bh:args>
+      <bh:arg name="arg1">value1</bh:arg>
+      <bh:arg name="arg2">value2</bh:arg>
+    </bh:args>
+  </bh:widget>
+
+  -->
+  <py:match path="bh:widget">
+    <py:choose test="">
+      <py:when test="bhdb"
+          py:with="wnm = unicode(select('@type')); args = unicode(select('bh:args/text()')) or {}; altlinks = unicode(select('@altlinks')) != 'false'; ctxtnav = unicode(select('@ctxtnav')) != 'false';">
+        ${widget_container(bhdb.expand_widget(context, dict(args=[wnm, None, {'args': args}], altlinks=altlinks, ctxtnav=ctxtnav)))}
+      </py:when>
+      <py:otherwise>
+        ${bhnotfound()}
+      </py:otherwise>
+    </py:choose>
+  </py:match>
 </html>
