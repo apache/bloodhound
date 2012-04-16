@@ -4,9 +4,11 @@
 
 #mainnav {
   margin-bottom: 0px;
+  border-bottom: 0px solid #333;
 }
 
-/* Section folding */
+/* @group Section folding */
+
 .foldable :link, .foldable :visited {
   background: url(../common/expanded.png) 0 50% no-repeat;
   border: none;
@@ -17,7 +19,10 @@
 }
 .collapsed > div, .collapsed > table, .collapsed > ul, .collapsed > dl { display: none }
 
-/* Heading anchors */
+/* @end */
+
+/* @group Heading anchors */
+
 .anchor:link, .anchor:visited {
   border: none;
   color: #d7d7d7;
@@ -27,6 +32,7 @@
 * > .anchor:link, * > .anchor:visited {
   visibility: hidden;
 }
+
 h1:hover .anchor, h2:hover .anchor, h3:hover .anchor,
 h4:hover .anchor, h5:hover .anchor, h6:hover .anchor,
 span:hover .anchor {
@@ -34,7 +40,59 @@ span:hover .anchor {
   text-decoration: none;
 }
 
+h1 .anchor:hover, h2 .anchor:hover, h3 .anchor:hover,
+h4 .anchor:hover, h5 .anchor:hover, h6 .anchor:hover,
+span:hover .anchor {
+  background-color: #f1f1f1;
+}
+
+/* @end */
+
 h1:target, h2:target, h3:target, h4:target, h5:target, h6:target,
 span:target {
   background: #ffb;
 }
+
+/* @group Ensuring buttons align horizontally */
+
+.buttons form,
+.buttons form div,
+.filters label {
+	display: inline;
+}
+
+.filters label {
+	margin-right: 10px;
+}
+
+/* @end */
+
+/* @group Metanav */
+
+.metanav {
+	margin-top: 10px;
+	margin-right: 20px;
+}
+
+.metanav span {
+	margin-left: 10px;
+}
+
+/* @end */
+
+/* @group Footer */
+
+.footer {
+	margin-top: 20px;
+	color:grey;
+}
+
+.footer a {
+	color: #565656;
+}
+
+.footer .pull-right {
+	text-align:right;
+}
+
+/* @end */

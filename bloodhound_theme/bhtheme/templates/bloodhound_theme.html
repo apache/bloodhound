@@ -52,15 +52,15 @@
         </div>
         <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav)">
           <div class="span8">
-          	<div class="pull-right" style="margin-top: 5px; margin-right: 20px;">
+          	<div class="metanav pull-right">
             <span id="nav_login">${meta_items.login.label}</span>
             <span py:if="'logout' in meta_items" id="nav_logout">
               ${meta_items.logout.label}
             </span>
-            <span py:if="'prefs' in meta_items"><i class="icon-cog"></i>
+            <span py:if="'prefs' in meta_items">
               ${meta_items.prefs.label}
             </span>
-            <span py:if="'help' in meta_items"><i class="icon-question-sign"></i>
+            <span py:if="'help' in meta_items">
               ${meta_items.help.label}
             </span>
 	          </div>
@@ -232,14 +232,13 @@
         </div>
       </div>
       ${select('*|text()|comment()')}
-      <div class="row">
-        <br/>
-        <div class="span8" style="color:grey;">
-          Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> <a href="${href.about()}"><strong>Bloodhound</strong></a>.
+      <div class="row footer">
+        <div class="span8">
+          Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> <a href="${href.about()}">Bloodhound</a>.
           Standing on the shoulders of 
-          <a href="http://trac.edgewall.org/"><strong>Trac ${trac.version}</strong></a>.
+          <a href="http://trac.edgewall.org/">Trac ${trac.version}</a>.
         </div>
-        <div class="span4" style="text-align:right; color:grey;">${chrome.footer}</div>
+        <div class="span4"><div class="pull-right">${chrome.footer}</div></div>
       </div>
     </div>
     <br/>
