@@ -54,8 +54,11 @@ class BloodhoundMilestoneModule(Component):
     def post_process_request(self, req, template, data, content_type):
         """Customize milestone view.
         """
+        add_stylesheet(req, 'dashboard/roadmap.css')
         mdl = self.env[MilestoneModule]
         if mdl is not None and mdl.match_request(req):
-            return 'bhmilestone.html', data, content_type
+            return {
+                    'milestone_view.html' : 'bhmilestone.html',
+                }.get(template, template), data, content_type
         else:
             return template, data, content_type

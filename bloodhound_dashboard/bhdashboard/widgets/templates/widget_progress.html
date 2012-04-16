@@ -2,7 +2,30 @@
 <div class="well"
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
     xmlns:xi="http://www.w3.org/2001/XInclude">
-  $legend
-  <div class="pull-right">${'%d%%' % stats.done_percent}</div>
+  <py:if test="caption">$caption</py:if>
+  <div class="pull-right">${'%d%%' % stats.done_percent} completed</div>
+  <br/><br/>
+  <div class="progress progress-danger">
+    <div py:for="idx, interval in enumerate(stats.intervals)"
+        class="bar $interval.css_class" 
+        style="${'width: %d%%' % interval.percent if interval.percent > 0 else 'display: none'}">
+      <a href="${interval_hrefs[idx] if interval_hrefs else None}"
+          title="${_('%(count)s/%(total)s %(title)s',
+                  count=interval.count, total=stats.count, title=interval.title)}"></a>
+    </div>
+  </div>
+  <p py:if="legend">
+    <a href="${stats_href}"
+        i18n:msg="unit, count">Total number of ${stats.unit}: ${stats.count}</a>
+    <span class="pull-right">
+      <py:for each="idx, interval in enumerate(stats.intervals)">
+        <a href="${interval_hrefs[idx] if interval_hrefs else None}"
+            i18n:msg="title, count">
+          ${interval.title} (${interval.count})
+        </a> &nbsp;
+      </py:for>
+    </span>
+  </p>
 </div>

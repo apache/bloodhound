@@ -3,6 +3,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="layout.html" />
@@ -16,8 +17,41 @@
   <body>
     <div class="row">
       <div class="span8">
+        <h1 style="display: inline;">Milestone ${milestone.name}</h1>
+        <br/><br/>
+        <py:def function="milestone_caption">
+          <py:choose test="">
+            <py:when test="milestone.completed">
+              <i18n:msg params="duration, date">
+                Completed ${dateinfo(milestone.completed)} ago (${format_datetime(milestone.completed)})
+              </i18n:msg>
+            </py:when>
+            <py:when test="milestone.is_late">
+              <i18n:msg params="duration, date">
+                dateinfo(milestone.due)} late (${format_datetime(milestone.due)})
+              </i18n:msg>
+            </py:when>
+            <py:when test="milestone.due">
+              <i18n:msg params="duration, date">
+                Due in ${dateinfo(milestone.due)} (${format_datetime(milestone.due)})
+              </i18n:msg>
+            </py:when>
+            <py:otherwise>
+              No date set
+            </py:otherwise>
+          </py:choose>
+          <form style="display: inline;" 
+              py:if="'MILESTONE_MODIFY' in perm(milestone.resource)">
+            &nbsp;
+            <input type="hidden" name="action" value="edit" />
+            <input type="submit" class="btn btn-mini btn-info" 
+                value="${_('Change')}" />
+          </form>
+        </py:def>
+        <xi:include href="widget_progress.html"
+            py:with="caption = milestone_caption(); legend = True;"/>
         <div class="alert">
-          <span class="label label-warning">TODO</span> Include milestone data.
+          <span class="label label-warning">TODO</span> Include button toolbar.
         </div>
       </div>
       <div class="span4">
