@@ -228,7 +228,7 @@ class DashboardModule(Component):
         """Expand raw widget data and format it for use in template
         """
         # TODO: Implement dynamic dashboard specification
-        widgets_spec = schema.pop('widgets', {})
+        widgets_spec = schema.get('widgets', {})
         widgets_index = dict([wnm, wp] \
                 for wp in DashboardSystem(self.env).widget_providers \
                 for wnm in wp.get_widgets()
