@@ -50,9 +50,90 @@
         </py:def>
         <xi:include href="widget_progress.html"
             py:with="caption = milestone_caption(); legend = True; 
-                desc = wiki_to_html(context, milestone.description)"/>
-        <div class="alert">
-          <span class="label label-warning">TODO</span> Include button toolbar.
+                desc = wiki_to_html(context, milestone.description);"/>
+        <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
+                    'MILESTONE_DELETE' in perm(milestone.resource) or
+                    attachments.can_create">
+          <span class="label label-info">Actions</span>
+          <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
+              method="get" action="" id="editmilestone"
+              style="display: inline-block">
+            <input type="hidden" name="action" value="edit" />
+            <input type="submit" value="${_('Edit milestone')}" class="btn" />
+          </form>
+          <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
+              method="get" action="" id="deletemilestone"
+              style="display: inline-block">
+            <input type="hidden" name="action" value="delete" />
+            <input type="submit" value="${_('Delete milestone')}" class="btn" />
+          </form>
+          <xi:include href="attach_file_form.html" py:with="alist = attachments" />
+        </div>
+        <div class="row">
+          <bh:layout urn="bootstrap_btnbar">
+            <bh:schema>
+            {
+              "toolbar" : [
+                  ["My Tickets", "mtb1"],
+                  ["All Tickets", "mtb2"],
+                  ["|", null],
+                  ["Projects", null],
+                  ["Components", "mtb3"]
+                ],
+              "active" : 0
+            }
+            </bh:schema>
+            <bh:widgets>
+              {
+                "mtb1" : {
+                    "args" : ["TicketQuery", null, {
+                        "args" : {
+                            "max" : 10,
+                            "query" : "milestone=${milestone.name}&amp;owner=$$USER&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
+                            "title" : "My tickets (milestone ${milestone.name})"
+                          }
+                      }]
+                  },
+                "mtb2" : {
+                    "args" : ["TicketQuery", null, {
+                        "args" : {
+                            "max" : 10,
+                            "query" : "milestone=${milestone.name}&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
+                            "title" : "All tickets (milestone ${milestone.name})"
+                          }
+                      }]
+                  },
+                "mtb3" : {
+                    "args" : ["TicketFieldCloud", null, {
+                        "args" : {
+                            "field" : "component",
+                            "verbose" : true
+                          }
+                      }]
+                  }
+              }
+            </bh:widgets>
+              <!--! bh:w urn="TicketQuery" id="mtb1">
+                <bh:args>
+                  <bh:arg name="max">10</bh:arg>
+                  <bh:arg name="query">milestone=${value_of(milestone.name)}&amp;owner=$USER&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
+                  <bh:arg name="title">My tickets (milestone ${milestone.name})</bh:arg>
+                </bh:args>
+              </bh:w>
+              <bh:w urn="TicketQuery" id="mtb2">
+                <bh:args>
+                  <bh:arg name="max">10</bh:arg>
+                  <bh:arg name="query">milestone=${value_of(milestone.name)}&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
+                  <bh:arg name="title">All tickets (milestone ${milestone.name})</bh:arg>
+                </bh:args>
+              </bh:w>
+              <bh:w urn="TicketFieldCloud" id="mtb3">
+                <bh:args>
+                  <bh:arg name="field">component</bh:arg>
+                  <bh:arg name="verbose">true</bh:arg>
+                </bh:args>
+              </bh:w-->
+          </bh:layout>
         </div>
       </div>
       <div class="span4">

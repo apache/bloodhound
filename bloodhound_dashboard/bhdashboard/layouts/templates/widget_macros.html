@@ -67,7 +67,8 @@
   <py:match path="bh:layout">
     <py:choose test="">
       <py:when test="bhdb">
-        ${bhdb.embed_layout(context, layout=select('@urn'), schema=select('bh:schema'), widgets=select('bh:widgets'))}
+        <!--! TODO: Implement nested XML tags (e.g. bh:w and bh:l) -->
+        ${bhdb.embed_layout(context, layout=unicode(select('@urn')), schema=unicode(select('bh:schema/text()')), widgets=unicode(select('bh:widgets/text()')))}
       </py:when>
       <py:otherwise>
         ${bhnotfound()}
