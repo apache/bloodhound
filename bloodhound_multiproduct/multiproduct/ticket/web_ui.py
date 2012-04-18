@@ -31,25 +31,14 @@ from trac.util.datefmt import from_utimestamp
 from trac.util.translation import _, tag_
 from genshi.builder import tag
 
-from multiproduct.common import match_product_path
-
-TICKET_RE = re.compile(r'/ticket/(?P<ticket>[0-9]+)$')
 REPORT_RE = re.compile(r'/report(?:/(?:([0-9]+)|-1))?$')
 
 class ProductTicketModule(TicketModule):
     """Product Overrides for the TicketModule"""
     
     # IRequestHandler methods
-    def match_request(self, req):
-        """Override of TicketModule match_request"""
-        pathinfo = match_product_path(self.env, req)
-        # is it a newticket request:
-        if pathinfo == "/newticket":
-            return True
-        tmatch = TICKET_RE.match(pathinfo)
-        if tmatch:
-            req.args['id'] = tmatch.group('ticket')
-            return True
+    #def match_request(self, req):
+    # override not yet required
     
     def process_request(self, req):
         """Override for TicketModule process_request"""
