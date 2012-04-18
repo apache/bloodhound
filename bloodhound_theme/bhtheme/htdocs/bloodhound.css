@@ -57,7 +57,14 @@ span:target {
 
 .buttons form,
 .buttons form div,
-.filters label {
+.filters label,
+#action label,
+#trac-comments-order label,
+#changeinfo label,
+.iefix #rows label,
+label + input,
+input + label,
+label > input {
 	display: inline;
 }
 
@@ -96,3 +103,13 @@ span:target {
 }
 
 /* @end */
+
+#ticket table.properties td,
+#ticket table.properties th {
+	font-size: 100%;
+}
+
+#ticket footer {
+  text-align: right;
+  
+}
