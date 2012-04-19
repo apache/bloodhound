@@ -22,7 +22,7 @@ Provides request filtering to capture product related paths
 """
 import re
 
-from trac.core import Component, implements
+from trac.core import Component, implements, TracError
 from trac.resource import ResourceNotFound
 from trac.util.translation import _
 from trac.web.api import IRequestFilter, IRequestHandler, Request, HTTPNotFound
@@ -43,7 +43,9 @@ class ProductModule(Component):
         pid = None
         match = PRODUCT_RE.match(req.path_info)
         if match:
-            dispatcher = RequestDispatcher(self.env)
+            dispatcher = self.env[RequestDispatcher]
+            if dispatcher is None:
+                raise TracError('Unable to load RequestDispatcher.')
             pid = match.group('pid')
         
         if pid:
@@ -63,6 +65,7 @@ class ProductModule(Component):
                     for hndlr in dispatcher.handlers:
                         if hndlr is not self and hndlr.match_request(newreq):
                             new_handler = hndlr
+                            req.args.update(newreq.args)
                             break
                     if new_handler is None:
                         if req.path_info.endswith('/'):
