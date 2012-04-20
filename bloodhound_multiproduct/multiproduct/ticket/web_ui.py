@@ -21,15 +21,18 @@
 import re
 
 from trac.core import TracError
+from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
 from trac.ticket.report import ReportModule
 from trac.attachment import AttachmentModule
 from trac.ticket.api import TicketSystem
-from trac.resource import Resource, get_resource_shortname
+from trac.resource import Resource, get_resource_shortname, ResourceNotFound
 from trac.search import search_to_sql, shorten_result
 from trac.util.datefmt import from_utimestamp
 from trac.util.translation import _, tag_
 from genshi.builder import tag
+
+from multiproduct.web_ui import ProductModule
 
 REPORT_RE = re.compile(r'/report(?:/(?:([0-9]+)|-1))?$')
 
@@ -42,14 +45,20 @@ class ProductTicketModule(TicketModule):
     
     def process_request(self, req):
         """Override for TicketModule process_request"""
-        if 'id' in req.args:
-            pathinfo = req.path_info
-            prod = req.args.get('product')
-            if ((prod is not None and pathinfo == '/' + prod + '/newticket') or
-                (pathinfo == '/newticket')):
-                raise TracError(_("id can't be set for a new ticket request"))
+        ticketid = req.args.get('id')
+        productid = req.args.get('productid','')
+        ticket = Ticket(self.env, ticketid)
+        
+        if ticketid:
+            if (req.path_info == '/products/' + productid + '/newticket' or
+                req.path_info == '/products'):
+                raise TracError(_("id can't be set for a new ticket request."))
+            ticket = Ticket(self.env, ticketid)
+            if productid and ticket['product'] != req.args.get('product',''):
+                msg = "Ticket %(id)s in product '%(prod)' does not exist."
+                raise ResourceNotFound(_(msg, id=ticketid, prod=productid),
+                                       _("Invalid ticket number"))
             return self._process_ticket_request(req)
-            #switch to the surrogate key
         return self._process_newticket_request(req)
     
     # INavigationContributor methods
@@ -61,8 +70,9 @@ class ProductTicketModule(TicketModule):
         """Overriding TicketModules New Ticket nav item"""
         if 'TICKET_CREATE' in req.perm:
             product = req.args.get('productid','')
-            if product:
-                href = req.href.__getattr__(product)('newticket')
+            if product and self.env.is_component_enabled(ProductModule):
+                # this path will only exist if ProductModule is active
+                href = req.href('products', product, 'newticket')
             else:
                 href = req.href.newticket()
             yield ('mainnav', 'newticket', 
