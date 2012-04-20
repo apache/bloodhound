@@ -17,6 +17,8 @@
 #  under the License.
 
 """Models to support multi-product"""
+from datetime import datetime
+
 from pkg_resources import resource_filename
 from trac.core import Component, TracError, implements
 from trac.resource import ResourceNotFound
@@ -25,6 +27,9 @@ from trac.env import IEnvironmentSetupParticipant
 from trac.web.chrome import ITemplateProvider
 from trac.resource import Resource
 from trac.ticket.api import TicketSystem
+from trac.ticket.model import Ticket
+from trac.ticket.query import Query
+from trac.util.datefmt import utc
 
 DB_VERSION = 1
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
@@ -146,11 +151,18 @@ class ModelBase(object):
     
     def insert(self):
         """Create new record in the database"""
+        sdata = None
         if self._exists or len(self.select(self._env, where =
                                 dict([(k,self._data[k])
                                       for k in self._meta['key_fields']]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
                                      for k in self._meta['key_fields']])}
+        elif len(self.select(self._env, where =
+                                dict([(k,self._data[k])
+                                      for k in self._meta['unique_fields']]))):
+            sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
+                                     for k in self._meta['unique_fields']])}
+        if sdata:
             sdata.update(self._meta)
             raise TracError('%(object_name)s %(keys)s already exists' %
                             sdata)
@@ -174,13 +186,23 @@ class ModelBase(object):
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
 
+    def _update_relations(self, db):
+        """Extra actions due to update"""
+        pass
+    
     def update(self):
         """Update the matching record in the database"""
+        if self._old_data == self._data:
+            return 
         if not self._exists:
             raise TracError('%(object_name)s does not exist' % self._meta)
-        for key in self._meta['key_fields']:
+        for key in self._meta['no_change_fields']:
             if self._data[key] != self._old_data[key]:
                 raise TracError('%s cannot be changed' % key)
+        for key in self._meta['key_fields'] + self._meta['unique_fields']:
+            if self._data[key] != self._old_data[key]:
+                if len(self.select(self._env, where = {key:self._data[key]})):
+                    raise TracError('%s already exists' % key)
         
         setsql, setvalues = fields_to_kv_str(self._meta['non_key_fields'],
                                              self._data, sep=',')
@@ -193,6 +215,7 @@ class ModelBase(object):
                  WHERE %(where)s""" % sdata
         with self._env.db_transaction as db:
             db(sql, setvalues + values)
+            self._update_relations(db)
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
     
@@ -222,6 +245,8 @@ class Product(ModelBase):
             'object_name':'Product',
             'key_fields':['prefix',],
             'non_key_fields':['name', 'description', 'owner'],
+            'no_change_fields':['prefix',],
+            'unique_fields':['name'],
             }
     
     @property
@@ -245,7 +270,25 @@ class Product(ModelBase):
         for prm in ProductResourceMap.select(self._env, where=where):
             prm._data['product_id'] = resources_to
             prm.update()
-
+    
+    def _update_relations(self, db=None, author=None):
+        """Extra actions due to update"""
+        # tickets need to be updated
+        old_name = self._old_data['name']
+        new_name = self._data['name']
+        now = datetime.now(utc)
+        comment = 'Product %s renamed to %s' % (old_name, new_name)
+        if old_name != new_name:
+            for t in Product.get_tickets(self._env, old_name):
+                ticket = Ticket(self._env, t['id'], db)
+                ticket['product'] = new_name
+                ticket.save_changes(author, comment, now)
+    
+    @classmethod
+    def get_tickets(cls, env, product=''):
+        """Retrieve all tickets associated with the product."""
+        q = Query.from_string(env, 'product=%s' % product)
+        return q.execute()
 
 class ProductResourceMap(ModelBase):
     """Table representing the mapping of resources to their product"""
@@ -253,6 +296,8 @@ class ProductResourceMap(ModelBase):
             'object_name':'ProductResourceMapping',
             'key_fields':['id',],
             'non_key_fields':['product_id','resource_type','resource_id',],
+            'no_change_fields':['id',],
+            'unique_fields':[],
             }
     
     def reparent_resource(self, product=None):
@@ -273,7 +318,7 @@ class MultiProductEnvironmentProvider(Component):
     implements(IEnvironmentSetupParticipant, ITemplateProvider)
     
     SCHEMA = [
-        Table('bloodhound_product', key = 'prefix') [
+        Table('bloodhound_product', key = ['prefix', 'name']) [
             Column('prefix'),
             Column('name'),
             Column('description'),
