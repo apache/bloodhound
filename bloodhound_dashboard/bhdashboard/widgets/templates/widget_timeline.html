@@ -6,7 +6,7 @@
   py:with="today = format_date(today); yesterday = format_date(yesterday)">
 
   <table py:for="day, events in groupby(events, key=lambda e: format_date(e.date))"
-      class="table table-striped">
+      class="table" id="activityfeed">
     <thead>
       <tr>
         <th>
@@ -17,14 +17,12 @@
     <tbody>
       <tr py:for="event in events"
         py:with="highlight = precision and precisedate and timedelta(0) &lt;= (event.date - precisedate) &lt; precision">
-        <td>
-          <dt class="${classes(event.kind, highlight=highlight)}">
-            <a href="${event.render('url', context)}">
-              <span class="time">${format_time(event.date, str('%H:%M'))}</span> ${event.render('title', context)}
+        <td class="${classes(event.kind, highlight=highlight)}">
+          <dt>
+            <span class="time">${format_time(event.date, str('%H:%M'))}</span>: <a href="${event.render('url', context)}">${event.render('title', context)}</a>
               <py:if test="event.author">by <span class="author">${format_author(event.author)}</span></py:if>
-            </a>
           </dt>
-          <dd class="${classes(event.kind, highlight=highlight)}">
+          <dd>
             ${event.render('description', context)}
           </dd>
         </td>

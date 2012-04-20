@@ -9,15 +9,23 @@
 
 /* @group Section folding */
 
-.foldable :link, .foldable :visited {
+.foldable :link,
+.foldable :visited {
   background: url(../common/expanded.png) 0 50% no-repeat;
   border: none;
   padding-left: 16px;
 }
-.collapsed > .foldable :link, .collapsed > .foldable :visited {
+
+.collapsed > .foldable :link,
+.collapsed > .foldable :visited {
   background-image: url("../common/collapsed.png");
 }
-.collapsed > div, .collapsed > table, .collapsed > ul, .collapsed > dl { display: none }
+.collapsed > div,
+.collapsed > table,
+.collapsed > ul,
+.collapsed > dl {
+  display: none
+}
 
 /* @end */
 
@@ -91,7 +99,7 @@ label > input {
 
 .footer {
 	margin-top: 20px;
-	color:grey;
+	color: grey;
 }
 
 .footer a {
@@ -111,5 +119,13 @@ label > input {
 
 #ticket footer {
   text-align: right;
-  
+
+}
+
+#activityfeed dt {
+  font-weight: normal;
+}
+
+#activityfeed dd {
+  color: grey;
 }
