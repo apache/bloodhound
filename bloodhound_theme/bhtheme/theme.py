@@ -66,6 +66,27 @@ class BloodhoundTheme(ThemeBase):
     """Look and feel of Bloodhound issue tracker.
     """
     template = htdocs = css = screenshot = disable_trac_css = True
+    disable_all_trac_css = True
+
+    implements(IRequestFilter)
+
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        """Pre process request filter"""
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """Post process request filter.
+        Removes all trac provided css if required"""    
+        if self.disable_all_trac_css:
+            links = req.chrome.get('links',{})
+            indices = [i for (i,ss) in enumerate(links.get('stylesheet',[])) 
+                       if ss.get('href').startswith(req.base_path +
+                                                    '/chrome/common/css/')]
+            for i in indices:
+                del links['stylesheet'][i]
+        return template, data, content_type
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
