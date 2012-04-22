@@ -98,4 +98,12 @@ class ProductModule(Component):
         if req.args.get('productid', None):
             return 'product.html', None, None
         return 'product_list.html', None, None
-        
+
+    # helper methods for INavigationContributor implementations
+    @classmethod
+    def get_product_path(cls, env, req, itempath):
+        """Provide a navigation item path"""
+        product = req.args.get('productid', '')
+        if product and env.is_component_enabled(ProductModule):
+            return req.href('products', product, itempath)
+        return req.href(itempath)

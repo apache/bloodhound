@@ -69,12 +69,7 @@ class ProductTicketModule(TicketModule):
     def get_navigation_items(self, req):
         """Overriding TicketModules New Ticket nav item"""
         if 'TICKET_CREATE' in req.perm:
-            product = req.args.get('productid','')
-            if product and self.env.is_component_enabled(ProductModule):
-                # this path will only exist if ProductModule is active
-                href = req.href('products', product, 'newticket')
-            else:
-                href = req.href.newticket()
+            href = ProductModule.get_product_path(self.env, req, 'newticket')
             yield ('mainnav', 'newticket', 
                    tag.a(_("New Ticket"), href=href, accesskey=7))
     
@@ -131,17 +126,13 @@ class ProductTicketModule(TicketModule):
             yield result
 
 class ProductReportModule(ReportModule):
-    """replacement for ReportModule"""
-    
-    # IRequestHandler methods
-    def match_request(self, req):
-        """Override of ReportModule match_request"""
-        pathinfo = match_product_path(self.env, req)
-        match = REPORT_RE.match(pathinfo)
-        if match:
-            if match.group(1):
-                req.args['id'] = match.group(1)
-            return True
-    
-    #def process_request(self, req):
+    """Multiproduct replacement for ReportModule"""
+
+    # INavigationContributor methods
+    #def get_active_navigation_item(self, req):
     # not yet required
+
+    def get_navigation_items(self, req):
+        if 'REPORT_VIEW' in req.perm:
+            href = ProductModule.get_product_path(self.env, req, 'report')
+            yield ('mainnav', 'tickets', tag.a(_('View Tickets'), href=href))
