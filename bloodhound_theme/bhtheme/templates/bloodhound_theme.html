@@ -96,10 +96,16 @@
             <label for="field-summary">Summary</label>
             <input class="input-medium" type="text" id="field-summary"
                 name="field_summary" placeholder="Ticket summary" />
-            <label for="field-project">Project</label>
-            <input class="input-medium disabled" id="field-project" type="text" 
-                placeholder="Target project" disabled="" />
             <div class="form-horizontal">
+              <py:if test="qct.fields.product">
+              <label class="control-label" for="field-product">Product</label>
+              <div class="controls">
+                <!-- input name="qct_product" class="input-mini" type="text" 
+                    placeholder="Product" / -->
+                ${field_select(qct.fields.product, None)}
+                <p class="help-block">Target product</p>
+              </div>
+              </py:if>
               <label class="control-label" for="field-version">Version</label>
               <div class="controls">
                 <!-- input name="qct_version" class="input-mini" type="text" 
