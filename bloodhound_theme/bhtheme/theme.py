@@ -33,6 +33,11 @@ from themeengine.api import ThemeBase
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
+try:
+    from multiproduct.ticket.web_ui import ProductTicketModule
+except ImportError:
+    ProductTicketModule = None
+
 def dummy_request(env, uname=None):
     environ = {}
     setup_testing_defaults(environ)
@@ -101,12 +106,17 @@ class QuickCreateTicketDialog(Component):
     def post_process_request(self, req, template, data, content_type):
         """Append necessary ticket data
         """
+        try:
+            tm = self._get_ticket_module()
+        except TracError:
+            # no ticket module so no create ticket button
+            return template, data, content_type
+
         if (template, data, content_type) != (None,) * 3: # TODO: Check !
             if data is None:
                 data = {}
             fakereq = dummy_request(self.env)
             ticket = Ticket(self.env)
-            tm = TicketModule(self.env)
             tm._populate(fakereq, ticket, False)
             fields = dict([f['name'], f] \
                         for f in tm._prepare_fields(fakereq, ticket))
@@ -125,9 +135,7 @@ class QuickCreateTicketDialog(Component):
         but return plain text suitable for AJAX requests.
         """
         try:
-            tm = self.env[TicketModule]
-            if tm is None:
-                raise TracError('Unable to load TicketModule (disabled)?')
+            tm = self._get_ticket_module()
             req.perm.require('TICKET_CREATE')
             summary = req.args.pop('field_summary', '')
             desc = ",, ... via ''Bloodhound'' quick create ticket dialog,,"
@@ -139,6 +147,17 @@ class QuickCreateTicketDialog(Component):
             req.send(str(exc), 'plain/text', 500)
         else:
             req.send(str(ticket_id), 'plain/text')
+
+    def _get_ticket_module(self):
+        ptm = None
+        if ProductTicketModule is not None:
+            ptm = self.env[ProductTicketModule]
+        tm = self.env[TicketModule]
+        if not (tm is None) ^ (ptm is None):
+            raise TracError('Unable to load TicketModule (disabled)?')
+        if tm is None:
+            tm = ptm
+        return tm
 
     # Public API
     def create(self, req, summary, description, attributes = {}, notify=False):
