@@ -72,7 +72,10 @@ span:target {
 .iefix #rows label,
 label + input,
 input + label,
-label > input {
+label > input,
+div.inlinebuttons,
+div.reports h2,
+div.reports form {
 	display: inline;
 }
 
@@ -129,3 +132,79 @@ label > input {
 #activityfeed dd {
   color: grey;
 }
+
+div.reports form,
+div.reports .inlinebutton {
+  float: right;
+  margin-bottom: 0px;
+}
+
+div.reports .inlinebutton {
+  margin-left: 10px;
+}
+
+div.reports h2 {
+  font-size: 20px;
+}
+
+/* @group Wiki */
+
+textarea.wikitext {
+  min-width: 600px;
+}
+
+.wiki-toc {
+  float: right;
+  margin-left: 25px;
+  padding: 10px;
+  border: 1px solid #999;
+  border-radius: 10px;
+}
+
+.trac-modifiedby {
+  float: right;
+}
+
+.trac-modifiedby .trac-print {
+  display: none;
+}
+
+/* @end */
+
+
+/* @group Quick Ticket fieldset */
+
+#qct-fieldset {
+  position: relative;
+}
+
+#qct-fieldset .form-horizontal {
+  position: relative;
+  left: -65px;
+}
+
+#qct-fieldset .controls {
+  margin-bottom: 5px;
+}
+
+#qct-fieldset #field-summary {
+  width: 260px;
+}
+
+#qct-box #qct-cancel {
+  display: inline;
+  color: #08C;
+  margin-top: 5px;
+  padding: 5px 15px;
+}
+
+#qct-create {
+  margin-left: 100px;
+}
+
+#qct-cancel {
+  position: relative;
+  top: 5px;
+}
+
+/* @end */
