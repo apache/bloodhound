@@ -28,7 +28,7 @@ from trac.web.api import Request, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome
 from trac.web.main import RequestDispatcher
 
-from themeengine.api import ThemeBase
+from themeengine.api import ThemeBase, ThemeEngineSystem
 
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
@@ -84,7 +84,15 @@ class BloodhoundTheme(ThemeBase):
     def post_process_request(self, req, template, data, content_type):
         """Post process request filter.
         Removes all trac provided css if required"""
-        if self.disable_all_trac_css:
+        def is_active_theme():
+            is_active = False
+            active_theme = ThemeEngineSystem(self.env).theme
+            if active_theme is not None:
+                this_theme_name = self.get_theme_names().next()
+                is_active = active_theme['name'] == this_theme_name
+            return is_active
+        
+        if self.disable_all_trac_css and is_active_theme():
             links = req.chrome.get('links',{})
             stylesheets = links.get('stylesheet',[])
             if stylesheets:

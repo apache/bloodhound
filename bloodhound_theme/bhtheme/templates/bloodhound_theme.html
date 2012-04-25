@@ -11,7 +11,7 @@
       <py:when test="title">${title}</py:when>
       <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
     </title>
-    <link rel="stylesheet" href="/main/chrome/theme/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="${href.chrome('theme/bootstrap.css')}" type="text/css" />
     <py:if test="chrome.links">
       <py:for each="rel, links in chrome.links.items()">
         <link rel="${rel}" py:for="link in links" py:attrs="link"/>
