@@ -72,7 +72,9 @@ class BloodhoundTheme(ThemeBase):
     """
     template = htdocs = css = screenshot = disable_trac_css = True
     disable_all_trac_css = True
-
+    BLOODHOUND_TEMPLATE_MAP = {
+        'admin_logging.html' : 'bh_admin_logging.html',
+    }
     implements(IRequestFilter)
 
     # IRequestFilter methods
@@ -93,12 +95,14 @@ class BloodhoundTheme(ThemeBase):
             return is_active
         
         if self.disable_all_trac_css and is_active_theme():
-            links = req.chrome.get('links',{})
-            stylesheets = links.get('stylesheet',[])
-            if stylesheets:
-                path = req.base_path + '/chrome/common/css/'
-                links['stylesheet'] = [ss for ss in stylesheets 
-                                       if not ss.get('href').startswith(path)]
+            if self.disable_all_trac_css:
+                links = req.chrome.get('links',{})
+                stylesheets = links.get('stylesheet',[])
+                if stylesheets:
+                    path = req.base_path + '/chrome/common/css/'
+                    links['stylesheet'] = [ss for ss in stylesheets 
+                                        if not ss.get('href').startswith(path)]
+            template = self.BLOODHOUND_TEMPLATE_MAP.get(template, template)
         return template, data, content_type
 
 class QuickCreateTicketDialog(Component):
