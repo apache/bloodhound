@@ -73,6 +73,7 @@ class BloodhoundTheme(ThemeBase):
     template = htdocs = css = screenshot = disable_trac_css = True
     disable_all_trac_css = True
     BLOODHOUND_TEMPLATE_MAP = {
+        'admin_basics.html' : 'bh_admin_basics.html',
         'admin_logging.html' : 'bh_admin_logging.html',
     }
     implements(IRequestFilter)
