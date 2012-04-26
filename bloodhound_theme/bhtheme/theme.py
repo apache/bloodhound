@@ -74,7 +74,11 @@ class BloodhoundTheme(ThemeBase):
     disable_all_trac_css = True
     BLOODHOUND_TEMPLATE_MAP = {
         'admin_basics.html' : 'bh_admin_basics.html',
+        'admin_components.html' : 'bh_admin_components.html',
+        'admin_enums.html' : 'bh_admin_enums.html',
         'admin_logging.html' : 'bh_admin_logging.html',
+        'admin_milestones.html' : 'bh_admin_milestones.html',
+        'admin_perms.html' : 'bh_admin_perms.html',
     }
     implements(IRequestFilter)
 

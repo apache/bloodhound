@@ -207,4 +207,11 @@ textarea.wikitext {
   top: 5px;
 }
 
+/* @group Generic classes */
+
+.full-x {
+  width: 100%;
+}
+
 /* @end */
+

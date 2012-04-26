@@ -1,0 +1,108 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="bh_admin.html" />
+  <head>
+    <title>Permissions</title>
+  </head>
+
+  <body>
+    <h2>Manage Permissions</h2>
+
+    <div class="row">
+      <div class="${'PERMISSION_GRANT' in perm and 'span6' or 'span9'}">
+        <form id="revokeform" method="post" 
+            py:with="revoke_perm = 'PERMISSION_REVOKE' in perm" action="">
+          <table class="table table-bordered table-striped table-condensed" 
+              id="permlist">
+            <thead>
+              <tr><th>Subject</th><th class="full-x">Action</th></tr>
+            </thead>
+            <tbody>
+              <tr py:for="idx, (subject, perm_group) in enumerate(groupby(sorted(perms), key=lambda tmp: tmp[0]))"
+                  class="${'odd' if idx % 2 else 'even'}">
+                <td>$subject</td>
+                <td>
+                  <py:for each="cnt, (subject,action) in enumerate(perm_group)"
+                          py:with="subject_action='%s:%s' % (unicode_to_base64(subject),
+                                                             unicode_to_base64(action));
+                                   subject_action_id='sa-%d-%d' % (idx, cnt)">
+                    <!--! base64 make it safe to use ':' as separator when passing
+                          both subject and action as one query parameter -->
+                    <label for="$subject_action_id" class="checkbox inline">
+                      <input py:if="revoke_perm" type="checkbox"
+                             id="$subject_action_id"
+                             name="sel" value="$subject_action" />
+                      $action
+                    </label>
+                  </py:for>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br/>
+          <div class="control-group" py:if="revoke_perm">
+            <input class="btn btn-warning" type="submit" name="remove"
+                value="${_('Remove selected items')}" />
+          </div>
+        </form>
+
+        <p class="help-block" i18n:msg="">
+          <span class="label label-important">Important</span> Note that
+          <em>Subject</em> or <em>Group</em> names can't be all upper-case,
+          as that is reserved for permission names.
+        </p>
+      </div>
+      <div class="span3" py:if="'PERMISSION_GRANT' in perm">
+        <form id="addperm" class="well" method="post" action="">
+          <fieldset>
+            <legend>Grant Permission:</legend>
+            <label for="gp_subject">Subject:</label>
+            <input class="input-medium" id="gp_subject" type="text"
+                name="subject" />
+            <label for="action">Action:</label>
+            <select id="action" name="action" class="input-medium">
+              <option py:for="action in sorted(actions)">$action</option>
+            </select>
+            <p class="help-block">
+              <span class="label label-info">Note</span> Grant permission
+              for an action to a subject, which can be either a user
+              or a group.
+            </p>
+            <div class="control-group">
+              <input class="btn btn-info" type="submit" name="add"
+                  value="${_('Add')}" />
+            </div>
+          </fieldset>
+        </form>
+    
+        <form id="addsubj" class="well" method="post" action="">
+          <fieldset>
+            <legend>Add to Group:</legend>
+            <label for="sg_subject">Subject:</label>
+            <input id="sg_subject" type="text" name="subject"
+                class="input-medium" />
+            <label for="sg_group">Group:</label>
+            <input id="sg_group" type="text" name="group"
+                class="input-medium" />
+            <p class="help-block">
+              <span class="label label-info">Note</span> Add a user or group
+              to an existing permission group.
+            </p>
+            <div class="control-group">
+              <input class="btn btn-info" type="submit" name="add"
+                  value="${_('Add')}"/>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+
+  </body>
+
+</html>
+
