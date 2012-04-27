@@ -79,6 +79,8 @@ class BloodhoundTheme(ThemeBase):
         'admin_logging.html' : 'bh_admin_logging.html',
         'admin_milestones.html' : 'bh_admin_milestones.html',
         'admin_perms.html' : 'bh_admin_perms.html',
+        'admin_plugins.html' : 'bh_admin_plugins.html',
+        'admin_repositories.html' : 'bh_admin_repositories.html',
         'admin_versions.html' : 'bh_admin_versions.html',
     }
     implements(IRequestFilter)
