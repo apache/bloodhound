@@ -215,3 +215,11 @@ textarea.wikitext {
 
 /* @end */
 
+/* @group Search */
+
+#results .author,
+#results .date {
+  color: #090;
+}
+
+/* @end */
