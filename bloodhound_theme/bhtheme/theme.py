@@ -73,15 +73,15 @@ class BloodhoundTheme(ThemeBase):
     template = htdocs = css = screenshot = disable_trac_css = True
     disable_all_trac_css = True
     BLOODHOUND_TEMPLATE_MAP = {
-        'admin_basics.html' : 'bh_admin_basics.html',
-        'admin_components.html' : 'bh_admin_components.html',
-        'admin_enums.html' : 'bh_admin_enums.html',
-        'admin_logging.html' : 'bh_admin_logging.html',
-        'admin_milestones.html' : 'bh_admin_milestones.html',
-        'admin_perms.html' : 'bh_admin_perms.html',
-        'admin_plugins.html' : 'bh_admin_plugins.html',
-        'admin_repositories.html' : 'bh_admin_repositories.html',
-        'admin_versions.html' : 'bh_admin_versions.html',
+        'admin_basics.html' : ('bh_admin_basics.html', None),
+        'admin_components.html' : ('bh_admin_components.html', None),
+        'admin_enums.html' : ('bh_admin_enums.html', None),
+        'admin_logging.html' : ('bh_admin_logging.html', None),
+        'admin_milestones.html' : ('bh_admin_milestones.html', None),
+        'admin_perms.html' : ('bh_admin_perms.html', None),
+        'admin_plugins.html' : ('bh_admin_plugins.html', None),
+        'admin_repositories.html' : ('bh_admin_repositories.html', None),
+        'admin_versions.html' : ('bh_admin_versions.html', None),
     }
     implements(IRequestFilter)
 
@@ -102,7 +102,8 @@ class BloodhoundTheme(ThemeBase):
                 is_active = active_theme['name'] == this_theme_name
             return is_active
         
-        if self.disable_all_trac_css and is_active_theme():
+        is_active_theme = is_active_theme()
+        if self.disable_all_trac_css and is_active_theme:
             if self.disable_all_trac_css:
                 links = req.chrome.get('links',{})
                 stylesheets = links.get('stylesheet',[])
@@ -110,7 +111,11 @@ class BloodhoundTheme(ThemeBase):
                     path = req.base_path + '/chrome/common/css/'
                     links['stylesheet'] = [ss for ss in stylesheets 
                                         if not ss.get('href').startswith(path)]
-            template = self.BLOODHOUND_TEMPLATE_MAP.get(template, template)
+            template, modifier = self.BLOODHOUND_TEMPLATE_MAP.get(
+                    template, (template, None))
+            if modifier is not None:
+                modifier = getattr(self, modifier)
+                modifier(req, template, data, content_type, is_active_theme)
         return template, data, content_type
 
 class QuickCreateTicketDialog(Component):
