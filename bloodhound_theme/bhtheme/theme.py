@@ -24,8 +24,9 @@ from trac.core import *
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
+from trac.util.translation import _
 from trac.web.api import Request, IRequestFilter, IRequestHandler
-from trac.web.chrome import Chrome
+from trac.web.chrome import Chrome, prevnext_nav
 from trac.web.main import RequestDispatcher
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
@@ -73,6 +74,7 @@ class BloodhoundTheme(ThemeBase):
     template = htdocs = css = screenshot = disable_trac_css = True
     disable_all_trac_css = True
     BLOODHOUND_TEMPLATE_MAP = {
+        # Admin
         'admin_basics.html' : ('bh_admin_basics.html', None),
         'admin_components.html' : ('bh_admin_components.html', None),
         'admin_enums.html' : ('bh_admin_enums.html', None),
@@ -82,6 +84,9 @@ class BloodhoundTheme(ThemeBase):
         'admin_plugins.html' : ('bh_admin_plugins.html', None),
         'admin_repositories.html' : ('bh_admin_repositories.html', None),
         'admin_versions.html' : ('bh_admin_versions.html', None),
+
+        # Search
+        'search.html' : ('bh_search.html', '_modify_search_data'),
     }
     implements(IRequestFilter)
 
@@ -117,6 +122,19 @@ class BloodhoundTheme(ThemeBase):
                 modifier = getattr(self, modifier)
                 modifier(req, template, data, content_type, is_active_theme)
         return template, data, content_type
+
+    # Request modifiers
+
+    def _modify_search_data(self, req, template, data, content_type, is_active):
+        """Insert breadcumbs and context navigation items in search web UI
+        """
+        if is_active:
+            # Insert query string in search box (see bloodhound_theme.html)
+            req.search_query = data.get('query')
+            # Breadcrumbs nav
+            data['resourcepath_template'] = 'bh_path_search.html'
+            # Context nav
+            prevnext_nav(req, _('Previous'), _('Next'))
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)

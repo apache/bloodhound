@@ -1,0 +1,29 @@
+<!--!  Display a page index.
+
+  `paginator` must be a trac.util.presentation.Paginator instance
+
+  -->
+<div xmlns="http://www.w3.org/1999/xhtml" 
+     xmlns:py="http://genshi.edgewall.org/" 
+     class="pagination pagination-centered" py:if="paginator.has_more_pages">
+  <ul>
+    <li py:if="paginator.has_previous_page" 
+          py:with="prevlink = chrome.links.prev[0]" class="previous"> 
+      <a href="${prevlink.href}" title="${prevlink.title}">&larr;</a> 
+    </li>
+    <py:for each="page in paginator.shown_pages"> 
+      <li py:if="page.string == paginator.current_page.string" class="active"> 
+        <a class="${paginator.current_page['class']}"
+            href="#">${paginator.current_page.string}</a>
+      </li> 
+      <li py:if="page.string != paginator.current_page.string"> 
+        <a href="${page.href}" title="${page.title}">${page.string}</a> 
+      </li> 
+    </py:for> 
+    <li py:if="paginator.has_next_page" 
+          py:with="nextlink = chrome.links.next[0]" class="next"> 
+      <a href="${nextlink.href}" title="${nextlink.title}">&rarr;</a> 
+    </li> 
+  </ul>
+</div> 
+

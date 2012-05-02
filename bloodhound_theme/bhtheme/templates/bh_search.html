@@ -1,0 +1,94 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title py:choose="">
+      <py:when test="query">Search Results</py:when>
+      <py:otherwise>Search</py:otherwise>
+    </title>
+    <py:if test="results">
+        <meta name="startIndex" content="${results.span[0] + 1}"/>
+        <meta name="totalResults" content="$results.num_items"/>
+        <meta name="itemsPerPage" content="$results.max_per_page"/>
+    </py:if>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {$("#q").get(0).focus()});
+    </script>
+  </head>
+  <body>
+    <py:choose>
+      <div py:when="query" id="content" class="row">
+  
+        <div class="span12">
+          <div class="btn-toolbar">
+            <div class="btn-group" 
+                py:with="filter_args = [(f.name, 'on') for f in filters if f.active]">
+              <py:for each="filter in filters">
+                <a id="${filter.name}"
+                    py:with="sf = [x for x in filter_args 
+                                      if x[0] != filter.name] + 
+                                  ([(filter.name, 'on')] if not filter.active else [])"
+                    class="btn ${filter.active and 'active' or None}" 
+                    href="${href.search(q=query, noquickjump=1, **dict(sf))}">
+                  <i py:if="filter.active" class="icon-ok-sign"></i>
+                  ${filter.label}
+                </a>
+              </py:for>
+            </div>
+          </div>
+        </div>
+  
+        <div class="span12" py:if="results or quickjump">
+          <h2 py:if="results">
+            Results <small>(${results.displayed_items()})</small>
+          </h2>
+          <xi:include py:with="paginator = results" href="bh_page_index.html" />
+          <div>
+            <dl id="results">
+              <py:if test="quickjump">
+                <dt id="quickjump">
+                  <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+                </dt>
+                <dd>${quickjump.description}</dd>
+              </py:if>
+              <py:for each="result in results">
+                <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
+                <dd class="searchable">${result.excerpt}</dd>
+                <dd>
+                  <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                  <span class="date">${result.date}</span>
+                </dd>
+              </py:for>
+            </dl>
+          </div>
+          <xi:include py:with="paginator = results" href="bh_page_index.html" />
+        </div>
+  
+        <div class="span12"
+            py:if="query and not (results or quickjump)">
+          <p id="notfound" class="alert">
+            No matches found.
+          </p>
+        </div>
+  
+      </div>
+      <p py:otherwise="" class="alert">
+        <span class="label label-warning">Warning</span>
+        Search query too short. Query must be at least 3 characters long.
+        Please type your query string in search box and try again.
+      </p>
+    </py:choose>
+    <div id="help" class="help-block pull-right" i18n:msg="">
+      <span class="label label-info">Note:</span>
+      See <a href="${href.wiki('TracSearch')}">TracSearch</a>
+      for help on searching.
+    </div>
+    <br/>
+
+  </body>
+</html>

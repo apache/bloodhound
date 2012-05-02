@@ -71,7 +71,8 @@
         <div class="span4">
           <form id="mainsearch" class="form-inline" action="${href.search()}" method="get">
             <input type="text" class="span3" name="q"
-                placeholder="Search anything. Try #EF-492." />
+                placeholder="Search anything. Try #EF-492." 
+                value="${req.search_query}" />
             <input type="submit" value="Search" class="btn btn-warning"/>
           </form>
         </div>
