@@ -126,22 +126,42 @@
                     data-content="Alert box" data-toggle="dropdown">
                   Create Ticket
                 </a>
-                <div id="qct-box" class="dropdown-menu" style="width: 300px;">
+                <div id="qct-box" class="dropdown-menu" style="width: 300px;"
+                    py:choose="">
                   <div class="popover-title">
                     <a href="${href.newticket()}"><h3>Create Ticket</h3></a>
                   </div>
                   <div class="popover-content">
-                    <form id="qct-form" name="qct" method="post">
-                      <div id="qct-fieldset">
-                        ${qct_box()}
-                      </div>
-                    </form>
+                    <py:when test="'TICKET_CREATE' in perm">
+                      <form id="qct-form" name="qct" method="post">
+                        <div id="qct-fieldset">
+                          ${qct_box()}
+                        </div>
+                      </form>
                       <button id="qct-create" class="btn btn-primary" data-target="${href.qct()}">Create</button>
                       <a id="qct-cancel">Cancel</a>
+                    </py:when>
+                    <py:otherwise>
+                      <div class="alert alert-info">
+                        <span class="label label-important">TICKET_CREATE</span>
+                        privileges are required to perform this operation.
+                        You don't have the required permissions
+                        <py:choose>
+                          <py:when test="req.authname == 'anonymous'">
+                            <br/><br/>
+                            <a href="${href.login()}" class="btn btn-primary" style="display: inline; color: #FFFFFF">Login</a>
+                          </py:when>
+                          <py:otherwise>
+                            Please contact your administrator or team leader to 
+                            request these.
+                          </py:otherwise>
+                        </py:choose>
+                      </div>
+                    </py:otherwise>
                   </div>
                 </div>
-                </div>
-              </py:when>
+              </div>
+            </py:when>
             <py:otherwise>
               &nbsp;
             </py:otherwise>
