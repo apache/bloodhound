@@ -22,7 +22,11 @@ Provides request filtering to capture product related paths
 """
 import re
 
+from genshi.builder import tag
+
 from trac.core import Component, implements, TracError
+from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
+                             Chrome, INavigationContributor)
 from trac.resource import ResourceNotFound
 from trac.util.translation import _
 from trac.web.api import IRequestFilter, IRequestHandler, Request, HTTPNotFound
@@ -35,7 +39,15 @@ PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 class ProductModule(Component):
     """Base Product behaviour"""
     
-    implements(IRequestFilter, IRequestHandler)
+    implements(IRequestFilter, IRequestHandler, INavigationContributor)
+    
+    def get_active_navigation_item(self, req):
+        return 'products'
+    
+    def get_navigation_items(self, req):
+        if 'PRODUCT_VIEW' in req.perm:
+            yield ('mainnav', 'products',
+                   tag.a(_('Products'), href=req.href.products(), accesskey=3))
     
     # IRequestFilter methods
     def pre_process_request(self, req, handler):
@@ -95,9 +107,137 @@ class ProductModule(Component):
     
     def process_request(self, req):
         """process request handler"""
-        if req.args.get('productid', None):
-            return 'product.html', None, None
-        return 'product_list.html', None, None
+        
+        req.perm.require('PRODUCT_VIEW')
+        pid = req.args.get('productid', None)
+        action = req.args.get('action', 'view')
+        
+        products = [p for p in Product.select(self.env)
+                    if 'PRODUCT_VIEW' in req.perm(p.resource)]
+        
+        if pid is not None:
+            add_link(req, 'up', req.href.products(), _('Products'))
+        
+        try:
+            product = Product(self.env, {'prefix': pid})
+        except ResourceNotFound:
+            product = Product(self.env)
+        
+        data = {'product': product}
+        
+        if req.method == 'POST':
+            if req.args.has_key('cancel'):
+                req.redirect(req.href.products(product.prefix))
+            elif action == 'edit':
+                return self._do_save(req, product)
+            elif action == 'delete':
+                req.perm(product.resource).require('PRODUCT_DELETE')
+                retarget_to = req.args.get('retarget', None)
+                name = product.name
+                product.delete(resources_to=retarget_to)
+                add_notice(req, _('The product "%(n)s" has been deleted.',
+                                  n = name))
+                req.redirect(req.href.products())
+        elif action in ('new', 'edit'):
+            return self._render_editor(req, product)
+        elif action == 'delete':
+            req.perm(product.resource).require('PRODUCT_DELETE')
+            return 'product_delete.html', data, None
+        
+        if pid is None:
+            data = {'products': products}
+            return 'product_list.html', data, None
+        
+        def add_product_link(rel, product):
+            href = req.href.products(product.prefix)
+            add_link(req, rel, href, _('Product "%(name)s"',
+                                       name=product.name))
+        
+        idx = [i for i, p in enumerate(products) if p.name == product.name]
+        if idx:
+            idx = idx[0]
+            if idx > 0:
+                add_product_link('first', products[0])
+                add_product_link('prev', products[idx - 1])
+            if idx < len(products) - 1:
+                add_product_link('next', products[idx + 1])
+                add_product_link('last', products[-1])        
+        prevnext_nav(req, _('Previous Product'), _('Next Product'),
+                     _('Back to Product List'))
+        return 'product_view.html', data, None
+    
+    def _render_editor(self, req, product):
+        """common processing for creating rendering the edit page"""
+        if product._exists:
+            req.perm(product.resource).require('PRODUCT_MODIFY')
+        else:
+            req.perm(product.resource).require('PRODUCT_CREATE')
+        
+        chrome = Chrome(self.env)
+        chrome.add_jquery_ui(req)
+        chrome.add_wiki_toolbars(req)
+        data = {'product': product}
+        return 'product_edit.html', data, None
+    
+    def _do_save(self, req, product):
+        """common processing for product save events"""
+        req.perm.require('PRODUCT_VIEW')
+        
+        name = req.args.get('name')
+        prefix = req.args.get('prefix')
+        description = req.args.get('description','')
+        
+        owner = req.args.get('owner')
+        keys = {'prefix':prefix}
+        field_data = {'name':name,
+                      'description':description,
+                      'owner':owner,
+                      }
+        
+        warnings = []
+        def warn(msg):
+            add_warning(req, msg)
+            warnings.append(msg)
+        
+        if product._exists:
+            if name != product.name and Product.select(self.env, 
+                                                       where={'name':name}):
+                warn(_('A product with name "%(name)s" already exists, please '
+                       'choose a different name.', name=name))
+            elif not name:
+                warn(_('You must provide a name for the product.'))
+            else:
+                req.perm.require('PRODUCT_MODIFY')
+                product.update_field_dict(field_data)
+                product.update()
+                add_notice(req, _('Your changes have been saved.'))
+        else:
+            req.perm.require('PRODUCT_CREATE')
+            
+            if not prefix:
+                warn(_('You must provide a prefix for the product.'))
+            elif Product.select(self.env, where={'prefix':prefix}):
+                warn(_('Product "%(id)s" already exists, please choose another '
+                       'prefix.', id=prefix))
+            if not name:
+                warn(_('You must provide a name for the product.'))
+            elif Product.select(self.env, where={'name':name}):
+                warn(_('A product with name "%(name)s" already exists, please '
+                       'choose a different name.', name=name))
+            
+            if not warnings:
+                prod = Product(self.env)
+                prod.update_field_dict(keys)
+                prod.update_field_dict(field_data)
+                prod.insert()
+                add_notice(req, _('The product "%(id)s" has been added.',
+                                  id=prefix))
+        if warnings:
+            product.update_field_dict(keys)
+            product.update_field_dict(field_data)
+            return self._render_editor(req, product)
+        req.redirect(req.href.products(prefix))
+
 
     # helper methods for INavigationContributor implementations
     @classmethod
