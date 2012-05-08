@@ -95,9 +95,13 @@ class BloodhoundTheme(ThemeBase):
 
         # Wiki
         'wiki_delete.html' : ('bh_wiki_delete.html', None),
+        'wiki_diff.html' : ('bh_wiki_diff.html', None),
         'wiki_edit.html' : ('bh_wiki_edit.html', None),
         'wiki_rename.html' : ('bh_wiki_rename.html', None),
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
+
+        # General purpose
+        'history_view.html' : ('bh_history_view.html', None),
     }
 
     implements(IRequestFilter)
