@@ -207,10 +207,56 @@ textarea.wikitext {
   top: 5px;
 }
 
-/* @group Generic classes */
+/* @group Generic rules */
 
 .full-x {
   width: 100%;
+}
+
+h1, h2, h3, h4 {
+  font-weight: bold;
+  page-break-after: avoid;
+}
+/* @end */
+
+/* @group Alternate download links */
+
+#altlinks {
+  clear: both;
+  text-align: center;
+}
+
+#altlinks h3 {
+  font-size: 12px;
+  letter-spacing: normal;
+  margin: 0;
+}
+
+#altlinks ul {
+  list-style: none outside none;
+  margin: 0;
+  padding: 0 0 1em;
+}
+
+#altlinks li.last {
+  border-right: medium none;
+}
+
+#altlinks li {
+  border-right: 1px solid #D7D7D7;
+  display: inline;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 0 1em;
+  white-space: nowrap;
+}
+
+#altlinks li *:link, #altlinks li *:visited {
+  background-repeat: no-repeat;
+  border: medium none;
+  color: #666666;
+  padding: 0 0 2px;
+ text-decoration: none;
 }
 
 /* @end */
