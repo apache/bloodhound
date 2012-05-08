@@ -95,6 +95,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Wiki
         'wiki_edit.html' : ('bh_wiki_edit.html', None),
+        'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
     }
 
     implements(IRequestFilter)
@@ -146,6 +147,12 @@ class BloodhoundTheme(ThemeBase):
             data['resourcepath_template'] = 'bh_path_search.html'
             # Context nav
             prevnext_nav(req, _('Previous'), _('Next'))
+
+    def _modify_wiki_page_path(self, req, template, data, content_type, is_active):
+        """Override wiki breadcrumbs nav items
+        """
+        if is_active:
+            data['resourcepath_template'] = 'bh_path_wikipage.html'
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
