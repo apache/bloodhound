@@ -73,6 +73,11 @@ class BloodhoundTheme(ThemeBase):
     """
     template = htdocs = css = screenshot = disable_trac_css = True
     disable_all_trac_css = True
+    BLOODHOUND_KEEP_CSS = set(
+        (
+            'diff.css',
+        )
+    )
     BLOODHOUND_TEMPLATE_MAP = {
         # Admin
         'admin_basics.html' : ('bh_admin_basics.html', None),
@@ -114,8 +119,10 @@ class BloodhoundTheme(ThemeBase):
                 stylesheets = links.get('stylesheet',[])
                 if stylesheets:
                     path = req.base_path + '/chrome/common/css/'
-                    links['stylesheet'] = [ss for ss in stylesheets 
-                                        if not ss.get('href').startswith(path)]
+                    _iter = ([ss, ss.get('href', '')] for ss in stylesheets)
+                    links['stylesheet'] = [ss for ss, href in _iter 
+                            if not href.startswith(path) or
+                            href.rsplit('/', 1)[-1] in self.BLOODHOUND_KEEP_CSS]
             template, modifier = self.BLOODHOUND_TEMPLATE_MAP.get(
                     template, (template, None))
             if modifier is not None:
