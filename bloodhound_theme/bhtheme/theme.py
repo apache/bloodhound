@@ -95,6 +95,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Wiki
         'wiki_edit.html' : ('bh_wiki_edit.html', None),
+        'wiki_rename.html' : ('bh_wiki_rename.html', None),
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
     }
 
