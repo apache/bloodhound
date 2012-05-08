@@ -92,7 +92,11 @@ class BloodhoundTheme(ThemeBase):
 
         # Search
         'search.html' : ('bh_search.html', '_modify_search_data'),
+
+        # Wiki
+        'wiki_edit.html' : ('bh_wiki_edit.html', None),
     }
+
     implements(IRequestFilter)
 
     # IRequestFilter methods

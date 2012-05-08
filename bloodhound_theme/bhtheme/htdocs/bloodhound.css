@@ -261,6 +261,20 @@ h1, h2, h3, h4 {
 
 /* @end */
 
+/* @group Inherited wiki styles */
+
+.wiki #preview {
+ background: #f8f8f8 url(../common/draft.png);
+ margin: 1em 0 2em;
+ overflow: auto;
+}
+
+.wiki #preview .wikipage {
+ padding: 0.8em 0px;
+}
+
+/* @end */
+
 /* @group Search */
 
 #results .author,
