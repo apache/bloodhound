@@ -33,7 +33,7 @@ setup(
   classifiers = [
       'Framework :: Trac',
     ],
-  install_requires = ['TracThemeEngine', 'Trac'],
+  install_requires = ['BloodhoundDashboardPlugin', 'TracThemeEngine', 'Trac'],
   entry_points = {
       'trac.plugins': [
             'bhtheme.theme = bhtheme.theme',
