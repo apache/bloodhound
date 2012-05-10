@@ -102,14 +102,6 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                             # Package data
                             ['templates/*', 'htdocs/*'],
                           ), 
-            'bhdashboard.web_ui' : ('bhdashboard/web_ui',     # Package dir
-                            # Package data
-                            ['templates/*', 'htdocs/*'],
-                          ), 
-            'bhdashboard.web_ui.ticket' : ('bhdashboard/web_ui/ticket',     # Package dir
-                            # Package data
-                            [],
-                          ), 
             'bhdashboard.tests' : ('bhdashboard/tests',     # Package dir
                             # Package data
                             ['data/**'],
@@ -120,8 +112,6 @@ ENTRY_POINTS = r"""
                [trac.plugins]
                bhdashboard.api = bhdashboard.api
                bhdashboard.layouts.bootstrap = bhdashboard.layouts.bootstrap
-               bhdashboard.web_ui = bhdashboard.web_ui
-               bhdashboard.web_ui.ticket.roadmap = bhdashboard.web_ui.ticket.roadmap
                bhdashboard.widgets.containers = bhdashboard.widgets.containers
                bhdashboard.widgets.query = bhdashboard.widgets.query
                bhdashboard.widgets.report = bhdashboard.widgets.report
