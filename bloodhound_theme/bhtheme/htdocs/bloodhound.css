@@ -295,3 +295,10 @@ h1, h2, h3, h4 {
 
 /* @end */
 
+/* @group Reports */
+
+.report span.foldable {
+  display: none;
+}
+
+/* @end */

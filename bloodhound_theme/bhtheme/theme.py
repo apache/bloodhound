@@ -73,6 +73,9 @@ class BloodhoundTheme(ThemeBase):
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_css'),
         'ticket.html' : ('bh_ticket.html', None),
 
+        # Ticket
+        'report_list.html' : ('bh_report_list.html', None),
+
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
     }
