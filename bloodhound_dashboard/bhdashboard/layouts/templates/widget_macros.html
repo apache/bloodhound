@@ -5,7 +5,7 @@
     xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
     py:strip="" >
 
-  <!-- Helper functions (py:def) -->
+  <!--! Helper functions (py:def) -->
 
   <div py:def="widget_container(w)" role="application">
     <h1 style="display: inline;">${w.title}</h1>
@@ -31,7 +31,7 @@
     ${w.content}
   </div>
 
-  <!-- Widget markup (py:match) -->
+  <!--! Widget markup (py:match) -->
 
   <div py:def="bhnotfound()" class="alert alert-error">
     <span class="label label-important">Error</span>
@@ -39,7 +39,7 @@
     Is <code>bhdashboard.web_ui.DashboardModule</code> component disabled?
   </div>
 
-  <!--
+  <!--!
   Sample layout tag 
 
   <bh:layout urn="LayoutName">
@@ -75,7 +75,7 @@
       </py:otherwise>
     </py:choose>
   </py:match>
-  <!-- 
+  <!--! 
   Sample widget tag
 
   <bh:widget id="simple_widget" urn="WidgetName" altlinks="false">
