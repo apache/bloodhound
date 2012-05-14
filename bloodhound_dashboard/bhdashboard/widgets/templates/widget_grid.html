@@ -42,7 +42,12 @@
               }${fullrow and 'border: none; padding: 0;' or None}">
   
               <td py:if="use_groups" style="background: none repeat scroll 0 0 #FFFFFF; color: #333333;">
-                <py:if test="idx == 0">$value_for_group</py:if>
+                <py:if test="idx == 0 and value_for_group">
+                  $value_for_group
+                </py:if>
+                <py:if test="idx == 0 and not value_for_group">
+                  <span class="label">empty</span>
+                </py:if>
               </td>
               <py:for each="cell in cell_group">
                 <py:if test="not cell.header.hidden">
