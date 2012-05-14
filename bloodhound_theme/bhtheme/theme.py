@@ -74,6 +74,7 @@ class BloodhoundTheme(ThemeBase):
         'ticket.html' : ('bh_ticket.html', None),
         'report_list.html' : ('bh_report_list.html', None),
         'report_view.html' : ('bh_report_view.html', None),
+        'report_delete.html' : ('bh_report_delete.html', None),
 
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
