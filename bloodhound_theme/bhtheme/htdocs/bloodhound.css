@@ -149,9 +149,11 @@ div.reports h2 {
 
 /* @group Wiki */
 
+/*
 textarea.wikitext {
-  min-width: 600px;
+  min-width: 66%;
 }
+*/
 
 .wiki-toc {
   float: right;
@@ -263,7 +265,8 @@ h1, h2, h3, h4 {
 
 /* @group Inherited wiki styles */
 
-.wiki #preview {
+.wiki #preview,
+.ticketdraft {
  background: #f8f8f8 url(../common/draft.png);
  margin: 1em 0 2em;
  overflow: auto;
@@ -283,3 +286,12 @@ h1, h2, h3, h4 {
 }
 
 /* @end */
+
+/* @group Search */
+
+.comment blockquote p {
+  font-size: 13px;
+}
+
+/* @end */
+

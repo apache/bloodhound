@@ -44,7 +44,7 @@ class BloodhoundTheme(ThemeBase):
     disable_all_trac_css = True
     BLOODHOUND_KEEP_CSS = set(
         (
-            'diff.css', 'timeline.css',
+            'diff.css',
         )
     )
     BLOODHOUND_TEMPLATE_MAP = {
@@ -71,6 +71,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Ticket
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_css'),
+        'ticket.html' : ('bh_ticket.html', None),
 
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
