@@ -46,9 +46,10 @@
     <div class="container">
       <div class="row" style="position:relative;">
         <div class="span4">
-          <!-- TODO: Support different logo dimensions -->
-          <img src="${chrome.logo.src or href.chrome('theme/images/bh_logo.png')}" 
-              alt="Bloodhound Logo" height="47" width="161" />
+	  <p>
+            <img src="${chrome.logo.src or href.chrome('theme/images/bh_logo.png')}" 
+                alt="Bloodhound Logo" />
+	  </p>
         </div>
         <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav)">
           <div class="span8">
