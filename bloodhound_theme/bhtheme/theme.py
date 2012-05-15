@@ -70,6 +70,7 @@ class BloodhoundTheme(ThemeBase):
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
 
         # Ticket
+        'milestone_edit.html' : ('bh_milestone_edit.html', None),
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_css'),
         'report_delete.html' : ('bh_report_delete.html', None),
         'report_edit.html' : ('bh_report_edit.html', None), 
