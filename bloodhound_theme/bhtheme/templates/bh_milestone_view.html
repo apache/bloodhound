@@ -54,20 +54,25 @@
         <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
                     'MILESTONE_DELETE' in perm(milestone.resource) or
                     attachments.can_create">
-          <span class="label label-info">Actions</span>
           <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
               method="get" action="" id="editmilestone"
               style="display: inline-block">
             <input type="hidden" name="action" value="edit" />
-            <input type="submit" value="${_('Edit milestone')}" class="btn" />
+            <div class="btn-group">
+              <input type="submit" value="${_('Edit milestone')}" 
+                  class="btn btn-warning" />
+            </div>
           </form>
           <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
               method="get" action="" id="deletemilestone"
               style="display: inline-block">
             <input type="hidden" name="action" value="delete" />
-            <input type="submit" value="${_('Delete milestone')}" class="btn" />
+            <div class="btn-group">
+              <input type="submit" value="${_('Delete milestone')}"
+                  class="btn btn-danger" />
+            </div>
           </form>
-          <xi:include href="attach_file_form.html" py:with="alist = attachments" />
+          <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
         </div>
         <div class="row">
           <bh:layout urn="bootstrap_btnbar">
