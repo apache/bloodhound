@@ -58,6 +58,7 @@ class BloodhoundTheme(ThemeBase):
         'admin_plugins.html' : ('bh_admin_plugins.html', None),
         'admin_repositories.html' : ('bh_admin_repositories.html', None),
         'admin_versions.html' : ('bh_admin_versions.html', None),
+        'admin_products.html' : ('bh_admin_products.html', None),
 
         # Search
         'search.html' : ('bh_search.html', '_modify_search_data'),
