@@ -34,8 +34,9 @@ from trac.resource import Resource
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Milestone, group_milestones
 from trac.util import Ranges, as_bool
-from trac.util.datefmt import format_datetime, from_utimestamp, parse_date, \
-                              to_timestamp, to_utimestamp, utc, user_time
+from trac.util.datefmt import format_date, format_datetime, from_utimestamp, \
+                              parse_date, to_timestamp, to_utimestamp, utc, \
+                              user_time
 from trac.util.presentation import Paginator
 from trac.util.text import empty, shorten_line, quote_query_string
 from trac.util.translation import _, tag_, cleandoc_
@@ -753,6 +754,9 @@ class Query(object):
                     ticket['changed'] = True
             if self.group:
                 group_key = ticket[self.group]
+                # If grouping by datetime field use days (Bloodhound #68)
+                if self.group in ('changetime', 'time'):
+                    group_key = format_date(group_key)
                 groups.setdefault(group_key, []).append(ticket)
                 if not groupsequence or group_key not in groupsequence:
                     groupsequence.append(group_key)
