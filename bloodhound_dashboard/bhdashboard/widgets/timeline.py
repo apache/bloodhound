@@ -32,6 +32,7 @@ from trac.core import implements, TracError
 from trac.config import IntOption
 from trac.timeline.web_ui import TimelineModule
 from trac.util.translation import _
+from trac.web.chrome import add_stylesheet
 
 from bhdashboard.api import DateField, EnumField, ListField
 from bhdashboard.util import WidgetBase, InvalidIdentifier, \
@@ -110,7 +111,8 @@ class TimelineWidget(WidgetBase):
                 exc.title = data.get('title', 'TracReports')
             raise
         else:
-            merge_links(srcreq=fakereq, dstreq=req)
+            merge_links(srcreq=fakereq, dstreq=req, exclude=["stylesheet"])
+            add_stylesheet(req, 'dashboard/timeline.css')
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
             return 'widget_timeline.html', \
