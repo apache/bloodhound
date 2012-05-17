@@ -80,6 +80,7 @@ class BloodhoundTheme(ThemeBase):
         'report_list.html' : ('bh_report_list.html', None),
         'report_view.html' : ('bh_report_view.html', None),
         'ticket.html' : ('bh_ticket.html', None),
+        'ticket_preview.html' : ('bh_ticket_preview.html', None),
 
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
