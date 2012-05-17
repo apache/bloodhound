@@ -29,6 +29,7 @@ from itertools import imap, islice
 
 from genshi.builder import tag
 from trac.core import implements, TracError
+from trac.config import IntOption
 from trac.timeline.web_ui import TimelineModule
 from trac.util.translation import _
 
@@ -41,6 +42,9 @@ from bhdashboard.util import WidgetBase, InvalidIdentifier, \
 class TimelineWidget(WidgetBase):
     """Display activity feed.
     """
+    default_count = IntOption('widget_activity', 'limit', 25, 
+                        """Maximum number of items displayed by default""")
+
     def get_widget_params(self, name):
         """Return a dictionary containing arguments specification for
         the widget with specified name.
@@ -66,7 +70,6 @@ class TimelineWidget(WidgetBase):
                         'type' : ListField()
                     },
                 'max' : {
-                        'default' : 0,
                         'desc' : """Limit the number of events displayed""",
                         'type' : int
                     },
@@ -83,6 +86,8 @@ class TimelineWidget(WidgetBase):
                         'max')
             start, days, user, precision, filters, count = \
                     self.bind_params(name, options, *params)
+            if count is None:
+                count = self.default_count
 
             fakereq = dummy_request(self.env, req.authname)
             fakereq.args = {
