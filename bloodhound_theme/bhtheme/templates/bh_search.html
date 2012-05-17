@@ -24,30 +24,28 @@
     <py:choose>
       <div py:when="query" id="content" class="row">
   
-        <div class="span12">
-          <div class="btn-toolbar">
-            <div class="btn-group" 
-                py:with="filter_args = [(f.name, 'on') for f in filters if f.active]">
-              <py:for each="filter in filters">
-                <a id="${filter.name}"
-                    py:with="sf = [x for x in filter_args 
-                                      if x[0] != filter.name] + 
-                                  ([(filter.name, 'on')] if not filter.active else [])"
-                    class="btn ${filter.active and 'active' or None}" 
-                    href="${href.search(q=query, noquickjump=1, **dict(sf))}">
-                  <i py:if="filter.active" class="icon-ok-sign"></i>
-                  ${filter.label}
-                </a>
-              </py:for>
-            </div>
+        <h2 py:if="results">
+          Results <small>(${results.displayed_items()})</small>
+        </h2>
+
+        <form id="fullsearch" action="${href.search()}" method="get">
+          <input type="hidden" name="q" value="${query}" />
+          <input type="hidden" name="noquickjump" value="1" />
+          <div class="span2">
+            <input class="btn btn-warning" type="submit" value="${_('Apply filters')}" />
           </div>
-        </div>
+          <div class="span10 filters">
+            <py:for each="filter in filters">
+              <input type="checkbox" id="${filter.name}" name="${filter.name}"
+                     checked="${filter.active or None}" />
+              <label for="${filter.name}">
+                <span class="label">${filter.label}</span>
+              </label>
+            </py:for>
+          </div>
+        </form>
   
         <div class="span12" py:if="results or quickjump">
-          <h2 py:if="results">
-            Results <small>(${results.displayed_items()})</small>
-          </h2>
-          <xi:include py:with="paginator = results" href="bh_page_index.html" />
           <div>
             <dl id="results">
               <py:if test="quickjump">
