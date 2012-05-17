@@ -12,7 +12,7 @@
     <script type="text/javascript">/*<![CDATA[*/
       jQuery(document).ready(function($) {
         initializeFilters();
-        if(batch_modify) {
+        if(typeof batch_modify != 'undefined' && batch_modify) {
           initializeBatch();
         }
         $("#group").change(function() {
