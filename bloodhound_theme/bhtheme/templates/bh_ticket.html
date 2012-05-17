@@ -342,20 +342,7 @@ ${value}</textarea>
                     <py:choose>
                       <fieldset py:when="can_append or can_modify" id="action">
                         <legend>Action</legend>
-                        <div py:for="key, label, controls, hints in action_controls">
-                            <input type="radio" id="action_$key" name="action" value="$key"
-                                   checked="${key == action or None}" />
-                            <label for="action_$key">$label</label>
-                            $controls
-                            <div class="help-block" py:if="hints">
-                              <p py:for="idx, hint in 
-                                  enumerate(h for h in hints if h.strip())">
-                                <span class="label label-info"
-                                    py:if="idx == 0">Tip</span>
-                                $hint
-                              </p>
-                            </div>
-                        </div>
+                        <xi:include href="bh_ticket_actions.html" />
                       </fieldset>
                       <py:otherwise>
                         <py:for each="key, label, controls, hints in action_controls">

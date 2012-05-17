@@ -74,6 +74,7 @@ class BloodhoundTheme(ThemeBase):
         'milestone_edit.html' : ('bh_milestone_edit.html', None),
         'milestone_delete.html' : ('bh_milestone_delete.html', None),
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_css'),
+        'query.html' : ('bh_query.html', None),
         'report_delete.html' : ('bh_report_delete.html', None),
         'report_edit.html' : ('bh_report_edit.html', None), 
         'report_list.html' : ('bh_report_list.html', None),

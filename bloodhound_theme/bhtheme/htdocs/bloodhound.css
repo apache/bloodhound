@@ -302,3 +302,48 @@ h1, h2, h3, h4 {
 }
 
 /* @end */
+
+#filters td .trac-clause-lsep {
+  float: left;
+  line-height: 50%;
+  width: 47%;
+}
+
+#filters td .trac-clause-msep {
+  float: left;
+  text-align: center;
+  width: 5%;
+}
+
+#filters td .trac-clause-rsep {
+  float: right;
+  line-height: 50%;
+  width: 47%;
+}
+
+#filters td .trac-clause-lsep hr, #filters td .trac-clause-rsep hr {
+  margin: 0px;
+}
+
+.and label, .or label {
+  display: inline;
+}
+
+.and select, .or select {
+  width: 150px;
+}
+
+.or {
+  text-align: right;
+}
+
+/* @end */
+
+/* @group Bootstrap extensions */
+
+.form-search label, .form-inline label {
+  margin-left: 2em;
+}
+
+/* @end */
+
