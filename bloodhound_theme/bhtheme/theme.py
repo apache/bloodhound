@@ -60,6 +60,13 @@ class BloodhoundTheme(ThemeBase):
         'admin_versions.html' : ('bh_admin_versions.html', None),
         'admin_products.html' : ('bh_admin_products.html', None),
 
+        # Preferences
+        'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
+        'prefs_datetime.html' : ('bh_prefs_datetime.html', None),
+        'prefs_general.html' : ('bh_prefs_general.html', None),
+        'prefs_keybindings.html' : ('bh_prefs_keybindings.html', None),
+        'prefs_pygments.html' : ('bh_prefs_pygments.html', None),
+
         # Search
         'search.html' : ('bh_search.html', '_modify_search_data'),
 

@@ -1,0 +1,53 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+
+  <py:match path="head" once="true"><head>
+    <title>Preferences: ${select('title/text()')}</title>
+    ${select("*[local-name() != 'title']")}
+  </head></py:match>
+
+  <py:match path="body" once="true" buffer="true"><body>
+    <div id="content" class="prefs">
+      <h1>Preferences</h1>
+      <p>This page lets you customize your personal settings for this site.
+      These settings are stored on the server and are identified by a session
+      key stored in a browser cookie. That cookie allows your settings to be
+      restored on subsequent visits.</p>
+      <ul id="tabs" class="nav nav-tabs">
+        <li py:for="name, label in sorted(panels)"
+            class="${'active' if name == active_panel else None}"
+            id="${('tab_%s' % name) if name else None}">
+          <a href="${name != active_panel and href.prefs(name) or '#'}">
+            <span py:strip="name != 'advanced'" class="label label-inverse">
+              ${label}
+            </span>
+          </a>
+        </li>
+
+      </ul>
+      <div id="tab-content" py:with="has_forms = list(select('.//form'))">
+        <div class="tab-pane active">
+          <form id="userprefs" class="form-horizontal" action="" method="post"
+              py:strip="has_forms">
+            ${select("*|text()")}
+            <br/>
+            <div class="control-group" py:if="not has_forms">
+              <input type="hidden" name="action" value="save" />
+              <input class="btn btn-primary" type="submit"
+                  value="${_('Save changes')}" />
+            </div >
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </body></py:match>
+
+  <xi:include href="layout.html" />
+</html>
+
