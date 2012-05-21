@@ -5,6 +5,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
+  
   <py:match path="head" once="true"><head>
     <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
     <title py:with="title = list(select('title/text()'))" py:choose="">
@@ -248,4 +249,7 @@
       </div>
     </div>
     <br/>
-</body></py:match></html>
+  </body></py:match>
+  
+  <xi:include href="bloodhound_admin_theme.html"/>
+</html>

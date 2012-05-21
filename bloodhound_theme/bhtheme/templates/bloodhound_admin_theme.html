@@ -1,0 +1,39 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+  <py:match path="div[@class='admin']" once="true" buffer="false">
+    <div id="content" class="row">
+      <h1>Administration</h1>
+      <div id="tabs" class="span3">
+        <div class="well">
+          <ul class="nav nav-list">
+            <py:for each="category, panels in groupby(panels, lambda p: p.category)"
+                py:with="cat_is_active = category.id == active_cat">
+              <li class="nav-header">
+                <py:choose test="">
+                  <span py:when="cat_is_active" class="label label-important">
+                    ${category.label}
+                  </span>
+                  <py:otherwise>${category.label}</py:otherwise>
+                </py:choose>
+              </li>
+              <li py:for="panel in panels" py:with="panel = panel.panel;
+                      pan_is_active = cat_is_active and panel.id == active_panel"
+                  class="${'active' if pan_is_active else None}">
+                <a href="${href.admin(category.id, panel.id)}">${panel.label}</a>
+              </li>
+            </py:for>
+          </ul>
+        </div>
+      </div>
+      <div id="tabcontent" class="span9">
+        ${select("div[@id='tabcontent']|text()")}
+        <br style="clear: right" />
+      </div>
+    </div>
+  </py:match>
+</html>
