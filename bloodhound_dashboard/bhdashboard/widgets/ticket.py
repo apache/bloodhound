@@ -89,7 +89,8 @@ class TicketFieldCloudWidget(WidgetBase):
             if field['name'] == fieldnm:
                 break
         else:
-            raise InvalidWidgetArgument('Unknown ticket field %s' % (fieldnm,))
+            raise InvalidWidgetArgument('field',
+                    'Unknown ticket field %s' % (fieldnm,))
         if field.get('custom'):
             sql = "SELECT value, count(value) FROM ticket_custom " \
                     "WHERE name='%(name)s' GROUP BY value"
