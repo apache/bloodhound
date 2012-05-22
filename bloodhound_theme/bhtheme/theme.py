@@ -17,6 +17,7 @@
 #  under the License.
 
 from trac.core import *
+from trac.mimeview.api import get_mimetype
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
@@ -111,11 +112,21 @@ class BloodhoundTheme(ThemeBase):
                 this_theme_name = self.get_theme_names().next()
                 is_active = active_theme['name'] == this_theme_name
             return is_active
+
+        links = req.chrome.get('links',{})
+        # replace favicon if appropriate
+        if self.env.project_icon == 'common/trac.ico':
+            bh_icon = 'theme/images/bh.ico'
+            new_icon = {'href': req.href.chrome(bh_icon),
+                        'type': get_mimetype(bh_icon)}
+            if links.get('icon'):
+                links.get('icon')[0].update(new_icon)
+            if links.get('shortcut icon'):
+                links.get('shortcut icon')[0].update(new_icon)
         
         is_active_theme = is_active_theme()
         if self.disable_all_trac_css and is_active_theme:
             if self.disable_all_trac_css:
-                links = req.chrome.get('links',{})
                 stylesheets = links.get('stylesheet',[])
                 if stylesheets:
                     path = req.base_path + '/chrome/common/css/'
