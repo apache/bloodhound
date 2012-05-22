@@ -29,6 +29,7 @@ __metaclass__ = type
 from itertools import izip
 import pkg_resources
 import re
+from uuid import uuid4
 
 from genshi.builder import tag
 from trac.core import Component, implements
@@ -38,6 +39,7 @@ from trac.util.translation import _
 from trac.ticket.query import QueryModule
 from trac.ticket.report import ReportModule
 from trac.util.compat import groupby
+from trac.util.translation import _
 from trac.web.api import IRequestHandler, IRequestFilter
 from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
                             INavigationContributor, ITemplateProvider
@@ -224,6 +226,27 @@ class DashboardModule(Component):
             })['template']
         return template, schema
 
+    def _render_widget(self, wp, name, ctx, options):
+        """Render widget without failing.
+        """
+        try :
+            return wp.render_widget(name, ctx, options)
+        except Exception, exc:
+            log_entry = str(uuid4())
+            self.log.exception("- %s - Error rendering widget %s with options %s",
+                    log_entry, name, options)
+            data = {
+                    'e' : exc,
+                    'widget' : {
+                            'name' : name,
+                            'options' : options
+                        },
+                    'logid' : log_entry,
+                }
+            return 'widget_error.html', \
+                    { 'title' : _('Widget error'), 'data' : data}, \
+                    ctx
+
     def expand_widget_data(self, req, schema):
         """Expand raw widget data and format it for use in template
         """
@@ -241,7 +264,7 @@ class DashboardModule(Component):
         self.log.debug("Bloodhound: Widget specs %s" % (widgets_spec,))
         chrome = Chrome(self.env)
         render = chrome.render_template
-        data_strm = ( (k, w, w['c'].render_widget(*w['args'])) \
+        data_strm = ( (k, w, self._render_widget(w['c'], *w['args'])) \
                 for k,w in widgets_spec.iteritems())
         return dict([k, {'title' : data['title'], 
                 'content' : render(wctx.req, template, data['data'], fragment=True),
