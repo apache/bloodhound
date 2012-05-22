@@ -84,7 +84,7 @@ class TicketFieldCloudWidget(WidgetBase):
                 self.bind_params(name, options, *params)
         tsys = self.env[TicketSystem]
         if tsys is None:
-            raise TracError('Error loading ticket system (disabled?)')
+            raise TracError(_('Error loading ticket system (disabled?)'))
         for field in tsys.get_ticket_fields():
             if field['name'] == fieldnm:
                 break

@@ -233,17 +233,21 @@ class DashboardModule(Component):
             return wp.render_widget(name, ctx, options)
         except Exception, exc:
             log_entry = str(uuid4())
+            exccls = exc.__class__
             self.log.exception("- %s - Error rendering widget %s with options %s",
                     log_entry, name, options)
             data = {
-                    'e' : exc,
-                    'widget' : {
-                            'name' : name,
-                            'options' : options
-                        },
-                    'logid' : log_entry,
+                    'msgtype' : 'error',
+                    'msglabel' : 'Error',
+                    'msgbody' : _('Exception raised while rendering widget. '
+                        'Contact your administrator for further details.'),
+                    'msgdetails' : [
+                            ('Widget name', name),
+                            ('Exception type', tag.code(exccls.__name__)),
+                            ('Log entry ID', log_entry),
+                        ],
                 }
-            return 'widget_error.html', \
+            return 'widget_alert.html', \
                     { 'title' : _('Widget error'), 'data' : data}, \
                     ctx
 

@@ -1,0 +1,25 @@
+
+<div
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:with="labels = {
+      'error' : 'label-important', None : 'label-warning',
+      'info' : 'label-info', 'success' : 'label-success'}">
+
+  <p class="alert ${'alert-' + msgtype if msgtype else None}">
+    <span class="label ${labels[msgtype or None]}" py:if="msglabel">
+      $msglabel
+    </span>
+    &nbsp;$msgbody
+  </p>
+  <py:if test="msgdetails">
+    <dl class="dl-horizontal">
+      <py:for each="row in msgdetails">
+        <dt>${row[0]}</dt>
+        <dd>${row[1]}</dd>
+      </py:for>
+    </dl>
+  </py:if>
+</div>
+
