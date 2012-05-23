@@ -5,7 +5,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
-  <py:match path="div[@class='admin']" once="true" buffer="false">
+  <py:match path="div[@id='content' and @class='admin']" once="true" buffer="false">
     <div id="content" class="row">
       <h1>Administration</h1>
       <div id="tabs" class="span3">
@@ -31,7 +31,7 @@
         </div>
       </div>
       <div id="tabcontent" class="span9">
-        ${select("div[@id='tabcontent']|text()")}
+        ${select("div[@id='tabcontent']/*|text()")}
         <br style="clear: right" />
       </div>
     </div>
