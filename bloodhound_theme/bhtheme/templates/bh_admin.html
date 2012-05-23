@@ -28,21 +28,31 @@
       </ul>
     </div>
   </py:def>
+  <py:def function="admin_function(fix_legacy)">
+    <div id="content" class="admin row">
+      <h1>Administration</h1>
+      <div id="tabs" class="span3">
+        ${admin_nav_list()}
+      </div>
+      <div id="tabcontent" class="span9">
+        <py:choose>
+        <py:when test="fix_legacy">
+          ${select("div[@id='tabcontent']/*|text()")}
+        </py:when>
+        <py:otherwise>
+          ${select("*|text()")}
+        </py:otherwise>
+        </py:choose>
+        <br style="clear: right" />
+      </div>
+    </div>
+  </py:def>
 
   <py:choose>
     <py:when test="bh_fix_legacy">
       <py:match path="div[@id='content' and @class='admin']" once="true"
           buffer="false">
-        <div id="content" class="row">
-          <h1>Administration</h1>
-          <div id="tabs" class="span3">
-            ${admin_nav_list()}
-          </div>
-          <div id="tabcontent" class="span9">
-            ${select("div[@id='tabcontent']/*|text()")}
-            <br style="clear: right" />
-          </div>
-        </div>
+        ${admin_function(True)}
       </py:match>
     </py:when>
     <py:otherwise>
@@ -52,20 +62,10 @@
       </head></py:match>
     
       <py:match path="body" once="true" buffer="false"><body>
-        <div id="content" class="admin row">
-          <h1>Administration</h1>
-          <div id="tabs" class="span3">
-            ${admin_nav_list()}
-          </div>
-          <div id="tabcontent" class="span9">
-            ${select("*|text()")}
-            <br style="clear: right" />
-          </div>
-        </div>
-    
+        ${admin_function(False)}
       </body></py:match>
-    
       <xi:include href="layout.html" />
     </py:otherwise>
   </py:choose>
 </html>
+
