@@ -6,48 +6,77 @@
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
 
-  <py:match path="head" once="true"><head>
-    <title>Preferences: ${select('title/text()')}</title>
-    ${select("*[local-name() != 'title']")}
-  </head></py:match>
-
-  <py:match path="body" once="true" buffer="true"><body>
-    <div id="content" class="prefs">
-      <h1>Preferences</h1>
-      <p>This page lets you customize your personal settings for this site.
-      These settings are stored on the server and are identified by a session
-      key stored in a browser cookie. That cookie allows your settings to be
-      restored on subsequent visits.</p>
-      <ul id="tabs" class="nav nav-tabs">
-        <li py:for="name, label in sorted(panels)"
-            class="${'active' if name == active_panel else None}"
-            id="${('tab_%s' % name) if name else None}">
-          <a href="${name != active_panel and href.prefs(name) or '#'}">
-            <span py:strip="name != 'advanced'" class="label label-inverse">
-              ${label}
-            </span>
-          </a>
-        </li>
-
-      </ul>
-      <div id="tab-content" py:with="has_forms = list(select('.//form'))">
-        <div class="tab-pane active">
-          <form id="userprefs" class="form-horizontal" action="" method="post"
-              py:strip="has_forms">
-            ${select("*|text()")}
-            <br/>
-            <div class="control-group" py:if="not has_forms">
-              <input type="hidden" name="action" value="save" />
-              <input class="btn btn-primary" type="submit"
-                  value="${_('Save changes')}" />
-            </div >
-          </form>
-        </div>
+  <py:def function="intro_and_tabs()">
+    <h1>Preferences</h1>
+    <p>This page lets you customize your personal settings for this site.
+    These settings are stored on the server and are identified by a session
+    key stored in a browser cookie. That cookie allows your settings to be
+    restored on subsequent visits.</p>
+    <ul id="tabs" class="nav nav-tabs">
+      <li py:for="name, label in sorted(panels)"
+          class="${'active' if name == active_panel else None}"
+          id="${('tab_%s' % name) if name else None}">
+        <a href="${name != active_panel and href.prefs(name) or '#'}">
+          <span py:strip="name != 'advanced'" class="label label-inverse">
+            ${label}
+          </span>
+        </a>
+      </li>
+      
+    </ul>
+  </py:def>
+  <py:def function="prefs_function(fix_legacy)">
+    <div id="content" class="prefs row">
+      <div class="span12">
+        ${intro_and_tabs()}
+        <py:choose>
+          <py:when test="fix_legacy">
+            <div id="tabcontent" class="tab-content">
+              ${select("div[@id='tabcontent']/*|text()")}
+              <br style="clear: right" />
+            </div>
+          </py:when>
+          <py:otherwise>
+            <div id="tabcontent" class="tab-content"
+                py:with="has_forms = list(select('.//form'))">
+              <div class="tab-pane active">
+                <form id="userprefs" class="form-horizontal" action="" method="post"
+                    py:strip="has_forms">
+                  ${select("*|text()")}
+                  <br/>
+                  <div class="control-group" py:if="not has_forms">
+                    <input type="hidden" name="action" value="save" />
+                    <input class="btn btn-primary" type="submit"
+                        value="${_('Save changes')}" />
+                  </div >
+                </form>
+              </div>
+            </div>
+          </py:otherwise>
+        </py:choose>
       </div>
     </div>
+  </py:def>
 
-  </body></py:match>
-
-  <xi:include href="layout.html" />
+  <py:choose>
+    <py:when test="bh_fix_legacy">
+      <py:match path="div[@id='content' and @class='prefs']" once="True"
+          buffer="false">
+        ${prefs_function(True)}
+      </py:match>
+    </py:when>
+    <py:otherwise>
+      <py:match path="head" once="true"><head>
+        <title>Preferences: ${select('title/text()')}</title>
+        ${select("*[local-name() != 'title']")}
+      </head></py:match>
+    
+      <py:match path="body" once="true" buffer="true"><body>
+        ${prefs_function(False)}
+      </body></py:match>
+    
+      <xi:include href="layout.html" />
+    </py:otherwise>
+  </py:choose>
 </html>
 
