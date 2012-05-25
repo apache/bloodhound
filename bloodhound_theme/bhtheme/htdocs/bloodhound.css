@@ -173,7 +173,27 @@ textarea.wikitext {
 
 /* @end */
 
+/* @group Ticket page modifications */
 
+#comment {
+  width: 605px;
+}
+
+#field-description {
+  width: 505px;
+}
+
+#field-summary {
+  width: 505px;
+}
+
+#field-reporter {
+  width: 505px;
+}
+
+.bh-ticket-buttons {
+  padding-left: 5px;
+}
 /* @group Quick Ticket fieldset */
 
 #qct-fieldset {
@@ -344,6 +364,7 @@ h1, h2, h3, h4 {
 .form-search label, .form-inline label {
   margin-left: 2em;
 }
+
 
 /* @end */
 

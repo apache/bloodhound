@@ -45,6 +45,24 @@ Arguments:
       <h4 class="change">
         <span class="threading pull-right"
               py:with="change_replies = replies.get(str(cnum), []) if 'cnum' in change else []">
+      <div py:if="show_buttons" class="pull-right bh-ticket-buttons">
+        <form py:if="'cnum' in change and can_edit_comment" method="get"
+            style="display:inline" action="#comment:${cnum}">
+          <div class="inlinebuttons">
+            <input type="hidden" name="cnum_edit" value="${cnum}"/>
+            <input type="submit" value="${_('Edit')}" class="btn btn-mini"
+                title="${_('Edit comment %(cnum)s', cnum=cnum)}"/>
+          </div>
+        </form>
+        <form py:if="'cnum' in change and can_append" id="reply-to-comment-${cnum}"
+              method="get" action="#comment" style="display: inline">
+          <div class="inlinebuttons">
+            <input type="hidden" name="replyto" value="${cnum}"/>
+            <input type="submit" value="${_('Reply')}" class="btn btn-mini"
+                title="${_('Reply to comment %(cnum)s', cnum=cnum)}"/>
+          </div>
+        </form>
+      </div>
           <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>
           <py:if test="'replyto' in change">
             in reply to: ${commentref('&uarr;&nbsp;', change.replyto)}
@@ -63,24 +81,6 @@ Arguments:
         ${authorinfo(change.author)}
         <span py:if="preview or show_editor" class="trac-loading"/>
       </h4>
-      <div py:if="show_buttons" class="trac-ticket-buttons pull-right">
-        <form py:if="'cnum' in change and can_edit_comment" method="get" 
-            style="display:inline" action="#comment:${cnum}">
-          <div class="inlinebuttons">
-            <input type="hidden" name="cnum_edit" value="${cnum}"/>
-            <input type="submit" value="${_('Edit')}" class="btn btn-mini"
-                title="${_('Edit comment %(cnum)s', cnum=cnum)}"/>
-          </div>
-        </form>
-        <form py:if="'cnum' in change and can_append" id="reply-to-comment-${cnum}"
-              method="get" action="#comment" style="display: inline">
-          <div class="inlinebuttons">
-            <input type="hidden" name="replyto" value="${cnum}"/>
-            <input type="submit" value="${_('Reply')}" class="btn btn-mini"
-                title="${_('Reply to comment %(cnum)s', cnum=cnum)}"/>
-          </div>
-        </form>
-      </div>
       <ul py:if="change.fields" class="changes">
         <li py:for="field_name, field in sorted(change.fields.iteritems(), key=lambda item: item[1].label.lower())"
             class="${'trac-conflict' if preview and field_name in conflicts else None}">
