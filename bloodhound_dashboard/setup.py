@@ -92,11 +92,11 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                             # Package data
                             ['../CHANGES', '../TODO', '../COPYRIGHT', 
                               '../NOTICE', '../README', '../TESTING_README',
-                              'htdocs/*'],
+                              'htdocs/*.css'],
                           ), 
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
                             # Package data
-                            ['templates/*', 'htdocs/*'],
+                            ['templates/*', 'htdocs/*.css'],
                           ), 
             'bhdashboard.layouts' : ('bhdashboard/layouts',     # Package dir
                             # Package data
