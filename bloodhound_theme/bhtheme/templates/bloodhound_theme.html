@@ -32,6 +32,8 @@
 
     <script src="${href.chrome('theme/scripts/theme.js')}"
         type="text/javascript"></script>
+    <script src="${href.chrome('theme/scripts/bootstrap-transition.js')}"
+        type="text/javascript"></script>
     <script src="${href.chrome('theme/scripts/bootstrap-dropdown.js')}"
         type="text/javascript"></script>
     <script src="${href.chrome('theme/scripts/bootstrap-tooltip.js')}"
@@ -130,8 +132,8 @@
             <py:when test="qct">
             	<div class="btn-group">
                 <a href="#" class="btn btn-primary dropdown-toggle"
-                    id="qct-newticket" rel="popover" title="Ticket "
-                    data-content="Alert box" data-toggle="dropdown">
+                    id="qct-newticket" data-animation="true" data-html="true" 
+                    data-trigger="manual" data-toggle="dropdown">
                   Create Ticket
                 </a>
                 <div id="qct-box" class="dropdown-menu" style="width: 300px;"
@@ -146,7 +148,7 @@
                           ${qct_box()}
                         </div>
                       </form>
-                      <button id="qct-create" class="btn btn-primary" data-target="${href.qct()}">Create</button>
+                      <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
                       <a id="qct-cancel">Cancel</a>
                     </py:when>
                     <py:otherwise>
@@ -221,6 +223,17 @@
         <div style="text-align: right;" class="span3"></div>
       </div>
       <div class="row">
+        <!-- div id="alert-log" class="dropdown-menu" style="display: none">
+          <div class="popover-title">
+            <button id="alert-log-close" data-dismiss="alert" 
+                class="close">&times;</button>
+            <h3 id="alert-log-title"></h3>
+          </div>
+          <div class="popover-content">
+            <div id="alert-msg"></div>
+            <ul id="alert-links" class="nav"></ul>
+          </div>
+        </div -->
         <div class="span12" py:if="chrome.warnings or chrome.notices">
           <div id="warning" py:if="chrome.warnings" class="alert">
             <py:choose test="len(chrome.warnings)">
