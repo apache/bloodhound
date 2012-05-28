@@ -78,7 +78,7 @@
             <input type="submit" value="Search" class="btn btn-warning"/>
           </form>
         </div>
-        <div class="span4">
+        <div class="span2">
           <py:def function="field_select(field, value)">
             <select id="field-${field.name}" name="field_${field.name}"
                 class="input-medium" data-empty="true" data-field="${field.name}">
@@ -175,7 +175,7 @@
             </py:otherwise>
           </py:choose>
         </div>
-        <div class="span4">
+        <div class="span6">
           <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
               class="nav nav-tabs pull-right"
               id="mainnav"
