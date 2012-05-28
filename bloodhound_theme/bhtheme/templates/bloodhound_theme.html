@@ -12,7 +12,6 @@
       <py:when test="title">${title}</py:when>
       <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
     </title>
-    <link rel="stylesheet" href="${href.chrome('theme/bootstrap.css')}" type="text/css" />
     <py:if test="chrome.links">
       <py:for each="rel, links in chrome.links.items()">
         <link rel="${rel}" py:for="link in links" py:attrs="link"/>
@@ -24,8 +23,13 @@
     </py:if>
     <script py:for="script in chrome.scripts"
             type="${script.type}" src="${script.href}"></script>
-    <script src="${href.chrome('theme/scripts/jquery-1.7.1.min.js')}"
-        type="text/javascript"></script>
+    ${Markup('&lt;!--[if lt IE 7]&gt;')}
+    <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
+    ${Markup('&lt;![endif]--&gt;')}
+    ${select("*[local-name() != 'title']")}
+
+    <link rel="stylesheet" href="${href.chrome('theme/bootstrap.css')}" type="text/css" />
+
     <script src="${href.chrome('theme/scripts/theme.js')}"
         type="text/javascript"></script>
     <script src="${href.chrome('theme/scripts/bootstrap-dropdown.js')}"
@@ -36,10 +40,6 @@
         type="text/javascript"></script> 
     <script src="${href.chrome('theme/scripts/dashboard.js')}"
         type="text/javascript"></script>
-    ${Markup('&lt;!--[if lt IE 7]&gt;')}
-    <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
-    ${Markup('&lt;![endif]--&gt;')}
-    ${select("*[local-name() != 'title']")}
 
   </head></py:match>
 
