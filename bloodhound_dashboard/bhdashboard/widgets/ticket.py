@@ -27,6 +27,7 @@ Widgets displaying ticket data.
 from itertools import imap, islice
 
 from genshi.builder import tag
+from genshi.core import Markup
 from trac.core import implements, TracError
 from trac.ticket.api import TicketSystem
 from trac.ticket.roadmap import apply_ticket_permissions, get_ticket_stats, \
@@ -89,8 +90,53 @@ class TicketFieldCloudWidget(WidgetBase):
             if field['name'] == fieldnm:
                 break
         else:
-            raise InvalidWidgetArgument('field',
-                    'Unknown ticket field %s' % (fieldnm,))
+            field_maps = {'type': {'admin_url': 'type',
+                                   'title': 'Types',
+                                   },
+                          'status': {'admin_url': 'status',
+                                     'title': 'Statuses',
+                                     },
+                          'priority': {'admin_url': 'priority',
+                                       'title': 'Priorities',
+                                       },
+                          'milestone': {'admin_url': 'milestones',
+                                        'title': 'Milestones',
+                                        },
+                          'component': {'admin_url': 'components',
+                                        'title': 'Components',
+                                        },
+                          'version': {'admin_url': 'versions',
+                                      'title': 'Versions',
+                                      },
+                          'severity': {'admin_url': 'severity',
+                                       'title': 'Severities',
+                                       },
+                          'resolution': {'admin_url': 'resolution',
+                                         'title': 'Resolutions',
+                                         },
+                          }
+            if fieldnm in field_maps.keys():
+                if 'TICKET_ADMIN' in req.perm:
+                    hint = _('You can add one or more '
+                             '<a href="%(url)s">here</a>',
+                            url=req.href.admin('ticket', 
+                                        field_maps[fieldnm]['admin_url']))
+                else:
+                    hint = _('Contact your administrator for further details')
+                return 'widget_alert.html', \
+                        {
+                            'title' : Markup(_('%(field)s',
+                                        field=field_maps[fieldnm]['title'])),
+                            'data' : dict(msgtype='info',
+                                msglabel="Note",
+                                msgbody=Markup(_('''There is no value defined
+                                    for ticket field <em>%(field)s</em>. 
+                                    %(hint)s''', field=fieldnm, hint=hint) )
+                                )
+                        }, context
+            else:
+                raise InvalidWidgetArgument('field', 
+                        'Unknown ticket field %s' % (fieldnm,))
         if field.get('custom'):
             sql = "SELECT value, count(value) FROM ticket_custom " \
                     "WHERE name='%(name)s' GROUP BY value"
