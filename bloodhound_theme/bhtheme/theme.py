@@ -98,6 +98,8 @@ class BloodhoundTheme(ThemeBase):
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
+        ("body//table[not(contains(@class, 'table'))]", # TODO: Accurate ?
+                ['table', 'table-condensed']),
     )
 
     implements(IRequestFilter, ITemplateProvider, ITemplateStreamFilter)
