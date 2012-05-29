@@ -43,6 +43,12 @@ $( function () {
       $('#qct-fieldset input, #qct-fieldset select').val('');
     }
 
+    // We want to submit via #qct-create
+    $('#qct-form').submit(function(e) {
+      $('#qct-create').click();
+      e.preventDefault();
+    });
+
     // Install quick create box click handlers
     $('#qct-cancel').click(
         function () {
