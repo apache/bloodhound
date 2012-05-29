@@ -16,13 +16,16 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from genshi.filters.transform import Transformer
+
 from trac.core import *
 from trac.mimeview.api import get_mimetype
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
+from trac.util.compat import set
 from trac.util.translation import _
-from trac.web.api import IRequestFilter, IRequestHandler
+from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import add_stylesheet, ITemplateProvider, prevnext_nav
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
@@ -93,8 +96,43 @@ class BloodhoundTheme(ThemeBase):
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
     }
+    BOOTSTRAP_CSS_DEFAULTS = (
+        # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
+    )
 
-    implements(IRequestFilter, ITemplateProvider)
+    implements(IRequestFilter, ITemplateProvider, ITemplateStreamFilter)
+
+    # ITemplateStreamFilter methods
+
+    def filter_stream(self, req, method, filename, stream, data):
+        """Insert default Bootstrap CSS classes if rendering 
+        legacy templates (i.e. determined by template name prefix).
+        """
+        tx = Transformer('body')
+
+        def add_classes(classes):
+            """Return a function ensuring CSS classes will be there for element.
+            """
+            def attr_modifier(name, event):
+                attrs = event[1][1]
+                _classes = attrs.get(name, '').split()
+                self.log.debug('BH Theme : Element classes ' + str(_classes))
+                if not _classes :
+                    return ' '.join(classes)
+                else :
+                    _classes += classes
+                    classet = set(_classes)
+                    _classes = ' '.join(c for c in _classes \
+                            if c in classet and not classet.discard(c))
+                    self.log.debug('BH Theme : Inserting class ' + _classes)
+                    return _classes
+            return attr_modifier
+        
+        # Insert default bootstrap CSS classes if necessary
+        for xpath, classes in self.BOOTSTRAP_CSS_DEFAULTS :
+            tx = tx.end().select(xpath) \
+                    .attr('class', add_classes(classes))
+        return stream | tx
 
     # IRequestFilter methods
 
