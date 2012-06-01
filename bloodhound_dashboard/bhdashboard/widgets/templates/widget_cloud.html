@@ -1,15 +1,16 @@
 
-<div id="content" class="well"
+<div id="content" class="${clouddisplay and 'well'}"
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <h3 style="display: inline;">$heading</h3>
   <p style="font-size: medium; line-height: 150%;">
+    <py:if test='clouddisplay'>
     <py:for each="item in items"
         py:with="_max = bounds.max + 1; _min = bounds.min" >
       <py:if test="item[1] > 0">
-        <a href="${item_link(item)}" 
+        <a href="${item_link(item)}"
             style="font-size: ${int(28 - (13 / (_max - _min)) * (_max - item[1] - 1) )}px">
           <py:choose test="item[0]">
             <py:when test="None">
@@ -25,5 +26,28 @@
         &nbsp;&nbsp;
       </py:if>
     </py:for>
+    </py:if>
+    <py:if test='not clouddisplay'>
+    <ul>
+    <py:for each="item in items">
+      <py:if test="item[1] > 0">
+        <li>
+        <a href="${item_link(item)}">
+          <py:choose test="item[0]">
+            <py:when test="None">
+              <span class="label">empty</span>
+            </py:when>
+            <py:when test="''">
+              <span class="label">empty</span>
+            </py:when>
+            <py:otherwise>${item[0]}</py:otherwise>
+          </py:choose>
+          <py:if test="verbose">(${item[1]})</py:if>
+        </a>
+        </li>
+      </py:if>
+    </py:for>
+    </ul>
+    </py:if>
   </p>
 </div>

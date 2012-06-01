@@ -78,6 +78,11 @@ class TicketFieldCloudWidget(WidgetBase):
                         'desc' : """Limit the number of items displayed""",
                         'type' : int
                     },
+                'clouddisplay' : {
+                        'desc' : """Display as cloud if true else as a list""",
+                        'default' : False,
+                        'type' : bool,
+                    },
             }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
@@ -85,8 +90,9 @@ class TicketFieldCloudWidget(WidgetBase):
         """Count ocurrences of values assigned to given ticket field.
         """
         req = context.req
-        params = ('field', 'query', 'verbose', 'threshold', 'max', 'title')
-        fieldnm, query, verbose, threshold, maxitems, title = \
+        params = ('field', 'query', 'verbose', 'threshold', 'max', 'title',
+                  'clouddisplay')
+        fieldnm, query, verbose, threshold, maxitems, title, clouddisplay= \
                 self.bind_params(name, options, *params)
         if query is None :
             if fieldnm is None:
@@ -194,7 +200,8 @@ class TicketFieldCloudWidget(WidgetBase):
                             item_link= item_link,
                             heading=_(fieldnm.capitalize()),
                             items=items,
-                            verbose=verbose
+                            verbose=verbose,
+                            clouddisplay=clouddisplay,
                         ), 
                 }, \
                 context
