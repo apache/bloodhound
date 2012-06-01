@@ -413,6 +413,9 @@ input[type="submit"].btn.btn-micro {
   z-index: -10;
 }
 
+.stickyEndMark {
+  clear: both;
+}
 /* @end */
 
 
