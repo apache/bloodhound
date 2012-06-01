@@ -96,43 +96,38 @@
           </div>
         </div>
         <div>
-          <bh:layout urn="bootstrap_btnbar">
+          <bh:layout urn="bootstrap_grid">
             <bh:schema>
-            {
-              "toolbar" : [
-                  ["My Tickets", "mtb1"],
-                  ["All Tickets", "mtb2"],
-                  ["|", null],
-                  ["Projects", null],
-                  ["Components", "mtb3"]
-                ],
-              "active" : 0
-            }
+              {
+                "div" : [
+                    {
+                      "_class" : "row",
+                      "div" : [
+                          {
+                            "_class" : "${'span8' if bhdb else 'span12'}",
+                            "widgets" : ["tickets", "components"]
+                          }
+                        ]
+                    }
+                  ]
+              }
             </bh:schema>
             <bh:widgets>
               {
-                "mtb1" : {
-                    "args" : ["TicketQuery", null, {
-                        "args" : {
-                            "max" : 10,
-                            "query" : "milestone=${milestone.name}&amp;owner=$$USER&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
-                            "title" : "My tickets (milestone ${milestone.name})"
-                          }
-                      }]
-                  },
-                "mtb2" : {
+                "tickets" : {
                     "args" : ["TicketQuery", null, {
                         "args" : {
                             "max" : 10,
                             "query" : "milestone=${milestone.name}&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
-                            "title" : "All tickets (milestone ${milestone.name})"
+                            "title" : "All tickets in milestone"
                           }
                       }]
                   },
-                "mtb3" : {
+                "components" : {
                     "args" : ["TicketFieldCloud", null, {
                         "args" : {
                             "field" : "component",
+                            "query" : "milestone=${milestone.name}&amp;group=component",
                             "verbose" : true
                           }
                       }]
