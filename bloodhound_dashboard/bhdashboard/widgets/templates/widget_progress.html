@@ -1,34 +1,91 @@
 
-<div class="well"
+<div class="${'well' if view == 'standard' else None}"
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
     xmlns:i18n="http://genshi.edgewall.org/i18n"
-    xmlns:xi="http://www.w3.org/2001/XInclude">
-  <py:if test="caption">$caption</py:if>
-  <div class="pull-right">${'%d%%' % stats.done_percent} completed</div>
-  <br/><br/>
-  <div class="progress progress-danger">
-    <div py:for="idx, interval in enumerate(stats.intervals)"
-        class="bar $interval.css_class" 
-        style="${'width: %d%%' % interval.percent if interval.percent > 0 else 'display: none'}">
-      <a href="${interval_hrefs[idx] if interval_hrefs else None}"
-          title="${_('%(count)s/%(total)s %(title)s',
-                  count=interval.count, total=stats.count, title=interval.title)}"></a>
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:with="view = view or 'standard'">
+
+  <py:def function="progress_bar()">
+    <div class="progress ${progress_classes(stats)}">
+      <div py:for="idx, interval in enumerate(stats.intervals)"
+          class="bar $interval.css_class" 
+          style="${'width: %d%%' % interval.percent if interval.percent > 0 else 'display: none'}">
+        <a href="${interval_hrefs[idx] if interval_hrefs else None}"
+            title="${_('%(count)s/%(total)s %(title)s',
+                    count=interval.count, total=stats.count, title=interval.title)}"></a>
+      </div>
     </div>
-  </div>
-  <p py:if="legend">
+  </py:def>
+
+  <py:def function="progress_percent()">
+    ${'%d%%' % stats.done_percent} completed
+  </py:def>
+
+  <py:def function="progress_total()">
     <a href="${stats_href}"
         i18n:msg="unit, count">Total number of ${stats.unit}: ${stats.count}</a>
-    <span class="pull-right">
-      <py:for each="idx, interval in enumerate(stats.intervals)">
-        <a href="${interval_hrefs[idx] if interval_hrefs else None}"
-            i18n:msg="title, count">
-          ${interval.title} (${interval.count})
-        </a> &nbsp;
-      </py:for>
-    </span>
-  </p>
-  <p xml:space="preserve">
-    $desc
-  </p>
+  </py:def>
+
+  <py:def function="progress_classes(stats)">
+    <py:choose>      
+      <py:when test="stats.done_percent &gt;= 100">progress-success</py:when>
+      <py:when test="stats.done_percent &gt;= 66">progress-info</py:when>
+      <py:when test="stats.done_percent &gt;= 33">progress-warning</py:when>
+      <py:when test="stats.done_percent &lt; 33">progress-danger</py:when>
+    </py:choose>
+  </py:def>
+      
+
+  <py:choose test="view">
+    <py:when test="'standard'">
+      <py:if test="caption">$caption</py:if>
+      <div class="pull-right">${progress_percent()}</div>
+      <br/><br/>
+      ${progress_bar()}
+      <p py:if="legend">
+        ${progress_total()}
+        <span class="pull-right">
+          <py:for each="idx, interval in enumerate(stats.intervals)">
+            <a href="${interval_hrefs[idx] if interval_hrefs else None}"
+                i18n:msg="title, count">
+              ${interval.title} (${interval.count})
+            </a> &nbsp;
+          </py:for>
+        </span>
+      </p>
+      <p xml:space="preserve">
+        $desc
+      </p>
+    </py:when>
+    <py:when test="'compact'">
+      <div class="span3">
+        <p style="margin-bottom: -2px">${progress_percent()}</p>
+        ${progress_bar()}
+        <p style="margin-top: -12px">${progress_total()}</p>
+      </div>
+      <div class="offset3">
+        <div py:for="idx, interval in enumerate(stats.intervals)" class="span2">
+          <p style="margin-bottom: -2px; text-transform: capitalize">
+            ${interval.title}
+          </p>
+          <p style="font-size: 150%">
+            <a href="${interval_hrefs[idx] if interval_hrefs else '#'}"
+                i18n:msg="count" >
+              ${interval.count}
+            </a> &nbsp;
+          </p>
+        </div>
+      </div>
+    </py:when>
+    <py:otherwise>
+      <xi:include href="widget_alert.html" 
+          py:with="msgtype = 'error'; msglabel = 'Error'; 
+              msgbody = 'Invalid argument';
+              msgdetails = [
+                  ('Genshi template', 'Progress bar'),
+                  ('Argument name', 'view'),
+                  ('Argument value', repr(view))]" />
+    </py:otherwise>
+  </py:choose>
 </div>
