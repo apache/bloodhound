@@ -85,5 +85,53 @@ $( function () {
           qct_clearui();
         }
       )
+
   })
+
+// Event handlers for sticky panels , if any
+function stickyScroll(selector) {
+  
+  var docViewTop = $(window).scrollTop();
+  var docViewBottom = docViewTop + $(window).height();
+
+  var elemTop = $("header").offset().top;
+  var elemBottom = elemTop + $("header").height();
+
+  var sticky_panel = $(selector);
+  if (docViewTop > elemBottom) {
+    var dimensions = { 
+        'height' : sticky_panel.attr('data-height'), 
+        'width' : sticky_panel.attr('data-width')
+      }
+    sticky_panel.parent().css(dimensions);
+    sticky_panel.css({
+        'height' : dimensions.height,
+        'position': 'fixed', 
+        'width' : dimensions.width
+      });
+    sticky_panel.find(".whitebox").css({
+        'border-bottom': '2px solid #A4A4A4',
+        'height' : dimensions.height,
+        'width' : dimensions.width
+      });
+  }
+  else {
+    sticky_panel.parent().css({ 'height' : '' , 'width' : ''});
+    sticky_panel.css({'height' : '', 'position' : '', 'width' : ''}); 
+    sticky_panel.find(".whitebox").css({'border-bottom': ''});
+    sticky_panel.attr({
+        'data-height' : '' + sticky_panel.height() + 'px',
+        'data-width' : '' + sticky_panel.width() + 'px',
+      });
+  }
+}
+
+function setup_sticky_panel(selector) {
+  $(window).scroll(function () { stickyScroll(selector) });
+  var sticky_panel = $(selector);
+  $(selector + ' .whitebox').css({
+      'height' : '' + sticky_panel.height() + 'px',
+      'width' : '' + sticky_panel.width() + 'px'
+    });
+}
 

@@ -47,210 +47,212 @@
 
   <py:match path="body" once="true" buffer="false"><body>
     <div class="container">
-      <div class="row" style="position:relative;">
-        <div class="span4">
-	  <p>
-            <img src="${chrome.logo.src or href.chrome('theme/images/bh_logo.png')}" 
-                alt="Bloodhound Logo" />
-	  </p>
-        </div>
-        <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav)">
-          <div class="span8">
-          	<div class="metanav pull-right">
-            <span id="nav_login">${meta_items.login.label}</span>
-            <span py:if="'logout' in meta_items" id="nav_logout">
-              ${meta_items.logout.label}
-            </span>
-            <span py:if="'prefs' in meta_items">
-              ${meta_items.prefs.label}
-            </span>
-            <span py:if="'help' in meta_items">
-              ${meta_items.help.label}
-            </span>
-	          </div>
+      <header>
+        <div class="row" style="position:relative;">
+          <div class="span4">
+            <p>
+              <img src="${chrome.logo.src or href.chrome('theme/images/bh_logo.png')}" 
+                  alt="Bloodhound Logo" />
+            </p>
           </div>
-        </py:with>
-      </div>
-      <div class="row" style="position:relative;">
-        <div class="span4">
-          <form id="mainsearch" class="form-inline" action="${href.search()}" method="get">
-            <input type="text" class="span3" name="q"
-                placeholder="Search anything. Try #EF-492." 
-                value="${req.search_query}" />
-            <input type="submit" value="Search" class="btn btn-warning"/>
-          </form>
+          <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav)">
+            <div class="span8">
+              <div class="metanav pull-right">
+                <span id="nav_login">${meta_items.login.label}</span>
+                <span py:if="'logout' in meta_items" id="nav_logout">
+                  ${meta_items.logout.label}
+                </span>
+                <span py:if="'prefs' in meta_items">
+                  ${meta_items.prefs.label}
+                </span>
+                <span py:if="'help' in meta_items">
+                  ${meta_items.help.label}
+                </span>
+              </div>
+            </div>
+          </py:with>
         </div>
-        <div class="span2">
-          <py:def function="field_select(field, value)">
-            <select id="field-${field.name}" name="field_${field.name}"
-                class="input-medium" data-empty="true" data-field="${field.name}">
-              <option py:if="field.optional"></option>
-              <option py:for="option in field.options"
-                      selected="${value == option or None}"
-                      py:content="option"></option>
-              <optgroup py:for="optgroup in field.optgroups"
-                        py:if="optgroup.options"
-                        label="${optgroup.label}">
-                <option py:for="option in optgroup.options"
+        <div class="row" style="position:relative;">
+          <div class="span4">
+            <form id="mainsearch" class="form-inline" action="${href.search()}" method="get">
+              <input type="text" class="span3" name="q"
+                  placeholder="Search anything. Try #EF-492." 
+                  value="${req.search_query}" />
+              <input type="submit" value="Search" class="btn btn-warning"/>
+            </form>
+          </div>
+          <div class="span2">
+            <py:def function="field_select(field, value)">
+              <select id="field-${field.name}" name="field_${field.name}"
+                  class="input-medium" data-empty="true" data-field="${field.name}">
+                <option py:if="field.optional"></option>
+                <option py:for="option in field.options"
                         selected="${value == option or None}"
                         py:content="option"></option>
-              </optgroup>
-            </select>
-          </py:def>
-          <py:def function="qct_box()">
-            <label for="field-summary">Summary</label>
-            <input type="text" id="field-summary"
-                name="field_summary" placeholder="Ticket summary" />
-            <div class="form-horizontal">
-              <py:if test="qct.fields.product">
-              <label class="control-label" for="field-product">Product</label>
-              <div class="controls">
-                ${field_select(qct.fields.product, None)}
+                <optgroup py:for="optgroup in field.optgroups"
+                          py:if="optgroup.options"
+                          label="${optgroup.label}">
+                  <option py:for="option in optgroup.options"
+                          selected="${value == option or None}"
+                          py:content="option"></option>
+                </optgroup>
+              </select>
+            </py:def>
+            <py:def function="qct_box()">
+              <label for="field-summary">Summary</label>
+              <input type="text" id="field-summary"
+                  name="field_summary" placeholder="Ticket summary" />
+              <div class="form-horizontal">
+                <py:if test="qct.fields.product">
+                <label class="control-label" for="field-product">Product</label>
+                <div class="controls">
+                  ${field_select(qct.fields.product, None)}
+                </div>
+                </py:if>
+                <py:if test="qct.fields.version">
+                <label class="control-label" for="field-version">Version</label>
+                <div class="controls">
+                  ${field_select(qct.fields.version, None)}
+                </div>
+                </py:if>
+                <py:if test="qct.fields.type">
+                <label class="control-label" for="field-type">Type</label>
+                <div class="controls">
+                  ${field_select(qct.fields.type, None)}
+                </div>
+                </py:if>
+                <py:if test="qct.fields.component">
+                <label class="control-label" for="field-component">Component</label>
+                <div class="controls">
+                  ${field_select(qct.fields.component, None)}
+                </div>
+                </py:if>
               </div>
-              </py:if>
-              <py:if test="qct.fields.version">
-              <label class="control-label" for="field-version">Version</label>
-              <div class="controls">
-                ${field_select(qct.fields.version, None)}
-              </div>
-              </py:if>
-              <py:if test="qct.fields.type">
-              <label class="control-label" for="field-type">Type</label>
-              <div class="controls">
-                ${field_select(qct.fields.type, None)}
-              </div>
-              </py:if>
-              <py:if test="qct.fields.component">
-              <label class="control-label" for="field-component">Component</label>
-              <div class="controls">
-                ${field_select(qct.fields.component, None)}
-              </div>
-              </py:if>
-            </div>
-          </py:def>
-          <py:choose test="">
-            <py:when test="qct">
-            	<div class="btn-group">
-                <a href="#" class="btn btn-primary dropdown-toggle"
-                    id="qct-newticket" data-animation="true" data-html="true" 
-                    data-trigger="manual" data-toggle="dropdown">
-                  Create Ticket
-                </a>
-                <div id="qct-box" class="dropdown-menu" style="width: 300px;"
-                    py:choose="">
-                  <div class="popover-title">
-                    <a href="${href.newticket()}"><h3>Create Ticket</h3></a>
-                  </div>
-                  <div class="popover-content">
-                    <py:when test="'TICKET_CREATE' in perm">
-                      <form id="qct-form" name="qct" method="post">
-                        <div id="qct-fieldset">
-                          ${qct_box()}
+            </py:def>
+            <py:choose test="">
+              <py:when test="qct">
+              	<div class="btn-group">
+                  <a href="#" class="btn btn-primary dropdown-toggle"
+                      id="qct-newticket" data-animation="true" data-html="true" 
+                      data-trigger="manual" data-toggle="dropdown">
+                    Create Ticket
+                  </a>
+                  <div id="qct-box" class="dropdown-menu" style="width: 300px;"
+                      py:choose="">
+                    <div class="popover-title">
+                      <a href="${href.newticket()}"><h3>Create Ticket</h3></a>
+                    </div>
+                    <div class="popover-content">
+                      <py:when test="'TICKET_CREATE' in perm">
+                        <form id="qct-form" name="qct" method="post">
+                          <div id="qct-fieldset">
+                            ${qct_box()}
+                          </div>
+                        </form>
+                        <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
+                        <a id="qct-cancel">Cancel</a>
+                      </py:when>
+                      <py:otherwise>
+                        <div class="alert alert-info">
+                          <span class="label label-important">TICKET_CREATE</span>
+                          privileges are required to perform this operation.
+                          You don't have the required permissions
+                          <py:choose>
+                            <py:when test="req.authname == 'anonymous'">
+                              <br/><br/>
+                              <a href="${href.login()}" class="btn btn-primary" style="display: inline; color: #FFFFFF">Login</a>
+                            </py:when>
+                            <py:otherwise>
+                              Please contact your administrator or team leader to 
+                              request these.
+                            </py:otherwise>
+                          </py:choose>
                         </div>
-                      </form>
-                      <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
-                      <a id="qct-cancel">Cancel</a>
-                    </py:when>
-                    <py:otherwise>
-                      <div class="alert alert-info">
-                        <span class="label label-important">TICKET_CREATE</span>
-                        privileges are required to perform this operation.
-                        You don't have the required permissions
-                        <py:choose>
-                          <py:when test="req.authname == 'anonymous'">
-                            <br/><br/>
-                            <a href="${href.login()}" class="btn btn-primary" style="display: inline; color: #FFFFFF">Login</a>
-                          </py:when>
-                          <py:otherwise>
-                            Please contact your administrator or team leader to 
-                            request these.
-                          </py:otherwise>
-                        </py:choose>
-                      </div>
-                    </py:otherwise>
+                      </py:otherwise>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </py:when>
-            <py:otherwise>
-              &nbsp;
-            </py:otherwise>
-          </py:choose>
-        </div>
-        <div class="span6">
-          <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
-              class="nav nav-tabs pull-right"
-              id="mainnav"
-              py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
-            <!-- TODO: Parameterize visible mainnav items in trac.ini -->
-            <li py:if="chrome.nav.mainnav"
-                py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
-                class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
-            <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li py:if="chrome.nav.mainnav"
-                    py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show)" 
-                    class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
-                <py:if test="chrome.nav.metanav">
-                  <li class="divider"></li>
-                  <li py:for="idx, item in enumerate(chrome.nav.metanav)"
-                      class="${classes(first_last(idx, chrome.nav.metanav), active=item.active)}">
-                    ${item.label}
-                  </li>
-                </py:if>
-              </ul>
-            </li>
-          </ul>
-        </div>
-        <div class="span12">
-          <ul class="breadcrumb">
-            <li py:choose="">
-              <xi:include py:when="value_of('resourcepath_template')" 
-                  href="${resourcepath_template}" />
-              <py:otherwise>&nbsp;</py:otherwise>
-            </li>
-            <li class="pull-right">
-              <py:for py:if="chrome.ctxtnav"
-                  py:with="max_idx = len(chrome.ctxtnav) - 1"
-                  each="idx, item in enumerate(chrome.ctxtnav)">
-                $item
-                <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
-              </py:for>
-            </li>
-          </ul>
-        </div>
-        <div style="text-align: right;" class="span3"></div>
-      </div>
-      <div class="row">
-        <!-- div id="alert-log" class="dropdown-menu" style="display: none">
-          <div class="popover-title">
-            <button id="alert-log-close" data-dismiss="alert" 
-                class="close">&times;</button>
-            <h3 id="alert-log-title"></h3>
-          </div>
-          <div class="popover-content">
-            <div id="alert-msg"></div>
-            <ul id="alert-links" class="nav"></ul>
-          </div>
-        </div -->
-        <div class="span12" py:if="chrome.warnings or chrome.notices">
-          <div id="warning" py:if="chrome.warnings" class="alert">
-            <py:choose test="len(chrome.warnings)">
-              <span class="label label-warning">Warning</span>
-              <py:when test="1">${chrome.warnings[0]}</py:when>
-              <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
+              </py:when>
+              <py:otherwise>
+                &nbsp;
+              </py:otherwise>
             </py:choose>
           </div>
-          <div id="notice" py:if="chrome.notices" class="alert alert-success">
-            <py:choose test="len(chrome.notices)">
-              <span class="label label-success">Success</span>
-              <py:when test="1">${chrome.notices[0]}</py:when>
-              <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
-            </py:choose>
+          <div class="span6">
+            <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
+                class="nav nav-tabs pull-right"
+                id="mainnav"
+                py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
+              <!-- TODO: Parameterize visible mainnav items in trac.ini -->
+              <li py:if="chrome.nav.mainnav"
+                  py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
+                  class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+              <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li py:if="chrome.nav.mainnav"
+                      py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show)" 
+                      class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+                  <py:if test="chrome.nav.metanav">
+                    <li class="divider"></li>
+                    <li py:for="idx, item in enumerate(chrome.nav.metanav)"
+                        class="${classes(first_last(idx, chrome.nav.metanav), active=item.active)}">
+                      ${item.label}
+                    </li>
+                  </py:if>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="span12">
+            <ul class="breadcrumb">
+              <li py:choose="">
+                <xi:include py:when="value_of('resourcepath_template')" 
+                    href="${resourcepath_template}" />
+                <py:otherwise>&nbsp;</py:otherwise>
+              </li>
+              <li class="pull-right">
+                <py:for py:if="chrome.ctxtnav"
+                    py:with="max_idx = len(chrome.ctxtnav) - 1"
+                    each="idx, item in enumerate(chrome.ctxtnav)">
+                  $item
+                  <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
+                </py:for>
+              </li>
+            </ul>
+          </div>
+          <div style="text-align: right;" class="span3"></div>
+        </div>
+        <div class="row">
+          <!-- div id="alert-log" class="dropdown-menu" style="display: none">
+            <div class="popover-title">
+              <button id="alert-log-close" data-dismiss="alert" 
+                  class="close">&times;</button>
+              <h3 id="alert-log-title"></h3>
+            </div>
+            <div class="popover-content">
+              <div id="alert-msg"></div>
+              <ul id="alert-links" class="nav"></ul>
+            </div>
+          </div -->
+          <div class="span12" py:if="chrome.warnings or chrome.notices">
+            <div id="warning" py:if="chrome.warnings" class="alert">
+              <py:choose test="len(chrome.warnings)">
+                <span class="label label-warning">Warning</span>
+                <py:when test="1">${chrome.warnings[0]}</py:when>
+                <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
+              </py:choose>
+            </div>
+            <div id="notice" py:if="chrome.notices" class="alert alert-success">
+              <py:choose test="len(chrome.notices)">
+                <span class="label label-success">Success</span>
+                <py:when test="1">${chrome.notices[0]}</py:when>
+                <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
+              </py:choose>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
       ${select('*|text()|comment()')}
       <div class="row footer">
         <div class="span8">

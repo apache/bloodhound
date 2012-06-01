@@ -17,64 +17,72 @@
   <body>
     <div class="row">
       <div class="${'span8' if bhdb else 'span12'}">
-        <h1 style="display: inline;">Milestone ${milestone.name}</h1>
-        <br/><br/>
-        <py:def function="milestone_caption">
-          <py:choose test="">
-            <py:when test="milestone.completed">
-              <i18n:msg params="duration, date">
-                Completed ${dateinfo(milestone.completed)} ago (${format_datetime(milestone.completed)})
-              </i18n:msg>
-            </py:when>
-            <py:when test="milestone.is_late">
-              <i18n:msg params="duration, date">
-                dateinfo(milestone.due)} late (${format_datetime(milestone.due)})
-              </i18n:msg>
-            </py:when>
-            <py:when test="milestone.due">
-              <i18n:msg params="duration, date">
-                Due in ${dateinfo(milestone.due)} (${format_datetime(milestone.due)})
-              </i18n:msg>
-            </py:when>
-            <py:otherwise>
-              No date set
-            </py:otherwise>
-          </py:choose>
-          <form style="display: inline;"
-              py:if="'MILESTONE_MODIFY' in perm(milestone.resource)">
-            &nbsp;
-            <input type="hidden" name="action" value="edit" />
-            <input type="submit" class="btn btn-mini btn-info"
-                value="${_('Change')}" />
-          </form>
-        </py:def>
-        <xi:include href="widget_progress.html"
-            py:with="caption = milestone_caption(); legend = True;
-                desc = wiki_to_html(context, milestone.description);"/>
-        <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
-                    'MILESTONE_DELETE' in perm(milestone.resource) or
-                    attachments.can_create">
-          <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
-              method="get" action="" id="editmilestone"
-              style="display: inline-block">
-            <input type="hidden" name="action" value="edit" />
-            <div class="btn-group">
-              <input type="submit" value="${_('Edit milestone')}" 
-                  class="btn btn-warning" />
+        <div class="stickyBox">
+          <div id="overview" class="stickyStatus">
+            <div class="whitebox"></div>
+            <h1 style="display: inline;">Milestone ${milestone.name}</h1>
+            <br/><br/>
+            <py:def function="milestone_caption">
+              <py:choose test="">
+                <py:when test="milestone.completed">
+                  <i18n:msg params="duration, date">
+                    Completed ${dateinfo(milestone.completed)} ago (${format_datetime(milestone.completed)})
+                  </i18n:msg>
+                </py:when>
+                <py:when test="milestone.is_late">
+                  <i18n:msg params="duration, date">
+                    dateinfo(milestone.due)} late (${format_datetime(milestone.due)})
+                  </i18n:msg>
+                </py:when>
+                <py:when test="milestone.due">
+                  <i18n:msg params="duration, date">
+                    Due in ${dateinfo(milestone.due)} (${format_datetime(milestone.due)})
+                  </i18n:msg>
+                </py:when>
+                <py:otherwise>
+                  No date set
+                </py:otherwise>
+              </py:choose>
+              <form style="display: inline;"
+                  py:if="'MILESTONE_MODIFY' in perm(milestone.resource)">
+                &nbsp;
+                <input type="hidden" name="action" value="edit" />
+                <input type="submit" class="btn btn-micro btn-info"
+                    value="${_('Change')}" />
+              </form>
+            </py:def>
+            <xi:include href="widget_progress.html"
+                py:with="caption = milestone_caption(); legend = True;
+                    desc = wiki_to_html(context, milestone.description);"/>
+            <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
+                        'MILESTONE_DELETE' in perm(milestone.resource) or
+                        attachments.can_create">
+              <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
+                  method="get" action="" id="editmilestone"
+                  style="display: inline-block">
+                <input type="hidden" name="action" value="edit" />
+                <div class="btn-group">
+                  <input type="submit" value="${_('Edit milestone')}" 
+                      class="btn btn-warning" />
+                </div>
+              </form>
+              <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
+                  method="get" action="" id="deletemilestone"
+                  style="display: inline-block">
+                <input type="hidden" name="action" value="delete" />
+                <div class="btn-group">
+                  <input type="submit" value="${_('Delete milestone')}"
+                      class="btn btn-danger" />
+                </div>
+              </form>
+              <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
             </div>
-          </form>
-          <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
-              method="get" action="" id="deletemilestone"
-              style="display: inline-block">
-            <input type="hidden" name="action" value="delete" />
-            <div class="btn-group">
-              <input type="submit" value="${_('Delete milestone')}"
-                  class="btn btn-danger" />
-            </div>
-          </form>
-          <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
+          </div>
         </div>
-        <div class="row">
+        <script type="text/javascript">
+          setup_sticky_panel('#overview');
+        </script>
+        <div>
           <bh:layout urn="bootstrap_btnbar">
             <bh:schema>
             {
