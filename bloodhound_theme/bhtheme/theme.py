@@ -16,6 +16,8 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from collections import OrderedDict
+
 from genshi.filters.transform import Transformer
 
 from trac.core import *
@@ -117,17 +119,14 @@ class BloodhoundTheme(ThemeBase):
             """
             def attr_modifier(name, event):
                 attrs = event[1][1]
-                _classes = attrs.get(name, '').split()
-                self.log.debug('BH Theme : Element classes ' + str(_classes))
-                if not _classes :
-                    return ' '.join(classes)
-                else :
-                    _classes += classes
-                    classet = set(_classes)
-                    _classes = ' '.join(c for c in _classes \
-                            if c in classet and not classet.discard(c))
-                    self.log.debug('BH Theme : Inserting class ' + _classes)
-                    return _classes
+                class_list = attrs.get(name, '').split()
+                self.log.debug('BH Theme : Element classes ' + str(class_list))
+
+                class_list += classes
+                class_list = OrderedDict((k, None) for k in class_list).keys()
+                out_classes = ' '.join(class_list)
+                self.log.debug('BH Theme : Inserting class ' + out_classes)
+                return out_classes
             return attr_modifier
         
         # Insert default bootstrap CSS classes if necessary
