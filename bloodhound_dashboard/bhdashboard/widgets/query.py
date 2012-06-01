@@ -129,7 +129,7 @@ class TicketQueryWidget(WidgetBase):
                         'data' : data,
                         'ctxtnav' : [
                                 tag.a(_('More'), 
-                                    href=req.abs_href.query() + "?" + qstr)],
+                                    href=query.get_href(req.href))],
                         'altlinks' : fakereq.chrome.get('links', {}).get('alternate')
                     }, \
                     qryctx
