@@ -8,11 +8,22 @@
   <p style="font-size: medium; line-height: 150%;">
     <py:for each="item in items"
         py:with="_max = bounds.max + 1; _min = bounds.min" >
-      <a href="${item_link(item)}" 
-          style="font-size: ${int(28 - (13 / (_max - _min)) * (_max - item[1] - 1) )}px">
-        ${item[0]} <py:if test="verbose">(${item[1]})</py:if>
-      </a>
-      &nbsp;&nbsp;
+      <py:if test="item[1] > 0">
+        <a href="${item_link(item)}" 
+            style="font-size: ${int(28 - (13 / (_max - _min)) * (_max - item[1] - 1) )}px">
+          <py:choose test="item[0]">
+            <py:when test="None">
+              <span class="label">empty</span>
+            </py:when>
+            <py:when test="''">
+              <span class="label">empty</span>
+            </py:when>
+            <py:otherwise>${item[0]}</py:otherwise>
+          </py:choose>
+          <py:if test="verbose">(${item[1]})</py:if>
+        </a>
+        &nbsp;&nbsp;
+      </py:if>
     </py:for>
   </p>
 </div>

@@ -25,11 +25,13 @@ Widgets displaying ticket data.
 """
 
 from itertools import imap, islice
+from urllib import urlencode
 
 from genshi.builder import tag
 from genshi.core import Markup
 from trac.core import implements, TracError
 from trac.ticket.api import TicketSystem
+from trac.ticket.query import Query
 from trac.ticket.roadmap import apply_ticket_permissions, get_ticket_stats, \
                             ITicketGroupStatsProvider, RoadmapModule
 from trac.util.translation import _
@@ -53,8 +55,11 @@ class TicketFieldCloudWidget(WidgetBase):
         """
         return {
                 'field' : {
-                        'desc' : """Target ticket field""",
-                        'required' : True,
+                        'desc' : """Target ticket field. """
+                                """Required if no group in `query`.""",
+                    },
+                'query' : {
+                        'desc' : """TracQuery used to filter target tickets.""",
                     },
                 'title' : {
                         'desc' : """Widget title""",
@@ -80,79 +85,107 @@ class TicketFieldCloudWidget(WidgetBase):
         """Count ocurrences of values assigned to given ticket field.
         """
         req = context.req
-        params = ('field', 'verbose', 'threshold', 'max', 'title')
-        fieldnm, verbose, threshold, maxitems, title = \
+        params = ('field', 'query', 'verbose', 'threshold', 'max', 'title')
+        fieldnm, query, verbose, threshold, maxitems, title = \
                 self.bind_params(name, options, *params)
-        tsys = self.env[TicketSystem]
-        if tsys is None:
-            raise TracError(_('Error loading ticket system (disabled?)'))
-        for field in tsys.get_ticket_fields():
-            if field['name'] == fieldnm:
-                break
-        else:
-            field_maps = {'type': {'admin_url': 'type',
-                                   'title': 'Types',
-                                   },
-                          'status': {'admin_url': 'status',
-                                     'title': 'Statuses',
-                                     },
-                          'priority': {'admin_url': 'priority',
-                                       'title': 'Priorities',
-                                       },
-                          'milestone': {'admin_url': 'milestones',
-                                        'title': 'Milestones',
-                                        },
-                          'component': {'admin_url': 'components',
-                                        'title': 'Components',
-                                        },
-                          'version': {'admin_url': 'versions',
-                                      'title': 'Versions',
-                                      },
-                          'severity': {'admin_url': 'severity',
-                                       'title': 'Severities',
-                                       },
-                          'resolution': {'admin_url': 'resolution',
-                                         'title': 'Resolutions',
-                                         },
-                          }
-            if fieldnm in field_maps.keys():
-                if 'TICKET_ADMIN' in req.perm:
-                    hint = _('You can add one or more '
-                             '<a href="%(url)s">here</a>',
-                            url=req.href.admin('ticket', 
-                                        field_maps[fieldnm]['admin_url']))
-                else:
-                    hint = _('Contact your administrator for further details')
-                return 'widget_alert.html', \
-                        {
-                            'title' : Markup(_('%(field)s',
-                                        field=field_maps[fieldnm]['title'])),
-                            'data' : dict(msgtype='info',
-                                msglabel="Note",
-                                msgbody=Markup(_('''There is no value defined
-                                    for ticket field <em>%(field)s</em>. 
-                                    %(hint)s''', field=fieldnm, hint=hint) )
-                                )
-                        }, context
+        if query is None :
+            if fieldnm is None:
+                raise InvalidWidgetArgument('field', 'Missing ticket field')
+            tsys = self.env[TicketSystem]
+            if tsys is None:
+                raise TracError(_('Error loading ticket system (disabled?)'))
+            for field in tsys.get_ticket_fields():
+                if field['name'] == fieldnm:
+                    break
             else:
-                raise InvalidWidgetArgument('field', 
-                        'Unknown ticket field %s' % (fieldnm,))
-        if field.get('custom'):
-            sql = "SELECT value, count(value) FROM ticket_custom " \
-                    "WHERE name='%(name)s' GROUP BY value"
-        else:
-            sql = "SELECT %(name)s, count(%(name)s) FROM ticket " \
-                    "GROUP BY %(name)s"
-        sql = sql % field
-        # TODO : Implement threshold and max
-        db = self.env.get_db_cnx()
-        cursor = db.cursor()
-        cursor.execute(sql)
-        items = cursor.fetchall()
+                field_maps = {'type': {'admin_url': 'type',
+                                       'title': 'Types',
+                                       },
+                              'status': {'admin_url': 'status',
+                                         'title': 'Statuses',
+                                         },
+                              'priority': {'admin_url': 'priority',
+                                           'title': 'Priorities',
+                                           },
+                              'milestone': {'admin_url': 'milestones',
+                                            'title': 'Milestones',
+                                            },
+                              'component': {'admin_url': 'components',
+                                            'title': 'Components',
+                                            },
+                              'version': {'admin_url': 'versions',
+                                          'title': 'Versions',
+                                          },
+                              'severity': {'admin_url': 'severity',
+                                           'title': 'Severities',
+                                           },
+                              'resolution': {'admin_url': 'resolution',
+                                             'title': 'Resolutions',
+                                             },
+                              }
+                if fieldnm in field_maps.keys():
+                    if 'TICKET_ADMIN' in req.perm:
+                        hint = _('You can add one or more '
+                                 '<a href="%(url)s">here</a>',
+                                url=req.href.admin('ticket', 
+                                            field_maps[fieldnm]['admin_url']))
+                    else:
+                        hint = _('Contact your administrator for further details')
+                    return 'widget_alert.html', \
+                            {
+                                'title' : Markup(_('%(field)s',
+                                            field=field_maps[fieldnm]['title'])),
+                                'data' : dict(msgtype='info',
+                                    msglabel="Note",
+                                    msgbody=Markup(_('''There is no value defined
+                                        for ticket field <em>%(field)s</em>. 
+                                        %(hint)s''', field=fieldnm, hint=hint) )
+                                    )
+                            }, context
+                else:
+                    raise InvalidWidgetArgument('field', 
+                            'Unknown ticket field %s' % (fieldnm,))
+            if field.get('custom'):
+                sql = "SELECT value, count(value) FROM ticket_custom " \
+                        "WHERE name='%(name)s' GROUP BY value"
+            else:
+                sql = "SELECT %(name)s, count(%(name)s) FROM ticket " \
+                        "GROUP BY %(name)s"
+            sql = sql % field
+            # TODO : Implement threshold and max
+            db = self.env.get_db_cnx()
+            try :
+                cursor = db.cursor()
+                cursor.execute(sql)
+                items = cursor.fetchall()
+            finally:
+                cursor.close()
 
-        QUERY_COLS = ['id', 'summary', 'owner', 'type', 'status', 'priority']
-        item_link= lambda item: req.href.query(col=QUERY_COLS + [fieldnm], 
-                                                **{fieldnm:item[0]})
+            QUERY_COLS = ['id', 'summary', 'owner', 'type', 'status', 'priority']
+            item_link= lambda item: req.href.query(col=QUERY_COLS + [fieldnm], 
+                                                    **{fieldnm:item[0]})
+        else:
+            query = Query.from_string(self.env, query, group=fieldnm)
+            if query.group is None:
+                raise InvalidWidgetArgument('field', 
+                        'Invalid ticket field for ticket groups')
+            fieldnm = query.group
+            sql, v = query.get_sql() 
+            sql = 'SELECT %(name)s , count(%(name)s) ' \
+                    'FROM (%(sql)s) GROUP BY %(name)s' % \
+                    { 'name' : fieldnm, 'sql' : sql }
+            db = self.env.get_db_cnx()
+            try :
+                cursor = db.cursor()
+                cursor.execute(sql, v)
+                items = cursor.fetchall()
+            finally:
+                cursor.close()
+
+            query_href = query.get_href(req.href)
+            item_link= lambda item: query_href + \
+                    '&' + urlencode([(fieldnm, item[0])])
+
         return 'widget_cloud.html', \
                 {
                     'title' : title,
