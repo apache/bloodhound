@@ -78,8 +78,10 @@
                   style="display: inline-block">
                 <input type="hidden" name="action" value="edit" />
                 <div class="btn-group">
-                  <input type="submit" value="${_('Edit milestone')}" 
-                      class="btn btn-warning" />
+                  <button class="btn" name="editmilestonebutton" type="submit">
+                    <i class="icon-edit"></i>
+                    ${_('Edit')}
+                  </button>
                 </div>
               </form>
               <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
@@ -87,8 +89,10 @@
                   style="display: inline-block">
                 <input type="hidden" name="action" value="delete" />
                 <div class="btn-group">
-                  <input type="submit" value="${_('Delete milestone')}"
-                      class="btn btn-danger" />
+                  <button class="btn" name="deletemilestonebutton" type="submit">
+                    <i class="icon-trash"></i>
+                    ${_('Delete')}
+                  </button>
                 </div>
               </form>
               <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
