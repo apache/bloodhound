@@ -16,8 +16,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from collections import OrderedDict
-
 from genshi.filters.transform import Transformer
 
 from trac.core import *
@@ -122,9 +120,7 @@ class BloodhoundTheme(ThemeBase):
                 class_list = attrs.get(name, '').split()
                 self.log.debug('BH Theme : Element classes ' + str(class_list))
 
-                class_list += classes
-                class_list = OrderedDict((k, None) for k in class_list).keys()
-                out_classes = ' '.join(class_list)
+                out_classes = ' '.join(set(class_list + classes))
                 self.log.debug('BH Theme : Inserting class ' + out_classes)
                 return out_classes
             return attr_modifier
