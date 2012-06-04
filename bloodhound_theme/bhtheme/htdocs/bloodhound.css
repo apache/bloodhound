@@ -418,4 +418,23 @@ input[type="submit"].btn.btn-micro {
 }
 /* @end */
 
+/* @group Wiki Tables */
+
+TABLE.wiki {
+  border: 1px solid #CCCCCC;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+TABLE.wiki td {
+  border: 1px solid #CCCCCC;
+  padding: 0.1em 0.25em;
+}
+
+TABLE.wiki th {
+  border: 1px solid #BBBBBB;
+  padding: 0.1em 0.25em;
+  background-color: #F7F7F7;
+}
+/* @end */
 
