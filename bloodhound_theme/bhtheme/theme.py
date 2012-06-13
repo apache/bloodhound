@@ -214,7 +214,7 @@ class BloodhoundTheme(ThemeBase):
     def _modify_roadmap_css(self, req, template, data, content_type, is_active):
         """Insert roadmap.css
         """
-        add_stylesheet(req, 'dashboard/roadmap.css')
+        add_stylesheet(req, 'dashboard/css/roadmap.css')
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
