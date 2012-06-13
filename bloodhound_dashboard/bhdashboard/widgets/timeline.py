@@ -112,7 +112,7 @@ class TimelineWidget(WidgetBase):
             raise
         else:
             merge_links(srcreq=fakereq, dstreq=req, exclude=["stylesheet"])
-            add_stylesheet(req, 'dashboard/timeline.css')
+            add_stylesheet(req, 'dashboard/css/timeline.css')
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
             return 'widget_timeline.html', \

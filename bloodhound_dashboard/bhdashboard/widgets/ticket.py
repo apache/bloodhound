@@ -262,7 +262,7 @@ class TicketGroupStatsWidget(WidgetBase):
         tickets = apply_ticket_permissions(self.env, req, tickets)
         stat = get_ticket_stats(self.stats_provider, tickets)
 
-        add_stylesheet('dashboard/bootstrap.css')
+        add_stylesheet('dashboard/css/bootstrap.css')
         return 'widget_progress.html', \
                 {
                     'title' : title,

@@ -56,7 +56,7 @@ class BootstrapLayout(Component):
         """Specify bootstrap layout template
         """
         req = context.req
-        add_stylesheet(req, 'dashboard/bootstrap.css')
+        add_stylesheet(req, 'dashboard/css/bootstrap.css')
 
         if name == 'bootstrap_btnbar':
             self._process_btnbar(req, options)
@@ -81,8 +81,8 @@ class BootstrapLayout(Component):
     def _process_btnbar(self, req, options):
         """Determine toolbar groups
         """
-        add_script(req, 'layouts/bootstrap-button.js')
-        add_script(req, 'layouts/bootstrap-tab.js')
+        add_script(req, 'dashboard/js/bootstrap-button.js')
+        add_script(req, 'dashboard/js/bootstrap-tab.js')
         layout_data = options['schema']
         orig_tb = layout_data.get('toolbar', [])
         ready = layout_data.get('ready')
