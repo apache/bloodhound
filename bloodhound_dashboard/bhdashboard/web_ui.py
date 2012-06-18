@@ -32,6 +32,7 @@ import re
 from uuid import uuid4
 
 from genshi.builder import tag
+from genshi.core import Stream
 from trac.core import Component, implements
 from trac.config import Option, IntOption
 from trac.mimeview.api import Context
@@ -329,8 +330,12 @@ class DashboardChrome:
         :param widget: Widget definition
         """
         dbmod = DashboardModule(self.env)
-        if isinstance(widget['args'], basestring):
-            widget['args'] = _json.loads(widget['args'])
+        options = widget['args'][2]
+        argsdef = options.get('args')
+        if isinstance(argsdef, basestring):
+            options['args'] = _json.loads(argsdef)
+        elif isinstance(argsdef, Stream):
+            options['args'] = parse_args_tag(argsdef)
         return dbmod.expand_widget_data(
                     context.req,
                     {'widgets' : { 0 : widget }}
@@ -340,34 +345,30 @@ class DashboardChrome:
 #    Stream processors
 #------------------------------------------------------
 
-def parse_widgets_markup(stream):
-    """Parse Genshi Markup for a set of widgets
+def parse_args_tag(stream):
+    """Parse Genshi Markup for widget arguments
     """
-    s = iter(stream)
-
-    # Check that stream starts by opening bh:widgets tag
-    token, data, pos = s.next()
-    assert token == 'START'
-    assert data[0].namespace == XMLNS_DASHBOARD_UI
-    assert data[1].localname == 'widgets'
-
-    # Continue parsing bh:w tag
-    def find(_s, tkn, ns, localname):
-        for token, data, pos in _s:
-            if token == tkn and data[0].namespace != ns \
-                    and data[1].localname != localname:
-                return token, data, pos
-        else:
-            return None
-
-    i = find(s, 'START', XMLNS_DASHBOARD_UI, 'widget')
-
-    # TODO: Finish parsing widgets markup
-
-    #if i is not None:
-    #    i = find()
-
-def parse_widget_markup(stream):
-    """Parse Genshi Markup for a single widget
-    """
+    args = {}
+    inside = False
+    argnm = ''
+    argvalue = ''
+    for kind, data, _ in stream:
+        if kind == Stream.START:
+            qname, attrs = data
+            if qname.namespace == XMLNS_DASHBOARD_UI \
+                    and qname.localname == 'arg':
+                if inside :
+                    raise RuntimeError('Nested bh:arg tag')
+                else:
+                    argnm = attrs.get('name')
+                    argvalue  = ''
+                    inside = True
+        elif kind == Stream.TEXT:
+            argvalue += data
+        elif kind == Stream.END:
+            if qname.namespace == XMLNS_DASHBOARD_UI \
+                    and qname.localname == 'arg':
+                args[argnm] = argvalue
+                inside = False
+    return args
 

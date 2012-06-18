@@ -89,7 +89,7 @@
   <py:match path="bh:widget">
     <py:choose test="">
       <py:when test="bhdb"
-          py:with="wnm = unicode(select('@urn')); args = unicode(select('bh:args/text()')) or {}; altlinks = unicode(select('@altlinks')) != 'false'; ctxtnav = unicode(select('@ctxtnav')) != 'false';">
+          py:with="wnm = unicode(select('@urn')); args = select('bh:args/bh:arg') or {}; altlinks = unicode(select('@altlinks')) != 'false'; ctxtnav = unicode(select('@ctxtnav')) != 'false';">
         ${widget_container(bhdb.expand_widget(context, dict(args=[wnm, None, {'args': args}], altlinks=altlinks, ctxtnav=ctxtnav)))}
       </py:when>
       <py:otherwise>
