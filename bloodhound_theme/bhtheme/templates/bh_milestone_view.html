@@ -44,9 +44,7 @@
         <a href="${href.query(owner=milestone.owner, status='!closed',
             milestone=milestone.name, order='priority')}">${milestone.name}</a>
       </py:when>
-      <py:otherwise>
-        <span class="label">Unassigned</span>
-      </py:otherwise>
+      <py:otherwise>&nbsp;</py:otherwise>
     </py:choose>
   </py:def>
 
@@ -57,7 +55,7 @@
           <div id="overview" class="stickyStatus">
             <div class="whitebox"></div>
             <h1 style="display: inline;">Milestone ${milestone.name}</h1>
-            <h6>${milestone_date()}, ${milestone_owner()}</h6>
+            <h6>${milestone_date()} &nbsp;&nbsp;&nbsp; ${milestone_owner()}</h6>
             <br/>
             <xi:include href="widget_progress.html"
                 py:with="view = 'compact'; legend = True;" />
@@ -122,13 +120,13 @@
                     "args" : ["TicketQuery", null, {
                         "args" : {
                             "max" : 10,
-                            "query" : "milestone=${milestone.name}&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
-                            "title" : "All tickets in milestone"
+                            "query" : "milestone=${milestone.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
+                            "title" : "Active tickets in milestone"
                           }
                       }]
                   },
                 "components" : {
-                    "args" : ["TicketFieldCloud", null, {
+                    "args" : ["TicketFieldValues", null, {
                         "args" : {
                             "field" : "component",
                             "query" : "milestone=${milestone.name}&amp;group=component",
@@ -152,7 +150,7 @@
                   <bh:arg name="title">All tickets (milestone ${milestone.name})</bh:arg>
                 </bh:args>
               </bh:w>
-              <bh:w urn="TicketFieldCloud" id="mtb3">
+              <bh:w urn="TicketFieldValues" id="mtb3">
                 <bh:args>
                   <bh:arg name="field">component</bh:arg>
                   <bh:arg name="verbose">true</bh:arg>
