@@ -97,8 +97,8 @@
             </div>
           </div>
         </div>
-        <div>
-          <bh:layout urn="bootstrap_grid">
+        <div class="span8">
+          <!--! bh:layout urn="bootstrap_grid">
             <bh:schema>
               {
                 "div" : [
@@ -136,27 +136,21 @@
                   }
               }
             </bh:widgets>
-              <!--! bh:w urn="TicketQuery" id="mtb1">
-                <bh:args>
-                  <bh:arg name="max">10</bh:arg>
-                  <bh:arg name="query">milestone=${value_of(milestone.name)}&amp;owner=$USER&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
-                  <bh:arg name="title">My tickets (milestone ${milestone.name})</bh:arg>
-                </bh:args>
-              </bh:w>
-              <bh:w urn="TicketQuery" id="mtb2">
-                <bh:args>
-                  <bh:arg name="max">10</bh:arg>
-                  <bh:arg name="query">milestone=${value_of(milestone.name)}&amp;status!=closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
-                  <bh:arg name="title">All tickets (milestone ${milestone.name})</bh:arg>
-                </bh:args>
-              </bh:w>
-              <bh:w urn="TicketFieldValues" id="mtb3">
-                <bh:args>
-                  <bh:arg name="field">component</bh:arg>
-                  <bh:arg name="verbose">true</bh:arg>
-                </bh:args>
-              </bh:w-->
-          </bh:layout>
+          </bh:layout -->
+          <bh:widget urn="TicketQuery">
+            <bh:args>
+              <bh:arg name="max">10</bh:arg>
+              <bh:arg name="query">milestone=${milestone.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
+              <bh:arg name="title">Active tickets in milestone</bh:arg>
+            </bh:args>
+          </bh:widget>
+          <bh:widget urn="TicketFieldValues">
+            <bh:args>
+              <bh:arg name="field">component</bh:arg>
+              <bh:arg name="verbose">true</bh:arg>
+              <bh:arg name="query">milestone=${milestone.name}&amp;group=component</bh:arg>
+            </bh:args>
+          </bh:widget>
         </div>
       </div>
       <div py:if="bhdb" class="span4">
