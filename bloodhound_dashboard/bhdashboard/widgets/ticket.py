@@ -111,7 +111,7 @@ class TicketFieldValuesWidget(WidgetBase):
                 field_maps = {'type': {'admin_url': 'type',
                                        'title': 'Types',
                                        },
-                              'status': {'admin_url': 'status',
+                              'status': {'admin_url': None,
                                          'title': 'Statuses',
                                          },
                               'priority': {'admin_url': 'priority',
@@ -133,12 +133,12 @@ class TicketFieldValuesWidget(WidgetBase):
                                              'title': 'Resolutions',
                                              },
                               }
-                if fieldnm in field_maps.keys():
-                    if 'TICKET_ADMIN' in req.perm:
+                if fieldnm in field_maps:
+                    admin_suffix = field_maps.get[fieldnm]['admin_url']
+                    if 'TICKET_ADMIN' in req.perm and admin_suffix is not None:
                         hint = _('You can add one or more '
                                  '<a href="%(url)s">here</a>',
-                                url=req.href.admin('ticket', 
-                                            field_maps[fieldnm]['admin_url']))
+                                url=req.href.admin('ticket', admin_suffix))
                     else:
                         hint = _('Contact your administrator for further details')
                     return 'widget_alert.html', \
