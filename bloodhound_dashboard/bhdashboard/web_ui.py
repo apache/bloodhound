@@ -44,7 +44,7 @@ from trac.web.api import IRequestHandler, IRequestFilter
 from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
                             INavigationContributor, ITemplateProvider
 
-from bhdashboard.api import DashboardSystem
+from bhdashboard.api import DashboardSystem, InvalidIdentifier
 from bhdashboard import _json
 
 class DashboardModule(Component):
@@ -230,6 +230,8 @@ class DashboardModule(Component):
         """Render widget without failing.
         """
         try :
+            if wp is None :
+                raise InvalidIdentifier("Unknown widget ID")
             return wp.render_widget(name, ctx, options)
         except Exception, exc:
             log_entry = str(uuid4())
@@ -263,7 +265,7 @@ class DashboardModule(Component):
         self.log.debug("Bloodhound: Widget index %s" % (widgets_index,))
         ctx = Context.from_request(req)
         for w in widgets_spec.itervalues():
-            w['c'] = widgets_index[w['args'][0]]
+            w['c'] = widgets_index.get(w['args'][0])
             w['args'][1] = ctx
         self.log.debug("Bloodhound: Widget specs %s" % (widgets_spec,))
         chrome = Chrome(self.env)
