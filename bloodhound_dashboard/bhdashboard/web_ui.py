@@ -139,7 +139,7 @@ class DashboardModule(Component):
                         'div' : [
                                 {
                                     '_class' : 'span8',
-                                    'widgets' : [0]
+                                    'widgets' : [3, 2, 0]
                                 },
                                 {
                                     '_class' : 'span4',
@@ -150,65 +150,44 @@ class DashboardModule(Component):
                 ],
             'widgets' : {
                     0: {
-                        'args' : ['Container', None, 
-                                {'args' : {'layout' : 'bootstrap_btnbar',
-                                        'schema' : '''
-                                        {
-                                          "toolbar" : [
-                                              ["Products", null],
-                                              ["My Tickets", "w3"],
-                                              ["All tickets", "w2"],
-                                              ["|", null],
-                                              ["Projects", null],
-                                              ["Components", "w1"]
-                                            ],
-                                          "active" : 1,
-                                          "widgets" : {
-                                            "w1" : {
-                                              "args" : [
-                                                  "TicketFieldValues", 
-                                                  null, 
-                                                  {"args" : {
-                                                      "field" : "component",
-                                                      "verbose" : true}}]
-                                            },
-                                            "w2" : {
-                                              "args" : [
-                                                  "TicketQuery", null, 
-                                                  {"args" : {
-                                                      "max" : 10,
-                                                      "query" : "''' + 
-                'status!=closed&group=time&col=id&col=summary&col=owner' \
-                '&col=status&col=priority&order=priority&groupdesc=1&desc=1' +
-                                                      '''",
-                                                      "title" : "All Tickets"}
-                                                  }],
-                                              "altlinks" : false
-                                            },
-                                            "w3" : {
-                                              "args" : [
-                                                  "TicketQuery", null, 
-                                                  {"args" : {
-                                                      "max" : 10,
-                                                      "query" : "''' + 
-                'status!=closed&group=time&col=id&col=summary&col=owner' \
-                '&col=status&col=priority&order=priority&groupdesc=1&desc=1' \
-                '&owner=$USER' +
-                                                      '''",
-                                                      "title" : "My Tickets"}
-                                                  }],
-                                              "altlinks" : false
-                                            }
-                                          }
-                                        }
-                                        ''',
-                                        'title' : _("Dashboard")
-                                        }
-                                }]
-                    },
+                            'args' : [
+                                'TicketFieldValues',
+                                None,
+                                {'args' : {
+                                    'field' : 'component',
+                                    'verbose' : True}}]
+                        },
+                    2: {
+                            'args' : [
+                                'TicketQuery',
+                                None,
+                                {'args' : {
+                                    'max' : 10,
+                                    'query' : 'status=!closed&group=time&' \
+                                        'col=id&col=summary&col=owner' \
+                                        '&col=status&col=priority&' \
+                                        'order=priority&groupdesc=1&desc=1',
+                                    'title' : 'Active Tickets'}}],
+                            'altlinks' : False
+                        },
+                    3: {
+                            'args' : [
+                                'TicketQuery',
+                                None,
+                                {'args' : {
+                                    'max' : 10,
+                                    'query' : 'status=!closed&group=time&' \
+                                        'col=id&col=summary&col=owner' \
+                                        '&col=status&col=priority&' \
+                                        'order=priority&groupdesc=1&desc=1&' \
+                                        'owner=$USER',
+                                    'title' : 'My Tickets'}
+                                }],
+                            'altlinks' : False
+                        },
                     1: {
-                        'args' : ['Timeline', None, {'args' : {}}]
-                    },
+                            'args' : ['Timeline', None, {'args' : {}}]
+                        },
                }
         }
 
