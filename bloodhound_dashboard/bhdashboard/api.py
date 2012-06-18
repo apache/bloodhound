@@ -253,7 +253,7 @@ class EnumField:
         """Perform the actual conversion
         """
         if value not in self.choices:
-            raise InvalidWidgetArgument(
+            raise InvalidWidgetArgument('',
                 _('Expected one of `%s` but got `%s`') % (self.choices, value),
                 title=_('Enum conversion error'))
         return value

@@ -165,7 +165,7 @@ class DashboardModule(Component):
                                           "widgets" : {
                                             "w1" : {
                                               "args" : [
-                                                  "TicketFieldCloud", 
+                                                  "TicketFieldValues", 
                                                   null, 
                                                   {"args" : {
                                                       "field" : "component",

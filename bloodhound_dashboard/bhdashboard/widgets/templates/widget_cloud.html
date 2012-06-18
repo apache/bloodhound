@@ -2,7 +2,8 @@
 <div id="content" class="${'well' if view == 'cloud' else None}"
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:with="_view = view if view in ('list', 'cloud', 'compact', 'table') else 'list'">
 
   <py:def function="display_value(value)">
     <py:choose test="value">
@@ -26,7 +27,11 @@
 
   <h3 style="display: inline;">$heading</h3>
   <br/>
-  <py:choose test="view">
+  <py:if test="_view != view">
+    <xi:include href="widget_alert.html"
+        py:with="msglabel = 'Warning'; msgbody = 'Unknown view ' + view" />
+  </py:if>
+  <py:choose test="_view">
     <py:when test="'cloud'">
       <p style="font-size: medium; line-height: 150%;">
         <py:for each="item in items"

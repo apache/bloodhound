@@ -45,7 +45,7 @@ from bhdashboard.util import WidgetBase, check_widget_name, \
                             pretty_wrapper, resolve_ep_class, \
                             trac_version, trac_tags
 
-class TicketFieldCloudWidget(WidgetBase):
+class TicketFieldValuesWidget(WidgetBase):
     """Display a tag cloud representing frequency of values assigned to 
     ticket fields.
     """
