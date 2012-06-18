@@ -42,6 +42,24 @@
           </li>
         </ul>
       </py:when>
+      <py:when test="'table'">
+        <table class="table table-striped table-condensed">
+          <thead>
+            <tr>
+              <th class="full-x">&nbsp;</th>
+              <th py:if="verbose">Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr py:for="item in items" py:if="item[1] &gt; 0">
+              <td>
+                <a href="${item_link(item)}">${display_value(item[0])}</a>
+              </td>
+              <td py:if="verbose">${item[1]}</td>
+            </tr>
+          </tbody>
+        </table>
+      </py:when>
       <py:otherwise>
         <!--! TODO: Error message: Invalid widget view -->
       </py:otherwise>

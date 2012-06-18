@@ -85,7 +85,7 @@ class TicketFieldCloudWidget(WidgetBase):
                             - `cloud` : Similar to tag cloud
                             """,
                         'default' : 'list',
-                        'type' : EnumField('list', 'cloud'),
+                        'type' : EnumField('list', 'cloud', 'table'),
                     },
             }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
