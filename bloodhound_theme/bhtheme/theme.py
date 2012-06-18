@@ -151,7 +151,7 @@ class BloodhoundTheme(ThemeBase):
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
         if self.env.project_icon == 'common/trac.ico':
-            bh_icon = 'theme/images/bh.ico'
+            bh_icon = 'theme/img/bh.ico'
             new_icon = {'href': req.href.chrome(bh_icon),
                         'type': get_mimetype(bh_icon)}
             if links.get('icon'):
