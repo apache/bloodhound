@@ -156,11 +156,13 @@ class TicketFieldCloudWidget(WidgetBase):
                     raise InvalidWidgetArgument('field', 
                             'Unknown ticket field %s' % (fieldnm,))
             if field.get('custom'):
-                sql = "SELECT value, count(value) FROM ticket_custom " \
-                        "WHERE name='%(name)s' GROUP BY value"
+                sql = "SELECT COALESCE(value, ''), count(COALESCE(value, ''))" \
+                        " FROM ticket_custom " \
+                        " WHERE name='%(name)s' GROUP BY COALESCE(value, '')"
             else:
-                sql = "SELECT %(name)s, count(%(name)s) FROM ticket " \
-                        "GROUP BY %(name)s"
+                sql = "SELECT COALESCE(%(name)s, ''), " \
+                        "count(COALESCE(%(name)s, '')) FROM ticket " \
+                        "GROUP BY COALESCE(%(name)s, '')"
             sql = sql % field
             # TODO : Implement threshold and max
             db = self.env.get_db_cnx()
