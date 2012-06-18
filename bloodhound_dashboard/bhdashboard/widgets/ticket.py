@@ -181,8 +181,8 @@ class TicketFieldCloudWidget(WidgetBase):
                         'Invalid ticket field for ticket groups')
             fieldnm = query.group
             sql, v = query.get_sql() 
-            sql = 'SELECT %(name)s , count(%(name)s) ' \
-                    'FROM (%(sql)s) GROUP BY %(name)s' % \
+            sql = "SELECT COALESCE(%(name)s, '') , count(COALESCE(%(name)s, ''))"\
+                    "FROM (%(sql)s) GROUP BY COALESCE(%(name)s, '')" % \
                     { 'name' : fieldnm, 'sql' : sql }
             db = self.env.get_db_cnx()
             try :
