@@ -16,61 +16,71 @@
     </py:choose>
   </py:def>
 
+  <py:def function="qty_badge(value)">
+    <span class="badge ${'badge-inverse' if value == bounds.max else
+        'badge-info' if value &gt; bounds.min else None}"
+        style="${'vertical-align: text-top' if view == 'cloud' else None}">
+      $value
+    </span>
+  </py:def>
+
   <h3 style="display: inline;">$heading</h3>
-  <p style="font-size: medium; line-height: 150%;">
-    <py:choose test="view">
-      <py:when test="'cloud'">
+  <br/>
+  <py:choose test="view">
+    <py:when test="'cloud'">
+      <p style="font-size: medium; line-height: 150%;">
         <py:for each="item in items"
             py:with="_max = bounds.max + 1; _min = bounds.min" >
           <py:if test="item[1] &gt; 0">
             <a href="${item_link(item)}"
                 style="font-size: ${int(28 - (13 / (_max - _min)) * (_max - item[1] - 1) )}px">
               ${display_value(item[0])}
-              <py:if test="verbose">(${item[1]})</py:if>
             </a>
+            <py:if test="verbose">${qty_badge(item[1])}</py:if>
             &nbsp;&nbsp;
           </py:if>
         </py:for>
-      </py:when>
-      <py:when test="'list'">
-        <ul>
-          <li py:for="item in items" py:if="item[1] &gt; 0">
-            <a href="${item_link(item)}">
-              ${display_value(item[0])}
-              <py:if test="verbose">(${item[1]})</py:if>
-            </a>
-          </li>
-        </ul>
-      </py:when>
-      <py:when test="'table'">
-        <table class="table table-striped table-condensed">
-          <thead>
-            <tr>
-              <th class="full-x">&nbsp;</th>
-              <th py:if="verbose">Qty</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr py:for="item in items" py:if="item[1] &gt; 0">
-              <td>
-                <a href="${item_link(item)}">${display_value(item[0])}</a>
-              </td>
-              <td py:if="verbose">${item[1]}</td>
-            </tr>
-          </tbody>
-        </table>
-      </py:when>
-      <py:when test="'compact'">
-        <div class="span2" py:for="item in items" py:if="item[0] &gt; 0">
+      </p>
+    </py:when>
+    <py:when test="'list'">
+      <ul>
+        <li py:for="item in items" py:if="item[1] &gt; 0"
+            style="line-height: 20px">
           <a href="${item_link(item)}">
             ${display_value(item[0])}
-            <py:if test="verbose">(${item[1]})</py:if>
           </a>
-        </div>
-      </py:when>
-      <py:otherwise>
-        <!--! TODO: Error message: Invalid widget view -->
-      </py:otherwise>
-    </py:choose>
-  </p>
+          <py:if test="verbose">${qty_badge(item[1])}</py:if>
+        </li>
+      </ul>
+    </py:when>
+    <py:when test="'table'">
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th class="full-x">&nbsp;</th>
+            <th py:if="verbose">Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr py:for="item in items" py:if="item[1] &gt; 0">
+            <td>
+              <a href="${item_link(item)}">${display_value(item[0])}</a>
+            </td>
+            <td py:if="verbose">${qty_badge(item[1])}</td>
+          </tr>
+        </tbody>
+      </table>
+    </py:when>
+    <py:when test="'compact'">
+      <div class="span3" py:for="item in items" py:if="item[1] &gt; 0">
+        <a href="${item_link(item)}">
+          ${display_value(item[0])}
+        </a>
+        <py:if test="verbose">${qty_badge(item[1])}</py:if>
+      </div>
+    </py:when>
+    <py:otherwise>
+      <!--! TODO: Error message: Invalid widget view -->
+    </py:otherwise>
+  </py:choose>
 </div>
