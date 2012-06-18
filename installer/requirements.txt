@@ -8,4 +8,5 @@ Genshi
 -e svn+https://trac-hacks.org/svn/themeengineplugin/0.11#egg=TracThemeEngine
 -e svn+https://svn.apache.org/repos/asf/incubator/bloodhound/trunk/bloodhound_dashboard#egg=BloodhoundDashboardPlugin
 -e svn+https://svn.apache.org/repos/asf/incubator/bloodhound/trunk/bloodhound_theme#egg=BloodhoundTheme
+-e svn+https://trac-hacks.org/svn/permredirectplugin/0.11#egg=TracPermRedirect
 

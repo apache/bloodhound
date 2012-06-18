@@ -47,6 +47,7 @@ multiproduct.product_admin.productadminpanel = enabled
 multiproduct.product_admin.productpermissions = enabled
 multiproduct.ticket.api.productticketfields = enabled
 multiproduct.ticket.web_ui.productticketmodule = enabled
+permredirect.* = enabled
 themeengine.* = enabled
 trac.ticket.web_ui.ticketmodule = disabled
 
