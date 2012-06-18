@@ -6,15 +6,23 @@
 
   <xi:include href="widget_macros.html" />
 
-  <div class="btn-toolbar" data-toggle="buttons-radio">
-    <div class="btn-group offset1"
-        py:for="g in layout.toolbar" >
+  <div class="btn-toolbar">
+    <div class="btn-group offset1" data-toggle="buttons-radio">
+      <py:with vars="max_idx = len(layout.toolbar) - 1">
+      <py:for each="idx, g in enumerate(layout.toolbar)" >
+      <py:for each="tb_item in g" >
       <button data-target="#tb-item-${tb_item.id}" data-toggle="tab" 
           disabled="${tb_item.widget is None and 'true' or None}" 
-          class="btn ${tb_item.widget is None and 'disabled' or None} ${tb_item.active and 'active' or None}" 
-          py:for="tb_item in g">
+          class="btn ${tb_item.widget is None and 'disabled' or None} ${tb_item.active and 'active' or None}">
         ${tb_item.caption}
       </button>
+      </py:for>
+      <py:if test="idx != max_idx">
+        <button disabled="true" class="btn disabled invisible">
+        </button>
+      </py:if>
+      </py:for>
+      </py:with>
     </div>
   </div>
   <div class="tab-content">
