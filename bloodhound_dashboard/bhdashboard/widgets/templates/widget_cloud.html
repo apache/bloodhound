@@ -60,6 +60,14 @@
           </tbody>
         </table>
       </py:when>
+      <py:when test="'compact'">
+        <div class="span2" py:for="item in items" py:if="item[0] &gt; 0">
+          <a href="${item_link(item)}">
+            ${display_value(item[0])}
+            <py:if test="verbose">(${item[1]})</py:if>
+          </a>
+        </div>
+      </py:when>
       <py:otherwise>
         <!--! TODO: Error message: Invalid widget view -->
       </py:otherwise>
