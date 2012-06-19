@@ -49,6 +49,9 @@ class TicketFieldValuesWidget(WidgetBase):
     """Display a tag cloud representing frequency of values assigned to 
     ticket fields.
     """
+    DASH_ITEM_HREF_MAP = {'milestone': ('milestone',),
+                         }
+                     
     def get_widget_params(self, name):
         """Return a dictionary containing arguments specification for
         the widget with specified name.
@@ -198,13 +201,28 @@ class TicketFieldValuesWidget(WidgetBase):
             item_link= lambda item: query_href + \
                     '&' + urlencode([(fieldnm, item[0])])
 
+        if fieldnm in self.DASH_ITEM_HREF_MAP:
+            def dash_item_link(item):
+                if item[0]:
+                    args = self.DASH_ITEM_HREF_MAP[fieldnm] + (item[0],)
+                    return req.href(*args)
+                else:
+                    return item_link(item)
+        else:
+            dash_item_link = item_link
+
+        if title is None:
+            heading = _(fieldnm.capitalize())
+        else:
+            heading = None
+
         return 'widget_cloud.html', \
                 {
                     'title' : title,
                     'data' : dict(
                             bounds=minmax(items, lambda x: x[1]),
-                            item_link= item_link,
-                            heading=_(fieldnm.capitalize()),
+                            item_link=dash_item_link,
+                            heading=heading,
                             items=items,
                             verbose=verbose,
                             view=view,

@@ -139,25 +139,46 @@ class DashboardModule(Component):
                         'div' : [
                                 {
                                     '_class' : 'span8',
-                                    'widgets' : [3, 2, 0]
+                                    'widgets' : ['my tickets', 'active tickets',
+                                                 'versions', 'milestones',
+                                                 'components']
                                 },
                                 {
                                     '_class' : 'span4',
-                                    'widgets' : [1]
+                                    'widgets' : ['activity']
                                 }
                             ]
                     }
                 ],
             'widgets' : {
-                    0: {
+                    'components': {
                             'args' : [
                                 'TicketFieldValues',
                                 None,
                                 {'args' : {
                                     'field' : 'component',
+                                    'title' : 'Components',
                                     'verbose' : True}}]
                         },
-                    2: {
+                    'milestones': {
+                            'args' : [
+                                'TicketFieldValues',
+                                None,
+                                {'args' : {
+                                    'field' : 'milestone',
+                                    'title' : 'Milestones',
+                                    'verbose' : True}}]
+                        },
+                    'versions': {
+                            'args' : [
+                                'TicketFieldValues',
+                                None,
+                                {'args' : {
+                                    'field' : 'version',
+                                    'title' : 'Versions',
+                                    'verbose' : True}}]
+                        },
+                    'active tickets': {
                             'args' : [
                                 'TicketQuery',
                                 None,
@@ -170,7 +191,7 @@ class DashboardModule(Component):
                                     'title' : 'Active Tickets'}}],
                             'altlinks' : False
                         },
-                    3: {
+                    'my tickets': {
                             'args' : [
                                 'TicketQuery',
                                 None,
@@ -185,7 +206,7 @@ class DashboardModule(Component):
                                 }],
                             'altlinks' : False
                         },
-                    1: {
+                    'activity': {
                             'args' : ['Timeline', None, {'args' : {}}]
                         },
                }

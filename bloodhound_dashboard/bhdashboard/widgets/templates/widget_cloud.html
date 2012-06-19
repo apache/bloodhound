@@ -25,8 +25,10 @@
     </span>
   </py:def>
 
+  <py:if test="heading is not None">
   <h3 style="display: inline;">$heading</h3>
   <br/>
+  </py:if>
   <py:if test="_view != view">
     <xi:include href="widget_alert.html"
         py:with="msglabel = 'Warning'; msgbody = 'Unknown view ' + view" />
