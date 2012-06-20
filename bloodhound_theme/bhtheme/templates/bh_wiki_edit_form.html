@@ -73,17 +73,19 @@ $page.text</textarea>
     <div class="btn-toolbar buttons">
       <div class="btn-group" py:choose="action">
         <py:when test="'collision'">
-          <input class="btn" type="submit" name="preview" value="${_('Preview')}" disabled="disabled" />&nbsp;
-          <input class="btn" type="submit" name="merge" value="${_('Merge changes')}" accesskey="r" />&nbsp;
-          <input class="btn" type="submit" name="save" value="${_('Submit changes')}" disabled="disabled" />&nbsp;
+          <input class="btn" type="submit" name="preview" value="${_('Preview')}" disabled="disabled" />
+          <input class="btn" type="submit" name="merge" value="${_('Merge changes')}" accesskey="r" />
+          <input class="btn" type="submit" name="save" value="${_('Submit changes')}" disabled="disabled" />
         </py:when>
         <py:otherwise>
-          <input class="btn" type="submit" name="preview" value="${_('Preview Page')}" accesskey="p" />&nbsp;
-          <input class="btn" type="submit" name="diff" value="${_('Review Changes')}" accesskey="r" />&nbsp;
-          <input class="btn" type="submit" id="save" name="save" value="${_('Submit changes')}" />&nbsp;
+          <input class="btn" type="submit" name="preview" value="${_('Preview Page')}" accesskey="p" />
+          <input class="btn" type="submit" name="diff" value="${_('Review Changes')}" accesskey="r" />
+          <input class="btn" type="submit" id="save" name="save" value="${_('Submit changes')}" />
         </py:otherwise>
       </div>
-      <input class="btn btn-inverse" type="submit" name="cancel" value="${_('Cancel')}" />
+      <div class="btn-group">
+        <input class="btn btn-inverse" type="submit" name="cancel" value="${_('Cancel')}" />
+      </div>
     </div>
   </form>
 </html>
