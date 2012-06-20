@@ -70,14 +70,20 @@
 
         <py:when test="reports">
           <h2>SQL reports and saved custom queries
-            <small id="trac-sort-order" class="pull-right" py:with="report_asc = asc if sort == 'report' else None;
+            <small id="trac-sort-order" style="white-space:nowrap;" class="pull-right" py:with="report_asc = asc if sort == 'report' else None;
                                                 title_asc = asc if sort == 'title' else None">
               Sort by:
               <a href="${href.report(sort='report', asc='0' if report_asc else '1')}">
-                <span class="label"><i class="${('icon-chevron-down', 'icon-chevron-up')[report_asc] if report_asc is not None else None}"></i>Identifier</span>
+                <span class="label">
+                  <i class="${('icon-chevron-down', 'icon-chevron-up')[report_asc] if report_asc is not None else None}"></i>
+                  Identifier
+                </span>
               </a> &nbsp;
               <a href="${href.report(sort='title', asc='0' if title_asc else '1')}">
-                <span class="label"><i class="${('icon-chevron-down', 'icon-chevron-up')[title_asc] if title_asc is not None else None}"></i>Title</span>
+                <span class="label">
+                  <i class="${('icon-chevron-down', 'icon-chevron-up')[title_asc] if title_asc is not None else None}"></i>
+                  Title
+                </span>
               </a>
             </small>
           </h2>
