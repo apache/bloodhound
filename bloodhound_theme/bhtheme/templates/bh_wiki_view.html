@@ -92,13 +92,13 @@
               <div class="btn-group">
                 <py:choose>
                   <py:when test="is_not_latest">
-                    <input class="btn" type="submit" value="${_('Revert to this version')}"/>
+                    <button class="btn" type="submit" name="revert_version_button">${_('Revert to this version')}</button>
                   </py:when>
                   <py:when test="page.exists">
-                    <input class="btn" type="submit" value="${_('Edit this page')}" accesskey="e" />
+                    <button class="btn" type="submit" name="edit_page_button" accesskey="e">${_('Edit this page')}</button>
                   </py:when>
                   <py:otherwise>
-                    <input class="btn" type="submit" value="${_('Create this page')}" accesskey="e" />
+                    <button class="btn" type="submit" name="create_page_button" accesskey="e">${_('Create this page')}</button>
                     <div py:if="templates" id="template" style="display:inline">
                       <label for="template">Using the template:</label>
                       <select name="template">
@@ -118,7 +118,7 @@
             <form method="get" style="display:inline" action="${href.wiki(page.name)}" id="rename" py:if="page.exists and rename_perm">
               <input type="hidden" name="action" value="rename" />
               <div class="btn-group">
-                <input class="btn btn-warning" type="submit" value="${_('Rename page')}" />
+                <button class="btn" type="submit" name="rename_page_button">${_('Rename page')}</button>
               </div>
             </form>
             <form method="get" style="display:inline" action="${href.wiki(page.name)}" py:if="page.exists and delete_perm">
@@ -126,9 +126,9 @@
               <input type="hidden" name="version" value="$page.version" />
               <div id="delete" class="btn-group">
                 <py:if test="page.version == latest_version">
-                  <input class="btn btn-danger" type="submit" name="delete_version" value="${_('Delete this version')}" />
+                  <button class="btn" type="submit" name="delete_version">${_('Delete this version')}</button>
                 </py:if>
-                <input class="btn btn-danger" type="submit" value="${_('Delete page')}" />
+                <button class="btn" type="submit" name="delete_page_button">${_('Delete page')}</button>
               </div>
             </form>
           </div>
