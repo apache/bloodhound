@@ -23,6 +23,7 @@ Provides request filtering to capture product related paths
 import re
 
 from genshi.builder import tag
+from genshi.core import Attrs, QName
 
 from trac.core import Component, implements, TracError
 from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
@@ -40,7 +41,11 @@ class ProductModule(Component):
     """Base Product behaviour"""
     
     implements(IRequestFilter, IRequestHandler, INavigationContributor)
-    
+    NAVITEM_DO_NOT_TRANSFORM = [ '/dashboard',
+                                 '/login',
+                                 '/logout',
+                                 '/products',
+                                ]
     def get_active_navigation_item(self, req):
         return 'products'
     
@@ -96,6 +101,28 @@ class ProductModule(Component):
     
     def post_process_request(self, req, template, data, content_type):
         """post process request filter"""
+        # update the nav item links
+        root = req.href()
+        rootproducts = req.href.products()
+        pid = req.args.get('productid')
+        if pid:
+            for navkey, section in req.chrome['nav'].iteritems():
+                for item in section:
+                    try:
+                        href = item['label'].attrib.get('href')
+                    except AttributeError:
+                        continue
+                    if href.startswith(rootproducts):
+                        continue
+                    if href.startswith(root):
+                        tail = href[len(root):]
+                        if tail not in self.NAVITEM_DO_NOT_TRANSFORM:
+                            attrs = [attr for attr in item['label'].attrib 
+                                     if attr[0] != 'href']
+                            newhref = req.href.products(pid, tail)
+                            item['label'].attrib = Attrs([(QName('href'), 
+                                                           newhref)] + attrs)
+        
         return (template, data, content_type)
     
     # IRequestHandler methods
