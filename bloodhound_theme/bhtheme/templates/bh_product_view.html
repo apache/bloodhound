@@ -1,0 +1,97 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <xi:include href="widget_macros.html" />
+
+  <py:def function="product_owner()">
+    <py:choose>
+      <py:when test="product.owner">
+        Owned by
+        <a href="${href.query(owner=product.owner, status='!closed',
+            product=product.name, order='priority')}">${product.owner}</a>
+      </py:when>
+      <py:otherwise>&nbsp;</py:otherwise>
+    </py:choose>
+  </py:def>
+
+  <py:def function="product_heading()">
+    <h1 style="display: inline;">Product ${product.name}</h1>
+    <h6>${product_owner()}</h6>
+  </py:def>
+
+  <py:def function="product_buttons()">
+    <div py:if="'PRODUCT_MODIFY' in perm(product.resource) or
+                'PRODUCT_DELETE' in perm(product.resource) or
+                attachments.can_create"
+        class="buttons">
+      <form py:if="'PRODUCT_MODIFY' in perm(product.resource)"
+          method="get" action="" id="editproduct"
+          style="display: inline-block">
+        <input type="hidden" name="action" value="edit" />
+        <div class="btn-group">
+          <button class="btn" name="editproductbutton" type="submit">
+            <i class="icon-edit"></i>
+            ${_('Edit')}
+          </button>
+        </div>
+      </form>
+      <form py:if="'PRODUCT_DELETE' in perm(product.resource)"
+          method="get" action="" id="deleteproduct"
+          style="display: inline-block">
+        <input type="hidden" name="action" value="delete" />
+        <div class="btn-group">
+          <button class="btn" name="deleteproductbutton" type="submit">
+            <i class="icon-trash"></i>
+            ${_('Delete')}
+          </button>
+        </div>
+      </form>
+    </div>
+  </py:def>
+
+  <py:def function="product_widgets()">
+    <bh:widget urn="TicketQuery">
+      <bh:args>
+        <bh:arg name="max">10</bh:arg>
+        <bh:arg name="query">product=${product.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
+        <bh:arg name="title">Active tickets</bh:arg>
+      </bh:args>
+    </bh:widget>
+    <bh:widget urn="TicketFieldValues">
+      <bh:args>
+        <bh:arg name="field">version</bh:arg>
+        <bh:arg name="verbose">true</bh:arg>
+        <bh:arg name="query">product=${product.name}&amp;group=version</bh:arg>
+      </bh:args>
+    </bh:widget>
+    <bh:widget urn="TicketFieldValues">
+      <bh:args>
+        <bh:arg name="field">component</bh:arg>
+        <bh:arg name="verbose">true</bh:arg>
+        <bh:arg name="query">product=${product.name}&amp;group=component</bh:arg>
+      </bh:args>
+    </bh:widget>
+  </py:def>
+
+  <head>
+    <title>Product ${product.name}</title>
+    <link py:if="'PRODUCT_MODIFY' in perm(product.resource)" rel="alternate" type="application/x-wiki"
+          title="Edit this product" href="${href.products(product.prefix, action='edit')}" />
+  </head>
+  <body>
+    <div id="content" class="row product">
+      <xi:include href="bh_model_view.html"
+          py:with="heading = product_heading(); buttons = product_buttons();
+              description = wiki_to_html(context, product.description);
+              widgets = product_widgets();" />
+    </div>
+  </body>
+
+</html>
+

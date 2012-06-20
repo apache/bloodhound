@@ -8,11 +8,6 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="layout.html" />
   <xi:include href="widget_macros.html" />
-  <head>
-    <title>Milestone ${milestone.name}</title>
-    <link py:if="'MILESTONE_MODIFY' in perm(milestone.resource)" rel="alternate" type="application/x-wiki"
-          title="Edit this milestone" href="${href.milestone(milestone.name, action='edit')}" />
-  </head>
 
   <py:def function="milestone_date">
     <py:choose test="">
@@ -48,114 +43,71 @@
     </py:choose>
   </py:def>
 
+  <py:def function="milestone_heading()">
+    <h1 style="display: inline;">Milestone ${milestone.name}</h1>
+    <h6>${milestone_date()} &nbsp;&nbsp;&nbsp; ${milestone_owner()}</h6>
+  </py:def>
+
+  <py:def function="milestone_buttons()">
+    <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
+                'MILESTONE_DELETE' in perm(milestone.resource) or
+                attachments.can_create">
+      <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
+          method="get" action="" id="editmilestone"
+          style="display: inline-block">
+        <input type="hidden" name="action" value="edit" />
+        <div class="btn-group">
+          <button class="btn" name="editmilestonebutton" type="submit">
+            <i class="icon-edit"></i>
+            ${_('Edit')}
+          </button>
+        </div>
+      </form>
+      <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
+          method="get" action="" id="deletemilestone"
+          style="display: inline-block">
+        <input type="hidden" name="action" value="delete" />
+        <div class="btn-group">
+          <button class="btn" name="deletemilestonebutton" type="submit">
+            <i class="icon-trash"></i>
+            ${_('Delete')}
+          </button>
+        </div>
+      </form>
+      <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
+    </div>
+  </py:def>
+
+  <py:def function="milestone_widgets()">
+    <bh:widget urn="TicketQuery">
+      <bh:args>
+        <bh:arg name="max">10</bh:arg>
+        <bh:arg name="query">milestone=${milestone.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
+        <bh:arg name="title">Active tickets in milestone</bh:arg>
+      </bh:args>
+    </bh:widget>
+    <bh:widget urn="TicketFieldValues">
+      <bh:args>
+        <bh:arg name="field">component</bh:arg>
+        <bh:arg name="verbose">true</bh:arg>
+        <bh:arg name="query">milestone=${milestone.name}&amp;group=component</bh:arg>
+      </bh:args>
+    </bh:widget>
+  </py:def>
+
+  <head>
+    <title>Milestone ${milestone.name}</title>
+    <link py:if="'MILESTONE_MODIFY' in perm(milestone.resource)" rel="alternate" type="application/x-wiki"
+          title="Edit this milestone" href="${href.milestone(milestone.name, action='edit')}" />
+  </head>
   <body>
-    <div class="row">
-      <div class="${'span8' if bhdb else 'span12'}">
-        <div class="stickyBox">
-          <div id="overview" class="stickyStatus">
-            <div class="whitebox"></div>
-            <h1 style="display: inline;">Milestone ${milestone.name}</h1>
-            <h6>${milestone_date()} &nbsp;&nbsp;&nbsp; ${milestone_owner()}</h6>
-            <br/>
-            <xi:include href="widget_progress.html"
-                py:with="view = 'compact'; legend = True;" />
-            <div class="stickyEndMark"></div>
-          </div>
-        </div>
-        <script type="text/javascript">
-          setup_sticky_panel('#overview');
-        </script>
-        <div class="${'span7' if bhdb else 'span11'}" >
-          <div class="well">
-            ${wiki_to_html(context, milestone.description)}
-            <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
-                        'MILESTONE_DELETE' in perm(milestone.resource) or
-                        attachments.can_create">
-              <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
-                  method="get" action="" id="editmilestone"
-                  style="display: inline-block">
-                <input type="hidden" name="action" value="edit" />
-                <div class="btn-group">
-                  <button class="btn" name="editmilestonebutton" type="submit">
-                    <i class="icon-edit"></i>
-                    ${_('Edit')}
-                  </button>
-                </div>
-              </form>
-              <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
-                  method="get" action="" id="deletemilestone"
-                  style="display: inline-block">
-                <input type="hidden" name="action" value="delete" />
-                <div class="btn-group">
-                  <button class="btn" name="deletemilestonebutton" type="submit">
-                    <i class="icon-trash"></i>
-                    ${_('Delete')}
-                  </button>
-                </div>
-              </form>
-              <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
-            </div>
-          </div>
-        </div>
-        <div class="span8">
-          <!--! bh:layout urn="bootstrap_grid">
-            <bh:schema>
-              {
-                "div" : [
-                    {
-                      "_class" : "row",
-                      "div" : [
-                          {
-                            "_class" : "${'span8' if bhdb else 'span12'}",
-                            "widgets" : ["tickets", "components"]
-                          }
-                        ]
-                    }
-                  ]
-              }
-            </bh:schema>
-            <bh:widgets>
-              {
-                "tickets" : {
-                    "args" : ["TicketQuery", null, {
-                        "args" : {
-                            "max" : 10,
-                            "query" : "milestone=${milestone.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1",
-                            "title" : "Active tickets in milestone"
-                          }
-                      }]
-                  },
-                "components" : {
-                    "args" : ["TicketFieldValues", null, {
-                        "args" : {
-                            "field" : "component",
-                            "query" : "milestone=${milestone.name}&amp;group=component",
-                            "verbose" : true
-                          }
-                      }]
-                  }
-              }
-            </bh:widgets>
-          </bh:layout -->
-          <bh:widget urn="TicketQuery">
-            <bh:args>
-              <bh:arg name="max">10</bh:arg>
-              <bh:arg name="query">milestone=${milestone.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
-              <bh:arg name="title">Active tickets in milestone</bh:arg>
-            </bh:args>
-          </bh:widget>
-          <bh:widget urn="TicketFieldValues">
-            <bh:args>
-              <bh:arg name="field">component</bh:arg>
-              <bh:arg name="verbose">true</bh:arg>
-              <bh:arg name="query">milestone=${milestone.name}&amp;group=component</bh:arg>
-            </bh:args>
-          </bh:widget>
-        </div>
-      </div>
-      <div py:if="bhdb" class="span4">
-        <bh:widget urn="Timeline" />
-      </div>
+    <div id="content" class="row milestne">
+      <xi:include href="bh_model_view.html"
+          py:with="heading = milestone_heading(); buttons = milestone_buttons();
+              progress_data = {'stats' : stats, 'interval_hrefs' : interval_hrefs};
+              description = wiki_to_html(context, milestone.description);
+              widgets = milestone_widgets();" />
     </div>
   </body>
+
 </html>

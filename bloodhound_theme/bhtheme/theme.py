@@ -93,6 +93,9 @@ class BloodhoundTheme(ThemeBase):
         'ticket.html' : ('bh_ticket.html', None),
         'ticket_preview.html' : ('bh_ticket_preview.html', None),
 
+        # Multi Product
+        'product_view.html' : ('bh_product_view.html', None),
+
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
     }
