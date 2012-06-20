@@ -18,18 +18,19 @@
     <div class="row">
       <div class="span6">
         <div class="accordion" id="pluginlist">
-          <div class="accordion-group" id="trac-plugin-${plugin.name}"
+          <div class="accordion-group" id="trac-plugin-$plugin_id"
+              py:with="plugin_id = plugin.name.replace('.', '-')"
               py:for="idx, plugin in enumerate(plugins)">
             <div class="accordion-heading">
-              <a class="accordion-toggle" data-toggle="collapse" 
-                  data-parent="#pluginlist" href="#body-plugin-${plugin.name}">
+              <a class="accordion-toggle" data-toggle="collapse"
+                  data-parent="#pluginlist" href="#body-plugin-$plugin_id">
                 ${plugin.name} ${plugin.version}
               </a>
               <p style="padding: 0px 10px;" py:if="plugin.info">
                 ${plugin.info.get('summary')}
               </p>
             </div>
-            <div id="body-plugin-${plugin.name}" class="accordion-body collapse">
+            <div id="body-plugin-$plugin_id" class="accordion-body collapse">
               <div class="accordion-inner">
                 <dl py:if="plugin.info and ('home_page' in plugin.info or
                            'author' in plugin.info or
