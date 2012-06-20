@@ -128,7 +128,7 @@ class DashboardModule(Component):
         """
         resource_filename = pkg_resources.resource_filename
         return [resource_filename('bhdashboard.layouts', 'templates'),
-                resource_filename('bhdashboard.web_ui', 'templates'),
+                resource_filename('bhdashboard', 'templates'),
                 resource_filename('bhdashboard.widgets', 'templates')]
 
     # Temp vars
