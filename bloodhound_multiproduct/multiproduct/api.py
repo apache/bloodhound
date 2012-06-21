@@ -24,13 +24,17 @@ from trac.core import Component, TracError, implements
 from trac.db import Table, Column, DatabaseManager
 from trac.env import IEnvironmentSetupParticipant
 from trac.perm import IPermissionRequestor
+from trac.ticket.api import ITicketFieldProvider
+from trac.util.translation import N_
 from trac.web.chrome import ITemplateProvider
+
+from multiproduct.model import Product
 
 class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
     
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
-            IPermissionRequestor)
+            IPermissionRequestor, ITicketFieldProvider)
     
     SCHEMA = [
         Table('bloodhound_product', key = ['prefix', 'name']) [
@@ -106,4 +110,14 @@ class MultiProductSystem(Component):
         acts = ['PRODUCT_CREATE', 'PRODUCT_DELETE', 'PRODUCT_MODIFY',
                 'PRODUCT_VIEW']
         return acts + [('PRODUCT_ADMIN', acts)] + [('ROADMAP_ADMIN', acts)]
+
+    # ITicketFieldProvider methods
+    def get_select_fields(self):
+        """Product select fields"""
+        return [(35, {'name': 'product', 'label': N_('Product'),
+                      'cls': Product, 'optional': True})]
+    
+    def get_radio_fields(self):
+        """Product radio fields"""
+        return []
 
