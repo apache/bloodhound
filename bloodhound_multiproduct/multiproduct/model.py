@@ -29,10 +29,6 @@ from trac.ticket.model import Ticket
 from trac.ticket.query import Query
 from trac.util.datefmt import utc
 
-DB_VERSION = 1
-DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
-PLUGIN_NAME = 'Bloodhound multi product'
-
 def dict_to_kv_str(data=None, sep=' AND '):
     """Converts a dictionary into a string and a list suitable for using as part
     of an SQL where clause like:
