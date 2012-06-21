@@ -185,37 +185,9 @@ class ITicketFieldProvider(Interface):
         specified as optional.
         """
 
-class TicketFields(Component):
-    implements(ITicketFieldProvider)
-
-    def get_select_fields(self):
-        """Default select and radio fields"""
-        from trac.ticket import model
-        selects = [(10, {'name': 'type', 'label': N_('Type'), 
-                         'cls': model.Type}),
-                   (30, {'name':'priority', 'label': N_('Priority'), 
-                         'cls': model.Priority}),
-                   (40, {'name': 'milestone', 'label': N_('Milestone'), 
-                         'cls': model.Milestone, 'optional': True}),
-                   (50, {'name': 'component', 'label': N_('Component'), 
-                         'cls': model.Component}),
-                   (60, {'name': 'version', 'label': N_('Version'), 
-                         'cls': model.Version, 'optional': True}),
-                   (70, {'name': 'severity', 'label': N_('Severity'), 
-                         'cls': model.Severity})]
-        return selects
-
-    def get_radio_fields(self):
-        """Default radio fields"""
-        from trac.ticket import model
-        radios = [(20, {'name': 'status', 'label': N_('Status'),
-                        'cls': model.Status}),
-                  (80, {'name': 'resolution', 'label': N_('Resolution'), 
-                        'cls': model.Resolution})]
-        return radios
-
 class TicketSystem(Component):
-    implements(IPermissionRequestor, IWikiSyntaxProvider, IResourceManager)
+    implements(IPermissionRequestor, IWikiSyntaxProvider, IResourceManager,
+               ITicketFieldProvider)
 
     ticket_field_providers = ExtensionPoint(ITicketFieldProvider)
     change_listeners = ExtensionPoint(ITicketChangeListener)
@@ -620,3 +592,31 @@ class TicketSystem(Component):
             return revcount[0][0] >= resource.version
         else:
             return False
+
+    # ITicketFieldProvider methods
+
+    def get_select_fields(self):
+        """Default select and radio fields"""
+        from trac.ticket import model
+        selects = [(10, {'name': 'type', 'label': N_('Type'), 
+                         'cls': model.Type}),
+                   (30, {'name':'priority', 'label': N_('Priority'), 
+                         'cls': model.Priority}),
+                   (40, {'name': 'milestone', 'label': N_('Milestone'), 
+                         'cls': model.Milestone, 'optional': True}),
+                   (50, {'name': 'component', 'label': N_('Component'), 
+                         'cls': model.Component}),
+                   (60, {'name': 'version', 'label': N_('Version'), 
+                         'cls': model.Version, 'optional': True}),
+                   (70, {'name': 'severity', 'label': N_('Severity'), 
+                         'cls': model.Severity})]
+        return selects
+
+    def get_radio_fields(self):
+        """Default radio fields"""
+        from trac.ticket import model
+        radios = [(20, {'name': 'status', 'label': N_('Status'),
+                        'cls': model.Status}),
+                  (80, {'name': 'resolution', 'label': N_('Resolution'), 
+                        'cls': model.Resolution})]
+        return radios

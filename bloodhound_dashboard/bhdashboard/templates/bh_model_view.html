@@ -33,13 +33,13 @@
     <script type="text/javascript">
       setup_sticky_panel('#overview');
     </script>
-    <div class="${'span7' if bhdb else 'span11'}" >
+    <div class="${'' if bhdb else 'span11'}" >
       <div class="well">
         $description
         $buttons
       </div>
     </div>
-    <div class="span8">
+    <div>
       $widgets
     </div>
   </div>
