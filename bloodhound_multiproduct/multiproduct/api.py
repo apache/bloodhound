@@ -30,6 +30,10 @@ from trac.web.chrome import ITemplateProvider
 
 from multiproduct.model import Product
 
+DB_VERSION = 1
+DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
+PLUGIN_NAME = 'Bloodhound multi product'
+
 class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
     
