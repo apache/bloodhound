@@ -17,7 +17,7 @@
 #  under the License.
 
 """multiproduct module"""
-from multiproduct.model import MultiProductEnvironmentProvider
+from multiproduct.api import MultiProductSystem
 from multiproduct.product_admin import ProductAdminPanel
 import multiproduct.ticket
 from multiproduct.web_ui import ProductModule
