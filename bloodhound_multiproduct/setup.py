@@ -22,9 +22,14 @@ from setuptools import setup
 setup(
     name = 'BloodhoundMultiProduct',
     version = '0.0.1',
-    packages = ['multiproduct', 'tests',],
+    packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
     package_data = {'multiproduct' : ['templates/*.html',]},
-    entry_points = {'trac.plugins':['multiproduct = multiproduct',],},
+    entry_points = {'trac.plugins': [
+            'multiproduct.model = multiproduct.model',
+            'multiproduct.product_admin = multiproduct.product_admin',
+            'multiproduct.ticket.web_ui = multiproduct.ticket.web_ui',
+            'multiproduct.web_ui = multiproduct.web_ui',
+        ],},
     test_suite = "tests",
 )
 
