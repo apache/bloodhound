@@ -22,7 +22,6 @@ from trac.core import *
 from trac.config import *
 from trac.perm import PermissionSystem
 from trac.admin.api import IAdminPanelProvider
-from trac.perm import IPermissionRequestor
 from trac.ticket.admin import TicketAdminPanel, _save_config
 from trac.resource import ResourceNotFound
 from model import Product
@@ -127,14 +126,4 @@ class ProductAdminPanel(TicketAdminPanel):
         else:
             data['owners'] = None
         return 'admin_products.html', data
-
-class ProductPermissions(Component):
-    """Product extensions to permissions"""
-    implements(IPermissionRequestor)
-    
-    # IPermissionRequestor methods
-    def get_permission_actions(self):
-        acts = ['PRODUCT_CREATE', 'PRODUCT_DELETE', 'PRODUCT_MODIFY',
-                'PRODUCT_VIEW']
-        return acts + [('PRODUCT_ADMIN', acts)] + [('ROADMAP_ADMIN', acts)]
 

@@ -23,12 +23,14 @@ from pkg_resources import resource_filename
 from trac.core import Component, TracError, implements
 from trac.db import Table, Column, DatabaseManager
 from trac.env import IEnvironmentSetupParticipant
+from trac.perm import IPermissionRequestor
 from trac.web.chrome import ITemplateProvider
 
 class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
     
-    implements(IEnvironmentSetupParticipant, ITemplateProvider)
+    implements(IEnvironmentSetupParticipant, ITemplateProvider,
+            IPermissionRequestor)
     
     SCHEMA = [
         Table('bloodhound_product', key = ['prefix', 'name']) [
@@ -98,4 +100,10 @@ class MultiProductSystem(Component):
     def get_htdocs_dirs(self):
         """proved the plugin htdocs"""
         return []
+
+    # IPermissionRequestor methods
+    def get_permission_actions(self):
+        acts = ['PRODUCT_CREATE', 'PRODUCT_DELETE', 'PRODUCT_MODIFY',
+                'PRODUCT_VIEW']
+        return acts + [('PRODUCT_ADMIN', acts)] + [('ROADMAP_ADMIN', acts)]
 
