@@ -17,5 +17,4 @@
 #  under the License.
 
 """multiproduct ticket related functionality and overrides"""
-from web_ui import ProductTicketModule, ProductReportModule
-from api import ProductTicketFields
+from multiproduct.ticket.web_ui import ProductTicketModule, ProductReportModule
