@@ -134,6 +134,21 @@
                 Create New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
               </py:otherwise>
             </h1>
+            <h6 class="date">
+              <span i18n:msg="created" py:if="ticket.exists">Opened ${pretty_dateinfo(ticket.time)}</span>
+              <py:if test="ticket.changetime != ticket.time">,
+                <span i18n:msg="modified">Last modified ${pretty_dateinfo(ticket.changetime)}</span>
+              </py:if>
+              <span py:if="not ticket.exists" class="label label-warning">(ticket not yet created)</span>
+            </h6>
+            <h6>
+              <span id="h_reporter">Reported by
+                ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
+              </span>,
+              <span id="h_owner">Assigned to
+                ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
+              </span>
+            </h6>
             <div class="stickyEndMark"></div>
           </div>
         </div>
