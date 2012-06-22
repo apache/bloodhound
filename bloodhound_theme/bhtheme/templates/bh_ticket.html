@@ -105,32 +105,41 @@
       <br/>
 
       <div class="$colspan">
-        <h1 id="trac-ticket-title" py:choose="">
-          <py:when test="ticket.exists">
-            <i18n:msg params="id">Ticket #${ticket.id}</i18n:msg>
-            <span class="status"><small>(${ticket.status}<py:if
-                test="ticket.type"> ${ticket.type}</py:if><py:if
-                test="ticket.resolution">: ${ticket.resolution}</py:if>)</small></span>
-            <py:choose test="">
-              <py:when test="version is None" />
-              <py:when test="version == 0">
-                &mdash; 
-                <small>
-                  <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
-                </small>
+        <div class="stickyBox">
+          <div id="overview" class="stickyStatus">
+            <div class="whitebox"></div>
+            <h1 id="trac-ticket-title" py:choose="">
+              <py:when test="ticket.exists">
+                <i18n:msg params="id">Ticket #${ticket.id}</i18n:msg>
+                <span class="status"><small>(${ticket.status}<py:if
+                    test="ticket.type"> ${ticket.type}</py:if><py:if
+                    test="ticket.resolution">: ${ticket.resolution}</py:if>)</small></span>
+                <py:choose test="">
+                  <py:when test="version is None" />
+                  <py:when test="version == 0">
+                    &mdash;
+                    <small>
+                      <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
+                    </small>
+                  </py:when>
+                  <py:otherwise>
+                    &mdash;
+                    <small>
+                      <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
+                    </small>
+                  </py:otherwise>
+                </py:choose>
               </py:when>
               <py:otherwise>
-                &mdash; 
-                <small>
-                  <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
-                </small>
+                Create New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
               </py:otherwise>
-            </py:choose>
-          </py:when>
-          <py:otherwise>
-            Create New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
-          </py:otherwise>
-        </h1>
+            </h1>
+            <div class="stickyEndMark"></div>
+          </div>
+        </div>
+        <script type="text/javascript">
+          setup_sticky_panel('#overview');
+        </script>
         <py:if test="ticket.exists">
           <div class="row">
             <div class="$colspan">
