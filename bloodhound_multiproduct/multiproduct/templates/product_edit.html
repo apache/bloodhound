@@ -24,7 +24,7 @@
         <div class="field">
           <input type="hidden" name="action" value="edit" />
           <label>Short name for the product (prefix):<br />
-            <input type="text" id="prefix" name="prefix" size="32" value="${product.prefix or req.args.get('prefix')}" readonly="${product._exists and 'readonly'}"/>
+            <input type="text" id="prefix" name="prefix" size="32" value="${product.prefix or req.args.get('prefix')}" readonly="${product._exists and 'readonly' or None}"/>
           </label>
           <label>Name of the product:<br />
             <input type="text" id="name" name="name" size="32" value="${product.name or req.args.get('name')}" />
