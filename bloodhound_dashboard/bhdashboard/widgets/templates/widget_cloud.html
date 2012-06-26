@@ -50,11 +50,11 @@
       </p>
     </py:when>
     <py:when test="'list'">
-      <ul>
+      <ul class="unstyled">
         <li py:for="item in items" py:if="item[1] &gt; 0"
             style="line-height: 20px">
           <a href="${item_link(item)}">
-            ${display_value(item[0])}
+            <strong>${display_value(item[0])}</strong>
           </a>
           <py:if test="verbose">${qty_badge(item[1])}</py:if>
         </li>
