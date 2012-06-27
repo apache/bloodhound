@@ -16,6 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from genshi.builder import tag
 from genshi.filters.transform import Transformer
 
 from trac.core import *
@@ -25,8 +26,10 @@ from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
 from trac.util.translation import _
+from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
-from trac.web.chrome import add_stylesheet, ITemplateProvider, prevnext_nav
+from trac.web.chrome import (add_stylesheet, INavigationContributor, 
+                             ITemplateProvider, prevnext_nav)
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
 
@@ -105,7 +108,8 @@ class BloodhoundTheme(ThemeBase):
                 ['table', 'table-condensed']),
     )
 
-    implements(IRequestFilter, ITemplateProvider, ITemplateStreamFilter)
+    implements(IRequestFilter, INavigationContributor, ITemplateProvider,
+               ITemplateStreamFilter)
 
     # ITemplateStreamFilter methods
 
@@ -218,6 +222,19 @@ class BloodhoundTheme(ThemeBase):
         """Insert roadmap.css
         """
         add_stylesheet(req, 'dashboard/css/roadmap.css')
+
+    # INavigationContributor methods
+
+    def get_active_navigation_item(self, req):
+        return
+
+    def get_navigation_items(self, req):
+        if 'BROWSER_VIEW' in req.perm and 'VERSIONCONTROL_ADMIN' in req.perm:
+            bm = self.env[BrowserModule]
+            if bm and not list(bm.get_navigation_items(req)):
+                yield ('mainnav', 'browser', 
+                       tag.a(_('Browse Source'),
+                             href=req.href.wiki('TracRepositoryAdmin')))
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
