@@ -87,8 +87,10 @@
   <body>
     <div id="content" class="row product">
       <xi:include href="bh_model_view.html"
-          py:with="heading = product_heading(); buttons = product_buttons();
+          py:with="buttons = product_buttons();
               description = wiki_to_html(context, product.description);
+              heading = product_heading();
+              ticket_query = 'product=' + product.name;
               widgets = product_widgets();" />
     </div>
   </body>
