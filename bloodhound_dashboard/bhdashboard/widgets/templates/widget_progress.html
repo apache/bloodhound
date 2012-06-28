@@ -28,14 +28,18 @@
   </py:def>
 
   <py:def function="progress_classes(stats)">
-    <py:choose>      
-      <py:when test="stats.done_percent &gt;= 100">progress-success</py:when>
-      <py:when test="stats.done_percent &gt;= 66">progress-info</py:when>
-      <py:when test="stats.done_percent &gt;= 33">progress-warning</py:when>
-      <py:when test="stats.done_percent &lt; 33">progress-danger</py:when>
+    <py:choose>
+      <py:when test="bar_styles">${' '.join('progress-'+c for c in bar_styles if c)}</py:when>
+      <py:otherwise>
+        <py:choose>
+          <py:when test="stats.done_percent &gt;= 100">progress-success</py:when>
+          <py:when test="stats.done_percent &gt;= 66">progress-info</py:when>
+          <py:when test="stats.done_percent &gt;= 33">progress-warning</py:when>
+          <py:when test="stats.done_percent &lt; 33">progress-danger</py:when>
+        </py:choose>
+      </py:otherwise>
     </py:choose>
   </py:def>
-      
 
   <py:choose test="view">
     <py:when test="'standard'">

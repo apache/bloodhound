@@ -267,6 +267,10 @@ class TicketGroupStatsWidget(WidgetBase):
                 'desc' : {
                         'desc' : """Descriptive (wiki) text""",
                     },
+                'view' : {
+                        'desc' : """Display mode to render progress info""",
+                        'type' : EnumField('compact', 'standard')
+                    },
             }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
@@ -274,26 +278,27 @@ class TicketGroupStatsWidget(WidgetBase):
         """Prepare ticket stats
         """
         req = context.req
-        params = ('query', 'stats_provider', 'skin', 'title', 'legend', 'desc')
-        qstr, pnm, skin, title, legend, desc = \
+        params = ('query', 'stats_provider', 'skin', 'title', 'legend', 'desc',
+                'view')
+        qstr, pnm, skin, title, legend, desc, view = \
                 self.bind_params(name, options, *params)
         statsp = resolve_ep_class(ITicketGroupStatsProvider, self, pnm,
                                     default=RoadmapModule(self.env).stats_provider)
-        skin = (skin or '').split('-', 2)
-        progress_css = 'progress ' + ' '.join('progress-'+c for c in skin if c)
+        if skin is not None :
+            skin = (skin or '').split('-', 2)
 
         tickets = exec_query(self.env, req, qstr)
         tickets = apply_ticket_permissions(self.env, req, tickets)
-        stat = get_ticket_stats(self.stats_provider, tickets)
+        stat = get_ticket_stats(statsp, tickets)
 
-        add_stylesheet('dashboard/css/bootstrap.css')
+        add_stylesheet(req, 'dashboard/css/bootstrap.css')
+        add_stylesheet(req, 'dashboard/css/roadmap.css')
         return 'widget_progress.html', \
                 {
                     'title' : title,
                     'data' : dict(
-                            desc=desc,
-                            legend=legend,
-                            stats=stat,
+                            desc=desc, legend=legend, bar_styles=skin,
+                            stats=stat, view=view,
                         ), 
                 }, \
                 context

@@ -30,7 +30,7 @@ from pkg_resources import get_distribution
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
-from trac.core import Component, implements
+from trac.core import Component, implements, ExtensionPoint
 from trac.web.api import Request
 from trac.web.chrome import add_link, Chrome
 from trac.web.main import RequestDispatcher
@@ -54,7 +54,7 @@ def dummy_request(env, uname=None):
     req.redirect = lambda *args, **kwds: None
     # Setup user information
     if uname is not None :
-      environ['REMOTE_USER'] = req.authname = uname
+        environ['REMOTE_USER'] = req.authname = uname
     
     rd = RequestDispatcher(env)
     chrome = Chrome(env)

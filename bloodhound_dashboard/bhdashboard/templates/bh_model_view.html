@@ -23,8 +23,13 @@
                     interval_hrefs = progress_data.interval_hrefs;
                     " />
           </py:when>
-          <py:when test="progress_query">
-            <!--! TODO: Insert ticket stats widget -->
+          <py:when test="ticket_query">
+            <bh:widget urn="TicketGroupStats">
+              <bh:args>
+                <bh:arg name="query">$ticket_query</bh:arg>
+                <bh:arg name="view">compact</bh:arg>
+              </bh:args>
+            </bh:widget>
           </py:when>
         </py:choose>
         <div class="stickyEndMark"></div>
