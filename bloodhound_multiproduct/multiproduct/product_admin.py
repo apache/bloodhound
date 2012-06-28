@@ -33,6 +33,9 @@ class ProductAdminPanel(TicketAdminPanel):
     _type = 'products'
     _label = ('Product','Products')
     
+    def get_admin_commands(self): 
+        return None
+    
     def _render_admin_panel(self, req, cat, page, product):
         req.perm.require('PRODUCT_VIEW')
         
