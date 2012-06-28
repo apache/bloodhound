@@ -112,6 +112,7 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
 
 ENTRY_POINTS = r"""
                [trac.plugins]
+               bhdashboard.admin = bhdashboard.admin
                bhdashboard.api = bhdashboard.api
                bhdashboard.layouts.bootstrap = bhdashboard.layouts.bootstrap
                bhdashboard.widgets.containers = bhdashboard.widgets.containers
