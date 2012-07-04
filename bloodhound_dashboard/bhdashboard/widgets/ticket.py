@@ -137,7 +137,7 @@ class TicketFieldValuesWidget(WidgetBase):
                                              },
                               }
                 if fieldnm in field_maps:
-                    admin_suffix = field_maps.get[fieldnm]['admin_url']
+                    admin_suffix = field_maps.get(fieldnm)['admin_url']
                     if 'TICKET_ADMIN' in req.perm and admin_suffix is not None:
                         hint = _('You can add one or more '
                                  '<a href="%(url)s">here</a>',
