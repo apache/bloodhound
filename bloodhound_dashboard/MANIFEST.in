@@ -1,5 +1,5 @@
 
-include CHANGES COPYRIGHT NOTICE README TODO
+include CHANGES LICENSE NOTICE README TODO
 graft bhdashboard/templates
 graft bhdashboard/htdocs
 graft bhdashboard/widgets/templates
