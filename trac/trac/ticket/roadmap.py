@@ -886,8 +886,9 @@ class MilestoneModule(Component):
             if idx < len(milestones) - 1:
                 add_milestone_link('next', milestones[idx + 1])
                 add_milestone_link('last', milestones[-1])
+        roadmap_back = self.env[RoadmapModule] and _('Back to Roadmap') or None
         prevnext_nav(req, _('Previous Milestone'), _('Next Milestone'),
-                     _('Back to Roadmap'))
+                         roadmap_back)
 
         return 'milestone_view.html', data, None
 
