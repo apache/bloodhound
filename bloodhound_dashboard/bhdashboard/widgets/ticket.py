@@ -187,7 +187,7 @@ class TicketFieldValuesWidget(WidgetBase):
             fieldnm = query.group
             sql, v = query.get_sql() 
             sql = "SELECT COALESCE(%(name)s, '') , count(COALESCE(%(name)s, ''))"\
-                    "FROM (%(sql)s) GROUP BY COALESCE(%(name)s, '')" % \
+                    "FROM (%(sql)s) AS foo GROUP BY COALESCE(%(name)s, '')" % \
                     { 'name' : fieldnm, 'sql' : sql }
             db = self.env.get_db_cnx()
             try :
