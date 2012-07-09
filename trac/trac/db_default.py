@@ -300,13 +300,22 @@ USER dynamic variable, replaced with the username of the
 logged in user when executed.
 """,
 """\
-SELECT DISTINCT
-       p.value AS __color__,
+SELECT  __color__, __group,
        (CASE
-         WHEN owner = $USER AND status = 'accepted' THEN 'Accepted'
-         WHEN owner = $USER THEN 'Owned'
-         WHEN reporter = $USER THEN 'Reported'
+         WHEN __group = 1 THEN 'Accepted'
+         WHEN __group = 2 THEN 'Owned'
+         WHEN __group = 3 THEN 'Reported'
          ELSE 'Commented' END) AS __group__,
+       ticket, summary, component, version, milestone,
+       type, priority, created, _changetime, _description,
+       _reporter
+FROM (
+ SELECT DISTINCT """ + db.cast('p.value', 'int') + """ AS __color__,
+      (CASE
+         WHEN owner = $USER AND status = 'accepted' THEN 1
+         WHEN owner = $USER THEN 2
+         WHEN reporter = $USER THEN 3
+         ELSE 4 END) AS __group,
        t.id AS ticket, summary, component, version, milestone,
        t.type AS type, priority, t.time AS created,
        t.changetime AS _changetime, description AS _description,
@@ -317,9 +326,8 @@ SELECT DISTINCT
                                 AND tc.field = 'comment'
   WHERE t.status <> 'closed'
         AND (owner = $USER OR reporter = $USER OR author = $USER)
-  ORDER BY (owner = $USER AND status = 'accepted') DESC,
-           owner = $USER DESC, reporter = $USER DESC,
-           """ + db.cast('p.value', 'int') + """, milestone, t.type, t.time
+) AS sub
+ORDER BY __group, __color__, milestone, type, created
 """),
 #----------------------------------------------------------------------------
 ('Active Tickets, Mine first',
