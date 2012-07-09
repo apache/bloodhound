@@ -109,7 +109,7 @@ class BloodhoundSetup(object):
         if 'project' not in options:
             options['project'] = 'main'
         if 'envsdir' not in options:
-            options['envsdir'] = os.path.join(bloodhound,
+            options['envsdir'] = os.path.join('bloodhound',
                                               'environments')
 
     def _generate_db_str(self, options):
@@ -230,7 +230,7 @@ And point your browser at http://localhost:8000/%s
                     config.set(section, key, value)
         if file_changed:
             if os.path.exists(filepath):
-                backupfile()
+                backupfile(filepath)
             config.save()
 
 def backupfile(filepath):
@@ -250,6 +250,7 @@ def backupfile(filepath):
         print "Backup created at %s." % backuppath
     else:
         print "No backup created (too many other backups found)"
+    return backuppath
 
 def handle_options():
     """Parses the command line, with basic prompting for choices where options
