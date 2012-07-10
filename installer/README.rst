@@ -88,14 +88,50 @@ to::
 After saving and restarting the database::
   $ sudo /etc/init.d/postgresql restart
 
-Guided Installation
-===================
+Getting Apache Bloodhound
+=========================
 
-If no options are provided, the installer will ask you some of the more
-important questions to help set up Apache Bloodhound. As such you can just
-run::
+Bloodhound can currently be checkout out from the apache subversion servers::
 
-  $ python installer.py
+  $ svn co https://svn.apache.org/repos/asf/incubator/bloodhound/trunk bloodhound
+
+Installation and Initial Configuration
+======================================
+
+Environment setup is achieved with the following commands on linux::
+
+  $ cd bloodhound/installer
+  $ virtualenv bloodhound
+  $ source ./bloodhound/bin/activate
+
+or on windows::
+
+  $ cd bloodhound\installer
+  $ virtualenv bloodhound
+  $ bloodhound\bin\activate.bat
+
+From now on, all shell commands should be run within the activated virtualenv
+so run::
+
+  $ source ./bloodhound/bin/activate
+
+or::
+
+  $ bloodhound\bin\activate.bat
+
+as appropriate if you need to continue running these instructions in a fresh 
+shell.
+
+Next you should install the required python packages with::
+
+  $ pip install -r requirements-dev.txt
+
+Bloodhound provides a script to create the database, set up an initial admin
+user and provide an initial configuration. If no op tions are provided, the 
+installer will ask you some of the more important questions to help set up 
+Apache Bloodhound. As such you can just run::
+
+  $ python bloodhound_setup.py
 
 and answer the questions, providing details depending on the choices you made
 about the database.
@@ -108,22 +144,17 @@ It is also possible to specify all these details on the command line and set
 additional options like the host for the postgres database and the location of
 the installation. For more information on these options, try running::
 
-  $ python installer.py --help
+  $ python bloodhound_setup.py --help
 
 Testing the Server
 ==================
 
-On linux and other unix-like systems you can then run bloodhound using::
-  $ source ./bloodhound/bin/activate
+The successful running of bloodhound_setup.py should provide you with an
+appropriate command to run and the url to check for success. If you have not
+specified any advanced options for the bloodhound_setup.py script, you should
+be able to run bloodhound using::
+
   $ tracd ./bloodhound/environments/main --port=8000
-
-On windows you should instead use::
-  $ bloodhound\bin\activate.bat
-  $ tracd bloodhound\environments\main --port-8000
-
-Note that it is necessary to use the activate script to activate the python
-virtual environment before you are able to run the tracd command. It is
-generally only required once per shell session.
 
 At this point you should be able to access Apache Bloodhound on
   http://localhost:8000/main/
@@ -141,11 +172,13 @@ require apache to be installed along with the wsgi and auth_digest modules.
 
 It is possible to get the trac-admin command to reduce some of the work of
 creating the wsgi file::
+
   $ source ./bloodhound/bin/activate
   $ trac-admin ./bloodhound/environments/main/ deploy ./bloodhound/site
 
 You should also make sure that the appropriate modules are enabled for wsgi
 and htdigest authentication. On ubuntu this would be::
+
   $ sudo a2enmod wsgi
   $ sudo a2enmod auth_digest
 
@@ -167,7 +200,7 @@ Add to this something like::
       AuthType Digest
       AuthName "Bloodhound"
       AuthDigestDomain /bloodhound
-      AuthUserFile /path/to/bloodhound/environments/bloodhound.htdigest
+      AuthUserFile /path/to/bloodhound/environments/main/bloodhound.htdigest
       Require valid-user
     </LocationMatch>
   </VirtualHost>
@@ -202,7 +235,7 @@ Once you are running the web application, it is possible to modify the
 authentication mechanism further through the admin pages.
 
 Overview of Manual Installation Instruction Assuming Ubuntu 11.10
-================================================================
+=================================================================
 
 The following table describes steps to install bloodhound with (at least) the
 following assumptions:
@@ -213,6 +246,10 @@ following assumptions:
    * the database will be on localhost (default port)
    * db user is user; db user's password is pass; database name is dbname
 
+A current specific difference from using bloodhound_setup.py to provide the
+initial configuration is that the bloodhound.htdigest and base.ini are in the
+bloodhound/environments directory instead of bloodhound/environments/main.
+
 +---------------------+-------------------------------------------------+----------------------------------------+
 | Step Description    | Common Steps                                    | Optional (recommended) Steps           |
 +=====================+=================================================+========================================+
@@ -222,11 +259,11 @@ following assumptions:
 +---------------------+-------------------------------------------------+----------------------------------------+
 | create and activate |                                                 | virtualenv bloodhound                  |
 |  an environment     |                                                 | source bloodhound/bin/activate         |
-| (commands from now  |                                                 |                                        |
-|  on should be run   |                                                 |                                        |
-|  in the active env) |                                                 |                                        |
 +---------------------+-------------------------------------------------+----------------------------------------+
-| install reqs        | pip install -r requirements.txt                 |                                        |
+|                     | commands from now on should be run in the active env - the next step will require        |
+|                     |  running with sudo if you did not create and activate a virtualenv                      |
++---------------------+-------------------------------------------------+----------------------------------------+
+| install reqs        | pip install -r requirements-dev.txt             |                                        |
 +---------------------+-------------------------------------------------+----------------------------------------+
 | create environments | mkdir -p bloodhound/environments/               |                                        |
 |  directory          | cd bloodhound/environments/                     |                                        |
@@ -240,15 +277,16 @@ following assumptions:
 +---------------------+-------------------------------------------------+----------------------------------------+
 
 In base.ini save the following (replacing each /path/to with the real path) ::
+
 [account-manager]
-account_changes_notify_addresses = 
-authentication_url = 
-db_htdigest_realm = 
+account_changes_notify_addresses =
+authentication_url =
+db_htdigest_realm =
 force_passwd_change = true
 hash_method = HtDigestHashMethod
 htdigest_file = /path/to/bloodhound/environments/bloodhound.htdigest
 htdigest_realm = bloodhound
-htpasswd_file = 
+htpasswd_file =
 htpasswd_hash_type = crypt
 password_file = /path/to/bloodhound/environments/bloodhound.htdigest
 password_store = HtDigestStore
@@ -264,14 +302,28 @@ acct_mgr.guard.accountguard = enabled
 acct_mgr.htfile.htdigeststore = enabled
 acct_mgr.web_ui.accountmodule = enabled
 acct_mgr.web_ui.loginmodule = enabled
-multiproduct.model.multiproductenvironmentprovider = enabled
-multiproduct.product_admin.productadminpanel = enabled
-multiproduct.product_admin.productpermissions = enabled
-multiproduct.ticket.api.productticketsystem = enabled
-multiproduct.ticket.web_ui.productticketmodule = enabled
-trac.web.auth.loginmodule = disabled
-trac.ticket.api.ticketsystem = disabled
+bhtheme.* = enabled
+bhdashboard.* = enabled
+multiproduct.* = enabled
+themeengine.* = enabled
+trac.ticket.report.reportmodule = disabled
 trac.ticket.web_ui.ticketmodule = disabled
+trac.web.auth.loginmodule = disabled
+
+[header_logo]
+src =
+
+[mainnav]
+browser.label = Source
+roadmap = disabled
+timeline = disabled
+tickets.label = Tickets
+
+[theme]
+theme = bloodhound
+
+[trac]
+mainnav = dashboard,wiki,browser,tickets,newticket,timeline,roadmap,search,admin
 
 
 The double specification of htdigest_file and password_file is because of
@@ -290,7 +342,7 @@ for a few databases types.
 |  db specific string |                                                 |                                            |                   |
 +---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
 | initialise          | trac-admin main initenv ProjectName $DBSTRING \ |                                            |                   |
-|                     |   --inherit=base.ini                            |                                            |                   |
+|                     |   --inherit=path/to/base.ini                    |                                            |                   |
 +---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
 | upgrade wiki        | trac-admin main wiki upgrade                    |                                            |                   |
 | set permissions     | trac-admin main permission add admin TRAC_ADMIN |                                            |                   |
