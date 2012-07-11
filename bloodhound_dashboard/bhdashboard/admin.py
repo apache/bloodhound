@@ -31,11 +31,13 @@ from trac.util.translation import _
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.model import WikiPage
 
+GUIDE_NAME = 'Guide'
+
 class BloodhoundAdmin(Component):
     """Bloodhound administration commands.
     """
 
-    RENAME_MAP = {'TracGuide': 'Guide'}
+    RENAME_MAP = {'TracGuide': GUIDE_NAME + '/Index',}
 
     implements(IAdminCommandProvider)
 
@@ -44,11 +46,12 @@ class BloodhoundAdmin(Component):
         """List available commands.
         """
         yield ('wiki bh-upgrade', '',
-                'Move Trac* wiki pages to Guide/',
+                'Move Trac* wiki pages to %s/*' % GUIDE_NAME,
                 None, self._do_wiki_upgrade)
 
     def _do_wiki_upgrade(self):
-        """Move all wiki pages starting with Trac prefix to Guide/
+        """Move all wiki pages starting with Trac prefix to unbranded user
+        guide pages.
         """
         get_new_name = self.RENAME_MAP.get
 
@@ -56,7 +59,8 @@ class BloodhoundAdmin(Component):
         pages = wiki_admin.get_wiki_list()
         for old_name in pages:
             if old_name.startswith('Trac'):
-                new_name = get_new_name(old_name, 'Guide/' + old_name[4:])
+                new_name = get_new_name(old_name,
+                                        GUIDE_NAME + '/' + old_name[4:])
                 if not new_name:
                     continue
                 if new_name in pages:
@@ -70,9 +74,25 @@ class BloodhoundAdmin(Component):
                     printout(_('Error moving %(page)s : %(message)s',
                             page=old_name, message=unicode(exc)))
                 else:
-                    # On success , insert redirection page
+                    # On success, rename links in other pages
+                    self._do_wiki_rename_links(old_name, new_name)
+                    # On success, insert redirection page
                     redirection = WikiPage(self.env, old_name)
                     redirection.text = _('See [wiki:"%(name)s"].', name=new_name)
                     comment = 'Bloodhound guide update'
                     redirection.save('bloodhound', comment, '0.0.0.0')
+        self._do_wiki_rename_links('TracGuideToc', 'UserGuideToc')
 
+    def _do_wiki_rename_links(self, old_name, new_name):
+        import re
+        with self.env.db_transaction as db:
+            pages = db("""SELECT name, text FROM wiki
+                          WHERE text %s
+                          """ % db.like(),
+                              ('%' + db.like_escape(old_name) + '%',))
+            for name, text in pages:
+                res = db("""UPDATE wiki
+                            SET text=%s
+                            WHERE name=%s
+                            """, 
+                         (re.sub(r'\b%s\b' % old_name, new_name, text), name))

@@ -114,6 +114,7 @@ ENTRY_POINTS = r"""
                [trac.plugins]
                bhdashboard.admin = bhdashboard.admin
                bhdashboard.api = bhdashboard.api
+               bhdashboard.macros = bhdashboard.macros
                bhdashboard.layouts.bootstrap = bhdashboard.layouts.bootstrap
                bhdashboard.widgets.containers = bhdashboard.widgets.containers
                bhdashboard.widgets.query = bhdashboard.widgets.query
