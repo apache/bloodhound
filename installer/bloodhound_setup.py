@@ -19,6 +19,7 @@
 """Initial configuration for Bloodhound"""
 
 import os
+import pkg_resources
 import sys
 import traceback
 
@@ -50,6 +51,7 @@ DEFAULT_DB_USER = 'bloodhound'
 DEFAULT_DB_NAME = 'bloodhound'
 DEFAULT_ADMIN_USER = 'admin'
 
+BH_PROJECT_SITE = 'https://issues.apache.org/bloodhound/'
 BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                               'bhdashboard.*': 'enabled',
                               'multiproduct.*': 'enabled',
@@ -67,6 +69,9 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
                                              'tickets', 'newticket', 'timeline',
                                              'roadmap', 'search', 'admin']),},
+               'project': {'footer': ('Visit Apache Bloodhound at<br />'
+                                      '<a href="%(site)s">%(site)s</a>'
+                                      % {'site': BH_PROJECT_SITE,}),},
                }
 
 ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
@@ -173,7 +178,8 @@ class BloodhoundSetup(object):
             try:
                 trac.do_initenv('%(project)s %(db)s '
                                 '%(repo_type)s %(repo_path)s '
-                                '--inherit=%(inherit)s'
+                                '--inherit=%(inherit)s '
+                                '--nowiki'
                                 % options)
             except SystemExit:
                 print ("Error: Unable to initialise the database"
@@ -198,6 +204,9 @@ class BloodhoundSetup(object):
         # final upgrade
         print "Running upgrades"
         bloodhound.onecmd('upgrade')
+        pages =  pkg_resources.resource_filename('bhdashboard',
+                                                 'default-pages')
+        bloodhound.onecmd('wiki load %s' % pages)
 
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
