@@ -396,11 +396,15 @@ in order to initialize and prepare the project database.
 
         arg = self.arg_tokenize(line)
         inherit_paths = []
+        add_wiki = True
         i = 0
         while i < len(arg):
             item = arg[i]
             if item.startswith('--inherit='):
                 inherit_paths.append(arg.pop(i)[10:])
+            elif item.startswith('--nowiki'):
+                add_wiki = False
+                arg.pop(i)
             else:
                 i += 1
         arg = arg or [''] # Reset to usual empty in case we popped the only one
@@ -441,11 +445,12 @@ in order to initialize and prepare the project database.
                 traceback.print_exc()
                 sys.exit(1)
 
-            # Add a few default wiki pages
-            printout(_(" Installing default wiki pages"))
-            pages_dir = pkg_resources.resource_filename('trac.wiki', 
-                                                        'default-pages') 
-            WikiAdmin(self.__env).load_pages(pages_dir)
+            if add_wiki:
+                # Add a few default wiki pages
+                printout(_(" Installing default wiki pages"))
+                pages_dir = pkg_resources.resource_filename('trac.wiki',
+                                                            'default-pages')
+                WikiAdmin(self.__env).load_pages(pages_dir)
 
             if repository_dir:
                 try:
