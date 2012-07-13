@@ -34,8 +34,8 @@
         <input type="hidden" name="old_version" value="$old_version" />
         <div class="control-group">
           <py:choose>
-            <input py:when="new_version - old_version &gt; 1" type="submit" name="delete_version" value="${_('Delete version %(old_version)d to version %(version)d', old_version=(old_version + 1), version=new_version)}" class="btn btn-danger" />
-            <input py:otherwise="" type="submit" name="delete_version" value="${_('Delete version %(version)d', version=new_version)}" class="btn btn-danger" />
+            <input py:when="new_version - old_version &gt; 1" type="submit" name="delete_version" value="${_('Delete version %(old_version)d to version %(version)d', old_version=(old_version + 1), version=new_version)}" class="btn" />
+            <input py:otherwise="" type="submit" name="delete_version" value="${_('Delete version %(version)d', version=new_version)}" class="btn" />
           </py:choose>
         </div>
       </form>

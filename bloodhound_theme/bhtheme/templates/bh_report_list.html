@@ -111,13 +111,13 @@
             <form py:if="can_delete" method="get" action="${href.report(id)}">
               <div class="inlinebuttons">
                 <input type="hidden" name="action" value="delete" />
-                <input type="submit" class="inlinebutton btn btn-mini btn-danger" title="Delete report" value="${_('Delete')}" />
+                <input type="submit" class="inlinebutton btn btn-mini" title="Delete report" value="${_('Delete')}" />
               </div>
             </form>
             <form py:if="can_edit" method="get" action="${href.report(id)}">
               <div class="inlinebuttons">
                 <input type="hidden" name="action" value="edit" />
-                <input type="submit" class="inlinebutton btn btn-mini btn-warning" title="Edit report" value="${_('Edit')}" />
+                <input type="submit" class="inlinebutton btn btn-mini" title="Edit report" value="${_('Edit')}" />
               </div>
             </form>
             <h2><a title="View report" href="${href.report(id)}">{$id} <em>$title</em></a></h2>
@@ -138,7 +138,7 @@
         <form action="" method="get" id="create_report">
           <div>
             <input type="hidden" name="action" value="new" />
-            <input class="btn btn-primary" type="submit" value="${_('Create new report')}" />
+            <input class="btn" type="submit" value="${_('Create new report')}" />
           </div>
         </form>
       </div>

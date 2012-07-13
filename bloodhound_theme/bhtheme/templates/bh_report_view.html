@@ -50,7 +50,7 @@
             <div>
               <input type="hidden" name="action" value="edit" />
               <input type="submit" value="${_('Edit report')}" accesskey="e" 
-                  class="btn btn-warning" />
+                  class="btn" />
             </div>
           </form>
           <form py:if="'REPORT_CREATE' in perm(report.resource)" action="" method="get">
@@ -63,7 +63,7 @@
             <div>
               <input type="hidden" name="action" value="delete" />
               <input type="submit" value="${_('Delete report')}" 
-                  class="btn btn-danger" />
+                  class="btn" />
             </div>
           </form>
         </div>

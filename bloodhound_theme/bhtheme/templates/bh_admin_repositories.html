@@ -128,7 +128,7 @@
           </div>
           <div class="control-group">
             <input class="btn" type="submit" name="cancel" value="${_('Cancel')}"/>
-            <input class="btn btn-inverse" py:if="info.editable" type="submit"
+            <input class="btn" py:if="info.editable" type="submit"
                 name="save" value="${_('Save')}"/>
           </div>
         </fieldset>
@@ -165,7 +165,7 @@
               <div class="control-group">
                 <input class="btn" type="submit" name="refresh"
                     value="${_('Refresh')}"/>
-                <input class="btn btn-warning" type="submit" name="remove"
+                <input class="btn" type="submit" name="remove"
                     value="${_('Remove selected items')}"/>
               </div>
             </form>
@@ -180,7 +180,7 @@
                 <label for="dir">Directory:</label>
                 <input class="input-medium" type="text" id="dir" name="dir"/>
                 <div class="control-group">
-                  <input class="btn btn-info" type="submit" name="add_repos"
+                  <input class="btn" type="submit" name="add_repos"
                       value="${_('Add')}"/>
                 </div>
               </fieldset>
@@ -195,7 +195,7 @@
                     name="name"/>
                 ${alias_field(True)}
                 <div class="control-group">
-                  <input class="btn btn-info" type="submit" name="add_alias"
+                  <input class="btn" type="submit" name="add_alias"
                       value="${_('Add')}"/>
                 </div>
               </fieldset>

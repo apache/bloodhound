@@ -40,7 +40,7 @@
           <input type="hidden" name="action" value="${diff_action or 'diff'}" />
           <input py:for="k, v in diff_args or []" type="hidden" name="$k" value="$v"/>
           <div class="control-group">
-            <input class="btn btn-primary" type="submit" value="${_('View changes')}" />
+            <input class="btn" type="submit" value="${_('View changes')}" />
           </div>
           <table id="fieldhist" class="table" summary="Change history">
             <thead>

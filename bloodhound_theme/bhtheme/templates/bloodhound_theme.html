@@ -154,7 +154,7 @@
                             ${qct_box()}
                           </div>
                         </form>
-                        <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
+                        <button id="qct-create" class="btn" data-target="${href()}">Create</button>
                         <a id="qct-cancel">Cancel</a>
                       </py:when>
                       <py:otherwise>
@@ -165,7 +165,7 @@
                           <py:choose>
                             <py:when test="req.authname == 'anonymous'">
                               <br/><br/>
-                              <a href="${href.login()}" class="btn btn-primary" style="display: inline; color: #FFFFFF">Login</a>
+                              <a href="${href.login()}" class="btn" style="display: inline;">Login</a>
                             </py:when>
                             <py:otherwise>
                               Please contact your administrator or team leader to 
