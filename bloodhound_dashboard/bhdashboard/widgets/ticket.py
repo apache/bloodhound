@@ -101,7 +101,34 @@ class TicketFieldValuesWidget(WidgetBase):
                   'view')
         fieldnm, query, verbose, threshold, maxitems, title, view = \
                 self.bind_params(name, options, *params)
-        if query is None :
+        
+        field_maps = {'type': {'admin_url': 'type',
+                               'title': 'Types',
+                               },
+                      'status': {'admin_url': None,
+                                 'title': 'Statuses',
+                                 },
+                      'priority': {'admin_url': 'priority',
+                                   'title': 'Priorities',
+                                   },
+                      'milestone': {'admin_url': 'milestones',
+                                    'title': 'Milestones',
+                                    },
+                      'component': {'admin_url': 'components',
+                                    'title': 'Components',
+                                    },
+                      'version': {'admin_url': 'versions',
+                                  'title': 'Versions',
+                                  },
+                      'severity': {'admin_url': 'severity',
+                                   'title': 'Severities',
+                                   },
+                      'resolution': {'admin_url': 'resolution',
+                                     'title': 'Resolutions',
+                                     },
+                      }
+        _field = []
+        def check_field_name():
             if fieldnm is None:
                 raise InvalidWidgetArgument('field', 'Missing ticket field')
             tsys = self.env[TicketSystem]
@@ -109,33 +136,9 @@ class TicketFieldValuesWidget(WidgetBase):
                 raise TracError(_('Error loading ticket system (disabled?)'))
             for field in tsys.get_ticket_fields():
                 if field['name'] == fieldnm:
+                    _field.append(field)
                     break
             else:
-                field_maps = {'type': {'admin_url': 'type',
-                                       'title': 'Types',
-                                       },
-                              'status': {'admin_url': None,
-                                         'title': 'Statuses',
-                                         },
-                              'priority': {'admin_url': 'priority',
-                                           'title': 'Priorities',
-                                           },
-                              'milestone': {'admin_url': 'milestones',
-                                            'title': 'Milestones',
-                                            },
-                              'component': {'admin_url': 'components',
-                                            'title': 'Components',
-                                            },
-                              'version': {'admin_url': 'versions',
-                                          'title': 'Versions',
-                                          },
-                              'severity': {'admin_url': 'severity',
-                                           'title': 'Severities',
-                                           },
-                              'resolution': {'admin_url': 'resolution',
-                                             'title': 'Resolutions',
-                                             },
-                              }
                 if fieldnm in field_maps:
                     admin_suffix = field_maps.get(fieldnm)['admin_url']
                     if 'TICKET_ADMIN' in req.perm and admin_suffix is not None:
@@ -158,6 +161,13 @@ class TicketFieldValuesWidget(WidgetBase):
                 else:
                     raise InvalidWidgetArgument('field', 
                             'Unknown ticket field %s' % (fieldnm,))
+            return None
+        
+        if query is None :
+            data = check_field_name()
+            if data is not None:
+                return data
+            field = _field[0]
             if field.get('custom'):
                 sql = "SELECT COALESCE(value, ''), count(COALESCE(value, ''))" \
                         " FROM ticket_custom " \
@@ -182,8 +192,12 @@ class TicketFieldValuesWidget(WidgetBase):
         else:
             query = Query.from_string(self.env, query, group=fieldnm)
             if query.group is None:
+                data = check_field_name()
+                if data is not None:
+                    return data
                 raise InvalidWidgetArgument('field', 
                         'Invalid ticket field for ticket groups')
+
             fieldnm = query.group
             sql, v = query.get_sql() 
             sql = "SELECT COALESCE(%(name)s, '') , count(COALESCE(%(name)s, ''))"\
