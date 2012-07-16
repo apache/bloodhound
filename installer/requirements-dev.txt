@@ -1,12 +1,12 @@
-Pygments
-pytz
-Babel
-Genshi
+Pygments==1.5
+pytz>=2012c
+Babel==0.9.6
+Genshi==0.6
 -e ../trac
--e svn+https://trac-hacks.org/svn/accountmanagerplugin/0.11#egg=TracAccountManager
+-e svn+https://trac-hacks.org/svn/accountmanagerplugin/0.11@11545#egg=TracAccountManager
 -e ../bloodhound_multiproduct
--e svn+https://trac-hacks.org/svn/themeengineplugin/0.11#egg=TracThemeEngine
+-e svn+https://trac-hacks.org/svn/themeengineplugin/0.11@7741#egg=TracThemeEngine
 -e ../bloodhound_dashboard
 -e ../bloodhound_theme
--e svn+https://trac-hacks.org/svn/permredirectplugin/0.11#egg=TracPermRedirect
+-e svn+https://trac-hacks.org/svn/permredirectplugin/0.11@3593#egg=TracPermRedirect
 
