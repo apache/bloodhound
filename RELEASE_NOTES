@@ -1,0 +1,14 @@
+
+0.1.0
+
+ * added multi-product
+ * added dashboard and theme
+ * added simplified installation
+
+ * Not fixed for this release:
+   * Widget error for product page with no versions defined (#136)
+
+Project Initiation (Tue, 10 Jan 2012)
+ 
+ * Trunk created in Apache svn repositories as an incubator project
+
