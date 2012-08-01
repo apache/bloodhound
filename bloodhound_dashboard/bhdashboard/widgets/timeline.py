@@ -111,7 +111,8 @@ class TimelineWidget(WidgetBase):
                 exc.title = data.get('title', 'TracReports')
             raise
         else:
-            merge_links(srcreq=fakereq, dstreq=req, exclude=["stylesheet"])
+            merge_links(srcreq=fakereq, dstreq=req,
+                        exclude=["stylesheet", "alternate"])
             add_stylesheet(req, 'dashboard/css/timeline.css')
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
@@ -119,7 +120,8 @@ class TimelineWidget(WidgetBase):
                     {
                         'title' : _('Activity'),
                         'data' : data, 
-                        'altlinks' : fakereq.chrome.get('links', {}).get('alternate')
+                        'altlinks' : fakereq.chrome.get('links',
+                                                        {}).get('alternate')
                     }, \
                     context
 
