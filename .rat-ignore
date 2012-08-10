@@ -1,5 +1,5 @@
 trac/contrib/
 .rat-ignore
-MANIFEST.in
+**/MANIFEST.in
 bloodhound_dashboard/bhdashboard/default-pages/
 
