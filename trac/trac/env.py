@@ -19,6 +19,7 @@
 from __future__ import with_statement
 
 import os.path
+import pkg_resources 
 import setuptools
 import sys
 from urlparse import urlsplit
@@ -283,7 +284,8 @@ class Environment(Component, ComponentManager):
 
     def get_system_info(self):
         from trac import core, __version__ as VERSION
-        yield 'Trac', get_pkginfo(core).get('version', VERSION)
+        yield 'Trac', pkg_resources.resource_string('trac', 'TRAC_VERSION')
+        yield 'Bloodhound Trac', get_pkginfo(core).get('version', VERSION)
         yield 'Python', sys.version
         yield 'setuptools', setuptools.__version__
         from trac.util.datefmt import pytz

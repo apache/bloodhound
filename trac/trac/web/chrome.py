@@ -823,7 +823,7 @@ class Chrome(Component):
     def populate_data(self, req, data):
         d = self._default_context_data.copy()
         d['trac'] = {
-            'version': VERSION,
+            'version': pkg_resources.resource_string('trac', 'TRAC_VERSION'),
             'homepage': 'http://trac.edgewall.org/', # FIXME: use setup data
         }
         
