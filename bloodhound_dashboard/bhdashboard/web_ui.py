@@ -74,8 +74,12 @@ class DashboardModule(Component):
         for item in req.chrome['nav'].get('mainnav', []):
             self.log.debug('%s' % (item,))
             if item['name'] == 'tickets':
-                item['label'] = tag.a(_(self.mainnav_label), 
+                item['label'] = tag.a(_(self.mainnav_label),
                         href=req.href.dashboard())
+                if item['active'] and \
+                        not ReportModule(self.env).match_request(req):
+                    add_ctxtnav(req, _('Available Reports'),
+                            href=req.href.report())
                 break
         return template, data, content_type
 
