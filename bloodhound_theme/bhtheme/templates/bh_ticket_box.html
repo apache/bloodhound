@@ -28,6 +28,7 @@ Arguments:
  - preview_mode: if True, show the "draft" background
  - reporter_link=None: rendered link for the reporter field
  - owner_link=None: rendered link for the owner field
+ - colcount=6: the number of fields to display in a row
 -->
 <div xmlns="http://www.w3.org/1999/xhtml"
      xmlns:py="http://genshi.edgewall.org/"
@@ -35,23 +36,26 @@ Arguments:
      xmlns:i18n="http://genshi.edgewall.org/i18n"
      id="ticket" class="${'ticketdraft' if preview_mode else None}">
 
-  <div class="properties row" style="margin-top: 1.2em"
+  <div class="properties" style="margin-top: 1.2em"
          py:with="fields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')]">
-    <div py:for="idx, field in enumerate(fields)"
-        class="${'span2' if field.name != 'cc' else 'span4'}">
-      <py:if test="field.type != 'textarea'">
-        <p id="${'h_' + field.name if field else None}">
-          <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
-        </p>
-        <p style="font-size: ${'150%' if field and field.name != 'cc' else '120%'}">
-          <py:if test="field">
-            <py:choose test="">
-              <py:when test="'rendered' in field">${field.rendered}</py:when>
-              <py:otherwise>${ticket[field.name]}</py:otherwise>
-            </py:choose>
-          </py:if>
-        </p>
-      </py:if>
+    <div class="row" py:for="fields_row in group(fields, colcount or 6)">
+      <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
+          class="${'span2' if field.name != 'cc' else 'span4'}">
+        <py:if test="field.type != 'textarea'">
+          <p id="${'h_' + field.name if field else None}">
+            <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
+          </p>
+          <p style="font-size: ${'150%' if field and field.name != 'cc' else '120%'}">
+            <py:if test="field">
+              <py:choose test="">
+                <py:when test="'rendered' in field">${field.rendered}</py:when>
+                <py:otherwise>${ticket[field.name]}</py:otherwise>
+              </py:choose>
+            </py:if>
+            &nbsp;
+          </p>
+        </py:if>
+      </div>
     </div>
   </div>
   <div class="${'well' if not preview_mode else None}">

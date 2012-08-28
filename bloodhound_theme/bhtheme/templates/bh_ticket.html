@@ -177,7 +177,9 @@
         <py:if test="ticket.exists">
           <div class="row">
             <div class="$colspan">
-              <xi:include href="bh_ticket_box.html" py:with="preview_mode = change_preview.fields"/>
+              <xi:include href="bh_ticket_box.html"
+                  py:with="preview_mode = change_preview.fields ; 
+                      colcount = 4 if bhdb else 6"/>
             </div>
 
             <!--! do not show attachments for old versions of this ticket or for new tickets -->
