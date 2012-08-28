@@ -23,6 +23,7 @@ from trac.core import *
 from trac.mimeview.api import get_mimetype
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
+from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
 from trac.util.translation import _
@@ -284,7 +285,7 @@ class QuickCreateTicketDialog(Component):
             desc = ",, ... via ''Bloodhound'' quick create ticket dialog,,"
             attrs = dict([k[6:], v] for k,v in req.args.iteritems() \
                                     if k.startswith('field_'))
-            ticket_id = self.create(req, summary, desc, attrs, False)
+            ticket_id = self.create(req, summary, desc, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
