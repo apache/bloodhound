@@ -54,7 +54,7 @@ class DashboardModule(Component):
     implements(IRequestHandler, IRequestFilter, INavigationContributor, \
                 ITemplateProvider)
 
-    mainnav_label = Option('dashboard', 'mainnav', 'Dashboard', \
+    mainnav_label = Option('dashboard', 'mainnav', 'Tickets', \
                             """Dashboard label in mainnav""")
     default_widget_height = IntOption('widgets', 'default_height', 320, \
                             """Default widget height in pixels""")
@@ -71,6 +71,12 @@ class DashboardModule(Component):
         """
         if data is not None :
             data['bhdb'] = DashboardChrome(self.env)
+        for item in req.chrome['nav'].get('mainnav', []):
+            self.log.debug('%s' % (item,))
+            if item['name'] == 'tickets':
+                item['label'] = tag.a(_(self.mainnav_label), 
+                        href=req.href.dashboard())
+                break
         return template, data, content_type
 
     # IRequestHandler methods
@@ -103,14 +109,12 @@ class DashboardModule(Component):
     def get_active_navigation_item(self, req):
         """Highlight dashboard mainnav item.
         """
-        return 'dashboard'
+        return 'tickets'
 
     def get_navigation_items(self, req):
-        """Add an item in mainnav to access global dashboard
+        """Skip silently
         """
-        if 'DASHBOARD_VIEW' in req.perm:
-            yield ('mainnav', 'dashboard', 
-                    tag.a(_(self.mainnav_label), href=req.href.dashboard()))
+        return None
 
     # ITemplateProvider methods
     def get_htdocs_dirs(self):
