@@ -78,7 +78,7 @@ class DashboardModule(Component):
                         href=req.href.dashboard())
                 if item['active'] and \
                         not ReportModule(self.env).match_request(req):
-                    add_ctxtnav(req, _('Available Reports'),
+                    add_ctxtnav(req, _('Reports'),
                             href=req.href.report())
                 break
         return template, data, content_type
