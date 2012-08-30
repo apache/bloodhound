@@ -282,7 +282,7 @@ class QuickCreateTicketDialog(Component):
             tm = self._get_ticket_module()
             req.perm.require('TICKET_CREATE')
             summary = req.args.pop('field_summary', '')
-            desc = ",, ... via ''Bloodhound'' quick create ticket dialog,,"
+            desc = ""
             attrs = dict([k[6:], v] for k,v in req.args.iteritems() \
                                     if k.startswith('field_'))
             ticket_id = self.create(req, summary, desc, attrs, True)
