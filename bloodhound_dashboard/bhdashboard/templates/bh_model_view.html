@@ -26,12 +26,13 @@
       xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
       xmlns:xi="http://www.w3.org/2001/XInclude"
-      py:strip="">
+      py:strip=""
+      py:with="colspan = 'span8' if bhdb else 'span12'">
   <xi:include href="widget_macros.html" />
 
-  <div class="${'span8' if bhdb else 'span12'}">
+  <div class="$colspan">
     <div class="stickyBox">
-      <div id="overview" class="stickyStatus">
+      <div id="overview" class="stickyStatus $colspan">
         <div class="whitebox"></div>
         $heading
         <br/>
@@ -58,7 +59,7 @@
     <script type="text/javascript">
       setup_sticky_panel('#overview');
     </script>
-    <div class="${'' if bhdb else 'span11'}" >
+    <div class="${'span7' if bhdb else 'span11'}" >
       <div class="well">
         $description
         $buttons
