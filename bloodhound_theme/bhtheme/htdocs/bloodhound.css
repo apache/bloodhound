@@ -405,6 +405,26 @@ input[type="submit"].btn.btn-micro {
   margin-top: 2px !important;
 }
 
+/* Revert some changes introduced in 2.1.0 */
+
+h6 {
+  color: #A4A4A4;
+  margin: 0px 0.5em;
+  text-transform: uppercase;
+}
+
+.breadcrumb {
+  background-color: #FBFBFB;
+  background-image: -moz-linear-gradient(center top , #FFFFFF, #F5F5F5);
+  background-repeat: repeat-x;
+  border: 1px solid #DDDDDD;
+  border-radius: 3px 3px 3px 3px;
+  box-shadow: 0 1px 0 #FFFFFF inset;
+  list-style: none outside none;
+  margin: 0 0 18px;
+  padding: 7px 14px;
+}
+
 /* @end */
 
 /* @group Bootstrap extensions */
@@ -420,21 +440,20 @@ input[type="submit"].btn.btn-micro {
 
 /* @group Sticky Status */
 
-.stickyStatus {
-  position: relative;
-  top: 0px;
-  z-index: 99;
+[class*="span"].stickyStatus {
+  margin-left: 0px;
 }
 
-.stickyStatus .whitebox {
+.stickyStatus.affix {
   background-color: #FFFFFF;
-  position: absolute;
-  z-index: -10;
+  border-bottom: 2px solid #A4A4A4;
+  margin-left: -20px;
+  padding-left: 1px;
+  position: fixed;
+  top: 0px;
+  z-index: 1024;
 }
 
-.stickyEndMark {
-  clear: both;
-}
 /* @end */
 
 /* @group Wiki Tables */
