@@ -447,8 +447,6 @@ h6 {
 .stickyStatus.affix {
   background-color: #FFFFFF;
   border-bottom: 2px solid #A4A4A4;
-  margin-left: -20px;
-  padding-left: 1px;
   position: fixed;
   top: 0px;
   z-index: 1024;

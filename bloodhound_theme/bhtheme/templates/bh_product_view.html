@@ -40,8 +40,8 @@
   </py:def>
 
   <py:def function="product_heading()">
-    <h1 style="display: inline;">Product ${product.name}</h1>
-    <h6>${product_owner()}</h6>
+    <h1>Product ${product.name}</h1>
+    <h6 py:if="product.owner">${product_owner()}</h6>
   </py:def>
 
   <py:def function="product_buttons()">
