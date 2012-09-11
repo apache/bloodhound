@@ -35,6 +35,8 @@ from trac.config import IntOption
 from trac.mimeview.api import RenderingContext
 from trac.resource import Resource, resource_exists
 from trac.timeline.web_ui import TimelineModule
+from trac.ticket.api import TicketSystem
+from trac.ticket.model import Ticket
 from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
 
@@ -125,9 +127,6 @@ class TimelineWidget(WidgetBase):
                     },
                 'id' : {
                         'desc' : """Resource ID. Used to filter events""",
-                    },
-                'version' : {
-                        'desc' : """Resource version. Used to filter events""",
                     },
             }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
@@ -303,3 +302,56 @@ class TimelineFilterAdapter:
         else:
             return value
 
+class TicketFieldTimelineFilter(Component):
+    """A class filtering ticket events related to a given resource
+    associated via ticket fields.
+    """
+    implements(ITimelineEventsFilter)
+
+    @property
+    def fields(self):
+        """Available ticket fields
+        """
+        field_names = getattr(self, '_fields', None)
+        if field_names is None:
+            self._fields = set(f['name'] \
+                    for f in TicketSystem(self.env).get_ticket_fields())
+        return self._fields
+
+    # ITimelineEventsFilter methods
+
+    def supported_providers(self):
+        """This filter will work on ticket events. It also intercepts events
+        even when multi-product ticket module is installed.
+        """
+        yield 'TicketModule'
+        yield 'ProductTicketModule'
+
+    def filter_event(self, context, provider, event, filters):
+        """Decide whether the target of a ticket event has a particular custom
+        field set to the context resource's identifier.
+        """
+        if context.resource is not None:
+            field_name = context.resource.realm
+            if field_name in self.fields:
+                try:
+                    ticket_ids = event[3][0]
+                except:
+                    self.log.exception('Unknown ticket event %s ... [SKIP]',
+                            event)
+                else:
+                    if not isinstance(ticket_ids, list):
+                        ticket_ids = [ticket_ids]
+                context._ticket_cache = ticket_cache = \
+                        getattr(context, '_ticket_cache', None) or {}
+                for t in ticket_ids:
+                    if isinstance(t, Resource):
+                        t = t.id
+                    if isinstance(t, (int, basestring)):
+                        t = ticket_cache.get(t) or Ticket(self.env, t)
+                    if t[field_name] == context.resource.id:
+                        return event
+                    ticket_cache[t.id] = t
+                else:
+                    return None
+        return NotImplemented

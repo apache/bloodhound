@@ -70,6 +70,11 @@
     </div>
   </div>
   <div py:if="bhdb" class="span4">
-    <bh:widget urn="Timeline" />
+    <bh:widget urn="Timeline">
+      <bh:args py:if="resource_realm and resource_id">
+        <bh:arg name="realm">$resource_realm</bh:arg>
+        <bh:arg name="id">$resource_id</bh:arg>
+      </bh:args>
+    </bh:widget>
   </div>
 </div>
