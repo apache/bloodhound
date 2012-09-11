@@ -159,8 +159,8 @@
                         <button id="qct-create" class="btn" data-target="${href()}">Create</button>
                         <a id="qct-cancel">Cancel</a>
                       </py:when>
-                      <py:otherwise>
-                        <div class="alert alert-info">
+                      <div py:otherwise="" class="alert alert-info">
+                        <p>
                           <span class="label label-important">TICKET_CREATE</span>
                           privileges are required to perform this operation.
                           You don't have the required permissions
@@ -174,8 +174,8 @@
                               request these.
                             </py:otherwise>
                           </py:choose>
-                        </div>
-                      </py:otherwise>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -248,6 +248,10 @@ textarea.wikitext {
   top: 5px;
 }
 
+#qct-box p {
+  white-space: normal;
+}
+
 /* @group Generic rules */
 
 .full-x {
