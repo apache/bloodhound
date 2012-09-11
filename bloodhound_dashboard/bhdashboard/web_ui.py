@@ -96,9 +96,10 @@ class DashboardModule(Component):
             add_ctxtnav(req, _('Custom Query'), req.href.query())
         if self.env[ReportModule] is not None:
             add_ctxtnav(req, _('Reports'), req.href.report())
-        template, layout_data = self.expand_layout_data(req, 
+        context = Context.from_request(req)
+        template, layout_data = self.expand_layout_data(context, 
             'bootstrap_grid', self.DASHBOARD_SCHEMA)
-        widgets = self.expand_widget_data(req, layout_data) 
+        widgets = self.expand_widget_data(context, layout_data) 
         return template, {
                     'context' : Context.from_request(req),
                     'layout' : layout_data,
@@ -221,15 +222,14 @@ class DashboardModule(Component):
         }
 
     # Public API
-    def expand_layout_data(self, req, layout_name, schema, embed=False):
+    def expand_layout_data(self, context, layout_name, schema, embed=False):
         """Determine the template needed to render a specific layout
         and the data needed to place the widgets at expected
         location.
         """
         layout = DashboardSystem(self.env).resolve_layout(layout_name)
 
-        ctx = Context.from_request(req)
-        template = layout.expand_layout(layout_name, ctx, {
+        template = layout.expand_layout(layout_name, context, {
                 'schema' : schema,
                 'embed' : embed
             })['template']
@@ -262,7 +262,7 @@ class DashboardModule(Component):
                     { 'title' : _('Widget error'), 'data' : data}, \
                     ctx
 
-    def expand_widget_data(self, req, schema):
+    def expand_widget_data(self, context, schema):
         """Expand raw widget data and format it for use in template
         """
         # TODO: Implement dynamic dashboard specification
@@ -272,10 +272,9 @@ class DashboardModule(Component):
                 for wnm in wp.get_widgets()
             )
         self.log.debug("Bloodhound: Widget index %s" % (widgets_index,))
-        ctx = Context.from_request(req)
         for w in widgets_spec.itervalues():
             w['c'] = widgets_index.get(w['args'][0])
-            w['args'][1] = ctx
+            w['args'][1] = context
         self.log.debug("Bloodhound: Widget specs %s" % (widgets_spec,))
         chrome = Chrome(self.env)
         render = chrome.render_template
@@ -323,8 +322,8 @@ class DashboardChrome:
             widgets = {}
         schema['widgets'] = widgets
         template, layout_data = dbmod.expand_layout_data(
-                context.req, layout, schema, True)
-        widgets = dbmod.expand_widget_data(context.req, layout_data)
+                context, layout, schema, True)
+        widgets = dbmod.expand_widget_data(context, layout_data)
         return Chrome(self.env).render_template(context.req, template, 
                 dict(context=context, layout=layout_data, 
                         widgets=widgets, title='',
@@ -345,7 +344,7 @@ class DashboardChrome:
         elif isinstance(argsdef, Stream):
             options['args'] = parse_args_tag(argsdef)
         return dbmod.expand_widget_data(
-                    context.req,
+                    context,
                     {'widgets' : { 0 : widget }}
                 )[0]
 

@@ -64,7 +64,6 @@ class ContainerWidget(WidgetBase):
         """Count ocurrences of values assigned to given ticket field.
         """
         dbsys = DashboardSystem(self.env)
-        req = context.req
         params = ('layout', 'schema', 'show_captions', 'title')
         layout, schema, show_captions, title = \
                 self.bind_params(name, options, *params)
@@ -72,7 +71,7 @@ class ContainerWidget(WidgetBase):
         dbmod = DashboardModule(self.env)
         layout_data = lp.expand_layout(layout, context, 
                 { 'schema' : schema, 'embed' : True })
-        widgets = dbmod.expand_widget_data(req, schema)
+        widgets = dbmod.expand_widget_data(context, schema)
 
         return layout_data['template'], \
                 {

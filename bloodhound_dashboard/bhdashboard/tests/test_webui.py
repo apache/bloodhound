@@ -118,7 +118,12 @@ __test__ = {
       """,
     'Rendering templates' : r"""
       >>> dbm = DashboardModule(env)
-      >>> pprint(dbm.expand_widget_data(auth_req))
+      >>> from trac.mimeview.api import Context
+      >>> context = Context.from_request(auth_req)
+      
+      #FIXME: This won't work. Missing schema
+
+      >>> pprint(dbm.expand_widget_data(context))
       [{'content': <genshi.core.Stream object at ...>, 
       'title': <Element "a">}]
       """,

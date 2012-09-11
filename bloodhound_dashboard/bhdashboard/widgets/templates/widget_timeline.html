@@ -21,9 +21,11 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:with="today = format_date(today); yesterday = format_date(yesterday)">
+  py:with="today = format_date(today); yesterday = format_date(yesterday)"
+  py:choose="">
 
-  <table py:for="day, events in groupby(events, key=lambda e: format_date(e.date))"
+  <table py:when="events"
+      py:for="day, events in groupby(events, key=lambda e: format_date(e.date))"
       class="table" id="activityfeed">
     <thead>
       <tr>
@@ -47,4 +49,15 @@
       </tr>
     </tbody>
   </table>
+  <py:otherwise>
+    <py:def function="timeline_empty()">
+      No events reported for <em>${summary_of(context.resource)}</em> in the
+      last <em>$daysback</em> days since 
+      <span class="date">${format_date(fromdate)}</span>.
+      This may happen if system is not configured correctly. 
+      Please contact your administrator if you think this is the case.
+    </py:def>
+    <xi:include href="widget_alert.html" 
+        py:with="msglabel = 'Warning'; msgbody = timeline_empty()" />
+  </py:otherwise>
 </div>

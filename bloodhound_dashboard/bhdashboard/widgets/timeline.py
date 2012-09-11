@@ -26,10 +26,14 @@ Widgets displaying timeline data.
 
 from datetime import datetime, date, time, timedelta
 from itertools import imap, islice
+from types import MethodType
 
 from genshi.builder import tag
-from trac.core import implements, TracError
+from trac.core import Component, ExtensionPoint, implements, Interface, \
+        TracError
 from trac.config import IntOption
+from trac.mimeview.api import RenderingContext
+from trac.resource import Resource, resource_exists
 from trac.timeline.web_ui import TimelineModule
 from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
@@ -40,11 +44,53 @@ from bhdashboard.util import WidgetBase, InvalidIdentifier, \
                               merge_links, pretty_wrapper, trac_version, \
                               trac_tags
 
+__metaclass__ = type
+
+class ITimelineEventsFilter(Interface):
+    """Filter timeline events displayed in a rendering context
+    """
+    def supported_providers():
+        """List supported timeline providers. Filtering process will take 
+        place only for the events contributed by listed providers.
+        Return `None` and all events contributed by all timeline providers 
+        will be processed.
+        """
+    def filter_event(context, provider, event, filters):
+        """Decide whether a timeline event is relevant in a rendering context.
+
+        :param context: rendering context, used to determine events scope
+        :param provider: provider contributing event
+        :param event: target event
+        :param filters: active timeline filters
+        :return: the event resulting from the filtering process or 
+                  `None` if it has to be removed from the event stream or
+                  `NotImplemented` if the filter doesn't care about it.
+        """
+
 class TimelineWidget(WidgetBase):
     """Display activity feed.
     """
     default_count = IntOption('widget_activity', 'limit', 25, 
                         """Maximum number of items displayed by default""")
+
+    event_filters = ExtensionPoint(ITimelineEventsFilter)
+
+    _filters_map = None
+
+    @property
+    def filters_map(self):
+        """Quick access to timeline events filters to be applied for a 
+        given timeline provider.
+        """
+        if self._filters_map is None:
+            self._filters_map = {}
+            for _filter in self.event_filters:
+                providers = _filter.supported_providers()
+                if providers is None:
+                    providers = [None]
+                for p in providers:
+                    self._filters_map.setdefault(p, []).append(_filter)
+        return self._filters_map
 
     def get_widget_params(self, name):
         """Return a dictionary containing arguments specification for
@@ -74,6 +120,15 @@ class TimelineWidget(WidgetBase):
                         'desc' : """Limit the number of events displayed""",
                         'type' : int
                     },
+                'realm' : {
+                        'desc' : """Resource realm. Used to filter events""",
+                    },
+                'id' : {
+                        'desc' : """Resource ID. Used to filter events""",
+                    },
+                'version' : {
+                        'desc' : """Resource version. Used to filter events""",
+                    },
             }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
@@ -83,9 +138,13 @@ class TimelineWidget(WidgetBase):
         data = None
         req = context.req
         try:
+            timemdl = self.env[TimelineModule]
+            if timemdl is None :
+                raise TracError('Timeline module not available (disabled?)')
+
             params = ('from', 'daysback', 'doneby', 'precision', 'filters', \
-                        'max')
-            start, days, user, precision, filters, count = \
+                        'max', 'realm', 'id')
+            start, days, user, precision, filters, count, realm, rid = \
                     self.bind_params(name, options, *params)
             if count is None:
                 count = self.default_count
@@ -101,14 +160,27 @@ class TimelineWidget(WidgetBase):
             if start is not None:
                 fakereq.args['from'] = start.strftime('%x %X')
 
-            timemdl = self.env[TimelineModule]
-            if timemdl is None :
-                raise TracError('Timeline module not available (disabled?)')
-
-            data = timemdl.process_request(fakereq)[1]
+            if (realm, rid) != (None, None):
+                # Override rendering context
+                resource = Resource(realm, rid)
+                if resource_exists(self.env, resource) or \
+                        realm == rid == '':
+                    context = RenderingContext(resource)
+                    context.req = req
+                else:
+                    self.log.warning("TimelineWidget: Resource %s not found",
+                            resource)
+            # FIXME: Filter also if existence check is not conclusive ?
+            if resource_exists(self.env, context.resource):
+                module = FilteredTimeline(self.env, context)
+                self.log.debug('Filtering timeline events for %s', \
+                        context.resource)
+            else:
+                module = timemdl
+            data = module.process_request(fakereq)[1]
         except TracError, exc:
             if data is not None:
-                exc.title = data.get('title', 'TracReports')
+                exc.title = data.get('title', 'Activity')
             raise
         else:
             merge_links(srcreq=fakereq, dstreq=req,
@@ -116,6 +188,7 @@ class TimelineWidget(WidgetBase):
             add_stylesheet(req, 'dashboard/css/timeline.css')
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
+            data['context'] = context
             return 'widget_timeline.html', \
                     {
                         'title' : _('Activity'),
@@ -126,4 +199,107 @@ class TimelineWidget(WidgetBase):
                     context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
+
+class FilteredTimeline:
+    """This is a class (not a component ;) aimed at overriding some parts of
+    TimelineModule without patching it in order to inject code needed to filter
+    timeline events according to rendering context. It acts as a wrapper on top
+    of TimelineModule.
+    """
+    def __init__(self, env, context, keep_mismatched=False):
+        """Initialization
+
+        :param env: Environment object
+        :param context: Rendering context
+        """
+        self.env = env
+        self.context = context
+        self.keep_mismatched = keep_mismatched
+
+    # Access to TimelineModule's members
+
+    process_request = TimelineModule.__dict__['process_request']
+    _provider_failure = TimelineModule.__dict__['_provider_failure']
+    _event_data = TimelineModule.__dict__['_event_data']
+
+    @property
+    def event_providers(self):
+        """Introduce wrappers around timeline event providers in order to
+        filter event streams.
+        """
+        for p in TimelineModule(self.env).event_providers:
+            yield TimelineFilterAdapter(p, self.context, self.keep_mismatched)
+
+    def __getattr__(self, attrnm):
+        """Forward attribute access request to TimelineModule
+        """
+        try:
+            value = getattr(TimelineModule(self.env), attrnm)
+            if isinstance(value, MethodType):
+                raise AttributeError()
+        except AttributeError:
+            raise AttributeError("'%s' object has no attribute '%s'" % \
+                    (self.__class__.__name__, attrnm))
+        else:
+            return value
+
+class TimelineFilterAdapter:
+    """Wrapper class used to filter timeline event streams transparently.
+    Therefore it is compatible with `ITimelineEventProvider` interface 
+    and reuses the implementation provided by real provider.
+    """
+    def __init__(self, provider, context, keep_mismatched=False):
+        """Initialize wrapper object by providing real timeline events provider.
+        """
+        self.provider = provider
+        self.context = context
+        self.keep_mismatched = keep_mismatched
+
+    # ITimelineEventProvider methods
+
+    #def get_timeline_filters(self, req):
+    #def render_timeline_event(self, context, field, event):
+
+    def get_timeline_events(self, req, start, stop, filters):
+        """Filter timeline events according to context.
+        """
+        filters_map = TimelineWidget(self.env).filters_map
+        evfilters = filters_map.get(self.provider.__class__.__name__, []) + \
+                filters_map.get(None, [])
+        self.log.debug('Applying filters %s for %s against %s', evfilters, 
+                self.context.resource, self.provider)
+        if evfilters:
+            for event in self.provider.get_timeline_events(
+                    req, start, stop, filters):
+                match = False
+                for f in evfilters:
+                    new_event = f.filter_event(self.context, self.provider,
+                            event, filters)
+                    if new_event is None:
+                        event = None
+                        match = True
+                        break
+                    elif new_event is NotImplemented:
+                        pass
+                    else:
+                        event = new_event
+                        match = True
+                if event is not None and (match or self.keep_mismatched):
+                    yield event
+        else:
+            if self.keep_mismatched:
+                for event in self.provider.get_timeline_events(
+                        req, start, stop, filters):
+                    yield event
+
+    def __getattr__(self, attrnm):
+        """Forward attribute access request to real provider
+        """
+        try:
+            value = getattr(self.provider, attrnm)
+        except AttributeError:
+            raise AttributeError("'%s' object has no attribute '%s'" % \
+                    (self.__class__.__name__, attrnm))
+        else:
+            return value
 
