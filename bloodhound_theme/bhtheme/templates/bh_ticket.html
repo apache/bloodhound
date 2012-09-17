@@ -474,7 +474,11 @@ ${value}</textarea>
         </div>
       </div>
       <div py:if="bhdb" class="span4">
-        <bh:widget urn="Timeline" />
+        <bh:widget urn="Timeline">
+          <bh:args>
+            <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
+          </bh:args>
+        </bh:widget>
       </div>
     </div>
   </body>

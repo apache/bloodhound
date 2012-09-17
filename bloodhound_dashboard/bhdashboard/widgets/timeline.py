@@ -156,6 +156,8 @@ class TimelineWidget(WidgetBase):
                     'precision' : precision,
                     'user' : user
                 }
+            if filters:
+                fakereq.args.update(dict((k, True) for k in filters))
             if start is not None:
                 fakereq.args['from'] = start.strftime('%x %X')
 
@@ -333,7 +335,7 @@ class TicketFieldTimelineFilter(Component):
         """
         if context.resource is not None:
             field_name = context.resource.realm
-            if field_name in self.fields:
+            if field_name in self.fields.union(['ticket']):
                 try:
                     ticket_ids = event[3][0]
                 except:
@@ -349,6 +351,9 @@ class TicketFieldTimelineFilter(Component):
                         t = t.id
                     if isinstance(t, (int, basestring)):
                         t = ticket_cache.get(t) or Ticket(self.env, t)
+                    if field_name == 'ticket':
+                        if t.id == context.resource.id:
+                            return event
                     if t[field_name] == context.resource.id:
                         return event
                     ticket_cache[t.id] = t
