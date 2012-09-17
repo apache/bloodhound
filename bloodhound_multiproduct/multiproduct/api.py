@@ -19,13 +19,16 @@
 """Core components to support multi-product"""
 from datetime import datetime
 
+from genshi.builder import tag
+
 from pkg_resources import resource_filename
 from trac.core import Component, TracError, implements
 from trac.db import Table, Column, DatabaseManager
 from trac.env import IEnvironmentSetupParticipant
 from trac.perm import IPermissionRequestor
+from trac.resource import IResourceManager
 from trac.ticket.api import ITicketFieldProvider
-from trac.util.translation import N_
+from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider
 
 from multiproduct.model import Product
@@ -38,7 +41,7 @@ class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
     
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
-            IPermissionRequestor, ITicketFieldProvider)
+            IPermissionRequestor, ITicketFieldProvider, IResourceManager)
     
     SCHEMA = [
         Table('bloodhound_product', key = ['prefix', 'name']) [
@@ -94,7 +97,7 @@ class MultiProductSystem(Component):
                 self.log.debug("creating initial db tables for %s plugin." % 
                                PLUGIN_NAME)
                 
-                db_connector, _ = DatabaseManager(self.env)._get_connector()
+                db_connector, dummy = DatabaseManager(self.env)._get_connector()
                 for table in self.SCHEMA:
                     for statement in db_connector.to_sql(table):
                         db(statement)
@@ -124,4 +127,44 @@ class MultiProductSystem(Component):
     def get_radio_fields(self):
         """Product radio fields"""
         return []
+
+    # IResourceManager methods
+
+    def get_resource_realms(self):
+        """Manage 'product' realm.
+        """
+        yield 'product'
+
+    def get_resource_description(self, resource, format='default', context=None,
+                                 **kwargs):
+        """Describe product resource.
+        """
+        desc = resource.id
+        if format != 'compact':
+            desc = _('Product %(name)s', name=resource.id)
+        if context:
+            return self._render_link(context, resource.id, desc)
+        else:
+            return desc
+
+    def _render_link(self, context, name, label, extra=''):
+        """Render link to product page.
+        """
+        product = Product.select(self.env, where={'name' : name})
+        if product:
+            product = product[0]
+            href = context.href.products(product.prefix)
+            if 'PRODUCT_VIEW' in context.perm(product.resource):
+                return tag.a(label, class_='product', href=href + extra)
+        elif 'MILESTONE_CREATE' in context.perm('product', name):
+            return tag.a(label, class_='missing product', 
+                    href=context.href('products', action='new'),
+                    rel='nofollow')
+        return tag.a(label, class_='missing product')
+
+    def resource_exists(self, resource):
+        """Check whether product exists physically.
+        """
+        products = Product.select(self.env, where={'name' : resource.id})
+        return bool(products)
 

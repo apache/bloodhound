@@ -26,11 +26,11 @@ from genshi.builder import tag
 from genshi.core import Attrs, QName
 
 from trac.core import Component, implements, TracError
-from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
-                             Chrome, INavigationContributor)
-from trac.resource import ResourceNotFound
+from trac.resource import Resource, ResourceNotFound
 from trac.util.translation import _
 from trac.web.api import IRequestFilter, IRequestHandler, Request, HTTPNotFound
+from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
+                             Chrome, INavigationContributor, web_context)
 from trac.web.main import RequestDispatcher
 
 from multiproduct.model import Product
@@ -150,7 +150,8 @@ class ProductModule(Component):
         except ResourceNotFound:
             product = Product(self.env)
         
-        data = {'product': product}
+        data = {'product': product, 
+                'context': web_context(req, product.resource)}
         
         if req.method == 'POST':
             if req.args.has_key('cancel'):
@@ -172,7 +173,8 @@ class ProductModule(Component):
             return 'product_delete.html', data, None
         
         if pid is None:
-            data = {'products': products}
+            data = {'products': products,
+                    'context': web_context(req, Resource('products', None))}
             return 'product_list.html', data, None
         
         def add_product_link(rel, product):
@@ -203,7 +205,8 @@ class ProductModule(Component):
         chrome = Chrome(self.env)
         chrome.add_jquery_ui(req)
         chrome.add_wiki_toolbars(req)
-        data = {'product': product}
+        data = {'product': product, 
+                'context' : web_context(req, product.resource)}
         return 'product_edit.html', data, None
     
     def _do_save(self, req, product):
