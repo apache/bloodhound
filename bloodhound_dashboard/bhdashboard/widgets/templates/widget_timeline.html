@@ -51,8 +51,11 @@
   </table>
   <py:otherwise>
     <py:def function="timeline_empty()">
-      No events reported for <em>${summary_of(context.resource)}</em> in the
-      last <em>$daysback</em> days since 
+      No events reported 
+      <py:if test="context.resource.id">
+        for <em>${summary_of(context.resource)}</em>
+      </py:if>
+      in the last <em>$daysback</em> days since 
       <span class="date">${format_date(fromdate)}</span>.
       This may happen if system is not configured correctly. 
       Please contact your administrator if you think this is the case.
