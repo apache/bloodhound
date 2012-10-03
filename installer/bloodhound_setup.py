@@ -160,6 +160,10 @@ class BloodhoundSetup(object):
             options['repo_type'] = ''
         if 'repo_path' not in options or options['repo_path'] is None:
             options['repo_path'] = ''
+        if (len(options['repo_type']) > 0) ^ (len(options['repo_path']) > 0):
+            print "Error: Specifying a repository requires both the "\
+                  "repository-type and the repository-path options."
+            return False
 
         digestfile = os.path.abspath(os.path.join(new_env,
                                                   options['digestfile']))
