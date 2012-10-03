@@ -37,6 +37,7 @@
         (function($){
               window.switchStyleSheet = function(title) {
                 $('link[rel="stylesheet"][title]').each(function() {
+                  this.disabled = true;
                   this.disabled = this.getAttribute('title') != title;
                 });
               }
