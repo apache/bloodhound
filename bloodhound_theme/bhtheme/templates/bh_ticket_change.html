@@ -51,7 +51,7 @@ Arguments:
   </py:def>
   <div class="row">
     <div class="span2">
-      <h6>
+      <h6 style="margin-left: 0px; margin-top:10px;">
         <py:choose>
           <py:when test="'date' in change">
             ${pretty_dateinfo(change.date)}
@@ -59,11 +59,29 @@ Arguments:
           <py:otherwise>(Unknown)</py:otherwise>
         </py:choose>
       </h6>
+      <p style="margin: 0">
+        <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>&nbsp;
+      </p>
+      <div class="threading"
+            py:with="change_replies = replies.get(str(cnum), []) if 'cnum' in change else []">
+        <p py:if="'replyto' in change">
+          In reply to: ${commentref('&uarr;&nbsp;', change.replyto)}
+        </p>
+        <p py:if="change_replies">
+          <i18n:choose numeral="len(change_replies)">
+            <span i18n:singular="">Follow-up:</span>
+            <i18n:plural>
+              <span>Follow-ups:</span><br/>
+            </i18n:plural>
+          </i18n:choose>
+          <py:for each="reply in change_replies">
+            ${commentref('&darr;&nbsp;', reply, 'follow-up')}
+          </py:for>
+        </p>
+      </div>
     </div>
     <div class="offset2">
       <h4 class="change">
-        <span class="threading pull-right"
-              py:with="change_replies = replies.get(str(cnum), []) if 'cnum' in change else []">
       <div py:if="show_buttons" class="pull-right bh-ticket-buttons">
         <form py:if="'cnum' in change and can_edit_comment" method="get"
             style="display:inline" action="#comment:${cnum}">
@@ -82,21 +100,6 @@ Arguments:
           </div>
         </form>
       </div>
-          <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>
-          <py:if test="'replyto' in change">
-            in reply to: ${commentref('&uarr;&nbsp;', change.replyto)}
-            <py:if test="change_replies">; </py:if>
-          </py:if>
-          <py:if test="change_replies">
-            <i18n:choose numeral="len(change_replies)">
-              <span i18n:singular="">follow-up:</span>
-              <span i18n:plural="">follow-ups:</span>
-            </i18n:choose>
-            <py:for each="reply in change_replies">
-              ${commentref('&darr;&nbsp;', reply, 'follow-up')}
-            </py:for>
-          </py:if>
-        </span>
         ${authorinfo(change.author)}
         <span py:if="preview or show_editor" class="trac-loading"/>
       </h4>
