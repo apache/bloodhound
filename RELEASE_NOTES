@@ -1,3 +1,14 @@
+0.2
+
+ * Fixes incubator release issues from 0.1.0
+ * Various bug fixes relating to the new UI
+ * Upgraded to Bootstrap 2.1
+
+ * Not fixed for this release:
+   * Some issues with the installer remain
+   * Custom text area fields break layout in ticket view
+
+
 
 0.1.0
 
