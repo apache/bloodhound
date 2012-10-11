@@ -88,6 +88,7 @@ class TicketQueryWidget(WidgetBase):
                         args[k] = v[0]
                 except TypeError:
                     pass
+            more_link_href = req.href('query', args)
             args.update({'page' : page, 'max': maxrows})
 
             qrymdl = self.env[QueryModule]
@@ -129,7 +130,7 @@ class TicketQueryWidget(WidgetBase):
                         'data' : data,
                         'ctxtnav' : [
                                 tag.a(_('More'), 
-                                    href=query.get_href(req.href))],
+                                    href=more_link_href)],
                         'altlinks' : fakereq.chrome.get('links', {}).get('alternate')
                     }, \
                     qryctx
