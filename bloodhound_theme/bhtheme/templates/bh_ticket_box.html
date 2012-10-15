@@ -36,74 +36,89 @@ Arguments:
      xmlns:i18n="http://genshi.edgewall.org/i18n"
      id="ticket" class="${'ticketdraft' if preview_mode else None}">
 
-  <div class="properties" style="margin-top: 1.2em"
-         py:with="fields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')];
-            small_fields = [f for f in fields if f.type not in ('text', 'textarea') and f.name != 'cc'];
-            text_fields = [f for f in fields if f.type == 'text' or f.name == 'cc'];
-            area_fields = [f for f in fields if f.type == 'textarea'];
-            _colcount = colcount or 6">
-    <py:for each="_fields, csscls, count, fontsize, is_inline in 
-        [(small_fields, 'span4', _colcount / 2, None, True),
-         (text_fields, 'span4', colcount / 2, None, False),
-         (area_fields, colspan, 1, None, False)]">
-      <div class="row" py:for="fields_row in group(_fields, count)">
-        <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
-            class="$csscls" >
-          <div class="row" py:strip="not is_inline">
+  <py:def function="render_fields_row(fields_row, csscls, fontsize, is_inline)">
+    <div class="row">
+      <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
+          class="$csscls${' enum' if is_inline else None}" >
+        <div class="row" py:strip="not is_inline">
+          <div class="span2" py:strip="not is_inline">
             <h5 id="${'h_' + field.name if field else None}"
-                class="${'span2' if is_inline else None}">
+                class="${'pull-right' if is_inline else None}">
               <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
             </h5>
-            <div class="${'span2' if is_inline else None}" 
-                style="${'margin-top: 10px' if is_inline else None}">
-              <py:if test="field">
-                <py:choose test="">
-                  <py:when test="'rendered' in field">${field.rendered}</py:when>
-                  <py:otherwise>${ticket[field.name]}</py:otherwise>
-                </py:choose>
-              </py:if>
-              &nbsp;
-            </div>
+          </div>
+          <div class="${'span2' if is_inline else None}">
+            <py:if test="field">
+              <py:choose test="">
+                <py:when test="'rendered' in field">${field.rendered}</py:when>
+                <py:otherwise>${ticket[field.name]}</py:otherwise>
+              </py:choose>
+            </py:if>
+            &nbsp;
           </div>
         </div>
       </div>
-    </py:for>
-  </div>
-  <div class="${'well' if not preview_mode else None}">
-    <!--! use a placeholder if it's a new ticket -->
-    <h3 class="summary searchable">$ticket.summary</h3>
-    <py:for each="field in fields">
-      <py:if test="field.name == 'keywords'">
-        <div title="Keywords">
-          <i class="icon-tags"></i> ${field.rendered}
-        </div>
-      </py:if>
-    </py:for>
-
-    <div class="description">
-      <h5 id="comment:description">
-        Description
-        <span py:if="description_change" class="lastmod pull-right"
-            title="$description_change.date">
-          <i18n:msg params="author">(last modified by ${authorinfo(description_change.author)})</i18n:msg>
-          (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
-        </span>
-      </h5>
-  
-      <!--! Quote the description (only for existing tickets) -->
-      <div class="pull-right">
-        <form py:if="ticket.exists and ticket.description and can_append"
-            id="addreply" method="get" action="#comment">
-          <input type="hidden" name="replyto" value="description" />
-          <input type="submit" name="reply" value="${_('Reply')}"
-              class="btn btn-mini"
-              title="Reply, quoting this description" />
-        </form>
-      </div>
-      <div py:if="ticket.description" class="searchable" xml:space="preserve">
-        ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
-      </div>
-      <br py:if="not ticket.description" style="clear: both" />
     </div>
-  </div>
+  </py:def>
+
+  <py:with vars="fields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')];
+      small_fields = [f for f in fields if f.type not in ('text', 'textarea') and f.name != 'cc'];
+      text_fields = [f for f in fields if f.type == 'text' or f.name == 'cc'];
+      area_fields = [f for f in fields if f.type == 'textarea'];
+      _colcount = colcount or 6">
+    <div class="properties" style="margin: 1.2em 0px">
+      <py:with vars="_fields, csscls, count, fontsize, is_inline = 
+          (small_fields, 'span4', _colcount / 2, None, True)">
+        <py:for each="fields_row in group(_fields, count)">
+          ${render_fields_row(fields_row, csscls, fontsize, is_inline)}
+        </py:for>
+      </py:with>
+    </div>
+    <div class="${'well' if not preview_mode else None}">
+      <!--! use a placeholder if it's a new ticket -->
+      <py:for each="field in fields">
+        <py:if test="field.name == 'keywords'">
+          <div title="Keywords">
+            <i class="icon-tags"></i> ${field.rendered}
+          </div>
+        </py:if>
+      </py:for>
+
+      <div class="description">
+        <h5 id="comment:description">
+          Description
+          <span py:if="description_change" class="lastmod pull-right"
+              title="$description_change.date">
+            <i18n:msg params="author">(last modified by ${authorinfo(description_change.author)})</i18n:msg>
+            (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
+          </span>
+        </h5>
+ 
+        <!--! Quote the description (only for existing tickets) -->
+        <div class="pull-right">
+          <form py:if="ticket.exists and ticket.description and can_append"
+              id="addreply" method="get" action="#comment">
+            <input type="hidden" name="replyto" value="description" />
+            <input type="submit" name="reply" value="${_('Reply')}"
+                class="btn btn-mini"
+                title="Reply, quoting this description" />
+          </form>
+        </div>
+        <div py:if="ticket.description" class="searchable" xml:space="preserve">
+          ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
+        </div>
+        <br py:if="not ticket.description" style="clear: both" />
+      </div>
+    </div>
+    <div class="properties" style="margin-top: 1.2em">
+      <py:for each="_fields, csscls, count, fontsize, is_inline in 
+          [(text_fields, 'span4', colcount / 2, None, False),
+           (area_fields, colspan, 1, None, False)]">
+        <py:for each="fields_row in group(_fields, count)">
+          ${render_fields_row(fields_row, csscls, fontsize, is_inline)}
+        </py:for>
+      </py:for>
+    </div>
+  </py:with>
 </div>
+

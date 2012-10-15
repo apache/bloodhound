@@ -127,47 +127,42 @@
         <div class="stickyBox">
           <div id="overview" class="stickyStatus $colspan">
             <div class="whitebox"></div>
-            <h1 id="trac-ticket-title" py:choose="">
-              <py:when test="ticket.exists">
-                <i18n:msg params="id">Ticket #${ticket.id}</i18n:msg>
-                <span class="status"><small>(${ticket.status}<py:if
-                    test="ticket.type"> ${ticket.type}</py:if><py:if
-                    test="ticket.resolution">: ${ticket.resolution}</py:if>)</small></span>
-                <py:choose test="">
-                  <py:when test="version is None" />
-                  <py:when test="version == 0">
-                    &mdash;
-                    <small>
-                      <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
-                    </small>
+            <div class="properties">
+              <h2 class="summary searchable" py:choose="">
+                <py:when test="ticket.exists">$ticket.summary</py:when>
+                <py:otherwise>Create Ticket</py:otherwise>
+              </h2>
+            </div>
+            <div class="row">
+              <div class="span3">
+                <h5 id="trac-ticket-title" py:choose="">
+                  <py:when test="ticket.exists">
+                    <a href="${href.ticket(ticket.id)}"
+                        i18n:msg="id">Ticket #${ticket.id}</a>
                   </py:when>
                   <py:otherwise>
-                    &mdash;
-                    <small>
-                      <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
-                    </small>
+                    New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
                   </py:otherwise>
-                </py:choose>
-              </py:when>
-              <py:otherwise>
-                Create New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
-              </py:otherwise>
-            </h1>
-            <h6 class="date">
-              <span i18n:msg="created" py:if="ticket.exists">Opened ${pretty_dateinfo(ticket.time)}</span>
-              <py:if test="ticket.changetime != ticket.time">,
-                <span i18n:msg="modified">Last modified ${pretty_dateinfo(ticket.changetime)}</span>
-              </py:if>
-              <span py:if="not ticket.exists" class="label label-warning">(ticket not yet created)</span>
-            </h6>
-            <h6>
-              <span id="h_reporter">Reported by
-                ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
-              </span>,
-              <span id="h_owner">Assigned to
-                ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
-              </span>
-            </h6>
+                </h5>
+              </div>
+              <div class="offset3">
+                <h6 class="date pull-right">
+                  <span i18n:msg="created" py:if="ticket.exists">Opened ${pretty_dateinfo(ticket.time)}</span>
+                  <py:if test="ticket.changetime != ticket.time">,
+                    <span i18n:msg="modified">Last modified ${pretty_dateinfo(ticket.changetime)}</span>
+                  </py:if>
+                  <span py:if="not ticket.exists" class="label label-warning">(ticket not yet created)</span>
+                </h6>
+                <h6 class="pull-right">
+                  <span id="h_reporter">Reported by
+                    ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
+                  </span>,
+                  <span id="h_owner">Assigned to
+                    ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
+                  </span>
+                </h6>
+              </div>
+            </div>
             <div class="stickyEndMark"></div>
           </div>
         </div>
@@ -175,6 +170,28 @@
           setup_sticky_panel('#overview');
         </script>
         <py:if test="ticket.exists">
+          <div class="row">
+            <div class="span6">
+              <h4 class="status"><small>${ticket.status}<py:if
+                  test="ticket.type"> ${ticket.type}</py:if><py:if
+                  test="ticket.resolution">: ${ticket.resolution}</py:if></small></h4>
+              <py:choose test="">
+                <py:when test="version is None" />
+                <py:when test="version == 0">
+                  &mdash;
+                  <small>
+                    <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
+                  </small>
+                </py:when>
+                <py:otherwise>
+                  &mdash;
+                  <small>
+                    <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
+                  </small>
+                </py:otherwise>
+              </py:choose>
+            </div>
+          </div>
           <div class="row">
             <div class="$colspan">
               <xi:include href="bh_ticket_box.html"
