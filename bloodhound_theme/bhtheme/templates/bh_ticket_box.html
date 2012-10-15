@@ -37,15 +37,22 @@ Arguments:
      id="ticket" class="${'ticketdraft' if preview_mode else None}">
 
   <div class="properties" style="margin-top: 1.2em"
-         py:with="fields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')]">
-    <div class="row" py:for="fields_row in group(fields, colcount or 6)">
-      <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
-          class="${'span2' if field.name != 'cc' else 'span4'}">
-        <py:if test="field.type != 'textarea'">
+         py:with="fields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')];
+            small_fields = [f for f in fields if f.type not in ('text', 'textarea') and f.name != 'cc'];
+            text_fields = [f for f in fields if f.type == 'text' or f.name == 'cc'];
+            area_fields = [f for f in fields if f.type == 'textarea'];
+            _colcount = colcount or 6">
+    <py:for each="_fields, csscls, count, fontsize in 
+        [(small_fields, 'span2', _colcount, '150%'),
+         (text_fields, 'span4', colcount / 2, None),
+         (area_fields, 'span', 1, None)]">
+      <div class="row" py:for="fields_row in group(_fields, count)">
+        <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
+            class="$csscls">
           <p id="${'h_' + field.name if field else None}">
             <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
           </p>
-          <p style="font-size: ${'150%' if field and field.name != 'cc' else '120%'}">
+          <p style="font-size: ${fontsize if field and field.name != 'cc' else '120%'}">
             <py:if test="field">
               <py:choose test="">
                 <py:when test="'rendered' in field">${field.rendered}</py:when>
@@ -54,9 +61,9 @@ Arguments:
             </py:if>
             &nbsp;
           </p>
-        </py:if>
+        </div>
       </div>
-    </div>
+    </py:for>
   </div>
   <div class="${'well' if not preview_mode else None}">
     <!--! use a placeholder if it's a new ticket -->
