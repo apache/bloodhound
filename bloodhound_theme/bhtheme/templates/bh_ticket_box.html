@@ -42,25 +42,29 @@ Arguments:
             text_fields = [f for f in fields if f.type == 'text' or f.name == 'cc'];
             area_fields = [f for f in fields if f.type == 'textarea'];
             _colcount = colcount or 6">
-    <py:for each="_fields, csscls, count, fontsize in 
-        [(small_fields, 'span2', _colcount, '150%'),
-         (text_fields, 'span4', colcount / 2, None),
-         (area_fields, 'span', 1, None)]">
+    <py:for each="_fields, csscls, count, fontsize, is_inline in 
+        [(small_fields, 'span4', _colcount / 2, None, True),
+         (text_fields, 'span4', colcount / 2, None, False),
+         (area_fields, colspan, 1, None, False)]">
       <div class="row" py:for="fields_row in group(_fields, count)">
         <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
-            class="$csscls">
-          <p id="${'h_' + field.name if field else None}">
-            <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
-          </p>
-          <p style="font-size: ${fontsize if field and field.name != 'cc' else '120%'}">
-            <py:if test="field">
-              <py:choose test="">
-                <py:when test="'rendered' in field">${field.rendered}</py:when>
-                <py:otherwise>${ticket[field.name]}</py:otherwise>
-              </py:choose>
-            </py:if>
-            &nbsp;
-          </p>
+            class="$csscls" >
+          <div class="row" py:strip="not is_inline">
+            <h5 id="${'h_' + field.name if field else None}"
+                class="${'span2' if is_inline else None}">
+              <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
+            </h5>
+            <div class="${'span2' if is_inline else None}" 
+                style="${'margin-top: 10px' if is_inline else None}">
+              <py:if test="field">
+                <py:choose test="">
+                  <py:when test="'rendered' in field">${field.rendered}</py:when>
+                  <py:otherwise>${ticket[field.name]}</py:otherwise>
+                </py:choose>
+              </py:if>
+              &nbsp;
+            </div>
+          </div>
         </div>
       </div>
     </py:for>

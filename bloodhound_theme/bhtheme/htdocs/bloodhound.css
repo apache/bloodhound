@@ -213,6 +213,13 @@ textarea.wikitext {
 .bh-ticket-buttons {
   padding-left: 5px;
 }
+
+.ticket .properties h5 {
+  margin-bottom: 0px;
+}
+
+/* @end */
+
 /* @group Quick Ticket fieldset */
 
 #qct-fieldset {
