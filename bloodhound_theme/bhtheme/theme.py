@@ -29,7 +29,7 @@ from trac.util.compat import set
 from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
-from trac.web.chrome import (add_stylesheet, INavigationContributor, 
+from trac.web.chrome import (add_script, add_stylesheet, INavigationContributor,
                              ITemplateProvider, prevnext_nav)
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
@@ -94,7 +94,7 @@ class BloodhoundTheme(ThemeBase):
         'report_edit.html' : ('bh_report_edit.html', None), 
         'report_list.html' : ('bh_report_list.html', None),
         'report_view.html' : ('bh_report_view.html', None),
-        'ticket.html' : ('bh_ticket.html', None),
+        'ticket.html' : ('bh_ticket.html', '_modify_scrollspy'),
         'ticket_preview.html' : ('bh_ticket_preview.html', None),
 
         # Multi Product
@@ -223,6 +223,11 @@ class BloodhoundTheme(ThemeBase):
         """Insert roadmap.css
         """
         add_stylesheet(req, 'dashboard/css/roadmap.css')
+
+    def _modify_scrollspy(self, req, template, data, content_type, is_active):
+        """Insert Bootstrap scroll spy files.
+        """
+        add_script(req, 'dashboard/js/bootstrap-scrollspy.js')
 
     # INavigationContributor methods
 

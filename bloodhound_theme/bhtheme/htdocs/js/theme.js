@@ -115,11 +115,13 @@ function setup_sticky_panel(selector) {
   target.parent('.stickyBox').height(target.height());
   target = null;
   $(window).on('scroll.affix.data-api', function() {
-      affix_data = $(selector).data('affix');
-      if (affix_data && !affix_data.affixed) {
-        var target = $(selector);
+      var affix_data = $(selector).data('affix');
+      var target = $(selector);
+
+      if (affix_data && !affix_data.affixed)
         target.parent('.stickyBox').height(target.height());
-      }
+      else
+        target.parent('.stickyBox').css('height', '');
     })
 }
 

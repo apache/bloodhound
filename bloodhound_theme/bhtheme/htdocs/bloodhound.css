@@ -416,6 +416,22 @@ input[type="submit"].btn.btn-micro {
   margin-top: 2px !important;
 }
 
+.visible-affix {
+  display: none !important;
+}
+
+.affix .visible-affix {
+  display: inherit !important;
+}
+
+.hidden-affix {
+  display: inherit !important;
+}
+
+.affix .hidden-affix {
+  display: none !important;
+}
+
 /* Revert some changes introduced in 2.1.0 */
 
 h6 {
