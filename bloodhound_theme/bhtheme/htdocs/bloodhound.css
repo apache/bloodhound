@@ -269,6 +269,13 @@ h1, h2, h3, h4 {
   font-weight: bold;
   page-break-after: avoid;
 }
+
+.clip, .affix .clip-affix {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* @end */
 
 /* @group Alternate download links */
