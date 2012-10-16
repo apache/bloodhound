@@ -61,10 +61,10 @@ Arguments:
     </div>
   </py:def>
 
-  <py:with vars="fields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')];
-      small_fields = [f for f in fields if f.type not in ('text', 'textarea') and f.name != 'cc'];
-      text_fields = [f for f in fields if f.type == 'text' or f.name == 'cc'];
-      area_fields = [f for f in fields if f.type == 'textarea'];
+  <py:with vars="basefields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')];
+      small_fields = [f for f in basefields if f.type not in ('text', 'textarea') and f.name != 'cc'];
+      text_fields = [f for f in basefields if f.type == 'text' or f.name == 'cc'];
+      area_fields = [f for f in basefields if f.type == 'textarea'];
       _colcount = colcount or 6">
     <div class="properties" style="margin: 1.2em 0px">
       <py:with vars="_fields, csscls, count, fontsize, is_inline = 
