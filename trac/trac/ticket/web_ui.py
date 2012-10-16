@@ -29,27 +29,34 @@ from trac.attachment import AttachmentModule
 from trac.config import BoolOption, Option, IntOption
 from trac.core import *
 from trac.mimeview.api import Mimeview, IContentConverter
-from trac.resource import Resource, ResourceNotFound, get_resource_url, \
-                         render_resource_link, get_resource_shortname
+from trac.resource import (
+    Resource, ResourceNotFound, get_resource_url, render_resource_link,
+    get_resource_shortname
+)
 from trac.search import ISearchSource, search_to_sql, shorten_result
 from trac.ticket.api import TicketSystem, ITicketManipulator
 from trac.ticket.model import Milestone, Ticket, group_milestones
 from trac.ticket.notification import TicketNotifyEmail
 from trac.timeline.api import ITimelineEventProvider
 from trac.util import as_bool, as_int, get_reporter_id
-from trac.util.datefmt import format_datetime, from_utimestamp, \
-                              to_utimestamp, utc
-from trac.util.text import exception_to_unicode, obfuscate_email_address, \
-                           shorten_line, to_unicode
+from trac.util.datefmt import (
+    format_datetime, from_utimestamp, to_utimestamp, utc
+)
+from trac.util.text import (
+    exception_to_unicode, empty, obfuscate_email_address, shorten_line,
+    to_unicode
+)
 from trac.util.presentation import separated
 from trac.util.translation import _, tag_, tagn_, N_, gettext, ngettext
 from trac.versioncontrol.diff import get_diff_options, diff_blocks
-from trac.web import arg_list_to_args, parse_arg_list, IRequestHandler, \
-                     RequestDone
-from trac.web.chrome import (Chrome, INavigationContributor, ITemplateProvider,
-                             add_ctxtnav, add_link, add_notice, add_script,
-                             add_script_data, add_stylesheet, add_warning,
-                             auth_link, prevnext_nav, web_context)
+from trac.web import (
+    IRequestHandler, RequestDone, arg_list_to_args, parse_arg_list
+)
+from trac.web.chrome import (
+    Chrome, INavigationContributor, ITemplateProvider,
+    add_ctxtnav, add_link, add_notice, add_script, add_script_data,
+    add_stylesheet, add_warning, auth_link, prevnext_nav, web_context
+)
 from trac.wiki.formatter import format_to, format_to_html, format_to_oneliner
 
 
@@ -106,7 +113,7 @@ class TicketModule(Component):
         """Delegate access to ticket default Options which were move to
         TicketSystem.
 
-        .. todo:: remove in 0.13
+        .. todo:: remove in 1.0
         """
         if name.startswith('default_'):
             if name not in self._warn_for_default_attr:
@@ -240,10 +247,10 @@ class TicketModule(Component):
         ts_start = to_utimestamp(start)
         ts_stop = to_utimestamp(stop)
 
-        status_map = {'new': ('newticket', N_("created")),
-                      'reopened': ('reopenedticket', N_("reopened")),
-                      'closed': ('closedticket', N_("closed")),
-                      'edit': ('editedticket', N_("updated"))}
+        status_map = {'new': ('newticket', 'created'),
+                      'reopened': ('reopenedticket', 'reopened'),
+                      'closed': ('closedticket', 'closed'),
+                      'edit': ('editedticket', 'updated')}
 
         ticket_realm = Resource('ticket')
 
@@ -381,9 +388,15 @@ class TicketModule(Component):
         elif field == 'title':
             title = TicketSystem(self.env).format_summary(summary, status,
                                                           resolution, type)
-            return tag_("Ticket %(ticketref)s (%(summary)s) %(verb)s",
+            message = {
+                'created': N_("Ticket %(ticketref)s (%(summary)s) created"),
+                'reopened': N_("Ticket %(ticketref)s (%(summary)s) reopened"),
+                'closed': N_("Ticket %(ticketref)s (%(summary)s) closed"),
+                'updated': N_("Ticket %(ticketref)s (%(summary)s) updated"),
+            }[verb]
+            return tag_(message,
                         ticketref=tag.em('#', ticket.id, title=title),
-                        summary=shorten_line(summary), verb=gettext(verb))
+                        summary=shorten_line(summary))
         elif field == 'description':
             descr = message = ''
             if status == 'new':
@@ -405,9 +418,9 @@ class TicketModule(Component):
                 description, comment, cid = event[3]
         tickets = sorted(tickets)
         if field == 'url':
-            return context.href.query(id=','.join([str(t) for t in tickets]))
+            return context.href.query(id=','.join(str(t) for t in tickets))
         elif field == 'title':
-            ticketids = ','.join([str(t) for t in tickets])
+            ticketids = u',\u200b'.join(str(t) for t in tickets)
             title = _("Tickets %(ticketids)s", ticketids=ticketids)
             return tag_("Tickets %(ticketlist)s batch updated",
                         ticketlist=tag.em('#', ticketids, title=title))
@@ -469,11 +482,6 @@ class TicketModule(Component):
 
         fields = self._prepare_fields(req, ticket)
 
-        # setup default values for the new ticket
-        
-        for field in fields:
-            ticket.values.setdefault(field['name'], field.get('value'))
-
         # position 'owner' immediately before 'cc',
         # if not already positioned after (?)
 
@@ -490,6 +498,8 @@ class TicketModule(Component):
                 del ticket.fields[curr_idx]
 
         data['fields'] = fields
+        data['fields_map'] = dict((field['name'], i)
+                                  for i, field in enumerate(fields))
 
         if req.get_header('X-Requested-With') == 'XMLHttpRequest':
             data['preview_mode'] = True
@@ -544,7 +554,7 @@ class TicketModule(Component):
                          'reassign_owner': req.authname,
                          'resolve_resolution': None,
                          'start_time': ticket['changetime']})
-        elif req.method == 'POST': # 'Preview' or 'Submit'
+        elif req.method == 'POST':
             if 'cancel_comment' in req.args:
                 req.redirect(req.href.ticket(ticket.id))
             elif 'edit_comment' in req.args:
@@ -598,7 +608,7 @@ class TicketModule(Component):
             # validates and there were no problems with the workflow side of
             # things.
             valid = self._validate_ticket(req, ticket, not valid) and valid
-            if 'preview' not in req.args:
+            if 'submit' in req.args:
                 if valid:
                     # redirected if successful
                     self._do_save(req, ticket, action)
@@ -709,13 +719,16 @@ class TicketModule(Component):
         return {'comments_order': req.session.get('ticket_comments_order',
                                                   'oldest'),
                 'comments_only': req.session.get('ticket_comments_only',
-                                                 False)}
+                                                 'false')}
         
     def _prepare_data(self, req, ticket, absurls=False):
         return {'ticket': ticket, 'to_utimestamp': to_utimestamp,
-                'context': web_context(req, ticket.resource,
-                                                absurls=absurls),
-                'preserve_newlines': self.must_preserve_newlines}
+                'context': web_context(req, ticket.resource, absurls=absurls),
+                'preserve_newlines': self.must_preserve_newlines,
+                'emtpy': empty}
+
+    def _cc_list(self, cc):
+        return Chrome(self.env).cc_list(cc)
 
     def _toggle_cc(self, req, cc):
         """Return an (action, recipient) tuple corresponding to a change
@@ -735,7 +748,7 @@ class TicketModule(Component):
                 entries.append(email)
         add = []
         remove = []
-        cc_list = Chrome(self.env).cc_list(cc)
+        cc_list = self._cc_list(cc)
         for entry in entries:
             if entry in cc_list:
                 remove.append(entry)
@@ -750,8 +763,15 @@ class TicketModule(Component):
         
     def _populate(self, req, ticket, plain_fields=False):
         if not plain_fields:
-            fields = dict([(k[6:], v) for k, v in req.args.iteritems()
-                           if k.startswith('field_')])
+            fields = dict((k[6:], v) for k, v in req.args.iteritems()
+                          if k.startswith('field_')
+                             and not 'revert_' + k[6:] in req.args)
+            # Handle revert of checkboxes (in particular, revert to 1)
+            for k in list(fields):
+                if k.startswith('checkbox_'):
+                    k = k[9:]
+                    if 'revert_' + k in req.args:
+                        fields[k] = ticket[k]
         else:
             fields = req.args.copy()
         # Prevent direct changes to protected fields (status and resolution are
@@ -761,7 +781,7 @@ class TicketModule(Component):
             fields.pop('checkbox_' + each, None)    # See Ticket.populate()
         ticket.populate(fields)
         # special case for updating the Cc: field
-        if 'cc_update' in req.args:
+        if 'cc_update' in req.args and 'revert_cc' not in req.args:
             cc_action, cc_entry, cc_list = self._toggle_cc(req, ticket['cc'])
             if cc_action == 'remove':
                 cc_list.remove(cc_entry)
@@ -1381,10 +1401,11 @@ class TicketModule(Component):
 
     def _query_link(self, req, name, value, text=None):
         """Return a link to /query with the appropriate name and value"""
-        default_query = self.ticketlink_query.startswith('?') and \
-                        self.ticketlink_query[1:] or self.ticketlink_query
+        default_query = self.ticketlink_query.lstrip('?')
         args = arg_list_to_args(parse_arg_list(default_query))
         args[name] = value
+        if name == 'resolution':
+            args['status'] = 'closed'
         return tag.a(text or value, href=req.href.query(args))
 
     def _query_link_words(self, context, name, value):
@@ -1410,7 +1431,7 @@ class TicketModule(Component):
                     items.append(rendered)
         return tag(items)
 
-    def _prepare_fields(self, req, ticket):
+    def _prepare_fields(self, req, ticket, field_changes=None):
         context = web_context(req, ticket.resource)
         fields = []
         owner_field = None
@@ -1453,18 +1474,33 @@ class TicketModule(Component):
                 field['rendered'] = self._query_link_words(context, name,
                                                            ticket[name])
             elif name == 'cc':
+                cc_changed = field_changes is not None and 'cc' in field_changes
                 field['rendered'] = self._query_link_words(context, name,
                                                            ticket[name])
                 if ticket.exists and \
                         'TICKET_EDIT_CC' not in req.perm(ticket.resource):
                     cc = ticket._old.get('cc', ticket['cc'])
                     cc_action, cc_entry, cc_list = self._toggle_cc(req, cc)
+                    cc_update = 'cc_update' in req.args \
+                                and 'revert_cc' not in req.args
                     field['edit_label'] = {
                             'add': _("Add to Cc"),
                             'remove': _("Remove from Cc"),
                             '': _("Add/Remove from Cc")}[cc_action]
                     field['cc_entry'] = cc_entry or _("<Author field>")
-                    field['cc_update'] = 'cc_update' in req.args or None
+                    field['cc_update'] = cc_update or None
+                    if cc_changed:
+                        field_changes['cc']['cc_update'] = cc_update
+                if cc_changed:
+                    # normalize the new CC: list; also remove the
+                    # change altogether if there's no real change
+                    old_cc_list = self._cc_list(field_changes['cc']['old'])
+                    new_cc_list = self._cc_list(field_changes['cc']['new']
+                                                .replace(' ', ','))
+                    if new_cc_list == old_cc_list:
+                        del field_changes['cc']
+                    else:
+                        field_changes['cc']['new'] = ','.join(new_cc_list)
 
             # per type settings
             if type_ in ('radio', 'select'):
@@ -1524,7 +1560,8 @@ class TicketModule(Component):
 
         # -- Ticket fields
 
-        fields = self._prepare_fields(req, ticket)
+        fields = self._prepare_fields(req, ticket, field_changes)
+        fields_map = dict((field['name'], i) for i, field in enumerate(fields))
 
         # -- Ticket Change History
 
@@ -1582,6 +1619,13 @@ class TicketModule(Component):
         # -- Workflow support
         
         selected_action = req.args.get('action')
+
+        # retrieve close time from changes
+        closetime = None
+        for c in changes:
+            s = c['fields'].get('status')
+            if s:
+                closetime = c['date'] if s['new'] == 'closed' else None
         
         # action_controls is an ordered list of "renders" tuples, where
         # renders is a list of (action_key, label, widgets, hints) representing
@@ -1631,13 +1675,14 @@ class TicketModule(Component):
         for user in 'reporter', 'owner':
             if chrome.format_author(req, ticket[user]) == ticket[user]:
                 data['%s_link' % user] = self._query_link(req, user,
-                                                            ticket[user])
+                                                          ticket[user])
         data.update({
             'context': context, 'conflicts': conflicts,
-            'fields': fields, 'changes': changes, 'replies': replies,
+            'fields': fields, 'fields_map': fields_map,
+            'changes': changes, 'replies': replies,
             'attachments': AttachmentModule(self.env).attachment_data(context),
             'action_controls': action_controls, 'action': selected_action,
-            'change_preview': change_preview,
+            'change_preview': change_preview, 'closetime': closetime,
         })
 
     def rendered_changelog_entries(self, req, ticket, when=None):
@@ -1692,8 +1737,7 @@ class TicketModule(Component):
         render_elt = lambda x: x
         sep = ', '
         if field == 'cc':
-            chrome = Chrome(self.env)
-            old_list, new_list = chrome.cc_list(old), chrome.cc_list(new)
+            old_list, new_list = self._cc_list(old), self._cc_list(new)
             if not (Chrome(self.env).show_email_addresses or 
                     'EMAIL_VIEW' in req.perm(resource_new or ticket.resource)):
                 render_elt = obfuscate_email_address
@@ -1729,8 +1773,8 @@ class TicketModule(Component):
         """Iterate on changelog entries, consolidating related changes
         in a `dict` object.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         field_labels = TicketSystem(self.env).get_ticket_field_labels()
         changelog = ticket.get_changelog(when=when)

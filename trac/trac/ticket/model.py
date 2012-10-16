@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2006 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2005 Christopher Lenz <cmlenz@gmx.de>
-# Copyright (C) 2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -59,8 +59,8 @@ class Ticket(object):
 
     def __init__(self, env, tkt_id=None, db=None, version=None):
         """
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         self.env = env
         if tkt_id is not None:
@@ -163,13 +163,15 @@ class Ticket(object):
         """
         try:
             value = self.values[name]
-            if value is not empty:
-                return value
-            field = [field for field in self.fields if field['name'] == name]
-            if field:
-                return field[0].get('value', '')
+            return value if value is not empty else self.get_default(name)
         except KeyError:
             pass
+
+    def get_default(self, name):
+        """Return the default value of a field."""
+        field = [field for field in self.fields if field['name'] == name]
+        if field:
+            return field[0].get('value', '')
 
     def populate(self, values):
         """Populate the ticket with 'suitable' values from a dictionary"""
@@ -186,8 +188,8 @@ class Ticket(object):
     def insert(self, when=None, db=None):
         """Add ticket to database.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert not self.exists, 'Cannot insert an existing ticket'
 
@@ -261,9 +263,9 @@ class Ticket(object):
         the database.  Returns False if there were no changes to save, True
         otherwise.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
-        :since 0.13: the `cnum` parameter is deprecated, and threading should
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
+        :since 1.0: the `cnum` parameter is deprecated, and threading should
         be controlled with the `replyto` argument
         """
         assert self.exists, "Cannot update a new ticket"
@@ -271,7 +273,8 @@ class Ticket(object):
         if 'cc' in self.values:
             self['cc'] = _fixup_cc_list(self.values['cc'])
 
-        if not self._old and not comment:
+        props_unchanged = all(self.values.get(k) == v for k, v in self._old.iteritems())
+        if (not comment or not comment.strip()) and props_unchanged:
             return False # Not modified
 
         if when is None:
@@ -368,8 +371,8 @@ class Ticket(object):
         the `permanent` flag is used to distinguish collateral changes
         that are not yet immutable (like attachments, currently).
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         sid = str(self.id)
         when_ts = to_utimestamp(when)
@@ -411,8 +414,8 @@ class Ticket(object):
     def delete(self, db=None):
         """Delete the ticket.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         with self.env.db_transaction as db:
             Attachment.delete_all(self.env, 'ticket', self.id, db)
@@ -426,8 +429,8 @@ class Ticket(object):
     def get_change(self, cnum=None, cdate=None, db=None):
         """Return a ticket change by its number or date.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         if cdate is None:
             row = self._find_change(cnum)
@@ -565,8 +568,8 @@ class Ticket(object):
         """Retrieve the edit history of a comment identified by its number or
         date.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         if cdate is None:
             row = self._find_change(cnum)
@@ -586,7 +589,7 @@ class Ticket(object):
                     break
             if author0 is None:
                 for author0, last_comment in db("""
-                        SELECT author, new FROM ticket_change 
+                        SELECT author, newvalue FROM ticket_change 
                         WHERE ticket=%%s AND time=%%s AND NOT field %s LIMIT 1
                         """ % db.like(),
                         (self.id, ts0, db.like_escape('_') + '%')):
@@ -691,8 +694,8 @@ class AbstractEnum(object):
     def delete(self, db=None):
         """Delete the enum value.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert self.exists, "Cannot delete non-existent %s" % self.type
 
@@ -716,8 +719,8 @@ class AbstractEnum(object):
     def insert(self, db=None):
         """Add a new enum value.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert not self.exists, "Cannot insert existing %s" % self.type
         self.name = simplify_whitespace(self.name)
@@ -741,8 +744,8 @@ class AbstractEnum(object):
     def update(self, db=None):
         """Update the enum value.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert self.exists, "Cannot update non-existent %s" % self.type
         self.name = simplify_whitespace(self.name)
@@ -766,8 +769,8 @@ class AbstractEnum(object):
     @classmethod
     def select(cls, env, db=None):
         """
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         with env.db_query as db:
             for name, value in db("""
@@ -812,8 +815,8 @@ class Severity(AbstractEnum):
 class Component(object):
     def __init__(self, env, name=None, db=None):
         """
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         self.env = env
         self.name = self._old_name = self.owner = self.description = None
@@ -834,8 +837,8 @@ class Component(object):
     def delete(self, db=None):
         """Delete the component.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert self.exists, "Cannot delete non-existent component"
 
@@ -848,8 +851,8 @@ class Component(object):
     def insert(self, db=None):
         """Insert a new component.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert not self.exists, "Cannot insert existing component"
         self.name = simplify_whitespace(self.name)
@@ -867,8 +870,8 @@ class Component(object):
     def update(self, db=None):
         """Update the component.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert self.exists, "Cannot update non-existent component"
         self.name = simplify_whitespace(self.name)
@@ -891,8 +894,8 @@ class Component(object):
     @classmethod
     def select(cls, env, db=None):
         """
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         for name, owner, description in env.db_query(
                 "SELECT name, owner, description FROM component ORDER BY name"):
@@ -950,8 +953,8 @@ class Milestone(object):
     def delete(self, retarget_to=None, author=None, db=None):
         """Delete the milestone.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         with self.env.db_transaction as db:
             self.env.log.info("Deleting milestone %s", self.name)
@@ -976,8 +979,8 @@ class Milestone(object):
     def insert(self, db=None):
         """Insert a new milestone.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         self.name = simplify_whitespace(self.name)
         if not self.name:
@@ -998,8 +1001,8 @@ class Milestone(object):
     def update(self, db=None):
         """Update the milestone.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         self.name = simplify_whitespace(self.name)
         if not self.name:
@@ -1036,8 +1039,8 @@ class Milestone(object):
     @classmethod
     def select(cls, env, include_completed=True, db=None):
         """
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         sql = "SELECT name, due, completed, description FROM milestone "
         if not include_completed:
@@ -1092,8 +1095,8 @@ class Version(object):
     def delete(self, db=None):
         """Delete the version.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert self.exists, "Cannot delete non-existent version"
 
@@ -1106,8 +1109,8 @@ class Version(object):
     def insert(self, db=None):
         """Insert a new version.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert not self.exists, "Cannot insert existing version"
         self.name = simplify_whitespace(self.name)
@@ -1124,8 +1127,8 @@ class Version(object):
     def update(self, db=None):
         """Update the version.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         assert self.exists, "Cannot update non-existent version"
         self.name = simplify_whitespace(self.name)
@@ -1148,8 +1151,8 @@ class Version(object):
     @classmethod
     def select(cls, env, db=None):
         """
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         versions = []
         for name, time, description in env.db_query("""

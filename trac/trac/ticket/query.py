@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2004-2009 Edgewall Software
 # Copyright (C) 2004-2005 Christopher Lenz <cmlenz@gmx.de>
-# Copyright (C) 2005-2007 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2007 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -273,8 +273,8 @@ class Query(object):
               tzinfo=None, locale=None):
         """Get the number of matching tickets for the present query.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         sql, args = self.get_sql(req, cached_ids, authname, tzinfo, locale)
         return self._count(sql, args)
@@ -290,8 +290,8 @@ class Query(object):
                 tzinfo=None, href=None, locale=None):
         """Retrieve the list of matching tickets.
 
-        :since 0.13: the `db` parameter is no longer needed and will be removed
-        in version 0.14
+        :since 1.0: the `db` parameter is no longer needed and will be removed
+        in version 1.1.1
         """
         if req is not None:
             href = req.href
@@ -1129,6 +1129,7 @@ class QueryModule(Component):
         add_script_data(req, properties=properties, modes=data['modes'])
 
         add_stylesheet(req, 'common/css/report.css')
+        Chrome(self.env).add_jquery_ui(req)
         add_script(req, 'common/js/query.js')
 
         return 'query.html', data, None
@@ -1421,7 +1422,8 @@ class TicketQueryMacro(WikiMacroBase):
         if format == 'compact':
             if query.group:
                 groups = [(v, ' ', 
-                           tag.a('#%s' % ','.join([str(t['id']) for t in g]),
+                           tag.a('#%s' % u',\u200b'.join(str(t['id'])
+                                                         for t in g),
                                  href=href, class_='query', title=title))
                           for v, g, href, title in ticket_groups()]
                 return tag(groups[0], [(', ', g) for g in groups[1:]])

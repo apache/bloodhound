@@ -1,12 +1,16 @@
 div.code {
  background: #f7f7f7;
  border: 1px solid #d7d7d7;
+ border-radius: .3em;
  margin: 1em 1.75em;
  padding: .25em;
  overflow: auto
 }
 
-div.code pre { margin: 0; }
+div.code pre {
+ margin: 0;
+ overflow: auto;
+}
 
 table.code {
  border: 1px solid #ddd;

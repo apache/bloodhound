@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2005 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2004-2006 Christopher Lenz <cmlenz@gmx.de>
-# Copyright (C) 2005-2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -16,7 +16,7 @@
 #
 # Author: Jonas Borgström <jonas@edgewall.com>
 #         Christopher Lenz <cmlenz@gmx.de>
-#         Christian Boos <cboos@neuf.fr>
+#         Christian Boos <cboos@edgewall.org>
 
 from __future__ import with_statement
 
@@ -681,7 +681,7 @@ class ChangesetModule(Component):
         req.send_response(200)
         req.send_header('Content-Type', 'text/x-patch;charset=utf-8')
         req.send_header('Content-Disposition',
-                        content_disposition('inline', filename + '.diff'))
+                        content_disposition('attachment', filename + '.diff'))
         buf = StringIO()
         mimeview = Mimeview(self.env)
 
@@ -758,7 +758,7 @@ class ChangesetModule(Component):
         req.send_response(200)
         req.send_header('Content-Type', 'application/zip')
         req.send_header('Content-Disposition',
-                        content_disposition('inline', filename + '.zip'))
+                        content_disposition('attachment', filename + '.zip'))
 
         from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED as compression
 
@@ -990,6 +990,7 @@ class ChangesetModule(Component):
                                tag.strong(self._get_location(files) or '/')),
                         markup, class_="changes")
                 elif show_files:
+                    unique_files = set()
                     for c, r, repos_for_c in changesets:
                         for chg in c.get_changes():
                             resource = c.resource.parent.child('source',
@@ -998,8 +999,9 @@ class ChangesetModule(Component):
                                 continue
                             if show_files > 0 and len(files) > show_files:
                                 break
-                            files.append(tag.li(tag.div(class_=chg[2]),
-                                                chg[0] or '/'))
+                            unique_files.add((chg[0], chg[2]))
+                    files = [tag.li(tag.div(class_=mod), path or '/')
+                             for path, mod in sorted(unique_files)]
                     if show_files > 0 and len(files) > show_files:
                         files = files[:show_files] + [tag.li(u'\u2026')]
                     markup = tag(tag.ul(files, class_="changes"), markup)
@@ -1041,7 +1043,7 @@ class ChangesetModule(Component):
 
     # IWikiSyntaxProvider methods
 
-    CHANGESET_ID = r"(?:\d+|[a-fA-F\d]{8,})" # only "long enough" hexa ids
+    CHANGESET_ID = r"(?:[0-9]+|[a-fA-F0-9]{8,})" # only "long enough" hexa ids
 
     def get_wiki_syntax(self):
         yield (
@@ -1051,7 +1053,7 @@ class ChangesetModule(Component):
             # + optional query and fragment
             r"%s(?:/[^\]]*)?(?:\?[^\]]*)?(?:#[^\]]*)?\]|" % self.CHANGESET_ID +
             # r... form: allow r1 but not r1:2 (handled by the log syntax)
-            r"(?:\b|!)r\d+\b(?!:\d)(?:/[a-zA-Z0-9_/+-]+)?",
+            r"(?:\b|!)r[0-9]+\b(?!:[0-9])(?:/[a-zA-Z0-9_/+-]+)?",
             lambda x, y, z:
             self._format_changeset_link(x, 'changeset',
                                         y[1:] if y[0] == 'r' else y[1:-1],

@@ -6,8 +6,8 @@ from trac.ticket.default_workflow import ConfigurableTicketWorkflow
 from trac.perm import IPermissionRequestor
 from trac.config import Option, ListOption
 
-revision = "$Rev: 7457 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/trunk/sample-plugins/workflow/CodeReview.py $"
+revision = "$Rev$"
+url = "$URL$"
 
 class CodeReviewActionController(Component):
     """Support for simple code reviews.
@@ -17,7 +17,7 @@ class CodeReviewActionController(Component):
     a specific state will be selected.
 
     Example (from the enterprise-review-workflow.ini):
-
+    {{{
     review = in_review -> *
     review.name = review as
     review.operations = code_review
@@ -25,12 +25,13 @@ class CodeReviewActionController(Component):
       approve -> in_QA,
       approve as noted -> post_review,
       request changes -> in_work
-
+    }}}
     Don't forget to add the `CodeReviewActionController` to the workflow
-    option in [ticket].
-    If there is no workflow option, the line will look like this:
-
+    option in the `[ticket]` section in TracIni.
+    If there is no other workflow option, the line will look like this:
+    {{{
     workflow = ConfigurableTicketWorkflow,CodeReviewActionController
+    }}}
     """
 
     implements(ITicketActionController, IPermissionRequestor)

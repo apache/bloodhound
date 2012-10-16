@@ -62,7 +62,7 @@ class IRequestHandler(Interface):
         Note that if template processing should not occur, this method can
         simply send the response itself and not return anything.
 
-        :Since 0.13: Clearsilver templates are no longer supported.
+        :Since 1.0: Clearsilver templates are no longer supported.
         """
 
 
@@ -98,7 +98,7 @@ class IRequestFilter(Interface):
            at ClearSilver templates and the newer ones targeted at Genshi
            templates.
 
-        :Since 0.13: Clearsilver templates are no longer supported.
+        :Since 1.0: Clearsilver templates are no longer supported.
         """
 
 
@@ -150,7 +150,7 @@ class HTTPException(Exception):
         new_class.reason = reason
         return new_class
 
-
+_HTTPException_subclass_names = []
 for code in [code for code in HTTP_STATUS if code >= 400]:
     exc_name = HTTP_STATUS[code].replace(' ', '').replace('-', '')
     # 2.5 compatibility hack:
@@ -158,9 +158,10 @@ for code in [code for code in HTTP_STATUS if code >= 400]:
         exc_name = 'InternalError'
     if exc_name.lower().startswith('http'):
         exc_name = exc_name[4:]
-    exc_name = 'HTTP' + exc_name        
+    exc_name = 'HTTP' + exc_name
     setattr(sys.modules[__name__], exc_name,
             HTTPException.subclass(exc_name, code))
+    _HTTPException_subclass_names.append(exc_name)
 del code, exc_name
 
 
@@ -562,9 +563,12 @@ class Request(object):
         self.send_header('Content-Type', mimetype)
         self.send_header('Content-Length', stat.st_size)
         self.send_header('Last-Modified', last_modified)
+        use_xsendfile = getattr(self, 'use_xsendfile', False)
+        if use_xsendfile:
+            self.send_header('X-Sendfile', os.path.abspath(path))
         self.end_headers()
 
-        if self.method != 'HEAD':
+        if not use_xsendfile and self.method != 'HEAD':
             fileobj = file(path, 'rb')
             file_wrapper = self.environ.get('wsgi.file_wrapper', _FileWrapper)
             self._response = file_wrapper(fileobj, 4096)
@@ -703,3 +707,5 @@ class Request(object):
         cookies = to_unicode(self.outcookie.output(header='')).encode('utf-8')
         for cookie in cookies.splitlines():
             self._outheaders.append(('Set-Cookie', cookie.strip()))
+
+__no_apidoc__ = _HTTPException_subclass_names

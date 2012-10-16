@@ -17,16 +17,16 @@ import sys, os
 
 # General substitutions.
 project = 'Trac'
-copyright = '2010, Edgewall Software'
+copyright = '2012, Edgewall Software'
 url = 'http://trac.edgewall.org'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.13'
+version = '1.0'
 # The full version, including alpha/beta/rc tags.
-release = '0.13'
+release = '1.0'
 
 # Devel or Release mode for the documentation (if devel, include TODOs,
 # can also be used in conditionals: .. ifconfig :: devel)
@@ -325,15 +325,28 @@ pdf_fit_background_mode = 'scale'
 
 def setup(app):
     # adding role for linking to InterTrac targets on t.e.o
-    from urllib import quote
     from docutils import nodes
     from docutils.parsers.rst import roles
+
     def teo_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-        ref = url + '/intertrac/' + quote(text)
+        # special case ticket references
+        if text[0] == '#':
+            ref = url + '/ticket/' + text[1:]
+        else:
+            ref = url + '/intertrac/' + text
         roles.set_classes(options)
         node = nodes.reference(rawtext, text, refuri=ref, **options)
         return [node], []
     roles.register_canonical_role('teo', teo_role)
+
+    def extensionpoints_role(name, rawtext, text, lineno, inliner, options={},
+                             content=[]):
+        ref = url + '/wiki/TracDev/PluginDevelopment/ExtensionPoints/' + text
+        roles.set_classes(options)
+        node = nodes.reference(rawtext, text + " extension points",
+                               refuri=ref, **options)
+        return [node], []
+    roles.register_canonical_role('extensionpoints', extensionpoints_role)
 
     # ifconfig variables
     app.add_config_value('devel', '', True)

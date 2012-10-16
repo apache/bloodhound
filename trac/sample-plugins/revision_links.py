@@ -8,8 +8,8 @@ from trac.versioncontrol.api import NoSuchChangeset, RepositoryManager
 from trac.versioncontrol.web_ui import ChangesetModule
 from trac.wiki.api import IWikiSyntaxProvider
 
-revision = "$Rev: 9156 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/trunk/sample-plugins/revision_links.py $"
+revision = "$Rev$"
+url = "$URL$"
 
 class RevisionLinks(Component):
     """Adds a few more ways to refer to changesets."""

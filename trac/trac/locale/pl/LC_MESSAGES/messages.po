@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the Trac project.
 # Jeroen Ruigrok van der Werven <asmodai@in-nomine.org>, 2008.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Trac 0.12\n"
@@ -4825,7 +4826,7 @@ msgstr "Zatrzymaj się po skopiowaniu"
 
 #: trac/versioncontrol/templates/revisionlog.html:33
 msgid "Follow copies"
-msgstr "Podąrzaj za kopiami"
+msgstr "Podążaj za kopiami"
 
 #: trac/versioncontrol/templates/revisionlog.html:39
 msgid "Show only adds and deletes"

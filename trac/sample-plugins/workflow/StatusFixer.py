@@ -4,8 +4,8 @@ from trac.core import Component, implements
 from trac.ticket.api import ITicketActionController, TicketSystem
 from trac.perm import IPermissionRequestor
 
-revision = "$Rev: 10187 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/trunk/sample-plugins/workflow/StatusFixer.py $"
+revision = "$Rev$"
+url = "$URL$"
 
 class StatusFixerActionController(Component):
     """Provides the admin with a way to correct a ticket's status.
@@ -15,10 +15,11 @@ class StatusFixerActionController(Component):
     status can then be set to some valid state.
 
     Don't forget to add `StatusFixerActionController` to the workflow
-    option in [ticket].
-    If there is no workflow option, the line will look like this:
-
+    option in the `[ticket]` section in TracIni.
+    If there is no other workflow option, the line will look like this:
+    {{{
     workflow = ConfigurableTicketWorkflow,StatusFixerActionController
+    }}}
     """
 
     implements(ITicketActionController, IPermissionRequestor)

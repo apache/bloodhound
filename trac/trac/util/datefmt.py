@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2006 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2006 Matthew Good <trac@matt-good.net>
-# Copyright (C) 2005-2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -26,12 +26,16 @@ from locale import getlocale, getpreferredencoding, LC_TIME
 
 try:
     import babel
-    from babel.dates import format_datetime as babel_format_datetime, \
-                            format_date as babel_format_date, \
-                            format_time as babel_format_time, \
-                            get_datetime_format, get_date_format, \
-                            get_time_format, get_month_names, \
-                            get_period_names, get_day_names
+    from babel import Locale
+    from babel.core import LOCALE_ALIASES
+    from babel.dates import (
+        format_datetime as babel_format_datetime, 
+        format_date as babel_format_date,
+        format_time as babel_format_time,
+        get_datetime_format, get_date_format,
+        get_time_format, get_month_names,
+        get_period_names, get_day_names
+    )
 except ImportError:
     babel = None
 
@@ -373,6 +377,17 @@ def get_timezone_list_jquery_ui(t=None):
             if zone == '+0000' else zone[:-2] + ':' + zone[-2:]
             for zone in sorted(zones, key=lambda tz: int(tz))]
 
+def get_first_week_day_jquery_ui(req):
+    """Get first week day for jQuery date picker"""
+    locale = req.lc_time
+    if locale == 'iso8601':
+        return 1 # Monday
+    if babel and locale:
+        if not locale.territory and locale.language in LOCALE_ALIASES:
+            locale = Locale.parse(LOCALE_ALIASES[locale.language])
+        return (locale.first_week_day + 1) % 7
+    return 0 # Sunday
+
 def is_24_hours(locale):
     """Returns `True` for 24 hour time formats."""
     if locale == 'iso8601':
@@ -396,7 +411,11 @@ def http_date(t=None):
 
 _ISO_8601_RE = re.compile(r'''
     (\d\d\d\d)(?:-?(\d\d)(?:-?(\d\d))?)?    # date
-    (?:T(\d\d)(?::?(\d\d)(?::?(\d\d))?)?)?  # time
+    (?:
+        [T ]
+        (\d\d)(?::?(\d\d)(?::?(\d\d)        # time
+        (?:[,.](\d{1,6}))?)?)?              # microseconds
+    )?
     (Z?(?:([-+])?(\d\d):?(\d\d)?)?)?$       # timezone
     ''', re.VERBOSE)
 
@@ -408,8 +427,9 @@ def _parse_date_iso8601(text, tzinfo):
             years = g[0]
             months = g[1] or '01'
             days = g[2] or '01'
-            hours, minutes, seconds = [x or '00' for x in g[3:6]]
-            z, tzsign, tzhours, tzminutes = g[6:10]
+            hours, minutes, seconds, useconds = [x or '00' for x in g[3:7]]
+            useconds = (useconds + '000000')[:6]
+            z, tzsign, tzhours, tzminutes = g[7:11]
             if z:
                 tz = timedelta(hours=int(tzhours or '0'),
                                minutes=int(tzminutes or '0')).seconds / 60
@@ -419,10 +439,9 @@ def _parse_date_iso8601(text, tzinfo):
                     tzinfo = FixedOffset(-tz if tzsign == '-' else tz,
                                          '%s%s:%s' %
                                          (tzsign, tzhours, tzminutes))
-            tm = time.strptime('%s ' * 6 % (years, months, days,
-                                            hours, minutes, seconds),
-                               '%Y %m %d %H %M %S ')
-            t = tzinfo.localize(datetime(*tm[0:6]))
+            tm = [int(x) for x in (years, months, days,
+                                   hours, minutes, seconds, useconds)]
+            t = tzinfo.localize(datetime(*tm))
             return tzinfo.normalize(t)
         except ValueError:
             pass

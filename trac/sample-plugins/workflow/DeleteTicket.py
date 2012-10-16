@@ -4,8 +4,8 @@ from trac.core import implements,Component
 from trac.ticket.api import ITicketActionController
 from trac.perm import IPermissionRequestor
 
-revision = "$Rev: 6326 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/trunk/sample-plugins/workflow/DeleteTicket.py $"
+revision = "$Rev$"
+url = "$URL$"
 
 class DeleteTicketActionController(Component):
     """Provides the admin with a way to delete a ticket.
@@ -13,10 +13,11 @@ class DeleteTicketActionController(Component):
     Illustrates how to create an action controller with side-effects.
 
     Don't forget to add `DeleteTicketActionController` to the workflow
-    option in [ticket].
-    If there is no workflow option, the line will look like this:
-
+    option in the `[ticket]` section in TracIni.
+    If there is no other workflow option, the line will look like this:
+    {{{
     workflow = ConfigurableTicketWorkflow,DeleteTicketActionController
+    }}}
     """
 
     implements(ITicketActionController, IPermissionRequestor)

@@ -3,7 +3,7 @@
 # Copyright (C) 2005-2009 Edgewall Software
 # Copyright (C) 2003-2006 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2004-2006 Christopher Lenz <cmlenz@gmx.de>
-# Copyright (C) 2005-2007 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2007 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -16,7 +16,7 @@
 #
 # Author: Jonas Borgström <jonas@edgewall.com>
 #         Christopher Lenz <cmlenz@gmx.de>
-#         Christian Boos <cboos@neuf.fr>
+#         Christian Boos <cboos@edgewall.org>
 
 import re
 
@@ -117,7 +117,7 @@ class WikiParser(Component):
         r"(?P<hanchor>#%s)?\s*$)" % XML_NAME,
         #  * list
         r"(?P<list>^(?P<ldepth>\s*)"
-        ur"(?:[%s]|(?P<lstart>\d+|[a-zA-Z]|[ivxIVX]{1,5})\.)\s)"
+        ur"(?:[%s]|(?P<lstart>[0-9]+|[a-zA-Z]|[ivxIVX]{1,5})\.)\s)"
         % (BULLET_CHARS),
         # definition:: 
         r"(?P<definition>^\s+"

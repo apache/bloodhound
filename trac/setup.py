@@ -55,7 +55,7 @@ except ImportError:
 
 setup(
     name = 'Trac',
-    version = '0.13',
+    version = '1.0',
     description = 'Integrated SCM, wiki, issue tracker and project environment',
     long_description = """
 Trac is a minimalistic web-based software project management and bug/issue
@@ -139,8 +139,6 @@ facilities.
         trac.timeline = trac.timeline.web_ui
         trac.versioncontrol.admin = trac.versioncontrol.admin
         trac.versioncontrol.svn_authz = trac.versioncontrol.svn_authz
-        trac.versioncontrol.svn_fs = trac.versioncontrol.svn_fs
-        trac.versioncontrol.svn_prop = trac.versioncontrol.svn_prop
         trac.versioncontrol.web_ui = trac.versioncontrol.web_ui
         trac.web.auth = trac.web.auth
         trac.web.session = trac.web.session
@@ -158,6 +156,8 @@ facilities.
         tracopt.ticket.commit_updater = tracopt.ticket.commit_updater
         tracopt.ticket.deleter = tracopt.ticket.deleter
         tracopt.versioncontrol.git.git_fs = tracopt.versioncontrol.git.git_fs
+        tracopt.versioncontrol.svn.svn_fs = tracopt.versioncontrol.svn.svn_fs
+        tracopt.versioncontrol.svn.svn_prop = tracopt.versioncontrol.svn.svn_prop
     """,
 
     **extra

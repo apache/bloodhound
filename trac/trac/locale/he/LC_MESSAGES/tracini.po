@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Trac 0.13\n"
 "Report-Msgid-Bugs-To: trac-dev@googlegroups.com\n"
 "POT-Creation-Date: 2011-02-23 13:05+0900\n"
-"PO-Revision-Date: 2011-02-23 22:27+0900\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2012-09-08 00:27+0200\n"
+"Last-Translator: Itamar Ostricher <itamarost (at) gmail (dot) com>\n"
 "Language-Team: he <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: tracopt/mimeview/enscript.py:105
 msgid "Path to the Enscript executable."
-msgstr ""
+msgstr "נתיב לקובץ ההרצה של Enscript."
 
 #: tracopt/mimeview/enscript.py:108
 msgid ""
@@ -36,7 +36,7 @@ msgstr ""
 
 #: tracopt/mimeview/php.py:66
 msgid "Path to the PHP executable (''since 0.9'')."
-msgstr ""
+msgstr "נתיב לקובץ ההרצה של PHP (\"מאז 0.9\")"
 
 #: tracopt/mimeview/silvercity.py:81
 msgid ""
@@ -53,7 +53,7 @@ msgstr ""
 
 #: tracopt/perm/authz_policy.py:133
 msgid "Location of authz policy configuration file."
-msgstr ""
+msgstr "מיקום קובץ קונפיגורציית מדיניות authz."
 
 #: tracopt/ticket/commit_updater.py:106
 msgid ""
@@ -62,10 +62,14 @@ msgid ""
 "Must be empty or contain two characters. For example, if set to \"[]\",\n"
 "then commands must be in the form of [closes #4]."
 msgstr ""
+"פקודות נדרשות להופיע בתוך מעטפות.\n"
+"\n"
+"חייב להיות ריק או להכיל שני תווים. לדוגמה, אם נקבע לערך \"[]\",\n"
+"אז פקודות חייבות להיות מהצורה [close #4]."
 
 #: tracopt/ticket/commit_updater.py:112
 msgid "Commands that close tickets, as a space-separated list."
-msgstr ""
+msgstr "פקודות שסוגרות טיקטים, כרשימה המופרדת ע\"י רווחים."
 
 #: tracopt/ticket/commit_updater.py:116
 msgid ""
@@ -74,6 +78,10 @@ msgid ""
 "If set to the special value <ALL>, all tickets referenced by the\n"
 "message will get a reference to the changeset."
 msgstr ""
+"פקודות המוסיפות התייחסות, כרשימה מופרדת ע\"י רווחים.\n"
+"\n"
+"אם נקבע לערך המיוחד <ALL>, לכל הטיקטים אליהם מתייחסים\n"
+"בהודעה תצורף הפניה לקבוצת השינויים."
 
 #: tracopt/ticket/commit_updater.py:123
 msgid ""
@@ -83,16 +91,19 @@ msgid ""
 "This requires that the user names be the same for Trac and repository\n"
 "operations."
 msgstr ""
+"בדוק שלמבצע הפעולה יש הרשאות לביצוע הפעולה המבוקשת על הטיקט.\n"
+"\n"
+"זה מחייב ששמות המשתמש לטראק ולפעולות במצבור יהיו זהים."
 
 #: tracopt/ticket/commit_updater.py:131
 msgid "Send ticket change notification when updating a ticket."
-msgstr ""
+msgstr "שלח התראת שינוי טיקט בעת עדכון טיקט."
 
 #: trac/attachment.py:362
 msgid ""
 "Maximum allowed file size (in bytes) for ticket and wiki \n"
 "attachments."
-msgstr ""
+msgstr "גודל מותר מירבי (בבתים) לקבצים מצורפים לויקי ולטיקטים."
 
 #: trac/attachment.py:366
 msgid ""
@@ -100,6 +111,9 @@ msgid ""
 "downloadable as a `.zip`. Set this to -1 to disable download as `.zip`.\n"
 "(''since 0.13'')"
 msgstr ""
+"גודל כולל מותר מירבי (בבתים) לרשימת קבצים מצורפים\n"
+"שיאפשר הורדה שלהם כקובץ `.zip`. ניתן לקבוע לערך 1- ע\"מ למנוע לחלוטין הורדה "
+"בקבצי `.zip`. (''מאז 1.0'')"
 
 #: trac/attachment.py:371
 msgid ""
@@ -160,6 +174,13 @@ msgid ""
 "\n"
 "(''since 0.11'')"
 msgstr ""
+"נתיב ל//תיקיית פלאגינים משותפת//.\n"
+"\n"
+"פלאגינים בתיקייה זו נטענים בנוסף לפלאגינים הקיימים בתיקיית `plugins` של "
+"הסביבה,\n"
+"כאשר לתיקייה זו יש קדימות.\n"
+"\n"
+"(''מאז 0.11'')"
 
 #: trac/env.py:148
 msgid ""
@@ -170,6 +191,11 @@ msgid ""
 "context, like for example when inserting URLs pointing to Trac\n"
 "resources in notification e-mails."
 msgstr ""
+"כתובת URL להפניה לפריסת טראק זו.\n"
+"\n"
+"זוהי כתובת URL הבסיס לשימוש בעת הפקת מסמכים לשימוש מחוץ להקשר של עיון "
+"מקוון,\n"
+"כמו למשל בעת שילוב כתובות URL המצביעות למשאבי טראק באימיילי התראה."
 
 #: trac/env.py:156
 msgid ""
@@ -193,14 +219,19 @@ msgid ""
 "your Trac instance is only accessible through HTTPS. (''since\n"
 "0.11.2'')"
 msgstr ""
+"הגבל עוגיות לחיבורי HTTPS.\n"
+"\n"
+"כאשר true, הדלק את הדגל `secure` בכל העוגיות, ע\"מ שהן ישלחו\n"
+"לשרת רק מעל חיבור HTTPS. השתמש בזה אם מופע הטראק נגיש רק דרך HTTPS.\n"
+"(''מאז 0.11.2'')"
 
 #: trac/env.py:176
 msgid "Name of the project."
-msgstr ""
+msgstr "שם הפרויקט."
 
 #: trac/env.py:179
 msgid "Short description of the project."
-msgstr ""
+msgstr "תיאור קצר של הפרויקט."
 
 #: trac/env.py:182
 msgid ""
@@ -208,10 +239,12 @@ msgid ""
 "which the `base_url` resides. This is used in notification\n"
 "e-mails."
 msgstr ""
+"כתובת אתר הפרויקט הראשי. בד\"כ האתר בו נמצא `base_url`.\n"
+"הכתובת משמשת בהתראות באימייל."
 
 #: trac/env.py:187
 msgid "E-Mail address of the project's administrator."
-msgstr ""
+msgstr "כתובת אימייל של מנהלן הפרויקט."
 
 #: trac/env.py:190
 msgid ""
@@ -222,14 +255,18 @@ msgid ""
 "this Trac instance. An empty value will disable the reporting\n"
 "buttons.  (''since 0.11.3'')"
 msgstr ""
+"כתובת URL בסיס למופע טראק בו יש לדווח שגיאות בטראק זה.\n"
+"\n"
+"זה יכול להיות URL מוחלט או יחסי, או '.' להפניה לאותו טראק.\n"
+"ערך ריק יגרום לכיבוי כפתורי דיווח השגיאות. (''מאז 0.11.3'')"
 
 #: trac/env.py:199
 msgid "Page footer text (right-aligned)."
-msgstr ""
+msgstr "טקסט לתחתית העמוד (מיושר לשמאל)."
 
 #: trac/env.py:204
 msgid "URL of the icon of the project."
-msgstr ""
+msgstr "כתובת לאייקון של הפרויקט."
 
 #: trac/env.py:207
 msgid ""
@@ -237,6 +274,9 @@ msgid ""
 "\n"
 "Should be one of (`none`, `file`, `stderr`, `syslog`, `winlog`)."
 msgstr ""
+"שירות ניהול לוג לשימוש.\n"
+"\n"
+"אמור להיות אחד מהערכים (`none`, `file`, `stderr`, `syslog`, `winlog`)."
 
 #: trac/env.py:212
 msgid ""
@@ -244,6 +284,8 @@ msgid ""
 "log-file.  Relative paths are resolved relative to the `log`\n"
 "directory of the environment."
 msgstr ""
+"אם `log_type` הוא `file`, זה צריך להיות הנתיב לקובץ הלוג.\n"
+"נתיבים יחסיים מפורשים ביחס לתיקיית `log` של הסביבה."
 
 #: trac/env.py:217
 msgid ""
@@ -251,6 +293,9 @@ msgid ""
 "\n"
 "Should be one of (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`)."
 msgstr ""
+"רמת פירוט של הלוג.\n"
+"\n"
+"אמור להיות אחד מהערכים (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`)."
 
 #: trac/env.py:222
 msgid ""
@@ -263,9 +308,10 @@ msgid ""
 "In addition to regular key names supported by the Python\n"
 "logger library (see\n"
 "http://docs.python.org/library/logging.html), one could use:\n"
-" - $(path)s     the path for the current environment\n"
-" - $(basename)s the last path component of the current environment\n"
-" - $(project)s  the project name\n"
+"\n"
+"- $(path)s     the path for the current environment\n"
+"- $(basename)s the last path component of the current environment\n"
+"- $(project)s  the project name\n"
 "\n"
 "Note the usage of `$(...)s` instead of `%(...)s` as the latter form\n"
 "would be interpreted by the ConfigParser itself.\n"
@@ -285,58 +331,74 @@ msgid ""
 "server, and `SendmailEmailSender` for running a `sendmail`-compatible\n"
 "executable. (''since 0.12'')"
 msgstr ""
+"של של הרכיב המממש את `IEmailSender`.\n"
+"\n"
+"מערכת שליחת ההתראות משתמש ברכיב זה לשליחת אימיילים.\n"
+"טראק מספק רכיב `SmtpEmailSender` לצורל חיבור לשרת SMTP,\n"
+"ורכיב `SendmailEmailSender` להרצת קובץ הרצה תואם-`sendmail`.\n"
+"(''מאז 0.12'')"
 
 #: trac/notification.py:57
 msgid "Enable email notification."
-msgstr ""
+msgstr "אפשר התראות באמצעות אימייל."
 
 #: trac/notification.py:60
 msgid "Sender address to use in notification emails."
-msgstr ""
+msgstr "כתובת השולח לשימוש באימיילי התראות."
 
 #: trac/notification.py:63
 msgid "Sender name to use in notification emails."
-msgstr ""
+msgstr "שם השולח לשימוש באימיילי התראות."
 
 #: trac/notification.py:66
 msgid ""
 "Use the action author as the sender of notification emails.\n"
 "(''since 0.13'')"
 msgstr ""
+"עשה שימוש במבצע הפעולה בתור השולח של אימייל ההתראה.\n"
+"(''מאז 0.13'')"
 
 #: trac/notification.py:70
 msgid "Reply-To address to use in notification emails."
-msgstr ""
+msgstr "כתובת לדוא\"ל-חוזר לשימוש באימיילי התראה."
 
 #: trac/notification.py:73
 msgid ""
 "Email address(es) to always send notifications to,\n"
 "addresses can be seen by all recipients (Cc:)."
 msgstr ""
+"כתובת/כתובות אימייל שתמיד יקבלו התראות,\n"
+"הכתובות גלויות לעיניי כל הנמענים (Cc)."
 
 #: trac/notification.py:77
 msgid ""
 "Email address(es) to always send notifications to,\n"
 "addresses do not appear publicly (Bcc:). (''since 0.10'')"
 msgstr ""
+"כתובת/כתובות אימייל שתמיד יקבלו התראות,\n"
+"הכתובות אינן מוצגות בפומבי (Bcc). (''מאז 0.10'')"
 
 #: trac/notification.py:81
 msgid ""
 "Default host/domain to append to address that do not specify\n"
 "one."
-msgstr ""
+msgstr "ערך host/domain ברירת מחדל להוסיף לכתובות שאינן מכילות ערך כזה."
 
 #: trac/notification.py:85
 msgid ""
 "Comma-separated list of domains that should not be considered\n"
 "part of email addresses (for usernames with Kerberos domains)."
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של דומיינים שאין לפרש כחלק מכתובת אימייל (עבור שמות-"
+"משתמש בדומיינים עם Kerberos)."
 
 #: trac/notification.py:89
 msgid ""
 "Comma-separated list of domains that should be considered as\n"
 "valid for email addresses (such as localdomain)."
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של דומיינים שאין לפרש ככתובות אימייל חוקיות (כגון "
+"localdomain)."
 
 #: trac/notification.py:93
 msgid ""
@@ -347,6 +409,11 @@ msgid ""
 "be sent as 7bit if the content is all ASCII, or 8bit otherwise.\n"
 "(''since 0.10'')"
 msgstr ""
+"מגדיר את סכימת קידוד ה-MIME לאימיילים.\n"
+"\n"
+"אפשרויות תקינות הן 'base64' לקידוד Base64, 'qp' לקידוד\n"
+"Quoted-Printable, ו-'none' להגדרה ללא קידוד, במקרה זה יישלחו אימיילים\n"
+"כ-7bit אם התוכן כולו ASCII, ו-8bit אחרת. (''מאז 0.10'')"
 
 #: trac/notification.py:101
 msgid ""
@@ -355,6 +422,10 @@ msgid ""
 "If this option is disabled (the default), recipients are put on BCC.\n"
 "(''since 0.10'')"
 msgstr ""
+"נמענים יכולים לראות כתובות אימייל של נמענים אחרים הנמצאים ב-CC.\n"
+"\n"
+"אם אפשרות זו מנוטרלת (ברירת המחדל), הנמענים יופיעו תחת BCC.\n"
+"(''מאז 0.10'')"
 
 #: trac/notification.py:107
 msgid ""
@@ -363,6 +434,10 @@ msgid ""
 "The SMTP server should accept those addresses, and either append\n"
 "a FQDN or use local delivery. (''since 0.10'')"
 msgstr ""
+"התר כתובות אימייל ללא host/domain (כגון שמות-משתמש בלבד).\n"
+"\n"
+"שרת ה-SMTP אמור לקבל כתובות כאלה, ולהוסיף FQDN או להשתמש בהעברה מקומית. "
+"(''מאז 0.10'')"
 
 #: trac/notification.py:113
 msgid ""
@@ -372,26 +447,30 @@ msgid ""
 "If no prefix is desired, then specifying an empty option \n"
 "will disable it. (''since 0.10.1'')"
 msgstr ""
+"טקסט שיש להוסיף בתחילת שורת הנושא של אימיילי התראה.\n"
+"\n"
+"אם ההגדרה חסרה אז נעשה שימוש בתחילית [$project_name].\n"
+"אם לא מעוניינים בתחילית כלל, יש להגדיר אופציה ריקה. (''מאז 0.10.1'')"
 
 #: trac/notification.py:131
 msgid "SMTP server hostname to use for email notifications."
-msgstr ""
+msgstr "hostname של שרת SMTP לשימוש במיילי התראה."
 
 #: trac/notification.py:134
 msgid "SMTP server port to use for email notification."
-msgstr ""
+msgstr "פורט של שרת SMTP לשימוש במיילי התראה."
 
 #: trac/notification.py:137
 msgid "Username for SMTP server. (''since 0.9'')"
-msgstr ""
+msgstr "שם משתמש לשרת SMTP. (''מאז 0.9'')"
 
 #: trac/notification.py:140
 msgid "Password for SMTP server. (''since 0.9'')"
-msgstr ""
+msgstr "סיסמה לשרת SMTP. (''מאז 0.9'')"
 
 #: trac/notification.py:143
 msgid "Use SSL/TLS to send notifications over SMTP. (''since 0.10'')"
-msgstr ""
+msgstr "השתמש ב-SSL/TLS לשליחת מייל התראה באמצעות SMTP. (''מאז 0.10'')"
 
 #: trac/notification.py:189
 msgid ""
@@ -400,12 +479,17 @@ msgid ""
 "The sendmail program must accept the `-i` and `-f` options.\n"
 " (''since 0.12'')"
 msgstr ""
+"נתיב לקובץ ההרצה של sendmail.\n"
+"\n"
+"תוכנית ה-sendmail חייבת לקבל את האופציות `-i` ו-`-f`.\n"
+"(''מאז 0.12'')"
 
 #: trac/perm.py:294
 msgid ""
 "Name of the component implementing `IPermissionStore`, which is used\n"
 "for managing user and group permissions."
 msgstr ""
+"שם המרכיב המממש את `IPermissionStore`, המשמש לניהול הרשאות משתמשים וקבוצות."
 
 #: trac/perm.py:299
 msgid ""
@@ -416,6 +500,11 @@ msgid ""
 "LegacyAttachmentPolicy (map ATTACHMENT_* permissions to realm specific\n"
 "ones)"
 msgstr ""
+"רשימה של רכיבים המממשים את `IPermissionPolicy`, עפ\"י סדר החלתם.\n"
+"רכיבים אלה מנהלים בקרת גישה הדוקה למשאבי טראק.\n"
+"ברירת המחדל היא DefaultPermissionPolicy (התנהגות קדם-0.11) ו-"
+"LegacyAttachmentPolicy\n"
+"(מיפוי הרשאות ATTACHMENT_* להרשאות ספציפיות לתחומים)"
 
 #: trac/db/api.py:207
 msgid ""
@@ -423,48 +512,56 @@ msgid ""
 "[wiki:TracEnvironment#DatabaseConnectionStrings string] for this\n"
 "project"
 msgstr ""
+"[wiki:TracEnvironment#DatabaseConnectionStrings מחרוזת] חיבור למסד הנתונים "
+"עבור פרויקט זה"
 
 #: trac/db/api.py:212
 msgid "Database backup location"
-msgstr ""
+msgstr "מיקום גיבוי מסד נתונים"
 
 #: trac/db/api.py:215
 msgid ""
 "Timeout value for database connection, in seconds.\n"
 "Use '0' to specify ''no timeout''. ''(Since 0.11)''"
 msgstr ""
+"ערך timeout לחיבור למסד הנתונים, בשניות.\n"
+"ניתן להשתמש בערך '0' ע\"מ לציין ''ללא timeout''. (''מאז 0.11'')"
 
 #: trac/db/api.py:219
 msgid ""
 "Show the SQL queries in the Trac log, at DEBUG level.\n"
 "''(Since 0.11.5)''"
 msgstr ""
+"הצג שאילתות SQL ביומן טראק, ברמת יומן DEBUG.\n"
+"''(מאז 0.11.5)''"
 
 #: trac/db/mysql_backend.py:78
 msgid "Location of mysqldump for MySQL database backups"
-msgstr ""
+msgstr "מיקום של mysqldump עבור גיבויי מסד נתונים MySQL"
 
 #: trac/db/postgres_backend.py:72
 msgid "Location of pg_dump for Postgres database backups"
-msgstr ""
+msgstr "מיקום של pg_dump עבור גיבויי מסד נתונים Postgres"
 
 #: trac/db/sqlite_backend.py:143
 msgid ""
 "Paths to sqlite extensions, relative to Trac environment's\n"
 "directory or absolute. (''since 0.12'')"
 msgstr ""
+"נתיבים להרחבות sqlite, יחסית לתיקיית סביבת טראק, או נתיבים מוחלטים. (''מאז "
+"0.12'')"
 
 #: trac/mimeview/api.py:576
 msgid "Charset to be used when in doubt."
-msgstr ""
+msgstr "סט-תווים לשימוש כאשר בספק."
 
 #: trac/mimeview/api.py:579
 msgid "Displayed tab width in file preview. (''since 0.9'')"
-msgstr ""
+msgstr "רוחב טאבים מוצג בתצוגה מקדימה של קבצים. (''מאז 0.9'')"
 
 #: trac/mimeview/api.py:582
 msgid "Maximum file size for HTML preview. (''since 0.9'')"
-msgstr ""
+msgstr "גודל קובץ מירבי לתצוגה מקדימה של HTML. (''מאז 0.9'')"
 
 #: trac/mimeview/api.py:585
 msgid ""
@@ -473,16 +570,21 @@ msgid ""
 "there's a colon (\":\") separated list of associated keywords\n"
 "or file extensions. (''since 0.10'')"
 msgstr ""
+"רשימה של סוגי MIME נוספים ומיפויי מילות מפתח.\n"
+"מיפויים מופרדים ע\"י פסיקים, ולכל סוג MIME יש רשימה מופרדת\n"
+"ע\"י נקודותיים (\":\") של מילות מפתח משוייכות או סיומות קבצים. (''מאז 0.10'')"
 
 #: trac/mimeview/api.py:592
 msgid ""
 "Comma-separated list of MIME types that should be treated as\n"
 "binary data. (''since 0.11.5'')"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של סוגי MIME שיש לפרש בתור נתונים בינאריים. (''מאז "
+"0.11.5'')"
 
 #: trac/mimeview/pygments.py:50
 msgid "The default style to use for Pygments syntax highlighting."
-msgstr ""
+msgstr "סגנון ברירת מחדל לשימוש עבור הדגשת תחביר ב-Pygments."
 
 #: trac/mimeview/pygments.py:53
 msgid ""
@@ -499,7 +601,7 @@ msgstr ""
 
 #: trac/search/web_ui.py:47
 msgid "Minimum length of query string allowed when performing a search."
-msgstr ""
+msgstr "אורך מותר מינימאלי של מחרוזת השאילתא בעת ביצוע חיפוש."
 
 #: trac/search/web_ui.py:50
 msgid ""
@@ -517,23 +619,26 @@ msgstr ""
 
 #: trac/tests/config.py:195
 msgid "b"
-msgstr ""
+msgstr "b"
 
 #: trac/tests/config.py:297
 msgid "Doc for c"
-msgstr ""
+msgstr "Doc for c"
 
 #: trac/ticket/api.py:166
 msgid ""
 "In this section, you can define additional fields for tickets. See\n"
 "TracTicketsCustomFields for more details."
 msgstr ""
+"במקטע זה ניתן להגדיר שדות נוספים לטיקטים.\n"
+"ראה TracTicketsCustomFields לפרטים נוספים."
 
 #: trac/ticket/api.py:170
 msgid ""
 "Ordered list of workflow controllers to use for ticket actions\n"
 "(''since 0.11'')."
 msgstr ""
+"רשימה סדורה של בקרי זרימת תהליך עבודה לשימוש עבור פעולות טיקט (''מאז 0.11'')."
 
 #: trac/ticket/api.py:176
 msgid ""
@@ -547,56 +652,63 @@ msgid ""
 "e-mail addresses must remain protected.\n"
 "(''since 0.9'')"
 msgstr ""
+"השתמש בתפריט בחירה נפתח עבור שדה משתמש אחראי של טיקטים.\n"
+"יש להבין את המשמעות של אופציה זו על הביצועים לפני הפעלה.\n"
+"ראה [TracTickets#Assign-toasDrop-DownList Assign-to as Drop-Down List].\n"
+"\n"
+"שים לב שכתובות אימייל '''אינן''' מעורפלות בתפריט הבחירה הנוצר,\n"
+"כך שאין להשתמש באופציה זו במקרה שכתובות אימייל צריכות להישמר מוגנות.\n"
+"(''מאז 0.9'')"
 
 #: trac/ticket/api.py:187
 msgid "Default version for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה גרסה עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:190
 msgid "Default type for newly created tickets (''since 0.9'')."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה סוג עבור טיקטים חדשים (''מאז 0.9'')."
 
 #: trac/ticket/api.py:193
 msgid "Default priority for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה עדיפות עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:196
 msgid "Default milestone for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה אבן דרך עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:199
 msgid "Default component for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה רכיב עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:202
 msgid "Default severity for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה חומרה עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:205
 msgid "Default summary (title) for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה תיאור קצר (כותרת) עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:208
 msgid "Default description for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה תיאור מפורט עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:211
 msgid "Default keywords for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה מילות מפתח עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:214
 msgid "Default owner for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה אחראי עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:217
 msgid "Default cc: list for newly created tickets."
-msgstr ""
+msgstr "ערך ברירת מחדל לשדה רשימת מכותבים עבור טיקטים חדשים."
 
 #: trac/ticket/api.py:220
 msgid ""
 "Default resolution for resolving (closing) tickets\n"
 "(''since 0.11'')."
-msgstr ""
+msgstr "ערך ברירת מחדל להחלטה בעת סגירת טיקטים (''מאז 0.11'')."
 
 #: trac/ticket/default_workflow.py:101
 msgid ""
@@ -607,22 +719,30 @@ msgid ""
 "\n"
 "(''since 0.11'')"
 msgstr ""
+"זרימת העבודה של טיקטים נשלטת ע\"י פלאגינים. כברירת מחדל,\n"
+"רק הרכיב `ConfigurableTicketWorkflow` אחראי לכך.\n"
+"רכיב זה מאפשר להגדיר את זרימת העבודה באמצעות מקטע זה בקובץ\n"
+"`trac.ini`. ראה TracWorkflow לפרטים נוספים.\n"
+"\n"
+"(''מאז 0.11'')"
 
 #: trac/ticket/notification.py:37
 msgid "Always send notifications to the ticket owner (''since 0.9'')."
-msgstr ""
+msgstr "תמיד שלח התראות למשתמש האחראי על הטיקט (''מאז 0.9'')."
 
 #: trac/ticket/notification.py:41
 msgid ""
 "Always send notifications to any address in the ''reporter''\n"
 "field."
-msgstr ""
+msgstr "תמיד שלח התראות לכל כתובת בשדה ''reporter''."
 
 #: trac/ticket/notification.py:47
 msgid ""
 "Always send notifications to the person who causes the ticket \n"
 "property change and to any previous updater of that ticket."
 msgstr ""
+"תמיד שלח התראות למשתמש שביצע שינוי בטיקט ולכל משתמש קודם שביצע שינוי באותו "
+"טיקט."
 
 #: trac/ticket/notification.py:52
 msgid ""
@@ -632,6 +752,11 @@ msgid ""
 "`$prefix` being the value of the `smtp_subject_prefix` option.\n"
 "''(since 0.11)''"
 msgstr ""
+"קטע תבנית טקסט של Genshi המשמש למשיכת נושא ההתראה.\n"
+"\n"
+"ברירת המחדל היא לתבנית נושא `$prefix #$ticket.id: $summary`.\n"
+"`$prefix` הוא הערך של האופציה `smtp_subject_prefix`.\n"
+"''(מאז 0.11)''"
 
 #: trac/ticket/notification.py:60
 msgid ""
@@ -643,6 +768,13 @@ msgid ""
 "US-ASCII characters.  This is expected by CJK users. ''(since\n"
 "0.12.2)''"
 msgstr ""
+"באיזה רוחב של תווים דו-משמעיים (למשל 'single' או 'double') יש להשתמש בטבלה "
+"של אימיילי התראה.\n"
+"\n"
+"אם 'single', אותו הרוחב כמו תווים ב-US-ASCII.\n"
+"זוהי ההתנהגות המצופה ע\"י מרבית המשתמשים.\n"
+"אם 'double', רוחב כפול מ-US-ASCII.\n"
+"זוהי ההתנהות המצופה ע\"י משתמשי CJK. (''מאז 0.12.2'')"
 
 #: trac/ticket/query.py:816
 msgid ""
@@ -652,6 +784,11 @@ msgid ""
 "[TracQuery#UsingTracLinks Trac links].\n"
 "(''since 0.11.2'')"
 msgstr ""
+"שאילתת ברירת מחדל למשתמש מאומת. השאילתא נתונה בתחביר "
+"[TracQuery#QueryLanguage שפת שאילתות],\n"
+"או מחרוזת שאילתת URL המתחילה ב-`?` כפי שמשמש ב-`query:`\n"
+"[TracQuery#UsingTracLinks Trac links].\n"
+"(''מאז 0.11.2'')"
 
 #: trac/ticket/query.py:824
 msgid ""
@@ -661,24 +798,31 @@ msgid ""
 "[TracQuery#UsingTracLinks Trac links].\n"
 "(''since 0.11.2'')"
 msgstr ""
+"שאילתת ברירת מחדל למשתמש אנונימי. השאילתא נתונה בתחביר "
+"[TracQuery#QueryLanguage שפת שאילתות],\n"
+"או מחרוזת שאילתת URL המתחילה ב-`?` כפי שמשמש ב-`query:`\n"
+"[TracQuery#UsingTracLinks Trac links].\n"
+"(''מאז 0.11.2'')"
 
 #: trac/ticket/query.py:832
 msgid ""
 "Number of tickets displayed per page in ticket queries,\n"
 "by default (''since 0.11'')"
 msgstr ""
+"מספר טיקטים המוצגים בכל עמוד בשאילתות טיקטים כברירת מחדל (''מאז 0.11'')"
 
 #: trac/ticket/report.py:60
 msgid ""
 "Number of tickets displayed per page in ticket reports,\n"
 "by default (''since 0.11'')"
 msgstr ""
+"מספר טיקטים המוצגים בכל עמוד בדו\"חות טיקטים כברירת מחדל (''מאז 0.11'')"
 
 #: trac/ticket/report.py:64
 msgid ""
 "Number of tickets displayed in the rss feeds for reports\n"
 "(''since 0.11'')"
-msgstr ""
+msgstr "מספר טיקטים המוצגים בפיד-RSS של דו\"חות (''מאז 0.11'')"
 
 #: trac/ticket/roadmap.py:169
 msgid ""
@@ -693,11 +837,10 @@ msgid ""
 "closed = closed\n"
 "# sequence number in the progress bar\n"
 "closed.order = 0\n"
-"# optional extra param for the query (two additional columns: created and"
-" modified and sort on created)\n"
-"closed.query_args = "
-"group=resolution,order=time,col=id,col=summary,col=owner,col=type,col=priority,col=component,col=severity,col=time,col=changetime"
-"\n"
+"# optional extra param for the query (two additional columns: created and "
+"modified and sort on created)\n"
+"closed.query_args = group=resolution,order=time,col=id,col=summary,col=owner,"
+"col=type,col=priority,col=component,col=severity,col=time,col=changetime\n"
 "# indicates groups that count for overall completion percentage\n"
 "closed.overall_completion = true\n"
 "\n"
@@ -732,6 +875,8 @@ msgid ""
 "which is used to collect statistics on groups of tickets for display\n"
 "in the roadmap views."
 msgstr ""
+"שם הרכיב המממש `ITicketGroupStatsProvider`, \n"
+"המשמש לאיסוף סטטיסטיקות על קבוצות של טיקטים להצגה בתצוגת מפת הדרכים."
 
 #: trac/ticket/roadmap.py:549
 msgid ""
@@ -739,24 +884,28 @@ msgid ""
 "which is used to collect statistics on groups of tickets for display\n"
 "in the milestone views."
 msgstr ""
+"שם הרכיב המממש `ITicketGroupStatsProvider`, \n"
+"המשמש לאיסוף סטטיסטיקות על קבוצות של טיקטים להצגה בתצוגת אבני הדרך."
 
 #: trac/ticket/web_ui.py:67
 msgid ""
 "Enable the display of all ticket changes in the timeline, not only\n"
 "open / close operations (''since 0.9'')."
 msgstr ""
+"אפשר הצגה של כל שינויי הטיקטים בציר הזמן, ולא רק פעולות יצירה / סגירה (''מאז "
+"0.9'')."
 
 #: trac/ticket/web_ui.py:71
 msgid ""
 "Don't accept tickets with a too big description.\n"
 "(''since 0.11'')."
-msgstr ""
+msgstr "אל תקבל טיקטים עם תיאור מפורט ארוך מידי. (''מאז 0.11'')"
 
 #: trac/ticket/web_ui.py:75
 msgid ""
 "Don't accept tickets with a too big comment.\n"
 "(''since 0.11.2'')"
-msgstr ""
+msgstr "אל תקבל טיקטים עם הערה ארוכה מידי. (''מאז 0.11.2'')"
 
 #: trac/ticket/web_ui.py:79
 msgid ""
@@ -765,6 +914,9 @@ msgid ""
 "If 'oneliner', the [timeline] abbreviated_messages option applies.\n"
 "(''since 0.11'')."
 msgstr ""
+"באיזה סגנון פורמטר (למשל 'html' או 'oneliner') להשתמש בהצגת התיאור המפורט של "
+"טיקטים חדשים.\n"
+"אם 'oneliner', האופציה  [timeline] abbreviated_messages תקפה (''מאז 0.11'')."
 
 #: trac/ticket/web_ui.py:86
 msgid ""
@@ -774,6 +926,10 @@ msgid ""
 "but keeps the old behavior for upgraded environments (i.e. 'no').\n"
 "(''since 0.11'')."
 msgstr ""
+"האם הויקי-פורמטר צריך להתחשב בשורות החדשות הנמצאות בויקי-טקסט.\n"
+"אם נקבע לערך 'default', זה שקול לערך 'yes' עבור סביבות חדשות\n"
+"אבל שומר על ההתנהגות הישנה עבור סביבות משודרגות (כלומר 'no').\n"
+"(''מאז 0.11'')"
 
 #: trac/ticket/web_ui.py:93
 msgid ""
@@ -783,18 +939,23 @@ msgid ""
 "[TracQuery#UsingTracLinks Trac links].\n"
 "(''since 0.12'')"
 msgstr ""
+"שאילתת בסיס לשימוש בעת קישרור של ערכי שדות טיקטים.\n"
+"השאילתא היא מחרוזת שאילתת URL המתחילה ב-`?` כפי שמשמש ב-`query:`\n"
+"[TracQuery#UsingTracLinks Trac links].\n"
+"(''מאז 0.12'')"
 
 #: trac/timeline/web_ui.py:51
 msgid ""
 "Default number of days displayed in the Timeline, in days.\n"
 "(''since 0.9.'')"
-msgstr ""
+msgstr "ערך ברירת מחדל למספר הימים המוצגים בציר הזמן, בימים. (''מאז 0.9'')"
 
 #: trac/timeline/web_ui.py:55
 msgid ""
 "Maximum number of days (-1 for unlimited) displayable in the \n"
 "Timeline. (''since 0.11'')"
 msgstr ""
+"מספר מירבי של ימים (1- עבור ללא הגבלה) שניתן להציג בציר הזמן. (''מאז 0.11'')"
 
 #: trac/timeline/web_ui.py:59
 msgid ""
@@ -804,6 +965,11 @@ msgid ""
 "specific event providers, see their own documentation.\n"
 "(''Since 0.11'')"
 msgstr ""
+"האם לקצר הודעות אירועים בפורמט-ויקי או לא.\n"
+"\n"
+"זה משפיע רק על הצגת ברירת המחדל, וניתן לעקיפה ע\"י ספקי אירועים ספציפיים. יש "
+"להיוועץ בתיעוד שלהם.\n"
+"(''מאז 0.11'')"
 
 #: trac/versioncontrol/admin.py:168
 msgid ""
@@ -812,6 +978,9 @@ msgid ""
 "admin panel. If the list is empty, all repository directories are\n"
 "allowed. (''since 0.12.1'')"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של תחיליות מותרות לתיקיות מצבורים\n"
+"בעת הוספה או עריכה של מצבורים בפאנל ניהול המצבורים.\n"
+"אם הרשימה ריקה, כל תיקיות המצבורים מותרות. (''מאז 0.12.1'')"
 
 #: trac/versioncontrol/api.py:284
 msgid ""
@@ -828,6 +997,17 @@ msgid ""
 "\n"
 "(''since 0.12'')"
 msgstr ""
+"אחת האלטרנטיבות לרשום מצבורים חדשים היא למלא את המקטע `[repositories]` של "
+"`trac.ini`.\n"
+"\n"
+"זה מתאים במיוחד להגדרת שמות נרדפים נוחים, מצבורים קצרי חיים, או במהלך שלבים "
+"ראשוניים של ההתקנה.\n"
+"\n"
+"ראה [TracRepositoryAdmin#Intrac.ini TracRepositoryAdmin] לפירוט אודות הפורמט "
+"המשמש למקטע זה\n"
+"ושאר העמוד הנ\"ל לאלטרנטיבות נוספות.\n"
+"\n"
+"(''מאז 0.12'')"
 
 #: trac/versioncontrol/api.py:298
 msgid ""
@@ -837,6 +1017,11 @@ msgid ""
 "defined in [[TracIni#repositories-section repositories]] or using the\n"
 "\"Repositories\" admin panel. (''since 0.12'')"
 msgstr ""
+"ערך ברירת מחדל עבור סוג קונקטור למצבור. (''מאז 0.10'')\n"
+"\n"
+"זה משמש גם כערך ברירת מחדל לסוג מצבור עבור מצבורים המוגדרים ב"
+"[[TracIni#repositories-section מצבורים]] או בשימוש\n"
+"בפאנל ניהול \"מצבורים\". (''מאז 0.12'')"
 
 #: trac/versioncontrol/api.py:306
 msgid ""
@@ -847,6 +1032,11 @@ msgid ""
 "[TracIni#repositories-section repositories] section, or using the\n"
 "\"Repositories\" admin panel. (''since 0.12'')"
 msgstr ""
+"נתיב למצבור ברירת המחדל. ניתן לספק נתיב יחסי (''מאז 0.11'').\n"
+"\n"
+"אופציה זו מיושנת, וכעת יש להגדיר מצבורים במקטע ה[TracIni#repositories-"
+"section repositories],\n"
+"או להשתמש בפאנל ניהול \"מצבורים\""
 
 #: trac/versioncontrol/api.py:314
 msgid ""
@@ -861,6 +1051,15 @@ msgid ""
 "repositories specified here. The default is to synchronize the default\n"
 "repository, for backward compatibility. (''since 0.12'')"
 msgstr ""
+"רשימה של מצבורים שיש לסנכרן בכל בקשה של עמוד.\n"
+"\n"
+"ניתן להשאיר אופציה זו ריקה אם הוגדר סקריפט post-commit המבצע קריאה\n"
+"לפקודה `trac-admin $ENV changeset added` עבור על המצבורים (מומלץ).\n"
+"אחרת, יש לקבוע את הערך לרשימה מופרדת ע\"י פסיקים של שמות מצבורים.\n"
+"שים לב שיש לכך השפעה השלילית על הביצועים, ושזה ימנע ממאזיני-קבוצות-שינויים "
+"לקבל אירועים מהמצבורים המפורטים כאן.\n"
+"ערך ברירת המחדל הוא לסנכרן את מצבור ברירת המחדלף לשם תאימות לאחור. (''מאז "
+"01.2'')"
 
 #: trac/versioncontrol/svn_authz.py:124
 msgid ""
@@ -870,12 +1069,18 @@ msgid ""
 "To enable authz permission checking, the `AuthzSourcePolicy` permission\n"
 "policy must be added to `[trac] permission_policies`."
 msgstr ""
+"נתיב ל[http://svnbook.red-bean.com/en/1.5/svn.serverconfig.pathbasedauthz."
+"html קובץ ניהול הרשאות] של Subversion.\n"
+"ע\"מ לאפשר בדיקת הרשאות ע\"ב authz, יש להוסיף את מדיניות ההרשאות "
+"`AuthzSourcePolicy` ל-`[trac] permission_policies`."
 
 #: trac/versioncontrol/svn_authz.py:131
 msgid ""
 "The module prefix used in the `authz_file` for the default\n"
 "repository. If left empty, the global section is used."
 msgstr ""
+"תחילית המודול המשמשת ב-`authz_file` למצבור ברירת המחדל.\n"
+"אם נשאר ריק, יעשה שימוש במקטע הגלובאלי."
 
 #: trac/versioncontrol/svn_fs.py:253
 msgid ""
@@ -884,6 +1089,9 @@ msgid ""
 "that path will be included. \n"
 "Example: `/trunk, /branches/*, /projectAlpha/trunk, /sandbox/*`"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של נתיבים המוגדרים כענפים.\n"
+"אם נתיב מסתיים ב-'*', אז כל התיקיות הקיימות תחת אותו נתיב יכללו.\n"
+"דוגמה: `/trunk, /branches/*, /projectAlpha/trunk, /sandbox/*`"
 
 #: trac/versioncontrol/svn_fs.py:260
 msgid ""
@@ -893,6 +1101,9 @@ msgid ""
 "that path will be included.\n"
 "Example: `/tags/*, /projectAlpha/tags/A-1.0, /projectAlpha/tags/A-v1.1`"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של נתיבים המוגדרים כתגים.\n"
+"אם נתיב מסתיים ב-'*', אז כל התיקיות הקיימות תחת אותו נתיב יכללו.\n"
+"דוגמה: `/tags/*, /projectAlpha/tags/A-1.0, /projectAlpha/tags/A-v1.1`"
 
 #: trac/versioncontrol/svn_prop.py:37
 msgid ""
@@ -909,22 +1120,22 @@ msgid ""
 "Example:\n"
 "{{{\n"
 "[svn:externals]\n"
-"1 = svn://server/repos1                       "
-"http://trac/proj1/browser/$path?rev=$rev\n"
-"2 = svn://server/repos2                       "
-"http://trac/proj2/browser/$path?rev=$rev\n"
-"3 = http://theirserver.org/svn/eng-soft       "
-"http://ourserver/viewvc/svn/$path/?pathrev=25914\n"
-"4 = svn://anotherserver.com/tools_repository  "
-"http://ourserver/tracs/tools/browser/$path?rev=$rev\n"
+"1 = svn://server/repos1                       http://trac/proj1/browser/"
+"$path?rev=$rev\n"
+"2 = svn://server/repos2                       http://trac/proj2/browser/"
+"$path?rev=$rev\n"
+"3 = http://theirserver.org/svn/eng-soft       http://ourserver/viewvc/svn/"
+"$path/?pathrev=25914\n"
+"4 = svn://anotherserver.com/tools_repository  http://ourserver/tracs/tools/"
+"browser/$path?rev=$rev\n"
 "}}}\n"
 "With the above, the\n"
 "`svn://anotherserver.com/tools_repository/tags/1.1/tools` external will\n"
 "be mapped to `http://ourserver/tracs/tools/browser/tags/1.1/tools?rev=`\n"
 "(and `rev` will be set to the appropriate revision number if the\n"
 "external additionally specifies a revision, see the\n"
-"[http://svnbook.red-bean.com/en/1.4/svn.advanced.externals.html SVN Book "
-"on externals]\n"
+"[http://svnbook.red-bean.com/en/1.4/svn.advanced.externals.html SVN Book on "
+"externals]\n"
 "for more details).\n"
 "\n"
 "Note that the number used as a key in the above section is purely used\n"
@@ -946,6 +1157,10 @@ msgid ""
 "\n"
 "(''since 0.11'')"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של מאפייני מערכת ניהול גרסאות שיש להציג כתוכן-ויקי "
+"בסייר המצבורים.\n"
+"\n"
+"(''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:125
 msgid ""
@@ -954,6 +1169,10 @@ msgid ""
 "\n"
 "(''since 0.11'')"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של מאפייני מערכת ניהול גרסאות שיש להציג כתוכן-ויקי "
+"onelienr בסייר המצבורים.\n"
+"\n"
+"(''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:184
 msgid ""
@@ -964,6 +1183,11 @@ msgid ""
 "glob patterns, i.e. \"*\" can be used as a wild card)\n"
 "(''since 0.10'')"
 msgstr ""
+"רשימה של נתיבים במצבור הניתנים להורדה.\n"
+"\n"
+"יש להשאיר אופציה זו ריקה ע\"מ לא לאפשר הורדות כלל,\n"
+"אחרת יש לספק רשימה מופרדת ע\"י פסיקים של נתיבים מותרים (כתבניות גלוב, למשל "
+"\"*\" יכול לשמש כג'וקר) (''מאז 0.10'')"
 
 #: trac/versioncontrol/web_ui/browser.py:193
 msgid ""
@@ -973,6 +1197,10 @@ msgid ""
 "blue is older, red is newer.\n"
 "(''since 0.11'')"
 msgstr ""
+"אפשר צביעת עמודות עפ\"י ''גיל''.\n"
+"\n"
+"זה משתמש באותה סקלת צבעים כמו סימון קוד מקור:\n"
+"כחול זה ישן יותר, אדום חדש יותר. (''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:202
 msgid ""
@@ -981,6 +1209,9 @@ msgid ""
 "the browser ''age'' column if `color_scale` is enabled.\n"
 "(''since 0.11'')"
 msgstr ""
+"שלשת צבעים (r,g,b) לשימוש בתור הצבע החדש ביותר,\n"
+"עבור סקלת הצבעים המשמשת ב''האשמה'', או בעמודת ה''גיל'' בסייר,\n"
+"אם `color_scale` מאופשר. (''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:210
 msgid ""
@@ -989,6 +1220,9 @@ msgid ""
 "the browser ''age'' column if `color_scale` is enabled.\n"
 "(''since 0.11'')"
 msgstr ""
+"שלשת צבעים (r,g,b) לשימוש בתור הצבע הישן ביותר,\n"
+"עבור סקלת הצבעים המשמשת ב''האשמה'', או בעמודת ה''גיל'' בסייר,\n"
+"אם `color_scale` מאופשר. (''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:216
 msgid ""
@@ -997,6 +1231,9 @@ msgid ""
 "the color value.\n"
 "(''since 0.11'')"
 msgstr ""
+"אם ניתן ערך בין 0 ל-1 (לא כולל), זו תהיה הנקודה שתשמש עבור "
+"`intermediate_color`\n"
+"לצורך אינטרפולציה של ערך הצבע. (''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:222
 msgid ""
@@ -1007,6 +1244,11 @@ msgid ""
 "`newest_color` will be used.\n"
 "(''since 0.11'')"
 msgstr ""
+"שלשת צבעים (r,g,b) לשימוש בתור צבע הביניים,\n"
+"אם שתי אינטרפולציות לינאריות משמשות לסקלת הצבעים (ראה "
+"`intermediate_point`).\n"
+"אם לא נקבע ערך, ייבחר צבע הביניים בין `oldest_color` לבין `newest_color`.\n"
+"(''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/browser.py:230
 msgid ""
@@ -1020,6 +1262,13 @@ msgid ""
 "For open repositories where anyone can check-in a file, it is\n"
 "recommended to leave this option disabled (which is the default)."
 msgstr ""
+"האם להציג קבצי raw בסייר, או רק לאפשר הורדה שלהם.\n"
+"\n"
+"כמעט כל קובץ ניתן לפירוש כ-HTML ע\"י הדפדפן, דבר המאפשר\n"
+"למשתמש זדוני ליצור קובץ המכיל תקיפות מסוג cross-site scripting.\n"
+"\n"
+"עבור מצבורים פתוחים בהם כל אחד יכול להכניס קובץ, מומלץ\n"
+"להשאיר אפשרות זו כבויה (ברירת המחדל)."
 
 #: trac/versioncontrol/web_ui/browser.py:242
 msgid ""
@@ -1027,6 +1276,8 @@ msgid ""
 "the repository browser.\n"
 "(''since 0.9'')"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של מאפייני מערכת ניהול הגרסאות שיש להסתיר בסייר "
+"המצבור. (''מאז 0.9'')"
 
 #: trac/versioncontrol/web_ui/changeset.py:129
 msgid ""
@@ -1035,6 +1286,10 @@ msgid ""
 "This can also be `location`, for showing the common prefix for the\n"
 "changed files. (since 0.11)."
 msgstr ""
+"כמות קבצים שיש להציג (`-1` עבור ללא הגבלה, `0` עבור כיבוי).\n"
+"\n"
+"זה יכול להיות גם `location`, לשם הצגה של תחיליות משותפות של הקבצים ששונו. "
+"(מאז 0.11)."
 
 #: trac/versioncontrol/web_ui/changeset.py:136
 msgid ""
@@ -1045,6 +1300,11 @@ msgid ""
 "is set to true, changeset messages will be single line only, losing\n"
 "some formatting (bullet points, etc)."
 msgstr ""
+"האם הודעות קבוצות-שינויים בפורמט-ויקי אמורות להיות מרובות-שורות או לא.\n"
+"\n"
+"אם אופציה זו אינה מוגדרת או נקבעת לfalse, ו`wiki_format_messages`\n"
+"נקבע לtrue, הודעות קבוצות שינויים יהיו בנות שורה יחידה,\n"
+"תוך איבוד חלק מהעיצוב (רשימות ממוספרות וכדו')."
 
 #: trac/versioncontrol/web_ui/changeset.py:145
 msgid ""
@@ -1053,12 +1313,17 @@ msgid ""
 "That event will link to the range of changesets in the log view.\n"
 "(''since 0.11'')"
 msgstr ""
+"האם קבוצות-שינויים עוקבות מאותו המשתמש בעלות אותה הודעה צריכות להיות מוצגות "
+"בתור אירוע יחיד.\n"
+"אירוע זה יהיה מקושר לטווח של קבוצות-שינויים בתצוגת היומן. (''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/changeset.py:152
 msgid ""
 "Maximum number of modified files for which the changeset view will\n"
 "attempt to show the diffs inlined (''since 0.10'')."
 msgstr ""
+"מספר מירבי של קבצים שהשתנו עבורו תצוגת קבוצות-השינויים\n"
+"תנסה להציג הפרשים בתצוגת inline (''מאז 0.10'')."
 
 #: trac/versioncontrol/web_ui/changeset.py:156
 msgid ""
@@ -1066,6 +1331,9 @@ msgid ""
 "plus their new size) for which the changeset view will attempt to show\n"
 "the diffs inlined (''since 0.10'')."
 msgstr ""
+"גודל מירבי בבתים של הקבצים שהשתנו (גודל ישן + גודל חדש) עבורו תצוגת קבוצת-"
+"השינויים\n"
+"תנסה להציג הפרשים בצורת inline (''מאז 0.10'')."
 
 #: trac/versioncontrol/web_ui/changeset.py:161
 msgid ""
@@ -1074,30 +1342,38 @@ msgid ""
 "If this option is disabled, changeset messages will be rendered as\n"
 "pre-formatted text."
 msgstr ""
+"האם צריך להחיל עיצוב ויקי על הודעות קבוצות-שינויים.\n"
+"\n"
+"אם אופציה זו לא מופעלת, הודעות קבוצות-שינויים יוצגו בתור טקסט pre-formatted."
 
 #: trac/versioncontrol/web_ui/log.py:47
 msgid ""
 "Default value for the limit argument in the TracRevisionLog.\n"
 "(''since 0.11'')"
 msgstr ""
+"ערך ברירת מחדל עבור ארגומנט ה-limit של TracRevisionLog.\n"
+"(''מאז 0.11'')"
 
 #: trac/versioncontrol/web_ui/log.py:51
 msgid ""
 "Comma-separated list of colors to use for the TracRevisionLog\n"
 "graph display. (''since 0.13'')"
 msgstr ""
+"רשימה מופרדת ע\"י פסיקים של צבעים לשימוש עבור תצוגת הגרף של "
+"TracRevisionLog.\n"
+"(''מאז 1.0'')"
 
 #: trac/web/auth.py:59
 msgid ""
 "Whether the IP address of the user should be checked for\n"
 "authentication (''since 0.9'')."
-msgstr ""
+msgstr "האם כתובת ה-IP של המשתמש צריכה להיבדק לצורך הזדהות (''מאז 0.9'')."
 
 #: trac/web/auth.py:63
 msgid ""
 "Whether login names should be converted to lower case\n"
 "(''since 0.9'')."
-msgstr ""
+msgstr "האם שמות כניסה צריכים להיות מומרים לאותיות קטנות (''מאז 0.9'')"
 
 #: trac/web/auth.py:67
 msgid ""
@@ -1108,6 +1384,12 @@ msgid ""
 "to log in again. The default value of 0 makes the cookie expire at the\n"
 "end of the browsing session. (''since 0.12'')"
 msgstr ""
+"אורך חיים של עוגיית ההזדהות, בשניות.\n"
+"\n"
+"ערך זה קובע לכמה זמן הדפדפן יאגור את מידע ההזדהות,\n"
+"ובעקבות זאת, לאחר כמה זמן של חוסר פעילות המשתמש יצטרך\n"
+"לבצע כניסה מחדש. ערך ברירת המחדל הוא 0, אשר גורם לעוגייה לפוג רק בסיום הסשן. "
+"(''מאז 0.12'')"
 
 #: trac/web/auth.py:75
 msgid ""
@@ -1115,6 +1397,8 @@ msgid ""
 "of several Trac instances if you want them to share the cookie.\n"
 "(''since 0.12'')"
 msgstr ""
+"נתיב לעוגיות ההזדהות. ניתן לקבוע לנתיב בסיס משותף למספר מופעי טראק אם רוצים "
+"לשתף את העוגיות ביניהם. (''מאז 0.12'')"
 
 #: trac/web/chrome.py:321
 msgid ""
@@ -1125,6 +1409,12 @@ msgid ""
 "\n"
 "(''since 0.11'')"
 msgstr ""
+"נתיב ל//תיקיית התבניות המשותפת//.\n"
+"\n"
+"תבניות בתיקייה זו נטענות בנוסף לתבניות בתיקיית `templates` של הסביבה,\n"
+"אבל אלו שבסביבה מקבלות קדימות ביחס למשותפות.\n"
+"\n"
+"(''מאז 0.11'')"
 
 #: trac/web/chrome.py:329
 msgid ""
@@ -1138,10 +1428,19 @@ msgid ""
 "\n"
 "(''since 0.13'')"
 msgstr ""
+"נתיב ל//תיקיית htdocs משותפת//.\n"
+"\n"
+"משאבים סטאטיים בתיקייה זו ממופים ל-/chrome/shared תחת ה-URL של הסביבה,\n"
+"בנוסף למיקומים common ו-site.\n"
+"\n"
+"זה יכול להיות שימושי ב-site.html לצורך התאמות ממשקים המשותפות למספר סביבות "
+"טראק.\n"
+"\n"
+"(''מאז 1.0'')"
 
 #: trac/web/chrome.py:340
 msgid "Automatically reload template files after modification."
-msgstr ""
+msgstr "טען תבניות באופן אוטומאטי לאחר שינוי."
 
 #: trac/web/chrome.py:343
 msgid ""
@@ -1151,6 +1450,11 @@ msgid ""
 "enough memory to spare, or you can reduce it if you are short on\n"
 "memory."
 msgstr ""
+"המספר המירבי של תבניות שיישמרו בזיכרון המטמון של טוען התבניות.\n"
+"ערך ברירת המחדל הוא 128. ייתכן ותרצה לבחור בערך גבוה יותר אם האתר עושה שימוש "
+"בתבניות רבות,\n"
+"וקיים מספיק זיכרון זמין, או שתוכל להפחית את הערך במידה ולא קיים מספיק זיכרון "
+"זמין."
 
 #: trac/web/chrome.py:350
 msgid ""
@@ -1168,22 +1472,36 @@ msgid ""
 "will not be made available this way and additional rewrite \n"
 "rules will be needed in the web server."
 msgstr ""
+"כתובת URL בסיס להגשת משאבי ליבה סטאטיים תחת `/chrome/common/`.\n"
+"\n"
+"ניתן להשאיר ריק, וטראק פשוט יגיש את המשאבים הללו בעצמו.\n"
+"\n"
+"משתמשים מתקדמים יכולים להשתמש בזה יחד עם\n"
+"[TracAdmin trac-admin ... deploy <deploydir>] ע\"מ לאפשר הגשה\n"
+"של המשאבים הסטאטיים עבור טראק ישירות משרת הווב.\n"
+"שים לב שזה תקף רק עבור תיקיית `<deploydir>/htdocs/common`,\n"
+"ומשאבים אחרים (כגון כאלה מפלאגינים) לא יהיו זמינים באופן זה, וחוקי שכתוב\n"
+"נוספים יידרשו ברמת שרת הווב."
 
 #: trac/web/chrome.py:365
 msgid ""
 "Order of the items to display in the `metanav` navigation bar,\n"
 "listed by IDs. See also TracNavigation."
 msgstr ""
+"סדר הצגת הפריטים בסרגל הניווט `metanav`,\n"
+"עפ\"י מזהים. ראה גם TracNavigation."
 
 #: trac/web/chrome.py:370
 msgid ""
 "Order of the items to display in the `mainnav` navigation bar, \n"
 "listed by IDs. See also TracNavigation."
 msgstr ""
+"סדר הצגת הפריטים בסרגל הניווט `mainnav`,\n"
+"עפ\"י מזהים. ראה גם TracNavigation."
 
 #: trac/web/chrome.py:376
 msgid "URL to link to, from the header logo."
-msgstr ""
+msgstr "כתובת URL לקישור מלוגו הכותרת העליונה."
 
 #: trac/web/chrome.py:379
 msgid ""
@@ -1197,24 +1515,35 @@ msgid ""
 "folder mapped to the [#trac-section htdocs_location] URL. \n"
 "Only specifying `your-logo.png` is equivalent to the latter."
 msgstr ""
+"כתובת URL של תמונת לוגו הכותרת העליונה.\n"
+"הכתובת יכולה להיות אבסולוטית, יחסית לשרת, או יחסית.\n"
+"\n"
+"אם יחסית, הכתובת יחסית לאחד ממיקומי `/chrome`:\n"
+"`site/your-logo.png` אם `your-logo.png` נמצא בתיקיית `htdocs`\n"
+"בתוך ה-TracEnvironment;\n"
+"`common/your-logo.png` אם `your-logo.png` נמצא בתיקייה\n"
+"הממופה לכתובת של [#trac-section htdocs_location]. \n"
+"כתיבה של `your-logo.png` בלבד הינה שקולה לאפשרות השנייה."
 
 #: trac/web/chrome.py:390
 msgid "Alternative text for the header logo."
-msgstr ""
+msgstr "טקסט אלטרנטיבי עבור לוגו הכותרת העליונה."
 
 #: trac/web/chrome.py:394
 msgid "Width of the header logo image in pixels."
-msgstr ""
+msgstr "רוחב של תמונת לוגו הכותרת העליונה בפיקסלים."
 
 #: trac/web/chrome.py:397
 msgid "Height of the header logo image in pixels."
-msgstr ""
+msgstr "גובה של תמונת לוגו הכותרת העליונה בפיקסלים."
 
 #: trac/web/chrome.py:400
 msgid ""
 "Show email addresses instead of usernames. If false, we obfuscate\n"
 "email addresses. (''since 0.11'')"
 msgstr ""
+"הצג כתובות אימייל במקום שמות משתמש. אם false, מערפלים כתובות אימייל. (''מאז "
+"0.11'')"
 
 #: trac/web/chrome.py:404
 msgid ""
@@ -1222,18 +1551,25 @@ msgid ""
 "even if `show_email_addresses` is false or the user has not the \n"
 "EMAIL_VIEW permission (''since 0.11.6'')."
 msgstr ""
+"אף פעם לא לערפל קישורי `mailto:` הנכתבים במפורש בויקי,\n"
+"אפילו אם `show_email_addresses` נקבע לfalse או שלמשתמש אין הרשאת \n"
+"EMAIL_VIEW (''מאז 0.11.6'')."
 
 #: trac/web/chrome.py:410
 msgid ""
 "Show IP addresses for resource edits (e.g. wiki).\n"
 "(''since 0.11.3'')"
 msgstr ""
+"הצג כתובות IP עבור עריכות של משאבים (כגון ויקי).\n"
+"(''מאז 0.11.3'')"
 
 #: trac/web/chrome.py:414
 msgid ""
 "Make `<textarea>` fields resizable. Requires !JavaScript.\n"
 "(''since 0.12'')"
 msgstr ""
+"הפוך שדות `<textarea>` לשדות בגודל משתנה. דורש !JavaScript.\n"
+"(''מאז 0.12'')"
 
 #: trac/web/chrome.py:418
 msgid ""
@@ -1243,12 +1579,18 @@ msgid ""
 "this to 0 to disable automatic preview. The default is 2.0 seconds.\n"
 "(''since 0.12'')"
 msgstr ""
+"זמן חוסר פעילות בשניות, לאחריו יופעל עדכון אוטומאטי של תצוגה מקדימה של "
+"הויקי.\n"
+"אופציה זו יכולה להכיל מספרים עשרוניים. ככל שהמספר נמוך יותר, כך יבוצעו יותר "
+"בקשות לשרת.\n"
+"יש לקבוע ערך זה ל-0 ע\"מ למנוע תצוגה מקדימה לחלוטין. ערך ברירת המחדל הוא 2.0 "
+"שניות. (''מאז 0.12'')"
 
 #: trac/web/main.py:79
 msgid ""
 "Ordered list of filters to apply to all requests\n"
 "(''since 0.10'')."
-msgstr ""
+msgstr "רשימה סדורה של פילטרים להחלה על כל הבקשות (''מאז 0.10'')."
 
 #: trac/web/main.py:84
 msgid ""
@@ -1258,34 +1600,41 @@ msgid ""
 "`QueryModule`, `ReportModule`, `TicketModule` and `WikiModule`. The\n"
 "default is `WikiModule`. (''since 0.9'')"
 msgstr ""
+"שם הרכיב המטפל בבקשות ל-URL הבסיס.\n"
+"\n"
+"אפשרויות כוללות `TimelineModule`, `RoadmapModule`, `BrowserModule`,\n"
+"`QueryModule`, `ReportModule`, `TicketModule` ו-`WikiModule`. ערך\n"
+"ברירת המחדל הוא `WikiModule`. (מאז 0.9'')"
 
 #: trac/web/main.py:92
 msgid "The default timezone to use"
-msgstr ""
+msgstr "ערך ברירת מחדל עבור איזור-זמן"
 
 #: trac/web/main.py:95
 msgid ""
 "The preferred language to use if no user preference has been set.\n"
 "(''since 0.12.1'')"
-msgstr ""
+msgstr "שפה מועדפת לשימוש אם לא הוגדרה בהעדפות המשתמש. (''מאז 0.12.1'')"
 
 #: trac/web/main.py:100
 msgid ""
 "The date format. Valid option is 'iso8601' for ISO 8601 format, If\n"
 "not specified, use a browser's language. (''since 0.13'')"
 msgstr ""
+"פורמט תאריך. אפשרות תקינה היא 'iso8601' עבור פורמט ISO 8601.\n"
+"אם לא מוגדר, יעשה שימוש בשפת הדפדפן. (''מאז 1.0'')"
 
 #: trac/wiki/api.py:242
 msgid ""
 "Enable/disable highlighting CamelCase links to missing pages\n"
 "(''since 0.9'')."
-msgstr ""
+msgstr "הפעלה/כיבוי של הדגשת קישורי CamelCase לעמודים חסרים (''מאז 0.9'')."
 
 #: trac/wiki/api.py:246
 msgid ""
 "Enable/disable splitting the WikiPageNames with space characters\n"
 "(''since 0.10'')."
-msgstr ""
+msgstr "הפעלה/כיבוי של פיצול WikiPageNames עם תו רווח (''מאז 0.10'')."
 
 #: trac/wiki/api.py:250
 msgid ""
@@ -1296,6 +1645,12 @@ msgid ""
 "For public sites where anonymous users can edit the wiki it is\n"
 "recommended to leave this option disabled (which is the default)."
 msgstr ""
+"הפעלה/כיבוי של שימוש בתגי HTML לא בטוחים, כגון `<script>` או\n"
+"`<embed>` באמצעות ה[wiki:WikiProcessors WikiProcessor] של HTML (''מאז "
+"0.10.4'').\n"
+"\n"
+"עבור אתרים פומביים בהם משתמשים אנונימיים יכולים לערוך את הויקי\n"
+"מומלץ להשאיר את האפשרות הזאת כבויה (ברירת המחדל)."
 
 #: trac/wiki/api.py:258
 msgid ""
@@ -1303,6 +1658,8 @@ msgid ""
 "external links even if `[wiki] render_unsafe_content` is `false`.\n"
 "(''since 0.11.8'')"
 msgstr ""
+"רשימה של סכימות URI הנחשבות ל\"בטוחות\", ויומגו בתור קישורים חיצוניים\n"
+"אפילו אם `[wiki] render_unsafe_content` נקבע ל-`false`. (''מאז 0.11.8'')"
 
 #: trac/wiki/intertrac.py:35
 msgid ""
@@ -1341,6 +1698,38 @@ msgid ""
 "trac.url = http://trac.edgewall.org\n"
 "}}}"
 msgstr ""
+"מקטע זה מגדיר תחיליות עבור IntreTrac. אופציות במקטע זה\n"
+"ששמן מכיל \".\" מגדירות היבטים של תחילית ה-InterTrac\n"
+"המתאימה לשם האופציה עד לתו \".\". אופציות ששמן אינו מכיל \".\" מגדירות שמות "
+"נרדפים.\n"
+"\n"
+"המאפיין `.url` הינו הכרחי, ומשמש לאיתור הטראק האחר.\n"
+"זה יכול להיות URL יחסי במקרה שסביבת הטראק האחרת נמצאת על אותו השרת.\n"
+"\n"
+"המאפיין `.title` משמש לקביעת חלונית סיוע בעת העברת הסמן מעל קישור "
+"InterTrac.\n"
+"\n"
+"המאפיין `.compat` משמש להפעלה או כיבוי של מצב ''תאימות'':\n"
+" * אם טראק היעד מריץ גרסה מתחת לגרסה\n"
+"   [trac:milestone:0.10 0.10] ([trac:r3526 r3526] למען הדיוק), אז\n"
+"   הוא לא יודע איך לטפל בקישור InterTrac, ולכן זה באחריות\n"
+"   הטראק המקומי להכין את הקישור הנכון. לא כל הקישורים יעבדו\n"
+"   באופן זה, אבל מרבית הנפוצים יעבדו. מצב זה נקרא מצב תאימות,\n"
+"   והוא מופעל כברירת מחדל (ערכו `true`).\n"
+" * במידה וידוע שטראק היעד יודע לטפל בקישורי InterTrac,\n"
+"   ניתן לכבות את מצב התאימות בצורה מפורשת, ואז\n"
+"   ''כל'' קישורי TracLinks יכולים להפוך לקישורי InterTrac.\n"
+"\n"
+"הגדרות לדוגמה:\n"
+"{{{\n"
+"[intertrac]\n"
+"# -- דוגמה להגדרת שם נרדף:\n"
+"t = trac\n"
+"\n"
+"# -- קישור לטראק חיצוני:\n"
+"trac.title = Edgewall's Trac for Trac\n"
+"trac.url = http://trac.edgewall.org\n"
+"}}}"
 
 #: trac/wiki/interwiki.py:35
 msgid ""
@@ -1353,13 +1742,23 @@ msgid ""
 "{{{\n"
 "[interwiki]\n"
 "MeatBall = http://www.usemod.com/cgi-bin/mb.pl?\n"
-"PEP = http://www.python.org/peps/pep-$1.html Python Enhancement Proposal "
-"$1\n"
+"PEP = http://www.python.org/peps/pep-$1.html Python Enhancement Proposal $1\n"
 "tsvn = tsvn: Interact with TortoiseSvn\n"
 "}}}"
 msgstr ""
+"כל אופציה במקטע `[interwiki]` מגדירה תחילית InterWiki אחת.\n"
+"שם האופציה מגדיר את התחילית. ערך האופציה מגדיר את ה-URL,\n"
+"ולאחריו תיאור אופציונאלי המופרד מה-URL באמצעות רווח.\n"
+"כתובות URL פרמטריות נתמכות.\n"
+"\n"
+"'''דוגמה:'''\n"
+"{{{\n"
+"[interwiki]\n"
+"MeatBall = http://www.usemod.com/cgi-bin/mb.pl?\n"
+"PEP = http://www.python.org/peps/pep-$1.html Python Enhancement Proposal $1\n"
+"tsvn = tsvn: Interact with TortoiseSvn\n"
+"}}}"
 
 #: trac/wiki/web_ui.py:63
 msgid "Maximum allowed wiki page size in bytes. (''since 0.11.2'')"
-msgstr ""
-
+msgstr "גודל עמוד ויקי מירבי מותר בבתים. (''מאז 0.11.2'')"

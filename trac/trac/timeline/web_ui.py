@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2005 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2004-2005 Christopher Lenz <cmlenz@gmx.de>
-# Copyright (C) 2005-2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -211,8 +211,9 @@ class TimelineModule(Component):
             data['context'] = rss_context
             return 'timeline.rss', data, 'application/rss+xml'
         else:
-            req.session['timeline.daysback'] = daysback
-            req.session['timeline.authors'] = authors
+            req.session.set('timeline.daysback', daysback,
+                            self.default_daysback)
+            req.session.set('timeline.authors', authors, '')
             # store lastvisit
             if events and not revisit:
                 lastviewed = to_utimestamp(events[0]['date'])
@@ -229,6 +230,7 @@ class TimelineModule(Component):
                                      format='rss')
         add_link(req, 'alternate', auth_link(req, rss_href), _('RSS Feed'),
                  'application/rss+xml', 'rss')
+        Chrome(self.env).add_jquery_ui(req)
 
         for filter_ in available_filters:
             data['filters'].append({'name': filter_[0], 'label': filter_[1],

@@ -26,8 +26,9 @@ import sys
 
 try:
     from babel import Locale
+    locale_en = Locale.parse('en_US')
 except ImportError:
-    Locale = None
+    locale_en = None    
 
 from trac.config import Configuration
 from trac.core import Component, ComponentManager
@@ -264,6 +265,9 @@ class EnvironmentStub(Environment):
         self.config.set('logging', 'log_type', 'stderr')
         if enable is not None:
             self.config.set('components', 'trac.*', 'disabled')
+        else:
+            self.config.set('components', 'tracopt.versioncontrol.svn.*',
+                            'enabled')
         for name_or_class in enable or ():
             config_key = self._component_name(name_or_class)
             self.config.set('components', config_key, 'enabled')
@@ -298,7 +302,7 @@ class EnvironmentStub(Environment):
         self.abs_href = Href('http://example.org/trac.cgi')
 
         self.known_users = []
-        translation.activate(Locale and Locale('en', 'US'))
+        translation.activate(locale_en)
         
     def reset_db(self, default_data=None):
         """Remove all data from Trac tables, keeping the tables themselves.
@@ -418,7 +422,9 @@ def suite():
     import trac.web.tests
     import trac.wiki.tests
     import tracopt.mimeview.tests
+    import tracopt.perm.tests
     import tracopt.versioncontrol.git.tests
+    import tracopt.versioncontrol.svn.tests
 
     suite = unittest.TestSuite()
     suite.addTest(trac.tests.basicSuite())
@@ -434,7 +440,9 @@ def suite():
     suite.addTest(trac.web.tests.suite())
     suite.addTest(trac.wiki.tests.suite())
     suite.addTest(tracopt.mimeview.tests.suite())
+    suite.addTest(tracopt.perm.tests.suite())
     suite.addTest(tracopt.versioncontrol.git.tests.suite())
+    suite.addTest(tracopt.versioncontrol.svn.tests.suite())
     suite.addTest(doctest.DocTestSuite(sys.modules[__name__]))
 
     return suite

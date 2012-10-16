@@ -4,11 +4,12 @@ import unittest
 from StringIO import StringIO
 
 from trac.util.text import empty, expandtabs, fix_eol, javascript_quote, \
-                           normalize_whitespace, to_unicode, \
+                           to_js_string, normalize_whitespace, to_unicode, \
                            text_width, print_table, unicode_quote, \
                            unicode_quote_plus, unicode_unquote, \
                            unicode_urlencode, wrap, quote_query_string, \
-                           unicode_to_base64, unicode_from_base64
+                           unicode_to_base64, unicode_from_base64, stripws, \
+                           levenshtein_distance
 
 
 class ToUnicodeTestCase(unittest.TestCase):
@@ -64,6 +65,19 @@ class JavascriptQuoteTestCase(unittest.TestCase):
                          javascript_quote('\x02\x1e'))
         self.assertEqual(r'\u0026\u003c\u003e',
                          javascript_quote('&<>'))
+
+
+class ToJsStringTestCase(unittest.TestCase):
+    def test_(self):
+        self.assertEqual(r'"Quote \" in text"',
+                         to_js_string('Quote " in text'))
+        self.assertEqual(r'''"\\\"\b\f\n\r\t'"''',
+                         to_js_string('\\"\b\f\n\r\t\''))
+        self.assertEqual(r'"\u0002\u001e"',
+                         to_js_string('\x02\x1e'))
+        self.assertEqual(r'"\u0026\u003c\u003e"',
+                         to_js_string('&<>'))
+
 
 class UnicodeQuoteTestCase(unittest.TestCase):
     def test_unicode_quote(self):
@@ -289,12 +303,38 @@ class UnicodeBase64TestCase(unittest.TestCase):
         self.assertEqual(text, unicode_from_base64(text_base64_no_strip))
 
 
+class StripwsTestCase(unittest.TestCase):
+    def test_stripws(self):
+        self.assertEquals(u'stripws',
+                          stripws(u' \u200b\t\u3000stripws \u200b\t\u2008'))
+        self.assertEquals(u'stripws \u3000\t',
+                          stripws(u'\u200b\t\u2008 stripws \u3000\t',
+                                  trailing=False))
+        self.assertEquals(u' \t\u3000stripws',
+                          stripws(u' \t\u3000stripws \u200b\t\u2008',
+                                  leading=False))
+        self.assertEquals(u' \t\u3000stripws \u200b\t\u2008',
+                          stripws(u' \t\u3000stripws \u200b\t\u2008',
+                                  leading=False, trailing=False))
+
+
+
+class LevenshteinDistanceTestCase(unittest.TestCase):
+    def test_distance(self):
+        self.assertEqual(5, levenshtein_distance('kitten', 'sitting'))
+        self.assertEqual(1, levenshtein_distance('wii', 'wiki'))
+        self.assertEqual(2, levenshtein_distance('comfig', 'config'))
+        self.assertEqual(5, levenshtein_distance('update', 'upgrade'))
+        self.assertEqual(0, levenshtein_distance('milestone', 'milestone'))
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ToUnicodeTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ExpandtabsTestCase, 'test'))
     suite.addTest(unittest.makeSuite(UnicodeQuoteTestCase, 'test'))
     suite.addTest(unittest.makeSuite(JavascriptQuoteTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ToJsStringTestCase, 'test'))
     suite.addTest(unittest.makeSuite(QuoteQueryStringTestCase, 'test'))
     suite.addTest(unittest.makeSuite(WhitespaceTestCase, 'test'))
     suite.addTest(unittest.makeSuite(TextWidthTestCase, 'test'))
@@ -302,6 +342,8 @@ def suite():
     suite.addTest(unittest.makeSuite(WrapTestCase, 'test'))
     suite.addTest(unittest.makeSuite(FixEolTestCase, 'test'))
     suite.addTest(unittest.makeSuite(UnicodeBase64TestCase, 'test'))
+    suite.addTest(unittest.makeSuite(StripwsTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(LevenshteinDistanceTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2006 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2006 Matthew Good <trac@matt-good.net>
-# Copyright (C) 2005-2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -406,6 +406,7 @@ def fq_class_name(obj):
     m, n = c.__module__, c.__name__
     return n if m == '__builtin__' else '%s.%s' % (m, n)
 
+
 def arity(f):
     """Return the number of arguments expected by the given function, unbound
     or bound method.
@@ -524,7 +525,7 @@ def safe_repr(x):
     without risking to trigger an exception (e.g. from a buggy
     `x.__repr__`).
 
-    .. versionadded :: 0.13
+    .. versionadded :: 1.0
     """
     try:
         return to_unicode(repr(x))
@@ -545,6 +546,23 @@ def get_doc(obj):
     summary = doc[0].replace('\n', ' ')
     description = doc[1] if len(doc) > 1 else None
     return (summary, description)
+
+
+_dont_import = frozenset(['__file__', '__name__', '__package__'])
+
+def import_namespace(globals_dict, module_name):
+    """Import the namespace of a module into a globals dict.
+    
+    This function is used in stub modules to import all symbols defined in
+    another module into the global namespace of the stub, usually for
+    backward compatibility.
+    """
+    __import__(module_name)
+    module = sys.modules[module_name]
+    globals_dict.update(item for item in module.__dict__.iteritems()
+                        if item[0] not in _dont_import)
+    globals_dict.pop('import_namespace', None)
+
 
 # -- setuptools utils
 
@@ -787,9 +805,16 @@ class Ranges(object):
     >>> str(Ranges("20-10", reorder=True))
     '10-20'
 
+    As rendered ranges are often using u',\u200b' (comma + Zero-width
+    space) to enable wrapping, we also support reading such ranges, as
+    they can be copy/pasted back.
+
+    >>> str(Ranges(u'1,\u200b3,\u200b5,\u200b6,\u200b7,\u200b9'))
+    '1,3,5-7,9'
+
     """
 
-    RE_STR = r"""\d+(?:[-:]\d+)?(?:,\d+(?:[-:]\d+)?)*"""
+    RE_STR = ur'[0-9]+(?:[-:][0-9]+)?(?:,\u200b?[0-9]+(?:[-:][0-9]+)?)*'
     
     def __init__(self, r=None, reorder=False):
         self.pairs = []
@@ -808,7 +833,7 @@ class Ranges(object):
             return
         p = self.pairs
         if isinstance(r, basestring):
-            r = r.split(',')
+            r = re.split(u',\u200b?', r)
         for x in r:
             try:
                 a, b = map(int, x.split('-', 1))
@@ -1059,3 +1084,4 @@ from trac.util.datefmt import pretty_timedelta, format_datetime, \
                               get_datetime_format_hint, http_date, \
                               parse_date
 
+__no_apidoc__ = 'compat presentation translation'

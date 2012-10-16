@@ -17,11 +17,14 @@ interface. By default, this is the `DefaultTicketGroupStatsProvider`
 (for both the `RoadmapModule` and the `MilestoneModule`), which
 provides a configurable way to specify how tickets are grouped.
 
+
 Interfaces
 ----------
 
 .. autoclass :: ITicketGroupStatsProvider
    :members:
+
+   See also :extensionpoints:`trac.ticket.roadmap.ITicketGroupStatsProvider`
 
 .. autoclass :: TicketGroupStats
    :members:
@@ -45,5 +48,6 @@ Components
 Helper Functions
 ----------------
 
-.. autofunction :: get_tickets_for_milestone
 .. autofunction :: apply_ticket_permissions
+.. autofunction :: get_tickets_for_milestone
+.. autofunction :: grouped_stats_data

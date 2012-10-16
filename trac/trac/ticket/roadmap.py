@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2004-2009 Edgewall Software
 # Copyright (C) 2004-2005 Christopher Lenz <cmlenz@gmx.de>
-# Copyright (C) 2006-2007 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2006-2007 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -295,9 +295,9 @@ def get_ticket_stats(provider, tickets):
 def get_tickets_for_milestone(env, db=None, milestone=None, field='component'):
     """Retrieve all tickets associated with the given `milestone`.
 
-    .. versionchanged :: 0.13
+    .. versionchanged :: 1.0
        the `db` parameter is no longer needed and will be removed in
-       version 0.14
+       version 1.1.1
     """
     with env.db_query as db:
         fields = TicketSystem(env).get_ticket_fields()

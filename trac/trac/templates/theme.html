@@ -33,19 +33,21 @@
     </div>
     ${navigation('mainnav')}
 
-    <div id="main">
+    <div id="main" class="${classes(uisymbols=req.session.get('ui.use_symbols'),
+                                    uinohelp=req.session.get('ui.hide_help'))}">
       <xi:include py:if="value_of('resourcepath_template')" href="${resourcepath_template}" />
 
       <div id="ctxtnav" class="nav">
         <h2>Context Navigation</h2>
-          <ul py:if="chrome.ctxtnav">
-              <li py:for="i, elm in enumerate(chrome.ctxtnav)"
-                  class="${classes(first_last(i, chrome.ctxtnav))}">$elm</li>
-          </ul>
+        <ul py:if="chrome.ctxtnav">
+          <li py:for="i, elm in enumerate(chrome.ctxtnav)"
+              class="${classes(first_last(i, chrome.ctxtnav))}">$elm</li>
+        </ul>
         <hr />
       </div>
 
       <div id="warning" py:if="chrome.warnings" class="system-message">
+        <a class="trac-close-msg" href="#" title="Hide this warning"><span>close</span></a>
         <py:choose test="len(chrome.warnings)">
           <strong>Warning:</strong>
           <py:when test="1">${chrome.warnings[0]}</py:when>
@@ -53,6 +55,7 @@
         </py:choose>
       </div>
       <div id="notice" py:if="chrome.notices" class="system-message">
+        <a class="trac-close-msg" href="#" title="Hide this notice"><span>close</span></a>
         <py:choose test="len(chrome.notices)">
           <py:when test="1">${chrome.notices[0]}</py:when>
           <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>

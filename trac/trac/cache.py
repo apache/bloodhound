@@ -163,14 +163,14 @@ def cached(fn_or_attr=None):
     it is used has an ``env`` attribute containing the application
     `~trac.env.Environment`.
 
-    .. versionchanged:: 0.13 
+    .. versionchanged:: 1.0 
         The data retrieval method used to be called with a single
         argument ``db`` containing a reference to a database
         connection.  This is the same connection that can be retrieved
         via the normal `~trac.env.Environment.db_query` or
         `~trac.env.Environment.db_transaction`, so this is no longer
         needed, though methods supporting that argument are still
-        supported (but will be removed in version 0.14).
+        supported (but will be removed in version 1.1.1).
     """
     if hasattr(fn_or_attr, '__call__'):
         return CachedSingletonProperty(fn_or_attr)

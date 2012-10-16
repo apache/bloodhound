@@ -6,8 +6,8 @@ from trac.ticket.default_workflow import ConfigurableTicketWorkflow
 from trac.ticket.model import Priority, Ticket
 #from trac.perm import IPermissionRequestor # (TODO)
 
-revision = "$Rev: 6326 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/trunk/sample-plugins/workflow/VoteOperation.py $"
+revision = "$Rev$"
+url = "$URL$"
 
 class VoteOperation(Component):
     """Provides a simplistic vote feature.
@@ -15,10 +15,12 @@ class VoteOperation(Component):
     This is a sample action controller illustrating how to create additional
     ''operations''.
 
-    Don't forget to add `VoteOperation` to the workflow option in [ticket].
-    If there is no workflow option, the line will look like this:
-
+    Don't forget to add `VoteOperation` to the workflow
+    option in the `[ticket]` section in TracIni.
+    If there is no other workflow option, the line will look like this:
+    {{{
     workflow = ConfigurableTicketWorkflow,VoteOperation
+    }}}
     """
     
     implements(ITicketActionController)

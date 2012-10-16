@@ -1,16 +1,11 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 import os
 import re
 
 from datetime import datetime, timedelta
 
-try:
-    import babel
-    locale_en = babel.Locale('en_US')
-except ImportError:
-    babel = None
-    locale_en = None
-
+from trac.test import locale_en
 from trac.tests.functional import *
 from trac.util.datefmt import utc, localtz, format_date, format_datetime
 
@@ -200,6 +195,7 @@ class TestTicketQueryLinks(FunctionalTwillTestCaseSetup):
         tc.formvalue('query', '0_summary', 'TestTicketQueryLinks')
         tc.submit('update')
         query_url = b.get_url()
+        tc.find(r'\(%d matches\)' % count)
         for i in range(count):
             tc.find('TestTicketQueryLinks%s' % i)
 
@@ -1576,7 +1572,8 @@ class RegressionTestTicket8247(FunctionalTwillTestCaseSetup):
         tc.formvalue('milestone_table', 'sel', name)
         tc.submit('remove')
         tc.go(ticket_url)
-        tc.find('<strong>Milestone</strong>[ \n\t]*<em>%s</em> deleted' % name)
+        tc.find('<strong class="trac-field-milestone">Milestone</strong>'
+                '[ \n\t]*<em>%s</em> deleted' % name)
         tc.find('Changed <a.* ago</a> by admin')
         tc.notfind('anonymous')
 
@@ -1607,7 +1604,7 @@ class RegressionTestTicket9084(FunctionalTwillTestCaseSetup):
         ticketid = self._tester.create_ticket()
         self._tester.add_comment(ticketid)
         self._tester.go_to_ticket(ticketid)
-        tc.submit('Reply', formname='reply-to-comment-1')
+        tc.submit('2', formname='reply-to-comment-1') # '1' hidden, '2' submit
         tc.formvalue('propertyform', 'comment', random_sentence(3))
         tc.submit('Submit changes')
         tc.notfind('AssertionError')

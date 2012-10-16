@@ -54,13 +54,12 @@ from trac.util.html import escape, plaintext
 from trac.util.text import pretty_size, obfuscate_email_address, \
                            shorten_line, unicode_quote_plus, to_unicode, \
                            javascript_quote, exception_to_unicode
-from trac.util.datefmt import pretty_timedelta, format_datetime, format_date, \
-                              format_time, from_utimestamp, http_date, utc, \
-                              get_date_format_jquery_ui, is_24_hours, \
-                              get_time_format_jquery_ui, user_time, \
-                              get_month_names_jquery_ui, \
-                              get_day_names_jquery_ui, \
-                              get_timezone_list_jquery_ui
+from trac.util.datefmt import (
+    pretty_timedelta, format_datetime, format_date, format_time,
+    from_utimestamp, http_date, utc, get_date_format_jquery_ui, is_24_hours,
+    get_time_format_jquery_ui, user_time, get_month_names_jquery_ui,
+    get_day_names_jquery_ui, get_timezone_list_jquery_ui,
+    get_first_week_day_jquery_ui)
 from trac.util.translation import _, get_available_locales
 from trac.web.api import IRequestHandler, ITemplateStreamFilter, HTTPNotFound
 from trac.web.href import Href
@@ -345,7 +344,7 @@ class Chrome(Component):
         This can be useful in site.html for common interface customization
         of multiple Trac environments.
         
-        (''since 0.13'')""")
+        (''since 1.0'')""")
 
     auto_reload = BoolOption('trac', 'auto_reload', False,
         """Automatically reload template files after modification.""")
@@ -382,61 +381,34 @@ class Chrome(Component):
         http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.2.min.js or
         https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js.
         
-        (''since 0.13'')""")
+        (''since 1.0'')""")
 
     jquery_ui_location = Option('trac', 'jquery_ui_location', '',
-        """Location of the jQuery UI !JavaScript library (version 1.8.18).
+        """Location of the jQuery UI !JavaScript library (version 1.8.21).
         
         An empty value loads jQuery UI from the copy bundled with Trac.
         
         Alternatively, jQuery UI could be loaded from a CDN, for example:
-        https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+        https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/jquery-ui.min.js
         or
-        http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.18/jquery-ui.min.js.
+        http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.21/jquery-ui.min.js.
         
-        (''since 0.13'')""")
+        (''since 1.0'')""")
 
     jquery_ui_theme_location = Option('trac', 'jquery_ui_theme_location', '',
         """Location of the theme to be used with the jQuery UI !JavaScript
-        library (version 1.8.18).
+        library (version 1.8.21).
         
         An empty value loads the custom Trac jQuery UI theme from the copy 
         bundled with Trac.
         
         Alternatively, a jQuery UI theme could be loaded from a CDN, for 
         example:
-        https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/start/jquery-ui.css
+        https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/themes/start/jquery-ui.css
         or
-        http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.18/themes/start/jquery-ui.css.
+        http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.21/themes/start/jquery-ui.css.
         
-        (''since 0.13'')""")
-
-    jquery_ui_location = Option('trac', 'jquery_ui_location', '',
-        """Location of the jQuery UI !JavaScript library (version 1.8.18).
-        
-        An empty value loads jQuery UI from the copy bundled with Trac.
-        
-        Alternatively, jQuery UI could be loaded from a CDN, for example:
-        https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
-        or
-        http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.18/jquery-ui.min.js.
-        
-        (''since 0.13'')""")
-
-    jquery_ui_theme_location = Option('trac', 'jquery_ui_theme_location', '',
-        """Location of the theme to be used with the jQuery UI !JavaScript
-        library (version 1.8.18).
-        
-        An empty value loads the custom Trac jQuery UI theme from the copy 
-        bundled with Trac.
-        
-        Alternatively, a jQuery UI theme could be loaded from a CDN, for 
-        example:
-        https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/start/jquery-ui.css
-        or
-        http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.18/themes/start/jquery-ui.css.
-        
-        (''since 0.13'')""")
+        (''since 1.0'')""")
 
     metanav_order = ListOption('trac', 'metanav',
                                'login, logout, prefs, help, about', doc=
@@ -502,7 +474,7 @@ class Chrome(Component):
         'relative',
         """The date information format. Valid options are 'relative' for
         displaying relative format and 'absolute' for displaying absolute
-        format. (''since 0.13'')
+        format. (''since 1.0'')
         """)
 
     templates = None
@@ -549,7 +521,12 @@ class Chrome(Component):
     
     def get_system_info(self):
         import genshi
-        yield 'Genshi', get_pkginfo(genshi).get('version')
+        info = get_pkginfo(genshi).get('version')
+        if hasattr(genshi, '_speedups'):
+            info += ' (with speedups)'
+        else:
+            info += ' (without speedups)'
+        yield 'Genshi', info
         try:
             import babel
         except ImportError:
@@ -909,6 +886,7 @@ class Chrome(Component):
             'format_author': partial(self.format_author, req),
             'format_emails': self.format_emails,
             'get_systeminfo': self.env.get_systeminfo,
+            'captioned_button': partial(presentation.captioned_button, req),
 
             # Date/time formatting
             'dateinfo': dateinfo,
@@ -1122,8 +1100,6 @@ class Chrome(Component):
                             or 'common/css/jquery-ui/jquery-ui.css')
         add_script(req, 'common/js/jquery-ui-addons.js')
         add_stylesheet(req, 'common/css/jquery-ui-addons.css')
-        first_day = (req.locale.first_week_day + 1) % 7 \
-                    if req.locale and req.locale.territory else 0
         is_iso8601 = req.lc_time == 'iso8601'
         add_script_data(req, jquery_ui={
             'month_names': get_month_names_jquery_ui(req),
@@ -1131,7 +1107,7 @@ class Chrome(Component):
             'date_format': get_date_format_jquery_ui(req.lc_time),
             'time_format': get_time_format_jquery_ui(req.lc_time),
             'ampm': not is_24_hours(req.lc_time),
-            'first_week_day': first_day,
+            'first_week_day': get_first_week_day_jquery_ui(req),
             'timepicker_separator': 'T' if is_iso8601 else ' ',
             'show_timezone': is_iso8601,
             'timezone_list': get_timezone_list_jquery_ui() \

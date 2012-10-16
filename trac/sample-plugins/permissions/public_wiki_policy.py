@@ -4,8 +4,8 @@ from trac.config import Option
 from trac.core import *
 from trac.perm import IPermissionPolicy
 
-revision = "$Rev: 6326 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/trunk/sample-plugins/permissions/public_wiki_policy.py $"
+revision = "$Rev$"
+url = "$URL$"
 
 class PublicWikiPolicy(Component):
     """Allow public access to some wiki pages.

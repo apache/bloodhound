@@ -19,11 +19,18 @@ Interfaces
 .. autoclass :: IRepositoryConnector
    :members:
 
+   See also :extensionpoints:`trac.versioncontrol.api.IRepositoryConnector`
+
 .. autoclass :: IRepositoryProvider
    :members:
 
+   See also :extensionpoints:`trac.versioncontrol.api.IRepositoryProvider`
+
 .. autoclass :: IRepositoryChangeListener
    :members:
+
+   See also :extensionpoints:`trac.versioncontrol.api.IRepositoryChangeListener`
+
 
 Components
 ----------
@@ -31,6 +38,10 @@ Components
 .. autoclass :: RepositoryManager
    :members:
  
+.. autoclass :: DbRepositoryProvider
+   :members:
+ 
+
 Exceptions
 ----------
 
@@ -41,6 +52,7 @@ Subclasses of `ResourceNotFound`.
 
 .. autoclass :: NoSuchNode
    :members:
+
 
 Abstract classes
 ----------------
@@ -53,3 +65,10 @@ Abstract classes
 
 .. autoclass :: Changeset
    :members:
+
+
+Helper Functions
+----------------
+
+.. autofunction :: is_default
+

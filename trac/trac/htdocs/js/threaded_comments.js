@@ -22,11 +22,11 @@ jQuery(document).ready(function($){
   var commentsOnly = $("#trac-comments-only-toggle");
   var applyCommentsOnly = function() {
     if (commentsOnly.attr('checked')) {
-      $("div.change ul.changes").hide();
-      $("div.change:not(:has(.comment))").hide();
+      $("div.change:not(.trac-new):not(:has(.trac-field-attachment)) ul.changes").hide();
+      $("div.change:not(.trac-new):not(:has(.trac-field-attachment)):not(:has(.comment))").hide();
     } else {
       $("div.change ul.changes").show();
-      $("div.change:not(:has(.comment))").show();
+      $("div.change").show();
     }
   };
 
@@ -93,7 +93,7 @@ jQuery(document).ready(function($){
     applyCommentsOnly();
     $.ajax({ url: form.attr('action'), type: 'POST', data: {
       save_prefs: true,
-      ticket_comments_only: commentsOnly.attr('checked'),
+      ticket_comments_only: !!commentsOnly.attr('checked'),
       __FORM_TOKEN: form_token,
     }, dataType: 'text' });
   });

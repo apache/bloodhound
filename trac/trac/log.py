@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2005 Daniel Lundin <daniel@edgewall.com>
-# Copyright (C) 2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -64,7 +64,3 @@ def logger_handler_factory(logtype='syslog', logfile=None, level='WARNING',
     logger._trac_handler = hdlr 
 
     return logger, hdlr
-
-def logger_factory(logtype='syslog', logfile=None, level='WARNING',
-                   logid='Trac', format=None):
-    return logger_handler_factory(logtype, logfile, level, logid, format)[0]

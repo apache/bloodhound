@@ -31,11 +31,69 @@ import weakref
 
 __all__ = ['GitError', 'GitErrorSha', 'Storage', 'StorageFactory']
 
+
+def terminate(process):
+    """Python 2.5 compatibility method.
+    os.kill is not available on Windows before Python 2.7.
+    In Python 2.6 subprocess.Popen has a terminate method.
+    (It also seems to have some issues on Windows though.)
+    """
+
+    def terminate_win(process):
+        import ctypes
+        PROCESS_TERMINATE = 1
+        handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE,
+                                                    False,
+                                                    process.pid)
+        ctypes.windll.kernel32.TerminateProcess(handle, -1)
+        ctypes.windll.kernel32.CloseHandle(handle)
+
+    def terminate_nix(process):
+        import os
+        import signal
+        return os.kill(process.pid, signal.SIGTERM)
+
+    if sys.platform == 'win32':
+        return terminate_win(process)
+    return terminate_nix(process)
+
+
 class GitError(Exception):
     pass
 
 class GitErrorSha(GitError):
     pass
+
+# Helper functions
+
+def parse_commit(raw):
+    """Parse the raw content of a commit (as given by `git cat-file -p <rev>`).
+
+    Return the commit message and a dict of properties.
+    """
+    if not raw:
+        raise GitErrorSha
+    lines = raw.splitlines()
+    if not lines:
+        raise GitErrorSha
+    line = lines.pop(0)
+    props = {}
+    multiline = multiline_key = None
+    while line:
+        if line[0] == ' ':
+            if not multiline:
+                multiline_key = key
+                multiline = [props[multiline_key][-1]]
+            multiline.append(line[1:])
+        else:
+            key, value = line.split(None, 1)
+            props.setdefault(key, []).append(value.strip())
+        line = lines.pop(0)
+        if multiline and (not line or key != multiline_key):
+            props[multiline_key][-1] = '\n'.join(multiline)
+            multiline = None
+    return '\n'.join(lines), props
+
 
 class GitCore(object):
     """Low-level wrapper around git executable"""
@@ -252,7 +310,7 @@ class Storage(object):
         try:
             g = GitCore(git_bin=git_bin)
             [v] = g.version().splitlines()
-            _, _, version = v.strip().split()
+            version = v.strip().split()[2]
             # 'version' has usually at least 3 numeric version
             # components, e.g.::
             #  1.5.4.2
@@ -299,6 +357,19 @@ class Storage(object):
 
         self.logger = log
 
+        self.commit_encoding = None
+
+        # caches
+        self.__rev_cache = None
+        self.__rev_cache_lock = Lock()
+
+        # cache the last 200 commit messages
+        self.__commit_msg_cache = SizedDict(200)
+        self.__commit_msg_lock = Lock()
+
+        self.__cat_file_pipe = None
+        self.__cat_file_pipe_lock = Lock()
+
         if git_fs_encoding is not None:
             # validate encoding name
             codecs.lookup(git_fs_encoding)
@@ -318,31 +389,21 @@ class Storage(object):
             self.logger.error("GIT control files missing in '%s'" % git_dir)
             if os.path.exists(__git_file_path('.git')):
                 self.logger.error("entry '.git' found in '%s'"
-                                  " -- maybe use that folder instead..." 
+                                  " -- maybe use that folder instead..."
                                   % git_dir)
             raise GitError("GIT control files not found, maybe wrong "
                            "directory?")
 
-        self.logger.debug("PyGIT.Storage instance %d constructed" % id(self))
-
         self.repo = GitCore(git_dir, git_bin=git_bin)
 
-        self.commit_encoding = None
-
-        # caches
-        self.__rev_cache = None
-        self.__rev_cache_lock = Lock()
-
-        # cache the last 200 commit messages
-        self.__commit_msg_cache = SizedDict(200)
-        self.__commit_msg_lock = Lock()
-
-        self.__cat_file_pipe = None
+        self.logger.debug("PyGIT.Storage instance %d constructed" % id(self))
 
     def __del__(self):
-        if self.__cat_file_pipe is not None:
-            self.__cat_file_pipe.stdin.close()
-            self.__cat_file_pipe.wait()
+        with self.__cat_file_pipe_lock:
+            if self.__cat_file_pipe is not None:
+                self.__cat_file_pipe.stdin.close()
+                terminate(self.__cat_file_pipe)
+                self.__cat_file_pipe.wait()
 
     #
     # cache handling
@@ -587,20 +648,39 @@ class Storage(object):
         return self.verifyrev('HEAD')
 
     def cat_file(self, kind, sha):
-        if self.__cat_file_pipe is None:
-            self.__cat_file_pipe = self.repo.cat_file_batch()
+        with self.__cat_file_pipe_lock:
+            if self.__cat_file_pipe is None:
+                self.__cat_file_pipe = self.repo.cat_file_batch()
 
-        self.__cat_file_pipe.stdin.write(sha + '\n')
-        self.__cat_file_pipe.stdin.flush()
-        _sha, _type, _size = self.__cat_file_pipe.stdout.readline().split()
+            try:
+                self.__cat_file_pipe.stdin.write(sha + '\n')
+                self.__cat_file_pipe.stdin.flush()
+            
+                split_stdout_line = self.__cat_file_pipe.stdout.readline() \
+                                                               .split()
+                if len(split_stdout_line) != 3:
+                    raise GitError("internal error (could not split line "
+                                   "'%s')" % (split_stdout_line,))
+                    
+                _sha, _type, _size = split_stdout_line
 
-        if _type != kind:
-            raise TracError("internal error (got unexpected object kind "
-                            "'%s')" % k)
+                if _type != kind:
+                    raise GitError("internal error (got unexpected object "
+                                   "kind '%s', expected '%s')"
+                                   % (_type, kind))
 
-        size = int(_size)
-        return self.__cat_file_pipe.stdout.read(size + 1)[:size]
-
+                size = int(_size)
+                return self.__cat_file_pipe.stdout.read(size + 1)[:size]
+            except:
+                # There was an error, we should close the pipe to get to a
+                # consistent state (Otherwise it happens that next time we
+                # call cat_file we get payload from previous call)
+                self.logger.debug("closing cat_file pipe")
+                self.__cat_file_pipe.stdin.close()
+                terminate(self.__cat_file_pipe)
+                self.__cat_file_pipe.wait()
+                self.__cat_file_pipe = None
+        
     def verifyrev(self, rev):
         """verify/lookup given revision object and return a sha id or None
         if lookup failed
@@ -737,19 +817,7 @@ class Storage(object):
             # cache miss
             raw = self.cat_file('commit', commit_id)
             raw = unicode(raw, self.get_commit_encoding(), 'replace')
-            lines = raw.splitlines()
-
-            if not lines:
-                raise GitErrorSha
-
-            line = lines.pop(0)
-            props = {}
-            while line:
-                key, value = line.split(None, 1)
-                props.setdefault(key, []).append(value.strip())
-                line = lines.pop(0)
-
-            result = ('\n'.join(lines), props)
+            result = parse_commit(raw)
 
             self.__commit_msg_cache[commit_id] = result
 
@@ -820,31 +888,6 @@ class Storage(object):
         p = []
         change = {}
         next_path = []
-
-        def terminate(process):
-            """Python 2.5 compatibility method.
-            os.kill is not available on Windows before Python 2.7.
-            In Python 2.6 subprocess.Popen has a terminate method.
-            (It also seems to have some issues on Windows though.)
-            """
-
-            def terminate_win(process):
-                import ctypes
-                PROCESS_TERMINATE = 1
-                handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE,
-                                                            False,
-                                                            process.pid)
-                ctypes.windll.kernel32.TerminateProcess(handle, -1)
-                ctypes.windll.kernel32.CloseHandle(handle)
-
-            def terminate_nix(process):
-                import os
-                import signal
-                return os.kill(process.pid, signal.SIGTERM)
-
-            if sys.platform == 'win32':
-                return terminate_win(process)
-            return terminate_nix(process)
 
         def name_status_gen():
             p[:] = [self.repo.log_pipe('--pretty=format:%n%H',

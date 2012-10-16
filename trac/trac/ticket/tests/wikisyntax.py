@@ -32,8 +32,8 @@ ticket:12-14,33
 ticket:12,33?order=created
 ------------------------------
 <p>
-<a href="/query?id=12-14%2C33" title="Tickets 12-14,33">ticket:12-14,33</a>
-<a href="/query?id=12%2C33&amp;order=created" title="Tickets 12,33">ticket:12,33?order=created</a>
+<a href="/query?id=12-14%2C33" title="Tickets 12-14, 33">ticket:12-14,33</a>
+<a href="/query?id=12%2C33&amp;order=created" title="Tickets 12, 33">ticket:12,33?order=created</a>
 </p>
 ------------------------------
 ============================== ticket link shorthand form
@@ -50,8 +50,8 @@ ticket:12,33?order=created
 #1,3,5,7
 ------------------------------
 <p>
-<a href="/query?id=1-5%2C42" title="Tickets 1-5,42">#1-5,42</a>
-<a href="/query?id=1%2C3%2C5%2C7" title="Tickets 1,3,5,7">#1,3,5,7</a>
+<a href="/query?id=1-5%2C42" title="Tickets 1-5, 42">#1-5,42</a>
+<a href="/query?id=1%2C3%2C5%2C7" title="Tickets 1, 3, 5, 7">#1,3,5,7</a>
 </p>
 ------------------------------
 ============================== ticket link shorthand form with long ranges (#10111 regression)
@@ -89,6 +89,21 @@ trac:#2041
 <p>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/%232041" title="#2041 in Trac's Trac"><span class="icon"></span>T:#2041</a>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/%232041" title="#2041 in Trac's Trac"><span class="icon"></span>trac:#2041</a>
+</p>
+------------------------------
+============================== ticket syntax with unicode digits
+#⁴²
+#1-⁵,42
+#1,³,5,7
+#T²⁰⁴¹
+#trac²⁰⁴¹
+------------------------------
+<p>
+#⁴²
+<a class="new ticket" href="/ticket/1" title="This is the summary (new)">#1</a>-⁵,42
+<a class="new ticket" href="/ticket/1" title="This is the summary (new)">#1</a>,³,5,7
+#T²⁰⁴¹
+#trac²⁰⁴¹
 </p>
 ------------------------------
 """ # " 
@@ -144,6 +159,17 @@ trac:report:1
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/report%3A1" title="report:1 in Trac's Trac"><span class="icon"></span>{T1}</a>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/report%3A1" title="report:1 in Trac's Trac"><span class="icon"></span>{trac1}</a>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/report%3A1" title="report:1 in Trac's Trac"><span class="icon"></span>{trac 1}</a>
+</p>
+------------------------------
+============================== report syntax with unicode digits
+{⁴²} !{⁴²}
+{T⁴²}
+{trac⁴²}
+------------------------------
+<p>
+{⁴²} !{⁴²}
+{T⁴²}
+{trac⁴²}
 </p>
 ------------------------------
 """ # '

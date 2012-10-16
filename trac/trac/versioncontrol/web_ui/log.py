@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2005 Jonas Borgström <jonas@edgewall.com>
-# Copyright (C) 2005-2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -14,7 +14,7 @@
 # history and logs, available at http://trac.edgewall.org/log/.
 #
 # Author: Jonas Borgström <jonas@edgewall.com>
-#         Christian Boos <cboos@neuf.fr>
+#         Christian Boos <cboos@edgewall.org>
 
 import re
 
@@ -51,7 +51,7 @@ class LogModule(Component):
     graph_colors = ListOption('revisionlog', 'graph_colors',
         ['#cc0', '#0c0', '#0cc', '#00c', '#c0c', '#c00'],
         doc="""Comma-separated list of colors to use for the TracRevisionLog
-        graph display. (''since 0.13'')""")
+        graph display. (''since 1.0'')""")
 
     # INavigationContributor methods
 

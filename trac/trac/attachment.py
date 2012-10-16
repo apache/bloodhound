@@ -33,7 +33,6 @@ from trac.admin import AdminCommandError, IAdminCommandProvider, PrefixList, \
                        console_datetime_format, get_dir_list
 from trac.config import BoolOption, IntOption
 from trac.core import *
-from trac.env import IEnvironmentSetupParticipant
 from trac.mimeview import *
 from trac.perm import PermissionError, IPermissionPolicy
 from trac.resource import *
@@ -43,12 +42,11 @@ from trac.util.compat import sha1
 from trac.util.datefmt import format_datetime, from_utimestamp, \
                               to_datetime, to_utimestamp, utc
 from trac.util.text import exception_to_unicode, path_to_unicode, \
-                           pretty_size, print_table, unicode_quote, \
-                           unicode_unquote, printerr
+                           pretty_size, print_table, unicode_unquote
 from trac.util.translation import _, tag_
 from trac.web import HTTPBadRequest, IRequestHandler, RequestDone
 from trac.web.chrome import (INavigationContributor, add_ctxtnav, add_link,
-                             add_stylesheet, web_context)
+                             add_stylesheet, web_context, add_warning)
 from trac.web.href import Href
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.formatter import format_to
@@ -167,32 +165,43 @@ class Attachment(object):
                                      title=self.title),
                                    _('Invalid Attachment'))
 
-    def _get_path(self, parent_realm, parent_id, filename):
-        path = os.path.join(self.env.path, 'files', 'attachments',
+    # _get_path() and _get_hashed_filename() are class methods so that they
+    # can be used in db28.py.
+    
+    @classmethod
+    def _get_path(cls, env_path, parent_realm, parent_id, filename):
+        """Get the path of an attachment.
+        
+        WARNING: This method is used by db28.py for moving attachments from
+        the old "attachments" directory to the "files" directory. Please check
+        all changes so that they don't break the upgrade.
+        """
+        path = os.path.join(env_path, 'files', 'attachments',
                             parent_realm)
         hash = sha1(parent_id.encode('utf-8')).hexdigest()
         path = os.path.join(path, hash[0:3], hash)
         if filename:
-            path = os.path.join(path, self._get_hashed_filename(filename))
+            path = os.path.join(path, cls._get_hashed_filename(filename))
         return os.path.normpath(path)
 
     _extension_re = re.compile(r'\.[A-Za-z0-9]+\Z')
 
-    def _get_hashed_filename(self, filename):
+    @classmethod
+    def _get_hashed_filename(cls, filename):
+        """Get the hashed filename corresponding to the given filename.
+        
+        WARNING: This method is used by db28.py for moving attachments from
+        the old "attachments" directory to the "files" directory. Please check
+        all changes so that they don't break the upgrade.
+        """
         hash = sha1(filename.encode('utf-8')).hexdigest()
-        match = self._extension_re.search(filename)
+        match = cls._extension_re.search(filename)
         return hash + match.group(0) if match else hash
 
-    def _get_path_old(self, parent_realm, parent_id, filename):
-        path = os.path.join(self.env.path, 'attachments', parent_realm,
-                            unicode_quote(parent_id))
-        if filename:
-            path = os.path.join(path, unicode_quote(filename))
-        return os.path.normpath(path)
-    
     @property
     def path(self):
-        return self._get_path(self.parent_realm, self.parent_id, self.filename)
+        return self._get_path(self.env.path, self.parent_realm, self.parent_id,
+                              self.filename)
 
     @property
     def title(self):
@@ -202,9 +211,9 @@ class Attachment(object):
         """Delete the attachment, both the record in the database and 
         the file itself.
 
-        .. versionchanged :: 0.13
+        .. versionchanged :: 1.0
            the `db` parameter is no longer needed
-           (will be removed in version 0.14)
+           (will be removed in version 1.1.1)
         """
         assert self.filename, "Cannot delete non-existent attachment"
 
@@ -231,7 +240,8 @@ class Attachment(object):
     def reparent(self, new_realm, new_id):
         assert self.filename, "Cannot reparent non-existent attachment"
         new_id = unicode(new_id)
-        new_path = self._get_path(new_realm, new_id, self.filename)
+        new_path = self._get_path(self.env.path, new_realm, new_id,
+                                  self.filename)
 
         # Make sure the path to the attachment is inside the environment
         # attachments directory
@@ -280,9 +290,9 @@ class Attachment(object):
     def insert(self, filename, fileobj, size, t=None, db=None):
         """Create a new Attachment record and save the file content.
 
-        .. versionchanged :: 0.13
+        .. versionchanged :: 1.0
            the `db` parameter is no longer needed
-           (will be removed in version 0.14)
+           (will be removed in version 1.1.1)
         """
         self.size = int(size) if size else 0
         self.filename = None
@@ -328,9 +338,9 @@ class Attachment(object):
         """Iterator yielding all `Attachment` instances attached to
         resource identified by `parent_realm` and `parent_id`.
 
-        .. versionchanged :: 0.13
+        .. versionchanged :: 1.0
            the `db` parameter is no longer needed 
-           (will be removed in version 0.14)
+           (will be removed in version 1.1.1)
         """
         for row in env.db_query("""
                 SELECT filename, description, size, time, author, ipnr
@@ -344,9 +354,9 @@ class Attachment(object):
     def delete_all(cls, env, parent_realm, parent_id, db=None):
         """Delete all attachments of a given resource.
         
-        .. versionchanged :: 0.13
+        .. versionchanged :: 1.0
            the `db` parameter is no longer needed
-           (will be removed in version 0.14)
+           (will be removed in version 1.1.1)
         """
         attachment_dir = None
         with env.db_transaction as db:
@@ -406,75 +416,6 @@ class Attachment(object):
                 filename = '%s.%d%s' % (parts[0], idx, parts[1])
 
 
-class AttachmentSetup(Component):
-
-    implements(IEnvironmentSetupParticipant)
-
-    required = True
-
-    # IEnvironmentSetupParticipant methods
-
-    def environment_created(self):
-        """Create the attachments directory."""
-        path = self.env.path
-        if path:
-            os.makedirs(os.path.join(path, 'files', 'attachments'))
-
-    def environment_needs_upgrade(self, db):
-        path = self.env.path
-        if path:
-            return os.path.exists(os.path.join(path, 'attachments'))
-
-    def upgrade_environment(self, db):
-        """Migrate attachments from old-style directory to new-style
-        directory.
-        """
-        path = self.env.path
-        old_dir = os.path.join(path, 'attachments')
-        old_stat = os.stat(old_dir)
-        new_dir = os.path.join(path, 'files', 'attachments')
-        if not os.path.exists(new_dir):
-            os.makedirs(new_dir)
-
-        for row in db("""
-                SELECT type, id, filename, description, size, time, author,
-                ipnr FROM attachment ORDER BY type, id"""):
-            attachment = Attachment(self.env, row[0], row[1])
-            attachment._from_database(*row[2:])
-            self._move_attachment_file(attachment)
-
-        # Try to preserve permissions and ownerships of the attachments
-        # directory for $ENV/files
-        for dir, dirs, files in os.walk(os.path.join(path, 'files')):
-            try:
-                if hasattr(os, 'chmod'):
-                    os.chmod(dir, old_stat.st_mode)
-                if hasattr(os, 'chflags') and hasattr(old_stat, 'st_flags'):
-                    os.chflags(dir, old_stat.st_flags)
-                if hasattr(os, 'chown'):
-                    os.chown(dir, old_stat.st_uid, old_stat.st_gid)
-            except OSError:
-                pass
-
-        try:
-            for dir, dirs, files in os.walk(old_dir, topdown=False):
-                os.rmdir(dir)
-        except OSError, e:
-            self.log.error("Can't delete old attachments directory %s: %s",
-                           old_dir, exception_to_unicode(e, traceback=True))
-            printerr(_("Error while deleting old attachments directory. "
-                       "Please move or remove files in\nthe directory and try "
-                       "again."))
-            raise
-
-    def _move_attachment_file(self, attachment):
-        old_path = attachment._get_path_old(attachment.parent_realm,
-                                            attachment.parent_id,
-                                            attachment.filename)
-        if os.path.isfile(old_path):
-            os.renames(old_path, attachment.path)
-
-
 class AttachmentModule(Component):
 
     implements(IRequestHandler, INavigationContributor, IWikiSyntaxProvider,
@@ -492,7 +433,7 @@ class AttachmentModule(Component):
     max_zip_size = IntOption('attachment', 'max_zip_size', 2097152,
         """Maximum allowed total size (in bytes) for an attachment list to be
         downloadable as a `.zip`. Set this to -1 to disable download as `.zip`.
-        (''since 0.13'')""")
+        (''since 1.0'')""")
 
     render_unsafe_content = BoolOption('attachment', 'render_unsafe_content',
                                        'false',
@@ -565,7 +506,7 @@ class AttachmentModule(Component):
         
         if req.method == 'POST':
             if action == 'new':
-                self._do_save(req, attachment)
+                data = self._do_save(req, attachment)
             elif action == 'delete':
                 self._do_delete(req, attachment)
         elif action == 'delete':
@@ -779,16 +720,25 @@ class AttachmentModule(Component):
         attachment.ipnr = req.remote_addr
 
         # Validate attachment
+        valid = True
         for manipulator in self.manipulators:
             for field, message in manipulator.validate_attachment(req,
                                                                   attachment):
+                valid = False
                 if field:
-                    raise InvalidAttachment(
+                    add_warning(req,
                         _('Attachment field %(field)s is invalid: %(message)s',
                           field=field, message=message))
                 else:
-                    raise InvalidAttachment(
+                    add_warning(req,
                         _('Invalid attachment: %(message)s', message=message))
+        if not valid:
+            # Display the attach form with pre-existing data
+            # NOTE: Local file path not known, file field cannot be repopulated
+            add_warning(req, _('Note: File must be selected again.'))
+            data = self._render_form(req, attachment)
+            data['is_replace'] = req.args.get('replace')
+            return data
 
         if req.args.get('replace'):
             try:

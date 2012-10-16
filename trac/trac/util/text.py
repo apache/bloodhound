@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2009 Edgewall Software
 # Copyright (C) 2003-2004 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2006 Matthew Good <trac@matt-good.net>
-# Copyright (C) 2005-2006 Christian Boos <cboos@neuf.fr>
+# Copyright (C) 2005-2006 Christian Boos <cboos@edgewall.org>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -16,7 +16,7 @@
 #
 # Author: Jonas Borgström <jonas@edgewall.com>
 #         Matthew Good <trac@matt-good.net>
-#         Christian Boos <cboos@neuf.fr>
+#         Christian Boos <cboos@edgewall.org>
 
 import __builtin__
 import locale
@@ -95,20 +95,52 @@ def path_to_unicode(path):
     return unicode(path)
 
 
+_ws_leading_re = re.compile(ur'\A[\s\u200b]+', re.UNICODE)
+_ws_trailing_re = re.compile(ur'[\s\u200b]+\Z', re.UNICODE)
+
+def stripws(text, leading=True, trailing=True):
+    """Strips unicode white-spaces and ZWSPs from ``text``.
+
+    :param leading: strips leading spaces from ``text`` unless ``leading`` is
+                    `False`.
+    :param trailing: strips trailing spaces from ``text`` unless ``trailing``
+                     is `False`.
+    """
+    if leading:
+        text = _ws_leading_re.sub('', text)
+    if trailing:
+        text = _ws_trailing_re.sub('', text)
+    return text
+
+
 _js_quote = {'\\': '\\\\', '"': '\\"', '\b': '\\b', '\f': '\\f',
              '\n': '\\n', '\r': '\\r', '\t': '\\t', "'": "\\'"}
 for i in range(0x20) + [ord(c) for c in '&<>']:
     _js_quote.setdefault(chr(i), '\\u%04x' % i)
 _js_quote_re = re.compile(r'[\x00-\x1f\\"\b\f\n\r\t\'&<>]')
+_js_string_re = re.compile(r'[\x00-\x1f\\"\b\f\n\r\t&<>]')
 
 
 def javascript_quote(text):
-    """Quote strings for inclusion in javascript"""
+    """Quote strings for inclusion in single or double quote delimited
+    Javascript strings
+    """
     if not text:
         return ''
     def replace(match):
         return _js_quote[match.group(0)]
     return _js_quote_re.sub(replace, text)
+
+
+def to_js_string(text):
+    """Embed the given string in a double quote delimited Javascript string
+    (conform to the JSON spec)
+    """
+    if not text:
+        return ''
+    def replace(match):
+        return _js_quote[match.group(0)]
+    return '"%s"' % _js_string_re.sub(replace, text)
 
 
 def unicode_quote(value, safe='/'):
@@ -541,7 +573,7 @@ def normalize_whitespace(text, to_space=u'\u00a0', remove=u'\u200b'):
 def unquote_label(txt):
     """Remove (one level of) enclosing single or double quotes.
 
-    .. versionadded :: 0.13
+    .. versionadded :: 1.0
     """
     return txt[1:-1] if txt and txt[0] in "'\"" and txt[0] == txt[-1] else txt
 
@@ -626,3 +658,22 @@ def unicode_to_base64(text, strip_newlines=True):
 def unicode_from_base64(text):
     """Safe conversion of ``text`` to unicode based on utf-8 bytes."""
     return text.decode('base64').decode('utf-8')
+
+
+def levenshtein_distance(lhs, rhs):
+    """Return the Levenshtein distance between two strings."""
+    if len(lhs) > len(rhs):
+        rhs, lhs = lhs, rhs
+    if not lhs:
+        return len(rhs)
+
+    prev = range(len(rhs) + 1)
+    for lidx, lch in enumerate(lhs):
+        curr = [lidx + 1]
+        for ridx, rch in enumerate(rhs):
+            cost = (lch != rch) * 2
+            curr.append(min(prev[ridx + 1] + 1, # deletion
+                            curr[ridx] + 1,     # insertion
+                            prev[ridx] + cost)) # substitution
+        prev = curr
+    return prev[-1]

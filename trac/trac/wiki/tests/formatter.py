@@ -8,20 +8,14 @@ import unittest
 
 try:
     from unittest.util import safe_repr
-    unittest.case.safe_repr = lambda obj, short: safe_repr(obj, False)
+    unittest.case.safe_repr = lambda obj, short=False: safe_repr(obj, False)
 except ImportError:
     pass
 
-
 from datetime import datetime
 
-try:
-    from babel import Locale
-except ImportError:
-    Locale = None
-
 from trac.core import *
-from trac.test import Mock, MockPerm, EnvironmentStub
+from trac.test import Mock, MockPerm, EnvironmentStub, locale_en
 from trac.util.datefmt import utc
 from trac.util.html import html
 from trac.util.text import to_unicode
@@ -132,7 +126,7 @@ class WikiTestCase(unittest.TestCase):
 
         req = Mock(href=Href('/'), abs_href=Href('http://www.example.com/'),
                    authname='anonymous', perm=MockPerm(), tz=utc, args={},
-                   locale=Locale.parse('en_US') if Locale else None)
+                   locale=locale_en, lc_time=locale_en)
         if context:
             if isinstance(context, tuple):
                 context = web_context(req, *context)
@@ -184,7 +178,7 @@ class WikiTestCase(unittest.TestCase):
         """Testing WikiFormatter"""
         formatter = self.formatter()
         v = unicode(formatter.generate(**self.generate_opts))
-        v = v.replace('\r', '').replace(u'\u200b', '')
+        v = v.replace('\r', '').replace(u'\u200b', '') # FIXME: keep ZWSP
         try:
             self.assertEquals(self.correct, v)
         except AssertionError, e:

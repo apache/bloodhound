@@ -14,7 +14,7 @@
       if (trigger.length == 0) {
         trigger = $("<a" + (snap? " id='no" + count + "'": "")
             + " href='#no" + count + "'></a>");
-        trigger.text($(this).text());
+        trigger.html($(this).html());
         $(this).text("");
         $(this).append(trigger);
       }
@@ -59,7 +59,7 @@
             row_headers.eq(i*k+j).css('display', 'none');
           // create a recovery button and its "show" callback
           recovery_area.prepend($("<span></span>").addClass("recover")
-            .text(babel.format(_("Show %(title)s"), {title: th.text()}))
+            .text(_("Show %(title)s", {title: th.text()}))
             .click(function() {
               $(this).remove();
               th.show();
@@ -74,8 +74,8 @@
         };
         $(this).click(hide)
           .css('cursor', 'pointer')
-          .attr('title', babel.format(_("%(title)s (click to hide column)"),
-                                      {title: $(this).attr('title')}));
+          .attr('title', _("%(title)s (click to hide column)",
+                           {title: $(this).attr('title')}));
       });
   }
 

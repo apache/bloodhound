@@ -32,8 +32,8 @@ from trac.util import translation
 from trac.util.html import html
 from trac.util.text import console_print, exception_to_unicode, printout, \
                            printerr, raw_input, to_unicode
-from trac.util.translation import _, get_negotiated_locale, has_babel, \
-                                  cleandoc_
+from trac.util.translation import _, ngettext, get_negotiated_locale, \
+                                  has_babel, cleandoc_
 from trac.versioncontrol.api import RepositoryManager
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.macros import WikiMacroBase
@@ -65,6 +65,7 @@ class TracAdmin(cmd.Cmd):
     prompt = "Trac> "
     envname = None
     __env = None
+    needs_upgrade = None
 
     def __init__(self, envdir=None):
         cmd.Cmd.__init__(self)
@@ -266,11 +267,19 @@ Type:  '?' or 'help' for help on commands.
         try:
             if not self.__env:
                 self._init_env()
+            if self.needs_upgrade is None:
+                self.needs_upgrade = self.__env.needs_upgrade()
         except TracError, e:
             raise AdminCommandError(to_unicode(e))
         except Exception, e:
             raise AdminCommandError(exception_to_unicode(e))
         args = self.arg_tokenize(line)
+        if args[0] == 'upgrade':
+            self.needs_upgrade = None
+        elif self.needs_upgrade:
+            raise TracError(_('The Trac Environment needs to be upgraded.\n\n'
+                              'Run "trac-admin %(path)s upgrade"',
+                              path=self.envname))
         cmd_mgr = AdminCommandManager(self.env)
         return cmd_mgr.execute_command(*args)
 
@@ -301,8 +310,17 @@ Type:  '?' or 'help' for help on commands.
             if doc:
                 self.print_doc(doc)
             else:
-                printerr(_("No documentation found for '%(cmd)s'",
+                printerr(_("No documentation found for '%(cmd)s'."
+                           " Use 'help' to see the list of commands.",
                            cmd=' '.join(arg)))
+                cmds = cmd_mgr.get_similar_commands(arg[0])
+                if cmds:
+                    printout('')
+                    printout(ngettext("Did you mean this?",
+                                      "Did you mean one of these?",
+                                      len(cmds)))
+                    for cmd in cmds:
+                        printout('    ' + cmd)
         else:
             printout(_("trac-admin - The Trac Administration Console "
                        "%(version)s", version=TRAC_VERSION))
@@ -568,7 +586,7 @@ def run(args=None):
             admin.env_set(env_path)
             if len(args) > 1:
                 s_args = ' '.join(["'%s'" % c for c in args[2:]])
-                command = args[1] + ' ' +s_args
+                command = args[1] + ' ' + s_args
                 return admin.onecmd(command)
             else:
                 while True:

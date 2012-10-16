@@ -28,13 +28,13 @@ from pprint import pformat, pprint
 import re
 import sys
 
-from genshi.core import Markup
 from genshi.builder import Fragment, tag
 from genshi.output import DocType
 from genshi.template import TemplateLoader
 
 from trac import __version__ as TRAC_VERSION
-from trac.config import ExtensionOption, Option, OrderedExtensionsOption
+from trac.config import BoolOption, ExtensionOption, Option, \
+                        OrderedExtensionsOption
 from trac.core import *
 from trac.env import open_environment
 from trac.loader import get_plugin_info, match_plugins_to_frames
@@ -43,8 +43,7 @@ from trac.resource import ResourceNotFound
 from trac.util import arity, get_frame_info, get_last_traceback, hex_entropy, \
                       read_file, safe_repr, translation
 from trac.util.concurrency import threading
-from trac.util.datefmt import format_datetime, http_date, localtz, timezone, \
-                              user_time
+from trac.util.datefmt import format_datetime, localtz, timezone, user_time
 from trac.util.text import exception_to_unicode, shorten_line, to_unicode
 from trac.util.translation import _, get_negotiated_locale, has_babel, \
                                   safefmt, tag_
@@ -70,6 +69,15 @@ class FakePerm(dict):
         return False
     def __call__(self, *args):
         return self
+
+
+class RequestWithSession(Request):
+    """A request that saves its associated session when sending the reply."""
+    
+    def send_response(self, code=200):
+        if code < 400:
+            self.session.save()
+        super(RequestWithSession, self).send_response(code)
 
 
 class RequestDispatcher(Component):
@@ -110,7 +118,14 @@ class RequestDispatcher(Component):
         """The date format. Valid options are 'iso8601' for selecting
         ISO 8601 format, or leave it empty which means the default
         date format will be inferred from the browser's default
-        language. (''since 0.13'')
+        language. (''since 1.0'')
+        """)
+
+    use_xsendfile = BoolOption('trac', 'use_xsendfile', 'false',
+        """When true, send a `X-Sendfile` header and no content when sending
+        files from the filesystem, so that the web server handles the content.
+        This requires a web server that knows how to handle such a header,
+        like Apache with `mod_xsendfile` or lighttpd. (''since 1.0'')
         """)
 
     # Public API
@@ -142,7 +157,8 @@ class RequestDispatcher(Component):
             'locale': self._get_locale,
             'lc_time': self._get_lc_time,
             'tz': self._get_timezone,
-            'form_token': self._get_form_token
+            'form_token': self._get_form_token,
+            'use_xsendfile': self._get_use_xsendfile,
         })
 
         try:
@@ -219,8 +235,6 @@ class RequestDispatcher(Component):
                 else:
                     self._post_process_request(req)
             except RequestDone:
-                # Give the session a chance to persist changes after a send()
-                req.session.save()
                 raise
             except:
                 # post-process the request in case of errors
@@ -302,6 +316,9 @@ class RequestDispatcher(Component):
             if sys.version_info >= (2, 6):
                 req.outcookie['trac_form_token']['httponly'] = True
             return req.outcookie['trac_form_token'].value
+
+    def _get_use_xsendfile(self, req):
+        return self.use_xsendfile
 
     def _pre_process_request(self, req, chosen_handler):
         for filter_ in self.filters:
@@ -442,7 +459,7 @@ def dispatch_request(environ, start_response):
     except Exception, e:
         env_error = e
 
-    req = Request(environ, start_response)
+    req = RequestWithSession(environ, start_response)
     translation.make_activable(lambda: req.locale, env.path if env else None)
     try:
         return _dispatch_request(req, env, env_error)
@@ -663,9 +680,13 @@ def send_project_index(environ, start_response, parent_dir=None,
                                 default_encoding='utf-8')
         tmpl = loader.load(template)
         stream = tmpl.generate(**data)
-        output = stream.render('xhtml', doctype=DocType.XHTML_STRICT,
-                               encoding='utf-8')
-        req.send(output, 'text/html')
+        if template.endswith('.xml'):
+            output = stream.render('xml')
+            req.send(output, 'text/xml')
+        else:
+            output = stream.render('xhtml', doctype=DocType.XHTML_STRICT,
+                                   encoding='utf-8')
+            req.send(output, 'text/html')
 
     except RequestDone:
         pass
