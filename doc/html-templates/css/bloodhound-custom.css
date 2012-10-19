@@ -19,59 +19,18 @@
 
 /* @group Sticky Status */
 
-div#stickyStatus {
+#stickyStatus {
 	position: relative;
 	top: 0px;
-}
 
-div#belowStatus {
-	position: relative;
-	top: 135px;
-}
-
-div#stickyStatus hgroup {
-	position: absolute;
-	left: 60px;
-	width: 620px;
-}
-
-div#stickyStatus h6 {
-	margin-top: -5px;
-}
-
-div#stickyStatus #whitebox {
-	position: absolute;
-	z-index: 10;
 	background-color: white;
-	height: 115px;
-	width: 620px;
-	border-bottom: 2px solid white;
+	z-index: 20;
+	border-bottom: 1px solid black;
+	box-shadow: 0px 5px 3px -3px #888;
 }
 
-div#stickyStatus #statusBar {
-	position: absolute;
-	top: 65px;
-	left: 30px;
-	width: 580px;
-	text-align: center;
-}
-
-div#statusBarBox {
-	background-color: #FEFFF0;
-	height: 45px;
-	width: 583px;
-	position: absolute;
-	top: -5px;
-	left: -18px;
-	z-index: -50;
-}
-
-div#statusBar .first {
-	float: left;
-}
-div#statusBar .other {
-	float: left;
-	margin-left: 50px;
+#belowStatus {
+	position: relative;
 }
 
 /* @end */
@@ -85,47 +44,6 @@ ul.oocss {
 
 ul.oocss h6 {
 	margin-top: -5px;
-}
-
-/* @end */
-
-/* @group Status items */
-
-ul.statusitems {
-	list-style-type: none;
-	margin: 0;
-}
-
-ul.statusitems li {
-	display: inline-block;
-	text-align: center;
-	margin-right: 30px;
-}
-
-ul.statusitems li.first {
-	text-align: left;
-	width: 200px;
-	overflow: hidden;
-	white-space: nowrap;
-}
-
-ul.statusitems li p {
-	margin-bottom: -2px;
-}
-
-ul.statusitems li p + a {
-	font-size: 120%;
-}
-
-ul.statusitems .progressbar {
-	position: relative;
-	top: -17px;
-	width: 85px;
-}
-
-ul.statusitems li .progress {
-	margin-bottom: 0px;
-	margin-top: 0px;
 }
 
 /* @end */
@@ -146,4 +64,65 @@ ul.statusitems li .progress {
 	position: relative;
 	top: -6px;
 	color: whiteSmoke;
+}
+
+.status-overview {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.status-overview td:first-child {
+	font-weight: 900;
+	text-align: right;
+}
+
+.local-nav {
+	list-style: none;
+	border: 1px solid #888;
+	border-radius: 5px;
+	display: inline-block;
+	background-color: rgb(240, 240, 240);
+	margin-top: 10px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.local-nav:first-child {
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+
+.local-nav:last-child {
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+.local-nav li {
+	display: inline-block;
+	padding: 2px 5px;
+}
+
+.local-nav li:hover {
+	background-color: rgb(225, 225, 225);
+}
+
+.comment {
+	border-top: 1px solid #888;
+	margin-bottom: 10px;
+}
+
+.comment-meta {
+	font-weight: 900;
+}
+
+@media (max-width: 480px) {
+	h1 {
+		font-size: 30px;
+		margin-bottom: 0px;
+		line-height: 1;
+	}
+
+	#stickyStatus {
+		width: 100%; 
+	}
 }
