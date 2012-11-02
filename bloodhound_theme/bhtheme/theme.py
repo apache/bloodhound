@@ -21,6 +21,7 @@ from genshi.filters.transform import Transformer
 
 from trac.core import *
 from trac.mimeview.api import get_mimetype
+from trac.resource import Resource
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.notification import TicketNotifyEmail
@@ -94,7 +95,7 @@ class BloodhoundTheme(ThemeBase):
         'report_edit.html' : ('bh_report_edit.html', None), 
         'report_list.html' : ('bh_report_list.html', None),
         'report_view.html' : ('bh_report_view.html', None),
-        'ticket.html' : ('bh_ticket.html', '_modify_scrollspy'),
+        'ticket.html' : ('bh_ticket.html', '_modify_ticket'),
         'ticket_preview.html' : ('bh_ticket_preview.html', None),
 
         # Multi Product
@@ -223,6 +224,18 @@ class BloodhoundTheme(ThemeBase):
         """Insert roadmap.css
         """
         add_stylesheet(req, 'dashboard/css/roadmap.css')
+
+    def _modify_ticket(self, req, template, data, content_type, is_active):
+        """Insert Bootstrap scroll spy files.
+        """
+        self._modify_scrollspy(req, template, data, content_type, is_active)
+        if data:
+            data['resourcepath_template'] = 'bh_path_ticket.html'
+            # determine path permissions
+            for resname, permname in [('milestone', 'MILESTONE_VIEW'),
+                                      ('product', 'PRODUCT_VIEW')]:
+                res = Resource(resname, data['ticket'][resname])
+                data['path_show_' + resname] = permname in req.perm(res)
 
     def _modify_scrollspy(self, req, template, data, content_type, is_active):
         """Insert Bootstrap scroll spy files.
