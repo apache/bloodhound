@@ -273,9 +273,8 @@ class Product(ModelBase):
         now = datetime.now(utc)
         comment = 'Product %s renamed to %s' % (old_name, new_name)
         if old_name != new_name:
-            for t in Product.get_tickets(self._env, old_name):
+            for t in Product.get_tickets(self._env, self._data['prefix']):
                 ticket = Ticket(self._env, t['id'], db)
-                ticket['product'] = new_name
                 ticket.save_changes(author, comment, now)
     
     @classmethod

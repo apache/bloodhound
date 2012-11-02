@@ -33,7 +33,7 @@ from trac.web.chrome import ITemplateProvider
 
 from multiproduct.model import Product
 
-DB_VERSION = 1
+DB_VERSION = 2
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
 
@@ -102,6 +102,18 @@ class MultiProductSystem(Component):
                     for statement in db_connector.to_sql(table):
                         db(statement)
                 db_installed_version = self.get_version()
+            
+            if db_installed_version == 1:
+                from multiproduct.model import Product
+                products = Product.select(self.env)
+                for prod in products:
+                    db("""UPDATE ticket SET product=%s
+                          WHERE product=%s""", (prod.prefix, prod.name))
+                
+                db("""UPDATE system SET value=%s
+                      WHERE name=%s""", (DB_VERSION, DB_SYSTEM_KEY))
+                self.log.info("Upgraded multiproduct db schema from version %d"
+                              " to %d" % (db_installed_version, DB_VERSION))
     
     # ITemplateProvider methods
     def get_templates_dirs(self):
@@ -122,7 +134,7 @@ class MultiProductSystem(Component):
     def get_select_fields(self):
         """Product select fields"""
         return [(35, {'name': 'product', 'label': N_('Product'),
-                      'cls': Product, 'optional': True})]
+                      'cls': Product, 'pk': 'prefix', 'optional': True})]
     
     def get_radio_fields(self):
         """Product radio fields"""
