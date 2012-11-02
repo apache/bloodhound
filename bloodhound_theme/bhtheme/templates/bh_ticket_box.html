@@ -112,7 +112,7 @@ Arguments:
     </div>
     <div class="properties" style="margin-top: 1.2em">
       <py:for each="_fields, csscls, count, fontsize, is_inline in 
-          [(text_fields, 'span4', colcount / 2, None, False),
+          [(text_fields, 'span4', _colcount / 2, None, False),
            (area_fields, colspan, 1, None, False)]">
         <py:for each="fields_row in group(_fields, count)">
           ${render_fields_row(fields_row, csscls, fontsize, is_inline)}
