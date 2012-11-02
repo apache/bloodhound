@@ -137,6 +137,8 @@ class ProductModule(Component):
         
         req.perm.require('PRODUCT_VIEW')
         pid = req.args.get('productid', None)
+        if pid:
+            req.perm('product', pid).require('PRODUCT_VIEW')
         action = req.args.get('action', 'view')
         
         products = [p for p in Product.select(self.env)
