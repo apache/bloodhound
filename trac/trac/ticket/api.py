@@ -165,6 +165,7 @@ class ITicketFieldProvider(Interface):
         (rank, field)
         where field is a dictionary that defines:
             * name: the field name 
+            * pk: the primary key of the field table
             * label: the label to display, preferably wrapped with N_()
             * cls: the model describing the field
         the following keys can also usefully be defined:
@@ -344,7 +345,10 @@ class TicketSystem(Component):
         for rank, field in selects:
             cls = field['cls']
             name = field['name']
-            options = [val.name for val in cls.select(self.env, db=db)]
+            pk_field = field.get('pk', 'name')
+            options = [getattr(val, pk_field)
+                       for val in cls.select(self.env, db=db)]
+
             if not options:
                 # Fields without possible values are treated as if they didn't
                 # exist
