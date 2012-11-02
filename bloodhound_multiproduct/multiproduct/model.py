@@ -246,7 +246,7 @@ class Product(ModelBase):
     @property
     def resource(self):
         """Allow Product to be treated as a Resource"""
-        return Resource('product', self.name)
+        return Resource('product', self.prefix)
     
     def delete(self, resources_to=None):
         """ override the delete method so that we can move references to this
