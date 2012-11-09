@@ -25,16 +25,18 @@ $(document).ready(function stickyStatus() {
 
 	    var elemTop = $("header").offset().top;
 	    var elemBottom = elemTop + $("header").height();
+
+	    var stickyHeight = $("#stickyStatus").outerHeight();
     
 		if (docViewTop > elemBottom) {
 //			$("#stickyActivity").css({'position': 'fixed', 'top': '0'});
-			$("#stickyStatus").css({'position': 'fixed'});
-			$("#whitebox").css({'border-bottom': '2px solid #A4A4A4'});
+			$("#stickyStatus").addClass("sticky");
+			$("#stickyOffset").css("height", stickyHeight + "px");
 		}
 		else {
 //			$("#stickyActivity").css({'position': '', 'top': ''});
-			$("#stickyStatus").css({'position': ''}); 
-			$("#whitebox").css({'border-bottom': ''});
+			$("#stickyStatus").removeClass("sticky"); 
+			$("#stickyOffset").css("height", "0px");
 			}
 	});
 });

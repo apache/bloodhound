@@ -18,13 +18,13 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css" />
-<link rel="stylesheet" type="text/css" href="css/bloodhound-custom.css" />
 <html>
 <head>
 	<title>wiki-5476 - Apache Bloodhound</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css" />
+	<link rel="stylesheet" type="text/css" href="css/bloodhound-custom.css" />
 </head>
 <body>
 	<div class="container">
@@ -42,6 +42,7 @@
 			<button class="btn btn-primary" href="#" style="margin-left: 20px;">Create Ticket</button>
 			</div>
 <!-- Main navigation tabs -->
+	<!-- TODO: Fix navigation on all resolutions -->
 			<div class="span4">
 				<ul class="nav nav-tabs pull-right hidden-phone" style="margin-bottom:0px; border-bottom: 0px;">
 					<li class="active"><a href="dashboard.html">Tickets</a></li>
@@ -74,7 +75,7 @@
 				</ul>
 			</div>
 		</div>
-		</header>     	
+		</header>
 
 <!--	#	Header ends 
 		#	Main body begins	-->
@@ -83,24 +84,25 @@
 <!-- Main element starts -->
 			<div class="span8" id="content">
 				<div class="row">
-				<div id="stickyStatus" class="span8">
-					<h1>&#9734; SQL report realm/id decoration</h1>
-					<span><a href="">Ticket 25</a> - Due in <time datetime="2012-04-27"><a href="#">2 days</a></time>, assigned to <a href="profile.html">Fred Feuerstein</a></span>
-				</div>
+					<div id="stickyStatus" class="span8">
+						<h1>&#9734; SQL report realm/id decoration</h1>
+						<span><a href="">Ticket 25</a> - Due in <time datetime="2012-04-27"><a href="#">2 days</a></time>, assigned to <a href="profile.html">Fred Feuerstein</a></span>
+						<div>
+							<ul class="local-nav">
+								<li><a href="#description"><i class="icon-tasks"></i> <span class="hidden-phone">Description</span></a></li>
+								<li><a href="#attachments"><i class="icon-file"></i> <span class="hidden-phone hidden-tablet">Attachments</span></a></li>
+								<li><a href="#comments"><i class="icon-comment"></i> <span class="hidden-phone">Comments</span></a></li>
+								<li><a href="#newComment"><i class="icon-plus"></i> <span class="hidden-phone hidden-tablet">Add comment</span></a></li>
+								<li class="hidden-desktop"><a href="#activity"><i class="icon-user"></i> <span class="hidden-phone">Activity</span></a></li>
+								<li><a href="#edit"><i class="icon-edit"></i> <span class="hidden-phone">Edit</span></a></li>
+							</ul>
+						</div>
+					</div>
 				</div>
 <!-- Local navigation -->
-				<div id="belowStatus">
-					<div>
-						<ul class="local-nav">
-							<li><a href=""><i class="icon-tasks"></i> <span class="hidden-phone">Description</span></a></li>
-							<li><a href=""><i class="icon-file"></i> <span class="hidden-phone">Attachments</span></a></li>
-							<li><a href=""><i class="icon-comment"></i> <span class="hidden-phone">Comments</span></a></li>
-							<li><a href=""><i class="icon-plus"></i> <span class="hidden-phone">Add comment</span></a></li>
-							<li class="hidden-desktop"><a href=""><i class="icon-user"></i> <span class="hidden-phone">Activity</span></a></li>
-						</ul>
-					</div>
 <!-- Status -->
-					<div class="row">
+					<div id="belowStatus" class="row">
+						<div id="stickyOffset"></div>
 						<div class="span4">
 							<table class="span4 status-overview">
 								<tr>
@@ -131,90 +133,117 @@
 						</div>
 					</div>
 <!-- Description -->
-				<div id="description" class="well">
-					<div>
+				<div id="description" class="row">
+					<div class="span8">
 						<p><i class="icon-tags"></i> <a href="#">bloodhound</a>, <a href="#">design</a>, <a href="#">SQL</a></p>
 					</div>
-					<p id="full_description">
-					What you're reading now is the description. While doing a GET operation on /, Trac issued an internal error.<br>
-					Request parameters:<br>
-					<q>{} User agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; ko-kr) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4</q></p>
-					<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
+					<div class="span8">
+						<p id="full_description">
+						What you're reading now is the description. While doing a GET operation on /, Trac issued an internal error.<br>
+						Request parameters:<br>
+						<q>{} User agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; ko-kr) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4</q></p>
+						<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
+					</div>
 				</div>
+
+<!-- TODO: Add attachments section -->
+
 <!-- Comments -->
-				<div id="comments">
-					<h3>Comments</h3>
-					<div id="comment1" class="row comment">
-						<div class="comment-meta span1">
-							<span>comment:1</span>
-							<span>15 Jan</span>
-							<span>Karl Krombacher</span>
+	<!-- TODO: Fix comment-meta overlap with comments body -->
+				<div id="comments" class="row">
+					<div class="span8">
+						<h3>Comments</h3>
+						<div id="comment1" class="row">
+							<div class="comment span8">
+								<div class="row">
+									<div class="span1 comment-meta">
+										<span>comment:1</span>
+										<span>15 Jan</span>
+										<span>Karl Krombacher</span>
+									</div>
+									<div class="span7 comment-content">
+										<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div class="comment-content span7">
-							<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
+						<div id="comment2" class="row">
+							<div class="comment span8">
+								<div class="row">
+									<div class="span1 comment-meta">
+										<span>comment:2</span>
+										<span>18 Jan</span>
+										<span>Warren Worcester</span>
+									</div>
+									<div class="span7 comment-content">
+										<p>Just tested this on the windows server 2008.
+											<ul>
+												<li>11.10 was installed.</li>
+												<li>Purchased/installed Jenkins</li>
+												<li>updated conf file to have ump and update server details</li>
+												<li>restarted uber</li>
+												<li>updated directly to 11.12</li>
+												<li>After the update, I can't get to the ui.</li>
+											</ul>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="comment3" class="row">
+							<div class="comment span8">
+								<div class="row">
+									<div class="comment-meta span1">
+										<span>comment:3</span>
+										<span>Yesterday</span>
+										<span>Fred Feuerstein</span>
+									</div>
+									<div class="comment-content span7">
+										<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
+			<!-- TODO: Show more clearly that files are attached to tickets but potentially displayed in tandem with a comment -->
+										<ul class="unstyled" id="attachment" style="position: relative;">
+											<li><a href="#"><i class="icon-file"></i>placekitten.jpg</a></li>
+											<li><a href="#"><i class="icon-file"></i>proposal.doc</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="comment4" class="row">
+							<div class="comment span8">
+								<div class="row">
+									<div class="comment-meta span1">
+										<span>comment:4</span>
+										<span>2 hours</span>
+										<span>Rudolf Rotnase</span>
+									</div>
+									<div class="comment-content span7">
+										<p>Just tested this on the windows server 2008.
+											<ul>
+												<li>11.10 was installed.</li>
+												<li>Purchased/installed Jenkins</li>
+												<li>updated conf file to have ump and update server details</li>
+												<li>restarted uber</li>
+												<li>updated directly to 11.12</li>
+												<li>After the update, I can't get to the ui.</li>
+											</ul>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="add-comment" class="row">
+							<div class="span8">
+								<h3 style="margin-top: 20px;">Add comment</h3>
+								<textarea></textarea>
+								<button class="btn" style="margin-top: 2px;"><i class="icon-comment"></i> Add comment</button>
+							</div>
 						</div>
 					</div>
-					<div id="comment2" class="row comment">
-						<div class="comment-meta span1">
-							<span>comment:2</span>
-							<span>18 Jan</span>
-							<span>Warren Worcester</span>
-						</div>
-						<div class="comment-content span7">
-							<p>Just tested this on the windows server 2008.
-								<ul>
-									<li>11.10 was installed.</li>
-									<li>Purchased/installed Jenkins</li>
-									<li>updated conf file to have ump and update server details</li>
-									<li>restarted uber</li>
-									<li>updated directly to 11.12</li>
-									<li>After the update, I can't get to the ui.</li>
-								</ul>
-							</p>
-						</div>
-					</div>
-					<div id="comment3" class="row comment">
-						<div class="comment-meta span1">
-							<span>comment:3</span>
-							<span>Yesterday</span>
-							<span>Fred Feuerstein</span>
-						</div>
-						<div class="comment-content span7">
-							<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
-							<ul class="unstyled" id="attachment" style="position: relative;">
-								<li><a href="#"><i class="icon-file"></i>placekitten.jpg</a></li>
-								<li><a href="#"><i class="icon-file"></i>proposal.doc</a></li>
-							</ul>
-						</div>
-					</div>
-					<div id="comment4" class="row comment">
-						<div class="comment-meta span1">
-							<span>comment:4</span>
-							<span>2 hours</span>
-							<span>Rudolf Rotnase</span>
-						</div>
-						<div class="comment-content span7">
-							<p>Just tested this on the windows server 2008.
-								<ul>
-									<li>11.10 was installed.</li>
-									<li>Purchased/installed Jenkins</li>
-									<li>updated conf file to have ump and update server details</li>
-									<li>restarted uber</li>
-									<li>updated directly to 11.12</li>
-									<li>After the update, I can't get to the ui.</li>
-								</ul>
-							</p>
-						</div>
-					</div>
-					<div id="add-comment" class="row">
-						<h3 style="margin-top: 20px;">Add comment</h3>
-						<textarea style="height: 100px; border: 1px solid #eee; color: lightgray; display: block;">-Empty comment box here with 100% width-</textarea>
-						<button class="btn" style="margin-top: 2px;"><i class="icon-comment"></i> Add comment</button>
-					</div>
-				</div>			
-			</div>
+				</div>
 			</div>
 <!-- Activity starts -->
+	<!-- TODO: Make this drop below in tablet sizes-->
 			<div id="activity" class="span4">
 				<div id="stickyActivity">
 					<h1>Activity</h1>

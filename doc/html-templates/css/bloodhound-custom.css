@@ -17,20 +17,39 @@
   under the License.
 */
 
+body {
+	background-color: rgb(75%, 75%, 75%);
+}
+
+.container {
+	background-color: rgb(100%, 100%, 100%);
+	padding: 5px 20px;
+	border-left: 1px solid rgb(40%, 40%, 40%);
+	border-right: 1px solid rgb(40%, 40%, 40%);
+	box-shadow: 0px 0px 10px 4px rgba(20%, 20%, 20%, 0.4)
+}
+
 /* @group Sticky Status */
 
 #stickyStatus {
 	position: relative;
-	top: 0px;
-
 	background-color: white;
 	z-index: 20;
-	border-bottom: 1px solid black;
-	box-shadow: 0px 5px 3px -3px #888;
+}
+
+.sticky {
+	position: fixed !important;
+	top: 0px;
+	border-bottom: 1px solid rgb(60%, 60%, 60%);
+	box-shadow: 0px 8px 8px -5px #888;
 }
 
 #belowStatus {
 	position: relative;
+}
+
+.offsetSticky {
+	height: 130px;
 }
 
 /* @end */
@@ -77,10 +96,10 @@ ul.oocss h6 {
 }
 
 .local-nav {
-	list-style: none;
-	border: 1px solid #888;
-	border-radius: 5px;
 	display: inline-block;
+	list-style: none;
+	border: 1px solid rgb(70%, 70%, 70%);
+	border-radius: 5px;
 	background-color: rgb(240, 240, 240);
 	margin-top: 10px;
 	margin-left: auto;
@@ -95,11 +114,13 @@ ul.oocss h6 {
 .local-nav:last-child {
 	border-top-right-radius: 5px;
 	border-bottom-right-radius: 5px;
+	border-right: 0px solid black;
 }
 
 .local-nav li {
 	display: inline-block;
-	padding: 2px 5px;
+	padding: 3px 7px;
+	border-right: 1px solid rgb(70%, 70%, 70%);
 }
 
 .local-nav li:hover {
@@ -107,19 +128,52 @@ ul.oocss h6 {
 }
 
 .comment {
-	border-top: 1px solid #888;
+	border-top: 1px solid rgb(80%, 80%, 80%);
 	margin-bottom: 10px;
+	padding-top: 5px;
 }
 
 .comment-meta {
 	font-weight: 900;
 }
 
+.add-comment textarea {
+	height: 100px;
+	border: 1px solid #eee;
+	color: lightgray;
+	display: block;
+}
+
+
+@media (max-width: 767px) {
+
+	body {
+		padding-left: 8px;
+		padding-right: 8px;
+	}
+
+
+	.local-nav li {
+		padding: 8px 15px;
+	}
+}
+
 @media (max-width: 480px) {
+
+	body {
+		padding-left: 0px;
+		padding-right: 0px;
+	}
+
 	h1 {
 		font-size: 30px;
 		margin-bottom: 0px;
 		line-height: 1;
+	}
+
+	.container {
+		border-left: 0px solid white;
+		border-right: 0px solid white;
 	}
 
 	#stickyStatus {
