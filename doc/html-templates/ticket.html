@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 
 <!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements.  See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership.  The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License.  You may obtain a copy of the License at
+	Licensed to the Apache Software Foundation (ASF) under one
+	or more contributor license agreements.  See the NOTICE file
+	distributed with this work for additional information
+	regarding copyright ownership.  The ASF licenses this file
+	to you under the Apache License, Version 2.0 (the
+	"License"); you may not use this file except in compliance
+	with the License.  You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied.  See the License for the
-  specific language governing permissions and limitations
-  under the License.
+	Unless required by applicable law or agreed to in writing,
+	software distributed under the License is distributed on an
+	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, either express or implied.  See the License for the
+	specific language governing permissions and limitations
+	under the License.
 -->
 <html>
 <head>
@@ -34,16 +34,18 @@
 		</div>
 		<div class="row">
 <!-- Search box -->
-			<div class="span8">
+			<div class="span7">
 			<form class="form-inline" style="margin-bottom: 5px; display: inline-block;">
-				<input type="text" class="span3 hidden-phone" placeholder="Search" style="margin-bottom: 0px;" />
-				<input type="button" value="Search" href="search.html" class="btn btn-warning" />
+				<div class="input-append">
+					<input type="text" class="span3 hidden-phone" placeholder="Search" />
+					<input type="button" value="Search" href="search.html" class="btn btn-warning" />
+					</div>
 			</form>
-			<button class="btn btn-primary" href="#" style="margin-left: 20px;">Create Ticket</button>
+			<button class="btn btn-primary" href="#">Create Ticket</button>     
 			</div>
 <!-- Main navigation tabs -->
 	<!-- TODO: Fix navigation on all resolutions -->
-			<div class="span4">
+			<div class="span5">
 				<ul class="nav nav-tabs pull-right hidden-phone" style="margin-bottom:0px; border-bottom: 0px;">
 					<li class="active"><a href="dashboard.html">Tickets</a></li>
 					<li><a href="wiki.html">Wiki</a></li>
@@ -77,8 +79,8 @@
 		</div>
 		</header>
 
-<!--	#	Header ends 
-		#	Main body begins	-->
+<!--  # Header ends 
+		# Main body begins  -->
 
 		<div class="row">
 <!-- Main element starts -->
@@ -101,8 +103,9 @@
 				</div>
 <!-- Local navigation -->
 <!-- Status -->
-					<div id="belowStatus" class="row">
-						<div id="stickyOffset"></div>
+				<div id="belowStatus">
+					<div id="stickyOffset"></div>
+					<div class="row">
 						<div class="span4">
 							<table class="span4 status-overview">
 								<tr>
@@ -142,7 +145,7 @@
 						What you're reading now is the description. While doing a GET operation on /, Trac issued an internal error.<br>
 						Request parameters:<br>
 						<q>{} User agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; ko-kr) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4</q></p>
-						<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
+						<button class="btn"><i class="icon-file"></i> Attach file</button>
 					</div>
 				</div>
 
@@ -157,9 +160,9 @@
 							<div class="comment span8">
 								<div class="row">
 									<div class="span1 comment-meta">
-										<span>comment:1</span>
-										<span>15 Jan</span>
 										<span>Karl Krombacher</span>
+										<span class="date">15 Jan</span>
+										<span class="id">comment:1</span>
 									</div>
 									<div class="span7 comment-content">
 										<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
@@ -171,9 +174,9 @@
 							<div class="comment span8">
 								<div class="row">
 									<div class="span1 comment-meta">
-										<span>comment:2</span>
-										<span>18 Jan</span>
 										<span>Warren Worcester</span>
+										<span class="date">18 Jan</span>
+										<span class="id">comment:2</span>
 									</div>
 									<div class="span7 comment-content">
 										<p>Just tested this on the windows server 2008.
@@ -194,9 +197,9 @@
 							<div class="comment span8">
 								<div class="row">
 									<div class="comment-meta span1">
-										<span>comment:3</span>
-										<span>Yesterday</span>
 										<span>Fred Feuerstein</span>
+										<span class="date">Yesterday</span>
+										<span class="id">comment:3</span>                    
 									</div>
 									<div class="comment-content span7">
 										<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
@@ -213,9 +216,9 @@
 							<div class="comment span8">
 								<div class="row">
 									<div class="comment-meta span1">
-										<span>comment:4</span>
-										<span>2 hours</span>
 										<span>Rudolf Rotnase</span>
+										<span class="date">2 hours</span>
+										<span class="id">comment:4</span>
 									</div>
 									<div class="comment-content span7">
 										<p>Just tested this on the windows server 2008.
@@ -242,6 +245,7 @@
 					</div>
 				</div>
 			</div>
+		</div>
 <!-- Activity starts -->
 	<!-- TODO: Make this drop below in tablet sizes-->
 			<div id="activity" class="span4">
@@ -255,7 +259,7 @@
 		<div class="row" id="footer-container"></div>
 
 	</div>
-<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.8.2.js"></script>
 <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
 <script type="text/javascript" src="js/bootstrap-button.js"></script>
 <script type="text/javascript" src="js/bloodhound-activitysize.js"></script>

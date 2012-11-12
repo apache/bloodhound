@@ -134,7 +134,18 @@ ul.oocss h6 {
 }
 
 .comment-meta {
-	font-weight: 900;
+		overflow: hidden;
+}
+
+.comment-meta .id,
+.comment-meta .date {
+	float: right;
+	color: #888;
+	font-size: 90%;
+}
+
+.comment-meta span:first-child {
+	font-weight: 700;
 }
 
 .add-comment textarea {
@@ -143,6 +154,13 @@ ul.oocss h6 {
 	color: lightgray;
 	display: block;
 }
+
+
+@media (min-width: 979px) and (max-width: 1199px) { 
+	.main-nav {
+		background-color: red;
+	}
+ }
 
 
 @media (max-width: 767px) {
@@ -155,6 +173,15 @@ ul.oocss h6 {
 
 	.local-nav li {
 		padding: 8px 15px;
+	}
+
+	.comment-meta {
+		margin-bottom: 5px;
+	}
+
+	.comment-meta .id,
+	.comment-meta .date {
+	text-align: right;
 	}
 }
 
@@ -174,9 +201,20 @@ ul.oocss h6 {
 	.container {
 		border-left: 0px solid white;
 		border-right: 0px solid white;
+		padding: 0px;
+	}
+
+	header, #belowStatus, #activity, #stickyStatus, #footer-container {
+		padding-left: 7px;
+		padding-right: 7px;
 	}
 
 	#stickyStatus {
 		width: 100%; 
+	}
+
+	.local-nav {
+		margin-top: 4px;
+		margin-bottom: 3px;
 	}
 }
