@@ -369,7 +369,7 @@ ${ticket.description}</textarea>
                                 py:with="value = ticket.get_value_or_default(field.name)">
                           <th class="col${idx + 1}" py:if="idx == 0 or not fullrow">
                             <label for="field-${field.name}" py:if="field"
-                                   py:strip="field.type == 'radio'" i18n:msg="field">${
+                                   i18n:msg="field">${
                               field.edit_label or field.label or field.name}:</label>
                           </th>
                           <td class="col${idx + 1}" py:if="idx == 0 or not fullrow"
