@@ -397,7 +397,7 @@ ${value}</textarea>
                                        checked="${value == '1' or None}" value="1" />
                                 <input type="hidden" name="field_checkbox_${field.name}" value="1" />
                               </span>
-                              <label py:when="'radio'"
+                              <label py:when="'radio'" class="checkbox inline"
                                      py:for="idx, option in enumerate(field.options)">
                                 <input type="radio" name="field_${field.name}" value="${option}"
                                        checked="${value == option or None}" />
