@@ -193,10 +193,10 @@ class DashboardModule(Component):
                                 None,
                                 {'args' : {
                                     'max' : 10,
-                                    'query' : 'status=!closed&group=time&' \
-                                        'col=id&col=summary&col=owner' \
+                                    'query' : 'status=!closed&group=milestone'\
+                                        '&col=id&col=summary&col=owner' \
                                         '&col=status&col=priority&' \
-                                        'order=priority&groupdesc=1&desc=1',
+                                        'order=priority&desc=1',
                                     'title' : 'Active Tickets'}}],
                             'altlinks' : False
                         },
@@ -206,10 +206,10 @@ class DashboardModule(Component):
                                 None,
                                 {'args' : {
                                     'max' : 10,
-                                    'query' : 'status=!closed&group=time&' \
-                                        'col=id&col=summary&col=owner' \
+                                    'query' : 'status=!closed&group=milestone'\
+                                        '&col=id&col=summary&col=owner' \
                                         '&col=status&col=priority&' \
-                                        'order=priority&groupdesc=1&desc=1&' \
+                                        'order=priority&desc=1&' \
                                         'owner=$USER',
                                     'title' : 'My Tickets'}
                                 }],
