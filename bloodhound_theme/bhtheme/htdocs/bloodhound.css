@@ -439,6 +439,20 @@ input[type="submit"].btn.btn-micro {
   display: none !important;
 }
 
+.hidden-desktop {
+  display: none !important;
+}
+
+.visible-desktop-hover:hover .hidden-desktop {
+  display: inherit !important;
+}
+
+@media (max-width: 979px) {
+  .hidden-desktop {
+    display: inherit !important;
+  }
+}
+
 /* Revert some changes introduced in 2.1.0 */
 
 h6 {
