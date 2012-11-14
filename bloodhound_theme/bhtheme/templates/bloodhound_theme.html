@@ -41,6 +41,8 @@
         type="text/javascript"></script>
     <script src="${href.chrome('dashboard/js/bootstrap-transition.js')}"
         type="text/javascript"></script>
+    <script src="${href.chrome('dashboard/js/bootstrap-alert.js')}"
+        type="text/javascript"></script>
     <script src="${href.chrome('dashboard/js/bootstrap-dropdown.js')}"
         type="text/javascript"></script>
     <script src="${href.chrome('dashboard/js/bootstrap-tooltip.js')}"
@@ -243,14 +245,16 @@
             </div>
           </div -->
           <div class="span12" py:if="chrome.warnings or chrome.notices">
-            <div id="warning" py:if="chrome.warnings" class="alert">
+            <div id="warning" py:if="chrome.warnings" class="alert fade in">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
               <py:choose test="len(chrome.warnings)">
                 <span class="label label-warning">Warning</span>
                 <py:when test="1">${chrome.warnings[0]}</py:when>
                 <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
               </py:choose>
             </div>
-            <div id="notice" py:if="chrome.notices" class="alert alert-success">
+            <div id="notice" py:if="chrome.notices" class="alert alert-success fade in">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
               <py:choose test="len(chrome.notices)">
                 <span class="label label-success">Success</span>
                 <py:when test="1">${chrome.notices[0]}</py:when>
