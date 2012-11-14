@@ -175,7 +175,7 @@
             <div class="navbar visible-affix" py:if="ticket.exists"
                 py:with="sections = (
                         (_('Overview'), 'content', True, _('View ticket fields and description'), 'icon-list'),
-                        (_('Attachments'), 'attachments', True, _('Go to the list of attachments'), 'icon-file'),
+                        (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
                         (_('Comments'), 'changelog', True, _('Go to the changelog'), 'icon-comment'),
                         (_('Add comment'), 'propertyform', ticket.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
                         (_('Modify Ticket'), 'modify', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
