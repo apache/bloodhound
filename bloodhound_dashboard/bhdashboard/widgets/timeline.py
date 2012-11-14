@@ -348,7 +348,10 @@ class TicketFieldTimelineFilter(Component):
                         getattr(context, '_ticket_cache', None) or {}
                 for t in ticket_ids:
                     if isinstance(t, Resource):
-                        t = t.id
+                        if event[0] != 'attachment':
+                            t = t.id
+                        else:
+                            t = t.parent.id
                     if isinstance(t, (int, basestring)):
                         t = ticket_cache.get(t) or Ticket(self.env, t)
                     if field_name == 'ticket':
