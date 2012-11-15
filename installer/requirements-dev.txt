@@ -22,8 +22,8 @@ Genshi
 -e ../trac
 -e svn+https://trac-hacks.org/svn/accountmanagerplugin/0.11#egg=TracAccountManager
 -e ../bloodhound_multiproduct
--e svn+https://trac-hacks.org/svn/themeengineplugin/0.11#egg=TracThemeEngine
+TracThemeEngine
 -e ../bloodhound_dashboard
 -e ../bloodhound_theme
--e svn+https://trac-hacks.org/svn/permredirectplugin/0.11#egg=TracPermRedirect
+TracPermRedirect
 

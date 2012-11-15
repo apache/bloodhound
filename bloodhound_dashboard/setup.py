@@ -94,7 +94,7 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                               '../NOTICE', '../README', '../TESTING_README',
                               'htdocs/*.*', 'htdocs/css/*.css',
                               'htdocs/img/*.*', 'htdocs/js/*.js',
-                              'templates/*'],
+                              'templates/*', 'default-pages/*'],
                           ), 
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
                             # Package data
