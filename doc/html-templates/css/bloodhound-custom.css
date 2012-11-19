@@ -18,34 +18,57 @@
 */
 
 body {
-	background-color: rgb(75%, 75%, 75%);
+	background-color: rgb(92%, 91%, 88%);
 }
 
-.container {
+.container:first-child {
 	background-color: rgb(100%, 100%, 100%);
 	padding: 5px 20px;
-	border-left: 1px solid rgb(40%, 40%, 40%);
-	border-right: 1px solid rgb(40%, 40%, 40%);
-	box-shadow: 0px 0px 10px 4px rgba(20%, 20%, 20%, 0.4)
+	border-left: 1px solid rgb(70%, 70%, 70%);
+	border-right: 1px solid rgb(70%, 70%, 70%);
+	border-bottom: 1px solid rgb(70%, 70%, 70%);
+	box-shadow: 0px 0px 10px 2px rgba(50%, 50%, 50%, 0.4);
+	border-bottom-left-radius: 7px;
+	border-bottom-right-radius: 7px;
 }
 
 /* @group Sticky Status */
 
-#stickyStatus {
+#stickyStatus,
+#mobileStickyStatus {
 	position: relative;
 	background-color: white;
 	z-index: 20;
 }
 
-.sticky {
+/*	The box-shadow overhanging to the left and right are hacks only.
+		We should look for a better solution for production code. */
+#stickyStatus.sticky,
+#mobileStickyStatus.sticky {
 	position: fixed !important;
 	top: 0px;
-	border-bottom: 1px solid rgb(60%, 60%, 60%);
-	box-shadow: 0px 8px 8px -5px #888;
+	opacity: 1;
+	background-color: rgb(93%, 93%, 93%);
+	border-bottom: 1px solid rgb(75%, 75%, 75%);
+	box-shadow: 0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+							-20px 0px 0px rgb(93%, 93%, 93%),
+							 20px 0px 0px rgb(93%, 93%, 93%);
+	-webkit-transition: all 0.3s ease-out;
+		 -moz-transition: all 0.3s ease-out;
+			 -o-transition: all 0.3s ease-out;
+			-ms-transition: all 0.3s ease-out;
+					transition: all 0.3s ease-out;
+}
+
+#mobileStickyStatus {
+	opacity: 0;
+	padding: 7px;
+	padding-right: 50px;
 }
 
 #belowStatus {
 	position: relative;
+	margin-top: 35px;
 }
 
 .offsetSticky {
@@ -95,36 +118,21 @@ ul.oocss h6 {
 	text-align: right;
 }
 
+#stickyStatus h2,
+#stickyStatus ul {
+	margin-bottom: 3px;
+}
+
+#stickyStatus h2 {
+	line-height: 30px;
+}
+
 .local-nav {
-	display: inline-block;
-	list-style: none;
-	border: 1px solid rgb(70%, 70%, 70%);
-	border-radius: 5px;
-	background-color: rgb(240, 240, 240);
-	margin-top: 10px;
-	margin-left: auto;
-	margin-right: auto;
+	margin-left: 25px;
 }
 
-.local-nav:first-child {
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-}
-
-.local-nav:last-child {
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
-	border-right: 0px solid black;
-}
-
-.local-nav li {
-	display: inline-block;
-	padding: 3px 7px;
-	border-right: 1px solid rgb(70%, 70%, 70%);
-}
-
-.local-nav li:hover {
-	background-color: rgb(225, 225, 225);
+.ownership {
+	padding-left: 25px;
 }
 
 .comment {
@@ -155,9 +163,17 @@ ul.oocss h6 {
 	display: block;
 }
 
+footer {
+	margin: 20px 0px;
+	color: #565656;
+}
+
+@media (min-width: 768px) {
+
+}
 
 @media (min-width: 979px) and (max-width: 1199px) { 
-	.main-nav {
+	.main-nav ul {
 		background-color: red;
 	}
  }
@@ -170,11 +186,6 @@ ul.oocss h6 {
 		padding-right: 8px;
 	}
 
-
-	.local-nav li {
-		padding: 8px 15px;
-	}
-
 	.comment-meta {
 		margin-bottom: 5px;
 	}
@@ -183,6 +194,18 @@ ul.oocss h6 {
 	.comment-meta .date {
 	text-align: right;
 	}
+
+	.sticky {
+		width: 100%;
+		position: relative;
+		left: 0px;
+		padding-left: 29px; 
+	}
+
+	#belowStatus {
+		margin-top: 5px;
+	}
+
 }
 
 @media (max-width: 480px) {
@@ -198,23 +221,23 @@ ul.oocss h6 {
 		line-height: 1;
 	}
 
-	.container {
+	.container:first-child {
 		border-left: 0px solid white;
 		border-right: 0px solid white;
 		padding: 0px;
 	}
 
-	header, #belowStatus, #activity, #stickyStatus, #footer-container {
+	header, #belowStatus, #activity,
+	#stickyStatus, #footer-container {
 		padding-left: 7px;
 		padding-right: 7px;
 	}
 
-	#stickyStatus {
-		width: 100%; 
+	.local-nav {
+		margin-left: 15px;
 	}
 
-	.local-nav {
-		margin-top: 4px;
-		margin-bottom: 3px;
+	.ownership {
+		padding-left: 15px;
 	}
 }
