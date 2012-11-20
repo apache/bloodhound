@@ -186,7 +186,6 @@ class TimelineWidget(WidgetBase):
         else:
             merge_links(srcreq=fakereq, dstreq=req,
                         exclude=["stylesheet", "alternate"])
-            add_stylesheet(req, 'dashboard/css/timeline.css')
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
             data['context'] = context
