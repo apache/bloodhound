@@ -22,7 +22,7 @@ from setuptools import setup
 
 setup(
   name = 'BloodhoundTheme',
-  version = '1.0.1',
+  version = '0.3.0',
   description = "Look and feel of Bloodhound issue tracker",
   license = "Apache License v2",
   keywords = "trac plugin theme bloodhound",
