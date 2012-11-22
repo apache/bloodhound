@@ -20,7 +20,7 @@ pytz
 Babel
 Genshi
 ../trac
-svn+https://trac-hacks.org/svn/accountmanagerplugin/0.11#egg=TracAccountManager
+TracAccountManager
 ../bloodhound_multiproduct
 TracThemeEngine
 ../bloodhound_dashboard
