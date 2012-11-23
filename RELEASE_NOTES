@@ -1,3 +1,13 @@
+0.3
+
+ * Removes minified files from Bloodhound
+ * Upgrades to trac 1.0
+ * Various bug fixes
+
+ * Not fixed for this release:
+   * No major outstanding bugs
+
+
 0.2
 
  * Fixes incubator release issues from 0.1.0

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <!--
 	Licensed to the Apache Software Foundation (ASF) under one
 	or more contributor license agreements.  See the NOTICE file
@@ -90,7 +89,7 @@
 						<h2>&#9734; SQL report realm/id decoration</h2>
 						<span class="ownership"><a href="">Ticket 25</a> - Due in <time datetime="2012-04-27"><a href="#">2 days</a></time>, assigned to <a href="profile.html">Fred Feuerstein</a></span>
 						<div>
-							<ul class="btn-group local-nav" style="display: inline-block;">
+							<ul class="btn-group local-nav">
 								<li class="btn"><a href="#description"><i class="icon-tasks"></i> <span class="hidden-phone">Description</span></a></li>
 								<li class="btn"><a href="#attachments"><i class="icon-file"></i> <span class="hidden-phone hidden-tablet">Attachments</span></a></li>
 								<li class="btn"><a href="#comments"><i class="icon-comment"></i> <span class="hidden-phone">Comments</span></a></li>
@@ -106,7 +105,7 @@
 				</div>
 			</div>
 			<div id="mobileStickyStatus" class="visible-phone">
-				<a href="" style="margin-left: 10px;">Top</a><a href="" style="margin-left: 25%;">Ticket 25</a><span  class="pull-right" style="margin-right: 20px;">&#x2261; Nav</span>
+				<a href="#" style="margin-left: 10px;">Top</a><a href="" style="margin-left: 25%;">Ticket 25</a><span  class="pull-right" style="margin-right: 20px;">&#x2261; Nav</span>
 			</div>
 		</div>
 		<div class="row">
@@ -116,8 +115,8 @@
 				<div id="belowStatus">
 					<div class="stickyOffset"></div>
 					<div class="row">
-						<div class="span4">
-							<table class="span4 status-overview">
+						<div class="span3">
+							<table class="status-overview">
 								<tr>
 									<td>Priority</td>
 									<td>High</td>
@@ -132,8 +131,8 @@
 								</tr>
 							</table>
 						</div>
-						<div class="span4">
-						<table class="span4 status-overview">
+						<div class="span3">
+						<table class="status-overview">
 								<tr>
 									<td>Component</td>
 									<td>Interface</td>
@@ -160,94 +159,33 @@
 				</div>
 
 <!-- TODO: Add attachments section -->
-
+				<div id="attachments" class="row">
+					<div class="span8">
+						<h3>Attachments</h3>
+					</div>
+				</div>
 <!-- Comments -->
 	<!-- TODO: Fix comment-meta overlap with comments body -->
 				<div id="comments" class="row">
 					<div class="span8">
 						<h3>Comments</h3>
+
 						<div id="comment1" class="row">
-							<div class="comment span8">
-								<div class="row">
-									<div class="span1 comment-meta">
-										<span>Karl Krombacher</span>
-										<span class="date">15 Jan</span>
-										<span class="id">comment:1</span>
-									</div>
-									<div class="span7 comment-content">
-										<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
-									</div>
-								</div>
-							</div>
 						</div>
+
 						<div id="comment2" class="row">
-							<div class="comment span8">
-								<div class="row">
-									<div class="span1 comment-meta">
-										<span>Warren Worcester</span>
-										<span class="date">18 Jan</span>
-										<span class="id">comment:2</span>
-									</div>
-									<div class="span7 comment-content">
-										<p>Just tested this on the windows server 2008.
-											<ul>
-												<li>11.10 was installed.</li>
-												<li>Purchased/installed Jenkins</li>
-												<li>updated conf file to have ump and update server details</li>
-												<li>restarted uber</li>
-												<li>updated directly to 11.12</li>
-												<li>After the update, I can't get to the ui.</li>
-											</ul>
-										</p>
-									</div>
-								</div>
-							</div>
 						</div>
-						<div id="comment3" class="row">
-							<div class="comment span8">
-								<div class="row">
-									<div class="comment-meta span1">
-										<span>Fred Feuerstein</span>
-										<span class="date">Yesterday</span>
-										<span class="id">comment:3</span>                    
-									</div>
-									<div class="comment-content span7">
-										<p>Wow - It's too late! I realized right after i typed above that the file I edited was the unzipped file - NOT the file in the .egg! So I moved the 12.2 egg and reran easy_install \-Z against trac12.2-stable and now I'm running Trac 0.12.3dev-r10609</p>
 			<!-- TODO: Show more clearly that files are attached to tickets but potentially displayed in tandem with a comment -->
-										<ul class="unstyled" id="attachment" style="position: relative;">
-											<li><a href="#"><i class="icon-file"></i>placekitten.jpg</a></li>
-											<li><a href="#"><i class="icon-file"></i>proposal.doc</a></li>
-										</ul>
-									</div>
-								</div>
-							</div>
+
+						<div id="comment3" class="row">
 						</div>
+						
 						<div id="comment4" class="row">
-							<div class="comment span8">
-								<div class="row">
-									<div class="comment-meta span1">
-										<span>Rudolf Rotnase</span>
-										<span class="date">2 hours</span>
-										<span class="id">comment:4</span>
-									</div>
-									<div class="comment-content span7">
-										<p>Just tested this on the windows server 2008.
-											<ul>
-												<li>11.10 was installed.</li>
-												<li>Purchased/installed Jenkins</li>
-												<li>updated conf file to have ump and update server details</li>
-												<li>restarted uber</li>
-												<li>updated directly to 11.12</li>
-												<li>After the update, I can't get to the ui.</li>
-											</ul>
-										</p>
-									</div>
-								</div>
-							</div>
 						</div>
+
 						<div id="add-comment" class="row">
 							<div class="span8">
-								<h3 style="margin-top: 20px;">Add comment</h3>
+								<h3 style="margin-top: 20px;">Add comment</h3> <br>
 								<textarea></textarea>
 								<button class="btn" style="margin-top: 2px;"><i class="icon-comment"></i> Add comment</button>
 							</div>
@@ -257,7 +195,6 @@
 			</div>
 		</div>
 <!-- Activity starts -->
-	<!-- TODO: Make this drop below in tablet sizes-->
 			<div id="activity" class="span4">
 				<div class="visible-phone">
 					<h2>Activity</h2>
@@ -283,6 +220,10 @@
 	$('div#ticketlist-container').load('placeholders/ticketlist.html #myAll');
 	$('div#activity-container').load('placeholders/activity.html');
 	$('div#footer-container').load('placeholders/header.html footer');
+	$('div#comment1').load('placeholders/comments.html #comment1placeholder');
+	$('div#comment2').load('placeholders/comments.html #comment2placeholder');
+	$('div#comment3').load('placeholders/comments.html #comment3placeholder');
+	$('div#comment4').load('placeholders/comments.html #comment4placeholder');
 </script>
 </body>
 </html>
