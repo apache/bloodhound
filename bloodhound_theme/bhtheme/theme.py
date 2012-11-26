@@ -103,6 +103,9 @@ class BloodhoundTheme(ThemeBase):
 
         # General purpose
         'history_view.html' : ('bh_history_view.html', None),
+
+        # Account manager plugin
+        'login.html' : ('bh_login.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
