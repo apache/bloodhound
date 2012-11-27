@@ -168,7 +168,7 @@ class MultiProductSystem(Component):
             href = context.href.products(product.prefix)
             if 'PRODUCT_VIEW' in context.perm(product.resource):
                 return tag.a(label, class_='product', href=href + extra)
-        elif 'MILESTONE_CREATE' in context.perm('product', name):
+        elif 'PRODUCT_CREATE' in context.perm('product', name):
             return tag.a(label, class_='missing product', 
                     href=context.href('products', action='new'),
                     rel='nofollow')
