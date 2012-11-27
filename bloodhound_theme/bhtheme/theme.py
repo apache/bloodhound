@@ -102,6 +102,7 @@ class BloodhoundTheme(ThemeBase):
         'product_view.html' : ('bh_product_view.html', None),
 
         # General purpose
+        'about.html' : ('bh_about.html', None),
         'history_view.html' : ('bh_history_view.html', None),
 
         # Account manager plugin
@@ -147,6 +148,12 @@ class BloodhoundTheme(ThemeBase):
 
     def pre_process_request(self, req, handler):
         """Pre process request filter"""
+        c = self.env.config
+        req.chrome['labels'] = dict(
+            application_short = c.get(
+                'labels', 'application_short', "Bloodhound"),
+            application_full = c.get(
+                'labels', 'application_full', "Apache Bloodhound"))
         return handler
 
     def post_process_request(self, req, template, data, content_type):

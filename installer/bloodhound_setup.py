@@ -73,6 +73,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'project': {'footer': ('Visit Apache Bloodhound at<br />'
                                       '<a href="%(site)s">%(site)s</a>'
                                       % {'site': BH_PROJECT_SITE,}),},
+               'labels': {'application_short': 'Bloodhound',
+                          'application_full': 'Apache Bloodhound'},
                }
 
 ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
