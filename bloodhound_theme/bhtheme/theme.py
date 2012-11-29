@@ -242,10 +242,17 @@ class BloodhoundTheme(ThemeBase):
         add_stylesheet(req, 'dashboard/css/roadmap.css')
 
     def _modify_ticket(self, req, template, data, content_type, is_active):
-        """Insert Bootstrap scroll spy files.
+        """Ticket modifications
         """
         self._modify_scrollspy(req, template, data, content_type, is_active)
-        if data:
+        self._modify_resource_breadcrumb(req, template, data, content_type,
+                                         is_active)
+
+    def _modify_resource_breadcrumb(self, req, template, data, content_type,
+                                    is_active):
+        """Provides logic for breadcrumb resource permissions
+        """
+        if data and ('ticket' in data.keys()) and data['ticket'].exists:
             data['resourcepath_template'] = 'bh_path_ticket.html'
             # determine path permissions
             for resname, permname in [('milestone', 'MILESTONE_VIEW'),
