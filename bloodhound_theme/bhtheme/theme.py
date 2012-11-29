@@ -38,6 +38,7 @@ from themeengine.api import ThemeBase, ThemeEngineSystem
 from bhdashboard.util import dummy_request
 from bhdashboard.web_ui import DashboardModule
 
+from pkg_resources import get_distribution
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
@@ -153,7 +154,12 @@ class BloodhoundTheme(ThemeBase):
             application_short = c.get(
                 'labels', 'application_short', "Bloodhound"),
             application_full = c.get(
-                'labels', 'application_full', "Apache Bloodhound"))
+                'labels', 'application_full', "Apache Bloodhound"),
+            footer_left_prefix = c.get(
+                'labels', 'footer_left_prefix', ""),
+            footer_left_postfix = c.get(
+                'labels', 'footer_left_postfix', ""),
+            application_version = ".".join(map(str, application_version)))
         return handler
 
     def post_process_request(self, req, template, data, content_type):
@@ -359,4 +365,5 @@ class QuickCreateTicketDialog(Component):
                                    "of ticket #%s: %s" % (t.id, e))
         return t.id
 
-
+application_version = tuple(int(i) for i in get_distribution('BloodhoundTheme')
+    .parsed_version if i.startswith('0'))
