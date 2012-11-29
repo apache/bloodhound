@@ -273,7 +273,11 @@
           ${chrome.labels.application_version}</a>
           ${chrome.labels.footer_left_postfix}
         </div>
-        <div class="span4"><div class="pull-right">${chrome.footer}</div></div>
+        <div class="span4">
+          <div class="pull-right">
+            ${chrome.labels.footer_right or chrome.footer}
+          </div>
+        </div>
       </div>
     </div>
     <br/>

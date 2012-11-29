@@ -159,6 +159,8 @@ class BloodhoundTheme(ThemeBase):
                 'labels', 'footer_left_prefix', ""),
             footer_left_postfix = c.get(
                 'labels', 'footer_left_postfix', ""),
+            footer_right = c.get(
+                'labels', 'footer_right', ""),
             application_version = ".".join(map(str, application_version)))
         return handler
 

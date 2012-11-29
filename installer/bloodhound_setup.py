@@ -76,7 +76,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'labels': {'application_short': 'Bloodhound',
                           'application_full': 'Apache Bloodhound',
                           'footer_left_prefix': '',
-                          'footer_left_postfix': ''},
+                          'footer_left_postfix': '',
+                          'footer_right': ''},
                }
 
 ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
