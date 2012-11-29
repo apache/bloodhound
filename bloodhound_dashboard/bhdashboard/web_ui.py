@@ -286,6 +286,13 @@ class DashboardModule(Component):
                 'altlinks' : w.get('altlinks', True) and data.get('altlinks') or None}] \
                 for k, w, (template, data, wctx) in data_strm)
 
+    def alert_disabled(self):
+        return tag.div(tag.span('Error', class_='label label-important'),
+                       ' Could not load dashboard. Is ', 
+                       tag.code('bhdashboard.web_ui.DashboardModule'), 
+                       ' component disabled ?',
+                       class_='alert alert-error')
+
 #------------------------------------------------------
 #    Dashboard Helpers to be used in templates
 #------------------------------------------------------
