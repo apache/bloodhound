@@ -28,9 +28,12 @@ __metaclass__ = type
 from datetime import date, time, datetime, timedelta
 from sys import version_info
 
+from genshi.builder import tag
+
 from trac.core import Component, ExtensionPoint, implements, \
         Interface, TracError
 from trac.perm import IPermissionRequestor
+from trac.resource import get_resource_url, Resource, resource_exists
 from trac.util.compat import set
 from trac.util.datefmt import parse_date
 from trac.util.translation import _
@@ -95,7 +98,7 @@ class ILayoutProvider(Interface):
         """
 
 class DashboardSystem(Component):
-    implements(IPermissionRequestor)
+    implements(IPermissionRequestor, IWidgetProvider)
 
     widget_providers = ExtensionPoint(IWidgetProvider)
     layout_providers = ExtensionPoint(ILayoutProvider)
@@ -106,7 +109,136 @@ class DashboardSystem(Component):
                 # 'DASHBOARD_CREATE', 'DASHBOARD_EDIT' <= Coming soon ;)
                ]
 
+    # IWidgetProvider methods
+
+    def get_widgets(self):
+        """List the name of the widgets that will always be available
+        """
+        yield 'WidgetDoc'
+
+    def get_widget_description(self, name):
+        """Return plain text description of the widget with specified name.
+        """
+        try:
+            return {
+                    'WidgetDoc' : """Display widget documentation"""
+                    }[name]
+        except KeyError:
+            raise InvalidIdentifier('Widget name MUST match any of ' +
+                        ', '.join(self.get_widgets()),
+                    title='Invalid widget identifier')
+
+    def get_widget_params(self, name):
+        """Return a dictionary describing wigdet preference for the widget 
+        with specified name. Used to customize widget behavior.
+        """
+        try:
+            return {
+                    'WidgetDoc' : {
+                        'urn' : {
+                                'desc' : """Widget name. If missing then """
+                                        """documentation for all widgets """
+                                        """will be displayed."""
+                                }
+                        }
+                   }[name]
+        except KeyError:
+            raise InvalidIdentifier('Widget name MUST match any of ' +
+                        ', '.join(self.get_widgets()),
+                    title='Invalid widget identifier')
+
+    def render_widget(self, name, context, options):
+        """Render widget considering given options.
+        """
+        if name == 'WidgetDoc':
+            widget_name, = self.bind_params(options,
+                    self.get_widget_params(name), 'urn')
+            if widget_name is not None:
+                try:
+                    providers = [([widget_name],
+                            self.resolve_widget(widget_name))]
+                except LookupError:
+                    return 'widget_alert.html', {
+                            'title' : _('Widget documentation'),
+                            'data' : {
+                                    'msglabel' : 'Alert',
+                                    'msgbody' : 'Unknown identifier',
+                                    'msgdetails' : [
+                                            ('Widget name', widget_name)
+                                        ]
+                                  }
+                        }, context
+            else:
+                providers = [(provider.get_widgets(), provider) \
+                        for provider in self.widget_providers]
+            metadata = [self._prepare_doc_metadata(self.widget_metadata(wnm, p)) \
+                    for widgets, p in providers for wnm in widgets]
+            docs_resource = Resource('wiki', 'BloodhoundWidgets')
+            insert_docs = resource_exists(self.env, docs_resource) and \
+                    not (context.resource and \
+                    docs_resource == context.resource)
+            return 'widget_doc.html', {
+                        'title' : _('Widget documentation'),
+                        'data' : {
+                                'items' : metadata
+                            },
+                        'ctxtnav' : [tag.a(tag.i(class_='icon-info-sign'),
+                                    ' ', _('Help'),
+                                    href=get_resource_url(
+                                            self.env, docs_resource,
+                                            context.href)
+                                )] if insert_docs else [],
+                    }, context
+        else:
+            raise InvalidIdentifier('Widget name MUST match any of ' +
+                        ', '.join(self.get_widgets()),
+                    title='Invalid widget identifier')
+
     # Public API
+    def widget_metadata(self, nm, provider=None):
+        """Retrieve widget metadata.
+
+        :param nm:        Widget name
+        :param provider:  Widget provider. If omitted it will be resolved.
+        """
+        if provider is None:
+            provider = self.resolve_widget(nm)
+        return {
+                'urn' : nm,
+                'desc' : provider.get_widget_description(nm),
+                'params' : provider.get_widget_params(nm),
+            }
+
+    def _prepare_doc_metadata(self, spec):
+        """Transform widget metadata into a format suitable to render
+        documentation.
+        """
+        return {
+                'id' : "%s-widget" % (spec['urn'],),
+                'title' : tag.code(spec['urn']),
+                'desc' : '\n'.join(l.strip() 
+                                   for l in spec['desc'].splitlines()),
+                'sections' : [
+                        {
+                            'title' : _('Parameters'),
+                            'entries' : [
+                                    {
+                                        'caption' : pnm,
+                                        'summary' : '\n'.join(
+                                                l.strip() for l in \
+                                                p.get('desc').splitlines()),
+                                        'details' : [
+                                                ('Type', p.get('type', str)),
+                                                ('Required', p.get('required',
+                                                                   False)),
+                                                ('Default', p.get('default')),
+                                            ]
+                                    }
+                                for pnm, p in spec['params'].iteritems()]
+                        }
+                    ]
+            }
+
     def bind_params(self, options, spec, *params):
         """Extract values for widget arguments from `options` and ensure 
         they are valid and properly formatted.

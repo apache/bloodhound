@@ -31,6 +31,7 @@ from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
 from trac.core import Component, implements, ExtensionPoint
+from trac.util.text import to_unicode
 from trac.web.api import Request
 from trac.web.chrome import add_link, Chrome
 from trac.web.main import RequestDispatcher
