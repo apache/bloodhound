@@ -1,0 +1,323 @@
+= Bloodhound widgets =
+
+[[PageOutline]]
+
+[http://issues.apache.org/bloodhound Bloodhound] widgets are plugins to extend the Trac engine with custom visual components written in Python. They are designed to insert dynamic HTML data in any given context so as to display summarized information in a reduced space. Therefore they are a generalization of WikiMacros and WikiProcessors as it is possible to rewrite them all using [#API Bloodhound Widgets API]. Nonetheless the later are not aimed at replacing any of the former as they are still used to [#WikiFormatting insert widgets using WikiFormatting]. Widgets development is recommended rather than macros due to their advantages.
+
+== Anatomy of a widget #overview
+
+Widgets are designed to look like a small version of a web page. From the top to the bottom and from left to right the visual representation of a widget consists of the following parts.
+
+  - '''Title''' briefly describing what are widget contents about.
+  - '''Context navigation links''' pointing to pages where
+    users can find related information.
+  - '''Alternate download links''' included in ''Download'' drop down
+    menu allow users to download widget data in different formats.
+  - '''Contents pane''' is the area where widget contents are rendered
+  - '''Pagination links''' is displayed when there is a huge dataset
+    involved and only part of it can be displayed. They allow users to
+    request information in case they are interested in further details.
+
+=== Widget parameters #parameters
+
+Widget visualization may be customized by specifying arguments. For instance, in order to insert a widget displaying the results of a ticket report it is mandatory to provide the identifier of the target report. This is an example of a '''required parameter'''. If a value is not provided for this kind of parameters then an [#error_handling error message] is displayed. On the other hand '''optional parameters''' are those that may be ignored either because they are related to a minor characteristic or a value can be considered by default under certain circumstances. The line between both groups might be fuzzy sometimes because it is possible that an ''optional parameter'' may be required depending on the values set to other parameters, the state of widget rendering context , and maybe other factors.
+
+All parameters mentioned above have certain meaning for a particular widget. There is another set of parameters used to customize its look and feel and other aspect present in all widgets. They are known as '''meta-parameters'''. At present they are the following :
+
+  - '''altlinks''' is a boolean parameter controlling whether widget alternate
+    download links will be visible or hidden.
+  - '''ctxtnav''' is a boolean parameter controlling whether widget context
+    navigation links will be visible or hidden.
+  - '''id''' consisiting of an identifier for ''DOM'' element container
+  - '''title''' parameter may be used to display a user-defined title
+    rather than the one shown by default.
+
+There is no collision between parameters and meta-parameters. Hence, for instance, it's possible for a widget to accept an argument named ''title'' even if there is a meta-parameter with the same name.
+
+=== Widget context #context
+
+It is very important to mention that widgets can take advantage of context information used to render parent web page. For instance, ''Timeline'' widget is able to detect whether it is embedded in a page related to a resource. If so it filters events stream to show only those related to that resource. That's only an example of how smart a widget can be.
+
+== Using widgets #usage
+
+Widgets encourage extreme reuse of visual components. This means that its scope spans far beyond the boundaries of WikiFormatting, WikiMacros, and WikiProcessors. Therefore they are helpful for Trac users as well as plugin developers. Both use cases are documented in this section.
+
+=== Embedding widgets using Widget macro #WikiFormatting
+
+It's possible to embed widget contents everywhere WikiFormatting is supported. In order to do so it is necessary to [WikiMacros call a macro] named '''Widget'''. Arguments supplied in macro invocation having a name starting with ''wo_'' prefix (i.e. widget option) will be considered as meta-parameters (e.g. value supplied for argument ''wo_id' in macro invocation will be set to ''id' meta-parameter thus used to set widget identifier). All others will be bound to required and optional parameters used to render its contents (e.g. value supplied for argument ''title'' in macro invocation will be set to ''title'' parameter).
+
+[[MacroList(Widget)]]
+
+The first step to insert a widget is to search the [#reference list of available widgets] and look for the one that renders the data the way you need. Once you succeed you should take a look at its documentation in order to know of the parameters it accepts and expected results in each case. Once all these details are understood the next step is to invoke '''Widget''' macro. The following example illustrates the call needed to insert the top 10 active tickets in milestone ''milestone1'' and hide ''Download'' drop down menu.
+
+{{{
+[[Widget(TicketQuery, wo_altlinks=false, query="milestone=milestone1&status=!closed", max=10)]]
+}}}
+
+=== Widgets markup for plugin developers #genshi
+
+Widgets may also be inserted directly in [http://genshi.edgewall.org/wiki/Documentation/templates.html Genshi templates] in order to design user interfaces quickly. Plugin developers should use markup for this purpose. Let's consider the following sample template. If you are not familiar with the subject , please read [http://genshi.edgewall.org/wiki/Documentation/xml-templates.html XML templates reference].
+
+{{{
+#!xml
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <xi:include href="widget_macros.html" />
+
+  <head>
+    <title>Milestone milestone1</title>
+  </head>
+  <body>
+    <bh:widget id="active" urn="TicketQuery" altlinks="false">
+      <bh:args>
+        <bh:arg name="query">milestone=milestone1&amp;status=!closed</bh:arg>
+        <bh:arg name="max">10</bh:arg>
+        <bh:arg name="title">Active tickets</bh:arg>
+      </bh:args>
+    </bh:widget>
+  </body>
+</html>
+}}}
+
+Analyzing sample markup from top to bottom it's possible to notice that the first step is to declare ''Bloodhound'' dashboard XML namespace `http://issues.apache.org/bloodhound/wiki/Ui/Dashboard`. In this case it is represented by the short prefix `bh`. This step is required as well as the second. It consists of including `widget_macros.html` template. It contains all the foundations of widgets agic. If you are interested in learning how everything works under-the-hood maybe that's a good place to start ''';)'''.
+
+Now it is a good time to use widgets markup so as to insert some contents in the web page. This is what `<bh:widget>` tag is for. Let's take a look at it. The value assigned to `id` attribute indicates that this widget will have the `active` identifier set when it is rendered. Script code in your template may use it to access its outermost ''div'' element e.g. `jQuery('#active')`. Attribute `urn` is used to specify target widget name. In this case `TicketQuery` widget is basically a table displaying the results of executing a ticket query. All other attributes of `<bh:widget>` tag are considered as meta-parameters. Hence in this case alternate download links (e.g. ''RSS Feed'', ''Comma-delimited Text'', ''Tab-delimited Text'', and so on) will not be available.
+
+Moving forward it s the moment to analyze `<bh:args>` tag. It's only purpose is to group some `<bh:arg>` tags containing specifications for widget parameters. Its description is straightforward. Argument name is set in `name` attribute and value is its inner text. As you can see in this particular example a table containing the first ''10'' active tickets in milestone ''milestone1'' will be displayed.
+
+By the way, `query` argument could be a required parameter as it may seem that it makes no sense to query tickets database without specifying query string describing the result set. In practice this might not be the case due to the fact that Trac's query module uses a default query string if missing. Something similar happens with `max` and `title` optional attributes.
+
+== Error handling #error_handling
+
+While rendering widgets there is a chance for errors to happen. If this is the case the parent page still will be displayed. Actually the widget rendering engine will intercept exceptions raised and instead of widget body it will show an informative error message containing :
+
+  - '''Widget name'''
+  - '''Exception type''' identifying the kind of error
+  - '''Log entry ID''' consisting of a [Acronym:GUID] identifying
+    a [TracLogging log entry] with all the details and context
+    information about the error.
+
+Every time you look for support (e.g. by contacting your administrator)  you have to provide all these details , especially '''log entry ID'''.
+
+=== Getting detailed help #help
+The list of available macros and the full help can be obtained using the !WidgetDoc widget, as seen [#reference below].
+
+A brief list can be obtained via ![[Widget(WidgetDoc)]]
+
+Detailed help on a specific widget can be obtained by passing its name as `urn` argument, e.g. ![[Widget(WidgetDoc, urn=TicketQuery))]].
+
+=== Example #example
+
+A list of 3 most recently changed wiki pages starting with 'Trac':
+
+||= Widget macro call =||= Display =||
+{{{#!td
+  {{{
+  [[Widget(TicketQuery, wo_altlinks=false, query="status=!closed&col=id&col=summary", max=2)]]
+  }}}
+}}}
+{{{#!td style="padding-left: 2em;"
+[[Widget(TicketQuery, wo_altlinks=false, query="status=!closed&col=id&col=summary", max=2)]]
+}}}
+|-----------------------------------
+{{{#!td
+  {{{
+  [[Widget(WidgetDoc, urn=TicketQuery))]]
+  }}}
+}}}
+{{{#!td style="padding-left: 2em;"
+[[Widget(WidgetDoc, urn=TicketQuery))]]
+}}}
+|-----------------------------------
+{{{#!td
+  {{{
+  [[Widget(WidgetDoc))]]
+  }}}
+}}}
+{{{#!td style="padding-left: 2em"
+
+see [#reference below]
+
+}}}
+
+== Available widgets #reference
+
+''Note that the following list will only contain the macro documentation if you've not enabled `-OO` optimizations, or not set the `PythonOptimize` option for [wiki:TracModPython mod_python].''
+
+[[Widget(WidgetDoc)]]
+
+== Widgets from around the world #directory
+
+The [http://trac-hacks.org/ Trac Hacks] site provides a wide collection of macros and other Trac [TracPlugins plugins] contributed by the Trac community. If you're looking for new widgets, or have written one that you'd like to share with the world, please don't hesitate to visit that site.
+
+== Developing custom widgets #API
+Widgets, like Bloodhound itself, are written in the [http://python.org/ Python programming language] and are developed as part of TracPlugins.
+
+For more information about developing widgets, see the [Bloodhound:Ui/Widgets development resources] on ''Apache Software Foundation'' project site.
+
+Here is one simple example showing how to create a widget with Bloodhound 0.1.0 and Trac 1.0.
+
+=== Widget without arguments #widgetsimple
+
+Firstly you need to write an [http://genshi.edgewall.org/wiki/Documentation/xml-templates.html XML Genshi template] to render widget data like shown below. In order to test this sample quickly it should be saved in a `timestamp.html` file located in the TracEnvironment's `templates/` directory. Nonetheless it is recommended to distribute templates by packaging them in [TracPlugins plugins].
+
+{{{
+#!xml
+
+<div
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+  <b>format_datetime($time)</b>
+</div>
+}}}
+
+To test the following code, it should be saved in a `timestamp_sample.py` file located in the TracEnvironment's `plugins/` directory.
+
+{{{
+#!python
+from datetime import datetime
+# Note: since Trac 0.11, datetime objects are used internally
+
+from bhdashboard.util import WidgetBase
+
+class TimeStampWidget(WidgetBase):
+    """Inserts the current time (in seconds)"""
+
+    revision = "$Rev$"
+    url = "$URL$"
+
+    def get_widget_params(self, name):
+        return {}
+
+    def render_widget(self, name, context, options):
+        t = datetime.now(utc)
+        return ( 'timestamp.html',
+                   {
+                        'title' : 'Timestamp',
+                        'data' : { 'time' : t },
+                    },
+                    context )
+
+}}}
+
+In this case widget name will be ''Timestamp''.
+
+=== Widget with arguments #widgetargs
+
+In first place you need to write an [http://genshi.edgewall.org/wiki/Documentation/xml-templates.html XML Genshi template] to render widget data like shown below. In order to test this sample quickly it should be saved in a `helloworld.html` file located in the TracEnvironment's `templates/` directory. Nonetheless it is recommended to distribute templates by packaging them in [TracPlugins plugins].
+
+{{{
+#!xml
+
+<div
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+  <p>Hello
+    <font size="$fontsize">
+      <strong py:strip="not highlight">$subject</strong>
+    </font> !
+  </p>
+  <h3>Arguments</h3>
+  <dl class="dl-horizontal">
+    <py:for each="k, v in args">
+      <dt>$k</dt>
+      <dd>$v</dd>
+    </py:for>
+  </dl>
+</div>
+}}}
+
+To test the following code, you should save it in a `helloworld_sample.py` file located in the TracEnvironment's `plugins/` directory.
+
+{{{
+#!python
+
+from genshi.builder import tag
+
+from bhdashboard.util import WidgetBase
+
+class HelloWorldWidget(WikiWidgetBase):
+    """Simple HelloWorld widget.
+
+    Note that the name of the class is meaningful:
+     - it must end with "Widget"
+     - what comes before "Widget" ends up being the widget name
+
+    The documentation of the class (i.e. what you're reading)
+    will become the documentation of the widget, as shown by
+    the !WidgetDoc widget (usually used in the
+    BloodhoundWidgets page).
+    """
+
+    revision = "$Rev$"
+    url = "$URL$"
+
+    def get_widget_params(self, name):
+        """Return a dictionary containing arguments
+        specification for the widget with specified name.
+
+        `name` is the actual name of the macro
+        (no surprise, here it'll be `'HelloWorld'`),
+        """
+        return {
+                'subject' : {
+                        'desc' : """The subject of hello statement""",
+                        'required' : True,
+                    },
+                'size' : {
+                        'default' : 10,
+                        'desc' : """Optional font size""",
+                        'type' : int,
+                },
+                'highlight' : {
+                        'default' : false,
+                        'desc' : """Bold text for subject""",
+                        'type' : bool,
+                },
+            }
+
+    def render_widget(self, name, context, options):
+        """Return template, data and context that will be
+        used to render hello world message. Widget title will
+        always be `'Hello world'`. A link to project
+        home page will be inserted at its right side.
+        Immediately after hello message the items in
+        `options` map, including argument values, will be
+        listed.
+
+        `name` is the actual name of the macro
+        (no surprise, here it'll be `'HelloWorld'`),
+        `context` is the rendering context used to render the
+        parent page where widget is inserted.
+        `options` contains the arguments passed to insert
+        HelloWorld among other useful information.
+
+        Notice how `bind_params` method is used to retrieve
+        argument values.
+        """
+        subject, fontsize, highlight = self.bind_params(
+                name, options, 'subject', 'size', 'highlight')
+        return ( 'helloworld.html',
+                {
+                    'title' : 'Hello world',
+                    'data' : {
+                        'subject' : subject,
+                        'fontsize' : max(fontsize, 8),
+                        'highlight' : highlight,
+                        'args' : options,
+                    },
+                    'ctxtnav' : [
+                            tag.a('Project home',
+                                    href=context.req.href())],
+                },
+                context )
+
+}}}
+
