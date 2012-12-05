@@ -31,6 +31,10 @@ import time
 
 from createdigest import htdigest_create
 
+from trac.util import translation
+from trac.util.translation import _, get_negotiated_locale, has_babel
+LANG = os.environ.get('LANG')
+
 try:
     from trac.admin.console import TracAdmin
     from trac.config import Configuration
@@ -146,6 +150,16 @@ class BloodhoundSetup(object):
     def setup(self, **kwargs):
         """Do the setup. A kwargs dictionary may be passed to override base
         options, potentially allowing for multiple environment creation."""
+        
+        if has_babel:
+            import babel
+            try:
+                locale = get_negotiated_locale([LANG]) 
+                locale = locale or babel.Locale.default()
+            except babel.UnknownLocaleError:
+                pass
+            translation.activate(locale)
+        
         options = dict(self.options)
         options.update(kwargs)
         if psycopg2 is None and options.get('dbtype') == 'postgres':
@@ -220,6 +234,9 @@ class BloodhoundSetup(object):
 
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
+        
+        print "Running wiki bh upgrades"
+        bloodhound.onecmd('wiki bh-upgrade')
 
         print """
 You can now start Bloodhound by running:
