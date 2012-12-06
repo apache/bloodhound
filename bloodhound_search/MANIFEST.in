@@ -1,0 +1,4 @@
+
+include README CHANGES
+graft bhsearch/templates
+

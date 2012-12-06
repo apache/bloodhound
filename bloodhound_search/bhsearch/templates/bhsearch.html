@@ -1,0 +1,75 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title py:choose="">
+      <py:when test="query">Search Results</py:when>
+      <py:otherwise>Search</py:otherwise>
+    </title>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {$("#q").get(0).focus()});
+    </script>
+  </head>
+  <body>
+    <div id="content" class="search">
+
+      <h1>This is dummy page. Implementation is coming...</h1>
+      <h1><label for="q">Search</label></h1>
+      <form id="bhsearch" action="${href.bhsearch()}" method="get">
+        <p>
+          <input type="text" id="q" name="q" size="40" value="${query}" />
+          <input type="submit" value="${_('Search')}" />
+        </p>
+      </form>
+
+      <py:if test="results"><hr />
+        <h2 py:if="results">
+          Results <span class="numresults">(${results.displayed_items()})</span>
+        </h2>
+        <xi:include py:with="paginator = results" href="page_index.html" />
+        <div>
+          <dl id="results">
+            <py:for each="result in results">
+              <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
+              <dd class="searchable">${result.excerpt}</dd>
+              <dd>
+                <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                <span class="date">${result.date}</span>
+              </dd>
+            </py:for>
+          </dl>
+        </div>
+        <xi:include py:with="paginator = results" href="page_index.html" />
+      </py:if>
+
+      <div id="notfound" py:if="query and not (results)">
+        No matches found.
+      </div>
+    </div>
+  </body>
+</html>
+
