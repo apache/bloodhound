@@ -26,7 +26,7 @@ from sqlite3 import OperationalError
 from trac.test import EnvironmentStub
 from trac.core import TracError
 from multiproduct.model import Product
-from multiproduct.model import MultiProductEnvironmentProvider
+from multiproduct.api import MultiProductSystem
 
 class ProductTestCase(unittest.TestCase):
     """Unit tests covering the Product model"""
@@ -34,9 +34,9 @@ class ProductTestCase(unittest.TestCase):
         self.env = EnvironmentStub(enable=['trac.*', 'multiproduct.*'])
         self.env.path = tempfile.mkdtemp('bh-product-tempenv')
         
-        self.envprovider = MultiProductEnvironmentProvider(self.env)
+        self.mpsystem = MultiProductSystem(self.env)
         try:
-            self.envprovider.upgrade_environment(self.env.db_transaction)
+            self.mpsystem.upgrade_environment(self.env.db_transaction)
         except OperationalError:
             # table remains but database version is deleted
             pass
@@ -57,10 +57,10 @@ class ProductTestCase(unittest.TestCase):
         """tests that select can search Products by fields"""
         
         p2_data = {'prefix':'tp2',
-                   'name':'test project',
+                   'name':'test project 2',
                    'description':'a different test project'}
         p3_data = {'prefix':'tp3',
-                   'name':'test project',
+                   'name':'test project 3',
                    'description':'test project'}
         
         product2 = Product(self.env)
@@ -74,9 +74,9 @@ class ProductTestCase(unittest.TestCase):
         products = list(Product.select(self.env, where={'prefix':'tp'}))
         self.assertEqual(1, len(products))
         products = list(Product.select(self.env, where={'name':'test project'}))
-        self.assertEqual(3, len(products))
+        self.assertEqual(1, len(products))
         products = list(Product.select(self.env, where={'prefix':'tp3',
-                                                        'name':'test project'}))
+                                                        'name':'test project 3'}))
         self.assertEqual(1, len(products))
     
     def test_update(self):
