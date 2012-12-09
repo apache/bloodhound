@@ -32,11 +32,13 @@ from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_script, add_stylesheet, INavigationContributor,
                              ITemplateProvider, prevnext_nav)
+from trac.wiki.admin import WikiAdmin
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
 
 from bhdashboard.util import dummy_request
 from bhdashboard.web_ui import DashboardModule
+from bhdashboard import wiki
 
 from pkg_resources import get_distribution
 from urlparse import urlparse
@@ -115,6 +117,8 @@ class BloodhoundTheme(ThemeBase):
                 ['table', 'table-condensed']),
     )
 
+    _wiki_pages = None
+
     implements(IRequestFilter, INavigationContributor, ITemplateProvider,
                ITemplateStreamFilter)
 
@@ -162,6 +166,24 @@ class BloodhoundTheme(ThemeBase):
             footer_right = c.get(
                 'labels', 'footer_right', ""),
             application_version = ".".join(map(str, application_version)))
+        
+        def hwiki(*args, **kw):
+            
+            def new_name(name):
+                new_name = wiki.new_name(name)
+                if new_name != name:
+                    if not self._wiki_pages:
+                        wiki_admin = WikiAdmin(self.env)
+                        self._wiki_pages = wiki_admin.get_wiki_list()
+                    if new_name in self._wiki_pages:
+                        return new_name
+                return name 
+            
+            a = tuple([new_name(x) for x in args])
+            return req.href.__call__("wiki", *a)
+            
+        req.href.wiki = hwiki
+        
         return handler
 
     def post_process_request(self, req, template, data, content_type):

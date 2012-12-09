@@ -34,6 +34,15 @@ from trac.wiki.macros import WikiMacroBase
 
 from bhdashboard.web_ui import DashboardChrome, DashboardModule
 
+GUIDE_NAME = 'Guide'
+RENAME_MAP = {'TracGuide': GUIDE_NAME + '/Index',}
+
+def new_name(name, force=False):
+    if name.startswith('Trac'):
+        return RENAME_MAP.get(name, GUIDE_NAME + '/' + name[4:])
+    else:
+        return name
+
 class WidgetMacro(WikiMacroBase):
     """Embed Bloodhound widgets using WikiFormatting.
     """

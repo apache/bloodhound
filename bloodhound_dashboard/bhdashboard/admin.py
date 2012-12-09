@@ -31,14 +31,11 @@ from trac.util.text import printout
 from trac.util.translation import _
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.model import WikiPage
-
-GUIDE_NAME = 'Guide'
+from bhdashboard import wiki
 
 class BloodhoundAdmin(Component):
     """Bloodhound administration commands.
     """
-
-    RENAME_MAP = {'TracGuide': GUIDE_NAME + '/Index',}
 
     implements(IAdminCommandProvider)
 
@@ -47,21 +44,19 @@ class BloodhoundAdmin(Component):
         """List available commands.
         """
         yield ('wiki bh-upgrade', '',
-                'Move Trac* wiki pages to %s/*' % GUIDE_NAME,
+                'Move Trac* wiki pages to %s/*' % wiki.GUIDE_NAME,
                 None, self._do_wiki_upgrade)
 
     def _do_wiki_upgrade(self):
         """Move all wiki pages starting with Trac prefix to unbranded user
         guide pages.
         """
-        get_new_name = self.RENAME_MAP.get
 
         wiki_admin = WikiAdmin(self.env)
         pages = wiki_admin.get_wiki_list()
         for old_name in pages:
             if old_name.startswith('Trac'):
-                new_name = get_new_name(old_name,
-                                        GUIDE_NAME + '/' + old_name[4:])
+                new_name = wiki.new_name(old_name)
                 if not new_name:
                     continue
                 if new_name in pages:
