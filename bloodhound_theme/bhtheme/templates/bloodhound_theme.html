@@ -198,7 +198,8 @@
             <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
                 class="nav nav-tabs pull-right"
                 id="mainnav"
-                py:with="mainnav_show = ('wiki', 'tickets', 'browser')">
+                py:with="mainnav_show = ('wiki', 'tickets', 'browser');
+                        metanav_hide = ('login', 'logout', 'prefs', 'help', 'about')">
               <!-- TODO: Parameterize visible mainnav items in trac.ini -->
               <li py:if="chrome.nav.mainnav"
                   py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
@@ -212,6 +213,7 @@
                   <py:if test="chrome.nav.metanav">
                     <li class="divider"></li>
                     <li py:for="idx, item in enumerate(chrome.nav.metanav)"
+                        py:if="item.name not in metanav_hide"
                         class="${classes(first_last(idx, chrome.nav.metanav), active=item.active)}">
                       ${item.label}
                     </li>
