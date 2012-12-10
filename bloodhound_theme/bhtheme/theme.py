@@ -161,20 +161,6 @@ class BloodhoundTheme(ThemeBase):
 
     def pre_process_request(self, req, handler):
         """Pre process request filter"""
-        c = self.env.config
-        req.chrome['labels'] = dict(
-            application_short = c.get(
-                'labels', 'application_short', "Bloodhound"),
-            application_full = c.get(
-                'labels', 'application_full', "Apache Bloodhound"),
-            footer_left_prefix = c.get(
-                'labels', 'footer_left_prefix', ""),
-            footer_left_postfix = c.get(
-                'labels', 'footer_left_postfix', ""),
-            footer_right = c.get(
-                'labels', 'footer_right', ""),
-            application_version = ".".join(map(str, application_version)))
-        
         def hwiki(*args, **kw):
             
             def new_name(name):
@@ -204,6 +190,20 @@ class BloodhoundTheme(ThemeBase):
                 this_theme_name = self.get_theme_names().next()
                 is_active = active_theme['name'] == this_theme_name
             return is_active
+
+        c = self.env.config
+        req.chrome['labels'] = dict(
+            application_short = c.get(
+                'labels', 'application_short', "Bloodhound"),
+            application_full = c.get(
+                'labels', 'application_full', "Apache Bloodhound"),
+            footer_left_prefix = c.get(
+                'labels', 'footer_left_prefix', ""),
+            footer_left_postfix = c.get(
+                'labels', 'footer_left_postfix', ""),
+            footer_right = c.get(
+                'labels', 'footer_right', ""),
+            application_version = ".".join(map(str, application_version)))
 
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
