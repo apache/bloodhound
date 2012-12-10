@@ -38,11 +38,11 @@
     <script type="text/javascript" py:choose="">
       jQuery(document).ready(function($) {
         /* Affixed navbar */
-        $(".navbar a").click(function() { $($(this).attr('href')).removeClass('collapsed').parent().removeClass("collapsed"); });
+        $(".local-nav a").click(function() { $($(this).attr('href')).removeClass('collapsed').parent().removeClass("collapsed"); });
         $('.trac-nav').hide();
         $('.trac-topnav').hide();
         $('body').scrollspy({ 
-            'target' : '.navbar' , 
+            'target' : '.local-nav' , 
             'offset' : $('.stickyBox').height() + 40
           })
 
@@ -172,7 +172,7 @@
                 </h6>
               </div>
             </div>
-            <div class="navbar visible-affix" py:if="ticket.exists"
+            <div class="local-nav" py:if="ticket.exists"
                 py:with="sections = (
                         (_('Overview'), 'content', True, _('View ticket fields and description'), 'icon-list'),
                         (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
@@ -180,10 +180,10 @@
                         (_('Add comment'), 'propertyform', ticket.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
                         (_('Modify Ticket'), 'modify', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
                     )">
-              <div class="navbar-inner">
+              <div>
                 <small>
-                  <ul class="nav">
-                    <li py:for="s in sections" py:if="s[2]">
+                  <ul class="nav btn-group">
+                    <li py:for="s in sections" py:if="s[2]" class="btn">
                       <a href="#${s[1]}" title="${s[3]}">
                         <i class="${s[4]}"></i>
                         ${s[0]}
