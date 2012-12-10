@@ -17,6 +17,7 @@
 #  under the License.
 
 from genshi.builder import tag
+from genshi.core import TEXT           
 from genshi.filters.transform import Transformer
 
 from trac.core import *
@@ -126,7 +127,8 @@ class BloodhoundTheme(ThemeBase):
 
     def filter_stream(self, req, method, filename, stream, data):
         """Insert default Bootstrap CSS classes if rendering 
-        legacy templates (i.e. determined by template name prefix).
+        legacy templates (i.e. determined by template name prefix) 
+        and renames wiki guide links.
         """
         tx = Transformer('body')
 
@@ -147,6 +149,12 @@ class BloodhoundTheme(ThemeBase):
         for xpath, classes in self.BOOTSTRAP_CSS_DEFAULTS :
             tx = tx.end().select(xpath) \
                     .attr('class', add_classes(classes))
+         
+        # Rename wiki guide links
+        tx = tx.end() \
+            .select("body//a[contains(@href,'/wiki/%s')]" % wiki.GUIDE_NAME) \
+            .map(lambda text: wiki.new_name(text), TEXT)            
+                    
         return stream | tx
 
     # IRequestFilter methods
