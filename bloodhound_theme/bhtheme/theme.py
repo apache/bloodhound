@@ -153,7 +153,13 @@ class BloodhoundTheme(ThemeBase):
         # Rename wiki guide links
         tx = tx.end() \
             .select("body//a[contains(@href,'/wiki/%s')]" % wiki.GUIDE_NAME) \
-            .map(lambda text: wiki.new_name(text), TEXT)            
+            .map(lambda text: wiki.new_name(text), TEXT)
+
+        # Rename trac error
+        app_short = req.chrome['labels']['application_short']
+        tx = tx.end() \
+            .select("body//div[@class='error']/h1") \
+            .map(lambda text: text.replace("Trac", app_short), TEXT)            
                     
         return stream | tx
 
