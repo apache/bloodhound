@@ -23,7 +23,7 @@ from genshi.builder import tag
 
 from pkg_resources import resource_filename
 from trac.core import Component, TracError, implements
-from trac.db import Table, Column, DatabaseManager
+from trac.db import Table, Column, DatabaseManager, Index
 from trac.env import IEnvironmentSetupParticipant
 from trac.perm import IPermissionRequestor
 from trac.resource import IResourceManager
@@ -33,7 +33,7 @@ from trac.web.chrome import ITemplateProvider
 
 from multiproduct.model import Product
 
-DB_VERSION = 2
+DB_VERSION = 3
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
 
@@ -114,7 +114,89 @@ class MultiProductSystem(Component):
                       WHERE name=%s""", (DB_VERSION, DB_SYSTEM_KEY))
                 self.log.info("Upgraded multiproduct db schema from version %d"
                               " to %d" % (db_installed_version, DB_VERSION))
-    
+
+            if db_installed_version == 2:
+                from trac import bloodhound
+                migrate_tables = ['enum', 'component', 'milestone', 'version', 'wiki']
+                table_defs = [
+                    Table('enum', key=('type', 'name', 'product'))[
+                        Column('type'),
+                        Column('name'),
+                        Column('value'),
+                        Column('product')],
+                    Table('component', key=('name', 'product'))[
+                        Column('name'),
+                        Column('owner'),
+                        Column('description'),
+                        Column('product')],
+                    Table('milestone', key=('name', 'product'))[
+                        Column('name'),
+                        Column('due', type='int64'),
+                        Column('completed', type='int64'),
+                        Column('description'),
+                        Column('product')],
+                    Table('version', key=('name', 'product'))[
+                        Column('name'),
+                        Column('time', type='int64'),
+                        Column('description'),
+                        Column('product')],
+                    Table('wiki', key=('name', 'version', 'product'))[
+                        Column('name'),
+                        Column('version', type='int'),
+                        Column('time', type='int64'),
+                        Column('author'),
+                        Column('ipnr'),
+                        Column('text'),
+                        Column('comment'),
+                        Column('readonly', type='int'),
+                        Column('product'),
+                        Index(['time'])],
+                    ]
+                table_columns = dict()
+                table_vals = {}
+                for table in table_defs:
+                    table_columns[table.name] = filter(lambda column: column != 'product', [column.name for column in list(filter(lambda t: t.name == table.name, table_defs)[0].columns)])
+                table_columns['bloodhound_product'] = ['prefix', 'name', 'description', 'owner']
+                def fetch_table(table):
+                    table_vals[table] = list(db("SELECT %s FROM %s" % (','.join(table_columns[table]), table)))
+                for table in table_columns.keys():
+                    self.log.info("Fetching table '%s'", table)
+                    fetch_table(table)
+                for table in migrate_tables:
+                    self.log.info("Dropping obsolete table '%s'", table)
+                    db("DROP TABLE %s" % table)
+                db_connector, _ = DatabaseManager(self.env).get_connector()
+                for table in table_defs:
+                    self.log.info("Creating table '%s'", table.name)
+                    for sql in db_connector.to_sql(table):
+                        db(sql)
+                self.log.info("Creating default product")
+                db("INSERT INTO bloodhound_product (prefix, name, description, owner) VALUES ('%s', 'Default', 'Default product', '')" % bloodhound.DEFAULT_PRODUCT)
+                self.log.info("Migrating tickets w/o product to default product")
+                db("UPDATE ticket SET product='%s' WHERE product=''" % bloodhound.DEFAULT_PRODUCT)
+
+                def insert_with_product(table, product):
+                    cols = table_columns[table] + ['product']
+                    sql = "INSERT INTO %s (%s) VALUES (%s)" % (table,
+                                                               ','.join(cols),
+                                                               ','.join(['%s'] * len(cols)))
+                    for r in table_vals[table]:
+                        vals = list()
+                        for v in list(r):
+                            vals.append(v if v else '')
+                        db(sql, tuple(vals + [product]))
+                for p in table_vals['bloodhound_product']:
+                    for table in migrate_tables:
+                        self.log.info("Creating tables '%s' for default product", table)
+                        insert_with_product(table, bloodhound.DEFAULT_PRODUCT)
+                        self.log.info("Creating tables '%s' for product '%s' ('%s')", table, p[1], p[0])
+                        insert_with_product(table, p[0])
+
+                db("""UPDATE system SET value=%s
+                      WHERE name=%s""", (DB_VERSION, DB_SYSTEM_KEY))
+                self.log.info("Upgraded multiproduct db schema from version %d"
+                              " to %d" % (db_installed_version, DB_VERSION))
+
     # ITemplateProvider methods
     def get_templates_dirs(self):
         """provide the plugin templates"""

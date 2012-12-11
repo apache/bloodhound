@@ -120,6 +120,8 @@ class TracHTTPRequestHandler(WSGIRequestHandler):
 class TracHTTP11RequestHandler(TracHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
+from trac.bloodhound import bloodhound_hooks
+bloodhound_hooks()
 
 def main():
     from optparse import OptionParser, OptionValueError
