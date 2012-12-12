@@ -16,49 +16,14 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import trac.env
-from trac.db.util import IterableCursor
-from trac.util import concurrency
 from trac.env import Environment
-from bloodhoundsql import BloodhoundProductSQLTranslate
+import trac.db.util
+
+from db import BloodhoundIterableCursor
+
+__all__ = ["bloodhound_hooks", "BloodhoundEnvironment", "DEFAULT_PRODUCT"]
 
 DEFAULT_PRODUCT = 'default'
-TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'wiki']
-PRODUCT_COLUMN = 'product'
-
-class BloodhoundIterableCursor(IterableCursor):
-    __slots__ = IterableCursor.__slots__ + ['_translator']
-    _tls = concurrency.ThreadLocal(env=None)
-
-    def __init__(self, cursor, log=None):
-        super(BloodhoundIterableCursor, self).__init__(cursor, log=log)
-        self._translator = None
-
-    @property
-    def translator(self):
-        if not self._translator:
-            product = self.env.product_scope if self.env else DEFAULT_PRODUCT
-            self._translator = BloodhoundProductSQLTranslate(TRANSLATE_TABLES,
-                                                             PRODUCT_COLUMN,
-                                                             product)
-        return self._translator
-
-    def _translate_sql(self, sql):
-        return self.translator.translate(sql) if (self.env and not self.env.product_aware) else sql
-
-    def execute(self, sql, args=None):
-        return super(BloodhoundIterableCursor, self).execute(self._translate_sql(sql), args=args)
-
-    def executemany(self, sql, args=None):
-        return super(BloodhoundIterableCursor, self).executemany(self._translate_sql(sql), args=args)
-
-    @property
-    def env(self):
-        return self._tls.env
-
-    @classmethod
-    def set_env(cls, env):
-        cls._tls.env = env
 
 class BloodhoundEnvironment(Environment):
     def __init__(self, path, create=False, options=[]):
