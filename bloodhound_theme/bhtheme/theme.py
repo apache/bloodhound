@@ -123,6 +123,22 @@ class BloodhoundTheme(ThemeBase):
     implements(IRequestFilter, INavigationContributor, ITemplateProvider,
                ITemplateStreamFilter)
 
+    def _get_whitelabelling(self):
+        """Gets the whitelabelling config values"""
+        c = self.env.config
+        return dict(
+            application_short = c.get(
+                'labels', 'application_short', "Bloodhound"),
+            application_full = c.get(
+                'labels', 'application_full', "Apache Bloodhound"),
+            footer_left_prefix = c.get(
+                'labels', 'footer_left_prefix', ""),
+            footer_left_postfix = c.get(
+                'labels', 'footer_left_postfix', ""),
+            footer_right = c.get(
+                'labels', 'footer_right', ""),
+            application_version = ".".join(map(str, application_version)))
+
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
@@ -156,7 +172,7 @@ class BloodhoundTheme(ThemeBase):
             .map(lambda text: wiki.new_name(text), TEXT)
 
         # Rename trac error
-        app_short = req.chrome['labels']['application_short']
+        app_short = self._get_whitelabelling()['application_short']
         tx = tx.end() \
             .select("body//div[@class='error']/h1") \
             .map(lambda text: text.replace("Trac", app_short), TEXT)            
@@ -197,19 +213,7 @@ class BloodhoundTheme(ThemeBase):
                 is_active = active_theme['name'] == this_theme_name
             return is_active
 
-        c = self.env.config
-        req.chrome['labels'] = dict(
-            application_short = c.get(
-                'labels', 'application_short', "Bloodhound"),
-            application_full = c.get(
-                'labels', 'application_full', "Apache Bloodhound"),
-            footer_left_prefix = c.get(
-                'labels', 'footer_left_prefix', ""),
-            footer_left_postfix = c.get(
-                'labels', 'footer_left_postfix', ""),
-            footer_right = c.get(
-                'labels', 'footer_right', ""),
-            application_version = ".".join(map(str, application_version)))
+        req.chrome['labels'] = self._get_whitelabelling()
 
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
