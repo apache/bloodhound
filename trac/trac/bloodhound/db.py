@@ -156,7 +156,7 @@ class BloodhoundProductSQLTranslate(object):
         return current_token, tokens
 
     def _select_join(self, parent, start_token, end_words):
-        current_token = self._select_from(parent, start_token, ['ON'])
+        current_token = self._select_from(parent, start_token, ['ON'], force_alias=True)
         tokens = list()
         if current_token:
             current_token = self._token_next(parent, current_token)
@@ -167,8 +167,10 @@ class BloodhoundProductSQLTranslate(object):
                 current_token = self._token_next(parent, current_token)
         return current_token
 
-    def _select_from(self, parent, start_token, end_words, table_name_callback=None):
+    def _select_from(self, parent, start_token, end_words, table_name_callback=None, force_alias=False):
         def inject_table_view(token, name, alias):
+            if force_alias and not alias:
+                alias = name
             parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._patch_table_view_sql(name,
                                                                                                       alias=alias))[0]
 
