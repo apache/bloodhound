@@ -1,6 +1,10 @@
-trac/contrib/
 .rat-ignore
+**/CHANGES
 **/MANIFEST.in
+**/TESTING_README
+**/TODO
 bloodhound_dashboard/bhdashboard/default-pages/
 doc/wireframes/src/
+installer/README.rst 
+trac/
 
