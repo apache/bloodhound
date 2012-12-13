@@ -115,27 +115,29 @@ function setup_sticky_panel(selector) {
   var h = target.height();
   target.parent('.stickyBox').height(h);
 
-  // Create style tag to fix anchor position
-  function _sticky_offset_rules(_h) {
-    return '.stickyBox~* form[id], .stickyBox~* div[id] { margin-top:-' +
-      _h + 'px; padding-top: ' + _h + 'px } ' +
-      '.stickyBox, .stickyBox [id] { margin-top: 0px ; padding-top: 0px }';
-  }
-  $('<style id="sticky-offset" /> ').text( _sticky_offset_rules(h) )
-      .appendTo('head');
-
   target = h = null;
   $(window).on('scroll.affix.data-api', function() {
-      var affix_data = $(selector).data('affix');
       var target = $(selector);
+      var affix_data = target.data('affix');
 
       if (affix_data && !affix_data.affixed) {
         var h = target.height();
         target.parent('.stickyBox').height(h);
-        $('style#sticky-offset').text(_sticky_offset_rules(h))
       }
       else {
         target.parent('.stickyBox').css('height', '');
+      }
+    })
+  $(function() {
+      var prev_onhashchange = window.onhashchange;
+
+      window.onhashchange = function() {
+        prev_onhashchange();
+        var target = $(selector);
+        var affix_data = target.data('affix');
+    
+        if (affix_data && !affix_data.affixed)
+          window.scrollBy(0, -target.height());
       }
     })
 }
