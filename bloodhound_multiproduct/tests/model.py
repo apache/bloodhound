@@ -25,6 +25,7 @@ from sqlite3 import OperationalError
 
 from trac.test import EnvironmentStub
 from trac.core import TracError
+
 from multiproduct.model import Product
 from multiproduct.api import MultiProductSystem
 
