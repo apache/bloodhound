@@ -449,8 +449,6 @@ class BloodhoundProductSQLTranslate(object):
         else:
             raise Exception("Invalid DELETE statement, expected table name")
         start_token = self._replace_table_name(parent, table_name_token, tablename)
-        if not tablename in self._translate_tables:
-            return
         self._update_delete_where_limit(tablename, parent, start_token)
         return
 
@@ -470,3 +468,4 @@ class BloodhoundProductSQLTranslate(object):
         except Exception:
             raise Exception("Failed to translate SQL '%s'" % sql)
         return translated_sql
+
