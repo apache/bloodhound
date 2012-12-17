@@ -25,6 +25,14 @@ import sqlparse.sql as Types
 
 __all__ = ['BloodhoundIterableCursor']
 
+SKIP_TABLES = ['system', 'permission', 'auth_cookie',
+               'session', 'session_attribute',
+               'cache',
+               'attachment', 'repository', 'revision', 'node_change',
+               'ticket_change', 'ticket_custom',
+               'report',
+               'bloodhound_product', 'bloodhound_productresourcemap',
+               ]
 TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'wiki']
 PRODUCT_COLUMN = 'product'
 
@@ -41,7 +49,8 @@ class BloodhoundIterableCursor(IterableCursor):
         if not self._translator:
             from env import DEFAULT_PRODUCT
             product = self.env.product_scope if self.env else DEFAULT_PRODUCT
-            self._translator = BloodhoundProductSQLTranslate(TRANSLATE_TABLES,
+            self._translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
+                                                             TRANSLATE_TABLES,
                                                              PRODUCT_COLUMN,
                                                              product)
         return self._translator
@@ -69,7 +78,8 @@ class BloodhoundProductSQLTranslate(object):
                         'JOIN', 'INNER JOIN']
     _from_end_words = ['WHERE', 'GROUP', 'HAVING', 'ORDER', 'UNION']
 
-    def __init__(self, translate_tables, product_column, product_prefix):
+    def __init__(self, skip_tables, translate_tables, product_column, product_prefix):
+        self._skip_tables = skip_tables
         self._translate_tables = translate_tables
         self._product_column = product_column
         self._product_prefix = product_prefix
@@ -79,11 +89,18 @@ class BloodhoundProductSQLTranslate(object):
     def _column_expression_name_alias(self, tokens):
         return filter(lambda t: t.upper() != 'AS', [t.value for t in tokens if t.value.strip()])
 
-    def _patch_table_view_sql(self, name, alias=None):
+    def _translated_table_view_sql(self, name, alias=None):
         sql = '(SELECT * FROM %s WHERE %s="%s")' % (name, self._product_column, self._product_prefix)
         if alias:
             sql += ' AS %s' % alias
         return sql
+
+    def _prefixed_table_name(self, tablename):
+        return "%s_%s" % (self._product_prefix, tablename)
+
+    def _prefixed_table_view_sql(self, name, alias):
+        return '(SELECT * FROM %s) AS %s' % (self._prefixed_table_name(name),
+                                             alias)
 
     def _token_first(self, parent):
         return parent.token_first()
@@ -160,8 +177,8 @@ class BloodhoundProductSQLTranslate(object):
         tokens = list()
         if current_token:
             current_token = self._token_next(parent, current_token)
-            while current_token and\
-                  not current_token.match(Tokens.Keyword, end_words) and\
+            while current_token and \
+                  not current_token.match(Tokens.Keyword, end_words) and \
                   not isinstance(current_token, Types.Where):
                 tokens.append(current_token)
                 current_token = self._token_next(parent, current_token)
@@ -169,10 +186,20 @@ class BloodhoundProductSQLTranslate(object):
 
     def _select_from(self, parent, start_token, end_words, table_name_callback=None, force_alias=False):
         def inject_table_view(token, name, alias):
-            if force_alias and not alias:
-                alias = name
-            parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._patch_table_view_sql(name,
-                                                                                                      alias=alias))[0]
+            if name in self._skip_tables:
+                pass
+            elif name in self._translate_tables:
+                if force_alias and not alias:
+                    alias = name
+                parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._translated_table_view_sql(name,
+                                                                                                               alias=alias))[0]
+                if table_name_callback:
+                    table_name_callback(name)
+            else:
+                if not alias:
+                    alias = name
+                parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._prefixed_table_view_sql(name,
+                                                                                                             alias))[0]
 
         def process_table_name_tokens(token, nametokens):
             if nametokens:
@@ -182,10 +209,7 @@ class BloodhoundProductSQLTranslate(object):
                 name, alias = l[0], None
                 if len(l) > 1:
                     alias = l[1]
-                if name in self._translate_tables:
-                    inject_table_view(token, name, alias)
-                if table_name_callback:
-                    table_name_callback(tablename)
+                inject_table_view(token, name, alias)
             return list()
 
         current_token = self._token_next(parent, start_token)
@@ -210,10 +234,7 @@ class BloodhoundProductSQLTranslate(object):
                 else:
                     tablename = current_token.value.strip()
                     tablealias = current_token.get_name().strip()
-                    if tablename in self._translate_tables:
-                        inject_table_view(current_token, tablename, tablealias)
-                    if table_name_callback:
-                        table_name_callback(tablename)
+                    inject_table_view(current_token, tablename, tablealias)
             elif current_token.ttype == Tokens.Punctuation:
                 if table_name_tokens:
                     next_token = self._token_next(parent, current_token)
@@ -280,12 +301,21 @@ class BloodhoundProductSQLTranslate(object):
             current_token = next_token
         return current_token
 
+    def _replace_table_name(self, parent, token, table_name):
+        next_token = self._token_next(parent, token)
+        if table_name in self._skip_tables + self._translate_tables:
+            pass
+        else:
+            parent.tokens[self._token_idx(parent, token)] = Types.Token(Tokens.Keyword,
+                                                                        self._prefixed_table_name(table_name))
+        return next_token
+
     def _insert(self, parent, start_token):
         token = self._token_next(parent, start_token)
         if not token.match(Tokens.Keyword, 'INTO'):
             raise Exception("Invalid INSERT statement")
         def insert_extra_column(tablename, columns_token):
-            if tablename in self._translate_tables and\
+            if tablename in self._translate_tables and \
                isinstance(columns_token, Types.Parenthesis):
                 ptoken = self._token_first(columns_token)
                 if not ptoken.match(Tokens.Punctuation, '('):
@@ -304,12 +334,12 @@ class BloodhoundProductSQLTranslate(object):
             token = self._token_first(table_name_token)
             if isinstance(token, Types.Identifier):
                 tablename = token.get_name()
-                columns_token = self._token_next(table_name_token, token)
+                columns_token = self._replace_table_name(table_name_token, token, tablename)
                 insert_extra_column(tablename, columns_token)
                 token = self._token_next(parent, table_name_token)
         else:
             tablename = table_name_token.value
-            columns_token = self._token_next(parent, table_name_token)
+            columns_token = self._replace_table_name(parent, table_name_token, tablename)
             insert_extra_column(tablename, columns_token)
             token = self._token_next(parent, columns_token)
         if token.match(Tokens.Keyword, 'VALUES'):
@@ -382,7 +412,8 @@ class BloodhoundProductSQLTranslate(object):
             tablename = table_name_token.value
         else:
             raise Exception("Invalid UPDATE statement, expected table name")
-        set_token = self._token_next_match(parent, table_name_token, Tokens.Keyword, 'SET')
+        token = self._replace_table_name(parent, table_name_token, tablename)
+        set_token = self._token_next_match(parent, token, Tokens.Keyword, 'SET')
         if set_token:
             token = set_token
             while token and \
@@ -417,6 +448,7 @@ class BloodhoundProductSQLTranslate(object):
             tablename = table_name_token.value
         else:
             raise Exception("Invalid DELETE statement, expected table name")
+        start_token = self._replace_table_name(parent, table_name_token, tablename)
         if not tablename in self._translate_tables:
             return
         self._update_delete_where_limit(tablename, parent, start_token)
