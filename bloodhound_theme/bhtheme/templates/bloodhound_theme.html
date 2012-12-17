@@ -121,30 +121,12 @@
               <input type="text" id="field-summary"
                   name="field_summary" placeholder="Ticket summary" />
               <div class="form-horizontal">
-                <py:if test="qct.fields.product">
-                <label class="control-label" for="field-product">Product</label>
-                <div class="controls">
-                  ${field_select(qct.fields.product, None)}
-                </div>
-                </py:if>
-                <py:if test="qct.fields.version">
-                <label class="control-label" for="field-version">Version</label>
-                <div class="controls">
-                  ${field_select(qct.fields.version, None)}
-                </div>
-                </py:if>
-                <py:if test="qct.fields.type">
-                <label class="control-label" for="field-type">Type</label>
-                <div class="controls">
-                  ${field_select(qct.fields.type, None)}
-                </div>
-                </py:if>
-                <py:if test="qct.fields.component">
-                <label class="control-label" for="field-component">Component</label>
-                <div class="controls">
-                  ${field_select(qct.fields.component, None)}
-                </div>
-                </py:if>
+                <py:for each="field in qct.fields">
+                  <label class="control-label" for="field-${field.name}">${field.label}</label>
+                  <div class="controls">
+                    ${field_select(field, None)}
+                  </div>
+                </py:for>
               </div>
             </py:def>
             <py:choose test="">

@@ -17,7 +17,7 @@
 #  under the License.
 
 from genshi.builder import tag
-from genshi.core import TEXT           
+from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 
 from trac.core import *
@@ -175,7 +175,7 @@ class BloodhoundTheme(ThemeBase):
         app_short = self._get_whitelabelling()['application_short']
         tx = tx.end() \
             .select("body//div[@class='error']/h1") \
-            .map(lambda text: text.replace("Trac", app_short), TEXT)            
+            .map(lambda text: text.replace("Trac", app_short), TEXT)
                     
         return stream | tx
 
@@ -323,6 +323,8 @@ class BloodhoundTheme(ThemeBase):
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
+    qct_fields = ('product', 'version', 'type', 'component')
+
     # IRequestFilter(Interface):
 
     def pre_process_request(self, req, handler):
@@ -345,9 +347,10 @@ class QuickCreateTicketDialog(Component):
             fakereq = dummy_request(self.env)
             ticket = Ticket(self.env)
             tm._populate(fakereq, ticket, False)
-            fields = dict([f['name'], f] \
-                        for f in tm._prepare_fields(fakereq, ticket))
-            data['qct'] = { 'fields' : fields }
+            all_fields = dict([f['name'], f] \
+                              for f in tm._prepare_fields(fakereq, ticket))
+            data['qct'] = {'fields': [all_fields[k] for k in self.qct_fields
+                                      if k in all_fields]}
         return template, data, content_type
 
     # IRequestHandler methods
