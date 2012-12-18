@@ -182,6 +182,10 @@ textarea.wikitext {
   border-radius: 10px;
 }
 
+pre.wiki {
+  overflow: auto;
+}
+
 .trac-modifiedby {
   float: right;
 }
