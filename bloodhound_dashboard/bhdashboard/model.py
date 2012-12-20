@@ -16,6 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from trac.db import Table, Column
 from trac.core import TracError
 from trac.resource import ResourceNotFound
 from trac.ticket.api import TicketSystem
@@ -224,4 +225,14 @@ class ModelBase(object):
             model.__init__(env, data)
             rows.append(model)
         return rows
+    
+    @classmethod
+    def _get_fields(cls):
+        return cls._meta['key_fields']+cls._meta['non_key_fields']
+    
+    @classmethod
+    def _get_schema(cls):
+        fields =  [Column(field) for field in cls._get_fields()]
+        return Table(cls._meta['table_name'], key=set(cls._meta['key_fields'] +
+                            cls._meta['unique_fields'])) [fields]
 
