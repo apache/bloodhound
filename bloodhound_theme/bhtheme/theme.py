@@ -22,6 +22,7 @@ from genshi.filters.transform import Transformer
 
 from trac.config import Option
 from trac.core import *
+from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
 from trac.resource import Resource
 from trac.ticket.api import TicketSystem
@@ -330,7 +331,9 @@ class BloodhoundTheme(ThemeBase):
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
-    qct_fields = ('product', 'version', 'type', 'component')
+    qct_fields = ListOption('ticket', 'quick_create_fields', 
+                            'product,version,type',
+        doc="""Multiple selection fields displayed in create ticket menu""")
 
     # IRequestFilter(Interface):
 
@@ -355,7 +358,8 @@ class QuickCreateTicketDialog(Component):
             ticket = Ticket(self.env)
             tm._populate(fakereq, ticket, False)
             all_fields = dict([f['name'], f] \
-                              for f in tm._prepare_fields(fakereq, ticket))
+                              for f in tm._prepare_fields(fakereq, ticket) \
+                              if f['type'] == 'select')
             data['qct'] = {'fields': [all_fields[k] for k in self.qct_fields
                                       if k in all_fields]}
         return template, data, content_type

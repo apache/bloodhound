@@ -140,7 +140,13 @@
                   <div id="qct-box" class="dropdown-menu" style="width: 300px;"
                       py:choose="">
                     <div class="popover-title">
-                      <a href="${href.newticket()}"><h3>Create Ticket</h3></a>
+                      <h3>
+                        Create Ticket
+                        <a style="top: -33px; right: -25px; position: relative;" 
+                            class="pull-right" href="${href.newticket()}">
+                          <small>Full dialogue &raquo;</small>
+                        </a>
+                      </h3>
                     </div>
                     <div class="popover-content">
                       <py:when test="'TICKET_CREATE' in perm">
