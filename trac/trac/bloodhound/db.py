@@ -133,12 +133,11 @@ class BloodhoundProductSQLTranslate(object):
         # hack to workaround sqlparse bug that wrongly presents list of tokens
         # as IdentifierList in certain situations
         if isinstance(token, Types.IdentifierList):
-            expression_token_idx = self._token_idx(parent, token)
-            del parent.tokens[expression_token_idx]
-            last_token = start_token
+            idx = self._token_idx(parent, token)
+            del parent.tokens[idx]
             for t in token.tokens:
-                self._token_insert_after(parent, last_token, t)
-                last_token = t
+                parent.tokens.insert(idx, t)
+                idx += 1
             token = self._token_next(parent, start_token)
         return token
 
@@ -215,16 +214,18 @@ class BloodhoundProductSQLTranslate(object):
             return list()
 
         current_token = self._token_next(parent, start_token)
-        last_token = current_token
+        prev_token = start_token
         table_name_tokens = list()
         join_tokens = list()
         while current_token and \
               not current_token.match(Tokens.Keyword, end_words) and \
               not isinstance(current_token, Types.Where):
-            last_token = current_token
             next_token = self._token_next(parent, current_token)
             if current_token.is_whitespace():
                 pass
+            elif isinstance(current_token, Types.IdentifierList):
+                current_token = self._expression_token_unwind_hack(parent, current_token, prev_token)
+                continue
             elif isinstance(current_token, Types.Identifier):
                 parenthesis = filter(lambda t: isinstance(t, Types.Parenthesis), current_token.tokens)
                 if parenthesis:
@@ -260,9 +261,9 @@ class BloodhoundProductSQLTranslate(object):
                 table_name_tokens.append(current_token)
             else:
                 raise Exception("Failed to parse FROM table name")
+            prev_token = current_token
             current_token = next_token
-
-        if last_token:
+        if prev_token:
             process_table_name_tokens(table_name_tokens)
         return current_token
 
