@@ -22,8 +22,8 @@ $( function () {
     var qct_timeout = null;
 
     // Do not close dropdown menu if user interacts with form controls
-    $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu select')
-        .click(function (e) { e.stopPropagation(); });
+    $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu select' +
+        ', .dropdown-menu textarea').click(function (e) { e.stopPropagation(); });
 
     // Install popover for create ticket shortcut
     // Important: Further options specified in markup
@@ -57,7 +57,7 @@ $( function () {
 
     // Clear input controls inside quick create box
     function qct_clearui() {
-      $('#qct-fieldset input, #qct-fieldset select').val('');
+      $('#qct-fieldset input, #qct-fieldset select, #qct-fieldset textarea').val('');
     }
 
     // We want to submit via #qct-create

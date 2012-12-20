@@ -206,6 +206,10 @@ pre.wiki {
   width: 505px;
 }
 
+#qct-fieldset #field-description {
+  width: auto;
+}
+
 #field-summary {
   width: 505px;
 }

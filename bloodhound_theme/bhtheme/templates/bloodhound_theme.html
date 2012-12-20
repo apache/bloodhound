@@ -117,9 +117,17 @@
               </select>
             </py:def>
             <py:def function="qct_box()">
-              <label for="field-summary">Summary</label>
-              <input type="text" id="field-summary"
-                  name="field_summary" placeholder="Ticket summary" />
+              <div>
+                <label for="field-summary">Summary</label>
+                <input type="text" id="field-summary"
+                    name="field_summary" placeholder="Ticket summary" />
+              </div>
+              <div>
+                <label for="field-description">Description</label>
+                <textarea id="field-description" name="field_description"
+                    rows="3" cols="28"
+                    placeholder="Ticket description"></textarea>
+              </div>
               <div class="form-horizontal">
                 <py:for each="field in qct.fields">
                   <label class="control-label" for="field-${field.name}">${field.label}</label>
