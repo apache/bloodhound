@@ -89,10 +89,13 @@ class BloodhoundProductSQLTranslate(object):
     def _column_expression_name_alias(self, tokens):
         return filter(lambda t: t.upper() != 'AS', [t.value for t in tokens if t.value.strip()])
 
+    def _select_alias_sql(self, alias):
+        return ' AS %s' % alias
+
     def _translated_table_view_sql(self, name, alias=None):
         sql = '(SELECT * FROM %s WHERE %s="%s")' % (name, self._product_column, self._product_prefix)
         if alias:
-            sql += ' AS %s' % alias
+            sql += self._select_alias_sql(alias)
         return sql
 
     def _prefixed_table_entity_name(self, tablename):
@@ -120,6 +123,12 @@ class BloodhoundProductSQLTranslate(object):
         return parent.insert_after(where, token)
     def _token_idx(self, parent, token):
         return parent.token_index(token)
+    def _token_delete(self, parent, token):
+        idx = self._token_idx(parent, token)
+        del parent.tokens[idx]
+        return idx
+    def _token_insert(self, parent, idx, token):
+        parent.tokens.insert(idx, token)
 
     def _eval_expression_value(self, parent, token):
         if isinstance(token, Types.Parenthesis):
@@ -133,10 +142,9 @@ class BloodhoundProductSQLTranslate(object):
         # hack to workaround sqlparse bug that wrongly presents list of tokens
         # as IdentifierList in certain situations
         if isinstance(token, Types.IdentifierList):
-            idx = self._token_idx(parent, token)
-            del parent.tokens[idx]
+            idx = self._token_delete(parent, token)
             for t in token.tokens:
-                parent.tokens.insert(idx, t)
+                self._token_insert(parent, idx, t)
                 idx += 1
             token = self._token_next(parent, start_token)
         return token
@@ -200,6 +208,9 @@ class BloodhoundProductSQLTranslate(object):
                 parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._prefixed_table_view_sql(name,
                                                                                                              alias))[0]
 
+        def inject_table_alias(token, alias):
+            parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._select_alias_sql(alias))[0]
+
         def process_table_name_tokens(nametokens):
             if nametokens:
                 l = self._select_table_name_alias(nametokens)
@@ -209,7 +220,7 @@ class BloodhoundProductSQLTranslate(object):
                 alias = l[1] if len(l) > 1 else name
                 token = nametokens[0]
                 for t in nametokens[1:]:
-                    del parent.tokens[self._token_idx(parent, t)]
+                    self._token_delete(parent, t)
                 inject_table_view(token, name, alias)
             return list()
 
@@ -230,7 +241,7 @@ class BloodhoundProductSQLTranslate(object):
                 parenthesis = filter(lambda t: isinstance(t, Types.Parenthesis), current_token.tokens)
                 if parenthesis:
                     for p in parenthesis:
-                        t = self._token_next(p, p.token_first())
+                        t = self._token_next(p, self._token_first(p))
                         if not t.match(Tokens.DML, 'SELECT'):
                             raise Exception("Invalid subselect statement")
                         self._select(p, t)
@@ -241,6 +252,21 @@ class BloodhoundProductSQLTranslate(object):
                         table_name_tokens.append(current_token)
                     else:
                         inject_table_view(current_token, tablename, tablealias)
+            elif isinstance(current_token, Types.Parenthesis):
+                t = self._token_next(current_token, self._token_first(current_token))
+                if t.match(Tokens.DML, 'SELECT'):
+                    identifier_token = self._token_next(parent, current_token)
+                    as_token = None
+                    if identifier_token.match(Tokens.Keyword, 'AS'):
+                        as_token = identifier_token
+                        identifier_token = self._token_next(parent, identifier_token)
+                    if not isinstance(identifier_token, Types.Identifier):
+                        raise Exception("Invalid subselect statement")
+                    next_token = self._token_next(parent, identifier_token)
+                    self._select(current_token, t)
+                    if as_token:
+                        self._token_delete(parent, as_token)
+                    inject_table_alias(identifier_token, identifier_token.value)
             elif current_token.ttype == Tokens.Punctuation:
                 if table_name_tokens:
                     next_token = self._token_next(parent, current_token)
