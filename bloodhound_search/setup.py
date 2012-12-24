@@ -29,7 +29,7 @@ Add free text search and query functionality to Bloodhound sites.
 """
 
 versions = [
-    (0, 4, 0),
+    (0, 4, 1),
     ]
 
 latest = '.'.join(str(x) for x in versions[-1])
@@ -95,11 +95,11 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
                               'htdocs/img/*.*', 'htdocs/js/*.js',
                               'templates/*', 'default-pages/*'],
                           ),
-#            'search.widgets' : ('search/widgets',     # Package dir
+#            'search.widgets' : ('bhsearch/widgets',     # Package dir
 #                            # Package data
 #                            ['templates/*', 'htdocs/*.css'],
 #                          ),
-#            'search.layouts' : ('search/layouts',     # Package dir
+#            'search.layouts' : ('bhsearch/layouts',     # Package dir
 #                            # Package data
 #                            ['templates/*'],
 #                          ),
@@ -109,21 +109,38 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
                           ),
             }
 
-ENTRY_POINTS = r"""
-               [trac.plugins]
-               bhsearch.web_ui = bhsearch.web_ui
-               bhsearch.api = bhsearch.api
-               """
+#ENTRY_POINTS = r"""
+#               [trac.plugins]
+#               bhsearch.web_ui = bhsearch.web_ui
+#               bhsearch.api = bhsearch.api
+#               bhsearch.admin = bhsearch.admin
+#               bhsearch.ticket_search = bhsearch.ticket_search
+#               bhsearch.query_parser = bhsearch.query_parser
+#               bhsearch.whoosh_backend = bhsearch.whoosh_backend
+#               """
+ENTRY_POINTS = {
+        'trac.plugins': [
+            'bhsearch.web_ui = bhsearch.web_ui',
+            'bhsearch.api = bhsearch.api',
+            'bhsearch.admin = bhsearch.admin',
+            'bhsearch.ticket_search = bhsearch.ticket_search',
+            'bhsearch.query_parser = bhsearch.query_parser',
+            'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
+        ],
+    }
+#bhsearch.whoosh_backend = bhsearch.whoosh_backend
+#bhsearch.ticket_search = bhsearch.ticket_search
 
 setup(
     name=DIST_NM,
     version=latest,
     description=DESC.split('\n', 1)[0],
     requires = ['trac'],
-    tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
+#    tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
     install_requires = [
         'setuptools>=0.6b1',
         'Trac>=0.11',
+        'whoosh>=2.4.1',
     ],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),

@@ -17,18 +17,22 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import doctest
-import unittest
-from bhsearch.tests import whoosh_backend, index_with_whoosh, web_ui, ticket_search, api
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(index_with_whoosh.suite())
-    suite.addTest(whoosh_backend.suite())
-    suite.addTest(web_ui.suite())
-    suite.addTest(ticket_search.suite())
-    suite.addTest(api.suite())
-    return suite
+r"""Administration commands for Bloodhound Search."""
+from trac.admin import *
+from bhsearch.api import BloodhoundSearchApi
 
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+class BloodhoundSearchAdmin(Component):
+    """Bloodhound Search administration component."""
+
+    implements(IAdminCommandProvider)
+
+    # IAdminCommandProvider methods
+    def get_admin_commands(self):
+        yield ('bhsearch rebuild', '',
+            'Rebuild Bloodhound Search index',
+            None, BloodhoundSearchApi(self.env).rebuild_index)
+        yield ('bhsearch optimize', '',
+            'Optimize Bloodhound search index',
+            None, BloodhoundSearchApi(self.env).optimize)
+

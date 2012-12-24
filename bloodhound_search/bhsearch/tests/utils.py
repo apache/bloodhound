@@ -17,18 +17,34 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import doctest
+
+r"""
+Test utils methods
+"""
+import pprint
 import unittest
-from bhsearch.tests import whoosh_backend, index_with_whoosh, web_ui, ticket_search, api
+from trac.ticket import Ticket
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(index_with_whoosh.suite())
-    suite.addTest(whoosh_backend.suite())
-    suite.addTest(web_ui.suite())
-    suite.addTest(ticket_search.suite())
-    suite.addTest(api.suite())
-    return suite
+class BaseBloodhoundSearchTest(unittest.TestCase):
+    def print_result(self, result):
+        print "Received result:"
+        pprint.pprint(result.__dict__)
 
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+    def create_dummy_ticket(self, summary = None):
+        if not summary:
+            summary = 'Hello World'
+        data = {'component': 'foo', 'milestone': 'bar'}
+        return self.create_ticket(summary, reporter='john', **data)
+
+    def create_ticket(self, summary, **kw):
+        ticket = Ticket(self.env)
+        ticket["summary"] = summary
+        for k, v in kw.items():
+            ticket[k] = v
+        return ticket
+
+    def insert_ticket(self, summary, **kw):
+        """Helper for inserting a ticket into the database"""
+        ticket = self.create_ticket(summary, **kw)
+        return ticket.insert()
+
