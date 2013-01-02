@@ -80,7 +80,8 @@ Arguments:
       <py:for each="field in fields">
         <py:if test="field.name == 'keywords'">
           <div title="Keywords">
-            <i class="icon-tags"></i> ${field.rendered}
+            <i class="icon-tags"></i>
+            <span data-edit="${'inplace' if can_modify or can_edit or can_create else None}" id="vc-keywords">${field.rendered}</span>
           </div>
         </py:if>
       </py:for>
@@ -105,7 +106,9 @@ Arguments:
                 title="Reply, quoting this description" />
           </form>
         </div>
-        <div py:if="ticket.description" class="searchable" xml:space="preserve">
+        <div py:if="ticket.description" class="searchable" xml:space="preserve"
+            data-edit="${'inplace' if can_edit or can_create else None}"
+            id="vc-description">
           ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
         </div>
         <br py:if="not ticket.description" style="clear: both" />

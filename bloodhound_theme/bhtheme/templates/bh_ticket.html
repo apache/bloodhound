@@ -163,7 +163,9 @@
           <div id="overview" class="stickyStatus $colspan">
             <div class="whitebox"></div>
             <div class="properties">
-              <h2 class="summary searchable clip-affix" py:choose="">
+              <h2 class="summary searchable clip-affix" py:choose=""
+                  data-edit="${'inplace' if can_modify or can_create else None}"
+                  id="vc-summary">
                 <py:when test="ticket.exists">&#9734; $ticket.summary</py:when>
                 <py:otherwise>Create Ticket</py:otherwise>
               </h2>
@@ -232,7 +234,8 @@
                           Reporter:
                         </h5>
                       </div>
-                      <div class="span2">
+                      <div class="span2" id="vc-reporter"
+                          data-edit="${'inplace' if only_for_admin else None}">
                         ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
                         &nbsp;
                       </div>
@@ -402,7 +405,7 @@ ${comment}</textarea>
                           <th><label for="field-reporter">Reporter:</label></th>
                           <td class="fullrow" colspan="3">
                             <input type="text" id="field-reporter" name="field_reporter"
-                                   value="${ticket.reporter}" size="70" />
+                                   value="${ticket.reporter}" class="input-medium" />
                           </td>
                         </tr>
                       </py:if>
