@@ -47,7 +47,8 @@ Arguments:
               <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
             </h5>
           </div>
-          <div class="${'span2' if is_inline else None}">
+          <div class="${'span2' if is_inline else None}" data-edit="inplace" 
+              id="${'vc-' + field.name if field else None}">
             <py:if test="field">
               <py:choose test="">
                 <py:when test="'rendered' in field">${field.rendered}</py:when>

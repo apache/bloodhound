@@ -230,6 +230,11 @@ pre.wiki {
   margin-left: 25px;
 }
 
+.ticket textarea {
+  height: auto;
+  width: auto;
+}
+
 /* @end */
 
 /* @group Quick Ticket fieldset */

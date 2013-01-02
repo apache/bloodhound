@@ -41,6 +41,32 @@
         $(".local-nav a").click(function() { $($(this).attr('href')).removeClass('collapsed').parent().removeClass("collapsed"); });
         $('.trac-nav').hide();
         $('.trac-topnav').hide();
+
+        // Install in place editing
+
+        var modify_elem = $('#modify');
+        modify_elem.parent().hide();
+  
+        function modify_ticket() {
+          $('[data-edit="inplace"]').each(function() {
+              var fc = $(this);
+              var fieldurl = fc.find('a').attr('href');
+              var fieldnm = fc.attr('id').substr(3);
+              fc.empty();
+              var editor = $('#properties #field-' + fieldnm);
+              if (editor.length == 0)
+                editor = $('#editor-' + fieldnm);
+              var fieldval = editor.val();
+              editor = editor.clone(false).appendTo(fc).val(fieldval);
+              if (editor.prop('tagName') == 'TEXTAREA') {
+                if (editor.is('.wikitext'))
+                  addWikiFormattingToolbar(editor.get(0));
+              }
+            });
+        }
+  
+        $('.local-nav a[href = "#inplace-edit"]').click(modify_ticket);
+
         $('body').scrollspy({ 
             'target' : '.local-nav' , 
             'offset' : $('.stickyBox').height() + 40
@@ -173,7 +199,7 @@
                         (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
                         (_('Comments'), 'changelog', True, _('Go to the changelog'), 'icon-comment'),
                         (_('Add comment'), 'propertyform', ticket.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
-                        (_('Modify Ticket'), 'modify', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
+                        (_('Modify Ticket'), 'inplace-edit', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
                     )">
               <div>
                 <small>
@@ -408,9 +434,10 @@ ${ticket.description}</textarea>
                               field.edit_label or field.label or field.name}:</label>
                           </th>
                           <td class="col${idx + 1}" py:if="idx == 0 or not fullrow"
-                              colspan="${3 if fullrow else None}">
+                              colspan="${3 if fullrow else None}"
+                              id="${'editor-' + field.name if field else None}">
                             <py:choose test="field.type" py:if="field">
-                              <select py:when="'select'" id="field-${field.name}" name="field_${field.name}">
+                              <select py:when="'select'" id="field-${field.name}" name="field_${field.name}" class="input-medium">
                                 <option py:if="field.optional"></option>
                                 <option py:for="option in field.options"
                                         selected="${value == option or None}"
