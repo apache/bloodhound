@@ -66,7 +66,7 @@ Arguments:
       text_fields = [f for f in basefields if f.type == 'text' or f.name == 'cc'];
       area_fields = [f for f in basefields if f.type == 'textarea'];
       _colcount = colcount or 6">
-    <div class="properties" style="margin: 1.2em 0px">
+    <div class="properties" style="margin-bottom: 1.2em">
       <py:with vars="_fields, csscls, count, fontsize, is_inline = 
           (small_fields, 'span4', _colcount / 2, None, True)">
         <py:for each="fields_row in group(_fields, count)">

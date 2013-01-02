@@ -138,13 +138,13 @@
             <div class="whitebox"></div>
             <div class="properties">
               <h2 class="summary searchable clip-affix" py:choose="">
-                <py:when test="ticket.exists">$ticket.summary</py:when>
+                <py:when test="ticket.exists">&#9734; $ticket.summary</py:when>
                 <py:otherwise>Create Ticket</py:otherwise>
               </h2>
             </div>
             <div class="row">
-              <div class="span3">
-                <h5 id="trac-ticket-title" py:choose="">
+              <span class="ownership">
+                <py:choose test="">
                   <py:when test="ticket.exists">
                     <a href="${href.ticket(ticket.id)}"
                         i18n:msg="id">Ticket #${ticket.id}</a>
@@ -152,25 +152,20 @@
                   <py:otherwise>
                     New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
                   </py:otherwise>
-                </h5>
-              </div>
-              <div class="offset3">
-                <h6 class="date pull-right">
-                  <span i18n:msg="created" py:if="ticket.exists">Opened ${pretty_dateinfo(ticket.time)}</span>
-                  <py:if test="ticket.changetime != ticket.time">,
-                    <span i18n:msg="modified">Last modified ${pretty_dateinfo(ticket.changetime)}</span>
+                </py:choose>
+                <py:if test="ticket.exists"> - 
+                  <py:if test="ticket.changetime != ticket.time">
+                    <span i18n:msg="modified">Last modified 
+                      <time datetime="${ticket.changetime.strftime('%Y-%m-%d')}">
+                        ${pretty_dateinfo(ticket.changetime)}
+                      </time>.
+                    </span>
                   </py:if>
-                  <span py:if="not ticket.exists" class="label label-warning">(ticket not yet created)</span>
-                </h6>
-                <h6 class="pull-right">
-                  <span id="h_reporter">Reported by
-                    ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
-                  </span>,
-                  <span id="h_owner">Assigned to
-                    ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
-                  </span>
-                </h6>
-              </div>
+                </py:if>
+                <span id="h_owner">Assigned to
+                  ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}.
+                </span>
+              </span>
             </div>
             <div class="local-nav" py:if="ticket.exists"
                 py:with="sections = (
@@ -201,29 +196,69 @@
         </script>
         <py:if test="ticket.exists">
           <div class="row">
-            <div class="span6">
-              <h4 class="status"><small>${ticket.status}<py:if
-                  test="ticket.type"> ${ticket.type}</py:if><py:if
-                  test="ticket.resolution">: ${ticket.resolution}</py:if></small></h4>
-              <py:choose test="">
-                <py:when test="version is None" />
-                <py:when test="version == 0">
-                  &mdash;
-                  <small>
-                    <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
-                  </small>
-                </py:when>
-                <py:otherwise>
-                  &mdash;
-                  <small>
-                    <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
-                  </small>
-                </py:otherwise>
-              </py:choose>
-            </div>
-          </div>
-          <div class="row">
             <div class="$colspan">
+              <div>
+                <div class="row">
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_reporter" class="pull-right">
+                          Reporter:
+                        </h5>
+                      </div>
+                      <div class="span2">
+                        ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_reporter" class="pull-right">
+                          Opened:
+                        </h5>
+                      </div>
+                      <div class="span2">
+                        <time datetime="${ticket.time.strftime('%Y-%m-%d')}">
+                          ${pretty_dateinfo(ticket.time)}
+                        </time>
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_type" class="pull-right">
+                          Type:
+                        </h5>
+                      </div>
+                      <div class="span2">
+                        <small py:if="ticket.type">${ticket.type}</small>
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_status" class="pull-right">
+                          Status:
+                        </h5>
+                      </div>
+                      <div class="span2">
+                        <small>${ticket.status}
+                          <py:if test="ticket.resolution">: ${ticket.resolution}</py:if>
+                        </small>
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <xi:include href="bh_ticket_box.html"
                   py:with="preview_mode = change_preview.fields ; 
                       colcount = 4 if bhdb else 6"/>
