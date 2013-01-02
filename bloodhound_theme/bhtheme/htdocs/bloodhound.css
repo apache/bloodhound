@@ -210,10 +210,6 @@ pre.wiki {
   width: auto;
 }
 
-#field-summary {
-  width: 505px;
-}
-
 .bh-ticket-buttons {
   padding-left: 5px;
 }
@@ -289,6 +285,9 @@ h1, h2, h3, h4 {
   white-space: nowrap;
 }
 
+.clip.edit-active, .affix .clip-affic.edit-active {
+  overflow: visible;
+}
 /* @end */
 
 /* @group Alternate download links */
@@ -464,6 +463,10 @@ input[type="submit"].btn.btn-micro {
   .hidden-desktop {
     display: inherit !important;
   }
+}
+
+.help-msg[title] {
+  cursor: help;
 }
 
 /* Revert some changes introduced in 2.1.0 */
