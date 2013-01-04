@@ -327,7 +327,8 @@
                           Type:
                         </h5>
                       </div>
-                      <div class="span2">
+                      <div id="vc-type" class="span2"
+                          data-edit="${'inplace' if can_modify or can_edit or can_create else None}">
                         <small py:if="ticket.type">${ticket.type}</small>
                         &nbsp;
                       </div>
