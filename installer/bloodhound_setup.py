@@ -95,7 +95,6 @@ ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
                                        'htdigest_realm' : '',
                                        'htpasswd_file' : '',
                                        'htpasswd_hash_type' : 'crypt',
-                                       'password_file' : '',
                                        'password_store' : 'HtDigestStore',
                                        'persistent_sessions' : 'False',
                                        'refresh_passwd' : 'False',
@@ -197,7 +196,6 @@ class BloodhoundSetup(object):
         accounts_config = dict(ACCOUNTS_CONFIG)
         accounts_config['account-manager']['htdigest_file'] = digestfile
         accounts_config['account-manager']['htdigest_realm'] = realm
-        accounts_config['account-manager']['password_file'] = digestfile
 
         trac = TracAdmin(os.path.abspath(new_env))
         if not trac.env_check():
