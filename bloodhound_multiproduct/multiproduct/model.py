@@ -86,6 +86,7 @@ class ProductResourceMap(ModelBase):
             'non_key_fields':['product_id','resource_type','resource_id',],
             'no_change_fields':['id',],
             'unique_fields':[],
+            'auto_inc_fields': ['id'],
             }
     
     def reparent_resource(self, product=None):
