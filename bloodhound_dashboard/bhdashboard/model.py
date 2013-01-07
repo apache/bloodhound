@@ -47,6 +47,7 @@ class ModelBase(object):
              'object_name':'WhatIWillCallMyselfInMessages',
              'key_fields':['id','id2'],
              'non_key_fields':['thing','anotherthing'],
+             'auto_inc_fields': ['id',],
              }
     """
     
@@ -232,7 +233,10 @@ class ModelBase(object):
     
     @classmethod
     def _get_schema(cls):
-        fields =  [Column(field) for field in cls._get_fields()]
+        """Generate schema from the class meta data"""
+        auto_inc =  cls._meta.get('auto_inc_fields', [])
+        fields =  [Column(f, auto_increment=f in auto_inc)
+                   for f in cls._get_fields()]
         return Table(cls._meta['table_name'], key=set(cls._meta['key_fields'] +
                             cls._meta['unique_fields'])) [fields]
 
