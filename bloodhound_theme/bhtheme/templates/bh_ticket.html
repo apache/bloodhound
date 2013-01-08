@@ -55,7 +55,7 @@
         // Install in place editing
 
         var modify_elem = $('#modify');
-        modify_elem.parent().hide();
+        <py:if test="ticket.exists">modify_elem.parent().hide();</py:if>
   
         function modify_ticket() {
           if ($('#vc-summary').is('.edit-active'))
