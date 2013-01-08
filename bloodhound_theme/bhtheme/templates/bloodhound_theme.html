@@ -104,45 +104,37 @@
                 <option py:if="field.optional"></option>
                 <option py:for="option in field.options"
                         selected="${value == option or None}"
+                        value = "$option"
                         py:content="option"></option>
                 <optgroup py:for="optgroup in field.optgroups"
                           py:if="optgroup.options"
                           label="${optgroup.label}">
                   <option py:for="option in optgroup.options"
                           selected="${value == option or None}"
+                          value = "$option"
                           py:content="option"></option>
                 </optgroup>
               </select>
             </py:def>
             <py:def function="qct_box()">
-              <label for="field-summary">Summary</label>
-              <input type="text" id="field-summary"
-                  name="field_summary" placeholder="Ticket summary" />
+              <div>
+                <label for="field-summary">Summary</label>
+                <input type="text" id="field-summary"
+                    name="field_summary" placeholder="Ticket summary" />
+              </div>
+              <div>
+                <label for="field-description">Description</label>
+                <textarea id="field-description" name="field_description"
+                    rows="3" cols="28"
+                    placeholder="Ticket description"></textarea>
+              </div>
               <div class="form-horizontal">
-                <py:if test="qct.fields.product">
-                <label class="control-label" for="field-product">Product</label>
-                <div class="controls">
-                  ${field_select(qct.fields.product, None)}
-                </div>
-                </py:if>
-                <py:if test="qct.fields.version">
-                <label class="control-label" for="field-version">Version</label>
-                <div class="controls">
-                  ${field_select(qct.fields.version, None)}
-                </div>
-                </py:if>
-                <py:if test="qct.fields.type">
-                <label class="control-label" for="field-type">Type</label>
-                <div class="controls">
-                  ${field_select(qct.fields.type, None)}
-                </div>
-                </py:if>
-                <py:if test="qct.fields.component">
-                <label class="control-label" for="field-component">Component</label>
-                <div class="controls">
-                  ${field_select(qct.fields.component, None)}
-                </div>
-                </py:if>
+                <py:for each="field in qct.fields">
+                  <label class="control-label" for="field-${field.name}">${field.label}</label>
+                  <div class="controls">
+                    ${field_select(field, None)}
+                  </div>
+                </py:for>
               </div>
             </py:def>
             <py:choose test="">
@@ -156,7 +148,13 @@
                   <div id="qct-box" class="dropdown-menu" style="width: 300px;"
                       py:choose="">
                     <div class="popover-title">
-                      <a href="${href.newticket()}"><h3>Create Ticket</h3></a>
+                      <h3>
+                        Create Ticket
+                        <a style="top: -33px; right: -25px; position: relative;" 
+                            class="pull-right" href="${href.newticket()}">
+                          <small>Full dialogue &raquo;</small>
+                        </a>
+                      </h3>
                     </div>
                     <div class="popover-content">
                       <py:when test="'TICKET_CREATE' in perm">
@@ -278,8 +276,8 @@
       <div class="row footer">
         <div class="span8">
           ${chrome.labels.footer_left_prefix}
-          Powered by <a href="http://www.apache.org/">Apache<sup>TM</sup></a> 
-          <a href="${href.about()}">${chrome.labels.application_short} 
+          Powered by  
+          <a href="${href.about()}">${chrome.labels.application_full} 
           ${chrome.labels.application_version}</a>
           ${chrome.labels.footer_left_postfix}
         </div>

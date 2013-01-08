@@ -25,6 +25,7 @@ from sqlite3 import OperationalError
 
 from trac.test import EnvironmentStub
 from trac.core import TracError
+
 from multiproduct.model import Product
 from multiproduct.api import MultiProductSystem
 
@@ -158,6 +159,6 @@ class ProductTestCase(unittest.TestCase):
         product.description = new_description
         self.assertEqual(new_description, product.description)
 
-if __name__ == '__main_':
+if __name__ == '__main__':
     unittest.main()
 

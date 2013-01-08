@@ -196,7 +196,7 @@ class DashboardModule(Component):
                                     'query' : 'status=!closed&group=milestone'\
                                         '&col=id&col=summary&col=owner' \
                                         '&col=status&col=priority&' \
-                                        'order=priority&desc=1',
+                                        'order=priority',
                                     'title' : 'Active Tickets'}}],
                             'altlinks' : False
                         },
@@ -209,7 +209,7 @@ class DashboardModule(Component):
                                     'query' : 'status=!closed&group=milestone'\
                                         '&col=id&col=summary&col=owner' \
                                         '&col=status&col=priority&' \
-                                        'order=priority&desc=1&' \
+                                        'order=priority&' \
                                         'owner=$USER',
                                     'title' : 'My Tickets'}
                                 }],

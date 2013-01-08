@@ -23,26 +23,27 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      py:with="can_revoke = 'PERMISSION_REVOKE' in perm">
   <xi:include href="bh_admin.html" />
   <head>
     <title>Permissions</title>
   </head>
 
   <body>
-    <h2>Manage Permissions</h2>
+    <h2>Manage Permissions and Groups</h2>
 
     <div class="row">
-      <div class="${'PERMISSION_GRANT' in perm and 'span6' or 'span9'}">
-        <form id="revokeform" method="post" 
-            py:with="revoke_perm = 'PERMISSION_REVOKE' in perm" action="">
+      <div class="${can_revoke and 'span6' or 'span9'}">
+        <form id="revokeform" method="post" action="">
+          <h3>Permissions</h3>
           <table class="table table-bordered table-striped table-condensed" 
               id="permlist">
             <thead>
               <tr><th>Subject</th><th class="full-x">Action</th></tr>
             </thead>
             <tbody>
-              <tr py:for="idx, (subject, perm_group) in enumerate(groupby(sorted(perms), key=lambda tmp: tmp[0]))"
+              <tr py:for="idx, (subject, perm_group) in enumerate(groupby(sorted(perms), key=lambda p: p[0]))"
                   class="${'odd' if idx % 2 else 'even'}">
                 <td>$subject</td>
                 <td>
@@ -53,7 +54,7 @@
                     <!--! base64 make it safe to use ':' as separator when passing
                           both subject and action as one query parameter -->
                     <label for="$subject_action_id" class="checkbox inline">
-                      <input py:if="revoke_perm" type="checkbox"
+                      <input py:if="can_revoke" type="checkbox"
                              id="$subject_action_id"
                              name="sel" value="$subject_action" />
                       $action
@@ -63,8 +64,39 @@
               </tr>
             </tbody>
           </table>
+
+          <h3>Group Membership</h3>
+          <table class="table table-bordered table-striped table-condensed" 
+              id="grouplist">
+            <thead>
+              <tr><th>Subject</th><th class="full-x">Action</th></tr>
+            </thead>
+            <tbody>
+              <tr py:for="idx, (group, subj_group) in enumerate(groupby(sorted(groups, key=lambda p: p[1]),
+                                                                        key=lambda p: p[1]))"
+                  class="${'odd' if idx % 2 else 'even'}">
+                <td>$group</td>
+                <td>
+                  <py:for each="cnt, (subject,action) in enumerate(sorted(subj_group))"
+                          py:with="subject_action='%s:%s' % (unicode_to_base64(subject),
+                                                             unicode_to_base64(action));
+                                   subject_action_id='gmsa-%d-%d' % (idx, cnt)">
+                    <!--! base64 makes it safe to use ':' as separator when passing
+                          both subject and action as one query parameter -->
+                    <label for="$subject_action_id" class="checkbox inline">
+                      <input py:if="can_revoke" type="checkbox"
+                             id="$subject_action_id"
+                             name="sel" value="$subject_action" />
+                      $subject
+                    </label>
+                  </py:for>
+                </td>
+              </tr>
+              <tr py:if="not groups"><td colspan="2">No group memberships</td></tr>
+            </tbody>
+          </table>
           <br/>
-          <div class="control-group" py:if="revoke_perm">
+          <div class="control-group" py:if="can_revoke">
             <input class="btn" type="submit" name="remove"
                 value="${_('Remove selected items')}" />
           </div>
@@ -76,6 +108,7 @@
           as that is reserved for permission names.
         </p>
       </div>
+
       <div class="span3" py:if="'PERMISSION_GRANT' in perm">
         <form id="addperm" class="well" method="post" action="">
           <fieldset>

@@ -23,15 +23,40 @@ r"""Project dashboard for Apache(TM) Bloodhound
 
 Administration commands for Bloodhound Dashboard.
 """
+import json
 import pkg_resources
+from sys import stdout
 
 from trac.admin.api import IAdminCommandProvider, AdminCommandError
 from trac.core import Component, implements
+from trac.db_default import schema as tracschema
 from trac.util.text import printout
 from trac.util.translation import _
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.model import WikiPage
 from bhdashboard import wiki
+
+try:
+    from multiproduct.model import Product, ProductResourceMap
+except ImportError:
+    Product = None
+    ProductResourceMap = None
+
+schema = tracschema[:]
+if Product is not None:
+    schema.extend([Product._get_schema(), ProductResourceMap._get_schema()])
+
+structure = dict([(table.name, [col.name for col in table.columns])
+                  for table in schema])
+
+# add product for any columns required
+for table in ['ticket',]:
+    structure[table].append('product')
+
+# probably no point in keeping data from these tables
+ignored = ['auth_cookie', 'session', 'session_attribute', 'cache']
+IGNORED_DB_STRUCTURE = dict([(k, structure[k]) for k in ignored])
+DB_STRUCTURE = dict([(k, structure[k]) for k in structure if k not in ignored])
 
 class BloodhoundAdmin(Component):
     """Bloodhound administration commands.
@@ -46,6 +71,21 @@ class BloodhoundAdmin(Component):
         yield ('wiki bh-upgrade', '',
                 'Move Trac* wiki pages to %s/*' % wiki.GUIDE_NAME,
                 None, self._do_wiki_upgrade)
+
+        yield ('devfixture dump', '[filename]',
+               """Dumps database to stdout in a form suitable for reloading
+
+               If a filename is not provided, data will be sent standard out.
+               """,
+               None, self._dump_as_fixture)
+
+        yield ('devfixture load', '<filename> <backedup>',
+               """Loads database fixture from json dump file
+
+               You need to specify a filename and confirm that you have backed
+               up your data.
+               """,
+               None, self._load_fixture_from_file)
 
     def _do_wiki_upgrade(self):
         """Move all wiki pages starting with Trac prefix to unbranded user
@@ -95,3 +135,56 @@ class BloodhoundAdmin(Component):
                             WHERE name=%s
                             """, 
                          (re.sub(r'\b%s\b' % old_name, new_name, text), name))
+
+    def _get_tdump(self, db, table, fields):
+        """Dumps all the data from a table for a known set of fields"""
+        return db("SELECT %s from %s" %(', '.join(fields), table))
+
+    def _dump_as_fixture(self, *args):
+        """Dumps database to a json fixture"""
+        def dump_json(fp):
+            """Dump to json given a file"""
+            with self.env.db_query as db:
+                data = [(k, v, self._get_tdump(db, k, v))
+                        for k, v in DB_STRUCTURE.iteritems()]
+                jd = json.dumps(data, sort_keys=True, indent=2,
+                                separators=(',', ':'))
+                fp.write(jd)
+
+        if len(args):
+            f = open(args[0], mode='w+')
+            dump_json(f)
+            f.close()
+        else:
+            dump_json(stdout)
+
+    def _load_fixture_from_file(self, fname):
+        """Calls _load_fixture with an open file"""
+        try:
+            fp = open(fname, mode='r')
+            self._load_fixture(fp)
+            fp.close()
+        except IOError:
+            printout(_("The file '%(fname)s' does not exist", fname=fname))
+
+    def _load_fixture(self, fp):
+        """Extract fixture data from a file like object, expecting json"""
+        # Only delete if we think it unlikely that there is data to lose
+        with self.env.db_query as db:
+            if db('SELECT * FROM ticket'):
+                printout(_("This command is only intended to run on fresh "
+                           "environments as it will overwrite the database.\n"
+                           "If it is safe to lose bloodhound data, delete the "
+                           "environment and re-run python bloodhound_setup.py "
+                           "before attempting to load the fixture again."))
+                return
+        data = json.load(fp)
+        with self.env.db_transaction as db:
+            for tab, cols, vals in data:
+                db("DELETE FROM %s" %(tab))
+            for tab, cols, vals in data:
+                printout("Populating %s table" % tab)
+                db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (tab,
+                        ','.join(cols), ','.join(['%s' for c in cols])), vals)
+                printout("%d records added" % len(vals))
+                

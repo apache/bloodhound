@@ -25,7 +25,16 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
-      py:with="preview_mode = 'preview' in req.args">
+      py:with="preview_mode = 'preview' in req.args;
+          can_append = 'TICKET_APPEND' in perm(ticket.resource);
+          can_create = 'TICKET_CREATE' in perm(ticket.resource) and not ticket.exists;
+          can_modify = 'TICKET_CHGPROP' in perm(ticket.resource);
+          can_edit = 'TICKET_EDIT_DESCRIPTION' in perm(ticket.resource);
+          only_for_admin = 'TICKET_ADMIN' in perm(ticket.resource);
+          has_edit_comment = 'TICKET_EDIT_COMMENT' in perm(ticket.resource);
+          has_property_editor = not version and version != 0 and not cnum_edit
+                                and (can_append or can_modify or can_edit or can_create);
+          colspan = 'span8' if bhdb else 'span12'">
   <xi:include href="layout.html" />
   <xi:include href="widget_macros.html" />
 
@@ -41,6 +50,84 @@
         $(".local-nav a").click(function() { $($(this).attr('href')).removeClass('collapsed').parent().removeClass("collapsed"); });
         $('.trac-nav').hide();
         $('.trac-topnav').hide();
+
+        <py:if test="has_property_editor">
+        // Install in place editing
+
+        var modify_elem = $('#modify');
+        modify_elem.parent().hide();
+  
+        function modify_ticket() {
+          if ($('#vc-summary').is('.edit-active'))
+            // Already in editable state
+            return;
+          $('[data-edit="inplace"]').each(function() {
+              var fc = $(this).addClass('edit-active');
+              var fieldnm = fc.attr('id').substr(3);
+              fc.attr('data-edit-orig', fc.html()).empty();
+              var editor = $('#properties #field-' + fieldnm);
+              if (editor.length == 0)
+                editor = $('#editor-' + fieldnm);
+              var fieldval = editor.val();
+              editor = editor.clone(false).appendTo(fc).val(fieldval);
+              if (editor.prop('tagName') === 'TEXTAREA') {
+                if (editor.is('.wikitext'))
+                  addWikiFormattingToolbar(editor.get(0));
+              }
+              if (fieldnm === 'summary') {
+                // Install inline edit form 
+                var submit_ticket = $('#tmpl-inplace-submit').html();
+                submit_ticket = $(submit_ticket).prepend(editor)
+                    .appendTo(fc);
+                submit_ticket.find('#edit-cancel').click(revert_ticket);
+                editor.wrap('<div class="btn-group"></div>')
+
+                // Workflow actions
+                var actions_box = submit_ticket.find('#workflow-actions')
+                    .click(function(e) { e.stopPropagation(); });
+                $('#action').children('div').each(function() {
+                    var action_ui = $(this).clone(false).prependTo(actions_box)
+                        .wrap('<li style="padding: 5px 10px"></li>');
+                    var action_trigger = action_ui.find('input[name=action]');
+
+                    function action_click() {
+                      var newlabel = action_ui.find('label[for^=action_]')
+                          .text();
+                      $('#submit-action-label').text(newlabel);
+
+                      // Enable | disable action controls
+                      actions_box.find('input[name=action]').each(function() {
+                          $(this).siblings().find("*[id]")
+                              .enable($(this).checked());
+                          $(this).siblings().filter("*[id]")
+                              .enable($(this).checked());
+                        });
+                    }
+                    action_trigger.click(action_click);
+                    if (action_trigger.attr('checked'))
+                      action_click();
+
+                    var action_help = action_ui.find('.help-block').detach()
+                        .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
+                        .replace(/^\s$/, '');
+                    if (action_help)
+                        $('<i class="icon-info-sign"></i>').appendTo(action_ui)
+                            .attr('title', action_help);
+                  })
+              }
+            });
+        }
+
+        function revert_ticket() {
+          $('[data-edit="inplace"]').each(function() {
+              var fc = $(this).removeClass('edit-active');
+              fc.html(fc.attr('data-edit-orig'));
+            });
+        }
+
+        $('.local-nav a[href = "#inplace-edit"]').click(modify_ticket);
+        </py:if>
+
         $('body').scrollspy({ 
             'target' : '.local-nav' , 
             'offset' : $('.stickyBox').height() + 40
@@ -117,117 +204,157 @@
       <a href="#comment:$cnum" class="$cls">$prefix$cnum</a>
     </py:def>
 
-    <div id="content" class="ticket row"
-         py:with="can_append = 'TICKET_APPEND' in perm(ticket.resource);
-                  can_create = 'TICKET_CREATE' in perm(ticket.resource) and not ticket.exists;
-                  can_modify = 'TICKET_CHGPROP' in perm(ticket.resource);
-                  can_edit = 'TICKET_EDIT_DESCRIPTION' in perm(ticket.resource);
-                  only_for_admin = 'TICKET_ADMIN' in perm(ticket.resource);
-                  has_edit_comment = 'TICKET_EDIT_COMMENT' in perm(ticket.resource);
-                  has_property_editor = not version and version != 0 and not cnum_edit
-                                        and (can_append or can_modify or can_edit or can_create);
-                  colspan = 'span8' if bhdb else 'span12'">
+    <div id="content" class="ticket row">
       <div class="trac-topnav span2" py:if="ticket.exists and has_property_editor">
         <a href="#propertyform" title="Go to the ticket editor">Modify</a> &darr;
       </div>
       <br/>
 
       <div class="$colspan">
-        <div class="stickyBox">
-          <div id="overview" class="stickyStatus $colspan">
-            <div class="whitebox"></div>
-            <div class="properties">
-              <h2 class="summary searchable clip-affix" py:choose="">
-                <py:when test="ticket.exists">$ticket.summary</py:when>
-                <py:otherwise>Create Ticket</py:otherwise>
-              </h2>
-            </div>
-            <div class="row">
-              <div class="span3">
-                <h5 id="trac-ticket-title" py:choose="">
-                  <py:when test="ticket.exists">
-                    <a href="${href.ticket(ticket.id)}"
-                        i18n:msg="id">Ticket #${ticket.id}</a>
-                  </py:when>
-                  <py:otherwise>
-                    New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
-                  </py:otherwise>
-                </h5>
-              </div>
-              <div class="offset3">
-                <h6 class="date pull-right">
-                  <span i18n:msg="created" py:if="ticket.exists">Opened ${pretty_dateinfo(ticket.time)}</span>
-                  <py:if test="ticket.changetime != ticket.time">,
-                    <span i18n:msg="modified">Last modified ${pretty_dateinfo(ticket.changetime)}</span>
-                  </py:if>
-                  <span py:if="not ticket.exists" class="label label-warning">(ticket not yet created)</span>
-                </h6>
-                <h6 class="pull-right">
-                  <span id="h_reporter">Reported by
-                    ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
-                  </span>,
-                  <span id="h_owner">Assigned to
-                    ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
-                  </span>
-                </h6>
-              </div>
-            </div>
-            <div class="local-nav" py:if="ticket.exists"
-                py:with="sections = (
-                        (_('Overview'), 'content', True, _('View ticket fields and description'), 'icon-list'),
-                        (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
-                        (_('Comments'), 'changelog', True, _('Go to the changelog'), 'icon-comment'),
-                        (_('Add comment'), 'propertyform', ticket.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
-                        (_('Modify Ticket'), 'modify', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
-                    )">
-              <div>
-                <small>
-                  <ul class="nav btn-group">
-                    <li py:for="s in sections" py:if="s[2]" class="btn">
-                      <a href="#${s[1]}" title="${s[3]}">
-                        <i class="${s[4]}"></i>
-                        ${s[0]}
-                      </a>
-                    </li>
-                  </ul>
-                </small>
-              </div>
-            </div>
-            <div class="stickyEndMark"></div>
-          </div>
-        </div>
-        <script type="text/javascript">
-          setup_sticky_panel('#overview');
-        </script>
         <py:if test="ticket.exists">
           <div class="row">
-            <div class="span6">
-              <h4 class="status"><small>${ticket.status}<py:if
-                  test="ticket.type"> ${ticket.type}</py:if><py:if
-                  test="ticket.resolution">: ${ticket.resolution}</py:if></small></h4>
-              <py:choose test="">
-                <py:when test="version is None" />
-                <py:when test="version == 0">
-                  &mdash;
-                  <small>
-                    <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
-                  </small>
-                </py:when>
-                <py:otherwise>
-                  &mdash;
-                  <small>
-                    <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
-                  </small>
-                </py:otherwise>
-              </py:choose>
-            </div>
-          </div>
-          <div class="row">
-            <div class="$colspan">
+            <div class="$colspan"><form py:strip="not has_property_editor" method="post" 
+                id="inplace-propertyform"
+                action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists
+                          else href.newticket() + '#ticket'}">
+              <py:if test="has_property_editor">
+                <input type="hidden" name="start_time" 
+                    value="${to_utimestamp(start_time)}" />
+                <input type="hidden" name="view_time" 
+                    value="${to_utimestamp(ticket['changetime'])}" />
+              </py:if>
+              <div class="stickyBox">
+                <div id="overview" class="stickyStatus $colspan">
+                  <div class="whitebox"></div>
+                  <div class="properties">
+                    <h2 class="summary searchable clip-affix" py:choose=""
+                        data-edit="${'inplace' if can_modify or can_create else None}"
+                        id="vc-summary">
+                      <py:when test="ticket.exists">&#9734; $ticket.summary</py:when>
+                      <py:otherwise>Create Ticket</py:otherwise>
+                    </h2>
+                  </div>
+                  <div class="row">
+                    <span class="ownership">
+                      <py:choose test="">
+                        <py:when test="ticket.exists">
+                          <a href="${href.ticket(ticket.id)}"
+                              i18n:msg="id">Ticket #${ticket.id}</a>
+                        </py:when>
+                        <py:otherwise>
+                          New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
+                        </py:otherwise>
+                      </py:choose>
+                      <py:if test="ticket.exists"> - 
+                        <py:if test="ticket.changetime != ticket.time">
+                          <span i18n:msg="modified">Last modified 
+                            <time datetime="${ticket.changetime.strftime('%Y-%m-%d')}">
+                              ${pretty_dateinfo(ticket.changetime)}
+                            </time>.
+                          </span>
+                        </py:if>
+                      </py:if>
+                      <span id="h_owner">Assigned to
+                        ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}.
+                      </span>
+                    </span>
+                  </div>
+                  <div class="local-nav" py:if="ticket.exists"
+                      py:with="sections = (
+                              (_('Overview'), 'content', True, _('View ticket fields and description'), 'icon-list'),
+                              (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
+                              (_('Comments'), 'changelog', True, _('Go to the changelog'), 'icon-comment'),
+                              (_('Add comment'), 'propertyform', ticket.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
+                              (_('Modify Ticket'), 'inplace-edit', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
+                          )">
+                    <div>
+                      <small>
+                        <ul class="nav btn-group">
+                          <li py:for="s in sections" py:if="s[2]" class="btn">
+                            <a href="#${s[1]}" title="${s[3]}">
+                              <i class="${s[4]}"></i>
+                              ${s[0]}
+                            </a>
+                          </li>
+                        </ul>
+                      </small>
+                    </div>
+                  </div>
+                  <div class="stickyEndMark"></div>
+                </div>
+              </div>
+              <script type="text/javascript">
+                setup_sticky_panel('#overview');
+              </script>
+
+              <div>
+                <div class="row">
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_reporter" class="pull-right">
+                          Reporter:
+                        </h5>
+                      </div>
+                      <div class="span2" id="vc-reporter"
+                          data-edit="${'inplace' if only_for_admin else None}">
+                        ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_reporter" class="pull-right">
+                          Opened:
+                        </h5>
+                      </div>
+                      <div class="span2">
+                        <time datetime="${ticket.time.strftime('%Y-%m-%d')}">
+                          ${pretty_dateinfo(ticket.time)}
+                        </time>
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_type" class="pull-right">
+                          Type:
+                        </h5>
+                      </div>
+                      <div id="vc-type" class="span2"
+                          data-edit="${'inplace' if can_modify or can_edit or can_create else None}">
+                        <small py:if="ticket.type">${ticket.type}</small>
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                  <div class="span4">
+                    <div class="row">
+                      <div class="span2">
+                        <h5 id="h_status" class="pull-right">
+                          Status:
+                        </h5>
+                      </div>
+                      <div class="span2">
+                        <small>${ticket.status}
+                          <py:if test="ticket.resolution">: ${ticket.resolution}</py:if>
+                        </small>
+                        &nbsp;
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <xi:include href="bh_ticket_box.html"
                   py:with="preview_mode = change_preview.fields ; 
                       colcount = 4 if bhdb else 6"/>
-            </div>
+            </form></div>
 
             <!--! do not show attachments for old versions of this ticket or for new tickets -->
             <div class="$colspan" py:if="not version and version != 0 and ticket.exists">
@@ -333,7 +460,8 @@ ${comment}</textarea>
                         <th><label for="field-summary">Summary:</label></th>
                         <td class="fullrow" colspan="3">
                           <input type="text" id="field-summary" name="field_summary"
-                                 value="$ticket.summary" size="70" />
+                                 value="$ticket.summary" size="70" 
+                                 class="input-xlarge" />
                         </td>
                       </tr>
                       <py:if test="only_for_admin">
@@ -341,7 +469,7 @@ ${comment}</textarea>
                           <th><label for="field-reporter">Reporter:</label></th>
                           <td class="fullrow" colspan="3">
                             <input type="text" id="field-reporter" name="field_reporter"
-                                   value="${ticket.reporter}" size="70" />
+                                   value="${ticket.reporter}" class="input-medium" />
                           </td>
                         </tr>
                       </py:if>
@@ -373,9 +501,10 @@ ${ticket.description}</textarea>
                               field.edit_label or field.label or field.name}:</label>
                           </th>
                           <td class="col${idx + 1}" py:if="idx == 0 or not fullrow"
-                              colspan="${3 if fullrow else None}">
+                              colspan="${3 if fullrow else None}"
+                              id="${'editor-' + field.name if field else None}">
                             <py:choose test="field.type" py:if="field">
-                              <select py:when="'select'" id="field-${field.name}" name="field_${field.name}">
+                              <select py:when="'select'" id="field-${field.name}" name="field_${field.name}" class="input-medium">
                                 <option py:if="field.optional"></option>
                                 <option py:for="option in field.options"
                                         selected="${value == option or None}"
@@ -528,5 +657,28 @@ ${value}</textarea>
         </bh:widget>
       </div>
     </div>
+
+    <script type="text/x-tmpl" id="tmpl-inplace-submit" py:if="has_property_editor">
+      <div class="btn-toolbar" style="margin: 0px">
+      <div class="btn-group input-append">
+        <button id="edit-submit" class="btn btn-primary" type="submit" 
+            value="Submit changes" name="submit">
+          Update (<span id="submit-action-label"></span>)
+        </button>
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <fieldset id="workflow-actions">
+          </fieldset>
+        </ul>
+      </div>
+      <div class="btn-group">
+        <button id="edit-cancel" class="btn-link" title="Discard changes">
+          Cancel
+        </button>
+      </div>
+      </div>
+    </script>
   </body>
 </html>

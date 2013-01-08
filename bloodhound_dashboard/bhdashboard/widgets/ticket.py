@@ -143,7 +143,7 @@ class TicketFieldValuesWidget(WidgetBase):
                     admin_suffix = field_maps.get(fieldnm)['admin_url']
                     if 'TICKET_ADMIN' in req.perm and admin_suffix is not None:
                         hint = _('You can add one or more '
-                                 '<a href="%(url)s">here</a>',
+                                 '<a href="%(url)s">here</a>.',
                                 url=req.href.admin('ticket', admin_suffix))
                     else:
                         hint = _('Contact your administrator for further details')
@@ -153,9 +153,10 @@ class TicketFieldValuesWidget(WidgetBase):
                                             field=field_maps[fieldnm]['title'])),
                                 'data' : dict(msgtype='info',
                                     msglabel="Note",
-                                    msgbody=Markup(_('''There is no value defined
-                                        for ticket field <em>%(field)s</em>. 
-                                        %(hint)s''', field=fieldnm, hint=hint) )
+                                    msgbody=Markup(_('''No values are
+                                        defined for ticket field
+                                        <em>%(field)s</em>. %(hint)s''',
+                                        field=fieldnm, hint=hint))
                                     )
                             }, context
                 else:

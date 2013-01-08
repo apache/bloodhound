@@ -27,9 +27,15 @@
   <xi:include href="layout.html" />
   <head>
     <title py:choose="">
-      <py:when test="query">Search Results</py:when>
-      <py:otherwise>Search</py:otherwise>
+      <py:when test="query">Bloodhound Search Results</py:when>
+      <py:otherwise>Bloodhound Search</py:otherwise>
     </title>
+    <py:if test="results">
+        <meta name="startIndex" content="${results.span[0] + 1}"/>
+        <meta name="totalResults" content="$results.num_items"/>
+        <meta name="itemsPerPage" content="$results.max_per_page"/>
+    </py:if>
+
     <script type="text/javascript">
       jQuery(document).ready(function($) {$("#q").get(0).focus()});
     </script>
@@ -37,22 +43,35 @@
   <body>
     <div id="content" class="search">
 
-      <h1>This is dummy page. Implementation is coming...</h1>
+      <h1>This page provides prototype functionality. Implementation is coming...</h1>
       <h1><label for="q">Search</label></h1>
-      <form id="bhsearch" action="${href.bhsearch()}" method="get">
+      <form id="fullsearch" action="${href.bhsearch()}" method="get">
         <p>
           <input type="text" id="q" name="q" size="40" value="${query}" />
+          <input type="hidden" name="noquickjump" value="1" />
           <input type="submit" value="${_('Search')}" />
         </p>
       </form>
 
       <py:if test="results"><hr />
         <h2 py:if="results">
-          Results <span class="numresults">(${results.displayed_items()})</span>
+          Results <small>(${results.displayed_items()})</small>
         </h2>
-        <xi:include py:with="paginator = results" href="page_index.html" />
         <div>
           <dl id="results">
+
+            <!--This just a prototype stub. Should be replaced by proper ui mocks-->
+            <div>
+              <ul class="nav nav-tabs" id="mainnav">
+                <!--<li py:if="chrome.nav.mainnav"-->
+                    <!--py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" -->
+                    <!--class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>-->
+                <li class="$active}"><a href="${page_href}">All (XXX)</a></li>
+                <li class=""><a href="${page_href}">Wiki (XXX)</a></li>
+                <li class=""><a href="${page_href}">Tickets (XXX)</a></li>
+              </ul>
+            </div>
+
             <py:for each="result in results">
               <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
               <dd class="searchable">${result.excerpt}</dd>
@@ -63,12 +82,21 @@
             </py:for>
           </dl>
         </div>
-        <xi:include py:with="paginator = results" href="page_index.html" />
+        <xi:include py:with="paginator = results" href="bh_page_index.html" />
       </py:if>
 
-      <div id="notfound" py:if="query and not (results)">
-        No matches found.
+      <div class="span12"
+          py:if="query and not (results or quickjump)">
+        <p id="notfound" class="alert">
+          No matches found.
+        </p>
       </div>
+
+      <div id="help" class="help-block pull-right" i18n:msg="">
+        <strong>Note:</strong> See <a href="${href.wiki('BloodhoundSearch')}">BloodhoundSearch</a>
+        for help on searching.
+      </div>
+
     </div>
   </body>
 </html>

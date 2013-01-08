@@ -17,10 +17,12 @@
 #  under the License.
 
 from genshi.builder import tag
-from genshi.core import TEXT           
+from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 
+from trac.config import Option
 from trac.core import *
+from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
 from trac.resource import Resource
 from trac.ticket.api import TicketSystem
@@ -117,11 +119,33 @@ class BloodhoundTheme(ThemeBase):
         ("body//table[not(contains(@class, 'table'))]", # TODO: Accurate ?
                 ['table', 'table-condensed']),
     )
+    
+    labels_application_short = Option('labels', 'application_short', 
+        'Bloodhound')
+
+    labels_application_full = Option('labels', 'application_full', 
+        'Apache Bloodhound')
+    
+    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '')
+
+    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '')
+    
+    labels_footer_right = Option('labels', 'footer_right', '')
 
     _wiki_pages = None
 
     implements(IRequestFilter, INavigationContributor, ITemplateProvider,
                ITemplateStreamFilter)
+
+    def _get_whitelabelling(self):
+        """Gets the whitelabelling config values"""
+        return dict(
+            application_short = self.labels_application_short,
+            application_full = self.labels_application_full,
+            footer_left_prefix = self.labels_footer_left_prefix,
+            footer_left_postfix = self.labels_footer_left_postfix,
+            footer_right = self.labels_footer_right,
+            application_version = ".".join(map(str, application_version)))
 
     # ITemplateStreamFilter methods
 
@@ -153,7 +177,13 @@ class BloodhoundTheme(ThemeBase):
         # Rename wiki guide links
         tx = tx.end() \
             .select("body//a[contains(@href,'/wiki/%s')]" % wiki.GUIDE_NAME) \
-            .map(lambda text: wiki.new_name(text), TEXT)            
+            .map(lambda text: wiki.new_name(text), TEXT)
+
+        # Rename trac error
+        app_short = self.labels_application_short
+        tx = tx.end() \
+            .select("body//div[@class='error']/h1") \
+            .map(lambda text: text.replace("Trac", app_short), TEXT)
                     
         return stream | tx
 
@@ -191,19 +221,7 @@ class BloodhoundTheme(ThemeBase):
                 is_active = active_theme['name'] == this_theme_name
             return is_active
 
-        c = self.env.config
-        req.chrome['labels'] = dict(
-            application_short = c.get(
-                'labels', 'application_short', "Bloodhound"),
-            application_full = c.get(
-                'labels', 'application_full', "Apache Bloodhound"),
-            footer_left_prefix = c.get(
-                'labels', 'footer_left_prefix', ""),
-            footer_left_postfix = c.get(
-                'labels', 'footer_left_postfix', ""),
-            footer_right = c.get(
-                'labels', 'footer_right', ""),
-            application_version = ".".join(map(str, application_version)))
+        req.chrome['labels'] = self._get_whitelabelling()
 
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
@@ -313,6 +331,10 @@ class BloodhoundTheme(ThemeBase):
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
+    qct_fields = ListOption('ticket', 'quick_create_fields', 
+                            'product,version,type',
+        doc="""Multiple selection fields displayed in create ticket menu""")
+
     # IRequestFilter(Interface):
 
     def pre_process_request(self, req, handler):
@@ -335,9 +357,11 @@ class QuickCreateTicketDialog(Component):
             fakereq = dummy_request(self.env)
             ticket = Ticket(self.env)
             tm._populate(fakereq, ticket, False)
-            fields = dict([f['name'], f] \
-                        for f in tm._prepare_fields(fakereq, ticket))
-            data['qct'] = { 'fields' : fields }
+            all_fields = dict([f['name'], f] \
+                              for f in tm._prepare_fields(fakereq, ticket) \
+                              if f['type'] == 'select')
+            data['qct'] = {'fields': [all_fields[k] for k in self.qct_fields
+                                      if k in all_fields]}
         return template, data, content_type
 
     # IRequestHandler methods

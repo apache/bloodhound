@@ -25,7 +25,7 @@ from trac.util.translation import _, cleandoc_
 from trac.wiki.api import WikiSystem
 from trac.wiki.macros import WikiMacroBase
 
-from bhdashboard.admin import GUIDE_NAME
+from bhdashboard.wiki import GUIDE_NAME
 
 class UserGuideTocMacro(WikiMacroBase):
     _description = cleandoc_("""Display a Guide table of contents

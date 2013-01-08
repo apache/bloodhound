@@ -144,6 +144,10 @@ div.reports form {
 
 }
 
+#activityfeed img {
+  display: none;
+}
+
 #activityfeed dt {
   font-weight: normal;
 }
@@ -182,6 +186,10 @@ textarea.wikitext {
   border-radius: 10px;
 }
 
+pre.wiki {
+  overflow: auto;
+}
+
 .trac-modifiedby {
   float: right;
 }
@@ -202,20 +210,25 @@ textarea.wikitext {
   width: 505px;
 }
 
-#field-summary {
-  width: 505px;
-}
-
-#field-reporter {
-  width: 505px;
+#qct-fieldset #field-description {
+  width: auto;
 }
 
 .bh-ticket-buttons {
   padding-left: 5px;
 }
 
-.ticket .properties h5 {
-  margin-bottom: 0px;
+.ticket .properties .enum h5 {
+  margin-top: 0px;
+}
+
+.ownership {
+  margin-left: 25px;
+}
+
+.ticket textarea {
+  height: auto;
+  width: auto;
 }
 
 /* @end */
@@ -276,6 +289,9 @@ h1, h2, h3, h4 {
   white-space: nowrap;
 }
 
+.clip.edit-active, .affix .clip-affic.edit-active {
+  overflow: visible;
+}
 /* @end */
 
 /* @group Alternate download links */
@@ -451,6 +467,10 @@ input[type="submit"].btn.btn-micro {
   .hidden-desktop {
     display: inherit !important;
   }
+}
+
+.help-msg[title] {
+  cursor: help;
 }
 
 /* Revert some changes introduced in 2.1.0 */
