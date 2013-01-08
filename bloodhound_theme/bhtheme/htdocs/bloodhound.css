@@ -144,6 +144,10 @@ div.reports form {
 
 }
 
+#activityfeed img {
+  display: none;
+}
+
 #activityfeed dt {
   font-weight: normal;
 }
