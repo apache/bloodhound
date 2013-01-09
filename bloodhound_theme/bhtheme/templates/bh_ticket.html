@@ -116,12 +116,16 @@
                   })
               }
             });
+
+          // Enable automatic preview
+          $('#inplace-propertyform').autoSubmit({preview : 1}, 
+              full_preview, '#overview .trac-loading')
         }
 
         function revert_ticket() {
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).removeClass('edit-active');
-              fc.html(fc.attr('data-edit-orig'));
+              fc.html(fc.attr('data-edit-orig')).attr('data-edit-orig', '');
             });
         }
 
@@ -154,10 +158,8 @@
         var comment_focused = false;
         $("#comment").focus(function() { comment_focused = true; })
                      .blur(function() { comment_focused = false; });
-        $("#propertyform").autoSubmit({preview: '1'}, function(data, reply) {
+        function full_preview(data, reply) {
           var items = $(reply);
-          // Update ticket box
-          $("#ticket").replaceWith(items.filter('#ticket'));
           // Unthread, unrevert and update changelog
           if (!$('#trac-comments-oldest').checked())
             $('#trac-comments-oldest').click().change();
@@ -176,7 +178,9 @@
           // Collapse property form if comment editor has focus
           if (show_preview && comment_focused)
             $("#modify").parent().addClass("collapsed");
-        }, "#ticketchange .trac-loading");
+        }
+        $("#propertyform").autoSubmit({preview: '1'}, full_preview,
+            "#ticketchange .trac-loading");
         $("#trac-comment-editor").autoSubmit({preview_comment: '1'}, function(data, reply) {
           var comment = $("#trac-comment-editor").next("div.comment").html(reply);
           comment.toggle(comment.children().length != 0);
@@ -677,6 +681,9 @@ ${value}</textarea>
         <button id="edit-cancel" class="btn-link" title="Discard changes">
           Cancel
         </button>
+      </div>
+      <div class="btn-group">
+        <span class="trac-loading">&nbsp;</span>
       </div>
       </div>
     </script>

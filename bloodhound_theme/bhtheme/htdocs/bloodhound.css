@@ -231,6 +231,13 @@ pre.wiki {
   width: auto;
 }
 
+.trac-loading {
+  background: url(../common/loading.gif) 0 50% no-repeat;
+  margin: 0 1em;
+  padding-left: 16px;
+  display: none;
+}
+
 /* @end */
 
 /* @group Quick Ticket fieldset */

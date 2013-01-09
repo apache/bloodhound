@@ -100,10 +100,8 @@ Arguments:
         <div class="pull-right">
           <form py:if="ticket.exists and ticket.description and can_append"
               id="addreply" method="get" action="#comment">
-            <input type="hidden" name="replyto" value="description" />
-            <input type="submit" name="reply" value="${_('Reply')}"
-                class="btn btn-mini"
-                title="Reply, quoting this description" />
+            <a href="?replyto=description#trac-add-comment" class="btn btn-mini"
+                title="Reply, quoting this description" type="submit">Reply</a>
           </form>
         </div>
         <div class="searchable" xml:space="preserve"
