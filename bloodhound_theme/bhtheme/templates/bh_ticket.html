@@ -57,7 +57,18 @@
         var modify_elem = $('#modify');
         <py:if test="ticket.exists">
           modify_elem.parent().hide();
-          $('#propertyform .buttons').hide();
+          $('#propertyform .buttons [name="preview"]').hide();
+          $('#comment').change(function (e) {
+            $('#hidden-comment').val($('#comment').val());
+          });
+          $('#propertyform .buttons [name="submit"]').click(function (e) {
+            if ($('button#edit-submit').length) {
+              // if available trigger the edit state's update button
+              $('button#edit-submit').click();
+              e.preventDefault();
+            }
+            // otherwise the default submit comment only happens
+          });
         </py:if>
   
         function modify_ticket() {
