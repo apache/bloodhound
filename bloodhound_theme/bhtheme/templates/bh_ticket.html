@@ -55,7 +55,10 @@
         // Install in place editing
 
         var modify_elem = $('#modify');
-        <py:if test="ticket.exists">modify_elem.parent().hide();</py:if>
+        <py:if test="ticket.exists">
+          modify_elem.parent().hide();
+          $('#propertyform .buttons').hide();
+        </py:if>
   
         function modify_ticket() {
           if ($('#vc-summary').is('.edit-active'))
@@ -118,8 +121,11 @@
             });
 
           // Enable automatic preview
-          $('#inplace-propertyform').autoSubmit({preview : 1}, 
-              full_preview, '#overview .trac-loading')
+          //$('#inplace-propertyform').autoSubmit({preview : 1}, 
+          //    full_preview, '#overview .trac-loading')
+          $('#inplace-propertyform').submit(function() {
+              $('#hidden-comment').val($('#comment').val())
+            })
         }
 
         function revert_ticket() {
@@ -227,6 +233,8 @@
                 <input type="hidden" name="view_time" 
                     value="${to_utimestamp(ticket['changetime'])}" />
               </py:if>
+              <input id="hidden-comment" type="hidden" name="comment" 
+                     value=""/>
               <div class="stickyBox">
                 <div id="overview" class="stickyStatus $colspan">
                   <div class="whitebox"></div>
