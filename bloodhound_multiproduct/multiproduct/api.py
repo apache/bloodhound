@@ -31,7 +31,7 @@ from trac.ticket.api import ITicketFieldProvider
 from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider
 
-from multiproduct.model import Product, ProductResourceMap
+from multiproduct.model import Product, ProductResourceMap, ProductSetting
 
 DB_VERSION = 3
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
@@ -43,9 +43,9 @@ class MultiProductSystem(Component):
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
             IPermissionRequestor, ITicketFieldProvider, IResourceManager)
     
-    SCHEMA = [mcls._get_schema() for mcls in (Product, ProductResourceMap)]
-    del mcls
-    
+    SCHEMA = [mcls._get_schema() \
+              for mcls in (Product, ProductResourceMap, ProductSetting)]
+
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
         rows = self.env.db_query("""

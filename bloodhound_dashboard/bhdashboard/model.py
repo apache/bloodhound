@@ -118,8 +118,9 @@ class ModelBase(object):
                 self._update_from_row(row)
                 break
             else:
-                raise ResourceNotFound('No %(object_name)s with %(where)s' %
-                                sdata)
+                raise ResourceNotFound(
+                        ('No %(object_name)s with %(where)s' % sdata) 
+                                % tuple(values))
     
     def delete(self):
         """Deletes the matching record from the database"""
@@ -145,14 +146,15 @@ class ModelBase(object):
                                       for k in self._meta['key_fields']]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
                                      for k in self._meta['key_fields']])}
-        elif len(self.select(self._env, where =
+        elif self._meta['unique_fields'] and len(self.select(self._env, where =
                                 dict([(k,self._data[k])
                                       for k in self._meta['unique_fields']]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
                                      for k in self._meta['unique_fields']])}
         if sdata:
             sdata.update(self._meta)
-            raise TracError('%(object_name)s %(keys)s already exists' %
+            sdata['values'] = self._data
+            raise TracError('%(object_name)s %(keys)s already exists %(values)s' %
                             sdata)
             
         for key in self._meta['key_fields']:
@@ -208,7 +210,7 @@ class ModelBase(object):
             TicketSystem(self._env).reset_ticket_fields()
     
     @classmethod
-    def select(cls, env, db=None, where=None):
+    def select(cls, env, db=None, where=None, limit=None):
         """Query the database to get a set of records back"""
         rows = []
         fields = cls._meta['key_fields']+cls._meta['non_key_fields']
@@ -219,7 +221,11 @@ class ModelBase(object):
         wherestr, values = dict_to_kv_str(where)
         if wherestr:
             wherestr = ' WHERE ' + wherestr
-        for row in env.db_query(sql + wherestr, values):
+        if limit is not None:
+            limitstr = ' LIMIT ' + str(int(limit))
+        else:
+            limitstr = ''
+        for row in env.db_query(sql + wherestr + limitstr, values):
             # we won't know which class we need until called
             model = cls.__new__(cls)
             data = dict([(fields[i], row[i]) for i in range(len(fields))])
