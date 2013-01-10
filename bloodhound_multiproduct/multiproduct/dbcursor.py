@@ -35,6 +35,7 @@ SKIP_TABLES = ['system', 'permission', 'auth_cookie',
                ]
 TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'wiki']
 PRODUCT_COLUMN = 'product'
+DEFAULT_PRODUCT = 'default'
 
 class BloodhoundIterableCursor(IterableCursor):
     __slots__ = IterableCursor.__slots__ + ['_translator']
@@ -47,16 +48,15 @@ class BloodhoundIterableCursor(IterableCursor):
     @property
     def translator(self):
         if not self._translator:
-            from env import DEFAULT_PRODUCT
-            product = self.env.product_scope if self.env else DEFAULT_PRODUCT
+            product_prefix = self.env.product.prefix if (self.env and self.env.product) else DEFAULT_PRODUCT
             self._translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
                                                              TRANSLATE_TABLES,
                                                              PRODUCT_COLUMN,
-                                                             product)
+                                                             product_prefix)
         return self._translator
 
     def _translate_sql(self, sql):
-        return self.translator.translate(sql) if (self.env and not self.env.product_aware) else sql
+        return self.translator.translate(sql) if (self.env and self.env.product) else sql
 
     def execute(self, sql, args=None):
         return super(BloodhoundIterableCursor, self).execute(self._translate_sql(sql), args=args)

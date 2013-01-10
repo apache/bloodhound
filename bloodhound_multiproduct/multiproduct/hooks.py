@@ -16,6 +16,9 @@
 #  under the License.
 
 from trac.hooks import EnvironmentFactoryBase, GlobalHooksBase
+import trac.env
+import trac.db.util
+from multiproduct.dbcursor import BloodhoundIterableCursor
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, use_cache=False):
@@ -23,4 +26,5 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
 
 class MultiProductGlobalHooks(GlobalHooksBase):
     def install_hooks(self, environ, env_path):
-        return
+        # trac.env.Environment = BloodhoundEnvironment
+        trac.db.util.IterableCursor = BloodhoundIterableCursor

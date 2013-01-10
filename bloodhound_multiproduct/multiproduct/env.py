@@ -19,15 +19,19 @@
 """Bloodhound product environment and related APIs"""
 
 import os.path
+from urlparse import urlsplit
 
 from trac.config import ConfigSection, Option
-from trac.core import Component, ComponentManager, ExtensionPoint, \
-        implements, TracError
+from trac.core import Component, ComponentManager, implements
+from trac.db.api import with_transaction
 from trac.env import Environment, ISystemInfoProvider
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
+from trac.versioncontrol import RepositoryManager
+from trac.web.href import Href
 
 from multiproduct.model import Product
+from multiproduct.dbcursor import BloodhoundIterableCursor
 
 class ProductEnvironment(Component, ComponentManager):
     """Bloodhound product-aware environment manager.
@@ -232,9 +236,8 @@ class ProductEnvironment(Component, ComponentManager):
            with env.db_query as db:
                ...
         """
-        # TODO: Install database schema proxy with limited scope (see #288)
-        #return DatabaseManager(self).get_connection()
-        raise NotImplementedError
+        # share connection pool with global environment
+        return self.env.get_db_cnx()
 
     @lazy
     def db_exc(self):
@@ -251,21 +254,19 @@ class ProductEnvironment(Component, ComponentManager):
             except env.db_exc.IntegrityError, e:
                 ...
         """
-        return DatabaseManager(self).get_exceptions()
+        # exception types same as in global environment
+        return self.env.db_exc()
 
     def with_transaction(self, db=None):
         """Decorator for transaction functions :deprecated:"""
-        # TODO: What shall we do ?
-        #return with_transaction(self, db)
-        raise NotImplementedError
+        return with_transaction(self, db)
 
     def get_read_db(self):
         """Return a database connection for read purposes :deprecated:
 
         See `trac.db.api.get_read_db` for detailed documentation."""
-        # TODO: Install database schema proxy with limited scope (see #288)
-        #return DatabaseManager(self).get_connection(readonly=True)
-        raise NotImplementedError
+        # database connection is shared with global environment
+        return self.env.get_read_db()
 
     @property
     def db_query(self):
@@ -299,9 +300,8 @@ class ProductEnvironment(Component, ComponentManager):
           context was the outermost context (`db_query` or
           `db_transaction`).
         """
-        # TODO: Install database schema proxy with limited scope (see #288)
-        #return QueryContextManager(self)
-        raise NotImplementedError
+        BloodhoundIterableCursor.set_env(self)
+        return self.env.db_query
 
     @property
     def db_transaction(self):
@@ -336,9 +336,8 @@ class ProductEnvironment(Component, ComponentManager):
           context, if this context was the outermost context
           (`db_query` or `db_transaction`).
         """
-        # TODO: Install database schema proxy with limited scope (see #288)
-        #return TransactionContextManager(self)
-        raise NotImplementedError
+        BloodhoundIterableCursor.set_env(self)
+        return self.env.db_transaction
 
     def shutdown(self, tid=None):
         """Close the environment."""
