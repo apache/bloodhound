@@ -296,7 +296,7 @@ h1, h2, h3, h4 {
   white-space: nowrap;
 }
 
-.clip.edit-active, .affix .clip-affic.edit-active {
+.clip.edit-active, .affix .clip-affix.edit-active {
   overflow: visible;
 }
 /* @end */
