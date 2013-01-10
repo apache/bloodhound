@@ -218,7 +218,7 @@ pre.wiki {
   padding-left: 5px;
 }
 
-.ticket .properties .enum h5 {
+.ticket .properties .enum h5, #basic-properties h5 {
   margin-top: 0px;
 }
 
