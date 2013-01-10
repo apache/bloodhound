@@ -43,15 +43,24 @@
   <body>
     <div id="content" class="search">
 
-      <h1>This page provides prototype functionality. Implementation is coming...</h1>
+      <h1>This page provides prototype functionality.</h1>
       <h1><label for="q">Search</label></h1>
       <form id="fullsearch" action="${href.bhsearch()}" method="get">
         <p>
           <input type="text" id="q" name="q" size="40" value="${query}" />
           <input type="hidden" name="noquickjump" value="1" />
+          <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
           <input type="submit" value="${_('Search')}" />
         </p>
       </form>
+
+      <div>
+        <ul class="nav nav-tabs" id="mainnav">
+          <li py:for="idx, item in enumerate(i for i in types)"
+              class="${classes(first_last(idx, types), active=item.active)}"><a href="${item.href}">${item.label}</a></li>
+
+        </ul>
+      </div>
 
       <py:if test="results"><hr />
         <h2 py:if="results">
@@ -60,18 +69,7 @@
         <div>
           <dl id="results">
 
-            <!--This just a prototype stub. Should be replaced by proper ui mocks-->
-            <div>
-              <ul class="nav nav-tabs" id="mainnav">
-                <!--<li py:if="chrome.nav.mainnav"-->
-                    <!--py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" -->
-                    <!--class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>-->
-                <li class="$active}"><a href="${page_href}">All (XXX)</a></li>
-                <li class=""><a href="${page_href}">Wiki (XXX)</a></li>
-                <li class=""><a href="${page_href}">Tickets (XXX)</a></li>
-              </ul>
-            </div>
-
+            <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
             <py:for each="result in results">
               <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
               <dd class="searchable">${result.excerpt}</dd>

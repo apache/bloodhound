@@ -22,15 +22,15 @@ r"""Whoosh specific backend for Bloodhound Search plugin."""
 from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE
 import os
 from trac.core import *
-from trac.config import Option, PathOption
+from trac.config import Option
 from trac.util.datefmt import utc
 from whoosh.fields import *
-from whoosh import index, sorting
-from whoosh.qparser import QueryParser
+from whoosh import index, sorting, query
 from whoosh.searching import ResultsPage
-from whoosh.sorting import FieldFacet
 from whoosh.writing import AsyncWriter
-from datetime import datetime, date
+from datetime import datetime
+
+UNIQUE_ID = 'unique_id'
 
 class WhooshBackend(Component):
     """
@@ -68,7 +68,13 @@ class WhooshBackend(Component):
         self.open_or_create_index_if_missing()
 
     #ISearchBackend methods
-    def add_doc(self, doc, commit=True):
+    def start_operation(self):
+        return dict(writer = self._create_writer())
+
+    def _create_writer(self):
+        return AsyncWriter(self.index)
+
+    def add_doc(self, doc, writer=None):
         """Add any type of  document index.
 
         The contents should be a dict with fields matching the search schema.
@@ -76,74 +82,126 @@ class WhooshBackend(Component):
         """
         # Really make sure it's unicode, because Whoosh won't have it any
         # other way.
+        is_local_writer = False
+        if writer is None:
+            is_local_writer = True
+            writer = self._create_writer()
+
         for key in doc:
             doc[key] = self._to_whoosh_format(doc[key])
-
-        doc["unique_id"] = u"%s:%s" % (doc["type"], doc["id"])
-
-        writer = AsyncWriter(self.index)
-        committed = False
+        doc["unique_id"] = self._create_unique_id(doc["type"], doc["id"])
+        self.log.debug("Doc to index: %s", doc)
         try:
-            #todo: remove it!!!
-            self.log.debug("Doc to index: %s", doc)
             writer.update_document(**doc)
-            writer.commit()
-            committed = True
-        finally:
-            if not committed:
+            if is_local_writer:
+                writer.commit()
+        except:
+            if is_local_writer:
                 writer.cancel()
 
+    def delete_doc(self, type, id, writer=None):
+        unique_id = self._create_unique_id(type, id)
+        self.log.debug('Removing document from the index: %s', unique_id)
+        is_local_writer = False
+        if writer is None:
+            is_local_writer = True
+            writer = self._create_writer()
+        try:
+            writer.delete_by_term(UNIQUE_ID, unique_id)
+            if is_local_writer:
+                writer.commit()
+        except:
+            if is_local_writer:
+                writer.cancel()
+            raise
 
-    def query(self, query, sort = None, fields = None, boost = None, filters = None,
-                  facets = None, pagenum = 1, pagelen = 20):
-
-        with self.index.searcher() as searcher:
-            parser = QueryParser("content", self.index.schema)
-            if isinstance(query, basestring):
-                query = unicode(query)
-                parsed_query = parser.parse(unicode(query))
-            else:
-                parsed_query = query
-
-            sortedby = self._prepare_sortedby(sort)
-            groupedby = self._prepare_groupedby(facets)
-            self.env.log.debug("Whoosh query to execute: %s, sortedby = %s, \
-                               pagenum=%s, pagelen=%s, facets=%s",
-                parsed_query,
-                sortedby,
-                pagenum,
-                pagelen,
-                groupedby,
-            )
-            raw_page = searcher.search_page(
-                parsed_query,
-                pagenum = pagenum,
-                pagelen = pagelen,
-                sortedby = sortedby,
-                groupedby = groupedby,
-            )
-#            raw_page = ResultsPage(whoosh_results, pagenum, pagelen)
-            results = self._process_results(raw_page, fields)
-        return results
-
-    def delete_doc(self, doc, commit=True):
-        pass
-
-    def commit(self):
-        pass
 
     def optimize(self):
-        pass
+        writer = AsyncWriter(self.index)
+        writer.commit(optimize=True)
+
+    def commit(self, optimize, writer):
+        writer.commit(optimize=optimize)
+
+    def cancel(self, writer):
+        try:
+            writer.cancel()
+        except Exception,ex:
+            self.env.log.error("Error during writer cancellation: %s", ex)
 
     def recreate_index(self):
-        self.index = self._create_index()
+        self.log.info('Creating Whoosh index in %s' % self.index_dir)
+        self._make_dir_if_not_exists()
+        return index.create_in(self.index_dir, schema=self.SCHEMA)
 
     def open_or_create_index_if_missing(self):
         if index.exists_in(self.index_dir):
             self.index = index.open_dir(self.index_dir)
         else:
-            self.index = self._create_index()
+            self.index = self.recreate_index()
 
+    def query(self, query, sort = None, fields = None, boost = None, filter = None,
+                  facets = None, pagenum = 1, pagelen = 20):
+        """
+        Perform query.
+
+        Temporary fixes:
+        Whoosh 2.4 raises an error when simultaneously using filters and facets
+        in search:
+            AttributeError: 'FacetCollector' object has no attribute 'offset'
+        The problem should be fixed in the next release. For more info read
+        https://bitbucket.org/mchaput/whoosh/issue/274
+        A workaround is introduced to join query and filter in query and not
+        using filter parameter. Remove the workaround when the fixed version
+        of Whoosh is applied.
+        """
+        with self.index.searcher() as searcher:
+            sortedby = self._prepare_sortedby(sort)
+            groupedby = facets
+            query_filter = self._prepare_filter(filter)
+
+            #workaround of Whoosh bug, read method __doc__
+            query = self._workaround_join_query_and_filter(
+                query,
+                query_filter)
+
+            search_parameters = dict(
+                query = query,
+                pagenum = pagenum,
+                pagelen = pagelen,
+                sortedby = sortedby,
+                groupedby = groupedby,
+                maptype=sorting.Count,
+                #workaround of Whoosh bug, read method __doc__
+                #filter = query_filter,
+            )
+            self.env.log.debug("Whoosh query to execute: %s",
+                search_parameters)
+            raw_page = searcher.search_page(**search_parameters)
+            results = self._process_results(raw_page, fields, search_parameters)
+        return results
+
+    def _workaround_join_query_and_filter(
+            self,
+            query_expression,
+            query_filter):
+        if not query_filter:
+            return query_expression
+        return query.And((query_expression, query_filter))
+
+    def _prepare_filter(self, filters):
+        if not filters:
+            return None
+        and_filters = []
+        for filter in filters:
+            and_filters.append(query.Term(
+                unicode(filter[0]),
+                unicode(filter[1])))
+        return query.And(and_filters)
+
+
+    def _create_unique_id(self, type, id):
+        return u"%s:%s" % (type, id)
 
     def _to_whoosh_format(self, value):
         if isinstance(value, basestring):
@@ -167,13 +225,13 @@ class WhooshBackend(Component):
             value = utc.localize(value)
         return value
 
-    def _prepare_groupedby(self, facets):
-        if not facets:
-            return None
-        groupedby = sorting.Facets()
-        for facet_name in facets:
-            groupedby.add_field(facet_name, allow_overlap=True, maptype=sorting.Count)
-        return groupedby
+#    def _prepare_groupedby(self, facets):
+#        if not facets:
+#            return None
+#        groupedby = sorting.Facets()
+#        for facet_name in facets:
+#            groupedby.add_field(facet_name, allow_overlap=True, maptype=sorting.Count)
+#        return groupedby
 
     def _prepare_sortedby(self, sort):
         if not sort:
@@ -194,7 +252,7 @@ class WhooshBackend(Component):
     def _is_desc(self, order):
         return (order.lower()==DESC)
 
-    def _process_results(self, page, fields):
+    def _process_results(self, page, fields, search_parameters = None):
         # It's important to grab the hits first before slicing. Otherwise, this
         # can cause pagination failures.
         """
@@ -213,6 +271,7 @@ class WhooshBackend(Component):
             result_doc = self._process_record(fields, retrieved_record)
             docs.append(result_doc)
         results.docs = docs
+        results.debug["search_parameters"] = search_parameters
         return results
 
     def _process_record(self, fields, retrieved_record):
@@ -244,12 +303,7 @@ class WhooshBackend(Component):
             facets_result[name] = non_paged_results.groups(name)
         return facets_result
 
-    def _create_index(self):
-        self.log.info('Creating Whoosh index in %s' % self.index_dir)
-        self._mkdir_if_not_exists()
-        return index.create_in(self.index_dir, schema=self.SCHEMA)
-
-    def _mkdir_if_not_exists(self):
+    def _make_dir_if_not_exists(self):
         if not os.path.exists(self.index_dir):
             os.mkdir(self.index_dir)
 

@@ -27,6 +27,13 @@ ASC = "asc"
 DESC = "desc"
 SCORE = "score"
 
+class IndexFields(object):
+    TYPE = "type"
+    ID = "id"
+    TIME = 'time'
+    AUTHOR = 'author'
+    CONTENT = 'content'
+
 class QueryResult(object):
     def __init__(self):
         self.hits = 0
@@ -35,48 +42,50 @@ class QueryResult(object):
         self.offset = 0
         self.docs = []
         self.facets = None
+        self.debug = {}
 
 
 class ISearchBackend(Interface):
     """Extension point interface for search backend systems.
     """
 
-    def add_doc(self, doc, commit=True):
+#    def add_doc(self, doc, **kwargs):
+    def add_doc(doc, **kwargs):
         """
         Called when new document instance must be added
-
-        :param doc: document to add
-        :param commit: flag if commit should be automatically called
         """
 
-    def delete_doc(self, doc, commit=True):
+    def delete_doc(type, id, **kwargs):
         """
         Delete document from index
-
-        :param doc: document to delete
-        :param commit: flag if commit should be automatically called
         """
 
-    def commit(self):
-        """
-        Commits changes
-        """
-
-    def optimize(self):
+    def optimize():
         """
         Optimize index if needed
         """
 
-    def recreate_index(self):
+    def commit(optimize, **kwargs):
+        """
+        Commit changes
+        """
+
+    def cancel(**kwargs):
+        """
+        Cancel changes if possible
+        """
+
+    def recreate_index():
         """
         Create a new index, if index exists, it will be deleted
         """
 
-    def open_or_create_index_if_missing(self):
+    def open_or_create_index_if_missing():
         """
         Open existing index, if index does not exist, create new one
         """
-    def query(self, query, sort = None, fields = None, boost = None, filters = None,
+
+    def query(query, sort = None, fields = None, boost = None, filter = None,
                   facets = None, pagenum = 1, pagelen = 20):
         """
         Perform query implementation
@@ -85,38 +94,42 @@ class ISearchBackend(Interface):
         :param sort:
         :param fields:
         :param boost:
-        :param filters:
+        :param filter:
         :param facets:
         :param pagenum:
         :param pagelen:
-        :return: TBD!!!
+        :return: ResultsPage
         """
-        pass
+
+    def start_operation(self):
+        """Used to get arguments for batch operation withing single commit"""
+
+class IIndexParticipant(Interface):
+    """Extension point interface for components that should be searched.
+    """
+
+    def get_entries_for_index():
+        """List entities for index creation"""
 
 class ISearchParticipant(Interface):
     """Extension point interface for components that should be searched.
     """
+    def format_search_results(contents):
+        """Called to see if the module wants to format the search results."""
 
     def get_search_filters(req):
         """Called when we want to build the list of components with search.
         Passes the request object to do permission checking."""
-        pass
 
-    def build_search_index(backend):
-        """Called when we want to rebuild the entire index.
-        :type backend: ISearchBackend
-        """
-        pass
-
-    def format_search_results(contents):
-        """Called to see if the module wants to format the search results."""
+    def get_title():
+        """Return resource title"""
 
 class IQueryParser(Interface):
     """Extension point for Bloodhound Search query parser.
     """
 
     def parse(query_string, req = None):
-        pass
+        """Parse query from string"""
 
 class BloodhoundSearchApi(Component):
     """Implements core indexing functionality, provides methods for
@@ -132,10 +145,11 @@ class BloodhoundSearchApi(Component):
         'Name of the component implementing Bloodhound Search query \
         parser.')
 
-    search_participants = ExtensionPoint(ISearchParticipant)
+    index_participants = ExtensionPoint(IIndexParticipant)
 
-    def query(self, query, req = None, sort = None, fields = None, boost = None, filters = None,
-                  facets = None, pagenum = 1, pagelen = 20):
+    def query(self, query, sort = None, fields = None,
+              boost = None, filter = None,
+              facets = None, pagenum = 1, pagelen = 20):
         """Return query result from an underlying search backend.
 
         Arguments:
@@ -144,9 +158,9 @@ class BloodhoundSearchApi(Component):
         :param sort: optional sorting
         :param boost: optional list of fields with boost values e.g.
             {“id”: 1000, “subject” :100, “description”:10}.
-        :param filters: optional list of terms. Usually can be cached by underlying
-            search framework. For example {“type”: “wiki”}
-        :param facets: optional list of facet terms, can be field or expression.
+        :param filter: optional list of terms. Usually can be cached by
+            underlying search framework. For example {“type”: “wiki”}
+        :param facets: optional list of facet terms, can be field or expression
         :param page: paging support
         :param pagelen: paging support
 
@@ -154,18 +168,17 @@ class BloodhoundSearchApi(Component):
         """
         self.env.log.debug("Receive query request: %s", locals())
 
+        parsed_query = self.parser.parse(query)
+
         # TODO: add query parsers and meta keywords post-parsing
 
         # TODO: apply security filters
 
-        parsed_query = self.parser.parse(query, req)
-
-        #some backend-independent logic will come here...
         query_result = self.backend.query(
             query = parsed_query,
             sort = sort,
             fields = fields,
-            filters = filters,
+            filter = filter,
             facets = facets,
             pagenum = pagenum,
             pagelen = pagelen,
@@ -175,39 +188,64 @@ class BloodhoundSearchApi(Component):
 
 
     def rebuild_index(self):
-        """Delete the index if it exists. Then create a new full index."""
+        """Rebuild underlying index"""
         self.log.info('Rebuilding the search index.')
         self.backend.recreate_index()
+        operation_data = self.backend.start_operation()
+        try:
+            for participant in self.index_participants:
+                docs = participant.get_entries_for_index()
+                for doc in docs:
+                    self.backend.add_doc(doc, **operation_data)
+            self.backend.commit(True, **operation_data)
+        except:
+            self.backend.cancel(**operation_data)
+            raise
 
-        for participant in self.search_participants:
-            participant.build_search_index(self.backend)
-        self.backend.commit()
-        self.backend.optimize()
+    def change_doc_id(self, doc, old_id):
+        operation_data = self.backend.start_operation()
+        try:
+            self.backend.delete_doc(
+                doc[IndexFields.TYPE],
+                old_id,
+                **operation_data)
+            self.backend.add_doc(doc, **operation_data)
+            self.backend.commit(False, **operation_data)
+        except:
+            self.backend.cancel(**operation_data)
+            raise
 
-        #Erase the index if it exists. Then create a new index from scratch.
-
-        #erase ticket
-        #call reindex for each resource
-        #commit
-        pass
 
     def optimize(self):
         """Optimize underlying index"""
-        pass
+        self.backend.optimize()
 
     def add_doc(self, doc):
         """Add a document to underlying search backend.
 
         The doc must be dictionary with obligatory "type" field
         """
-        self.backend.add_doc(doc)
+        operation_data = self.backend.start_operation()
+        try:
+            self.backend.add_doc(doc, **operation_data)
+            self.backend.commit(False, **operation_data)
+        except:
+            self.backend.cancel(**operation_data)
+            raise
+
 
     def delete_doc(self, type, id):
         """Add a document from underlying search backend.
 
         The doc must be dictionary with obligatory "type" field
         """
-        pass
+        operation_data = self.backend.start_operation()
+        try:
+            self.backend.delete_doc(type, id, **operation_data)
+            self.backend.commit(False, **operation_data)
+        except:
+            self.backend.cancel(**operation_data)
+            raise
 
 
 

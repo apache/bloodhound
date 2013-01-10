@@ -23,20 +23,23 @@ import unittest
 import tempfile
 import shutil
 from bhsearch.api import ASC, DESC, SCORE
+from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.test import EnvironmentStub
 from trac.util.datefmt import FixedOffset, utc
-from whoosh.qparser import MultifieldParser, MultifieldPlugin, syntax, QueryParser, WhitespacePlugin, PhrasePlugin, PlusMinusPlugin
+from whoosh import index, sorting, query
+from whoosh.fields import Schema, ID, TEXT, KEYWORD
+from whoosh.qparser import MultifieldPlugin, QueryParser, WhitespacePlugin, PhrasePlugin
 
 
 class WhooshBackendTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
         self.env = EnvironmentStub(enable=['bhsearch.*'])
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
-#        self.perm = PermissionSystem(self.env)
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
+        self.default_parser = DefaultQueryParser(self.env)
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -46,8 +49,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
         self.whoosh_backend.add_doc(dict(id="2", type="ticket"))
         result = self.whoosh_backend.query(
-#        result = self.search_api.query(
-            "*:*",
+            query.Every(),
             sort = [("id", ASC)],
         )
         self.print_result(result)
@@ -64,7 +66,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
 
     def test_can_return_all_fields(self):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
-        result = self.whoosh_backend.query("*:*")
+        result = self.whoosh_backend.query(query.Every())
         self.print_result(result)
         docs = result.docs
         self.assertEqual(
@@ -74,7 +76,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
 
     def test_can_select_fields(self):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
-        result = self.whoosh_backend.query("*:*",
+        result = self.whoosh_backend.query(query.Every(),
             fields=("id", "type"))
         self.print_result(result)
         docs = result.docs
@@ -87,7 +89,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
         whoosh_backend2 = WhooshBackend(self.env)
         whoosh_backend2.add_doc(dict(id="2", type="ticket"))
-        result = whoosh_backend2.query("*:*")
+        result = whoosh_backend2.query(query.Every())
         self.assertEqual(2, result.hits)
 
     def test_can_multi_sort_asc(self):
@@ -96,7 +98,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="4", type="ticket3"))
         self.whoosh_backend.add_doc(dict(id="1", type="ticket1"))
         result = self.whoosh_backend.query(
-            "*:*",
+            query.Every(),
             sort = [("type", ASC), ("id", ASC)],
             fields=("id", "type"),
         )
@@ -113,7 +115,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="4", type="ticket3"))
         self.whoosh_backend.add_doc(dict(id="1", type="ticket1"))
         result = self.whoosh_backend.query(
-            "*:*",
+            query.Every(),
             sort = [("type", ASC), ("id", DESC)],
             fields=("id", "type"),
         )
@@ -156,10 +158,12 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
             summary="some text out of search scope",
             time=the_third_date,
         ))
+
+        parsed_query = self.default_parser.parse("summary:texttofind")
+
         result = self.whoosh_backend.query(
-            "summary:texttofind",
+            parsed_query,
             sort = [(SCORE, ASC), ("time", DESC)],
-#            fields=("id", "type"),
         )
         self.print_result(result)
         self.assertEqual(3, result.hits)
@@ -176,7 +180,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="2", type="ticket", product="B"))
         self.whoosh_backend.add_doc(dict(id="3", type="wiki", product="A"))
         result = self.whoosh_backend.query(
-            "*:*",
+            query.Every(),
             sort = [("type", ASC), ("id", DESC)],
             fields=("id", "type"),
             facets= ("type", "product")
@@ -187,25 +191,22 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.assertEqual({"ticket":2, "wiki":1}, facets["type"])
         self.assertEqual({"A":2, "B":1}, facets["product"])
 
-    @unittest.skip(
-        "Fix this, check why exception is raise on Whoosh mailing list")
-    #TODO: fix this!!!!
     def test_can_do_facet_if_filed_missing_TODO(self):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
         self.whoosh_backend.add_doc(dict(id="2", type="ticket", status="New"))
         result = self.whoosh_backend.query(
-            "*:*",
+            query.Every(),
             facets= ("type", "status")
         )
         self.print_result(result)
         self.assertEqual(2, result.hits)
         facets = result.facets
         self.assertEqual({"ticket":2}, facets["type"])
-        self.assertEqual({"new":1}, facets["status"])
+        self.assertEqual({None: 1, 'New': 1}, facets["status"])
 
     def test_can_return_empty_result(self):
         result = self.whoosh_backend.query(
-            "*:*",
+            query.Every(),
             sort = [("type", ASC), ("id", DESC)],
             fields=("id", "type"),
             facets= ("type", "product")
@@ -216,14 +217,14 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
     def test_can_search_time_with_utc_tzinfo(self):
         time = datetime(2012, 12, 13, 11, 8, 34, 711957, tzinfo=FixedOffset(0, 'UTC'))
         self.whoosh_backend.add_doc(dict(id="1", type="ticket", time=time))
-        result = self.whoosh_backend.query("*:*")
+        result = self.whoosh_backend.query(query.Every())
         self.print_result(result)
         self.assertEqual(time, result.docs[0]["time"])
 
     def test_can_search_time_without_tzinfo(self):
         time = datetime(2012, 12, 13, 11, 8, 34, 711957, tzinfo=None)
         self.whoosh_backend.add_doc(dict(id="1", type="ticket", time=time))
-        result = self.whoosh_backend.query("*:*")
+        result = self.whoosh_backend.query(query.Every())
         self.print_result(result)
         self.assertEqual(time.replace(tzinfo=utc), result.docs[0]["time"])
 
@@ -233,60 +234,139 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         time = datetime(2012, 12, 13, 11, hours, 34, 711957,
             tzinfo=FixedOffset(tz_diff, "just_one_timezone"))
         self.whoosh_backend.add_doc(dict(id="1", type="ticket", time=time))
-        result = self.whoosh_backend.query("*:*")
+        result = self.whoosh_backend.query(query.Every())
         self.print_result(result)
         self.assertEqual(datetime(2012, 12, 13, 11, hours-tz_diff, 34, 711957,
                     tzinfo=utc), result.docs[0]["time"])
 
+
+    def test_can_apply_filter_and_facet(self):
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
+        self.whoosh_backend.add_doc(dict(id="2", type="wiki" ))
+        result = self.whoosh_backend.query(
+            query.Every(),
+            filter=[("type", "ticket")],
+            facets=["type"]
+        )
+        self.print_result(result)
+        self.assertEqual(1, result.hits)
+        self.assertEqual("ticket", result.docs[0]["type"])
+
+
     @unittest.skip("TODO clarify behavior on Whoosh mail list")
-    def test_can_search_id_and_summary(self):
+    def test_can_search_id_and_summary_TODO(self):
         #arrange
         self.insert_ticket("test x")
         self.insert_ticket("test 1")
 
-#        field_boosts = dict(
-#            id = 6,
-#            type = 2,
-#            summary = 5,
-#            author = 3,
-#            milestone = 2,
-#            keywords = 2,
-#            component = 2,
-#            status = 2,
-#            content = 1,
-#            changes = 0.8,
-#        )
         fieldboosts = dict(
             id = 1,
             summary = 1,
         )
 
-#        parser = MultifieldParser(
-#            fieldboosts.keys(),
-#            WhooshBackend.SCHEMA,
-##            fieldboosts=field_boosts
-#        )
-
-        mfp = MultifieldPlugin(list(fieldboosts.keys()),
-#                                       fieldboosts=fieldboosts,
-#                                       group=syntax.DisMaxGroup
-        )
+        mfp = MultifieldPlugin(list(fieldboosts.keys()),)
         pins = [WhitespacePlugin,
-#                PlusMinusPlugin,
                 PhrasePlugin,
                 mfp]
         parser =  QueryParser(None, WhooshBackend.SCHEMA, plugins=pins)
 
-
-        parsed_query = parser.parse(u"1")
-#        parsed_query = parser.parse(u"test")
+        parsed_query = parser.parse("1")
         result = self.whoosh_backend.query(parsed_query)
         self.print_result(result)
         self.assertEqual(2, result.hits)
 
+class WhooshFunctionalityTestCase(unittest.TestCase):
+    def setUp(self):
+        self.index_dir = tempfile.mkdtemp('whoosh_index')
+
+    def tearDown(self):
+        shutil.rmtree(self.index_dir)
+
+    def test_groupedby_empty_field(self):
+        schema = Schema(
+                unique_id=ID(stored=True, unique=True),
+                id=ID(stored=True),
+                type=ID(stored=True),
+                status=KEYWORD(stored=True),
+                content=TEXT(stored=True),
+                )
+
+        ix = index.create_in(self.index_dir, schema=schema)
+        with ix.writer() as w:
+            w.add_document(unique_id="1",type="type1")
+            w.add_document(unique_id="2",type="type2", status="New")
+
+        facet_fields = ("type", "status" )
+        groupedby = facet_fields
+        with ix.searcher() as s:
+            r = s.search(
+                query.Every(),
+                groupedby=groupedby,
+                maptype=sorting.Count,
+            )
+            facets = self._load_facets(r)
+            print len(r) == 2
+        print facets
+        self.assertEquals(
+            {'status': {None: 1, 'New': 1}, 'type': {'type1': 1, 'type2': 1}},
+            facets)
+
+    def test_groupedby_empty_field(self):
+        """
+        Whoosh 2.4 raises an error when simultaneously using filters and facets
+        in search:
+            AttributeError: 'FacetCollector' object has no attribute 'offset'
+
+        The problem should be fixed in the next release. For more info read
+        https://bitbucket.org/mchaput/whoosh/issue/274
+
+        For the time of being, whoosh-backend have to introduce workaround in
+        order to fix the problem. This unit-test is just a reminder to remove
+        workaround when the fixed version of Whoosh is applied.
+        """
+        schema = Schema(
+                unique_id=ID(stored=True, unique=True),
+                type=ID(stored=True),
+                )
+
+        ix = index.create_in(self.index_dir, schema=schema)
+        with ix.writer() as w:
+            w.add_document(unique_id=u"1",type=u"type1")
+            w.add_document(unique_id=u"2",type=u"type2")
+
+        with ix.searcher() as s:
+            with self.assertRaises(AttributeError):
+                s.search(
+                    query.Every(),
+                    groupedby=("type"),
+                    maptype=sorting.Count,
+                    filter=query.Term("type", "type1")
+                )
+
+#    def _prepare_groupedby(self, facets):
+#        if not facets:
+#            return None
+#        groupedby = sorting.Facets()
+#        for facet_name in facets:
+#            groupedby.add_field(facet_name, allow_overlap=True, maptype=sorting.Count)
+#        return groupedby
+
+    def _load_facets(self, non_paged_results):
+        facet_names = non_paged_results.facet_names()
+        if not facet_names:
+            return None
+        facets_result = dict()
+        for name in facet_names:
+            facets_result[name] = non_paged_results.groups(name)
+        return facets_result
+
+
 
 def suite():
-    return unittest.makeSuite(WhooshBackendTestCase, 'test')
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
+    return suite
 
 if __name__ == '__main__':
     unittest.main()

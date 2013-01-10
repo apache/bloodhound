@@ -21,40 +21,36 @@ from datetime import datetime
 
 import unittest
 import tempfile
-import shutil
-from bhsearch.api import BloodhoundSearchApi
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketSearchParticipant
+from bhsearch.ticket_search import TicketIndexer
 
-from bhsearch.whoosh_backend import WhooshBackend
 from trac.test import EnvironmentStub
-from trac.ticket.api import TicketSystem
 
 
-class TicketSearchSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
+class TicketIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
         self.env = EnvironmentStub(
             enable=['bhsearch.*'],
             path=tempfile.mkdtemp('bhsearch-tempenv'),
         )
-        self.ticket_participant = TicketSearchParticipant(self.env)
+        self.ticket_indexer = TicketIndexer(self.env)
 
     def tearDown(self):
         pass
 
     def test_does_not_raise_exception_by_default(self):
-        self.ticket_participant.ticket_created(None)
+        self.ticket_indexer.ticket_created(None)
 
     def test_raise_exception_if_configured(self):
         self.env.config.set('bhsearch', 'silence_on_error', "False")
         self.assertRaises(
             Exception,
-            self.ticket_participant.ticket_created,
+            self.ticket_indexer.ticket_created,
             None)
 
 
 def suite():
-    return unittest.makeSuite(TicketSearchSilenceOnExceptionTestCase, 'test')
+    return unittest.makeSuite(TicketIndexerSilenceOnExceptionTestCase, 'test')
 
 if __name__ == '__main__':
     unittest.main()

@@ -24,6 +24,7 @@ Test utils methods
 import pprint
 import unittest
 from trac.ticket import Ticket
+from trac.wiki import WikiPage
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
     def print_result(self, result):
@@ -47,4 +48,17 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         """Helper for inserting a ticket into the database"""
         ticket = self.create_ticket(summary, **kw)
         return ticket.insert()
+
+    def create_wiki(self, name, text,  **kw):
+        page = WikiPage(self.env, name)
+        page.text = text
+        for k, v in kw.items():
+            page[k] = v
+        return page
+
+    def insert_wiki(self, name, text = None, **kw):
+        """Helper for inserting a ticket into the database"""
+        text = text or "Dummy text"
+        page = self.create_wiki(name, text, **kw)
+        return page.save("dummy author", "dummy comment", "::1")
 
