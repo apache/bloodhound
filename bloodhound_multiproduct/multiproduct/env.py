@@ -23,7 +23,7 @@ from urlparse import urlsplit
 
 from trac.config import ConfigSection, Option
 from trac.core import Component, ComponentManager, implements
-from trac.db.api import with_transaction
+from trac.db.api import with_transaction, TransactionContextManager, QueryContextManager
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
@@ -328,7 +328,7 @@ class ProductEnvironment(Component, ComponentManager):
           `db_transaction`).
         """
         BloodhoundIterableCursor.set_env(self)
-        return self.env.db_query
+        return QueryContextManager(self.env)
 
     @property
     def db_transaction(self):
@@ -364,7 +364,7 @@ class ProductEnvironment(Component, ComponentManager):
           (`db_query` or `db_transaction`).
         """
         BloodhoundIterableCursor.set_env(self)
-        return self.env.db_transaction
+        return TransactionContextManager(self.env)
 
     def shutdown(self, tid=None):
         """Close the environment."""
