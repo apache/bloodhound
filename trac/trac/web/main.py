@@ -437,9 +437,11 @@ def dispatch_request(environ, start_response):
     try:
         from trac.hooks import environment_factory, install_global_hooks
         install_global_hooks(environ, env_path)
-        factory = environment_factory(environ, env_path)
-        env = factory().open_environment(environ, env_path, use_cache=not run_once) if factory \
-                else open_environment(env_path, use_cache=not run_once)
+        global_env = open_environment(env_path, use_cache=not run_once)
+        factory = environment_factory(global_env)
+        factory_env = factory().open_environment(environ, env_path, global_env, use_cache=not run_once) if factory \
+                        else None
+        env = factory_env if factory_env else global_env
         if env.base_url_for_redirect:
             environ['trac.base_url'] = env.base_url
 

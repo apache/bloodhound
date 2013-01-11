@@ -24,7 +24,7 @@ from config import Configuration
 __all__ = ['environment_factory', 'install_global_hooks']
 
 class EnvironmentFactoryBase(object):
-    def open_environment(self, environ, env_path, use_cache=False):
+    def open_environment(self, environ, env_path, global_env, use_cache=False):
         return None
 
 class GlobalHooksBase(object):
@@ -48,21 +48,21 @@ def _hook_load(env_path, hook_path):
 def _get_hook_class(env_path, hook_path, class_type):
     module = _hook_load(env_path, hook_path)
     for (name, cls) in inspect.getmembers(module, inspect.isclass):
-        if issubclass(cls, class_type):
+        if issubclass(cls, class_type) and \
+           not cls is class_type:
             return cls
     return None
 
-def environment_factory(environ, env_path):
-    config = _get_config(env_path)
-    hook_path = config.get('hooks', 'environment_factory', default=None)
-    return _get_hook_class(env_path, hook_path, EnvironmentFactoryBase) if hook_path else None
-
 def install_global_hooks(environ, env_path):
     config = _get_config(env_path)
-    hook_paths = config.get('hooks', 'global_hooks', default=None)
+    hook_paths = config.get('trac', 'global_hooks', default=None)
     if hook_paths:
         for hook_path in hook_paths.split(','):
             cls = _get_hook_class(env_path, hook_path, GlobalHooksBase)
             if cls:
                 cls().install_hooks(environ, env_path)
     return
+
+def environment_factory(env):
+    hook_path = env.config.get('trac', 'environment_factory', default=None)
+    return _get_hook_class(env.path, hook_path, EnvironmentFactoryBase) if hook_path else None

@@ -24,14 +24,40 @@ from urlparse import urlsplit
 from trac.config import ConfigSection, Option
 from trac.core import Component, ComponentManager, implements
 from trac.db.api import with_transaction
-from trac.env import Environment, ISystemInfoProvider
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
+import trac.env
+
 from multiproduct.model import Product
 from multiproduct.dbcursor import BloodhoundIterableCursor
+
+class Environment(trac.env.Environment):
+    """Bloodhound environment manager
+
+    This class is intended as monkey-patch replacement for
+    trac.env.Environment. Required database access methods/properties
+    are replaced to provide global view of the database in contrast
+    to ProductEnvironment that features per-product view of the database
+    (in the context of selected product).
+    """
+    def __init__(self, path, create=False, options=[]):
+        super(Environment, self).__init__(path, create=create, options=options)
+        # global environment w/o parent
+        self.env = None
+        self.product = None
+
+    @property
+    def db_query(self):
+        BloodhoundIterableCursor.set_env(self)
+        return super(Environment, self).db_query
+
+    @property
+    def db_transaction(self):
+        BloodhoundIterableCursor.set_env(self)
+        return super(Environment, self).db_transaction
 
 class ProductEnvironment(Component, ComponentManager):
     """Bloodhound product-aware environment manager.
@@ -54,7 +80,7 @@ class ProductEnvironment(Component, ComponentManager):
     See https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003
     """
 
-    implements(ISystemInfoProvider)
+    implements(trac.env.ISystemInfoProvider)
 
     @property
     def system_info_providers(self):
@@ -197,6 +223,7 @@ class ProductEnvironment(Component, ComponentManager):
 
         self.env = env
         self.product = product
+        self.path = self.env.path
         self.systeminfo = []
         self._href = self._abs_href = None
 
@@ -208,14 +235,14 @@ class ProductEnvironment(Component, ComponentManager):
         return self.env.get_system_info()
 
     # Same as parent environment's . Avoid duplicated code
-    component_activated = Environment.component_activated.im_func
-    _component_name = Environment._component_name.im_func
-    _component_rules = Environment._component_rules
-    enable_component = Environment.enable_component.im_func
-    get_known_users = Environment.get_known_users.im_func
-    get_systeminfo = Environment.get_system_info.im_func
-    get_repository = Environment.get_repository.im_func
-    is_component_enabled = Environment.is_component_enabled.im_func
+    component_activated = trac.env.Environment.component_activated.im_func
+    _component_name = trac.env.Environment._component_name.im_func
+    _component_rules = trac.env.Environment._component_rules
+    enable_component = trac.env.Environment.enable_component.im_func
+    get_known_users = trac.env.Environment.get_known_users.im_func
+    get_systeminfo = trac.env.Environment.get_system_info.im_func
+    get_repository = trac.env.Environment.get_repository.im_func
+    is_component_enabled = trac.env.Environment.is_component_enabled.im_func
 
     def get_db_cnx(self):
         """Return a database connection from the connection pool
