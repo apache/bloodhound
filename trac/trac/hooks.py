@@ -20,6 +20,7 @@ import imp
 import inspect
 
 from config import Configuration
+from util.concurrency import threading
 
 __all__ = ['environment_factory', 'install_global_hooks']
 
@@ -53,14 +54,26 @@ def _get_hook_class(env_path, hook_path, class_type):
             return cls
     return None
 
+_global_hooks_installed = False
+_global_hooks_lock = threading.Lock()
+
 def install_global_hooks(environ, env_path):
-    config = _get_config(env_path)
-    hook_paths = config.get('trac', 'global_hooks', default=None)
-    if hook_paths:
-        for hook_path in hook_paths.split(','):
-            cls = _get_hook_class(env_path, hook_path, GlobalHooksBase)
-            if cls:
-                cls().install_hooks(environ, env_path)
+    global _global_hooks_installed, _global_hooks_lock
+    if _global_hooks_installed:
+        return
+    _global_hooks_lock.acquire()
+    try:
+        if not _global_hooks_installed:
+            config = _get_config(env_path)
+            hook_paths = config.get('trac', 'global_hooks', default=None)
+            if hook_paths:
+                for hook_path in hook_paths.split(','):
+                    cls = _get_hook_class(env_path, hook_path, GlobalHooksBase)
+                    if cls:
+                        cls().install_hooks(environ, env_path)
+            _global_hooks_installed = True
+    finally:
+        _global_hooks_lock.release()
     return
 
 def environment_factory(env):
