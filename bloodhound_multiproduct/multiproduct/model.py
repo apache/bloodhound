@@ -85,7 +85,7 @@ class Product(ModelBase):
 
     def insert(self):
         from trac import db_default
-        from trac.bloodhound import  TRANSLATE_TABLES
+        from multiproduct.dbcursor import TRANSLATE_TABLES
         with self._env.db_transaction as db:
             super(Product, self).insert()
             for table, cols, vals in db_default.get_data(db):
