@@ -1,3 +1,14 @@
+0.4
+
+ * Replaces ticket edit form with a new 'in-place' edit and workflow control
+ * Added white-labelling for error messages and basic branding
+ * Improvements to the quick ticket creation form including ability to specify the select fields and their order.
+ * Various bug fixes
+
+ * Not fixed for this release:
+   * No major outstanding issues
+
+
 0.3
 
  * Removes minified files from Bloodhound
