@@ -83,20 +83,6 @@ class Product(ModelBase):
         q = Query.from_string(env, 'product=%s' % product)
         return q.execute()
 
-    def insert(self):
-        from trac import db_default
-        from multiproduct.dbcursor import TRANSLATE_TABLES
-        with self._env.db_transaction as db:
-            super(Product, self).insert()
-            for table, cols, vals in db_default.get_data(db):
-                if not table in TRANSLATE_TABLES:
-                    continue
-                self._env.product_aware = False
-                self._env.product_scope = self.prefix
-                db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (table,
-                                                                    ','.join(cols),
-                                                                    ','.join(['%s'] * len(cols))), vals)
-
 class ProductResourceMap(ModelBase):
     """Table representing the mapping of resources to their product"""
     _meta = {'table_name':'bloodhound_productresourcemap',
