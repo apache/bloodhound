@@ -29,7 +29,7 @@ Add free text search and query functionality to Bloodhound sites.
 """
 
 versions = [
-    (0, 4, 1),
+    (0, 4, 0),
     ]
 
 latest = '.'.join(str(x) for x in versions[-1])
