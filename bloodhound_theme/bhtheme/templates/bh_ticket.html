@@ -55,7 +55,21 @@
         // Install in place editing
 
         var modify_elem = $('#modify');
-        modify_elem.parent().hide();
+        <py:if test="ticket.exists">
+          modify_elem.parent().hide();
+          $('#propertyform .buttons [name="preview"]').hide();
+          $('#comment').change(function (e) {
+            $('#hidden-comment').val($('#comment').val());
+          });
+          $('#propertyform .buttons [name="submit"]').click(function (e) {
+            if ($('button#edit-submit').length) {
+              // if available trigger the edit state's update button
+              $('button#edit-submit').click();
+              e.preventDefault();
+            }
+            // otherwise the default submit comment only happens
+          });
+        </py:if>
   
         function modify_ticket() {
           if ($('#vc-summary').is('.edit-active'))
@@ -116,12 +130,19 @@
                   })
               }
             });
+
+          // Enable automatic preview
+          //$('#inplace-propertyform').autoSubmit({preview : 1}, 
+          //    full_preview, '#overview .trac-loading')
+          $('#inplace-propertyform').submit(function() {
+              $('#hidden-comment').val($('#comment').val())
+            })
         }
 
         function revert_ticket() {
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).removeClass('edit-active');
-              fc.html(fc.attr('data-edit-orig'));
+              fc.html(fc.attr('data-edit-orig')).attr('data-edit-orig', '');
             });
         }
 
@@ -154,10 +175,8 @@
         var comment_focused = false;
         $("#comment").focus(function() { comment_focused = true; })
                      .blur(function() { comment_focused = false; });
-        $("#propertyform").autoSubmit({preview: '1'}, function(data, reply) {
+        function full_preview(data, reply) {
           var items = $(reply);
-          // Update ticket box
-          $("#ticket").replaceWith(items.filter('#ticket'));
           // Unthread, unrevert and update changelog
           if (!$('#trac-comments-oldest').checked())
             $('#trac-comments-oldest').click().change();
@@ -176,7 +195,9 @@
           // Collapse property form if comment editor has focus
           if (show_preview && comment_focused)
             $("#modify").parent().addClass("collapsed");
-        }, "#ticketchange .trac-loading");
+        }
+        $("#propertyform").autoSubmit({preview: '1'}, full_preview,
+            "#ticketchange .trac-loading");
         $("#trac-comment-editor").autoSubmit({preview_comment: '1'}, function(data, reply) {
           var comment = $("#trac-comment-editor").next("div.comment").html(reply);
           comment.toggle(comment.children().length != 0);
@@ -223,6 +244,8 @@
                 <input type="hidden" name="view_time" 
                     value="${to_utimestamp(ticket['changetime'])}" />
               </py:if>
+              <input id="hidden-comment" type="hidden" name="comment" 
+                     value=""/>
               <div class="stickyBox">
                 <div id="overview" class="stickyStatus $colspan">
                   <div class="whitebox"></div>
@@ -287,7 +310,7 @@
                 setup_sticky_panel('#overview');
               </script>
 
-              <div>
+              <div id="basic-properties">
                 <div class="row">
                   <div class="span4">
                     <div class="row">
@@ -677,6 +700,9 @@ ${value}</textarea>
         <button id="edit-cancel" class="btn-link" title="Discard changes">
           Cancel
         </button>
+      </div>
+      <div class="btn-group">
+        <span class="trac-loading">&nbsp;</span>
       </div>
       </div>
     </script>

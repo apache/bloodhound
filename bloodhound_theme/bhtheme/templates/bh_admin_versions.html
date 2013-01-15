@@ -27,6 +27,11 @@
   <xi:include href="bh_admin.html" />
   <head>
     <title>Versions</title>
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        $("#releaseddate").datetimepicker();
+      });
+    /*]]>*/</script>
   </head>
 
   <body>
@@ -44,9 +49,9 @@
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="versiondate">Date:</label>
+            <label class="control-label" for="releaseddate">Date:</label>
             <div class="controls">
-              <input type="text" id="versiondate" name="time" size="${len(datetime_hint)}"
+              <input type="text" id="releaseddate" name="time" size="${len(datetime_hint)}"
                   value="${format_datetime(version.time)}"
                   placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
             </div>

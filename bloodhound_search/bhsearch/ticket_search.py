@@ -19,59 +19,21 @@
 #  under the License.
 
 r"""Ticket specifics for Bloodhound Search plugin."""
-from bhsearch.api import ISearchParticipant, BloodhoundSearchApi
+from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, IIndexParticipant, IndexFields
 from genshi.builder import tag
 from trac.core import *
-from trac.ticket.api import ITicketChangeListener, TicketSystem
+from trac.ticket.api import ITicketChangeListener
 from trac.ticket import Ticket
 from trac.ticket.query import Query
 from trac.config import Option
-from trac.web.chrome import add_warning
-from trac.util.datefmt import to_datetime
 
-TICKET = "ticket"
-TICKET_STATUS = 'status'
+TICKET_TYPE = "ticket"
+TICKET_STATUS = "status"
 
-class TicketSearchParticipant(Component):
-    implements(ITicketChangeListener, ISearchParticipant)
+class TicketIndexer(Component):
+    implements(ITicketChangeListener, IIndexParticipant)
     silence_on_error = Option('bhsearch', 'silence_on_error', "True",
         """If true, do not throw an exception during indexing a resource""")
-
-    def _index_ticket(self, ticket, search_api=None, raise_exception = False):
-        """Internal method for actually indexing a ticket.
-        This reduces duplicating code."""
-        try:
-            if not search_api:
-                search_api = BloodhoundSearchApi(self.env)
-
-            #This is very naive prototype implementation
-            #TODO: a lot of improvements must be added here!!!
-            contents = {
-                'id': unicode(ticket.id),
-                'time': ticket.time_changed,
-                'type': TICKET,
-                }
-            fields = [('component',), ('description','content'), ('component',),
-                      ('keywords',), ('milestone',), ('summary',),
-                      ('status',), ('resolution',), ('reporter','author')]
-            for f in fields:
-              if f[0] in ticket.values:
-                  if len(f) == 1:
-                      contents[f[0]] = ticket.values[f[0]]
-                  elif len(f) == 2:
-                      contents[f[1]] = ticket.values[f[0]]
-            contents['changes'] = u'\n\n'.join([x[4] for x in ticket.get_changelog()
-              if x[2] == u'comment'])
-            search_api.add_doc(contents)
-        except Exception, e:
-            if (not raise_exception) and self.silence_on_error.lower() == "true":
-                #Is there any way to get request object to add warning?
-    #            add_warning(req, _('Exception during ticket indexing: %s' % e))
-                self.log.error("Error occurs during ticke indexing. \
-                    The error will not be propagated. Exception: %s", e)
-            else:
-                raise
-
 
     #ITicketChangeListener methods
     def ticket_created(self, ticket):
@@ -84,30 +46,81 @@ class TicketSearchParticipant(Component):
 
     def ticket_deleted(self, ticket):
         """Called when a ticket is deleted."""
-        s = BloodhoundSearchApi(self.env)
-        s.delete_doc(u'ticket', unicode(ticket.id))
+        try:
+            search_api = BloodhoundSearchApi(self.env)
+            search_api.delete_doc(TICKET_TYPE, ticket.id)
+        except Exception, e:
+            if self.silence_on_error.lower() == "true":
+                self.log.error("Error occurs during ticket indexing. \
+                    The error will not be propagated. Exception: %s", e)
+            else:
+                raise
 
-    # ISearchParticipant methods
-    def get_search_filters(self, req=None):
-        if not req or 'TICKET_VIEW' in req.perm:
-            return ('ticket', 'Tickets')
+    def _index_ticket(
+            self,
+            ticket,
+            raise_exception = False,
+            ):
+        try:
+            search_api = BloodhoundSearchApi(self.env)
+            doc = self.build_doc(ticket)
+            search_api.add_doc(doc)
+        except Exception, e:
+            if (not raise_exception) and self.silence_on_error.lower() == "true":
+                self.log.error("Error occurs during ticket indexing. \
+                    The error will not be propagated. Exception: %s", e)
+            else:
+                raise
 
-    def build_search_index(self, backend):
-        """
-        :type backend: ISearchBackend
-        """
-        #TODO: some king of paging/batch size should be introduced in order to
-        # avoid loading of all ticket ids in memory
-        query_records = self.load_tickets_ids()
+    #IIndexParticipant members
+    def build_doc(self, trac_doc):
+        ticket = trac_doc
+        doc = {
+            IndexFields.ID: unicode(ticket.id),
+            IndexFields.TYPE: TICKET_TYPE,
+            IndexFields.TIME: ticket.time_changed,
+            }
+        fields = [('component',),
+                  ('description',IndexFields.CONTENT),
+                  ('keywords',),
+                  ('milestone',),
+                  ('summary',),
+                  ('status',),
+                  ('resolution',),
+                  ('reporter',IndexFields.AUTHOR),
+        ]
+        for f in fields:
+          if f[0] in ticket.values:
+              if len(f) == 1:
+                  doc[f[0]] = ticket.values[f[0]]
+              elif len(f) == 2:
+                  doc[f[1]] = ticket.values[f[0]]
+        doc['changes'] = u'\n\n'.join([x[4] for x in ticket.get_changelog()
+          if x[2] == u'comment'])
+        return doc
+
+    def get_entries_for_index(self):
+        #is there any better way to get all tickets?
+        query_records = self._load_ticket_ids()
         for record in query_records:
-            ticket_id = record["id"]
-            ticket = Ticket(self.env, ticket_id)
-            self._index_ticket(ticket, backend, raise_exception=True)
+            ticket = Ticket(self.env, record["id"])
+            yield self.build_doc(ticket)
 
-    def load_tickets_ids(self):
-        #is there better way to get all tickets?
+    def _load_ticket_ids(self):
         query = Query(self.env, cols=['id'], order='id')
         return query.execute()
+
+
+class TicketSearchParticipant(Component):
+    implements(ISearchParticipant)
+
+    #ISearchParticipant members
+    def get_search_filters(self, req=None):
+        if not req or 'TICKET_VIEW' in req.perm:
+            return TICKET_TYPE
+
+    def get_title(self):
+        return "Ticket"
 
     def format_search_results(self, res):
         if not TICKET_STATUS in res:

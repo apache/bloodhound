@@ -23,12 +23,12 @@ r"""Provides Bloodhound Search query parsing functionality"""
 from bhsearch.api import IQueryParser
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.core import Component, implements
-from whoosh.qparser import QueryParser, DisMaxParser, MultifieldParser
+from whoosh.qparser import MultifieldParser
 
 class DefaultQueryParser(Component):
     implements(IQueryParser)
 
-    def parse(self, query_string, req = None):
+    def parse(self, query_string):
         #todo: make field boost configurable e.g. read from config setting
         #this is prototype implementation ,the fields boost must be tuned later
         field_boosts = dict(

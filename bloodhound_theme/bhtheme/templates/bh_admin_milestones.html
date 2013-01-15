@@ -27,6 +27,12 @@
   <xi:include href="bh_admin.html" />
   <head>
     <title>Milestones</title>
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        $("#duedate").datetimepicker();
+        $("#completeddate").datetimepicker();
+      });
+    /*]]>*/</script>
   </head>
 
   <body>
@@ -48,8 +54,9 @@
           <div class="control-group">
             <label class="control-label" for="duedate">Due:</label>
             <div class="controls">
-              <input type="text" id="duedate" name="duedate" size="${len(datetime_hint)}"
-                     value="${milestone.due and format_datetime(milestone.due)}" readonly="${readonly}"
+              <input type="text" id="duedate" name="duedate"
+                     size="${len(datetime_hint)}" readonly="${readonly}"
+                     value="${milestone.due and format_datetime(milestone.due)}"
                      placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}"/>
             </div>
           </div>

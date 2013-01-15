@@ -29,7 +29,7 @@ Add free text search and query functionality to Bloodhound sites.
 """
 
 versions = [
-    (0, 4, 1),
+    (0, 4, 0),
     ]
 
 latest = '.'.join(str(x) for x in versions[-1])
@@ -124,6 +124,7 @@ ENTRY_POINTS = {
             'bhsearch.api = bhsearch.api',
             'bhsearch.admin = bhsearch.admin',
             'bhsearch.ticket_search = bhsearch.ticket_search',
+            'bhsearch.wiki_search = bhsearch.wiki_search',
             'bhsearch.query_parser = bhsearch.query_parser',
             'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
         ],

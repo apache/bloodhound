@@ -100,16 +100,16 @@ Arguments:
         <div class="pull-right">
           <form py:if="ticket.exists and ticket.description and can_append"
               id="addreply" method="get" action="#comment">
-            <input type="hidden" name="replyto" value="description" />
-            <input type="submit" name="reply" value="${_('Reply')}"
-                class="btn btn-mini"
-                title="Reply, quoting this description" />
+            <a href="?replyto=description#trac-add-comment" class="btn btn-mini"
+                title="Reply, quoting this description" type="submit">Reply</a>
           </form>
         </div>
-        <div py:if="ticket.description" class="searchable" xml:space="preserve"
+        <div class="searchable" xml:space="preserve"
             data-edit="${'inplace' if can_edit or can_create else None}"
             id="vc-description">
-          ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
+          <py:if test="ticket.description">
+            ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
+          </py:if>
         </div>
         <br py:if="not ticket.description" style="clear: both" />
       </div>

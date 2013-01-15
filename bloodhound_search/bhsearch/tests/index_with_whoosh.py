@@ -24,9 +24,10 @@ import tempfile
 import shutil
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketSearchParticipant
+from bhsearch.ticket_search import TicketIndexer
 
 from bhsearch.whoosh_backend import WhooshBackend
+from bhsearch.wiki_search import WikiIndexer
 from trac.test import EnvironmentStub
 from trac.ticket.api import TicketSystem
 
@@ -35,11 +36,11 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
         self.env = EnvironmentStub(enable=['bhsearch.*'])
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
-#        self.perm = PermissionSystem(self.env)
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
-        self.ticket_participant = TicketSearchParticipant(self.env)
+        self.ticket_indexer = TicketIndexer(self.env)
+        self.wiki_indexer = WikiIndexer(self.env)
         self.ticket_system = TicketSystem(self.env)
 
     def tearDown(self):
@@ -49,7 +50,7 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def test_can_index_ticket(self):
         ticket = self.create_dummy_ticket()
         ticket.id = "1"
-        self.ticket_participant.ticket_created(ticket)
+        self.ticket_indexer.ticket_created(ticket)
 
         results = self.search_api.query("*:*")
         self.print_result(results)
@@ -64,7 +65,18 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
         self.print_result(results)
         self.assertEqual(1, results.hits)
 
-    def test_can_reindex(self):
+    def test_can_reindex_twice(self):
+        self.insert_ticket("t1")
+        self.whoosh_backend.recreate_index()
+        #act
+        self.search_api.rebuild_index()
+         #just to test that index was re-created
+        self.search_api.rebuild_index()
+        #assert
+        results = self.search_api.query("*:*")
+        self.assertEqual(1, results.hits)
+
+    def test_can_reindex_tickets(self):
         self.insert_ticket("t1")
         self.insert_ticket("t2")
         self.insert_ticket("t3")
@@ -75,6 +87,28 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
         results = self.search_api.query("*:*")
         self.print_result(results)
         self.assertEqual(3, results.hits)
+
+    def test_can_reindex_wiki(self):
+        self.insert_wiki("page1", "some text")
+        self.insert_wiki("page2", "some text")
+        self.whoosh_backend.recreate_index()
+        #act
+        self.search_api.rebuild_index()
+        #assert
+        results = self.search_api.query("*:*")
+        self.print_result(results)
+        self.assertEqual(2, results.hits)
+
+    def test_can_reindex_mixed_types(self):
+        self.insert_wiki("page1", "some text")
+        self.insert_ticket("t1")
+        self.whoosh_backend.recreate_index()
+        #act
+        self.search_api.rebuild_index()
+        #assert
+        results = self.search_api.query("*:*")
+        self.print_result(results)
+        self.assertEqual(2, results.hits)
 
 
 def suite():

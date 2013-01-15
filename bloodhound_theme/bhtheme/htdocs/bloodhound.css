@@ -218,7 +218,7 @@ pre.wiki {
   padding-left: 5px;
 }
 
-.ticket .properties .enum h5 {
+.ticket .properties .enum h5, #basic-properties h5 {
   margin-top: 0px;
 }
 
@@ -229,6 +229,13 @@ pre.wiki {
 .ticket textarea {
   height: auto;
   width: auto;
+}
+
+.trac-loading {
+  background: url(../common/loading.gif) 0 50% no-repeat;
+  margin: 0 1em;
+  padding-left: 16px;
+  display: none;
 }
 
 /* @end */
@@ -289,7 +296,7 @@ h1, h2, h3, h4 {
   white-space: nowrap;
 }
 
-.clip.edit-active, .affix .clip-affic.edit-active {
+.clip.edit-active, .affix .clip-affix.edit-active {
   overflow: visible;
 }
 /* @end */
@@ -364,6 +371,14 @@ h1, h2, h3, h4 {
 
 .comment blockquote p {
   font-size: 13px;
+}
+
+/* @end */
+
+/* @group Admin */
+
+.table .default  {
+ text-align: center
 }
 
 /* @end */

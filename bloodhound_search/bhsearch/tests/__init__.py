@@ -17,17 +17,17 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import doctest
 import unittest
-from bhsearch.tests import whoosh_backend, index_with_whoosh, web_ui, ticket_search, api
+from bhsearch.tests import whoosh_backend, index_with_whoosh, web_ui, ticket_search, api, wiki_search
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(index_with_whoosh.suite())
     suite.addTest(whoosh_backend.suite())
     suite.addTest(web_ui.suite())
-    suite.addTest(ticket_search.suite())
     suite.addTest(api.suite())
+    suite.addTest(ticket_search.suite())
+    suite.addTest(wiki_search.suite())
     return suite
 
 if __name__ == '__main__':

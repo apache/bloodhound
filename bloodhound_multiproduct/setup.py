@@ -21,7 +21,7 @@ from setuptools import setup
 
 setup(
     name = 'BloodhoundMultiProduct',
-    version = '0.3.0',
+    version = '0.4.0',
     packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
     package_data = {'multiproduct' : ['templates/*.html',]},
     entry_points = {'trac.plugins': [
