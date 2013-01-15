@@ -15,14 +15,13 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+# these two imports monkey patch required classes
+import multiproduct.env
+import multiproduct.dbcursor
+
 import re
 
-from trac.hooks import EnvironmentFactoryBase, GlobalHooksBase
-import trac.env
-import trac.db.util
-
-from multiproduct.dbcursor import BloodhoundIterableCursor
-from multiproduct.env import Environment, ProductEnvironment
+from trac.hooks import EnvironmentFactoryBase
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 
@@ -36,10 +35,5 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
         if m:
             pid = m.group('pid')
         if pid:
-            env = ProductEnvironment(global_env, pid)
+            env = multiproduct.env.ProductEnvironment(global_env, pid)
         return env
-
-class MultiProductGlobalHooks(GlobalHooksBase):
-    def install_hooks(self, environ, env_path):
-        trac.env.Environment = Environment
-        trac.db.util.IterableCursor = BloodhoundIterableCursor

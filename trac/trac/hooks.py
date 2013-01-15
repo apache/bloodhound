@@ -28,10 +28,6 @@ class EnvironmentFactoryBase(object):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
         return None
 
-class GlobalHooksBase(object):
-    def install_hooks(self, environ, env_path):
-        return
-
 def _get_plugins_dir(env_path):
     return os.path.normcase(os.path.realpath(os.path.join(env_path, 'plugins')))
 
@@ -57,20 +53,18 @@ def _get_hook_class(env_path, hook_path, class_type):
 _global_hooks_installed = False
 _global_hooks_lock = threading.Lock()
 
-def install_global_hooks(environ, env_path):
+def install_global_hooks():
     global _global_hooks_installed, _global_hooks_lock
     if _global_hooks_installed:
         return
     _global_hooks_lock.acquire()
     try:
         if not _global_hooks_installed:
-            config = _get_config(env_path)
-            hook_paths = config.get('trac', 'global_hooks', default=None)
-            if hook_paths:
-                for hook_path in hook_paths.split(','):
-                    cls = _get_hook_class(env_path, hook_path, GlobalHooksBase)
-                    if cls:
-                        cls().install_hooks(environ, env_path)
+            try:
+                # TODO: this is currently hardcoded, maybe it could be made configurable in the future
+                import multiproduct.hooks
+            except:
+                pass
             _global_hooks_installed = True
     finally:
         _global_hooks_lock.release()

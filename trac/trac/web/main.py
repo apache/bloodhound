@@ -435,8 +435,7 @@ def dispatch_request(environ, start_response):
 
     env = env_error = None
     try:
-        from trac.hooks import environment_factory, install_global_hooks
-        install_global_hooks(environ, env_path)
+        from trac.hooks import environment_factory
         global_env = open_environment(env_path, use_cache=not run_once)
         factory = environment_factory(global_env)
         factory_env = factory().open_environment(environ, env_path, global_env, use_cache=not run_once) if factory \

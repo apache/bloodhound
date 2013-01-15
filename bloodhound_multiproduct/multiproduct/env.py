@@ -29,10 +29,10 @@ from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
-import trac.env
-
 from multiproduct.model import Product
 from multiproduct.dbcursor import BloodhoundIterableCursor
+
+import trac.env
 
 class Environment(trac.env.Environment):
     """Bloodhound environment manager
@@ -44,10 +44,11 @@ class Environment(trac.env.Environment):
     (in the context of selected product).
     """
     def __init__(self, path, create=False, options=[]):
-        super(Environment, self).__init__(path, create=create, options=options)
-        # global environment w/o parent
+        # global environment w/o parent, set these two before super.__init__
+        # as database access can take place within trac.env.Environment
         self.parent = None
         self.product = None
+        super(Environment, self).__init__(path, create=create, options=options)
 
     @property
     def db_query(self):
@@ -58,6 +59,41 @@ class Environment(trac.env.Environment):
     def db_transaction(self):
         BloodhoundIterableCursor.set_env(self)
         return super(Environment, self).db_transaction
+
+# replace trac.env.Environment with Environment
+trac.env.Environment = Environment
+
+# this must follow the monkey patch (trac.env.Environment) above, otherwise
+# trac.test.EnvironmentStub will not be correct as the class will derive from
+# not replaced trac.env.Environment
+import trac.test
+
+class EnvironmentStub(trac.test.EnvironmentStub):
+    """Bloodhound test environment stub
+
+    This class replaces trac.test.EnvironmentStub and extends it with parent and product
+    properties (same case as with the Environment).
+    """
+    def __init__(self, default_data=False, enable=None, disable=None,
+                 path=None, destroying=False):
+        self.parent = None
+        self.product = None
+        super(EnvironmentStub, self).__init__(default_data=default_data,
+                                              enable=enable, disable=disable,
+                                              path=path, destroying=destroying)
+
+    @property
+    def db_query(self):
+        BloodhoundIterableCursor.set_env(self)
+        return super(EnvironmentStub, self).db_query
+
+    @property
+    def db_transaction(self):
+        BloodhoundIterableCursor.set_env(self)
+        return super(EnvironmentStub, self).db_transaction
+
+# replace trac.test.EnvironmentStub
+trac.test.EnvironmentStub = EnvironmentStub
 
 class ProductEnvironment(Component, ComponentManager):
     """Bloodhound product-aware environment manager.

@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from trac.db.util import IterableCursor
+import trac.db.util
 from trac.util import concurrency
 
 import sqlparse
@@ -37,8 +37,8 @@ TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'wiki
 PRODUCT_COLUMN = 'product'
 DEFAULT_PRODUCT = 'default'
 
-class BloodhoundIterableCursor(IterableCursor):
-    __slots__ = IterableCursor.__slots__ + ['_translator']
+class BloodhoundIterableCursor(trac.db.util.IterableCursor):
+    __slots__ = trac.db.util.IterableCursor.__slots__ + ['_translator']
     _tls = concurrency.ThreadLocal(env=None)
 
     def __init__(self, cursor, log=None):
@@ -71,6 +71,9 @@ class BloodhoundIterableCursor(IterableCursor):
     @classmethod
     def set_env(cls, env):
         cls._tls.env = env
+
+# replace trac.db.util.IterableCursor with BloodhoundIterableCursor
+trac.db.util.IterableCursor = BloodhoundIterableCursor
 
 class BloodhoundProductSQLTranslate(object):
     _join_statements = ['LEFT JOIN', 'LEFT OUTER JOIN',
