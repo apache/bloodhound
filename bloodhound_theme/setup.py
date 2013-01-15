@@ -19,6 +19,7 @@
 #  under the License.
 
 from setuptools import setup
+import sys
 
 setup(
   name = 'BloodhoundTheme',
@@ -34,6 +35,7 @@ setup(
       'Framework :: Trac',
     ],
   install_requires = ['BloodhoundDashboardPlugin', 'TracThemeEngine', 'Trac'],
+  tests_require = ['unittest2'] if sys.version_info < (2, 7) else [],
   entry_points = {
       'trac.plugins': [
             'bhtheme.theme = bhtheme.theme',

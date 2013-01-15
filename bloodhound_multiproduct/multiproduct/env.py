@@ -46,7 +46,7 @@ class Environment(trac.env.Environment):
     def __init__(self, path, create=False, options=[]):
         super(Environment, self).__init__(path, create=create, options=options)
         # global environment w/o parent
-        self.env = None
+        self.parent = None
         self.product = None
 
     @property
@@ -82,11 +82,23 @@ class ProductEnvironment(Component, ComponentManager):
 
     implements(trac.env.ISystemInfoProvider)
 
-    @property
-    def system_info_providers(self):
-        r"""System info will still be determined by the global environment.
+    def __getattr__(self, attrnm):
+        """Forward attribute access request to parent environment.
+
+        Initially this will affect the following members of
+        `trac.env.Environment` class:
+
+        system_info_providers, secure_cookies, project_admin_trac_url,
+        get_system_info, get_version, get_templates_dir, get_templates_dir,
+        get_log_dir, backup
         """
-        return self.env.system_info_providers
+        try:
+            if attrnm == 'parent':
+                raise AttributeError
+            return getattr(self.parent, attrnm)
+        except AttributeError:
+            raise AttributeError("'%s' object has no attribute '%s'" %
+                    (self.__class__.__name__, attrnm))
 
     @property
     def setup_participants(self):
@@ -116,12 +128,6 @@ class ProductEnvironment(Component, ComponentManager):
     base_url_for_redirect = ''
 
     @property
-    def secure_cookies(self):
-        """Restrict cookies to HTTPS connections.
-        """
-        return self.env.secure_cookies
-
-    @property
     def project_name(self):
         """Name of the product.
         """
@@ -139,24 +145,18 @@ class ProductEnvironment(Component, ComponentManager):
         which the `base_url` resides. This is used in notification
         e-mails.
         """
-        return self.env.project_url
+        # FIXME: Should products have different values i.e. config option ?
+        return self.parent.project_url
 
     project_admin = Option('project', 'admin', '',
         """E-Mail address of the product's leader / administrator.""")
 
     @property
-    def project_admin_trac_url(self):
-        """Base URL of a Trac instance where errors in this Trac
-        should be reported.
-        """
-        return self.env.project_admin_trac_url
-
-    # FIXME: Should products have different values i.e. config option ?
-    @property
     def project_footer(self):
         """Page footer text (right-aligned).
         """
-        return self.env.project_footer
+        # FIXME: Should products have different values i.e. config option ?
+        return self.parent.project_footer
 
     project_icon = Option('project', 'icon', 'common/trac.ico',
         """URL of the icon of the product.""")
@@ -207,6 +207,12 @@ class ProductEnvironment(Component, ComponentManager):
         :param product: product prefix or an instance of
                         multiproduct.model.Product
         """
+        if not isinstance(env, trac.env.Environment):
+            raise TypeError("Initializer must be called with " \
+                "trac.env.Environment instance as first argument " \
+                "(got %s instance instead)" % 
+                        (self._component_name(env.__class__),) )
+
         ComponentManager.__init__(self)
 
         if isinstance(product, Product):
@@ -221,9 +227,9 @@ class ProductEnvironment(Component, ComponentManager):
                         product, products)
                 raise LookupError("Missing product %s" % (product,))
 
-        self.env = env
+        self.parent = env
         self.product = product
-        self.path = self.env.path
+        self.path = self.parent.path
         self.systeminfo = []
         self._href = self._abs_href = None
 
@@ -231,16 +237,12 @@ class ProductEnvironment(Component, ComponentManager):
 
     # ISystemInfoProvider methods
 
-    def get_system_info(self):
-        return self.env.get_system_info()
-
     # Same as parent environment's . Avoid duplicated code
     component_activated = trac.env.Environment.component_activated.im_func
     _component_name = trac.env.Environment._component_name.im_func
     _component_rules = trac.env.Environment._component_rules
     enable_component = trac.env.Environment.enable_component.im_func
     get_known_users = trac.env.Environment.get_known_users.im_func
-    get_systeminfo = trac.env.Environment.get_system_info.im_func
     get_repository = trac.env.Environment.get_repository.im_func
     is_component_enabled = trac.env.Environment.is_component_enabled.im_func
 
@@ -264,7 +266,7 @@ class ProductEnvironment(Component, ComponentManager):
                ...
         """
         # share connection pool with global environment
-        return self.env.get_db_cnx()
+        return self.parent.get_db_cnx()
 
     @lazy
     def db_exc(self):
@@ -282,7 +284,7 @@ class ProductEnvironment(Component, ComponentManager):
                 ...
         """
         # exception types same as in global environment
-        return self.env.db_exc()
+        return self.parent.db_exc()
 
     def with_transaction(self, db=None):
         """Decorator for transaction functions :deprecated:"""
@@ -293,7 +295,7 @@ class ProductEnvironment(Component, ComponentManager):
 
         See `trac.db.api.get_read_db` for detailed documentation."""
         # database connection is shared with global environment
-        return self.env.get_read_db()
+        return self.parent.get_read_db()
 
     @property
     def db_query(self):
@@ -328,7 +330,7 @@ class ProductEnvironment(Component, ComponentManager):
           `db_transaction`).
         """
         BloodhoundIterableCursor.set_env(self)
-        return QueryContextManager(self.env)
+        return QueryContextManager(self.parent)
 
     @property
     def db_transaction(self):
@@ -364,7 +366,7 @@ class ProductEnvironment(Component, ComponentManager):
           (`db_query` or `db_transaction`).
         """
         BloodhoundIterableCursor.set_env(self)
-        return TransactionContextManager(self.env)
+        return TransactionContextManager(self.parent)
 
     def shutdown(self, tid=None):
         """Close the environment."""
@@ -385,58 +387,30 @@ class ProductEnvironment(Component, ComponentManager):
         """
         # TODO: Handle options args
 
-    def get_version(self, db=None, initial=False):
-        """Return the current version of the database.  If the
-        optional argument `initial` is set to `True`, the version of
-        the database used at the time of creation will be returned.
-
-        In practice, for database created before 0.11, this will
-        return `False` which is "older" than any db version number.
-
-        :since: 0.11
-
-        :since 1.0: deprecation warning: the `db` parameter is no
-                    longer used and will be removed in version 1.1.1
-        """
-        return self.env.get_version(db, initial)
-
     def setup_config(self):
         """Load the configuration object.
         """
         # FIXME: Install product-specific configuration object
-        self.config = self.env.config
+        self.config = self.parent.config
         self.setup_log()
-
-    def get_templates_dir(self):
-        """Return absolute path to the templates directory.
-        """
-        return self.env.get_templates_dir()
-
-    def get_htdocs_dir(self):
-        """Return absolute path to the htdocs directory."""
-        return self.env.get_htdocs_dir()
-
-    def get_log_dir(self):
-        """Return absolute path to the log directory."""
-        return self.env.get_log_dir()
 
     def setup_log(self):
         """Initialize the logging sub-system."""
         from trac.log import logger_handler_factory
         logtype = self.log_type
-        self.env.log.debug("Log type '%s' for product '%s'", 
+        self.parent.log.debug("Log type '%s' for product '%s'", 
                 logtype, self.product.prefix)
         if logtype == 'inherit':
-            logtype = self.env.log_type
-            logfile = self.env.log_file
-            format = self.env.log_format
+            logtype = self.parent.log_type
+            logfile = self.parent.log_file
+            format = self.parent.log_format
         else:
             logfile = self.log_file
             format = self.log_format
         if logtype == 'file' and not os.path.isabs(logfile):
             logfile = os.path.join(self.get_log_dir(), logfile)
         logid = 'Trac.%s.%s' % \
-                (sha1(self.env.path).hexdigest(), self.product.prefix)
+                (sha1(self.parent.path).hexdigest(), self.product.prefix)
         if format:
             format = format.replace('$(', '%(') \
                      .replace('%(path)s', self.path) \
@@ -449,25 +423,8 @@ class ProductEnvironment(Component, ComponentManager):
         self.log.info('-' * 32 + ' environment startup [Trac %s] ' + '-' * 32,
                       get_pkginfo(core).get('version', VERSION))
 
-    def backup(self, dest=None):
-        """Create a backup of the database.
-
-        :param dest: Destination file; if not specified, the backup is
-                     stored in a file called db_name.trac_version.bak
-        """
-        return self.env.backup(dest)
-
     def needs_upgrade(self):
         """Return whether the environment needs to be upgraded."""
-        #for participant in self.setup_participants:
-        #    with self.db_query as db:
-        #        if participant.environment_needs_upgrade(db):
-        #            self.log.warn("Component %s requires environment upgrade",
-        #                          participant)
-        #            return True
-
-        # FIXME: For the time being no need to upgrade the environment
-        # TODO: Determine the role of product environments at upgrade time
         return False
 
     def upgrade(self, backup=False, backup_dest=None):

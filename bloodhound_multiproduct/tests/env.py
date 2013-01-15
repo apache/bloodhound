@@ -20,9 +20,20 @@
 
 import os.path
 import shutil
+import sys
 import tempfile
-import unittest
 
+from sqlite3 import OperationalError
+
+from types import MethodType
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
+from trac.config import Option
+from trac.env import Environment
 from trac.test import EnvironmentStub
 from trac.tests.env import EnvironmentTestCase
 
@@ -100,6 +111,14 @@ class MultiproductTestCase(unittest.TestCase):
             # table remains but database version is deleted
             pass
 
+    def _mp_setup(self):
+        """Shortcut for quick product-aware environment setup.
+        """
+        self.env = self._setup_test_env()
+        self._upgrade_mp(self.env)
+        self._setup_test_log(self.env)
+        self._load_product_from_data(self.env, self.default_product)
+
 class ProductEnvTestCase(EnvironmentTestCase, MultiproductTestCase):
     r"""Test cases for Trac environments rewritten for product environments
     """
@@ -131,9 +150,98 @@ class ProductEnvTestCase(EnvironmentTestCase, MultiproductTestCase):
 
         EnvironmentTestCase.tearDown(self)
 
-def suite():
-    return unittest.makeSuite(ProductEnvTestCase,'test')
+class ProductEnvApiTestCase(MultiproductTestCase):
+    """Assertions for Apache(TM) Bloodhound product-specific extensions in
+    [https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003 BEP 3]
+    """
+    def setUp(self):
+        self._mp_setup()
+        self.product_env = ProductEnvironment(self.env, self.default_product)
+
+    def test_attr_forward_parent(self):
+        class EnvironmentAttrSandbox(EnvironmentStub):
+            """Limit the impact of class edits so as to avoid race conditions
+            """
+
+        self.longMessage = True
+
+        class AttrSuccess(Exception):
+            """Exception raised when target method / property is actually
+            invoked.
+            """
+
+        def property_mock(attrnm, expected_self):
+            def assertAttrFwd(instance):
+                self.assertIs(instance, expected_self, 
+                        "Mismatch in property '%s'" % (attrnm,))
+                raise AttrSuccess
+            return property(assertAttrFwd)
+
+        self.env.__class__ = EnvironmentAttrSandbox
+        try:
+            for attrnm in 'system_info_providers secure_cookies ' \
+                    'project_admin_trac_url get_system_info get_version ' \
+                    'get_templates_dir get_templates_dir get_log_dir ' \
+                    'backup'.split(): 
+                original = getattr(Environment, attrnm)
+                if isinstance(original, MethodType):
+                    translation = getattr(self.product_env, attrnm)
+                    self.assertIs(translation.im_self, self.env,
+                            "'%s' not bound to global env in product env" % 
+                                    (attrnm,))
+                    self.assertIs(translation.im_func, original.im_func,
+                            "'%s' function differs in product env" % (attrnm,))
+                elif isinstance(original, (property, Option)):
+                    # Intercept property access e.g. properties, Option, ...
+                    setattr(self.env.__class__, attrnm, 
+                        property_mock(attrnm, self.env))
+
+                    with self.assertRaises(AttrSuccess) as cm_test_attr:
+                        getattr(self.product_env, attrnm)
+                else:
+                    self.fail("Environment member %s has unexpected type" % 
+                            (repr(original),))
+
+        finally:
+            self.env.__class__ = EnvironmentStub
+
+        for attrnm in 'component_activated _component_rules ' \
+                'enable_component get_known_users get_repository ' \
+                'is_component_enabled _component_name'.split():
+            original = getattr(Environment, attrnm)
+            if isinstance(original, MethodType):
+                translation = getattr(self.product_env, attrnm)
+                self.assertIs(translation.im_self, self.product_env,
+                        "'%s' not bound to product env" % (attrnm,))
+                self.assertIs(translation.im_func, original.im_func,
+                        "'%s' function differs in product env" % (attrnm,))
+            elif isinstance(original, property):
+                translation = getattr(ProductEnvironment, attrnm)
+                self.assertIs(original, translation,
+                        "'%s' property differs in product env" % (attrnm,))
+
+    def test_typecheck(self):
+        self._load_product_from_data(self.env, 'tp2')
+        with self.assertRaises(TypeError) as cm_test:
+            new_env = ProductEnvironment(self.product_env, 'tp2')
+
+        #msg = str(cm_test.exception)
+        #expected_msg = "Initializer must be called with " \
+        #        "trac.env.Environment instance as first argument " \
+        #        "(got multiproduct.env.ProductEnvironment instance instead)"
+        #self.assertEqual(msg, expected_msg)
+
+    def tearDown(self):
+        # Release reference to transient environment mock object
+        self.env = None
+        self.product_env = None
+
+def test_suite():
+    return unittest.TestSuite([
+            unittest.makeSuite(ProductEnvTestCase,'test'),
+            unittest.makeSuite(ProductEnvApiTestCase, 'test')
+        ])
 
 if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+    unittest.main(defaultTest='test_suite')
 
