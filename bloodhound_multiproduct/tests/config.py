@@ -189,9 +189,9 @@ class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
         self._test_with_inherit(testcb)
 
 
-def suite():
+def test_suite():
     return unittest.makeSuite(ProductConfigTestCase,'test')
 
 if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+    unittest.main(defaultTest='test_suite')
 

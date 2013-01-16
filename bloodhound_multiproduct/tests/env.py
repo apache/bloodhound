@@ -34,6 +34,7 @@ else:
     from unittest.case import _AssertRaisesContext
 
 from trac.config import Option
+from trac.core import Component
 from trac.env import Environment
 from trac.test import EnvironmentStub
 from trac.tests.env import EnvironmentTestCase
@@ -209,6 +210,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         self.product_env = ProductEnvironment(self.env, self.default_product)
 
     def test_attr_forward_parent(self):
+        """Testing env.__getattr__"""
         class EnvironmentAttrSandbox(EnvironmentStub):
             """Limit the impact of class edits so as to avoid race conditions
             """
@@ -258,7 +260,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
         for attrnm in 'component_activated _component_rules ' \
                 'enable_component get_known_users get_repository ' \
-                'is_component_enabled _component_name'.split():
+                '_component_name'.split():
             original = getattr(Environment, attrnm)
             if isinstance(original, MethodType):
                 translation = getattr(self.product_env, attrnm)
@@ -272,6 +274,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                         "'%s' property differs in product env" % (attrnm,))
 
     def test_typecheck(self):
+        """Testing env.__init__"""
         self._load_product_from_data(self.env, 'tp2')
         with self.assertRaises(TypeError) as cm_test:
             new_env = ProductEnvironment(self.product_env, 'tp2')
@@ -281,6 +284,57 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                 "trac.env.Environment instance as first argument " \
                 "(got multiproduct.env.ProductEnvironment instance instead)"
         self.assertEqual(msg, expected_msg)
+
+    def test_component_enable(self):
+        """Testing env.is_component_enabled"""
+        class C(Component):
+            pass
+        # Let's pretend this was declared elsewhere
+        C.__module__ = 'dummy_module'
+
+        global_env = self.env
+        product_env = self.product_env
+        
+        def clear_component_rules(env):
+            del env._rules
+            env.enabled.clear()
+
+        # C initially disabled in both envs
+        self.assertFalse(global_env.is_component_enabled(C))
+        self.assertFalse(product_env.is_component_enabled_local(C))
+        self.assertIs(global_env[C], None)
+        self.assertIs(product_env[C], None)
+
+        clear_component_rules(global_env)
+        clear_component_rules(product_env)
+
+        # C enabled in product env but not in global env
+        product_env.enable_component(C)
+        self.assertFalse(global_env.is_component_enabled(C))
+        self.assertTrue(product_env.is_component_enabled_local(C))
+        self.assertIs(global_env[C], None)
+        self.assertIs(product_env[C], None)
+
+        clear_component_rules(global_env)
+        clear_component_rules(product_env)
+
+        # C enabled in both envs
+        product_env.enable_component(C)
+        global_env.enable_component(C)
+        self.assertTrue(global_env.is_component_enabled(C))
+        self.assertTrue(product_env.is_component_enabled_local(C))
+        self.assertIsNot(global_env[C], None)
+        self.assertIsNot(product_env[C], None)
+
+        clear_component_rules(global_env)
+        clear_component_rules(product_env)
+
+        # C enabled in global env but not in product env
+        global_env.enable_component(C)
+        self.assertTrue(global_env.is_component_enabled(C))
+        self.assertFalse(product_env.is_component_enabled_local(C))
+        self.assertIsNot(global_env[C], None)
+        self.assertIs(product_env[C], None)
 
     def tearDown(self):
         # Release reference to transient environment mock object

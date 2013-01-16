@@ -29,6 +29,7 @@ from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
+from multiproduct.config import Configuration
 from multiproduct.model import Product
 from multiproduct.dbcursor import BloodhoundIterableCursor
 
@@ -129,7 +130,7 @@ class ProductEnvironment(Component, ComponentManager):
         get_log_dir, backup
         """
         try:
-            if attrnm == 'parent':
+            if attrnm in ('parent', '_rules'):
                 raise AttributeError
             return getattr(self.parent, attrnm)
         except AttributeError:
@@ -281,7 +282,23 @@ class ProductEnvironment(Component, ComponentManager):
     enable_component = trac.env.Environment.enable_component.im_func
     get_known_users = trac.env.Environment.get_known_users.im_func
     get_repository = trac.env.Environment.get_repository.im_func
-    is_component_enabled = trac.env.Environment.is_component_enabled.im_func
+
+    is_component_enabled_local = trac.env.Environment.is_component_enabled.im_func
+
+    def is_component_enabled(self, cls):
+        """Implemented to only allow activation of components already 
+        activated in the global environment that are in turn not disabled in
+        the configuration.
+
+        This is called by the `ComponentManager` base class when a
+        component is about to be activated. If this method returns
+        `False`, the component does not get activated. If it returns
+        `None`, the component only gets activated if it is located in
+        the `plugins` directory of the environment.
+        """
+        if not self.parent.is_component_enabled(cls):
+            return False
+        return self.is_component_enabled_local(cls)
 
     def get_db_cnx(self):
         """Return a database connection from the connection pool
@@ -427,8 +444,8 @@ class ProductEnvironment(Component, ComponentManager):
     def setup_config(self):
         """Load the configuration object.
         """
-        # FIXME: Install product-specific configuration object
-        self.config = self.parent.config
+        # FIXME: Inherit global environment setting ?
+        self.config = Configuration(self.parent, self.product.prefix)
         self.setup_log()
 
     def setup_log(self):
