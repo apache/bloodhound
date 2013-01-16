@@ -378,13 +378,19 @@ class BloodhoundProductSQLTranslate(object):
             if isinstance(token, Types.Identifier):
                 tablename = token.get_name()
                 columns_token = self._replace_table_entity_name(table_name_token, token, tablename)
-                insert_extra_column(tablename, columns_token)
-                token = self._token_next(parent, table_name_token)
+                if columns_token.match(Tokens.Keyword, 'VALUES'):
+                    token = columns_token
+                else:
+                    insert_extra_column(tablename, columns_token)
+                    token = self._token_next(parent, table_name_token)
         else:
             tablename = table_name_token.value
             columns_token = self._replace_table_entity_name(parent, table_name_token, tablename)
-            insert_extra_column(tablename, columns_token)
-            token = self._token_next(parent, columns_token)
+            if columns_token.match(Tokens.Keyword, 'VALUES'):
+                token = columns_token
+            else:
+                insert_extra_column(tablename, columns_token)
+                token = self._token_next(parent, columns_token)
         if token.match(Tokens.Keyword, 'VALUES'):
             separators = [',', '(', ')']
             token = self._token_next(parent, token)
