@@ -18,19 +18,20 @@
 
 """Tests for Apache(TM) Bloodhound's product environments"""
 
+from inspect import stack
 import os.path
 import shutil
+from sqlite3 import OperationalError
 import sys
 import tempfile
-
-from sqlite3 import OperationalError
-
 from types import MethodType
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
+    from unittest2.case import _AssertRaisesContext
 else:
     import unittest
+    from unittest.case import _AssertRaisesContext
 
 from trac.config import Option
 from trac.env import Environment
@@ -49,6 +50,55 @@ class MultiproductTestCase(unittest.TestCase):
     with multi-product super-powers while still providing the foundations
     to create product-specific subclasses.
     """
+
+    # unittest2 extensions
+
+    exceptFailureMessage = None
+
+    class _AssertRaisesLoggingContext(_AssertRaisesContext):
+        """Add logging capabilities to assertRaises
+        """
+        def __init__(self, expected, test_case, expected_regexp=None):
+            _AssertRaisesContext.__init__(
+                    self, expected, test_case, expected_regexp)
+            self.test_case = test_case
+
+        @staticmethod
+        def _tb_locals(tb):
+            if tb is None:
+                # Inspect interpreter stack two levels up
+                ns = stack()[2][0].f_locals.copy()
+            else:
+                # Traceback already in context
+                ns = tb.tb_frame.f_locals.copy()
+            ns.pop('__builtins__', None)
+            return ns
+
+        def __exit__(self, exc_type, exc_value, tb):
+            try:
+                return _AssertRaisesContext.__exit__(self, 
+                    exc_type, exc_value, tb)
+            except self.failureException, exc:
+                msg = self.test_case.exceptFailureMessage 
+                if msg is not None:
+                    standardMsg = str(exc)
+                    msg = msg % self._tb_locals(tb)
+                    msg = self.test_case._formatMessage(msg, standardMsg)
+                    raise self.failureException(msg)
+                else:
+                    raise
+            finally:
+                # Clear message placeholder
+                self.test_case.exceptFailureMessage = None
+
+    def assertRaises(self, excClass, callableObj=None, *args, **kwargs):
+        """Adds logging capabilities on top of unittest2 implementation.
+        """
+        if callableObj is None:
+            return self._AssertRaisesLoggingContext(excClass, self)
+        else:
+            return unittest.TestCase.assertRaises(
+                    self, excClass, callableObj, *args, **kwargs)
 
     # Product data
 
@@ -196,6 +246,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                     setattr(self.env.__class__, attrnm, 
                         property_mock(attrnm, self.env))
 
+                    self.exceptFailureMessage = 'Property %(attrnm)s'
                     with self.assertRaises(AttrSuccess) as cm_test_attr:
                         getattr(self.product_env, attrnm)
                 else:
@@ -225,11 +276,11 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         with self.assertRaises(TypeError) as cm_test:
             new_env = ProductEnvironment(self.product_env, 'tp2')
 
-        #msg = str(cm_test.exception)
-        #expected_msg = "Initializer must be called with " \
-        #        "trac.env.Environment instance as first argument " \
-        #        "(got multiproduct.env.ProductEnvironment instance instead)"
-        #self.assertEqual(msg, expected_msg)
+        msg = str(cm_test.exception)
+        expected_msg = "Initializer must be called with " \
+                "trac.env.Environment instance as first argument " \
+                "(got multiproduct.env.ProductEnvironment instance instead)"
+        self.assertEqual(msg, expected_msg)
 
     def tearDown(self):
         # Release reference to transient environment mock object

@@ -244,10 +244,11 @@ class ProductEnvironment(Component, ComponentManager):
                         multiproduct.model.Product
         """
         if not isinstance(env, trac.env.Environment):
+            cls = self.__class__
             raise TypeError("Initializer must be called with " \
                 "trac.env.Environment instance as first argument " \
                 "(got %s instance instead)" % 
-                        (self._component_name(env.__class__),) )
+                         (cls.__module__ + '.' + cls.__name__, ))
 
         ComponentManager.__init__(self)
 
