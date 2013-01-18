@@ -87,6 +87,45 @@ class BloodhoundProductSQLTranslate(object):
         self._product_column = product_column
         self._product_prefix = product_prefix
 
+    def _sqlparse_underline_hack(self, token):
+        underline_token = lambda token: token.ttype == Tokens.Token.Error and token.value == '_'
+        identifier_token = lambda token: isinstance(token, Types.Identifier) or isinstance(token, Types.Token)
+        def prefix_token(token, prefix):
+            if identifier_token(token):
+                if isinstance(token, Types.IdentifierList):
+                    token = token.tokens[0]
+                token.value = prefix + token.value
+                token.normalized = token.value.upper() if token.ttype in Tokens.Keyword \
+                                                            else token.value
+                if hasattr(token, 'tokens'):
+                    if len(token.tokens) != 1:
+                        raise Exception("Internal error, invalid token list")
+                    token.tokens[0].value, token.tokens[0].normalized = token.value, token.normalized
+            return
+
+        if hasattr(token, 'tokens') and token.tokens and len(token.tokens):
+            current = self._token_first(token)
+            while current:
+                leftover = None
+                if underline_token(current):
+                    prefix = ''
+                    while underline_token(current):
+                        prefix += current.value
+                        prev = current
+                        current = self._token_next(token, current)
+                        self._token_delete(token, prev)
+                        # expression ends with _ ... push the token to parent
+                        if not current:
+                            return prev
+                    prefix_token(current, prefix)
+                else:
+                    leftover = self._sqlparse_underline_hack(current)
+                    if leftover:
+                        leftover.parent = token
+                        self._token_insert_after(token, current, leftover)
+                current = leftover if leftover else self._token_next(token, current)
+        return None
+
     def _select_table_name_alias(self, tokens):
         return filter(lambda t: t.upper() != 'AS', [t.value for t in tokens if t.value.strip()])
     def _column_expression_name_alias(self, tokens):
@@ -210,6 +249,8 @@ class BloodhoundProductSQLTranslate(object):
                     alias = name
                 parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._prefixed_table_view_sql(name,
                                                                                                              alias))[0]
+                if table_name_callback:
+                    table_name_callback(name)
 
         def inject_table_alias(token, alias):
             parent.tokens[self._token_idx(parent, token)] = sqlparse.parse(self._select_alias_sql(alias))[0]
@@ -301,7 +342,7 @@ class BloodhoundProductSQLTranslate(object):
         fields_token = self._token_next(parent, token) if token.match(Tokens.Keyword, ['ALL', 'DISTINCT']) else token
         current_token, field_lists = self._select_expression_tokens(parent, fields_token, ['FROM'] + self._from_end_words)
         def handle_insert_table(table_name):
-            if table_name == insert_table:
+            if insert_table and insert_table in self._translate_tables:
                 for keyword in [self._product_column, ',', ' ']:
                     self._token_insert_before(parent, fields_token, Types.Token(Tokens.Keyword, keyword))
             return
@@ -581,14 +622,23 @@ class BloodhoundProductSQLTranslate(object):
                         'DROP': self._drop,
                         }
         try:
+            format_sql = True
+            formatted_sql = lambda sql: sqlparse.format(sql.to_unicode(), reindent=True) \
+                                            if format_sql \
+                                                else sql.to_unicode()
             sql_statement = sqlparse.parse(sql)[0]
+            if '_' in sql:
+                self._sqlparse_underline_hack(sql_statement)
+#                format_sql = False
             t = sql_statement.token_first()
             if t.match(Tokens.DML, dml_handlers.keys()):
                 dml_handlers[t.value](sql_statement, t)
-                sql = sqlparse.format(sql_statement.to_unicode(), reindent=True)
+                sql = formatted_sql(sql_statement)
             elif t.match(Tokens.DDL, ddl_handlers.keys()):
                 ddl_handlers[t.value](sql_statement, t)
-                sql = sqlparse.format(sql_statement.to_unicode(), reindent=True)
-        except Exception:
-            raise Exception("Failed to translate SQL '%s'" % sql)
+                sql = formatted_sql(sql_statement)
+            else:
+                pass
+        except Exception, ex:
+            raise Exception("Failed to translate SQL '%s', exception '%s'" % (sql, ex.message))
         return sql

@@ -573,6 +573,110 @@ WHERE w1.version = w2.ver
        OR w1.author LIKE %s ESCAPE '/'
        OR w1.text LIKE %s ESCAPE '/')"""
         ),
+        (
+"""INSERT INTO ticket(id, type, time, changetime, component, severity, priority,
+                           owner, reporter, cc, version, milestone, status, resolution,
+                           summary, description, keywords)
+          SELECT id, 'defect', time, changetime, component, severity, priority, owner,
+                 reporter, cc, version, milestone, status, resolution, summary,
+                 description, keywords FROM ticket_old
+          WHERE COALESCE(severity,'') <> 'enhancement'""",
+"""INSERT INTO ticket(product, id, type, time, changetime, component, severity, priority, owner, reporter, cc, version, milestone, status, resolution, summary, description, keywords)
+SELECT product, id, 'defect', time, changetime, component, severity, priority, owner, reporter, cc, version, milestone,
+                                                                                                             status,
+                                                                                                             resolution,
+                                                                                                             summary,
+                                                                                                             description,
+                                                                                                             keywords
+FROM
+  (SELECT *
+   FROM PRODUCT_ticket_old) AS ticket_old
+WHERE COALESCE(severity,'') <> 'enhancement'"""
+        ),
+        (
+"""INSERT INTO ticket(id, type, time, changetime, component, severity, priority,
+                               owner, reporter, cc, version, milestone, status, resolution,
+                               summary, description, keywords)
+              SELECT id, 'enhancement', time, changetime, component, 'normal', priority,
+                     owner, reporter, cc, version, milestone, status, resolution, summary,
+                     description, keywords FROM ticket_old
+              WHERE severity = 'enhancement'""",
+"""INSERT INTO ticket(product, id, type, time, changetime, component, severity, priority, owner, reporter, cc, version, milestone, status, resolution, summary, description, keywords)
+SELECT product, id, 'enhancement', time, changetime, component, 'normal', priority, owner, reporter, cc, version, milestone,
+                                                                                                                  status,
+                                                                                                                  resolution,
+                                                                                                                  summary,
+                                                                                                                  description,
+                                                                                                                  keywords
+FROM
+  (SELECT *
+   FROM PRODUCT_ticket_old) AS ticket_old
+WHERE severity = 'enhancement'""",
+        ),
+        (
+"""SELECT COUNT(*) FROM (
+        SELECT  __color__, __group,
+               (CASE
+                 WHEN __group = 1 THEN 'Accepted'
+                 WHEN __group = 2 THEN 'Owned'
+                 WHEN __group = 3 THEN 'Reported'
+                 ELSE 'Commented' END) AS __group__,
+               ticket, summary, component, version, milestone,
+               type, priority, created, _changetime, _description,
+               _reporter
+        FROM (
+         SELECT DISTINCT CAST(p.value AS integer) AS __color__,
+              (CASE
+                 WHEN owner = %s AND status = 'accepted' THEN 1
+                 WHEN owner = %s THEN 2
+                 WHEN reporter = %s THEN 3
+                 ELSE 4 END) AS __group,
+               t.id AS ticket, summary, component, version, milestone,
+               t.type AS type, priority, t.time AS created,
+               t.changetime AS _changetime, description AS _description,
+               reporter AS _reporter
+          FROM ticket t
+          LEFT JOIN enum p ON p.name = t.priority AND p.type = 'priority'
+          LEFT JOIN ticket_change tc ON tc.ticket = t.id AND tc.author = %s
+                                        AND tc.field = 'comment'
+          WHERE t.status <> 'closed'
+                AND (owner = %s OR reporter = %s OR author = %s)
+        ) AS sub
+        ORDER BY __group, __color__, milestone, type, created
+
+        ) AS tab""",
+"""SELECT COUNT(*) FROM (
+        SELECT  __color__, __group,
+               (CASE
+                 WHEN __group = 1 THEN 'Accepted'
+                 WHEN __group = 2 THEN 'Owned'
+                 WHEN __group = 3 THEN 'Reported'
+                 ELSE 'Commented' END) AS __group__,
+               ticket, summary, component, version, milestone,
+               type, priority, created, _changetime, _description,
+               _reporter
+        FROM (
+         SELECT DISTINCT CAST(p.value AS integer) AS __color__,
+              (CASE
+                 WHEN owner = %s AND status = 'accepted' THEN 1
+                 WHEN owner = %s THEN 2
+                 WHEN reporter = %s THEN 3
+                 ELSE 4 END) AS __group,
+               t.id AS ticket, summary, component, version, milestone,
+               t.type AS type, priority, t.time AS created,
+               t.changetime AS _changetime, description AS _description,
+               reporter AS _reporter
+          FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
+          LEFT JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS p  ON p.name = t.priority AND p.type = 'priority'
+          LEFT JOIN ticket_change  ON tc.ticket = t.id AND tc.author = %s
+                                        AND tc.field = 'comment'
+          WHERE t.status <> 'closed'
+                AND (owner = %s OR reporter = %s OR author = %s)
+        ) AS sub
+        ORDER BY __group, __color__, milestone, type, created
+
+        ) AS tab"""
+        ),
     ],
 
     # custom table SELECTs
