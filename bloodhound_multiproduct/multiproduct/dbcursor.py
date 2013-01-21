@@ -622,14 +622,10 @@ class BloodhoundProductSQLTranslate(object):
                         'DROP': self._drop,
                         }
         try:
-            format_sql = True
-            formatted_sql = lambda sql: sqlparse.format(sql.to_unicode(), reindent=True) \
-                                            if format_sql \
-                                                else sql.to_unicode()
+            formatted_sql = lambda sql: sql.to_unicode()
             sql_statement = sqlparse.parse(sql)[0]
             if '_' in sql:
                 self._sqlparse_underline_hack(sql_statement)
-#                format_sql = False
             t = sql_statement.token_first()
             if t.match(Tokens.DML, dml_handlers.keys()):
                 dml_handlers[t.value](sql_statement, t)
