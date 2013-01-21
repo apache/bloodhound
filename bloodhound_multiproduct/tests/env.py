@@ -209,6 +209,11 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         self._mp_setup()
         self.product_env = ProductEnvironment(self.env, self.default_product)
 
+    def tearDown(self):
+        # Release reference to transient environment mock object
+        self.env = None
+        self.product_env = None
+
     def test_attr_forward_parent(self):
         """Testing env.__getattr__"""
         class EnvironmentAttrSandbox(EnvironmentStub):
@@ -336,10 +341,10 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         self.assertIsNot(global_env[C], None)
         self.assertIs(product_env[C], None)
 
-    def tearDown(self):
-        # Release reference to transient environment mock object
-        self.env = None
-        self.product_env = None
+    def test_path(self):
+        """Testing env.path"""
+        self.assertEqual(self.product_env.path, 
+                os.path.join(self.env.path, 'products', self.default_product))
 
 def test_suite():
     return unittest.TestSuite([

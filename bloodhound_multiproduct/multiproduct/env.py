@@ -137,6 +137,14 @@ class ProductEnvironment(Component, ComponentManager):
             raise AttributeError("'%s' object has no attribute '%s'" %
                     (self.__class__.__name__, attrnm))
 
+    @lazy
+    def path(self):
+        """The subfolder `./products/<product prefix>` relative to the 
+        top-level directory of the global environment will be the root of 
+        product file system area.
+        """
+        return os.path.join(self.parent.path, 'products', self.product.prefix)
+
     @property
     def setup_participants(self):
         """Setup participants list for product environments will always
@@ -267,7 +275,6 @@ class ProductEnvironment(Component, ComponentManager):
 
         self.parent = env
         self.product = product
-        self.path = self.parent.path
         self.systeminfo = []
         self._href = self._abs_href = None
 
