@@ -33,7 +33,7 @@ from trac.web.chrome import ITemplateProvider
 
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 
-DB_VERSION = 3
+DB_VERSION = 4
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
 
@@ -44,7 +44,7 @@ class MultiProductSystem(Component):
             IPermissionRequestor, ITicketFieldProvider, IResourceManager)
     
     SCHEMA = [mcls._get_schema() \
-              for mcls in (Product, ProductResourceMap, ProductSetting)]
+              for mcls in (Product, ProductResourceMap)]
 
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
@@ -190,6 +190,14 @@ class MultiProductSystem(Component):
                         self.log.info("Creating tables '%s' for product '%s' ('%s')", table, p[1], p[0])
                         insert_with_product(table, p[0])
                 db_installed_version = self._update_db_version(db, 3)
+
+            if db_installed_version < 4:
+                self.log.debug("creating additional db tables for %s plugin." %
+                               PLUGIN_NAME)
+                db_connector, dummy = DatabaseManager(self.env)._get_connector()
+                for statement in db_connector.to_sql(ProductSetting._get_schema()):
+                    db(statement)
+                db_installed_version = self._update_db_version(db, 4)
 
     # ITemplateProvider methods
     def get_templates_dirs(self):
