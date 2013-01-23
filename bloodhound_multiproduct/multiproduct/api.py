@@ -68,43 +68,48 @@ class MultiProductSystem(Component):
                                                PLUGIN_NAME,
                                                DB_VERSION))
         return db_installed_version < DB_VERSION
-    
+
+    def _update_db_version(self, db, version):
+        old_version = self.get_version()
+        if old_version != -1:
+            self.log.info("Updating multiproduct database schema from version %d"
+                          " to %d" % (old_version, version))
+            db("""UPDATE system SET value=%s
+                      WHERE name=%s""", (version, DB_SYSTEM_KEY))
+        else:
+            self.log.info("Initial multiproduct database schema set to version %d" % version)
+            db("""
+                INSERT INTO system (name, value) VALUES ('%s','%s')
+                """  % (DB_SYSTEM_KEY, version))
+        return version
+
     def upgrade_environment(self, db_dummy=None):
         """Installs or updates tables to current version"""
         self.log.debug("upgrading existing environment for %s plugin." % 
                        PLUGIN_NAME)
         db_installed_version = self.get_version()
-        #cursor = db.cursor()
         with self.env.db_transaction as db:
-            if db_installed_version < 0:
+            if db_installed_version < 1:
                 # Initial installation
-                db("""
-                    INSERT INTO system (name, value) VALUES ('%s','%s')
-                    """  % (DB_SYSTEM_KEY, DB_VERSION))
                 db("ALTER TABLE ticket ADD COLUMN product TEXT")
                 self.log.debug("creating initial db tables for %s plugin." % 
                                PLUGIN_NAME)
-                
                 db_connector, dummy = DatabaseManager(self.env)._get_connector()
                 for table in self.SCHEMA:
                     for statement in db_connector.to_sql(table):
                         db(statement)
-                db_installed_version = self.get_version()
-            
-            if db_installed_version == 1:
+                db_installed_version = self._update_db_version(db, 1)
+
+            if db_installed_version < 2:
                 from multiproduct.model import Product
                 products = Product.select(self.env)
                 for prod in products:
                     db("""UPDATE ticket SET product=%s
                           WHERE product=%s""", (prod.prefix, prod.name))
-                
-                db("""UPDATE system SET value=%s
-                      WHERE name=%s""", (DB_VERSION, DB_SYSTEM_KEY))
-                self.log.info("Upgraded multiproduct db schema from version %d"
-                              " to %d" % (db_installed_version, DB_VERSION))
+                db_installed_version = self._update_db_version(db, 2)
 
-            if db_installed_version == 2:
-                from trac import bloodhound
+            if db_installed_version < 3:
+                from multiproduct.dbcursor import DEFAULT_PRODUCT
                 migrate_tables = ['enum', 'component', 'milestone', 'version', 'wiki']
                 table_defs = [
                     Table('enum', key=('type', 'name', 'product'))[
@@ -143,7 +148,10 @@ class MultiProductSystem(Component):
                 table_columns = dict()
                 table_vals = {}
                 for table in table_defs:
-                    table_columns[table.name] = filter(lambda column: column != 'product', [column.name for column in list(filter(lambda t: t.name == table.name, table_defs)[0].columns)])
+                    table_columns[table.name] = filter(lambda column: column != 'product',
+                                                         [column.name for column in
+                                                            list(filter(lambda t: t.name == table.name,
+                                                                                  table_defs)[0].columns)])
                 table_columns['bloodhound_product'] = ['prefix', 'name', 'description', 'owner']
                 def fetch_table(table):
                     table_vals[table] = list(db("SELECT %s FROM %s" % (','.join(table_columns[table]), table)))
@@ -159,9 +167,11 @@ class MultiProductSystem(Component):
                     for sql in db_connector.to_sql(table):
                         db(sql)
                 self.log.info("Creating default product")
-                db("INSERT INTO bloodhound_product (prefix, name, description, owner) VALUES ('%s', 'Default', 'Default product', '')" % bloodhound.DEFAULT_PRODUCT)
+                db("""INSERT INTO bloodhound_product (prefix, name, description, owner)
+                        VALUES ('%s', 'Default', 'Default product', '')""" % DEFAULT_PRODUCT)
                 self.log.info("Migrating tickets w/o product to default product")
-                db("UPDATE ticket SET product='%s' WHERE product=''" % bloodhound.DEFAULT_PRODUCT)
+                db("""UPDATE ticket SET product='%s'
+                        WHERE product=''""" % DEFAULT_PRODUCT)
 
                 def insert_with_product(table, product):
                     cols = table_columns[table] + ['product']
@@ -176,14 +186,10 @@ class MultiProductSystem(Component):
                 for p in table_vals['bloodhound_product']:
                     for table in migrate_tables:
                         self.log.info("Creating tables '%s' for default product", table)
-                        insert_with_product(table, bloodhound.DEFAULT_PRODUCT)
+                        insert_with_product(table, DEFAULT_PRODUCT)
                         self.log.info("Creating tables '%s' for product '%s' ('%s')", table, p[1], p[0])
                         insert_with_product(table, p[0])
-
-                db("""UPDATE system SET value=%s
-                      WHERE name=%s""", (DB_VERSION, DB_SYSTEM_KEY))
-                self.log.info("Upgraded multiproduct db schema from version %d"
-                              " to %d" % (db_installed_version, DB_VERSION))
+                db_installed_version = self._update_db_version(db, 3)
 
     # ITemplateProvider methods
     def get_templates_dirs(self):
