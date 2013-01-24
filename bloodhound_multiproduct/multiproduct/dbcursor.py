@@ -25,15 +25,15 @@ import sqlparse.sql as Types
 
 __all__ = ['BloodhoundIterableCursor']
 
-SKIP_TABLES = ['system', 'permission', 'auth_cookie',
+SKIP_TABLES = ['system', 'auth_cookie',
                'session', 'session_attribute',
                'cache',
                'attachment', 'repository', 'revision', 'node_change',
                'ticket_change', 'ticket_custom',
                'report',
-               'bloodhound_product', 'bloodhound_productresourcemap',
+               'bloodhound_product', 'bloodhound_productresourcemap', 'bloodhound_productconfig',
                ]
-TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'wiki']
+TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'permission', 'wiki']
 PRODUCT_COLUMN = 'product'
 DEFAULT_PRODUCT = 'default'
 

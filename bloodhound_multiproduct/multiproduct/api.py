@@ -110,7 +110,7 @@ class MultiProductSystem(Component):
 
             if db_installed_version < 3:
                 from multiproduct.dbcursor import DEFAULT_PRODUCT
-                migrate_tables = ['enum', 'component', 'milestone', 'version', 'wiki']
+                migrate_tables = ['enum', 'component', 'milestone', 'version', 'permission', 'wiki']
                 table_defs = [
                     Table('enum', key=('type', 'name', 'product'))[
                         Column('type'),
@@ -132,6 +132,10 @@ class MultiProductSystem(Component):
                         Column('name'),
                         Column('time', type='int64'),
                         Column('description'),
+                        Column('product')],
+                    Table('permission', key=('username', 'action', 'product'))[
+                        Column('username'),
+                        Column('action'),
                         Column('product')],
                     Table('wiki', key=('name', 'version', 'product'))[
                         Column('name'),
@@ -183,10 +187,10 @@ class MultiProductSystem(Component):
                         for v in list(r):
                             vals.append(v if v else '')
                         db(sql, tuple(vals + [product]))
-                for p in table_vals['bloodhound_product']:
-                    for table in migrate_tables:
-                        self.log.info("Creating tables '%s' for default product", table)
-                        insert_with_product(table, DEFAULT_PRODUCT)
+                for table in migrate_tables:
+                    self.log.info("Creating tables '%s' for default product", table)
+                    insert_with_product(table, DEFAULT_PRODUCT)
+                    for p in table_vals['bloodhound_product']:
                         self.log.info("Creating tables '%s' for product '%s' ('%s')", table, p[1], p[0])
                         insert_with_product(table, p[0])
                 db_installed_version = self._update_db_version(db, 3)
