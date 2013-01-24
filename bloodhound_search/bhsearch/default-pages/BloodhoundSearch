@@ -1,3 +1,71 @@
 = Bloodhound Search =
 
-TODO: add docs here
+Current version is prototype phase 1. Read more about proposed functionality on [wiki:Proposals/BEP-0004 BEP-0004]
+
+== How to enable Bloodhound Search==
+ * Currently, Bloodhound Search is available only for dev configuration. Make sure that Bloodhound was installed using requirements-dev.txt:
+{{{
+pip install -r requirements-dev.txt
+}}}
+ * enable bhsearch.* components in trac.ini file
+{{{
+[components]
+...
+bhsearch.* = enabled
+}}}
+ * run initial index rebuild using trac-admin command line tool. TODO: web interface should be supported later
+{{{
+trac-admin <path_to_trac_environment> bhsearch rebuild
+}}}
+ * Bloodhound Search page will be available in Apps menu | Bloodhound Search
+
+== Search == #search
+Query syntax is described on wiki:Proposals/BEP-0004/ResourceQuery. Currently supported search queries are: 
+* List of all items: "*"
+* Free text search through indexed fields e.g. "some text"
+* Combination of free text and field specific query e.g. "test status:new keyword:starter" (default operator is AND)
+* Field specific query e.g. "status:new keyword:starter" (default operator is AND)
+* Boolean queries e.g. "test OR (status:new and keyword:starter)"
+
+Currently, only tickets and wiki pages with the following fields are indexed. Later more resources and fields will be added.
+
+Common fields for all resources:
+ * id - resource id. For ticket it is ticket id, for wiki it will wiki page name.
+ * type - resource type e.g. ticket, wiki etc.
+ * product - product name
+ * time - resource change time
+ * author - resource author. For ticket it is ticket reporter.
+ * content - ticket description, wiki page content
+ * changes - currently, only ticket comments are indexed
+
+Ticket specific fields:
+ * component
+ * status 
+ * resolution
+ * keywords
+ * milestone
+ * summary
+
+Default sort order is by boost score ASC and time DESC
+
+Default query boosting is: id = 6, type = 2, summary = 5, author = 3, milestone = 2, keywords = 2, component = 2, status = 2, content = 1, changes = 1, 
+
+== Prototype phase 2 limitations == #limitations
+ * Only tickets and wiki pages are indexed.
+ * UI does not support faceting
+ * Search  does not support meta keywords 
+ * Quick jump by ticket id and wiki name is not supported
+ * Possible bugs and inconveniences expected for prototype 
+
+== To be done ==
+Please consider below not complete list of TODOs.
+ * UI design for search results including facets and resource specific presentation. Initial proposal can be found on [wiki:Proposals/BEP-0004#resultview BEP-0004]
+ * Add facet support for search UI
+ * Improve index quality e.d. add more resources in index (milestones etc.), index more fields for ticket. Support pluggable schema generation.
+ * Improve search quality
+ * Improve index consistency. [=#consistency]  
+   * Current implementation uses ITicketChangeListener interface that triggers after DB committed. There is some chances to get inconsistency between DB and index. In this case reindex is required. One of the possible solution is contact Trac community to introduce a new within transaction  I<Resource>ChangingListener interface, save changes into additional table and index changes in separate thread.
+   * Some ticket changes are not reflected in event interfaces e.g. Version and Component renaming. One of the possible solution is to contact Trac community to introduce new interfaces.
+   * Alternative solution is triggering events from SQL proxy developed on multi-product branch
+   * Usage of DB triggers is another alternative
+ * A lot more things to do :)

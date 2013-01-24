@@ -17,19 +17,15 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
-from bhsearch.tests import whoosh_backend, index_with_whoosh, web_ui, \
-    ticket_search, api, wiki_search
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(index_with_whoosh.suite())
-    suite.addTest(whoosh_backend.suite())
-    suite.addTest(web_ui.suite())
-    suite.addTest(api.suite())
-    suite.addTest(ticket_search.suite())
-    suite.addTest(wiki_search.suite())
-    return suite
+r"""Base classes for Bloodhound Search plugin."""
+from trac.core import Component
+from trac.config import BoolOption
 
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+class BaseIndexer(Component):
+    """
+    This is base class for Bloodhound Search indexers of specific resource
+    """
+    silence_on_error = BoolOption('bhsearch', 'silence_on_error', "True",
+        """If true, do not throw an exception during indexing a resource""")
+

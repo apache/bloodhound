@@ -125,6 +125,7 @@ ENTRY_POINTS = {
             'bhsearch.admin = bhsearch.admin',
             'bhsearch.ticket_search = bhsearch.ticket_search',
             'bhsearch.wiki_search = bhsearch.wiki_search',
+            'bhsearch.milestone_search = bhsearch.milestone_search',
             'bhsearch.query_parser = bhsearch.query_parser',
             'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
         ],

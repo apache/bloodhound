@@ -21,15 +21,15 @@
 r"""
 Test utils methods
 """
-import pprint
+from pprint import pprint
 import unittest
-from trac.ticket import Ticket
+from trac.ticket import Ticket, Milestone
 from trac.wiki import WikiPage
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
     def print_result(self, result):
         print "Received result:"
-        pprint.pprint(result.__dict__)
+        pprint(result.__dict__)
 
     def create_dummy_ticket(self, summary = None):
         if not summary:
@@ -57,8 +57,42 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         return page
 
     def insert_wiki(self, name, text = None, **kw):
-        """Helper for inserting a ticket into the database"""
         text = text or "Dummy text"
         page = self.create_wiki(name, text, **kw)
         return page.save("dummy author", "dummy comment", "::1")
+
+    def insert_milestone(self, name, description = None):
+        milestone = self.create_milestone(
+            name = name,
+            description = description)
+        return milestone.insert()
+
+    def create_milestone(self, name, description = None):
+        milestone = Milestone(self.env)
+        milestone.name = name
+        if description is not None:
+            milestone.description = description
+        return milestone
+
+    def change_milestone(self, name_to_change, name=None, description=None):
+        milestone = Milestone(self.env, name_to_change)
+        if name is not None:
+            milestone.name = name
+        if description is not None:
+            milestone.description = description
+        milestone.update()
+        return milestone
+
+    def process_request(self):
+        response = self.web_ui.process_request(self.req)
+        url, data, x = response
+        print "Received url: %s data:" % url
+        pprint(data)
+        if data.has_key("results"):
+            print "results :"
+            pprint(data["results"].__dict__)
+        return data
+
+
+
 

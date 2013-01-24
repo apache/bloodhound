@@ -17,23 +17,24 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-from pprint import pprint
-
 import unittest
 import tempfile
 import shutil
+
+from urllib import urlencode, unquote
+
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
 from bhsearch.ticket_search import TicketSearchParticipant
 from bhsearch.web_ui import BloodhoundSearchModule, RequestParameters
-
 from bhsearch.whoosh_backend import WhooshBackend
+
 from trac.test import EnvironmentStub, Mock, MockPerm
 from trac.ticket.api import TicketSystem
 from trac.ticket import Ticket
 from trac.util.datefmt import FixedOffset
 from trac.util import format_datetime
-from trac.web import Href
+from trac.web import Href, arg_list_to_args, parse_arg_list
 
 BHSEARCH_URL = "/main/bhsearch"
 DEFAULT_DOCS_PER_PAGE = 10
@@ -43,50 +44,38 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.env = EnvironmentStub(enable=['bhsearch.*'])
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
 
-#        self.perm = PermissionSystem(self.env)
         self.ticket_system = TicketSystem(self.env)
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
         self.ticket_participant = TicketSearchParticipant(self.env)
-        self.ticket_system = TicketSystem(self.env)
         self.web_ui = BloodhoundSearchModule(self.env)
 
         self.req = Mock(
             perm=MockPerm(),
             chrome={'logo': {}},
             href=Href("/main"),
-            args={},
+            args=arg_list_to_args([]),
         )
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
         self.env.reset_db()
 
-    def _process_request(self):
-        response = self.web_ui.process_request(self.req)
-        url, data, x = response
-        print "Received url: %s data:" % url
-        pprint(data)
-        if data.has_key("results"):
-            print "results :"
-            pprint(data["results"].__dict__)
-        return data
-
     def test_can_process_empty_request(self):
-        data = self._process_request()
+        data = self.process_request()
         self.assertEqual("", data["query"])
 
     def test_can_process_query_empty_data(self):
         self.req.args[RequestParameters.QUERY] = "bla"
-        data = self._process_request()
+        data = self.process_request()
         self.assertEqual("bla", data["query"])
         self.assertEqual([], data["results"].items)
 
     def test_can_process_first_page(self):
         self._insert_tickets(5)
         self.req.args[RequestParameters.QUERY] = "summary:test"
-        data = self._process_request()
+        data = self.process_request()
         self.assertEqual("summary:test", data["query"])
         self.assertEqual(5, len(data["results"].items))
 
@@ -97,12 +86,14 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         ticket_time = ticket.time_changed
         #act
         self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self._process_request()
+        data = self.process_request()
         result_items = data["results"].items
         #assert
         self.assertEqual(1, len(result_items))
         result_datetime = result_items[0]["date"]
-        print "Ticket time: %s, Returned time: %s" % (ticket_time, result_datetime)
+        print "Ticket time: %s, Returned time: %s" % (
+            ticket_time,
+            result_datetime)
         self.assertEqual(format_datetime(ticket_time), result_items[0]["date"])
 
     def test_can_return_user_time(self):
@@ -113,7 +104,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         #act
         self.req.tz = FixedOffset(60, 'GMT +1:00')
         self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self._process_request()
+        data = self.process_request()
         result_items = data["results"].items
         #asset
         self.assertEqual(1, len(result_items))
@@ -126,7 +117,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def test_ticket_href(self):
         self._insert_tickets(1)
         self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self._process_request()
+        data = self.process_request()
         docs = data["results"].items
         self.assertEqual(1, len(docs))
         self.assertEqual("/main/ticket/1", docs[0]["href"])
@@ -134,30 +125,11 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def test_page_href(self):
         self._insert_tickets(DEFAULT_DOCS_PER_PAGE+1)
         self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self._process_request()
+        data = self.process_request()
         shown_pages =  data["results"].shown_pages
         second_page_href = shown_pages[1]["href"]
         self.assertIn("page=2", second_page_href)
         self.assertIn("q=*%3A*", second_page_href)
-
-    def test_facets_ticket_only(self):
-        self.insert_ticket("summary1 keyword", status="closed")
-        self.insert_ticket("summary2 keyword", status="new")
-        self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self._process_request()
-        facets =  data["facets"]
-        pprint(facets)
-        self.assertEqual({'ticket': 2}, facets["type"])
-
-    def test_facets_ticket_and_wiki(self):
-        self.insert_ticket("summary1 keyword", status="closed")
-        self.insert_ticket("summary2 keyword", status="new")
-        self.insert_wiki("dummyTitle", "Some text")
-        self.req.args[RequestParameters.QUERY] = "*"
-        data = self._process_request()
-        facets =  data["facets"]
-        pprint(facets)
-        self.assertEqual({'ticket': 2, 'wiki': 1}, facets["type"])
 
     def test_can_apply_type_parameter(self):
         #arrange
@@ -167,8 +139,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         self.req.args[RequestParameters.TYPE] = "ticket"
         #act
-        data = self._process_request()
-        docs = data["results"].items
+        data = self.process_request()
         #assert
         active_type = data["active_type"]
         self.assertEquals("ticket", active_type)
@@ -191,7 +162,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.TYPE] = "ticket"
         self.req.args[RequestParameters.PAGELEN] = "4"
         self.req.args[RequestParameters.PAGE] = "2"
-        data = self._process_request()
+        data = self.process_request()
         results = data["results"]
         docs = results.items
         self.assertEquals(4, len(docs))
@@ -211,7 +182,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
     def test_type_grouping(self):
         self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self._process_request()
+        data = self.process_request()
         resource_types =  data["types"]
 
         all = resource_types[0]
@@ -232,16 +203,219 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         self.req.args[RequestParameters.PAGELEN] = "4"
         self.req.args[RequestParameters.PAGE] = "2"
-        data = self._process_request()
+        data = self.process_request()
         #assert
         resource_types =  data["types"]
 
         all = resource_types[0]
-        self.assertIn("page=2", all["href"])
+        self.assertNotIn("page=2", all["href"])
 
         ticket = resource_types[1]
         self.assertNotIn("page=", ticket["href"])
 
+    def test_that_there_are_filters_in_type_links(self):
+        #arrange
+#        self._insert_tickets(2)
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.FILTER_QUERY] = "status:new"
+        data = self.process_request()
+        #assert
+        for type in data["types"]:
+            self.assertNotIn("fq=", type["href"])
+
+    def test_that_type_facet_is_in_default_search(self):
+        #arrange
+        self._insert_tickets(2)
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        self.assertEquals(1, len(data["facet_counts"]))
+
+    def test_can_return_facets_counts_for_tickets(self):
+        #arrange
+        self.insert_ticket("T1", status="new", milestone="m1")
+        self.insert_ticket("T2", status="closed")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        facet_counts =  data["facet_counts"]
+        status_counts = facet_counts["status"]
+        self.assertEquals(1, status_counts["new"]["count"])
+        self.assertEquals(1, status_counts["closed"]["count"])
+
+    def test_can_create_href_for_facet_counts(self):
+        #arrange
+        self.insert_ticket("T1", status="new")
+        self.insert_ticket("T2", status="closed")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        facet_counts =  data["facet_counts"]
+        status_counts = facet_counts["status"]
+        self.assertEquals(1, status_counts["new"]["count"])
+        self.assertIn("fq=status%3A%22new%22", status_counts["new"]["href"])
+
+    def test_can_handle_none_in_facet_counts(self):
+        #arrange
+        self.insert_ticket("T1")
+        self.insert_ticket("T2")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        facet_counts =  data["facet_counts"]
+        status_counts = facet_counts["status"]
+        empty_status_count = status_counts[None]
+        self.assertEquals(2, empty_status_count["count"])
+        self.assertIn(
+            'fq=NOT+(status:*)',
+            unquote(empty_status_count["href"]))
+
+    def test_can_return_empty_facets_result_for_wiki_pages(self):
+        #arrange
+        self.insert_wiki("W1","Some text")
+        #act
+        self.req.args[RequestParameters.TYPE] = "wiki"
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        facet_counts =  data["facet_counts"]
+        self.assertEquals({}, facet_counts)
+
+    def test_can_accept_multiple_filter_query_parameters(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new")
+        self.insert_ticket("T2", component="c1", status="new")
+        self.insert_ticket("T3",)
+        self._insert_wiki_pages(2)
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.FILTER_QUERY] = [
+            'component:"c1"', 'status:"new"']
+        data = self.process_request()
+        #assert
+        page_href = data["page_href"]
+        self.assertIn(urlencode({'fq':'component:"c1"'}), page_href)
+        self.assertIn(urlencode({'fq':'status:"new"'}), page_href)
+
+        docs = data["results"].items
+        self.assertEqual(2, len(docs))
+
+
+    def test_can_handle_empty_facet_result(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new")
+        self.insert_ticket("T2", component="c1", status="new")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.FILTER_QUERY] = ['component:"c1"']
+        data = self.process_request()
+        #assert
+        facet_counts = data["facet_counts"]
+
+        milestone_facet_count = facet_counts["milestone"]
+        print unquote(milestone_facet_count[None]["href"])
+
+    def test_can_handle_multiple_same(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new")
+        self.insert_ticket("T2", component="c1", status="new")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.FILTER_QUERY] = ['component:"c1"']
+        data = self.process_request()
+        #assert
+        facet_counts = data["facet_counts"]
+
+        component_facet_count = facet_counts["component"]
+        c1_href = component_facet_count["c1"]["href"]
+        print unquote(c1_href)
+        self.assertEquals(
+            1,
+            self._count_parameter_in_url(c1_href, "fq", 'component:"c1"'))
+
+    def test_can_return_current_filter_queries(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new")
+        self.insert_ticket("T2", component="c1", status="new")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.FILTER_QUERY] = [
+            'component:"c1"',
+            'status:"new"']
+        data = self.process_request()
+        #assert
+        current_filter_queries = data["active_filter_queries"]
+        self.assertEquals(2, len(current_filter_queries))
+
+        component_filter =  current_filter_queries[0]
+        self.assertEquals('component:"c1"', component_filter["label"])
+        self.assertNotIn("fq=", component_filter["href"])
+
+        status_filter =  current_filter_queries[1]
+        self.assertEquals('status:"new"', status_filter["label"])
+        self.assertIn('fq=component:"c1"', unquote(status_filter["href"]))
+        self.assertNotIn('fq=status:"new"', unquote(status_filter["href"]))
+
+    def test_can_return_missing_milestone(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new")
+        self.insert_ticket("T2", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.FILTER_QUERY] = ["NOT (milestone:*)"]
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        items = data["results"].items
+        self.assertEquals(1, len(items))
+
+    def test_can_return_no_results_for_missing_milestone(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        self.insert_ticket("T2", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.FILTER_QUERY] = ["NOT (milestone:*)"]
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        items = data["results"].items
+        self.assertEquals(0, len(items))
+
+    def test_that_type_facet_has_href_to_type(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        ticket_facet_href = data["facet_counts"]["type"]["ticket"]["href"]
+        ticket_facet_href = unquote(ticket_facet_href)
+        self.assertIn("type=ticket", ticket_facet_href)
+        self.assertNotIn("fq=", ticket_facet_href)
+
+    def _count_parameter_in_url(self, url, parameter_name, value):
+        parameter_to_find = (parameter_name, value)
+        parsed_parameters = parse_arg_list(url)
+        i = 0
+        for parameter in parsed_parameters:
+            if parameter == parameter_to_find:
+                i += 1
+
+        return i
 
     def _assertResourceType(self, type, label, active, href_contains = None):
         self.assertEquals(label, type["label"])
@@ -252,6 +426,11 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def _insert_tickets(self, n):
         for i in range(1, n+1):
             self.insert_ticket("test %s" % i)
+
+    def _insert_wiki_pages(self, n):
+        for i in range(1, n+1):
+            self.insert_wiki("test %s" % i)
+
 def suite():
     return unittest.makeSuite(WebUiTestCaseWithWhoosh, 'test')
 

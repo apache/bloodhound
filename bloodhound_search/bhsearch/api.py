@@ -19,9 +19,8 @@
 #  under the License.
 
 r"""Core Bloodhound Search components."""
-
-from trac.core import *
 from trac.config import ExtensionOption
+from trac.core import Interface, Component, ExtensionPoint
 
 ASC = "asc"
 DESC = "desc"
@@ -33,6 +32,11 @@ class IndexFields(object):
     TIME = 'time'
     AUTHOR = 'author'
     CONTENT = 'content'
+    STATUS = 'status'
+    DUE = 'due'
+    COMPLETED = 'completed'
+    MILESTONE = 'milestone'
+    COMPONENT = 'component'
 
 class QueryResult(object):
     def __init__(self):
@@ -55,7 +59,7 @@ class ISearchBackend(Interface):
         Called when new document instance must be added
         """
 
-    def delete_doc(type, id, **kwargs):
+    def delete_doc(doc_type, doc_id, **kwargs):
         """
         Delete document from index
         """
@@ -90,14 +94,15 @@ class ISearchBackend(Interface):
         """
         Perform query implementation
 
-        :param query:
-        :param sort:
-        :param fields:
-        :param boost:
-        :param filter:
-        :param facets:
-        :param pagenum:
-        :param pagelen:
+        :param query: Parsed query object
+        :param sort: list of tuples  with field name and sort order:
+            [("field_name", "ASC")]
+        :param fields: list of fields to select
+        :param boost: list of fields with boost values
+        :param filter: filter query object
+        :param facets: list of facet fields
+        :param pagenum: page number
+        :param pagelen: page length
         :return: ResultsPage
         """
 
@@ -124,12 +129,41 @@ class ISearchParticipant(Interface):
     def get_title():
         """Return resource title"""
 
+    def get_default_facets():
+        """Return default facets for the specific resource type"""
+
 class IQueryParser(Interface):
     """Extension point for Bloodhound Search query parser.
     """
 
-    def parse(query_string, req = None):
+    def parse(query_string):
         """Parse query from string"""
+
+    def parse_filters(filters):
+        """Parse query filters"""
+
+class IDocIndexPreprocessor(Interface):
+    """Extension point for Bloodhound Search document pre-processing before
+    adding or update documents into index.
+    """
+
+    def pre_process(doc):
+        """Process document"""
+
+class IResultPostprocessor(Interface):
+    """Extension point for Bloodhound Search result post-processing before
+    returning result to caller.
+    """
+
+    def post_process(query_result):
+        """Process document"""
+
+class IQueryPreprocessor(Interface):
+    """Extension point for Bloodhound Search query pre processing.
+    """
+
+    def query_pre_process(query_parameters):
+        """Process query parameters"""
 
 class BloodhoundSearchApi(Component):
     """Implements core indexing functionality, provides methods for
@@ -144,6 +178,10 @@ class BloodhoundSearchApi(Component):
         IQueryParser, 'DefaultQueryParser',
         'Name of the component implementing Bloodhound Search query \
         parser.')
+
+    index_pre_processors = ExtensionPoint(IDocIndexPreprocessor)
+    result_post_processors = ExtensionPoint(IResultPostprocessor)
+    query_processors = ExtensionPoint(IQueryPreprocessor)
 
     index_participants = ExtensionPoint(IIndexParticipant)
 
@@ -170,19 +208,28 @@ class BloodhoundSearchApi(Component):
 
         parsed_query = self.parser.parse(query)
 
+        parsed_filters = self.parser.parse_filters(filter)
         # TODO: add query parsers and meta keywords post-parsing
 
         # TODO: apply security filters
 
-        query_result = self.backend.query(
+        query_parameters = dict(
             query = parsed_query,
             sort = sort,
             fields = fields,
-            filter = filter,
+            filter = parsed_filters,
             facets = facets,
             pagenum = pagenum,
             pagelen = pagelen,
+            boost = boost,
         )
+        for query_processor in self.query_processors:
+            query_processor.query_pre_process(query_parameters)
+
+        query_result = self.backend.query(**query_parameters)
+
+        for post_processor in self.result_post_processors:
+            post_processor.post_process(query_result)
 
         return query_result
 
@@ -192,13 +239,19 @@ class BloodhoundSearchApi(Component):
         self.log.info('Rebuilding the search index.')
         self.backend.recreate_index()
         operation_data = self.backend.start_operation()
+        doc = None
         try:
             for participant in self.index_participants:
                 docs = participant.get_entries_for_index()
                 for doc in docs:
-                    self.backend.add_doc(doc, **operation_data)
+#                    if doc["id"] == u'TracFastCgi':
+                    self._add_doc(doc, **operation_data)
+            doc = None
             self.backend.commit(True, **operation_data)
-        except:
+        except Exception, ex:
+            self.log.error(ex)
+            if doc:
+                self.log.error("Doc that triggers the error: %s" % doc)
             self.backend.cancel(**operation_data)
             raise
 
@@ -209,7 +262,7 @@ class BloodhoundSearchApi(Component):
                 doc[IndexFields.TYPE],
                 old_id,
                 **operation_data)
-            self.backend.add_doc(doc, **operation_data)
+            self._add_doc(doc, **operation_data)
             self.backend.commit(False, **operation_data)
         except:
             self.backend.cancel(**operation_data)
@@ -225,27 +278,33 @@ class BloodhoundSearchApi(Component):
 
         The doc must be dictionary with obligatory "type" field
         """
+
         operation_data = self.backend.start_operation()
         try:
-            self.backend.add_doc(doc, **operation_data)
+            self._add_doc(doc, **operation_data)
             self.backend.commit(False, **operation_data)
         except:
             self.backend.cancel(**operation_data)
             raise
 
 
-    def delete_doc(self, type, id):
+    def delete_doc(self, doc_type, doc_id):
         """Add a document from underlying search backend.
 
         The doc must be dictionary with obligatory "type" field
         """
         operation_data = self.backend.start_operation()
         try:
-            self.backend.delete_doc(type, id, **operation_data)
+            self.backend.delete_doc(doc_type, doc_id, **operation_data)
             self.backend.commit(False, **operation_data)
         except:
             self.backend.cancel(**operation_data)
             raise
 
+
+    def _add_doc(self, doc, **operation_data):
+        for preprocessor in self.index_pre_processors:
+            preprocessor.pre_process(doc)
+        self.backend.add_doc(doc, **operation_data)
 
 

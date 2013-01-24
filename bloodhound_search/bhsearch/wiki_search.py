@@ -21,16 +21,15 @@
 r"""Wiki specifics for Bloodhound Search plugin."""
 from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
     IIndexParticipant, IndexFields
-from trac.core import *
-from trac.config import Option
+from bhsearch.base import BaseIndexer
+from trac.core import implements, Component
+from trac.config import ListOption
 from trac.wiki import IWikiChangeListener, WikiSystem, WikiPage
 
-WIKI_TYPE = "wiki"
+WIKI_TYPE = u"wiki"
 
-class WikiIndexer(Component):
+class WikiIndexer(BaseIndexer):
     implements(IWikiChangeListener, IIndexParticipant)
-    silence_on_error = Option('bhsearch', 'silence_on_error', "True",
-        """If true, do not throw an exception during indexing a resource""")
 
     #IWikiChangeListener methods
     def wiki_page_added(self, page):
@@ -64,21 +63,26 @@ class WikiIndexer(Component):
             search_api = BloodhoundSearchApi(self.env)
             search_api.change_doc_id(doc, old_name)
         except Exception, e:
-            if self.silence_on_error.lower() == "true":
-                self.log.error("Error occurs during wiki indexing. \
-                    The error will not be propagated. Exception: %s", e)
+            if self.silence_on_error:
+                self.log.error("Error occurs during renaming wiki from %s \
+                    to %s. The error will not be propagated. Exception: %s",
+                old_name, page.name, e)
             else:
                 raise
 
-    def _index_wiki(self, page, raise_exception = False):
+    def _index_wiki(self, page):
         try:
             doc = self.build_doc(page)
             search_api = BloodhoundSearchApi(self.env)
             search_api.add_doc(doc)
         except Exception, e:
-            if (not raise_exception) and self.silence_on_error.lower() == "true":
-                self.log.error("Error occurs during wiki indexing. \
-                    The error will not be propagated. Exception: %s", e)
+            page_name = None
+            if page is not None:
+                page_name = page.name
+            if self.silence_on_error:
+                self.log.error("Error occurs during wiki indexing: %s. \
+                    The error will not be propagated. Exception: %s",
+                    page_name, e)
             else:
                 raise
 
@@ -97,7 +101,6 @@ class WikiIndexer(Component):
         return doc
 
     def get_entries_for_index(self):
-        #is there better way to get all tickets?
         page_names = WikiSystem(self.env).get_pages()
         for page_name in page_names:
             page = WikiPage(self.env, page_name)
@@ -105,6 +108,9 @@ class WikiIndexer(Component):
 
 class WikiSearchParticipant(Component):
     implements(ISearchParticipant)
+
+    default_facets = ListOption('bhsearch', 'default_facets_wiki',
+        doc="""Default facets applied to search through wiki pages""")
 
     #ISearchParticipant members
     def get_search_filters(self, req=None):
@@ -114,6 +120,11 @@ class WikiSearchParticipant(Component):
     def get_title(self):
         return "Wiki"
 
+    def get_default_facets(self):
+        return self.default_facets
+
     def format_search_results(self, res):
         return u'%s: %s...' % (res['id'], res['content'][:50])
+
+
 
