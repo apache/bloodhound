@@ -22,6 +22,7 @@ from datetime import datetime
 from genshi.builder import tag
 
 from pkg_resources import resource_filename
+from trac.config import PathOption
 from trac.core import Component, TracError, implements
 from trac.db import Table, Column, DatabaseManager, Index
 from trac.env import IEnvironmentSetupParticipant
@@ -39,10 +40,16 @@ PLUGIN_NAME = 'Bloodhound multi product'
 
 class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
-    
+
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
             IPermissionRequestor, ITicketFieldProvider, IResourceManager)
-    
+
+    product_config_parent = PathOption('inherit', 'multiproduct', '',
+        """The path to the configuration file containing the settings shared
+        by sibling product environments. By default will inherit 
+        global environment configuration.
+        """)
+
     SCHEMA = [mcls._get_schema() \
               for mcls in (Product, ProductResourceMap)]
 
@@ -52,16 +59,16 @@ class MultiProductSystem(Component):
             SELECT value FROM system WHERE name = %s
             """, (DB_SYSTEM_KEY,))
         return int(rows[0][0]) if rows else -1
-    
+
     # IEnvironmentSetupParticipant methods
     def environment_created(self):
         """Insertion of any default data into the database."""
         self.log.debug("creating environment for %s plugin." % PLUGIN_NAME)
-    
+
     def environment_needs_upgrade(self, db_dummy=None):
         """Detects if the installed db version matches the running system"""
         db_installed_version = self.get_version()
-        
+
         if db_installed_version > DB_VERSION:
             raise TracError('''Current db version (%d) newer than supported by
             this version of the %s (%d).''' % (db_installed_version,
@@ -207,7 +214,7 @@ class MultiProductSystem(Component):
     def get_templates_dirs(self):
         """provide the plugin templates"""
         return [resource_filename(__name__, 'templates')]
-    
+
     def get_htdocs_dirs(self):
         """proved the plugin htdocs"""
         return []
@@ -223,7 +230,7 @@ class MultiProductSystem(Component):
         """Product select fields"""
         return [(35, {'name': 'product', 'label': N_('Product'),
                       'cls': Product, 'pk': 'prefix', 'optional': True})]
-    
+
     def get_radio_fields(self):
         """Product radio fields"""
         return []

@@ -29,6 +29,7 @@ from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
+from multiproduct.api import MultiProductSystem
 from multiproduct.config import Configuration
 from multiproduct.model import Product
 from multiproduct.dbcursor import BloodhoundIterableCursor
@@ -451,8 +452,14 @@ class ProductEnvironment(Component, ComponentManager):
     def setup_config(self):
         """Load the configuration object.
         """
-        # FIXME: Inherit global environment setting ?
-        self.config = Configuration(self.parent, self.product.prefix)
+        import trac.config
+
+        parent_path = MultiProductSystem(self.parent).product_config_parent
+        if parent_path and os.path.isfile(parent_path):
+            parents = [trac.config.Configuration(parent_path)]
+        else:
+            parents = [self.parent.config]
+        self.config = Configuration(self.parent, self.product.prefix, parents)
         self.setup_log()
 
     def setup_log(self):
