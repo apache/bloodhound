@@ -343,8 +343,11 @@ class BloodhoundProductSQLTranslate(object):
         current_token, field_lists = self._select_expression_tokens(parent, fields_token, ['FROM'] + self._from_end_words)
         def handle_insert_table(table_name):
             if insert_table and insert_table in self._translate_tables:
-                for keyword in [self._product_column, ',', ' ']:
-                    self._token_insert_before(parent, fields_token, Types.Token(Tokens.Keyword, keyword))
+                if not field_lists or not field_lists[-1]:
+                    raise Exception("Invalid SELECT field list")
+                last_token = list(field_lists[-1][-1].flatten())[-1]
+                for keyword in [self._product_column, ' ', ',']:
+                    self._token_insert_after(last_token.parent, last_token, Types.Token(Tokens.Keyword, keyword))
             return
         table_name_callback = handle_insert_table if insert_table else None
         from_token = self._token_next_match(parent, start_token, Tokens.Keyword, 'FROM')
@@ -403,14 +406,22 @@ class BloodhoundProductSQLTranslate(object):
                isinstance(columns_token, Types.Parenthesis):
                 ptoken = self._token_first(columns_token)
                 if not ptoken.match(Tokens.Punctuation, '('):
-                    raise Exception("Invalid INSERT statement")
-                for keyword in [' ', ',', self._product_column]:
-                    self._token_insert_after(columns_token, ptoken, Types.Token(Tokens.Keyword, keyword))
+                    raise Exception("Invalid INSERT statement, expected parenthesis around columns")
+                ptoken = self._token_next(columns_token, ptoken)
+                last_token = ptoken
+                while ptoken:
+                    last_token = ptoken
+                    ptoken = self._token_next(columns_token, ptoken)
+                if not last_token or \
+                   not last_token.match(Tokens.Punctuation, ')'):
+                    raise Exception("Invalid INSERT statement, unable to find column parenthesis end")
+                for keyword in [',', ' ', self._product_column]:
+                    self._token_insert_before(columns_token, last_token, Types.Token(Tokens.Keyword, keyword))
             return
-        def insert_extra_column_value(tablename, ptoken, start_token):
+        def insert_extra_column_value(tablename, ptoken, before_token):
             if tablename in self._translate_tables:
                 for keyword in [',', "'", self._product_prefix, "'"]:
-                    self._token_insert_after(ptoken, start_token, Types.Token(Tokens.Keyword, keyword))
+                    self._token_insert_before(ptoken, before_token, Types.Token(Tokens.Keyword, keyword))
             return
         tablename = None
         table_name_token = self._token_next(parent, token)
@@ -440,14 +451,19 @@ class BloodhoundProductSQLTranslate(object):
                     ptoken = self._token_first(token)
                     if not ptoken.match(Tokens.Punctuation, '('):
                         raise Exception("Invalid INSERT statement")
-                    insert_extra_column_value(tablename, token, ptoken)
+                    last_token = ptoken
                     while ptoken:
                         if not ptoken.match(Tokens.Punctuation, separators) and \
                            not ptoken.match(Tokens.Keyword, separators) and \
                            not ptoken.is_whitespace():
                             ptoken = self._expression_token_unwind_hack(token, ptoken, self._token_prev(token, ptoken))
                             self._eval_expression_value(token, ptoken)
+                        last_token = ptoken
                         ptoken = self._token_next(token, ptoken)
+                    if not last_token or \
+                       not last_token.match(Tokens.Punctuation, ')'):
+                        raise Exception("Invalid INSERT statement, unable to find column value parenthesis end")
+                    insert_extra_column_value(tablename, token, last_token)
                 elif not token.match(Tokens.Punctuation, separators) and\
                      not token.match(Tokens.Keyword, separators) and\
                      not token.is_whitespace():

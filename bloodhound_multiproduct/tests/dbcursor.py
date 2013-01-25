@@ -497,12 +497,12 @@ data = {
                  reporter, cc, version, milestone, status, resolution, summary,
                  description, keywords FROM ticket_old
           WHERE COALESCE(severity,'') <> 'enhancement'""",
-"""INSERT INTO ticket(product, id, type, time, changetime, component, severity, priority,
+"""INSERT INTO ticket(id, type, time, changetime, component, severity, priority,
                            owner, reporter, cc, version, milestone, status, resolution,
-                           summary, description, keywords)
-          SELECT product, id, 'defect', time, changetime, component, severity, priority, owner,
+                           summary, description, keywords, product)
+          SELECT id, 'defect', time, changetime, component, severity, priority, owner,
                  reporter, cc, version, milestone, status, resolution, summary,
-                 description, keywords FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
+                 description, keywords, product FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
           WHERE COALESCE(severity,'') <> 'enhancement'"""
         ),
         (
@@ -513,12 +513,12 @@ data = {
                      owner, reporter, cc, version, milestone, status, resolution, summary,
                      description, keywords FROM ticket_old
               WHERE severity = 'enhancement'""",
-"""INSERT INTO ticket(product, id, type, time, changetime, component, severity, priority,
+"""INSERT INTO ticket(id, type, time, changetime, component, severity, priority,
                                owner, reporter, cc, version, milestone, status, resolution,
-                               summary, description, keywords)
-              SELECT product, id, 'enhancement', time, changetime, component, 'normal', priority,
+                               summary, description, keywords, product)
+              SELECT id, 'enhancement', time, changetime, component, 'normal', priority,
                      owner, reporter, cc, version, milestone, status, resolution, summary,
-                     description, keywords FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
+                     description, keywords, product FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
               WHERE severity = 'enhancement'"""
         ),
         (
@@ -669,9 +669,17 @@ data = {
 """INSERT INTO wiki(version, name, time, author, ipnr, text)
                               SELECT 1 + COALESCE(max(version), 0), %s, %s, 'trac',
                                      '127.0.0.1', %s FROM wiki WHERE name=%s""",
-"""INSERT INTO wiki(product, version, name, time, author, ipnr, text)
-                              SELECT product, 1 + COALESCE(max(version), 0), %s, %s, 'trac',
-                                     '127.0.0.1', %s FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS wiki WHERE name=%s"""
+"""INSERT INTO wiki(version, name, time, author, ipnr, text, product)
+                              SELECT 1 + COALESCE(max(version), 0), %s, %s, 'trac',
+                                     '127.0.0.1', %s, product FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS wiki WHERE name=%s"""
+        ),
+        (
+"""INSERT INTO permission VALUES ('dev','WIKI_VIEW')""",
+"""INSERT INTO permission VALUES ('dev','WIKI_VIEW','PRODUCT')"""
+        ),
+        (
+"""INSERT INTO permission (username, action) VALUES ('dev','WIKI_VIEW')""",
+"""INSERT INTO permission (username, action, product) VALUES ('dev','WIKI_VIEW','PRODUCT')"""
         ),
     ],
 

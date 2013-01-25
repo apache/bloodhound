@@ -21,6 +21,8 @@ from datetime import datetime
 
 from genshi.builder import tag
 
+import copy
+
 from pkg_resources import resource_filename
 from trac.config import PathOption
 from trac.core import Component, TracError, implements
@@ -117,89 +119,57 @@ class MultiProductSystem(Component):
 
             if db_installed_version < 3:
                 from multiproduct.dbcursor import DEFAULT_PRODUCT
+                from multiproduct.model import Product
+                import trac.db_default
                 migrate_tables = ['enum', 'component', 'milestone', 'version', 'permission', 'wiki']
-                table_defs = [
-                    Table('enum', key=('type', 'name', 'product'))[
-                        Column('type'),
-                        Column('name'),
-                        Column('value'),
-                        Column('product')],
-                    Table('component', key=('name', 'product'))[
-                        Column('name'),
-                        Column('owner'),
-                        Column('description'),
-                        Column('product')],
-                    Table('milestone', key=('name', 'product'))[
-                        Column('name'),
-                        Column('due', type='int64'),
-                        Column('completed', type='int64'),
-                        Column('description'),
-                        Column('product')],
-                    Table('version', key=('name', 'product'))[
-                        Column('name'),
-                        Column('time', type='int64'),
-                        Column('description'),
-                        Column('product')],
-                    Table('permission', key=('username', 'action', 'product'))[
-                        Column('username'),
-                        Column('action'),
-                        Column('product')],
-                    Table('wiki', key=('name', 'version', 'product'))[
-                        Column('name'),
-                        Column('version', type='int'),
-                        Column('time', type='int64'),
-                        Column('author'),
-                        Column('ipnr'),
-                        Column('text'),
-                        Column('comment'),
-                        Column('readonly', type='int'),
-                        Column('product'),
-                        Index(['time'])],
-                    ]
+                # extend trac default schema by adding product column and extending key with product
+                table_defs = [copy.deepcopy(t) for t in trac.db_default.schema if t.name in migrate_tables]
+                for t in table_defs:
+                    t.columns.append(Column('product'))
+                    if isinstance(t.key, list):
+                        t.key = tuple(t.key) + tuple(['product'])
+                    elif isinstance(t.key, tuple):
+                        t.key = t.key + tuple(['product'])
+                    else:
+                        raise TracError("Invalid table '%s' schema key '%s' while upgrading "
+                                        "plugin '%s' from version %d to %d'" %
+                                        (t.name, t.key, PLUGIN_NAME, db_installed_version, 3))
                 table_columns = dict()
-                table_vals = {}
                 for table in table_defs:
                     table_columns[table.name] = filter(lambda column: column != 'product',
                                                          [column.name for column in
                                                             list(filter(lambda t: t.name == table.name,
                                                                                   table_defs)[0].columns)])
-                table_columns['bloodhound_product'] = ['prefix', 'name', 'description', 'owner']
-                def fetch_table(table):
-                    table_vals[table] = list(db("SELECT %s FROM %s" % (','.join(table_columns[table]), table)))
-                for table in table_columns.keys():
-                    self.log.info("Fetching table '%s'", table)
-                    fetch_table(table)
-                for table in migrate_tables:
-                    self.log.info("Dropping obsolete table '%s'", table)
-                    db("DROP TABLE %s" % table)
-                db_connector, _ = DatabaseManager(self.env).get_connector()
-                for table in table_defs:
-                    self.log.info("Creating table '%s'", table.name)
-                    for sql in db_connector.to_sql(table):
-                        db(sql)
                 self.log.info("Creating default product")
-                db("""INSERT INTO bloodhound_product (prefix, name, description, owner)
-                        VALUES ('%s', 'Default', 'Default product', '')""" % DEFAULT_PRODUCT)
+                default_product = Product(self.env)
+                default_product.update_field_dict({'prefix': DEFAULT_PRODUCT,
+                                                   'name': 'Default',
+                                                   'description': 'Default product',
+                                                   'owner': '',
+                                                 })
+                default_product.insert()
+
                 self.log.info("Migrating tickets w/o product to default product")
                 db("""UPDATE ticket SET product='%s'
                         WHERE product=''""" % DEFAULT_PRODUCT)
 
-                def insert_with_product(table, product):
-                    cols = table_columns[table] + ['product']
-                    sql = "INSERT INTO %s (%s) VALUES (%s)" % (table,
-                                                               ','.join(cols),
-                                                               ','.join(['%s'] * len(cols)))
-                    for r in table_vals[table]:
-                        vals = list()
-                        for v in list(r):
-                            vals.append(v if v else '')
-                        db(sql, tuple(vals + [product]))
+                self.log.info("Migrating tables to a new schema")
                 for table in migrate_tables:
-                    self.log.info("Creating tables '%s' for default product", table)
-                    insert_with_product(table, DEFAULT_PRODUCT)
-                    for p in table_vals['bloodhound_product']:
-                        self.log.info("Creating tables '%s' for product '%s' ('%s')", table, p[1], p[0])
-                        insert_with_product(table, p[0])
+                    cols = ','.join(table_columns[table])
+                    self.log.info("Migrating table '%s' to a new schema", table)
+                    db("CREATE TEMPORARY TABLE %s_temp AS SELECT %s FROM %s" %
+                        (table, cols, table))
+                    db("DROP TABLE %s" % table)
+                    db_connector, _ = DatabaseManager(self.env)._get_connector()
+                    table_schema = filter(lambda t: t.name == table, table_defs)[0]
+                    for sql in db_connector.to_sql(table_schema):
+                        db(sql)
+                    products = Product.select(self.env)
+                    for product in products:
+                        self.log.info("Populating table '%s' for product '%s' ('%s')", table, product.name, product.prefix)
+                        db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s_temp" %
+                            (table, cols, cols, product.prefix, table))
+                    db("DROP TABLE %s_temp" % table)
                 db_installed_version = self._update_db_version(db, 3)
 
             if db_installed_version < 4:
