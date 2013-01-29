@@ -23,40 +23,44 @@ import shutil
 
 from urllib import urlencode, unquote
 
-from bhsearch.api import BloodhoundSearchApi
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketSearchParticipant
-from bhsearch.web_ui import BloodhoundSearchModule, RequestParameters
+from bhsearch.web_ui import RequestParameters
 from bhsearch.whoosh_backend import WhooshBackend
 
 from trac.test import EnvironmentStub, Mock, MockPerm
-from trac.ticket.api import TicketSystem
 from trac.ticket import Ticket
 from trac.util.datefmt import FixedOffset
 from trac.util import format_datetime
-from trac.web import Href, arg_list_to_args, parse_arg_list
+from trac.web import Href, arg_list_to_args, parse_arg_list, RequestDone
 
-BHSEARCH_URL = "/main/bhsearch"
+BASE_PATH = "/main/"
+BHSEARCH_URL = BASE_PATH + "bhsearch"
 DEFAULT_DOCS_PER_PAGE = 10
 
 class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
+        self.env = EnvironmentStub(enable=['trac.*', 'bhsearch.*'])
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
 
-        self.ticket_system = TicketSystem(self.env)
-        self.whoosh_backend = WhooshBackend(self.env)
-        self.whoosh_backend.recreate_index()
-        self.search_api = BloodhoundSearchApi(self.env)
-        self.ticket_participant = TicketSearchParticipant(self.env)
-        self.web_ui = BloodhoundSearchModule(self.env)
+        whoosh_backend = WhooshBackend(self.env)
+        whoosh_backend.recreate_index()
 
         self.req = Mock(
             perm=MockPerm(),
             chrome={'logo': {}},
             href=Href("/main"),
+            base_path=BASE_PATH,
             args=arg_list_to_args([]),
+            redirect=self.redirect
         )
+
+        self.redirect_url = None
+        self.redirect_permanent = None
+
+    def redirect(self, url, permanent=False):
+        self.redirect_url = url
+        self.redirect_permanent = permanent
+        raise RequestDone
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -406,6 +410,36 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         ticket_facet_href = unquote(ticket_facet_href)
         self.assertIn("type=ticket", ticket_facet_href)
         self.assertNotIn("fq=", ticket_facet_href)
+
+    def test_that_there_is_no_quick_jump_on_ordinary_query(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        self.assertNotIn("quickjump", data)
+
+    def test_can_redirect_on_ticket_id_query(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "#1"
+        self.assertRaises(RequestDone, self.process_request)
+        #assert
+        self.assertEqual('/main/ticket/1', self.redirect_url)
+
+    def test_can_return_quick_jump_data_on_noquickjump(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "#1"
+        self.req.args[RequestParameters.NO_QUICK_JUMP] = "1"
+        data = self.process_request()
+        #assert
+        quick_jump_data = data["quickjump"]
+        self.assertEqual('T1 (new)', quick_jump_data["description"])
+        self.assertEqual('/main/ticket/1', quick_jump_data["href"])
 
     def _count_parameter_in_url(self, url, parameter_name, value):
         parameter_to_find = (parameter_name, value)

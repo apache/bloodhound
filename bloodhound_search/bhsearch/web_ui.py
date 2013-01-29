@@ -33,10 +33,12 @@ from trac.util.presentation import Paginator
 from trac.util.datefmt import format_datetime, user_time
 from trac.web import IRequestHandler
 from trac.util.translation import _
-from trac.web.chrome import INavigationContributor, ITemplateProvider, \
-                             add_link, add_stylesheet
-from bhsearch.api import BloodhoundSearchApi, ISearchParticipant, SCORE, ASC, \
-    DESC, IndexFields
+from trac.util.html import find_element
+from trac.web.chrome import (INavigationContributor, ITemplateProvider,
+    add_link, add_stylesheet, web_context)
+from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
+    DESC, IndexFields)
+from trac.wiki.formatter import extract_link
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
 DEFAULT_RESULTS_PER_PAGE = 10
@@ -59,14 +61,15 @@ class RequestParameters(object):
     def __init__(self, req):
         self.req = req
 
-        self.query = req.args.getfirst(RequestParameters.QUERY)
-        if self.query == None:
+        self.query = req.args.getfirst(self.QUERY)
+        if self.query is None:
             self.query = ""
+        else:
+            self.query = self.query.strip()
 
-        #TODO: add quick jump functionality
-        self.noquickjump = 1
+        self.no_quick_jump = int(req.args.getfirst(self.NO_QUICK_JUMP, '0'))
 
-        self.filter_queries = req.args.getlist(RequestParameters.FILTER_QUERY)
+        self.filter_queries = req.args.getlist(self.FILTER_QUERY)
         self.filter_queries = self._remove_possible_duplications(
                         self.filter_queries)
 
@@ -76,13 +79,16 @@ class RequestParameters(object):
         self.pagelen = int(req.args.getfirst(
             RequestParameters.PAGELEN,
             DEFAULT_RESULTS_PER_PAGE))
-        self.page = int(req.args.getfirst(RequestParameters.PAGE, '1'))
-        self.type = req.args.getfirst(RequestParameters.TYPE, None)
+        self.page = int(req.args.getfirst(self.PAGE, '1'))
+        self.type = req.args.getfirst(self.TYPE, None)
 
         self.params = {
-            self.NO_QUICK_JUMP: self.noquickjump,
             RequestParameters.FILTER_QUERY: []
         }
+
+        if self.no_quick_jump > 0:
+            self.params[self.NO_QUICK_JUMP] = self.no_quick_jump
+
         if self.query:
             self.params[self.QUERY] = self.query
         if self.pagelen != DEFAULT_RESULTS_PER_PAGE:
@@ -105,11 +111,14 @@ class RequestParameters(object):
             type=None,
             skip_type = False,
             skip_page = False,
-            filter_query = None,
-            skip_filter_query = False,
-            force_filters = None
+            additional_filter = None,
+            force_filters = None,
             ):
         params = copy.deepcopy(self.params)
+
+        #noquickjump parameter should be always set to 1 for urls
+        params[self.NO_QUICK_JUMP] = 1
+
         if page:
             params[self.PAGE] = page
 
@@ -122,10 +131,9 @@ class RequestParameters(object):
         if skip_type and self.TYPE in params:
             del(params[self.TYPE])
 
-        if skip_filter_query:
-            params[self.FILTER_QUERY] = []
-        elif filter_query and filter_query not in params[self.FILTER_QUERY]:
-            params[self.FILTER_QUERY].append(filter_query)
+        if additional_filter and \
+           additional_filter not in params[self.FILTER_QUERY]:
+            params[self.FILTER_QUERY].append(additional_filter)
         elif force_filters is not None:
             params[self.FILTER_QUERY] = force_filters
 
@@ -175,27 +183,30 @@ class BloodhoundSearchModule(Component):
     def process_request(self, req):
         req.perm.assert_permission(SEARCH_PERMISSION)
         parameters = RequestParameters(req)
-        query_string = parameters.query
-
-        #TODO add quick jump support
-
         allowed_participants = self._get_allowed_participants(req)
         data = {
-            'query': query_string,
+            'query': parameters.query,
             }
         self._prepare_allowed_types(allowed_participants, parameters, data)
         self._prepare_active_filter_queries(
             parameters,
             data,
         )
+        working_query_string = parameters.query.strip()
+
 
         #TBD: should search return results on empty query?
 #        if not any((
-#            query_string,
+#            working_query_string,
 #            parameters.type,
 #            parameters.filter_queries,
 #            )):
 #            return self._return_data(req, data)
+
+        self._prepare_quick_jump(
+            parameters,
+            working_query_string,
+            data)
 
         query_filter = self._prepare_query_filter(
             parameters,
@@ -205,7 +216,7 @@ class BloodhoundSearchModule(Component):
 
         query_system = BloodhoundSearchApi(self.env)
         query_result = query_system.query(
-            query_string,
+            working_query_string,
             pagenum=parameters.page,
             pagelen=parameters.pagelen,
             sort=parameters.sort,
@@ -249,6 +260,47 @@ class BloodhoundSearchModule(Component):
 
         data['page_href'] = parameters.create_href()
         return self._return_data(req, data)
+
+    def _prepare_quick_jump(self,
+                            parameters,
+                            working_query_string,
+                            data):
+        if not working_query_string:
+            return
+        check_result = self._check_quickjump(
+            parameters.req,
+            working_query_string)
+        if check_result:
+            data["quickjump"] = check_result
+
+    #the method below is "copy/paste" from trac search/web_ui.py
+    def _check_quickjump(self, req, kwd):
+        """Look for search shortcuts"""
+        noquickjump = int(req.args.get('noquickjump', '0'))
+        # Source quickjump   FIXME: delegate to ISearchSource.search_quickjump
+        quickjump_href = None
+        if kwd[0] == '/':
+            quickjump_href = req.href.browser(kwd)
+            name = kwd
+            description = _('Browse repository path %(path)s', path=kwd)
+        else:
+            context = web_context(req, 'search')
+            link = find_element(extract_link(self.env, context, kwd), 'href')
+            if link is not None:
+                quickjump_href = link.attrib.get('href')
+                name = link.children
+                description = link.attrib.get('title', '')
+        if quickjump_href:
+            # Only automatically redirect to local quickjump links
+            if not quickjump_href.startswith(req.base_path or '/'):
+                noquickjump = True
+            if noquickjump:
+                return {'href': quickjump_href, 'name': tag.EM(name),
+                        'description': description}
+            else:
+                req.redirect(quickjump_href)
+
+
 
     def _prepare_allowed_types(self, allowed_participants, parameters, data):
         active_type = parameters.type
@@ -332,17 +384,17 @@ class BloodhoundSearchModule(Component):
             for field, facets_dict in result_facets.iteritems():
                 per_field_dict = dict()
                 for field_value, count in facets_dict.iteritems():
-                    if field==IndexFields.TYPE:
+                    if field == IndexFields.TYPE:
                         href = parameters.create_href(
                             skip_page=True,
-                            skip_filter_query=True,
+                            force_filters=[],
                             type=field_value)
                     else:
                         href = parameters.create_href(
                             skip_page=True,
-                            filter_query=self._create_field_term_expression(
-                                field,
-                                field_value)
+                            additional_filter=self._create_term_expression(
+                                    field,
+                                    field_value)
                         )
                     per_field_dict[field_value] = dict(
                         count=count,
@@ -352,7 +404,7 @@ class BloodhoundSearchModule(Component):
 
         data['facet_counts'] = facet_counts
 
-    def _create_field_term_expression(self, field, field_value):
+    def _create_term_expression(self, field, field_value):
         if field_value is None:
             query = "NOT (%s:*)" % field
         elif isinstance(field_value, basestring):
@@ -366,7 +418,7 @@ class BloodhoundSearchModule(Component):
         type = parameters.type
         if type in allowed_participants:
             query_filters.append(
-                self._create_field_term_expression(IndexFields.TYPE, type))
+                self._create_term_expression(IndexFields.TYPE, type))
         else:
             self.log.debug("Unsupported type in web request: %s", type)
         return query_filters

@@ -24,7 +24,7 @@ from bhsearch.api import IQueryParser
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.core import Component, implements
 from whoosh import query
-from whoosh.qparser import MultifieldParser, QueryParser
+from whoosh.qparser import MultifieldParser
 
 class DefaultQueryParser(Component):
     implements(IQueryParser)

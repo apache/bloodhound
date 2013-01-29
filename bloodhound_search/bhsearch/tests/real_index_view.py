@@ -45,9 +45,6 @@ class RealIndexTestCase(BaseBloodhoundSearchTest):
             "../../../installer/bloodhound/environments/main")
         self.env.path = real_env_path
         self.whoosh_backend = WhooshBackend(self.env)
-        self.search_api = BloodhoundSearchApi(self.env)
-        self.web_ui = BloodhoundSearchModule(self.env)
-        self.query_parser = DefaultQueryParser(self.env)
 
         self.req = Mock(
             perm=MockPerm(),

@@ -28,7 +28,8 @@ from trac.config import Option
 from trac.util.text import empty
 from trac.util.datefmt import utc
 from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
-from whoosh import index, sorting, query
+#from whoosh import index, sorting, query
+import whoosh
 from whoosh.writing import AsyncWriter
 from datetime import datetime
 
@@ -149,11 +150,11 @@ class WhooshBackend(Component):
     def recreate_index(self):
         self.log.info('Creating Whoosh index in %s' % self.index_dir)
         self._make_dir_if_not_exists()
-        return index.create_in(self.index_dir, schema=self.SCHEMA)
+        return whoosh.index.create_in(self.index_dir, schema=self.SCHEMA)
 
     def _open_or_create_index_if_missing(self):
-        if index.exists_in(self.index_dir):
-            return index.open_dir(self.index_dir)
+        if whoosh.index.exists_in(self.index_dir):
+            return whoosh.index.open_dir(self.index_dir)
         else:
             return self.recreate_index()
 
@@ -198,7 +199,7 @@ class WhooshBackend(Component):
                 pagelen = pagelen,
                 sortedby = sortedby,
                 groupedby = groupedby,
-                maptype=sorting.Count,
+                maptype=whoosh.sorting.Count,
                 #workaround of Whoosh bug, read method __doc__
                 #filter = filter,
             )
@@ -214,7 +215,7 @@ class WhooshBackend(Component):
             query_filter):
         if not query_filter:
             return query_expression
-        return query.And((query_expression, query_filter))
+        return whoosh.query.And((query_expression, query_filter))
 
     def _create_unique_id(self, doc_type, doc_id):
         return u"%s:%s" % (doc_type, doc_id)
@@ -244,12 +245,12 @@ class WhooshBackend(Component):
     def _prepare_groupedby(self, facets):
         if not facets:
             return None
-        groupedby = sorting.Facets()
+        groupedby = whoosh.sorting.Facets()
         for facet_name in facets:
             groupedby.add_field(
                 facet_name,
                 allow_overlap=True,
-                maptype=sorting.Count)
+                maptype=whoosh.sortingwhoosh.Count)
         return groupedby
 
     def _prepare_sortedby(self, sort):
@@ -263,9 +264,9 @@ class WhooshBackend(Component):
                     # "score DESC" support
                     raise TracError(
                         "Whoosh does not support DESC score ordering.")
-                sort_condition = sorting.ScoreFacet()
+                sort_condition = whoosh.sorting.ScoreFacet()
             else:
-                sort_condition = sorting.FieldFacet(
+                sort_condition = whoosh.sorting.FieldFacet(
                     field,
                     reverse=self._is_desc(order))
             sortedby.append(sort_condition)
@@ -316,6 +317,7 @@ class WhooshBackend(Component):
         return result_doc
 
     def _load_facets(self, page):
+        """This method can be also used by unit-tests"""
         non_paged_results = page.results
         facet_names = non_paged_results.facet_names()
         if not facet_names:
@@ -393,15 +395,15 @@ class WhooshEmptyFacetErrorWorkaround(Component):
             self._find_and_fix_condition(query_parameters["query"])
 
     def _find_and_fix_condition(self, filter_condition):
-        if isinstance(filter_condition, query.CompoundQuery):
-            subqueries = list(filter_condition.subqueries)
-            for i, subquery in enumerate(subqueries):
+        if isinstance(filter_condition, whoosh.query.CompoundQuery):
+            sub_queries = list(filter_condition.subqueries)
+            for i, subquery in enumerate(sub_queries):
                 term_to_replace =  self._find_and_fix_condition(subquery)
                 if term_to_replace:
                     filter_condition.subqueries[i] = term_to_replace
-        elif isinstance(filter_condition, query.Not):
+        elif isinstance(filter_condition, whoosh.query.Not):
             not_query = filter_condition.query
-            if isinstance(not_query, query.Every) and \
+            if isinstance(not_query, whoosh.query.Every) and \
                not_query.fieldname in self.should_not_be_empty_fields:
-                return query.Term(not_query.fieldname, self.NULL_MARKER)
+                return whoosh.query.Term(not_query.fieldname, self.NULL_MARKER)
         return None

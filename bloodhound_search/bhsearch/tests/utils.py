@@ -23,6 +23,7 @@ Test utils methods
 """
 from pprint import pprint
 import unittest
+from bhsearch.web_ui import BloodhoundSearchModule
 from trac.ticket import Ticket, Milestone
 from trac.wiki import WikiPage
 
@@ -84,7 +85,7 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         return milestone
 
     def process_request(self):
-        response = self.web_ui.process_request(self.req)
+        response = BloodhoundSearchModule(self.env).process_request(self.req)
         url, data, x = response
         print "Received url: %s data:" % url
         pprint(data)

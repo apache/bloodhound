@@ -308,7 +308,6 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         )
         self.print_result(result)
         self.assertEqual(1, result.hits)
-        facets = result.docs[0]
         self.assertEqual("1", result.docs[0]["id"])
 
 
@@ -322,7 +321,6 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         )
         self.print_result(result)
         self.assertEqual(1, result.hits)
-        facets = result.docs[0]
         self.assertEqual("1", result.docs[0]["id"])
 
 
@@ -485,7 +483,8 @@ class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
 
         result_filter = query_parameters["filter"]
         print result_filter
-        self.assertEquals('(type:ticket AND milestone:empty)', str(result_filter))
+        self.assertEquals('(type:ticket AND milestone:empty)',
+            str(result_filter))
 
     def test_does_interfere_query_filter_if_not_needed(self):
         parsed_filter = self.parser.parse_filters(

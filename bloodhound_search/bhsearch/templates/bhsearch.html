@@ -60,7 +60,8 @@
       <form id="fullsearch" action="${href.bhsearch()}" method="get">
         <p>
           <input type="text" id="q" name="q" size="40" value="${query}" />
-          <input type="hidden" name="noquickjump" value="1" />
+          <!--So far, we will not support noquickjump mode for form submission-->
+          <!--<input type="hidden" name="noquickjump" value="1" />-->
           <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
           <py:for each="active_filter in active_filter_queries">
             <input type="hidden" name="fq" value="${active_filter.query}" />
@@ -68,6 +69,13 @@
           <input type="submit" value="${_('Search')}" />
         </p>
       </form>
+
+      <py:if test="quickjump">
+        <dt id="quickjump">
+          <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+        </dt>
+        <dd>${quickjump.description}</dd>
+      </py:if>
 
       <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
       <div>
