@@ -28,7 +28,7 @@ from trac.config import Option
 from trac.util.text import empty
 from trac.util.datefmt import utc
 from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
-#from whoosh import index, sorting, query
+from whoosh import index
 import whoosh
 from whoosh.writing import AsyncWriter
 from datetime import datetime
@@ -150,11 +150,11 @@ class WhooshBackend(Component):
     def recreate_index(self):
         self.log.info('Creating Whoosh index in %s' % self.index_dir)
         self._make_dir_if_not_exists()
-        return whoosh.index.create_in(self.index_dir, schema=self.SCHEMA)
+        return index.create_in(self.index_dir, schema=self.SCHEMA)
 
     def _open_or_create_index_if_missing(self):
-        if whoosh.index.exists_in(self.index_dir):
-            return whoosh.index.open_dir(self.index_dir)
+        if index.exists_in(self.index_dir):
+            return index.open_dir(self.index_dir)
         else:
             return self.recreate_index()
 
