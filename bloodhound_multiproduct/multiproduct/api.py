@@ -118,10 +118,13 @@ class MultiProductSystem(Component):
                 db_installed_version = self._update_db_version(db, 2)
 
             if db_installed_version < 3:
-                from multiproduct.dbcursor import DEFAULT_PRODUCT
                 from multiproduct.model import Product
                 import trac.db_default
+
+                DEFAULT_PRODUCT = 'default'
+
                 migrate_tables = ['enum', 'component', 'milestone', 'version', 'permission', 'wiki']
+
                 # extend trac default schema by adding product column and extending key with product
                 table_defs = [copy.deepcopy(t) for t in trac.db_default.schema if t.name in migrate_tables]
                 for t in table_defs:

@@ -158,7 +158,7 @@ class ModelBase(object):
                             sdata)
             
         for key in self._meta['key_fields']:
-            if not self._data[key]:
+            if self._data[key] is None:
                 sdata = {'key':key}
                 sdata.update(self._meta)
                 raise TracError('%(key)s required for %(object_name)s' %

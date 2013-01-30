@@ -23,7 +23,7 @@ from urlparse import urlsplit
 
 from trac.config import ConfigSection, Option
 from trac.core import Component, ComponentManager, implements
-from trac.db.api import with_transaction, TransactionContextManager, QueryContextManager
+from trac.db.api import TransactionContextManager, QueryContextManager
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
@@ -31,8 +31,8 @@ from trac.web.href import Href
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.config import Configuration
+from multiproduct.dbcursor import ProductEnvContextManager
 from multiproduct.model import Product
-from multiproduct.dbcursor import BloodhoundIterableCursor
 
 import trac.env
 
@@ -54,13 +54,19 @@ class Environment(trac.env.Environment):
 
     @property
     def db_query(self):
-        BloodhoundIterableCursor.set_env(self)
-        return super(Environment, self).db_query
+        return ProductEnvContextManager(super(Environment, self).db_query, self)
 
     @property
     def db_transaction(self):
-        BloodhoundIterableCursor.set_env(self)
-        return super(Environment, self).db_transaction
+        return ProductEnvContextManager(super(Environment, self).db_transaction, self)
+
+    @property
+    def db_direct_query(self):
+        return ProductEnvContextManager(super(Environment, self).db_query)
+
+    @property
+    def db_direct_transaction(self):
+        return ProductEnvContextManager(super(Environment, self).db_transaction)
 
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
@@ -83,16 +89,6 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         super(EnvironmentStub, self).__init__(default_data=default_data,
                                               enable=enable, disable=disable,
                                               path=path, destroying=destroying)
-
-    @property
-    def db_query(self):
-        BloodhoundIterableCursor.set_env(self)
-        return super(EnvironmentStub, self).db_query
-
-    @property
-    def db_transaction(self):
-        BloodhoundIterableCursor.set_env(self)
-        return super(EnvironmentStub, self).db_transaction
 
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
@@ -349,15 +345,16 @@ class ProductEnvironment(Component, ComponentManager):
         return self.parent.db_exc()
 
     def with_transaction(self, db=None):
-        """Decorator for transaction functions :deprecated:"""
-        return with_transaction(self, db)
+        """Decorator for transaction functions :deprecated:
+        """
+        raise NotImplementedError('Deprecated method')
 
     def get_read_db(self):
         """Return a database connection for read purposes :deprecated:
 
-        See `trac.db.api.get_read_db` for detailed documentation."""
-        # database connection is shared with global environment
-        return self.parent.get_read_db()
+        See `trac.db.api.get_read_db` for detailed documentation.
+        """
+        raise NotImplementedError('Deprecated method')
 
     @property
     def db_query(self):
@@ -391,8 +388,7 @@ class ProductEnvironment(Component, ComponentManager):
           context was the outermost context (`db_query` or
           `db_transaction`).
         """
-        BloodhoundIterableCursor.set_env(self)
-        return QueryContextManager(self.parent)
+        return ProductEnvContextManager(QueryContextManager(self.parent), self)
 
     @property
     def db_transaction(self):
@@ -427,8 +423,7 @@ class ProductEnvironment(Component, ComponentManager):
           context, if this context was the outermost context
           (`db_query` or `db_transaction`).
         """
-        BloodhoundIterableCursor.set_env(self)
-        return TransactionContextManager(self.parent)
+        return ProductEnvContextManager(TransactionContextManager(self.parent), self)
 
     def shutdown(self, tid=None):
         """Close the environment."""

@@ -35,7 +35,7 @@ SKIP_TABLES = ['system', 'auth_cookie',
                ]
 TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'permission', 'wiki']
 PRODUCT_COLUMN = 'product'
-DEFAULT_PRODUCT = 'default'
+DEFAULT_PRODUCT = ''
 
 class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     __slots__ = trac.db.util.IterableCursor.__slots__ + ['_translator']
@@ -71,6 +71,63 @@ class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     @classmethod
     def set_env(cls, env):
         cls._tls.env = env
+
+    @classmethod
+    def get_env(cls):
+        return cls._tls.env
+
+class ProductEnvContextManager(object):
+    """Wrap an underlying database context manager so as to keep track
+    of (nested) product context.
+    """
+    def __init__(self, context, env=None):
+        """Initialize product database context.
+
+        :param context: Inner database context (e.g. `QueryContextManager`,
+                        `TransactionContextManager` )
+        :param env:     An instance of either `trac.env.Environment` or 
+                        `multiproduct.env.ProductEnvironment` used to 
+                        reduce the scope of database queries. If set 
+                        to `None` then SQL queries will not be translated,
+                        which is equivalent to having direct database access.
+        """
+        self.db_context = context
+        self.env = env
+
+    def __enter__(self):
+        """Keep track of previous product context and override it with `env`;
+        then enter the inner database context.
+        """
+        self._last_env = BloodhoundIterableCursor.get_env()
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.db_context.__enter__()
+
+    def __exit__(self, et, ev, tb): 
+        """Uninstall current product context by restoring the last one;
+        then leave the inner database context.
+        """
+        BloodhoundIterableCursor.set_env(self._last_env)
+        del self._last_env
+        return self.db_context.__exit__(et, ev, tb)
+
+    def __call__(self, *args, **kwargs):
+        """Forward attribute access to nested database context on failure.
+        """
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.db_context(*args, **kwargs)
+
+    def __getattr__(self, attrnm):
+        """Forward attribute access to nested database context on failure.
+        """
+        return getattr(self.db_context, attrnm)
+
+    def execute(self, sql, params=None):
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.db_context.execute(sql, params=params)
+
+    def executemany(self, sql, params=None):
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.db_context.executemany(sql, params=params)
 
 # replace trac.db.util.IterableCursor with BloodhoundIterableCursor
 trac.db.util.IterableCursor = BloodhoundIterableCursor
