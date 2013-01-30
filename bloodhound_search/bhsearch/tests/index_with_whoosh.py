@@ -24,10 +24,10 @@ import shutil
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.milestone_search import MilestoneIndexer
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketIndexer
+from bhsearch.search_resources.ticket_search import TicketIndexer
 
 from bhsearch.whoosh_backend import WhooshBackend
-from bhsearch.wiki_search import WikiIndexer
+from bhsearch.search_resources.wiki_search import WikiIndexer
 from trac.test import EnvironmentStub
 from trac.ticket.api import TicketSystem
 

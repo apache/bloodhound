@@ -23,7 +23,7 @@ import shutil
 from bhsearch.api import BloodhoundSearchApi, ASC
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketSearchParticipant
+from bhsearch.search_resources.ticket_search import TicketSearchParticipant
 
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.test import EnvironmentStub

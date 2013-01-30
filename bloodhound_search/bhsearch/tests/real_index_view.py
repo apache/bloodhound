@@ -18,10 +18,8 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import unittest
-from bhsearch.query_parser import DefaultQueryParser
-from bhsearch.web_ui import BloodhoundSearchModule, RequestParameters
+from bhsearch.web_ui import RequestParameters
 import os
-from bhsearch.api import BloodhoundSearchApi
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
 
 from bhsearch.whoosh_backend import WhooshBackend

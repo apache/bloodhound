@@ -21,7 +21,7 @@
 r"""Wiki specifics for Bloodhound Search plugin."""
 from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
     IIndexParticipant, IndexFields
-from bhsearch.base import BaseIndexer
+from bhsearch.search_resources.base import BaseIndexer
 from trac.core import implements, Component
 from trac.config import ListOption
 from trac.wiki import IWikiChangeListener, WikiSystem, WikiPage

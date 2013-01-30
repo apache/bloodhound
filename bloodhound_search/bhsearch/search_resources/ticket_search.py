@@ -21,7 +21,7 @@
 r"""Ticket specifics for Bloodhound Search plugin."""
 from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
     IIndexParticipant, IndexFields
-from bhsearch.base import BaseIndexer
+from bhsearch.search_resources.base import BaseIndexer
 from genshi.builder import tag
 from trac.ticket.api import ITicketChangeListener
 from trac.ticket import Ticket

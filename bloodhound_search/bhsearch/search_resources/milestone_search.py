@@ -21,7 +21,7 @@
 r"""Milestone specifics for Bloodhound Search plugin."""
 from bhsearch.api import IIndexParticipant, BloodhoundSearchApi, IndexFields, \
     ISearchParticipant
-from bhsearch.base import BaseIndexer
+from bhsearch.search_resources.base import BaseIndexer
 from trac.ticket import IMilestoneChangeListener, Milestone
 from trac.config import ListOption
 from trac.core import implements, Component

@@ -25,7 +25,7 @@ from bhsearch.api import BloodhoundSearchApi
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
-from bhsearch.wiki_search import WikiIndexer, WikiSearchParticipant
+from bhsearch.search_resources.wiki_search import WikiIndexer, WikiSearchParticipant
 
 from trac.test import EnvironmentStub
 from trac.wiki import WikiSystem, WikiPage

@@ -22,7 +22,7 @@ import unittest
 import tempfile
 
 from bhsearch.api import BloodhoundSearchApi
-from bhsearch.milestone_search import MilestoneSearchParticipant
+from bhsearch.search_resources.milestone_search import MilestoneSearchParticipant
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
