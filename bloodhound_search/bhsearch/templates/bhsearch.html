@@ -25,6 +25,19 @@
       xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="layout.html" />
+
+  <py:def function="display_value(value)">
+    <py:choose test="value">
+      <py:when test="None">
+        <span class="label">empty</span>
+      </py:when>
+      <py:when test="''">
+        <span class="label">empty</span>
+      </py:when>
+      <py:otherwise>${value}</py:otherwise>
+    </py:choose>
+  </py:def>
+
   <head>
     <title py:choose="">
       <py:when test="query">Bloodhound Search Results</py:when>
@@ -41,47 +54,92 @@
     </script>
   </head>
   <body>
-    <div id="content" class="search">
+    <div id="content" class="row">
 
       <h1>This page provides prototype functionality.</h1>
-      <h1><label for="q">Search</label></h1>
       <form id="fullsearch" action="${href.bhsearch()}" method="get">
         <p>
           <input type="text" id="q" name="q" size="40" value="${query}" />
-          <input type="hidden" name="noquickjump" value="1" />
+          <!--So far, we will not support noquickjump mode for form submission-->
+          <!--<input type="hidden" name="noquickjump" value="1" />-->
           <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
+          <py:for each="active_filter in active_filter_queries">
+            <input type="hidden" name="fq" value="${active_filter.query}" />
+          </py:for>
           <input type="submit" value="${_('Search')}" />
         </p>
       </form>
 
+      <py:if test="quickjump">
+        <dt id="quickjump">
+          <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+        </dt>
+        <dd>${quickjump.description}</dd>
+      </py:if>
+
+      <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
       <div>
-        <ul class="nav nav-tabs" id="mainnav">
+        <!--Render type tabs: All, Ticket, Wiki, etc.-->
+        <ul class="nav nav-tabs" id="search_types">
           <li py:for="idx, item in enumerate(i for i in types)"
-              class="${classes(first_last(idx, types), active=item.active)}"><a href="${item.href}">${item.label}</a></li>
+              class="${classes(first_last(idx, types), active=item.active)}">
+                <a href="${item.href}">${item.label}</a>
+          </li>
 
         </ul>
       </div>
 
-      <py:if test="results"><hr />
-        <h2 py:if="results">
-          Results <small>(${results.displayed_items()})</small>
-        </h2>
-        <div>
-          <dl id="results">
-
-            <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
-            <py:for each="result in results">
-              <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
-              <dd class="searchable">${result.excerpt}</dd>
-              <dd>
-                <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
-                <span class="date">${result.date}</span>
-              </dd>
-            </py:for>
-          </dl>
+      <py:if test="active_filter_queries">
+        <div id="active_filter_queries">
+          <py:for each="active_filter in active_filter_queries">
+            &gt; <a href="${active_filter.href}">${active_filter.label}</a>
+          </py:for>
         </div>
-        <xi:include py:with="paginator = results" href="bh_page_index.html" />
       </py:if>
+
+      <py:if test="results">
+        <div class="span8">
+          <h2 py:if="results">
+            Results <small>(${results.displayed_items()})</small>
+          </h2>
+          <div>
+            <dl id="results">
+
+              <py:for each="result in results">
+                <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
+                <dd class="searchable">${result.excerpt}</dd>
+                <dd>
+                  <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                  <span class="date">${result.date}</span>
+                </dd>
+              </py:for>
+            </dl>
+          </div>
+
+          <xi:include py:with="paginator = results" href="bh_page_index.html" />
+        </div>
+
+        <div class="span4">
+          <py:if test="facet_counts">
+            <!--Render facet counts-->
+            <h3>Facets</h3>
+            <ul id="facet_counts">
+              <li py:for="field, per_value_counts in facet_counts.iteritems()">
+                <h4 style="display: inline;">${field}</h4>
+                <ul id="facet_counts_value">
+                  <li py:for="value, item in per_value_counts.iteritems()">
+                    <a href="${item.href}"><strong>${display_value(value)}</strong></a>
+                    <span class="badge badge-info">${item.count}</span>
+                  </li>
+                  </ul>
+              </li>
+
+            </ul>
+          </py:if>
+        </div>
+
+      </py:if>
+
 
       <div class="span12"
           py:if="query and not (results or quickjump)">
@@ -98,4 +156,3 @@
     </div>
   </body>
 </html>
-

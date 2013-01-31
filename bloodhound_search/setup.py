@@ -109,35 +109,26 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
                           ),
             }
 
-#ENTRY_POINTS = r"""
-#               [trac.plugins]
-#               bhsearch.web_ui = bhsearch.web_ui
-#               bhsearch.api = bhsearch.api
-#               bhsearch.admin = bhsearch.admin
-#               bhsearch.ticket_search = bhsearch.ticket_search
-#               bhsearch.query_parser = bhsearch.query_parser
-#               bhsearch.whoosh_backend = bhsearch.whoosh_backend
-#               """
 ENTRY_POINTS = {
-        'trac.plugins': [
-            'bhsearch.web_ui = bhsearch.web_ui',
-            'bhsearch.api = bhsearch.api',
-            'bhsearch.admin = bhsearch.admin',
-            'bhsearch.ticket_search = bhsearch.ticket_search',
-            'bhsearch.wiki_search = bhsearch.wiki_search',
-            'bhsearch.query_parser = bhsearch.query_parser',
-            'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
-        ],
+    'trac.plugins': [
+        'bhsearch.web_ui = bhsearch.web_ui',
+        'bhsearch.api = bhsearch.api',
+        'bhsearch.admin = bhsearch.admin',
+        'bhsearch.search_resources.ticket_search =\
+            bhsearch.search_resources.ticket_search',
+        'bhsearch.search_resources.wiki_search = \
+            bhsearch.search_resources.wiki_search',
+        'bhsearch.search_resources.milestone_search = \
+            bhsearch.search_resources.milestone_search',
+        'bhsearch.query_parser = bhsearch.query_parser',
+        'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
+    ],
     }
-#bhsearch.whoosh_backend = bhsearch.whoosh_backend
-#bhsearch.ticket_search = bhsearch.ticket_search
-
 setup(
     name=DIST_NM,
     version=latest,
     description=DESC.split('\n', 1)[0],
     requires = ['trac'],
-#    tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
     install_requires = [
         'setuptools>=0.6b1',
         'Trac>=0.11',

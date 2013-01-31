@@ -17,17 +17,17 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-from datetime import datetime
 
 import unittest
 import tempfile
 import shutil
 from bhsearch.api import BloodhoundSearchApi
+from bhsearch.milestone_search import MilestoneIndexer
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketIndexer
+from bhsearch.search_resources.ticket_search import TicketIndexer
 
 from bhsearch.whoosh_backend import WhooshBackend
-from bhsearch.wiki_search import WikiIndexer
+from bhsearch.search_resources.wiki_search import WikiIndexer
 from trac.test import EnvironmentStub
 from trac.ticket.api import TicketSystem
 
@@ -41,6 +41,7 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
         self.search_api = BloodhoundSearchApi(self.env)
         self.ticket_indexer = TicketIndexer(self.env)
         self.wiki_indexer = WikiIndexer(self.env)
+        self.milestone_indexer = MilestoneIndexer(self.env)
         self.ticket_system = TicketSystem(self.env)
 
     def tearDown(self):
@@ -102,6 +103,17 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def test_can_reindex_mixed_types(self):
         self.insert_wiki("page1", "some text")
         self.insert_ticket("t1")
+        self.whoosh_backend.recreate_index()
+        #act
+        self.search_api.rebuild_index()
+        #assert
+        results = self.search_api.query("*:*")
+        self.print_result(results)
+        self.assertEqual(2, results.hits)
+
+    def test_can_reindex_milestones(self):
+        self.insert_milestone("M1")
+        self.insert_milestone("M2")
         self.whoosh_backend.recreate_index()
         #act
         self.search_api.rebuild_index()

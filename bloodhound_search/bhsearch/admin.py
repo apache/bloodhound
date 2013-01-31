@@ -19,7 +19,8 @@
 #  under the License.
 
 r"""Administration commands for Bloodhound Search."""
-from trac.admin import *
+from trac.core import Component, implements
+from trac.admin import IAdminCommandProvider
 from bhsearch.api import BloodhoundSearchApi
 
 class BloodhoundSearchAdmin(Component):

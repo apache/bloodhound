@@ -19,21 +19,21 @@
 #  under the License.
 
 r"""Ticket specifics for Bloodhound Search plugin."""
-from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, IIndexParticipant, IndexFields
+from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
+    IIndexParticipant, IndexFields
+from bhsearch.search_resources.base import BaseIndexer
 from genshi.builder import tag
-from trac.core import *
 from trac.ticket.api import ITicketChangeListener
 from trac.ticket import Ticket
 from trac.ticket.query import Query
-from trac.config import Option
+from trac.config import ListOption
+from trac.core import implements, Component
 
-TICKET_TYPE = "ticket"
-TICKET_STATUS = "status"
+TICKET_TYPE = u"ticket"
+TICKET_STATUS = u"status"
 
-class TicketIndexer(Component):
+class TicketIndexer(BaseIndexer):
     implements(ITicketChangeListener, IIndexParticipant)
-    silence_on_error = Option('bhsearch', 'silence_on_error', "True",
-        """If true, do not throw an exception during indexing a resource""")
 
     #ITicketChangeListener methods
     def ticket_created(self, ticket):
@@ -50,8 +50,8 @@ class TicketIndexer(Component):
             search_api = BloodhoundSearchApi(self.env)
             search_api.delete_doc(TICKET_TYPE, ticket.id)
         except Exception, e:
-            if self.silence_on_error.lower() == "true":
-                self.log.error("Error occurs during ticket indexing. \
+            if self.silence_on_error:
+                self.log.error("Error occurs during deleting ticket. \
                     The error will not be propagated. Exception: %s", e)
             else:
                 raise
@@ -59,14 +59,13 @@ class TicketIndexer(Component):
     def _index_ticket(
             self,
             ticket,
-            raise_exception = False,
             ):
         try:
             search_api = BloodhoundSearchApi(self.env)
             doc = self.build_doc(ticket)
             search_api.add_doc(doc)
         except Exception, e:
-            if (not raise_exception) and self.silence_on_error.lower() == "true":
+            if self.silence_on_error:
                 self.log.error("Error occurs during ticket indexing. \
                     The error will not be propagated. Exception: %s", e)
             else:
@@ -80,23 +79,24 @@ class TicketIndexer(Component):
             IndexFields.TYPE: TICKET_TYPE,
             IndexFields.TIME: ticket.time_changed,
             }
-        fields = [('component',),
-                  ('description',IndexFields.CONTENT),
-                  ('keywords',),
-                  ('milestone',),
-                  ('summary',),
-                  ('status',),
-                  ('resolution',),
-                  ('reporter',IndexFields.AUTHOR),
+        fields = [
+            ('component',),
+              ('description',IndexFields.CONTENT),
+              ('keywords',),
+              ('milestone',),
+              ('summary',),
+              ('status', TICKET_STATUS),
+              ('resolution',),
+              ('reporter',IndexFields.AUTHOR),
         ]
         for f in fields:
-          if f[0] in ticket.values:
-              if len(f) == 1:
-                  doc[f[0]] = ticket.values[f[0]]
-              elif len(f) == 2:
-                  doc[f[1]] = ticket.values[f[0]]
+            if f[0] in ticket.values:
+                if len(f) == 1:
+                    doc[f[0]] = ticket.values[f[0]]
+                elif len(f) == 2:
+                    doc[f[1]] = ticket.values[f[0]]
         doc['changes'] = u'\n\n'.join([x[4] for x in ticket.get_changelog()
-          if x[2] == u'comment'])
+                                       if x[2] == u'comment'])
         return doc
 
     def get_entries_for_index(self):
@@ -114,6 +114,10 @@ class TicketIndexer(Component):
 class TicketSearchParticipant(Component):
     implements(ISearchParticipant)
 
+    default_facets = ListOption('bhsearch', 'default_facets_ticket',
+                            'status,milestone,component',
+        doc="""Default facets applied to search through tickets""")
+
     #ISearchParticipant members
     def get_search_filters(self, req=None):
         if not req or 'TICKET_VIEW' in req.perm:
@@ -122,12 +126,15 @@ class TicketSearchParticipant(Component):
     def get_title(self):
         return "Ticket"
 
+    def get_default_facets(self):
+        return self.default_facets
+
     def format_search_results(self, res):
         if not TICKET_STATUS in res:
-          stat = 'undefined_status'
-          class_ = 'undefined_status'
+            stat = 'undefined_status'
+            css_class = 'undefined_status'
         else:
-            class_= res[TICKET_STATUS]
+            css_class = res[TICKET_STATUS]
             if res[TICKET_STATUS] == 'closed':
                 resolution = ""
                 if 'resolution' in res:
@@ -136,6 +143,6 @@ class TicketSearchParticipant(Component):
             else:
                 stat = res[TICKET_STATUS]
 
-        id = tag(tag.span('#'+res['id'], class_=class_))
+        id = tag(tag.span('#'+res['id'], class_=css_class))
         return id + ': %s (%s)' % (res['summary'], stat)
 

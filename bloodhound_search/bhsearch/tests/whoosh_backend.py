@@ -17,7 +17,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import unittest
 import tempfile
@@ -25,12 +25,14 @@ import shutil
 from bhsearch.api import ASC, DESC, SCORE
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.whoosh_backend import WhooshBackend
+from bhsearch.whoosh_backend import WhooshBackend, \
+    WhooshEmptyFacetErrorWorkaround
 from trac.test import EnvironmentStub
 from trac.util.datefmt import FixedOffset, utc
 from whoosh import index, sorting, query
 from whoosh.fields import Schema, ID, TEXT, KEYWORD
-from whoosh.qparser import MultifieldPlugin, QueryParser, WhitespacePlugin, PhrasePlugin
+from whoosh.qparser import MultifieldPlugin, QueryParser, WhitespacePlugin, \
+    PhrasePlugin
 
 
 class WhooshBackendTestCase(BaseBloodhoundSearchTest):
@@ -39,7 +41,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
-        self.default_parser = DefaultQueryParser(self.env)
+        self.parser = DefaultQueryParser(self.env)
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -92,7 +94,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         result = whoosh_backend2.query(query.Every())
         self.assertEqual(2, result.hits)
 
-    def test_can_multi_sort_asc(self):
+    def test_can_apply_multiple_sort_conditions_asc(self):
         self.whoosh_backend.add_doc(dict(id="2", type="ticket2"))
         self.whoosh_backend.add_doc(dict(id="3", type="ticket1"))
         self.whoosh_backend.add_doc(dict(id="4", type="ticket3"))
@@ -109,7 +111,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
                           {'type': 'ticket3', 'id': '4'}],
             result.docs)
 
-    def test_can_multi_sort_desc(self):
+    def test_can_apply_multiple_sort_conditions_desc(self):
         self.whoosh_backend.add_doc(dict(id="2", type="ticket2"))
         self.whoosh_backend.add_doc(dict(id="3", type="ticket1"))
         self.whoosh_backend.add_doc(dict(id="4", type="ticket3"))
@@ -159,7 +161,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
             time=the_third_date,
         ))
 
-        parsed_query = self.default_parser.parse("summary:texttofind")
+        parsed_query = self.parser.parse("summary:texttofind")
 
         result = self.whoosh_backend.query(
             parsed_query,
@@ -215,7 +217,8 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(0, result.hits)
 
     def test_can_search_time_with_utc_tzinfo(self):
-        time = datetime(2012, 12, 13, 11, 8, 34, 711957, tzinfo=FixedOffset(0, 'UTC'))
+        time = datetime(2012, 12, 13, 11, 8, 34, 711957,
+            tzinfo=FixedOffset(0, 'UTC'))
         self.whoosh_backend.add_doc(dict(id="1", type="ticket", time=time))
         result = self.whoosh_backend.query(query.Every())
         self.print_result(result)
@@ -245,13 +248,12 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="2", type="wiki" ))
         result = self.whoosh_backend.query(
             query.Every(),
-            filter=[("type", "ticket")],
+            filter=query.Term("type", "ticket"),
             facets=["type"]
         )
         self.print_result(result)
         self.assertEqual(1, result.hits)
         self.assertEqual("ticket", result.docs[0]["type"])
-
 
     @unittest.skip("TODO clarify behavior on Whoosh mail list")
     def test_can_search_id_and_summary_TODO(self):
@@ -275,6 +277,65 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.print_result(result)
         self.assertEqual(2, result.hits)
 
+    def test_no_index_error_when_counting_facet_on_missing_field(self):
+        """
+        Whoosh 2.4.1 raises "IndexError: list index out of range"
+        when search contains facets on field that is missing in at least one
+        document in the index. The error manifests only when index contains
+        more than one segment
+
+        Introduced workaround should solve this problem.
+        """
+        #add more tickets to make sure we have more than one segment in index
+        count = 20
+        for i in range(count):
+            self.insert_ticket("test %s" % (i))
+
+        result = self.whoosh_backend.query(
+            query.Every(),
+            facets=["milestone"]
+        )
+        self.assertEquals(count, result.hits)
+
+    def test_can_query_missing_field_and_type(self):
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
+        self.whoosh_backend.add_doc(dict(id="2", type="ticket", milestone="A"))
+        self.whoosh_backend.add_doc(dict(id="3", type="wiki"))
+        filter = self.parser.parse_filters(["NOT (milestone:*)", "type:ticket"])
+        result = self.whoosh_backend.query(
+            query.Every(),
+            filter=filter,
+        )
+        self.print_result(result)
+        self.assertEqual(1, result.hits)
+        self.assertEqual("1", result.docs[0]["id"])
+
+
+    def test_can_query_missing_field(self):
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
+        self.whoosh_backend.add_doc(dict(id="2", type="ticket", milestone="A"))
+        filter = self.parser.parse_filters(["NOT (milestone:*)"])
+        result = self.whoosh_backend.query(
+            query.Every(),
+            filter=filter,
+        )
+        self.print_result(result)
+        self.assertEqual(1, result.hits)
+        self.assertEqual("1", result.docs[0]["id"])
+
+
+    @unittest.skip("TODO clarify behavior on Whoosh mail list")
+    def test_can_query_missing_field_and_type_with_no_results(self):
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
+        self.whoosh_backend.add_doc(dict(id="3", type="wiki"))
+        filter = self.parser.parse_filters(["NOT (milestone:*)", "type:ticket"])
+        result = self.whoosh_backend.query(
+            query.Every(),
+            filter=filter,
+        )
+        self.print_result(result)
+        self.assertEqual(0, result.hits)
+
 class WhooshFunctionalityTestCase(unittest.TestCase):
     def setUp(self):
         self.index_dir = tempfile.mkdtemp('whoosh_index')
@@ -293,10 +354,10 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
 
         ix = index.create_in(self.index_dir, schema=schema)
         with ix.writer() as w:
-            w.add_document(unique_id="1",type="type1")
-            w.add_document(unique_id="2",type="type2", status="New")
+            w.add_document(unique_id=u"1", type=u"type1")
+            w.add_document(unique_id=u"2", type=u"type2", status=u"New")
 
-        facet_fields = ("type", "status" )
+        facet_fields = (u"type", u"status" )
         groupedby = facet_fields
         with ix.searcher() as s:
             r = s.search(
@@ -311,7 +372,7 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
             {'status': {None: 1, 'New': 1}, 'type': {'type1': 1, 'type2': 1}},
             facets)
 
-    def test_groupedby_empty_field(self):
+    def test_can_use_query_and_groupedby_empty_field(self):
         """
         Whoosh 2.4 raises an error when simultaneously using filters and facets
         in search:
@@ -331,8 +392,8 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
 
         ix = index.create_in(self.index_dir, schema=schema)
         with ix.writer() as w:
-            w.add_document(unique_id=u"1",type=u"type1")
-            w.add_document(unique_id=u"2",type=u"type2")
+            w.add_document(unique_id=u"1", type=u"type1")
+            w.add_document(unique_id=u"2", type=u"type2")
 
         with ix.searcher() as s:
             with self.assertRaises(AttributeError):
@@ -343,13 +404,42 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
                     filter=query.Term("type", "type1")
                 )
 
-#    def _prepare_groupedby(self, facets):
-#        if not facets:
-#            return None
-#        groupedby = sorting.Facets()
-#        for facet_name in facets:
-#            groupedby.add_field(facet_name, allow_overlap=True, maptype=sorting.Count)
-#        return groupedby
+    def test_out_of_range_on_empty_facets(self):
+        """
+        Whoosh raises exception IndexError: list index out of range
+        when search contains facets on field that is missing in at least one
+        document in the index. The error manifests only when index contains
+        more than one segment
+
+        The problem expected to be fixed in the next release.
+
+        For the time of being, whoosh-backend have to introduce workaround in
+        order to fix the problem. This unit-test is just a reminder to remove
+        workaround when the fixed version of Whoosh is applied.
+        """
+        schema = Schema(
+                unique_id=ID(stored=True, unique=True),
+                status=ID(stored=True),
+                )
+
+#        ix = RamStorage().create_index(schema)
+        ix = index.create_in(self.index_dir, schema=schema)
+        def insert_docs():
+            with ix.writer() as w:
+                for i in range(10):
+                    w.add_document(unique_id=unicode(i))
+
+        #the problem occurs only when index contains more than one segment
+        insert_docs()
+        insert_docs()
+
+        with ix.searcher() as s:
+            with self.assertRaises(IndexError):
+                s.search(
+                    query.Every(),
+                    groupedby=(u"status"),
+                    maptype=sorting.Count,
+                )
 
     def _load_facets(self, non_paged_results):
         facet_names = non_paged_results.facet_names()
@@ -361,11 +451,58 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
         return facets_result
 
 
+class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
+    def setUp(self):
+        self.env = EnvironmentStub(enable=['bhsearch.*'])
+        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
+        self.whoosh_backend = WhooshBackend(self.env)
+        self.whoosh_backend.recreate_index()
+        self.parser = DefaultQueryParser(self.env)
+        self.empty_facet_workaround = WhooshEmptyFacetErrorWorkaround(self.env)
+
+    def tearDown(self):
+        shutil.rmtree(self.env.path)
+        self.env.reset_db()
+
+    def test_set_should_not_be_empty_fields(self):
+        self.insert_ticket("test x")
+        result = self.whoosh_backend.query(query.Every())
+        self.print_result(result)
+        doc = result.docs[0]
+        null_marker = WhooshEmptyFacetErrorWorkaround.NULL_MARKER
+        self.assertEqual(null_marker, doc["component"])
+        self.assertEqual(null_marker, doc["status"])
+        self.assertEqual(null_marker, doc["milestone"])
+
+    def test_can_fix_query_filter(self):
+        parsed_filter = self.parser.parse_filters(
+            ["type:ticket", "NOT (milestone:*)"])
+        query_parameters = dict(filter=parsed_filter)
+        self.empty_facet_workaround.query_pre_process(
+            query_parameters)
+
+        result_filter = query_parameters["filter"]
+        print result_filter
+        self.assertEquals('(type:ticket AND milestone:empty)',
+            str(result_filter))
+
+    def test_does_interfere_query_filter_if_not_needed(self):
+        parsed_filter = self.parser.parse_filters(
+            ["type:ticket", "milestone:aaa"])
+        query_parameters = dict(filter=parsed_filter)
+        self.empty_facet_workaround.query_pre_process(
+            query_parameters)
+
+        result_filter = query_parameters["filter"]
+        print result_filter
+        self.assertEquals('(type:ticket AND milestone:aaa)', str(result_filter))
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
     suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(WhooshEmptyFacetErrorWorkaroundTestCase,
+        'test'))
     return suite
 
 if __name__ == '__main__':

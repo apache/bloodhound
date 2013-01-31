@@ -23,35 +23,51 @@ r"""Provides Bloodhound Search query parsing functionality"""
 from bhsearch.api import IQueryParser
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.core import Component, implements
+from whoosh import query
 from whoosh.qparser import MultifieldParser
 
 class DefaultQueryParser(Component):
     implements(IQueryParser)
 
-    def parse(self, query_string):
-        #todo: make field boost configurable e.g. read from config setting
-        #this is prototype implementation ,the fields boost must be tuned later
-        field_boosts = dict(
-            id = 6,
-            type = 2,
-            summary = 5,
-            author = 3,
-            milestone = 2,
-            keywords = 2,
-            component = 2,
-            status = 2,
-            content = 1,
-            changes = 1,
-        )
-        parser = MultifieldParser(
-            field_boosts.keys(),
-            WhooshBackend.SCHEMA,
-            fieldboosts=field_boosts
-        )
-        query_string = unicode(query_string)
-        parsed_query = parser.parse(query_string)
+    #todo: make field boost configurable e.g. read from config setting.
+    #This is prototype implementation ,the fields boost must be tuned later
+    field_boosts = dict(
+        id = 6,
+        type = 2,
+        summary = 5,
+        author = 3,
+        milestone = 2,
+        keywords = 2,
+        component = 2,
+        status = 2,
+        content = 1,
+        changes = 1,
+    )
+    parser = MultifieldParser(
+        field_boosts.keys(),
+        WhooshBackend.SCHEMA,
+        fieldboosts=field_boosts
+    )
 
-        #todo: impelement pluggable mechanizem for query post processing
+    def parse(self, query_string):
+        query_string = query_string.strip()
+
+        if query_string == "" or query_string == "*" or query_string == "*:*":
+            return query.Every()
+
+        query_string = unicode(query_string)
+        parsed_query = self.parser.parse(query_string)
+
+        #todo: impalement pluggable mechanism for query post processing
         #e.g. meta keyword replacement etc.
         return parsed_query
 
+    def parse_filters(self, filters):
+        """Parse query filters"""
+        if not filters:
+            return None
+        parsed_filters = [self._parse_filter(filter) for filter in filters]
+        return query.And(parsed_filters).normalize()
+
+    def _parse_filter(self, filter):
+        return self.parse(unicode(filter))

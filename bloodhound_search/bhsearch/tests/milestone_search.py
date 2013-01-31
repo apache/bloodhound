@@ -22,122 +22,120 @@ import unittest
 import tempfile
 
 from bhsearch.api import BloodhoundSearchApi
+from bhsearch.search_resources.milestone_search import MilestoneSearchParticipant
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
-from bhsearch.search_resources.wiki_search import WikiIndexer, WikiSearchParticipant
 
 from trac.test import EnvironmentStub
-from trac.wiki import WikiSystem, WikiPage
+from trac.ticket import Milestone
 
 
-class WikiIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
-    def setUp(self):
-        self.env = EnvironmentStub(
-            enable=['bhsearch.*'],
-            path=tempfile.mkdtemp('bhsearch-tempenv'),
-        )
-        self.wiki_indexer = WikiIndexer(self.env)
-
-    def tearDown(self):
-        pass
-
-    def test_does_not_raise_exception_on_add(self):
-        self.wiki_indexer.wiki_page_added(None)
-
-    def test_raise_exception_if_configured(self):
-        self.env.config.set('bhsearch', 'silence_on_error', "False")
-        self.assertRaises(
-            Exception,
-            self.wiki_indexer.wiki_page_added,
-            None)
-
-class WikiIndexerEventsTestCase(BaseBloodhoundSearchTest):
-    DUMMY_PAGE_NAME = "dummyName"
+class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
+    DUMMY_MILESTONE_NAME = "dummyName"
 
     def setUp(self):
         self.env = EnvironmentStub(enable=['bhsearch.*'])
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
         self.env.config.set('bhsearch', 'silence_on_error', "False")
-        self.wiki_system = WikiSystem(self.env)
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
-        self.wiki_participant = WikiSearchParticipant(self.env)
+        self.milestone_participant = MilestoneSearchParticipant(self.env)
         self.query_parser = DefaultQueryParser(self.env)
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
         self.env.reset_db()
 
-    def test_can_add_new_wiki_page_to_index(self):
+    def test_can_index_created_milestone(self):
         #arrange
-        self.insert_wiki(self.DUMMY_PAGE_NAME, "dummy text")
+        self.insert_milestone(self.DUMMY_MILESTONE_NAME, "dummy text")
         #act
         results = self.search_api.query("*:*")
         #assert
         self.print_result(results)
         self.assertEqual(1, results.hits)
         doc = results.docs[0]
-        self.assertEqual(self.DUMMY_PAGE_NAME, doc["id"])
+        self.assertEqual(self.DUMMY_MILESTONE_NAME, doc["id"])
         self.assertEqual("dummy text", doc["content"])
-        self.assertEqual("wiki", doc["type"])
+        self.assertEqual("milestone", doc["type"])
+        self.assertNotIn("due", doc )
 
-    def test_can_delete_wiki_page_from_index(self):
+    def test_can_index_minimal_milestone(self):
         #arrange
-        self.insert_wiki(self.DUMMY_PAGE_NAME)
-        WikiPage(self.env, self.DUMMY_PAGE_NAME).delete()
+        self.insert_milestone(self.DUMMY_MILESTONE_NAME)
+        #act
+        results = self.search_api.query("*:*")
+        #assert
+        self.print_result(results)
+        self.assertEqual(1, results.hits)
+        doc = results.docs[0]
+        self.assertEqual(self.DUMMY_MILESTONE_NAME, doc["id"])
+        self.assertNotIn("content", doc)
+
+
+    def test_can_index_renamed_milestone(self):
+        #arrange
+        self.insert_milestone(self.DUMMY_MILESTONE_NAME, "dummy text")
+        self.change_milestone(
+            self.DUMMY_MILESTONE_NAME,
+            name="updated name",
+            description="updated description",
+        )
+        #act
+        results = self.search_api.query("*:*")
+        #assert
+        self.print_result(results)
+        self.assertEqual(1, results.hits)
+        doc = results.docs[0]
+        self.assertEqual("updated name", doc["id"])
+        self.assertEqual("updated description", doc["content"])
+
+    def test_can_index_changed_milestone(self):
+        #arrange
+        self.insert_milestone(self.DUMMY_MILESTONE_NAME, "dummy text")
+        self.change_milestone(
+            self.DUMMY_MILESTONE_NAME,
+            description="updated description",
+        )
+        #act
+        results = self.search_api.query("*:*")
+        #assert
+        self.print_result(results)
+        self.assertEqual(1, results.hits)
+        doc = results.docs[0]
+        self.assertEqual(self.DUMMY_MILESTONE_NAME, doc["id"])
+        self.assertEqual("updated description", doc["content"])
+
+    def test_can_index_delete(self):
+        #arrange
+        self.insert_milestone(self.DUMMY_MILESTONE_NAME)
+        Milestone(self.env, self.DUMMY_MILESTONE_NAME).delete()
         #act
         results = self.search_api.query("*.*")
         #assert
         self.print_result(results)
         self.assertEqual(0, results.hits)
 
-    def test_can_index_changed_event(self):
+    def test_can_reindex_minimal_milestone(self):
         #arrange
-        self.insert_wiki(self.DUMMY_PAGE_NAME, "Text to be changed")
-        page = WikiPage(self.env, self.DUMMY_PAGE_NAME)
-        page.text = "changed text with keyword"
-        page.save("anAuthor", "some comment", "::1")
+        self.insert_milestone(self.DUMMY_MILESTONE_NAME)
+        self.whoosh_backend.recreate_index()
         #act
-        results = self.search_api.query("*:*")
+        self.search_api.rebuild_index()
         #assert
+        results = self.search_api.query("*:*")
         self.print_result(results)
         self.assertEqual(1, results.hits)
         doc = results.docs[0]
-        self.assertEqual("changed text with keyword", doc["content"])
+        self.assertEqual(self.DUMMY_MILESTONE_NAME, doc["id"])
+        self.assertEqual("milestone", doc["type"])
 
-    def test_can_index_renamed_event(self):
-        #arrange
-        self.insert_wiki(self.DUMMY_PAGE_NAME)
-        page = WikiPage(self.env, self.DUMMY_PAGE_NAME)
-        page.rename("NewPageName")
-        #act
-        results = self.search_api.query("*:*")
-        #assert
-        self.print_result(results)
-        self.assertEqual(1, results.hits)
-        self.assertEqual("NewPageName", results.docs[0]["id"])
-
-    def test_can_index_version_deleted_event(self):
-        #arrange
-        self.insert_wiki(self.DUMMY_PAGE_NAME, "version1")
-        page = WikiPage(self.env, self.DUMMY_PAGE_NAME)
-        page.text = "version 2"
-        page.save("anAuthor", "some comment", "::1")
-        page.delete(version=2)
-        #act
-        results = self.search_api.query("*:*")
-        #assert
-        self.print_result(results)
-        self.assertEqual(1, results.hits)
-        self.assertEqual("version1", results.docs[0]["content"])
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(
-        WikiIndexerSilenceOnExceptionTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(WikiIndexerEventsTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(MilestoneIndexerEventsTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':

@@ -19,23 +19,26 @@
 #  under the License.
 
 r"""Bloodhound Search user interface."""
+import copy
 
 import pkg_resources
 import re
 
-from trac.core import *
+from trac.core import Component, implements, TracError
 from genshi.builder import tag
 from trac.perm import IPermissionRequestor
 from trac.search import shorten_result
-from trac.config import OrderedExtensionsOption
+from trac.config import OrderedExtensionsOption, ListOption
 from trac.util.presentation import Paginator
 from trac.util.datefmt import format_datetime, user_time
 from trac.web import IRequestHandler
 from trac.util.translation import _
-from trac.web.chrome import INavigationContributor, ITemplateProvider, \
-                             add_link, add_stylesheet
-from bhsearch.api import BloodhoundSearchApi, ISearchParticipant, SCORE, ASC, \
-    DESC, IndexFields
+from trac.util.html import find_element
+from trac.web.chrome import (INavigationContributor, ITemplateProvider,
+    add_link, add_stylesheet, web_context)
+from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
+    DESC, IndexFields)
+from trac.wiki.formatter import extract_link
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
 DEFAULT_RESULTS_PER_PAGE = 10
@@ -50,48 +53,72 @@ class RequestParameters(object):
     """
     QUERY = "q"
     PAGE = "page"
-    FILTER = "fl"
     TYPE = "type"
     NO_QUICK_JUMP = "noquickjump"
     PAGELEN = "pagelen"
+    FILTER_QUERY = "fq"
 
     def __init__(self, req):
         self.req = req
 
-        self.query = req.args.get(RequestParameters.QUERY)
-        if self.query == None:
+        self.query = req.args.getfirst(self.QUERY)
+        if self.query is None:
             self.query = ""
+        else:
+            self.query = self.query.strip()
 
-        #TODO: add quick jump functionality
-        self.noquickjump = 1
+        self.no_quick_jump = int(req.args.getfirst(self.NO_QUICK_JUMP, '0'))
 
-        #TODO: add filters support
-        self.filters = []
+        self.filter_queries = req.args.getlist(self.FILTER_QUERY)
+        self.filter_queries = self._remove_possible_duplications(
+                        self.filter_queries)
 
         #TODO: retrieve sort from query string
         self.sort = DEFAULT_SORT
 
-        self.pagelen = int(req.args.get(
+        self.pagelen = int(req.args.getfirst(
             RequestParameters.PAGELEN,
             DEFAULT_RESULTS_PER_PAGE))
-        self.page = int(req.args.get(RequestParameters.PAGE, '1'))
-        self.type = req.args.get(RequestParameters.TYPE, None)
+        self.page = int(req.args.getfirst(self.PAGE, '1'))
+        self.type = req.args.getfirst(self.TYPE, None)
 
         self.params = {
-            self.NO_QUICK_JUMP: self.noquickjump,
+            RequestParameters.FILTER_QUERY: []
         }
+
+        if self.no_quick_jump > 0:
+            self.params[self.NO_QUICK_JUMP] = self.no_quick_jump
+
         if self.query:
             self.params[self.QUERY] = self.query
         if self.pagelen != DEFAULT_RESULTS_PER_PAGE:
-            self.params[self.PAGELEN]=self.pagelen
+            self.params[self.PAGELEN] = self.pagelen
         if self.page > 1:
-            self.params[self.PAGE]=self.page
+            self.params[self.PAGE] = self.page
         if self.type:
             self.params[self.TYPE] = self.type
+        if self.filter_queries:
+            self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
 
-    def create_href(self, page = None, type=None, skip_type = False,
-                    skip_page = False):
-        params = dict(self.params)
+    def _remove_possible_duplications(self, parameters_list):
+        seen = set()
+        return [parameter for parameter in parameters_list
+                if parameter not in seen and not seen.add(parameter)]
+
+    def create_href(
+            self,
+            page = None,
+            type=None,
+            skip_type = False,
+            skip_page = False,
+            additional_filter = None,
+            force_filters = None,
+            ):
+        params = copy.deepcopy(self.params)
+
+        #noquickjump parameter should be always set to 1 for urls
+        params[self.NO_QUICK_JUMP] = 1
+
         if page:
             params[self.PAGE] = page
 
@@ -102,10 +129,18 @@ class RequestParameters(object):
             params[self.TYPE] = type
 
         if skip_type and self.TYPE in params:
-            #show all does not require type parameter
             del(params[self.TYPE])
 
+        if additional_filter and \
+           additional_filter not in params[self.FILTER_QUERY]:
+            params[self.FILTER_QUERY].append(additional_filter)
+        elif force_filters is not None:
+            params[self.FILTER_QUERY] = force_filters
+
         return self.req.href.bhsearch(**params)
+
+    def is_show_all_mode(self):
+        return self.type is None
 
 class BloodhoundSearchModule(Component):
     """Main search page"""
@@ -121,6 +156,10 @@ class BloodhoundSearchModule(Component):
         ISearchParticipant,
         "TicketSearchParticipant, WikiSearchParticipant"
     )
+
+
+    default_facets_all = ListOption('bhsearch', 'default_facets_all',
+        doc="""Default facets applied to search through all resources""")
 
 
     # INavigationContributor methods
@@ -144,33 +183,44 @@ class BloodhoundSearchModule(Component):
     def process_request(self, req):
         req.perm.assert_permission(SEARCH_PERMISSION)
         parameters = RequestParameters(req)
-
-        #TODO add quick jump support
-
         allowed_participants = self._get_allowed_participants(req)
         data = {
             'query': parameters.query,
             }
+        self._prepare_allowed_types(allowed_participants, parameters, data)
+        self._prepare_active_filter_queries(
+            parameters,
+            data,
+        )
+        working_query_string = parameters.query.strip()
 
-        #todo: filters check, tickets etc
-        if not any((parameters.query, )):
-            return self._return_data(req, data)
+
+        #TBD: should search return results on empty query?
+#        if not any((
+#            working_query_string,
+#            parameters.type,
+#            parameters.filter_queries,
+#            )):
+#            return self._return_data(req, data)
+
+        self._prepare_quick_jump(
+            parameters,
+            working_query_string,
+            data)
 
         query_filter = self._prepare_query_filter(
-            parameters.type,
-            parameters.filters,
+            parameters,
             allowed_participants)
 
-        #todo: add proper facets functionality
-        facets = self._prepare_facets(req)
+        facets = self._prepare_facets(parameters, allowed_participants)
 
-        querySystem = BloodhoundSearchApi(self.env)
-        query_result = querySystem.query(
-            parameters.query,
-            pagenum = parameters.page,
-            pagelen = parameters.pagelen,
-            sort = parameters.sort,
-            facets = facets,
+        query_system = BloodhoundSearchApi(self.env)
+        query_result = query_system.query(
+            working_query_string,
+            pagenum=parameters.page,
+            pagelen=parameters.pagelen,
+            sort=parameters.sort,
+            facets=facets,
             filter=query_filter)
 
         ui_docs = [self._process_doc(doc, req, allowed_participants)
@@ -199,66 +249,188 @@ class BloodhoundSearchModule(Component):
             prev_href = parameters.create_href(page = parameters.page - 1)
             add_link(req, 'prev', prev_href, _('Previous Page'))
 
-        data['results'] = results
-        self._prepare_type_grouping(
-            allowed_participants,
-            parameters,
-            data)
 
-        #TODO:add proper facet links
-        data['facets'] = query_result.facets
+        data['results'] = results
+
+        self._prepare_result_facet_counts(
+            parameters,
+            query_result,
+            data,
+        )
+
         data['page_href'] = parameters.create_href()
         return self._return_data(req, data)
 
-    def _prepare_query_filter(self, type, filters, allowed_participants):
-        query_filters = []
+    def _prepare_quick_jump(self,
+                            parameters,
+                            working_query_string,
+                            data):
+        if not working_query_string:
+            return
+        check_result = self._check_quickjump(
+            parameters.req,
+            working_query_string)
+        if check_result:
+            data["quickjump"] = check_result
 
-        if type in allowed_participants:
-            query_filters.append((IndexFields.TYPE, type))
+    #the method below is "copy/paste" from trac search/web_ui.py
+    def _check_quickjump(self, req, kwd):
+        """Look for search shortcuts"""
+        noquickjump = int(req.args.get('noquickjump', '0'))
+        # Source quickjump   FIXME: delegate to ISearchSource.search_quickjump
+        quickjump_href = None
+        if kwd[0] == '/':
+            quickjump_href = req.href.browser(kwd)
+            name = kwd
+            description = _('Browse repository path %(path)s', path=kwd)
         else:
-            self.log.debug("Unsupported type in web request: %s", type)
+            context = web_context(req, 'search')
+            link = find_element(extract_link(self.env, context, kwd), 'href')
+            if link is not None:
+                quickjump_href = link.attrib.get('href')
+                name = link.children
+                description = link.attrib.get('title', '')
+        if quickjump_href:
+            # Only automatically redirect to local quickjump links
+            if not quickjump_href.startswith(req.base_path or '/'):
+                noquickjump = True
+            if noquickjump:
+                return {'href': quickjump_href, 'name': tag.EM(name),
+                        'description': description}
+            else:
+                req.redirect(quickjump_href)
 
-        #TODO: handle other filters
-        return query_filters
 
-    def _prepare_type_grouping(self, allowed_participants, parameters, data):
+
+    def _prepare_allowed_types(self, allowed_participants, parameters, data):
         active_type = parameters.type
         if active_type and active_type not in allowed_participants:
             raise TracError(_("Unsupported resource type: '%(name)s'",
                 name=active_type))
-        all_is_active = (active_type is None)
-        grouping = [
+        allowed_types = [
             dict(
                 label=_("All"),
-                active=all_is_active,
+                active=(active_type is None),
                 href=parameters.create_href(
                     skip_type=True,
-                    skip_page=not all_is_active)
+                    skip_page=True,
+                    force_filters=[],
+                ),
             )
         ]
 
-        #we want to obtain the same order as specified in search_participants
-        # option
+        #we want obtain the same order as in search participants options
         participant_with_type = dict((participant, type)
             for type, participant in allowed_participants.iteritems())
         for participant in self.search_participants:
             if participant in participant_with_type:
                 type = participant_with_type[participant]
-                is_active = (type == active_type)
-                grouping.append(dict(
+                allowed_types.append(dict(
                     label=_(participant.get_title()),
-                    active=is_active,
+                    active=(type ==active_type),
                     href=parameters.create_href(
                         type=type,
-                        skip_page=not is_active
-                    )
+                        skip_page=True,
+                        force_filters=[],
+                    ),
                 ))
-        data["types"] =  grouping
-        data["active_type"] = active_type
+        data["types"] =  allowed_types
+        data["active_type"] =  active_type
 
-    def _prepare_facets(self, req):
-        facets = [IndexFields.TYPE]
-        #TODO: add type specific default facets
+
+
+    def _prepare_active_filter_queries(
+            self,
+            parameters,
+            data):
+        active_filter_queries = []
+        for filter_query in parameters.filter_queries:
+            active_filter_queries.append(dict(
+                href=parameters.create_href(
+                    force_filters=self._cut_filters(
+                        parameters.filter_queries,
+                        filter_query)),
+                label=filter_query,
+                query=filter_query,
+            ))
+        data['active_filter_queries'] = active_filter_queries
+
+    def _cut_filters(self, filter_queries, filer_to_cut_from):
+        return filter_queries[:filter_queries.index(filer_to_cut_from)]
+
+
+    def _prepare_result_facet_counts(self, parameters, query_result, data):
+        """
+
+        Sample query_result.facets content returned by query
+        {
+           'component': {None:2},
+           'milestone': {None:1, 'm1':1},
+        }
+
+        returned facet_count contains href parameters:
+        {
+           'component': {None: {'count':2, href:'...'},
+           'milestone': {
+                            None: {'count':1,, href:'...'},
+                            'm1':{'count':1, href:'...'}
+                        },
+        }
+
+        """
+        result_facets = query_result.facets
+        facet_counts = dict()
+        if result_facets:
+            for field, facets_dict in result_facets.iteritems():
+                per_field_dict = dict()
+                for field_value, count in facets_dict.iteritems():
+                    if field == IndexFields.TYPE:
+                        href = parameters.create_href(
+                            skip_page=True,
+                            force_filters=[],
+                            type=field_value)
+                    else:
+                        href = parameters.create_href(
+                            skip_page=True,
+                            additional_filter=self._create_term_expression(
+                                    field,
+                                    field_value)
+                        )
+                    per_field_dict[field_value] = dict(
+                        count=count,
+                        href=href
+                    )
+                facet_counts[_(field)] = per_field_dict
+
+        data['facet_counts'] = facet_counts
+
+    def _create_term_expression(self, field, field_value):
+        if field_value is None:
+            query = "NOT (%s:*)" % field
+        elif isinstance(field_value, basestring):
+            query = '%s:"%s"' % (field, field_value)
+        else:
+            query = '%s:%s' % (field, field_value)
+        return query
+
+    def _prepare_query_filter(self, parameters, allowed_participants):
+        query_filters = list(parameters.filter_queries)
+        type = parameters.type
+        if type in allowed_participants:
+            query_filters.append(
+                self._create_term_expression(IndexFields.TYPE, type))
+        else:
+            self.log.debug("Unsupported type in web request: %s", type)
+        return query_filters
+
+    def _prepare_facets(self, parameters, allowed_participants):
+        #TODO: add possibility of specifying facets in query parameters
+        if parameters.is_show_all_mode():
+            facets = [IndexFields.TYPE]
+            facets.extend(self.default_facets_all)
+        else:
+            type_participant = allowed_participants[parameters.type]
+            facets = type_participant.get_default_facets()
         return facets
 
     def _get_allowed_participants(self, req):

@@ -16,6 +16,8 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import sys
+
 from genshi.builder import tag
 from genshi.core import TEXT
 from genshi.filters.transform import Transformer
@@ -213,6 +215,10 @@ class BloodhoundTheme(ThemeBase):
     def post_process_request(self, req, template, data, content_type):
         """Post process request filter.
         Removes all trac provided css if required"""
+        
+        if template is None and data is None and sys.exc_info() == (None, None, None):
+            return template, data, content_type
+        
         def is_active_theme():
             is_active = False
             active_theme = ThemeEngineSystem(self.env).theme

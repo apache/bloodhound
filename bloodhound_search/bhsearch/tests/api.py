@@ -20,10 +20,10 @@
 import unittest
 import tempfile
 import shutil
-from bhsearch.api import BloodhoundSearchApi
+from bhsearch.api import BloodhoundSearchApi, ASC
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.ticket_search import TicketSearchParticipant
+from bhsearch.search_resources.ticket_search import TicketSearchParticipant
 
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.test import EnvironmentStub
@@ -99,6 +99,26 @@ class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(1, results.hits)
         docs = results.docs
         self.assertEqual("summary1 keyword", docs[0]["summary"])
+
+    def test_that_filter_queries_applied(self):
+        #arrange
+        self.insert_ticket("t1", status="closed", component = "c1")
+        self.insert_ticket("t2", status="closed", component = "c1")
+        self.insert_ticket("t3", status="closed",
+            component = "NotInFilterCriteria")
+        #act
+        results = self.search_api.query(
+            "*",
+            filter= ['status:"closed"', 'component:"c1"'],
+            sort= [("id", ASC)]
+        )
+        self.print_result(results)
+        #assert
+        self.assertEqual(2, results.hits)
+        docs = results.docs
+        self.assertEqual("t1", docs[0]["summary"])
+        self.assertEqual("t2", docs[1]["summary"])
+
 
 #TODO: check this later
 #    @unittest.skip("Check with Whoosh community")
