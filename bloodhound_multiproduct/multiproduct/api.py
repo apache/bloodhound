@@ -97,7 +97,7 @@ class MultiProductSystem(Component):
         self.log.debug("upgrading existing environment for %s plugin." % 
                        PLUGIN_NAME)
         db_installed_version = self.get_version()
-        with self.env.db_transaction as db:
+        with self.env.db_direct_transaction as db:
             if db_installed_version < 1:
                 # Initial installation
                 db("ALTER TABLE ticket ADD COLUMN product TEXT")

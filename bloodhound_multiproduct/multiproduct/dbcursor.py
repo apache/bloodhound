@@ -32,10 +32,17 @@ SKIP_TABLES = ['system', 'auth_cookie',
                'ticket_change', 'ticket_custom',
                'report',
                'bloodhound_product', 'bloodhound_productresourcemap', 'bloodhound_productconfig',
+               'sqlite_master'
                ]
 TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'permission', 'wiki']
 PRODUCT_COLUMN = 'product'
-DEFAULT_PRODUCT = ''
+GLOBAL_PRODUCT = ''
+
+# Singleton used to mark translator as unset
+class empty_translator(object):
+    pass
+
+translator_not_set = empty_translator()
 
 class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     __slots__ = trac.db.util.IterableCursor.__slots__ + ['_translator']
@@ -43,20 +50,18 @@ class BloodhoundIterableCursor(trac.db.util.IterableCursor):
 
     def __init__(self, cursor, log=None):
         super(BloodhoundIterableCursor, self).__init__(cursor, log=log)
-        self._translator = None
-
-    @property
-    def translator(self):
-        if not self._translator:
-            product_prefix = self.env.product.prefix if (self.env and self.env.product) else DEFAULT_PRODUCT
-            self._translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
-                                                             TRANSLATE_TABLES,
-                                                             PRODUCT_COLUMN,
-                                                             product_prefix)
-        return self._translator
+        self._translator = translator_not_set
 
     def _translate_sql(self, sql):
-        return self.translator.translate(sql) if (self.env and self.env.product) else sql
+        if self._translator is translator_not_set:
+            self._translator = None
+            if not self.env is None:
+                product_prefix = self.env.product.prefix if self.env.product else GLOBAL_PRODUCT
+                self._translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
+                                                                 TRANSLATE_TABLES,
+                                                                 PRODUCT_COLUMN,
+                                                                 product_prefix)
+        return self._translator.translate(sql) if (self._translator is not None) else sql
 
     def execute(self, sql, args=None):
         return super(BloodhoundIterableCursor, self).execute(self._translate_sql(sql), args=args)
@@ -75,6 +80,28 @@ class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     @classmethod
     def get_env(cls):
         return cls._tls.env
+
+# replace trac.db.util.IterableCursor with BloodhoundIterableCursor
+trac.db.util.IterableCursor = BloodhoundIterableCursor
+
+class BloodhoundConnectionWrapper(object):
+
+    def __init__(self, connection, env):
+        self.connection = connection
+        self.env = env
+
+    def __getattr__(self, name):
+        return getattr(self.connection, name)
+
+    def execute(self, query, params=None):
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.connection.execute(query, params=params)
+
+    __call__ = execute
+
+    def executemany(self, query, params=None):
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.connection.executemany(query, params=params)
 
 class ProductEnvContextManager(object):
     """Wrap an underlying database context manager so as to keep track
@@ -98,16 +125,12 @@ class ProductEnvContextManager(object):
         """Keep track of previous product context and override it with `env`;
         then enter the inner database context.
         """
-        self._last_env = BloodhoundIterableCursor.get_env()
-        BloodhoundIterableCursor.set_env(self.env)
-        return self.db_context.__enter__()
+        return BloodhoundConnectionWrapper(self.db_context.__enter__(), self.env)
 
     def __exit__(self, et, ev, tb): 
         """Uninstall current product context by restoring the last one;
         then leave the inner database context.
         """
-        BloodhoundIterableCursor.set_env(self._last_env)
-        del self._last_env
         return self.db_context.__exit__(et, ev, tb)
 
     def __call__(self, *args, **kwargs):
@@ -129,8 +152,6 @@ class ProductEnvContextManager(object):
         BloodhoundIterableCursor.set_env(self.env)
         return self.db_context.executemany(sql, params=params)
 
-# replace trac.db.util.IterableCursor with BloodhoundIterableCursor
-trac.db.util.IterableCursor = BloodhoundIterableCursor
 
 class BloodhoundProductSQLTranslate(object):
     _join_statements = ['LEFT JOIN', 'LEFT OUTER JOIN',

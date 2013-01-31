@@ -20,6 +20,7 @@
 
 import os.path
 from urlparse import urlsplit
+from sqlite3 import OperationalError
 
 from trac.config import ConfigSection, Option
 from trac.core import Component, ComponentManager, implements
@@ -89,6 +90,14 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         super(EnvironmentStub, self).__init__(default_data=default_data,
                                               enable=enable, disable=disable,
                                               path=path, destroying=destroying)
+        # Apply multi product upgrades. This is required as the database proxy (translator)
+        # is installed in any case, we want it to see multi-product enabled database
+        # schema...
+        mpsystem = MultiProductSystem(self)
+        try:
+            mpsystem.upgrade_environment()
+        except OperationalError:
+            pass
 
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
