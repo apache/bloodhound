@@ -55,7 +55,11 @@ class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     def _translate_sql(self, sql):
         if self._translator is translator_not_set:
             self._translator = None
-            if not self.env is None:
+            if self.env is not None:
+                # FIXME: This is the right way to do it but breaks translation
+                # if trac.db.api.DatabaseManager(self.env).debug_sql:
+                if (self.env.parent or self.env).config['trac'].get('debug_sql', False):
+                    self.log = self.env.log
                 product_prefix = self.env.product.prefix if self.env.product else GLOBAL_PRODUCT
                 self._translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
                                                                  TRANSLATE_TABLES,

@@ -138,6 +138,10 @@ class MultiproductTestCase(unittest.TestCase):
         config.set('logging', 'log_file', logpath)
         config.set('logging', 'log_type', 'file')
         config.set('logging', 'log_level', 'DEBUG')
+
+        # Log SQL queries
+        config.set('trac', 'debug_sql', True)
+
         config.save()
         env.setup_log()
         env.log.info('%s test case: %s %s',
