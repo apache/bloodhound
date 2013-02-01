@@ -13,6 +13,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def setUp(self):
         env_path = os.path.join(tempfile.gettempdir(), 'trac-tempenv')
+        self.addCleanup(self.cleanupEnvPath, env_path)
         self.env = Environment(env_path, create=True)
 
     def tearDown(self):
@@ -20,6 +21,10 @@ class EnvironmentTestCase(unittest.TestCase):
             db.close()
         self.env.shutdown() # really closes the db connections
         shutil.rmtree(self.env.path)
+
+    def cleanupEnvPath(self, path):
+        if os.path.exists(path):
+            shutil.rmtree(path)
 
     def test_get_version(self):
         """Testing env.get_version"""
