@@ -40,66 +40,60 @@
     </script>
   </head>
   <body>
-    <py:choose>
-      <div py:when="query" id="content" class="row">
-  
-        <h2 py:if="results">
-          Results <small>(${results.displayed_items()})</small>
-        </h2>
+    <div id="content" class="row">
 
-        <form id="fullsearch" action="${href.search()}" method="get">
-          <input type="hidden" name="q" value="${query}" />
-          <input type="hidden" name="noquickjump" value="1" />
-          <div class="span2">
-            <input class="btn" type="submit" value="${_('Apply filters')}" />
-          </div>
-          <div class="span10 filters">
-            <py:for each="filter in filters">
-              <input type="checkbox" id="${filter.name}" name="${filter.name}"
-                     checked="${filter.active or None}" />
-              <label for="${filter.name}">
-                <span class="label">${filter.label}</span>
-              </label>
+      <h2 py:if="results">
+        Results <small>(${results.displayed_items()})</small>
+      </h2>
+
+      <form id="fullsearch" action="${href.search()}" method="get">
+        <input type="hidden" name="q" value="${query}" />
+        <input type="hidden" name="noquickjump" value="1" />
+        <div class="span2">
+          <input class="btn" type="submit" value="${_('Apply filters')}" />
+        </div>
+        <div class="span10 filters">
+          <py:for each="filter in filters">
+            <input type="checkbox" id="${filter.name}" name="${filter.name}"
+                   checked="${filter.active or None}" />
+            <label for="${filter.name}">
+              <span class="label">${filter.label}</span>
+            </label>
+          </py:for>
+        </div>
+      </form>
+
+      <div class="span12" py:if="results or quickjump">
+        <div>
+          <dl id="results">
+            <py:if test="quickjump">
+              <dt id="quickjump">
+                <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+              </dt>
+              <dd>${quickjump.description}</dd>
+            </py:if>
+            <py:for each="result in results">
+              <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
+              <dd class="searchable">${result.excerpt}</dd>
+              <dd>
+                <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                <span class="date">${result.date}</span>
+              </dd>
             </py:for>
-          </div>
-        </form>
-  
-        <div class="span12" py:if="results or quickjump">
-          <div>
-            <dl id="results">
-              <py:if test="quickjump">
-                <dt id="quickjump">
-                  <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
-                </dt>
-                <dd>${quickjump.description}</dd>
-              </py:if>
-              <py:for each="result in results">
-                <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
-                <dd class="searchable">${result.excerpt}</dd>
-                <dd>
-                  <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
-                  <span class="date">${result.date}</span>
-                </dd>
-              </py:for>
-            </dl>
-          </div>
-          <xi:include py:with="paginator = results" href="bh_page_index.html" />
+          </dl>
         </div>
-  
-        <div class="span12"
-            py:if="query and not (results or quickjump)">
-          <p id="notfound" class="alert">
-            No matches found.
-          </p>
-        </div>
-  
+        <xi:include py:with="paginator = results" href="bh_page_index.html" />
       </div>
-      <p py:otherwise="" class="alert">
-        <span class="label label-warning">Warning</span>
-        Search query too short. Query must be at least 3 characters long.
-        Please type your query string in search box and try again.
-      </p>
-    </py:choose>
+
+      <div class="span12"
+          py:if="query and not (results or quickjump)">
+        <p id="notfound" class="alert">
+          No matches found.
+        </p>
+      </div>
+
+    </div>
+
     <div id="help" class="help-block pull-right" i18n:msg="">
       <span class="label label-info">Note:</span>
       See <a href="${href.wiki('TracSearch')}">TracSearch</a>

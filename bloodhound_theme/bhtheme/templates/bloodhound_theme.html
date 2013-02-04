@@ -197,16 +197,19 @@
                 class="nav nav-tabs pull-right"
                 id="mainnav"
                 py:with="mainnav_show = ('wiki', 'tickets', 'browser');
-                        metanav_hide = ('login', 'logout', 'prefs', 'help', 'about')">
+                         metanav_hide = ('login', 'logout', 'prefs', 'help', 'about')">
               <!-- TODO: Parameterize visible mainnav items in trac.ini -->
               <li py:if="chrome.nav.mainnav"
                   py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
                   class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
-              <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+              <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}"
+                  py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide] +
+                             [i for i in chrome.nav.mainnav if i.name not in mainnav_show])">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps
+                  <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li py:if="chrome.nav.mainnav"
-                      py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show)" 
+                      py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show)"
                       class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
                   <py:if test="chrome.nav.metanav">
                     <li py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide])"
