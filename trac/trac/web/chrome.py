@@ -479,6 +479,9 @@ class Chrome(Component):
 
     templates = None
 
+    # default doctype for 'text/html' output
+    default_html_doctype = DocType.XHTML_STRICT
+
     # A dictionary of default context data for templates
     _default_context_data = {
         '_': translation.gettext,
@@ -936,8 +939,8 @@ class Chrome(Component):
 
         The `content_type` argument is used to choose the kind of template
         used (`NewTextTemplate` if `'text/plain'`, `MarkupTemplate` otherwise),
-        and tweak the rendering process (use of XHTML Strict doctype if
-        `'text/html'` is given).
+        and tweak the rendering process. Doctype for `'text/html'` can be
+        specified by setting the default_html_doctype (default is XHTML Strict)
 
         When `fragment` is specified, the (filtered) Genshi stream is
         returned.
@@ -975,7 +978,7 @@ class Chrome(Component):
             stream.render('text', out=buffer, encoding='utf-8')
             return buffer.getvalue()
 
-        doctype = {'text/html': DocType.XHTML_STRICT}.get(content_type)
+        doctype = {'text/html': Chrome.default_html_doctype}.get(content_type)
         if doctype:
             if req.form_token:
                 stream |= self._add_form_token(req.form_token)

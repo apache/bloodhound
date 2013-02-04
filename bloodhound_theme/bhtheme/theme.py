@@ -21,6 +21,7 @@ import sys
 from genshi.builder import tag
 from genshi.core import TEXT
 from genshi.filters.transform import Transformer
+from genshi.output import DocType
 
 from trac.config import Option
 from trac.core import *
@@ -36,7 +37,7 @@ from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_script, add_stylesheet, INavigationContributor,
-                             ITemplateProvider, prevnext_nav)
+                             ITemplateProvider, prevnext_nav, Chrome)
 from trac.wiki.admin import WikiAdmin
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
@@ -135,6 +136,7 @@ class BloodhoundTheme(ThemeBase):
     labels_footer_right = Option('labels', 'footer_right', '')
 
     _wiki_pages = None
+    Chrome.default_html_doctype = DocType.HTML5
 
     implements(IRequestFilter, INavigationContributor, ITemplateProvider,
                ITemplateStreamFilter)
@@ -255,6 +257,11 @@ class BloodhoundTheme(ThemeBase):
             if modifier is not None:
                 modifier = getattr(self, modifier)
                 modifier(req, template, data, content_type, is_active_theme)
+
+        if is_active_theme:
+            data['responsive_layout'] = self.env.config.getbool(
+                    'bloodhound', 'responsive_layout', 'true')
+
         return template, data, content_type
 
     # ITemplateProvider methods
