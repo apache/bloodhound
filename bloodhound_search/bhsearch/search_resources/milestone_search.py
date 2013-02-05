@@ -19,24 +19,28 @@
 #  under the License.
 
 r"""Milestone specifics for Bloodhound Search plugin."""
-from bhsearch.api import IIndexParticipant, BloodhoundSearchApi, IndexFields, \
-    ISearchParticipant
-from bhsearch.search_resources.base import BaseIndexer
+from bhsearch import BHSEARCH_CONFIG_SECTION
+from bhsearch.api import (IIndexParticipant, BloodhoundSearchApi, IndexFields,
+    ISearchParticipant)
+from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from trac.ticket import IMilestoneChangeListener, Milestone
-from trac.config import ListOption
-from trac.core import implements, Component
+from trac.config import ListOption, Option
+from trac.core import implements
 
 MILESTONE_TYPE = u"milestone"
+
+class MilestoneFields(IndexFields):
+    DUE = "due"
+    COMPLETED = "completed"
 
 class MilestoneIndexer(BaseIndexer):
     implements(IMilestoneChangeListener, IIndexParticipant)
 
     optional_fields = {
-        'description': IndexFields.CONTENT,
-        'due': IndexFields.DUE,
-        'completed': IndexFields.COMPLETED,
+        'description': MilestoneFields.CONTENT,
+        'due': MilestoneFields.DUE,
+        'completed': MilestoneFields.COMPLETED,
     }
-
 
     # IMilestoneChangeListener methods
     def milestone_created(self, milestone):
@@ -110,11 +114,31 @@ class MilestoneIndexer(BaseIndexer):
         for milestone in Milestone.select(self.env, include_completed=True):
             yield self.build_doc(milestone)
 
-class MilestoneSearchParticipant(Component):
+class MilestoneSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
 
-    default_facets = ListOption('bhsearch', 'default_facets_milestone',
-        doc="""Default facets applied to search through milestones""")
+    default_facets = []
+    default_grid_fields = [
+        MilestoneFields.ID, MilestoneFields.DUE, MilestoneFields.COMPLETED]
+    prefix = MILESTONE_TYPE
+
+    default_facets = ListOption(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_facets',
+        default=",".join(default_facets),
+        doc="""Default facets applied to search view of specific resource""")
+
+    default_view = Option(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_view',
+        doc = """If true, show grid as default view for specific resource in
+            Bloodhound Search results""")
+
+    default_grid_fields = ListOption(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_grid_fields',
+        default=",".join(default_grid_fields),
+        doc="""Default fields for grid view for specific resource""")
 
     #ISearchParticipant members
     def get_search_filters(self, req=None):
@@ -123,9 +147,6 @@ class MilestoneSearchParticipant(Component):
 
     def get_title(self):
         return "Milestone"
-
-    def get_default_facets(self):
-        return self.default_facets
 
     def format_search_results(self, res):
         #TODO: add better milestone rendering

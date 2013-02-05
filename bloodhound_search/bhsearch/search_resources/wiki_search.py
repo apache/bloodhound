@@ -19,11 +19,12 @@
 #  under the License.
 
 r"""Wiki specifics for Bloodhound Search plugin."""
-from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
-    IIndexParticipant, IndexFields
-from bhsearch.search_resources.base import BaseIndexer
-from trac.core import implements, Component
-from trac.config import ListOption
+from bhsearch import BHSEARCH_CONFIG_SECTION
+from bhsearch.api import (ISearchParticipant, BloodhoundSearchApi,
+    IIndexParticipant, IndexFields)
+from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
+from trac.core import implements
+from trac.config import ListOption, Option
 from trac.wiki import IWikiChangeListener, WikiSystem, WikiPage
 
 WIKI_TYPE = u"wiki"
@@ -106,11 +107,34 @@ class WikiIndexer(BaseIndexer):
             page = WikiPage(self.env, page_name)
             yield self.build_doc(page)
 
-class WikiSearchParticipant(Component):
+class WikiSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
 
-    default_facets = ListOption('bhsearch', 'default_facets_wiki',
-        doc="""Default facets applied to search through wiki pages""")
+    default_facets = []
+    default_grid_fields = [
+        IndexFields.ID,
+        IndexFields.TIME,
+        IndexFields.AUTHOR
+    ]
+    prefix = WIKI_TYPE
+
+    default_facets = ListOption(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_facets',
+        default=",".join(default_facets),
+        doc="""Default facets applied to search view of specific resource""")
+
+    default_view = Option(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_view',
+        doc = """If true, show grid as default view for specific resource in
+            Bloodhound Search results""")
+
+    default_grid_fields = ListOption(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_grid_fields',
+        default = ",".join(default_grid_fields),
+        doc="""Default fields for grid view for specific resource""")
 
     #ISearchParticipant members
     def get_search_filters(self, req=None):
@@ -119,9 +143,6 @@ class WikiSearchParticipant(Component):
 
     def get_title(self):
         return "Wiki"
-
-    def get_default_facets(self):
-        return self.default_facets
 
     def format_search_results(self, res):
         return u'%s: %s...' % (res['id'], res['content'][:50])

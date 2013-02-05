@@ -21,13 +21,29 @@
 r"""
 Test utils methods
 """
-from pprint import pprint
 import unittest
+import tempfile
+import shutil
+from pprint import pprint
+
 from bhsearch.web_ui import BloodhoundSearchModule
 from trac.ticket import Ticket, Milestone
+from trac.test import EnvironmentStub
 from trac.wiki import WikiPage
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
+
+    def setUp(self, enabled = None):
+        if not enabled:
+            enabled = ['bhsearch.*']
+        self.env = EnvironmentStub(enable=enabled)
+        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
+        self.env.config.set('bhsearch', 'silence_on_error', "False")
+
+    def tearDown(self):
+        shutil.rmtree(self.env.path)
+        self.env.reset_db()
+
     def print_result(self, result):
         print "Received result:"
         pprint(result.__dict__)

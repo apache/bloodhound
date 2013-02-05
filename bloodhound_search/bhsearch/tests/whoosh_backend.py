@@ -24,9 +24,9 @@ import tempfile
 import shutil
 from bhsearch.api import ASC, DESC, SCORE
 from bhsearch.query_parser import DefaultQueryParser
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
-from bhsearch.whoosh_backend import WhooshBackend, \
-    WhooshEmptyFacetErrorWorkaround
+from bhsearch.tests.base import BaseBloodhoundSearchTest
+from bhsearch.whoosh_backend import (WhooshBackend,
+    WhooshEmptyFacetErrorWorkaround)
 from trac.test import EnvironmentStub
 from trac.util.datefmt import FixedOffset, utc
 from whoosh import index, sorting, query

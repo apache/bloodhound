@@ -22,14 +22,12 @@ import unittest
 import tempfile
 import shutil
 from bhsearch.api import BloodhoundSearchApi
-from bhsearch.milestone_search import MilestoneIndexer
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
+from bhsearch.search_resources.milestone_search import MilestoneIndexer
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
 from bhsearch.whoosh_backend import WhooshBackend
-from bhsearch.search_resources.wiki_search import WikiIndexer
 from trac.test import EnvironmentStub
-from trac.ticket.api import TicketSystem
 
 
 class IndexWhooshTestCase(BaseBloodhoundSearchTest):
@@ -39,10 +37,6 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
-        self.ticket_indexer = TicketIndexer(self.env)
-        self.wiki_indexer = WikiIndexer(self.env)
-        self.milestone_indexer = MilestoneIndexer(self.env)
-        self.ticket_system = TicketSystem(self.env)
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -51,7 +45,7 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def test_can_index_ticket(self):
         ticket = self.create_dummy_ticket()
         ticket.id = "1"
-        self.ticket_indexer.ticket_created(ticket)
+        TicketIndexer(self.env).ticket_created(ticket)
 
         results = self.search_api.query("*:*")
         self.print_result(results)
@@ -112,6 +106,7 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(2, results.hits)
 
     def test_can_reindex_milestones(self):
+        MilestoneIndexer(self.env)
         self.insert_milestone("M1")
         self.insert_milestone("M2")
         self.whoosh_backend.recreate_index()

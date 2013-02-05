@@ -29,3 +29,19 @@ class BaseIndexer(Component):
     silence_on_error = BoolOption('bhsearch', 'silence_on_error', "True",
         """If true, do not throw an exception during indexing a resource""")
 
+
+class BaseSearchParticipant(Component):
+    default_view = None
+    default_grid_fields = None
+    default_facets = None
+
+    def get_default_facets(self):
+        return self.default_facets
+
+    def get_default_view(self):
+        return self.default_view
+
+    def get_default_view_fields(self, view):
+        if view == "grid":
+            return self.default_grid_fields
+        return None

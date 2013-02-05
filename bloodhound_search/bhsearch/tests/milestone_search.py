@@ -17,17 +17,14 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import shutil
 import unittest
-import tempfile
 
 from bhsearch.api import BloodhoundSearchApi
-from bhsearch.search_resources.milestone_search import MilestoneSearchParticipant
-from bhsearch.query_parser import DefaultQueryParser
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
+from bhsearch.search_resources.milestone_search import (
+    MilestoneSearchParticipant)
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
 
-from trac.test import EnvironmentStub
 from trac.ticket import Milestone
 
 
@@ -35,18 +32,10 @@ class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
     DUMMY_MILESTONE_NAME = "dummyName"
 
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
-        self.env.config.set('bhsearch', 'silence_on_error', "False")
+        super(MilestoneIndexerEventsTestCase, self).setUp()
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
-        self.milestone_participant = MilestoneSearchParticipant(self.env)
-        self.query_parser = DefaultQueryParser(self.env)
-
-    def tearDown(self):
-        shutil.rmtree(self.env.path)
-        self.env.reset_db()
 
     def test_can_index_created_milestone(self):
         #arrange
@@ -132,10 +121,32 @@ class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(self.DUMMY_MILESTONE_NAME, doc["id"])
         self.assertEqual("milestone", doc["type"])
 
+class MilestoneSearchParticipantTestCase(BaseBloodhoundSearchTest):
+    def setUp(self):
+        super(MilestoneSearchParticipantTestCase, self).setUp()
+        self.milestone_search = MilestoneSearchParticipant(self.env)
+
+    def test_can_get_default_grid_fields(self):
+        grid_fields = self.milestone_search.get_default_view_fields("grid")
+        print grid_fields
+        self.assertGreater(len(grid_fields), 0)
+
+    def test_can_get_default_facets(self):
+        default_facets = self.milestone_search.get_default_facets()
+        print default_facets
+        self.assertIsNotNone(default_facets)
+
+    def test_can_get_is_grid_view_defaults(self):
+        default_grid_fields = self.milestone_search.get_default_view_fields(
+            "grid")
+        print default_grid_fields
+        self.assertIsNotNone(default_grid_fields)
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(MilestoneIndexerEventsTestCase, 'test'))
+    suite.addTest(
+        unittest.makeSuite(MilestoneSearchParticipantTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':
