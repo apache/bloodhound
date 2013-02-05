@@ -126,7 +126,7 @@
             </py:if>
           </div>
 
-          <div class="span9">
+          <div class="${'span12' if not facet_counts else 'span9'}">
             <h2>
               Results <small>(${results.displayed_items()})</small>
             </h2>
