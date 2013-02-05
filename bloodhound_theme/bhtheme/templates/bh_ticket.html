@@ -301,13 +301,6 @@
                     </py:otherwise>
 
                     <span class="ticket-info">
-<!--!
-                      <span id="h_reporter"> - Reported by
-                        <span id="vc-reporter" data-edit="${'inplace' if only_for_admin else None}">
-                          ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)},
-                        </span>
-                      </span>
--->
                       <span id="h_owner">Assigned to
                         ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
                       </span>

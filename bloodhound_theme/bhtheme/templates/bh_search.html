@@ -41,27 +41,31 @@
   </head>
   <body>
     <div id="content" class="row">
+      <div class="span12">
+        <h2 py:if="results">
+          Results <small>(${results.displayed_items()})</small>
+        </h2>
 
-      <h2 py:if="results">
-        Results <small>(${results.displayed_items()})</small>
-      </h2>
+        <form id="fullsearch" action="${href.search()}" method="get">
+          <input type="hidden" name="q" value="${query}" />
+          <input type="hidden" name="noquickjump" value="1" />
 
-      <form id="fullsearch" action="${href.search()}" method="get">
-        <input type="hidden" name="q" value="${query}" />
-        <input type="hidden" name="noquickjump" value="1" />
-        <div class="span2">
-          <input class="btn" type="submit" value="${_('Apply filters')}" />
-        </div>
-        <div class="span10 filters">
-          <py:for each="filter in filters">
-            <input type="checkbox" id="${filter.name}" name="${filter.name}"
-                   checked="${filter.active or None}" />
-            <label for="${filter.name}">
-              <span class="label">${filter.label}</span>
-            </label>
-          </py:for>
-        </div>
-      </form>
+          <div class="row">
+            <div class="span2">
+              <input class="btn" type="submit" value="${_('Apply filters')}" />
+            </div>
+            <div class="span10 filters">
+              <py:for each="filter in filters">
+                <input type="checkbox" id="${filter.name}" name="${filter.name}"
+                       checked="${filter.active or None}" />
+                <label for="${filter.name}">
+                  <span class="label">${filter.label}</span>
+                </label>
+              </py:for>
+            </div>
+          </div>
+        </form>
+      </div>
 
       <div class="span12" py:if="results or quickjump">
         <div>
