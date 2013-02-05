@@ -72,6 +72,23 @@ class Environment(trac.env.Environment):
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
 
+def _environment_setup_environment_created(self):
+    """Insert default data into the database.
+
+    This code is copy pasted from trac.env.EnvironmentSetup with a slight change
+    of using direct (non-translated) transaction to setup default data.
+    """
+    from trac import db_default
+    with self.env.db_direct_transaction as db:
+        for table, cols, vals in db_default.get_data(db):
+            db.executemany("INSERT INTO %s (%s) VALUES (%s)"
+                           % (table, ','.join(cols), ','.join(['%s' for c in cols])),
+                              vals)
+    self._update_sample_config()
+
+# replace trac.env.EnvironmentSetup.environment_created with the patched version
+trac.env.EnvironmentSetup.environment_created = _environment_setup_environment_created
+
 # this must follow the monkey patch (trac.env.Environment) above, otherwise
 # trac.test.EnvironmentStub will not be correct as the class will derive from
 # not replaced trac.env.Environment
@@ -87,17 +104,28 @@ class EnvironmentStub(trac.test.EnvironmentStub):
                  path=None, destroying=False):
         self.parent = None
         self.product = None
+        self.mpsystem = None
         super(EnvironmentStub, self).__init__(default_data=default_data,
                                               enable=enable, disable=disable,
                                               path=path, destroying=destroying)
         # Apply multi product upgrades. This is required as the database proxy (translator)
         # is installed in any case, we want it to see multi-product enabled database
         # schema...
-        mpsystem = MultiProductSystem(self)
+        self.mpsystem = MultiProductSystem(self)
         try:
-            mpsystem.upgrade_environment()
+            self.mpsystem.upgrade_environment()
         except OperationalError:
             pass
+
+    def reset_db(self, default_data=None):
+        from multiproduct.api import DB_VERSION
+        schema_version = -1
+        if self.mpsystem:
+            schema_version = self.mpsystem.get_version()
+        super(EnvironmentStub, self).reset_db(default_data=default_data)
+        if self.mpsystem and schema_version != -1:
+            with self.db_direct_transaction as db:
+                self.mpsystem._update_db_version(db, DB_VERSION)
 
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
