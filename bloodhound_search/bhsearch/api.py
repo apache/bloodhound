@@ -33,10 +33,6 @@ class IndexFields(object):
     AUTHOR = 'author'
     CONTENT = 'content'
     STATUS = 'status'
-    DUE = 'due'
-    COMPLETED = 'completed'
-    MILESTONE = 'milestone'
-    COMPONENT = 'component'
 
 class QueryResult(object):
     def __init__(self):
@@ -89,8 +85,14 @@ class ISearchBackend(Interface):
         Open existing index, if index does not exist, create new one
         """
 
-    def query(query, sort = None, fields = None, boost = None, filter = None,
-                  facets = None, pagenum = 1, pagelen = 20):
+    def query(
+            query,
+            sort = None,
+            fields = None,
+            filter = None,
+            facets = None,
+            pagenum = 1,
+            pagelen = 20):
         """
         Perform query implementation
 
@@ -127,10 +129,17 @@ class ISearchParticipant(Interface):
         Passes the request object to do permission checking."""
 
     def get_title():
-        """Return resource title"""
+        """Return resource title."""
 
     def get_default_facets():
-        """Return default facets for the specific resource type"""
+        """Return default facets for the specific resource type."""
+
+    def get_default_view():
+        """Return True if grid is enabled by default for specific resource."""
+
+    def get_default_view_fields(view):
+        """Return list of fields should be returned in grid by default."""
+
 
 class IQueryParser(Interface):
     """Extension point for Bloodhound Search query parser.
@@ -185,9 +194,15 @@ class BloodhoundSearchApi(Component):
 
     index_participants = ExtensionPoint(IIndexParticipant)
 
-    def query(self, query, sort = None, fields = None,
-              boost = None, filter = None,
-              facets = None, pagenum = 1, pagelen = 20):
+    def query(
+            self,
+            query,
+            sort = None,
+            fields = None,
+            filter = None,
+            facets = None,
+            pagenum = 1,
+            pagelen = 20):
         """Return query result from an underlying search backend.
 
         Arguments:
@@ -221,7 +236,6 @@ class BloodhoundSearchApi(Component):
             facets = facets,
             pagenum = pagenum,
             pagelen = pagelen,
-            boost = boost,
         )
         for query_processor in self.query_processors:
             query_processor.query_pre_process(query_parameters)

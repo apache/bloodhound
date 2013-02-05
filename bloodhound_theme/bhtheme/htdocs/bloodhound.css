@@ -17,8 +17,29 @@
   under the License.
 */
 
+body {
+  background-color: rgb(92%, 91%, 88%);
+}
+
+.container:first-child {
+  background-color: rgb(100%, 100%, 100%);
+  padding: 5px 20px;
+  border-left: 1px solid rgb(70%, 70%, 70%);
+  border-right: 1px solid rgb(70%, 70%, 70%);
+  border-bottom: 1px solid rgb(70%, 70%, 70%);
+  box-shadow: 0px 0px 10px 2px rgba(50%, 50%, 50%, 0.4);
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+#searchbox {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 #mainsearch {
-  margin-bottom: 0px;
+  margin-bottom: 0;
+  display: inline-block;
 }
 
 #mainnav {
@@ -134,14 +155,22 @@ div.reports form {
 
 /* @end */
 
-#ticket table.properties td,
-#ticket table.properties th {
-	font-size: 100%;
+#ticket .properties table td,
+#ticket .properties table th {
+  border: none;
 }
 
 #ticket footer {
   text-align: right;
 
+}
+
+#trac-ticket-title {
+  margin-bottom: 5px;
+}
+
+#trac-ticket-title span.ticket-info {
+  font-weight: normal;
 }
 
 #activityfeed img {
@@ -155,6 +184,11 @@ div.reports form {
 #activityfeed dd {
   color: grey;
 }
+
+#mobile-activity {
+  margin-top: 50px;
+}
+
 
 div.reports form,
 div.reports .inlinebutton {
@@ -171,12 +205,6 @@ div.reports h2 {
 }
 
 /* @group Wiki */
-
-/*
-textarea.wikitext {
-  min-width: 66%;
-}
-*/
 
 .wiki-toc {
   float: right;
@@ -202,33 +230,43 @@ pre.wiki {
 
 /* @group Ticket page modifications */
 
-#comment {
-  width: 605px;
-}
-
-#field-description {
-  width: 505px;
-}
-
-#qct-fieldset #field-description {
-  width: auto;
-}
-
 .bh-ticket-buttons {
   padding-left: 5px;
 }
 
-.ticket .properties .enum h5, #basic-properties h5 {
+.clearboth {
+  clear: both;
+}
+
+.ticket .keywords {
+  margin: 20px 0;
+}
+
+.ticket .properties h5 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ticket-box-field, .ticket-box-info {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ticket-box-info dt {
+  text-align: left;
+}
+
+#modifyproperties th, #modifyproperties td {
+  vertical-align: baseline;
+  border: none;
+}
+
+.ticket-summary #field-summary {
+  margin-bottom: 0;
+}
+
+.ticket .properties .enum h5 {
   margin-top: 0px;
-}
-
-.ownership {
-  margin-left: 25px;
-}
-
-.ticket textarea {
-  height: auto;
-  width: auto;
 }
 
 .trac-loading {
@@ -257,6 +295,10 @@ pre.wiki {
 
 #qct-fieldset #field-summary {
   width: 260px;
+}
+
+#qct-fieldset #field-description {
+  width: auto;
 }
 
 #qct-box #qct-cancel {
@@ -478,24 +520,6 @@ input[type="submit"].btn.btn-micro {
   display: inherit !important;
 }
 
-@media (max-width: 979px) {
-  .hidden-desktop {
-    display: inherit !important;
-  }
-}
-
-.help-msg[title] {
-  cursor: help;
-}
-
-/* Revert some changes introduced in 2.1.0 */
-
-h6 {
-  color: #A4A4A4;
-  margin: 0px 0.5em;
-  text-transform: uppercase;
-}
-
 .breadcrumb {
   background-color: #FBFBFB;
   background-image: -moz-linear-gradient(center top , #FFFFFF, #F5F5F5);
@@ -506,6 +530,105 @@ h6 {
   list-style: none outside none;
   margin: 0 0 18px;
   padding: 7px 14px;
+}
+
+@media (max-width: 979px) {
+  .hidden-desktop {
+    display: inherit !important;
+  }
+}
+
+@media (min-width: 979px) and (max-width: 1199px) {
+  .main-nav ul {
+    background-color: red;
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  #logo, #usermenu, #breadcrumbbar {
+    float: left;
+  }
+    
+  #searchbox {
+    float: left;
+    margin-right: 10px;
+  }
+
+  .breadcrumb {
+    margin-top: 7px;
+  }
+
+  .comment-meta {
+    margin-bottom: 5px;
+  }
+
+  .comment-meta .id,
+  .comment-meta .date {
+    text-align: right;
+  }
+
+  .sticky {
+    width: 100%;
+    position: relative;
+    left: 0px;
+    padding-left: 29px; 
+  }
+
+  #belowStatus {
+    margin-top: 5px;
+  }
+
+  .ticket .properties div[class*="span"] {
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  #changelog .change .span2 {
+    float: left;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  h1 {
+    font-size: 30px;
+    margin-bottom: 0px;
+    line-height: 1;
+  }
+
+  .container:first-child {
+    border-left: 0px solid white;
+    border-right: 0px solid white;
+    padding: 0px;
+  }
+
+  header, #belowStatus, #mobile-activity,
+  #stickyStatus, #footer-container {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .ownership {
+    padding-left: 15px;
+  }
+}
+
+/* Revert some changes introduced in 2.1.0 */
+
+h6 {
+  color: #A4A4A4;
+  margin: 0px 0.5em;
+  text-transform: uppercase;
 }
 
 /* @end */
@@ -679,34 +802,116 @@ endColorstr='#ffe6e6e6', GradientType=0);
 
 /* @group Sticky Status */
 
-[class*="span"].stickyStatus {
-  margin-left: 0px;
+#stickyStatus {
+  position: relative;
+  background-color: white;
+  z-index: 20;
 }
 
-.stickyStatus.affix {
-  background-color: #FFFFFF;
-  border-bottom: 2px solid #A4A4A4;
-  position: fixed;
+/*  The box-shadow overhanging to the left and right are hacks only.
+    We should look for a better solution for production code. */
+#stickyStatus.sticky {
+  position: fixed !important;
   top: 0px;
-  z-index: 1024;
+  opacity: 1;
+  background-color: rgb(93%, 93%, 93%);
+
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid rgba(75%, 75%, 75%, 0.5);
+
+  -webkit-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+                     -20px 0px 0px rgb(93%, 93%, 93%),
+                      20px 0px 0px rgb(93%, 93%, 93%);
+     -moz-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+                     -20px 0px 0px rgb(93%, 93%, 93%),
+                      20px 0px 0px rgb(93%, 93%, 93%);
+          box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+                     -20px 0px 0px rgb(93%, 93%, 93%),
+                      20px 0px 0px rgb(93%, 93%, 93%);
+
+  -webkit-transition: all 0.3s ease-out;
+     -moz-transition: all 0.3s ease-out;
+       -o-transition: all 0.3s ease-out;
+      -ms-transition: all 0.3s ease-out;
+          transition: all 0.3s ease-out;
+}
+
+#belowStatus {
+  position: relative;
+  margin-top: 20px;
+}
+
+.offsetSticky {
+  height: 130px;
+}
+
+#stickyStatus h2,
+#stickyStatus ul {
+	margin-bottom: 3px;
+}
+
+#stickyStatus h2 {
+	line-height: 30px;
+}
+
+.local-nav {
+	display: inline-block;
+	margin-left: 0;
+}
+
+.ownership {
+	padding-left: 25px;
+}
+
+#description {
+	margin-top: 10px;
+}
+
+.comment {
+	border-top: 1px solid rgb(80%, 80%, 80%);
+	margin-bottom: 10px;
+	padding-top: 5px;
+}
+
+.comment-meta {
+		overflow: hidden;
+}
+
+.comment-meta .id,
+.comment-meta .date {
+	float: right;
+	color: #888;
+	font-size: 90%;
+}
+
+.comment-meta span:first-child {
+	font-weight: 700;
+}
+
+.add-comment textarea {
+	height: 100px;
+	border: 1px solid #eee;
+	color: lightgray;
+	display: block;
 }
 
 /* @end */
 
 /* @group Wiki Tables */
 
-TABLE.wiki {
+table.wiki {
   border: 1px solid #CCCCCC;
   border-collapse: collapse;
   border-spacing: 0;
 }
 
-TABLE.wiki td {
+table.wiki td {
   border: 1px solid #CCCCCC;
   padding: 0.1em 0.25em;
 }
 
-TABLE.wiki th {
+table.wiki th {
   border: 1px solid #BBBBBB;
   padding: 0.1em 0.25em;
   background-color: #F7F7F7;

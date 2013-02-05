@@ -20,7 +20,7 @@
 import unittest
 from bhsearch.web_ui import RequestParameters
 import os
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 
 from bhsearch.whoosh_backend import WhooshBackend
 from trac.test import EnvironmentStub, Mock, MockPerm

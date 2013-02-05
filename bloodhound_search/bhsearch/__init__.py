@@ -35,3 +35,4 @@ except Exception, exc:
 #    raise
     msg = "Exception %s raised: '%s'" % (exc.__class__.__name__, str(exc))
 
+BHSEARCH_CONFIG_SECTION = "bhsearch"

@@ -23,6 +23,7 @@ from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE, \
     IDocIndexPreprocessor, IResultPostprocessor, IndexFields, \
     IQueryPreprocessor
 import os
+from bhsearch.search_resources.ticket_search import TicketFields
 from trac.core import Component, implements, TracError
 from trac.config import Option
 from trac.util.text import empty
@@ -162,7 +163,6 @@ class WhooshBackend(Component):
               query,
               sort = None,
               fields = None,
-              boost = None,
               filter = None,
               facets = None,
               pagenum = 1,
@@ -359,8 +359,8 @@ class WhooshEmptyFacetErrorWorkaround(Component):
 
     should_not_be_empty_fields = [
         IndexFields.STATUS,
-        IndexFields.MILESTONE,
-        IndexFields.COMPONENT,
+        TicketFields.MILESTONE,
+        TicketFields.COMPONENT,
     ]
 
     #IDocIndexPreprocessor methods

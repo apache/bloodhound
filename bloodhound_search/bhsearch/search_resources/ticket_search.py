@@ -19,21 +19,41 @@
 #  under the License.
 
 r"""Ticket specifics for Bloodhound Search plugin."""
+from bhsearch import BHSEARCH_CONFIG_SECTION
 from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
     IIndexParticipant, IndexFields
-from bhsearch.search_resources.base import BaseIndexer
+from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from genshi.builder import tag
 from trac.ticket.api import ITicketChangeListener
 from trac.ticket import Ticket
 from trac.ticket.query import Query
-from trac.config import ListOption
-from trac.core import implements, Component
+from trac.config import ListOption, Option
+from trac.core import implements
 
 TICKET_TYPE = u"ticket"
-TICKET_STATUS = u"status"
+
+class TicketFields(IndexFields):
+    SUMMARY = "summary"
+    MILESTONE = 'milestone'
+    COMPONENT = 'component'
+    KEYWORDS = "keywords"
+    RESOLUTION = "resolution"
+    CHANGES = 'changes'
 
 class TicketIndexer(BaseIndexer):
     implements(ITicketChangeListener, IIndexParticipant)
+
+    optional_fields = {
+        'component': TicketFields.COMPONENT,
+        'description': TicketFields.CONTENT,
+        'keywords': TicketFields.KEYWORDS,
+        'milestone': TicketFields.MILESTONE,
+        'summary': TicketFields.SUMMARY,
+        'status': TicketFields.STATUS,
+        'resolution': TicketFields.RESOLUTION,
+        'reporter': TicketFields.AUTHOR,
+    }
+
 
     #ITicketChangeListener methods
     def ticket_created(self, ticket):
@@ -75,28 +95,17 @@ class TicketIndexer(BaseIndexer):
     def build_doc(self, trac_doc):
         ticket = trac_doc
         doc = {
-            IndexFields.ID: unicode(ticket.id),
+            IndexFields.ID: str(ticket.id),
             IndexFields.TYPE: TICKET_TYPE,
             IndexFields.TIME: ticket.time_changed,
             }
-        fields = [
-            ('component',),
-              ('description',IndexFields.CONTENT),
-              ('keywords',),
-              ('milestone',),
-              ('summary',),
-              ('status', TICKET_STATUS),
-              ('resolution',),
-              ('reporter',IndexFields.AUTHOR),
-        ]
-        for f in fields:
-            if f[0] in ticket.values:
-                if len(f) == 1:
-                    doc[f[0]] = ticket.values[f[0]]
-                elif len(f) == 2:
-                    doc[f[1]] = ticket.values[f[0]]
-        doc['changes'] = u'\n\n'.join([x[4] for x in ticket.get_changelog()
-                                       if x[2] == u'comment'])
+
+        for field, index_field in self.optional_fields.iteritems():
+            if field in ticket.values:
+                doc[index_field] = ticket.values[field]
+
+        doc[TicketFields.CHANGES] = u'\n\n'.join(
+            [x[4] for x in ticket.get_changelog() if x[2] == u'comment'])
         return doc
 
     def get_entries_for_index(self):
@@ -111,12 +120,40 @@ class TicketIndexer(BaseIndexer):
         return query.execute()
 
 
-class TicketSearchParticipant(Component):
+class TicketSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
 
-    default_facets = ListOption('bhsearch', 'default_facets_ticket',
-                            'status,milestone,component',
-        doc="""Default facets applied to search through tickets""")
+    default_facets = [
+        TicketFields.STATUS,
+        TicketFields.MILESTONE,
+        TicketFields.COMPONENT,
+        ]
+    default_grid_fields = [
+        TicketFields.ID,
+        TicketFields.SUMMARY,
+        TicketFields.STATUS,
+        TicketFields.MILESTONE,
+        TicketFields.COMPONENT,
+        ]
+    prefix = TICKET_TYPE
+
+    default_facets = ListOption(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_facets',
+        default=",".join(default_facets),
+        doc="""Default facets applied to search view of specific resource""")
+
+    default_view = Option(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_view',
+        doc = """If true, show grid as default view for specific resource in
+            Bloodhound Search results""")
+
+    default_grid_fields = ListOption(
+        BHSEARCH_CONFIG_SECTION,
+        prefix + '_default_grid_fields',
+        default = ",".join(default_grid_fields),
+        doc="""Default fields for grid view for specific resource""")
 
     #ISearchParticipant members
     def get_search_filters(self, req=None):
@@ -126,22 +163,19 @@ class TicketSearchParticipant(Component):
     def get_title(self):
         return "Ticket"
 
-    def get_default_facets(self):
-        return self.default_facets
-
     def format_search_results(self, res):
-        if not TICKET_STATUS in res:
+        if not TicketFields.STATUS in res:
             stat = 'undefined_status'
             css_class = 'undefined_status'
         else:
-            css_class = res[TICKET_STATUS]
-            if res[TICKET_STATUS] == 'closed':
+            css_class = res[TicketFields.STATUS]
+            if res[TicketFields.STATUS] == 'closed':
                 resolution = ""
                 if 'resolution' in res:
                     resolution = res['resolution']
                 stat = '%s: %s' % (res['status'], resolution)
             else:
-                stat = res[TICKET_STATUS]
+                stat = res[TicketFields.STATUS]
 
         id = tag(tag.span('#'+res['id'], class_=css_class))
         return id + ': %s (%s)' % (res['summary'], stat)

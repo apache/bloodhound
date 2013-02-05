@@ -20,7 +20,7 @@
 import unittest
 import tempfile
 
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
 from trac.test import EnvironmentStub

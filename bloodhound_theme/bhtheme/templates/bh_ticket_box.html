@@ -36,66 +36,75 @@ Arguments:
      xmlns:i18n="http://genshi.edgewall.org/i18n"
      id="ticket" class="${'ticketdraft' if preview_mode else None}">
 
-  <py:def function="render_fields_row(fields_row, csscls, fontsize, is_inline)">
-    <div class="row">
-      <div py:for="idx, field in enumerate(fields_row)" py:if="field is not None"
-          class="$csscls${' enum' if is_inline else None}" >
-        <div class="row" py:strip="not is_inline">
-          <div class="span2" py:strip="not is_inline">
-            <h5 id="${'h_' + field.name if field else None}"
-                class="${'pull-right' if is_inline else None}">
-              <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
-            </h5>
-          </div>
-          <div class="${'span2' if is_inline else None}" data-edit="inplace" 
-              id="${'vc-' + field.name if field else None}">
-            <py:if test="field">
-              <py:choose test="">
-                <py:when test="'rendered' in field">${field.rendered}</py:when>
-                <py:otherwise>${ticket[field.name]}</py:otherwise>
-              </py:choose>
-            </py:if>
-            &nbsp;
+  <py:def function="render_fields_row(fields_row, fontsize, is_inline)">
+    <py:for each="idx, field in enumerate(fields_row)">
+      <py:if test="field is not None">
+        <div class="span4">
+          <div class="row">
+            <div class="span2">
+              <h5 id="${'h_' + field.name if field else None}" class="pull-right">
+                <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
+              </h5>
+            </div>
+            <div class="span2" data-edit="${'inplace' if (field and field.name != 'status') else None}" id="${'vc-' + field.name if field else None}">
+              <py:if test="field">
+                <py:choose test="">
+                  <py:when test="'rendered' in field">${field.rendered}</py:when>
+                  <py:otherwise>${ticket[field.name]}</py:otherwise>
+                </py:choose>
+              </py:if>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </py:if>
+    </py:for>
   </py:def>
 
-  <py:with vars="basefields = [f for f in fields if not f.skip and f.name not in ('type', 'owner', 'keywords')];
+
+  <!--!
+        Todo: ticket status and type are included here and thrown out of
+        bh_ticket view. The resolution field is still missing, and all of
+        this should probably be consolidated into the ticket widget itself,
+        instead of this code (i.e., status, type and resolution should not
+        be marked as .skip)
+  -->
+  <py:with vars="basefields = [f for f in fields if (f.name == 'status' or f.name == 'type' or not f.skip)
+                               and f.name not in ('owner', 'keywords')];
       small_fields = [f for f in basefields if f.type not in ('text', 'textarea') and f.name != 'cc'];
-      text_fields = [f for f in basefields if f.type == 'text' or f.name == 'cc'];
+      text_fields = [f for f in basefields if (f.type == 'text' and f.name != 'type') or f.name == 'cc'];
       area_fields = [f for f in basefields if f.type == 'textarea'];
       _colcount = colcount or 6">
-    <div class="properties" style="margin-bottom: 1.2em">
-      <py:with vars="_fields, csscls, count, fontsize, is_inline = 
-          (small_fields, 'span4', _colcount / 2, None, True)">
-        <py:for each="fields_row in group(_fields, count)">
-          ${render_fields_row(fields_row, csscls, fontsize, is_inline)}
-        </py:for>
+    <div class="properties">
+      <py:with vars="_fields, count = (small_fields, _colcount / 2)">
+        <div py:for="fields_row in group(_fields, count)" class="row">
+          ${render_fields_row(fields_row, None, True)}
+        </div>
       </py:with>
     </div>
-    <div class="${'well' if not preview_mode else None}">
-      <!--! use a placeholder if it's a new ticket -->
-      <py:for each="field in fields">
-        <py:if test="field.name == 'keywords'">
-          <div title="Keywords">
-            <i class="icon-tags"></i>
-            <span data-edit="${'inplace' if can_modify or can_edit or can_create else None}" id="vc-keywords">${field.rendered}</span>
-          </div>
-        </py:if>
-      </py:for>
 
-      <div class="description">
-        <h5 id="comment:description">
-          Description
-          <span py:if="description_change" class="lastmod pull-right"
-              title="$description_change.date">
-            <i18n:msg params="author">(last modified by ${authorinfo(description_change.author)})</i18n:msg>
-            (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
-          </span>
-        </h5>
- 
+    <div class="clearboth"></div>
+
+    <!--! use a placeholder if it's a new ticket -->
+    <py:for each="field in fields">
+      <py:if test="field.name == 'keywords'">
+        <div title="Keywords" class="keywords">
+          <i class="icon-tags"></i>
+          <span data-edit="${'inplace' if can_modify or can_edit or can_create else None}" id="vc-keywords">${field.rendered}</span>
+        </div>
+      </py:if>
+    </py:for>
+
+
+    <div class="description">
+      <h5 id="comment:description">
+        Description
+        <span py:if="description_change" class="lastmod pull-right"
+            title="$description_change.date">
+          <i18n:msg params="author">(last modified by ${authorinfo(description_change.author)})</i18n:msg>
+          (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
+        </span>
+      </h5>
+
         <!--! Quote the description (only for existing tickets) -->
         <div class="pull-right">
           <form py:if="ticket.exists and ticket.description and can_append"
@@ -110,17 +119,16 @@ Arguments:
           <py:if test="ticket.description">
             ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
           </py:if>
-        </div>
-        <br py:if="not ticket.description" style="clear: both" />
       </div>
+      <br py:if="not ticket.description" style="clear: both" />
     </div>
-    <div class="properties" style="margin-top: 1.2em">
-      <py:for each="_fields, csscls, count, fontsize, is_inline in 
-          [(text_fields, 'span4', _colcount / 2, None, False),
-           (area_fields, colspan, 1, None, False)]">
-        <py:for each="fields_row in group(_fields, count)">
-          ${render_fields_row(fields_row, csscls, fontsize, is_inline)}
-        </py:for>
+
+    <div class="properties">
+      <py:for each="_fields, count in 
+          [(text_fields, _colcount / 2), (area_fields, colspan, 1)]">
+        <div py:for="fields_row in group(_fields, count)" class="row">
+          ${render_fields_row(fields_row, None, False)}
+        </div>
       </py:for>
     </div>
   </py:with>

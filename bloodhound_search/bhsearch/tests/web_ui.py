@@ -23,7 +23,7 @@ import shutil
 
 from urllib import urlencode, unquote
 
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.web_ui import RequestParameters
 from bhsearch.whoosh_backend import WhooshBackend
 
@@ -39,9 +39,7 @@ DEFAULT_DOCS_PER_PAGE = 10
 
 class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(enable=['trac.*', 'bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
-
+        super(WebUiTestCaseWithWhoosh, self).setUp(['trac.*', 'bhsearch.*'])
         whoosh_backend = WhooshBackend(self.env)
         whoosh_backend.recreate_index()
 
@@ -61,10 +59,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.redirect_url = url
         self.redirect_permanent = permanent
         raise RequestDone
-
-    def tearDown(self):
-        shutil.rmtree(self.env.path)
-        self.env.reset_db()
 
     def test_can_process_empty_request(self):
         data = self.process_request()
@@ -440,6 +434,86 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         quick_jump_data = data["quickjump"]
         self.assertEqual('T1 (new)', quick_jump_data["description"])
         self.assertEqual('/main/ticket/1', quick_jump_data["href"])
+
+
+    def test_that_ticket_search_can_return_in_grid(self):
+        #arrange
+        self.env.config.set(
+            'bhsearch',
+            'ticket_is_grid_view_default',
+            'True')
+        self.env.config.set(
+            'bhsearch',
+            'ticket_default_grid_fields',
+            'id,status,milestone,component')
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.VIEW] = "grid"
+        data = self.process_request()
+        #assert
+        grid_data = data["headers"]
+        self.assertIsNotNone(grid_data)
+        fields = [column["name"] for column in grid_data]
+        self.assertEquals(["id", "status", "milestone", "component"], fields)
+
+    def test_that_grid_is_switched_off_by_default(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        self.assertNotIn("headers", data)
+        self.assertNotIn("view", data)
+
+    def test_that_grid_is_switched_off_by_default_for_ticket(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        data = self.process_request()
+        #assert
+        self.assertNotIn("headers", data)
+        self.assertNotIn("view", data)
+
+
+    def test_can_returns_all_views(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        all_views = data["all_views"]
+        free_view = all_views[0]
+        self.assertTrue(free_view["is_active"])
+        self.assertNotIn("view=", free_view["href"])
+        grid = all_views[1]
+        self.assertFalse(grid["is_active"])
+        self.assertIn("view=grid", grid["href"])
+
+    def test_that_active_view_is_not_set_if_not_requested(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        self.assertNotIn("active_view", data)
+
+    def test_that_active_view_is_set_if_requested(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.VIEW] = "grid"
+        data = self.process_request()
+        #assert
+        self.assertEqual("grid", data["active_view"])
+
 
     def _count_parameter_in_url(self, url, parameter_name, value):
         parameter_to_find = (parameter_name, value)
