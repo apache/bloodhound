@@ -125,7 +125,7 @@ Arguments:
 
     <div class="properties">
       <py:for each="_fields, count in 
-          [(text_fields, _colcount / 2), (area_fields, colspan, 1)]">
+          [(text_fields, _colcount / 2), (area_fields, colspan)]">
         <div py:for="fields_row in group(_fields, count)" class="row">
           ${render_fields_row(fields_row, None, False)}
         </div>
