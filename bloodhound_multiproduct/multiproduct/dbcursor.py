@@ -107,6 +107,10 @@ class BloodhoundConnectionWrapper(object):
         BloodhoundIterableCursor.set_env(self.env)
         return self.connection.executemany(query, params=params)
 
+    def cursor(self):
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.connection.cursor()
+
 class ProductEnvContextManager(object):
     """Wrap an underlying database context manager so as to keep track
     of (nested) product context.
