@@ -553,13 +553,13 @@ input[type="submit"].btn.btn-micro {
   #logo, #usermenu, #breadcrumbbar {
     float: left;
   }
-    
+
   #searchbox {
     float: left;
     margin-right: 10px;
   }
 
-  .breadcrumb {
+  #mainnav {
     margin-top: 7px;
   }
 
@@ -609,7 +609,7 @@ input[type="submit"].btn.btn-micro {
   .container:first-child {
     border-left: 0px solid white;
     border-right: 0px solid white;
-    padding: 0px;
+    padding: 0px 4px;
   }
 
   header, #belowStatus, #mobile-activity,
