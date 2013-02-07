@@ -202,7 +202,7 @@ class MultiProductSystem(Component):
     def get_select_fields(self):
         """Product select fields"""
         return [(35, {'name': 'product', 'label': N_('Product'),
-                      'cls': Product, 'pk': 'prefix', 'optional': True})]
+                      'cls': Product, 'pk': 'prefix', 'optional': False})]
 
     def get_radio_fields(self):
         """Product radio fields"""
