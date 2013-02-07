@@ -67,6 +67,10 @@ body {
   display: none
 }
 
+.nav-header-selected {
+  color: #b94a48;
+}
+
 /* @end */
 
 /* @group Heading anchors */
@@ -581,12 +585,6 @@ input[type="submit"].btn.btn-micro {
 
   #belowStatus {
     margin-top: 5px;
-  }
-
-  .ticket .properties div[class*="span"] {
-    float: left;
-    margin-left: 10px;
-    margin-right: 10px;
   }
 
   #changelog .change .span2 {

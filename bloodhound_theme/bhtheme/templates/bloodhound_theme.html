@@ -28,6 +28,7 @@
   <py:match path="head" once="true"><head>
     <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
     <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
+    <meta py:if="responsive_layout" name="viewport" content="width=device-width, initial-scale=1.0" />
     <title py:with="title = list(select('title/text()'))" py:choose="">
       <py:when test="title">${title}</py:when>
       <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>

@@ -49,7 +49,6 @@
         #activity h3 { display: inherit !important; }
       }
     </style>
-    <meta py:if="responsive_layout" name="viewport" content="width=device-width, initial-scale=1.0" />
     <title py:choose="">
       <py:when test="ticket.exists">#${ticket.id} (${ticket.summary})</py:when>
       <py:otherwise>New Ticket</py:otherwise>
@@ -337,8 +336,9 @@
                     <div class="span4">
                       <div class="row">
                         <div class="span2">
-                          <h5 id="h_reporter" class="pull-right">
-                            Reporter:
+                          <h5 id="h_reporter">
+                            <span class="hidden-phone pull-right">Reporter:</span>
+                            <span class="visible-phone">Reporter:</span>
                           </h5>
                         </div>
                         <div class="span2" id="vc-reporter" data-edit="${'inplace' if only_for_admin else None}">
