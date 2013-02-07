@@ -373,6 +373,11 @@ class QuickCreateTicketDialog(Component):
             all_fields = dict([f['name'], f] \
                               for f in tm._prepare_fields(fakereq, ticket) \
                               if f['type'] == 'select')
+
+            product_field = all_fields['product'];
+            if product_field and self.env.product:
+                product_field['value'] = self.env.product.prefix
+
             data['qct'] = {'fields': [all_fields[k] for k in self.qct_fields
                                       if k in all_fields]}
         return template, data, content_type
