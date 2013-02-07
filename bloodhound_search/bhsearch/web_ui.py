@@ -43,8 +43,6 @@ from trac.wiki.formatter import extract_link
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
 DEFAULT_RESULTS_PER_PAGE = 10
-DEFAULT_SORT = [(SCORE, ASC), ("time", DESC)]
-#VIEW_GRID = "grid"
 
 class RequestParameters(object):
     """
@@ -59,6 +57,7 @@ class RequestParameters(object):
     PAGELEN = "pagelen"
     FILTER_QUERY = "fq"
     VIEW = "view"
+    SORT = "sort"
 
     def __init__(self, req):
         self.req = req
@@ -76,14 +75,14 @@ class RequestParameters(object):
         self.filter_queries = self._remove_possible_duplications(
             self.filter_queries)
 
-        #TODO: retrieve sort from query string
-        self.sort = DEFAULT_SORT
+        sort_string = req.args.getfirst(self.SORT)
+        self.sort = self._parse_sort(sort_string)
 
         self.pagelen = int(req.args.getfirst(
             RequestParameters.PAGELEN,
             DEFAULT_RESULTS_PER_PAGE))
         self.page = int(req.args.getfirst(self.PAGE, '1'))
-        self.type = req.args.getfirst(self.TYPE, None)
+        self.type = req.args.getfirst(self.TYPE)
 
         self.params = {
             RequestParameters.FILTER_QUERY: []
@@ -103,6 +102,42 @@ class RequestParameters(object):
             self.params[self.TYPE] = self.type
         if self.filter_queries:
             self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
+        if sort_string:
+            self.params[RequestParameters.SORT] = sort_string
+
+    def _parse_sort(self, sort_string):
+        if not sort_string:
+            return None
+        sort_terms = sort_string.split(",")
+        sort = []
+
+        def parse_sort_order(sort_order):
+            sort_order = sort_order.lower()
+            if sort_order == ASC:
+                return ASC
+            elif sort_order == DESC:
+                return DESC
+            else:
+                raise TracError(
+                    "Invalid sort order %s in sort parameter %s" %
+                    (sort_order, sort_string))
+
+        for term in sort_terms:
+            term = term.strip()
+            if not term:
+                continue
+            term_parts = term.split()
+            parts_count = len(term_parts)
+            if parts_count == 1:
+                sort.append((term_parts[0], ASC))
+            elif parts_count == 2:
+                sort.append((term_parts[0], parse_sort_order(term_parts[1])))
+            else:
+                raise TracError("Invalid sort term %s " % term)
+
+        return sort if sort else None
+
+
 
     def _remove_possible_duplications(self, parameters_list):
         seen = set()
@@ -169,8 +204,8 @@ class BloodhoundSearchModule(Component):
         DATA_VIEW_GRID: "Grid"
     }
     VIEWS_WITH_KNOWN_FIELDS = [DATA_VIEW_GRID]
-
     OBLIGATORY_FIELDS_TO_SELECT = [IndexFields.ID, IndexFields.TYPE]
+    DEFAULT_SORT = [(SCORE, ASC), ("time", DESC)]
 
     implements(INavigationContributor, IPermissionRequestor, IRequestHandler,
         ITemplateProvider,
@@ -261,12 +296,14 @@ class BloodhoundSearchModule(Component):
 
         facets = self._prepare_facets(parameters, allowed_participants)
 
+        sort = parameters.sort if parameters.sort else self.DEFAULT_SORT
+
         query_system = BloodhoundSearchApi(self.env)
         query_result = query_system.query(
             parameters.query,
             pagenum=parameters.page,
             pagelen=parameters.pagelen,
-            sort=parameters.sort,
+            sort=sort,
             fields=fields,
             facets=facets,
             filter=query_filter,
@@ -301,6 +338,7 @@ class BloodhoundSearchModule(Component):
             add_link(req, 'prev', prev_href, _('Previous Page'))
 
         data['results'] = results
+        data['debug'] = query_result.debug
 
         self._prepare_result_facet_counts(
             parameters,
@@ -572,7 +610,8 @@ class BloodhoundSearchModule(Component):
         ui_doc["href"] = req.href(doc['type'], doc['id'])
         #todo: perform content adaptation here
         if doc.has_key('content'):
-            ui_doc['excerpt'] = shorten_result(doc['content'])
+#            ui_doc['excerpt'] = shorten_result(doc['content'])
+            ui_doc['content'] = shorten_result(doc['content'])
         if doc.has_key('time'):
             ui_doc['date'] = user_time(req, format_datetime, doc['time'])
 

@@ -245,6 +245,7 @@ class BloodhoundSearchApi(Component):
         for post_processor in self.result_post_processors:
             post_processor.post_process(query_result)
 
+        query_result.debug["api_parameters"] = query_parameters
         return query_result
 
 

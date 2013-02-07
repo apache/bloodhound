@@ -19,25 +19,21 @@
 #  under the License.
 import shutil
 import unittest
-import tempfile
 
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.query_parser import DefaultQueryParser
-from bhsearch.tests.utils import BaseBloodhoundSearchTest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
 from bhsearch.search_resources.wiki_search import (
     WikiIndexer, WikiSearchParticipant)
 
-from trac.test import EnvironmentStub
 from trac.wiki import WikiSystem, WikiPage
 
 
 class WikiIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(
-            enable=['bhsearch.*'],
-            path=tempfile.mkdtemp('bhsearch-tempenv'),
-        )
+        super(WikiIndexerSilenceOnExceptionTestCase, self).setUp()
+        self.env.config.set('bhsearch', 'silence_on_error', "True")
         self.wiki_indexer = WikiIndexer(self.env)
 
     def tearDown(self):
@@ -57,9 +53,7 @@ class WikiIndexerEventsTestCase(BaseBloodhoundSearchTest):
     DUMMY_PAGE_NAME = "dummyName"
 
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
-        self.env.config.set('bhsearch', 'silence_on_error', "False")
+        super(WikiIndexerEventsTestCase, self).setUp()
         self.wiki_system = WikiSystem(self.env)
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()

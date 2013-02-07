@@ -19,7 +19,6 @@
 #  under the License.
 
 import unittest
-import tempfile
 import shutil
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.search_resources.milestone_search import MilestoneIndexer
@@ -27,13 +26,11 @@ from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
 from bhsearch.whoosh_backend import WhooshBackend
-from trac.test import EnvironmentStub
 
 
 class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
+        super(IndexWhooshTestCase, self).setUp()
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)

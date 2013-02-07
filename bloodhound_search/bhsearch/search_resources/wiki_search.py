@@ -114,7 +114,8 @@ class WikiSearchParticipant(BaseSearchParticipant):
     default_grid_fields = [
         IndexFields.ID,
         IndexFields.TIME,
-        IndexFields.AUTHOR
+        IndexFields.AUTHOR,
+        IndexFields.CONTENT,
     ]
     prefix = WIKI_TYPE
 
