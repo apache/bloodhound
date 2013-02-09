@@ -23,7 +23,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-DESC = """Project dashboard for Apache(TM) Bloodhound
+DESC = """Project dashboard for Apache(TM) Bloodhound.
 
 Add custom dashboards in multiple pages of Bloodhound sites.
 """
@@ -131,6 +131,9 @@ setup(
     name=DIST_NM,
     version=latest,
     description=DESC.split('\n', 1)[0],
+    author = "Apache Bloodhound",
+    license = "Apache License v2",
+    url = "http://incubator.apache.org/bloodhound/",
     requires = ['trac'],
     tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
     install_requires = [
