@@ -107,6 +107,43 @@
       </form>
 
       <py:otherwise>
+        <div py:if="'MILESTONE_CREATE' in req.perm" class="row">
+          <div class="span9">
+            <form class="well form-horizontal" id="addmilestone" method="post" action="">
+              <fieldset>
+                <legend>Add Milestone</legend>
+                <div class="control-group">
+                  <label class="control-label" for="name">Milestone Name</label>
+                  <div class="controls">
+                    <input type="text" name="name" id="name" class="input-xlarge" />
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="duedate">Due Date</label>
+                  <div class="controls">
+                    <input type="text" id="duedate"
+                        name="duedate" size="${len(datetime_hint)}"
+                        class="input-xlarge"
+                        placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <div class="controls">
+                    <input class="btn" type="submit" name="add" value="${_('Add')}" />
+                  </div>
+
+                  <p class="help-block">
+                    <span class="label label-info">Hint</span>
+                    <i18n:msg params="datehint">Format: $datetime_hint</i18n:msg>
+                  </p>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+
         <div class="row">
           <div class="span9">
             <py:choose>
@@ -163,43 +200,6 @@
                 will remain completely hidden from the user interface.
               </p>
             </py:choose>
-          </div>
-        </div>
-
-        <div py:if="'MILESTONE_CREATE' in req.perm" class="row">
-          <div class="span9">
-            <form class="well form-horizontal" id="addmilestone" method="post" action="">
-              <fieldset>
-                <legend>Add Milestone</legend>
-                <div class="control-group">
-                  <label class="control-label" for="name">Milestone Name</label>
-                  <div class="controls">
-                    <input type="text" name="name" id="name" class="input-xlarge" />
-                  </div>
-                </div>
-
-                <div class="control-group">
-                  <label class="control-label" for="duedate">Due Date</label>
-                  <div class="controls">
-                    <input type="text" id="duedate"
-                        name="duedate" size="${len(datetime_hint)}"
-                        class="input-xlarge"
-                        placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
-                  </div>
-                </div>
-
-                <div class="control-group">
-                  <div class="controls">
-                    <input class="btn" type="submit" name="add" value="${_('Add')}" />
-                  </div>
-
-                  <p class="help-block">
-                    <span class="label label-info">Hint</span>
-                    <i18n:msg params="datehint">Format: $datetime_hint</i18n:msg>
-                  </p>
-                </div>
-              </fieldset>
-            </form>
           </div>
         </div>
       </py:otherwise>
