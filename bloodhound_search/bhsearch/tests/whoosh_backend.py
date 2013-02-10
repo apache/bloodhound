@@ -495,12 +495,12 @@ class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
         self.assertEquals('(type:ticket AND milestone:aaa)', str(result_filter))
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(WhooshEmptyFacetErrorWorkaroundTestCase,
-        'test'))
-    return suite
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
+    test_suite.addTest(
+        unittest.makeSuite(WhooshEmptyFacetErrorWorkaroundTestCase, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()

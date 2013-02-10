@@ -530,6 +530,16 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertEqual(["T2", "T1", "T3"], ids)
 
 
+    def test_that_title_is_set_for_free_text_view(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        self.assertIn("title", data["results"].items[0])
+
+
     def _count_parameter_in_url(self, url, parameter_name, value):
         parameter_to_find = (parameter_name, value)
         parsed_parameters = parse_arg_list(url)
@@ -597,10 +607,10 @@ class RequestParametersTest(unittest.TestCase):
 
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(WebUiTestCaseWithWhoosh, 'test'))
-    suite.addTest(unittest.makeSuite(RequestParametersTest, 'test'))
-    return suite
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(WebUiTestCaseWithWhoosh, 'test'))
+    test_suite.addTest(unittest.makeSuite(RequestParametersTest, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()

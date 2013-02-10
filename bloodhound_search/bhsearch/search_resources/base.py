@@ -34,6 +34,8 @@ class BaseSearchParticipant(Component):
     default_view = None
     default_grid_fields = None
     default_facets = None
+    participant_type = None
+    required_permission = None
 
     def get_default_facets(self):
         return self.default_facets
@@ -45,3 +47,9 @@ class BaseSearchParticipant(Component):
         if view == "grid":
             return self.default_grid_fields
         return None
+
+    def is_allowed(self, req=None):
+        return (not req or self.required_permission in req.perm)
+
+    def get_participant_type(self):
+        return self.participant_type

@@ -101,8 +101,9 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         return milestone
 
     def process_request(self):
-        response = BloodhoundSearchModule(self.env).process_request(self.req)
-        url, data, x = response
+        # pylint: disable=unused-variable
+        url, data, x = BloodhoundSearchModule(self.env).process_request(
+            self.req)
         print "Received url: %s data:" % url
         pprint(data)
         if data.has_key("results"):

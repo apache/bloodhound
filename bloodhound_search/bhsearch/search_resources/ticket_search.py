@@ -62,6 +62,7 @@ class TicketIndexer(BaseIndexer):
 
     def ticket_changed(self, ticket, comment, author, old_values):
         """Reindex a recently modified ticket."""
+        # pylint: disable=unused-argument
         self._index_ticket(ticket)
 
     def ticket_deleted(self, ticket):
@@ -123,6 +124,9 @@ class TicketIndexer(BaseIndexer):
 class TicketSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
 
+    participant_type = TICKET_TYPE
+    required_permission = 'TICKET_VIEW'
+
     default_facets = [
         TicketFields.STATUS,
         TicketFields.MILESTONE,
@@ -156,10 +160,6 @@ class TicketSearchParticipant(BaseSearchParticipant):
         doc="""Default fields for grid view for specific resource""")
 
     #ISearchParticipant members
-    def get_search_filters(self, req=None):
-        if not req or 'TICKET_VIEW' in req.perm:
-            return TICKET_TYPE
-
     def get_title(self):
         return "Ticket"
 

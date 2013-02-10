@@ -24,15 +24,15 @@ from bhsearch.tests.search_resources import (ticket_search, wiki_search,
                                              milestone_search)
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(index_with_whoosh.suite())
-    suite.addTest(whoosh_backend.suite())
-    suite.addTest(web_ui.suite())
-    suite.addTest(api.suite())
-    suite.addTest(ticket_search.suite())
-    suite.addTest(wiki_search.suite())
-    suite.addTest(milestone_search.suite())
-    return suite
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(index_with_whoosh.suite())
+    test_suite.addTest(whoosh_backend.suite())
+    test_suite.addTest(web_ui.suite())
+    test_suite.addTest(api.suite())
+    test_suite.addTest(ticket_search.suite())
+    test_suite.addTest(wiki_search.suite())
+    test_suite.addTest(milestone_search.suite())
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

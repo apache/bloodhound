@@ -129,11 +129,11 @@ class WikiIndexerEventsTestCase(BaseBloodhoundSearchTest):
         self.assertEqual("version1", results.docs[0]["content"])
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(
         WikiIndexerSilenceOnExceptionTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(WikiIndexerEventsTestCase, 'test'))
-    return suite
+    test_suite.addTest(unittest.makeSuite(WikiIndexerEventsTestCase, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()

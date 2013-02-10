@@ -143,11 +143,12 @@ class MilestoneSearchParticipantTestCase(BaseBloodhoundSearchTest):
         self.assertIsNotNone(default_grid_fields)
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(MilestoneIndexerEventsTestCase, 'test'))
-    suite.addTest(
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(
+        unittest.makeSuite(MilestoneIndexerEventsTestCase, 'test'))
+    test_suite.addTest(
         unittest.makeSuite(MilestoneSearchParticipantTestCase, 'test'))
-    return suite
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()
