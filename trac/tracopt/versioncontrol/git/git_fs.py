@@ -12,7 +12,7 @@
 # individuals. For the exact contribution history, see the revision
 # history and logs, available at http://trac.edgewall.org/log/.
 
-from __future__ import with_statement 
+from __future__ import with_statement
 
 from datetime import datetime
 import os
@@ -199,9 +199,8 @@ class GitConnector(Component):
     git_fs_encoding = Option('git', 'git_fs_encoding', 'utf-8',
         """Define charset encoding of paths within git repositories.""")
 
-    git_bin = PathOption('git', 'git_bin', '/usr/bin/git',
-        """Path to git executable (relative to the Trac configuration folder,
-        so better use an absolute path here).""")
+    git_bin = Option('git', 'git_bin', 'git',
+        """Path to the git executable.""")
 
 
     def get_supported_types(self):
@@ -639,7 +638,7 @@ class GitChangeset(Changeset):
     def __init__(self, repos, sha):
         if sha is None:
             raise NoSuchChangeset(sha)
-        
+
         try:
             msg, props = repos.git.read_commit(sha)
         except PyGIT.GitErrorSha:

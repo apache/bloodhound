@@ -246,15 +246,15 @@ class Storage(object):
         This implementation is what that code generator would produce.
         """
 
-        __slots__ = () 
+        __slots__ = ()
 
         _fields = ('youngest_rev', 'oldest_rev', 'rev_dict', 'tag_set',
-                   'srev_dict', 'branch_dict') 
+                   'srev_dict', 'branch_dict')
 
         def __new__(cls, youngest_rev, oldest_rev, rev_dict, tag_set,
                     srev_dict, branch_dict):
             return tuple.__new__(cls, (youngest_rev, oldest_rev, rev_dict,
-                                 tag_set, srev_dict, branch_dict)) 
+                                 tag_set, srev_dict, branch_dict))
 
         @classmethod
         def _make(cls, iterable, new=tuple.__new__, len=len):
@@ -262,17 +262,17 @@ class Storage(object):
             result = new(cls, iterable)
             if len(result) != 6:
                 raise TypeError('Expected 6 arguments, got %d' % len(result))
-            return result 
+            return result
 
         def __repr__(self):
             return 'RevCache(youngest_rev=%r, oldest_rev=%r, rev_dict=%r, ' \
-                   'tag_set=%r, srev_dict=%r, branch_dict=%r)' % self 
+                   'tag_set=%r, srev_dict=%r, branch_dict=%r)' % self
 
         def _asdict(t):
             """Return a new dict which maps field names to their values"""
             return {'youngest_rev': t[0], 'oldest_rev': t[1],
                     'rev_dict': t[2], 'tag_set': t[3], 'srev_dict': t[4],
-                    'branch_dict': t[5]} 
+                    'branch_dict': t[5]}
 
         def _replace(self, **kwds):
             """Return a new RevCache object replacing specified fields with
@@ -283,10 +283,10 @@ class Storage(object):
             if kwds:
                 raise ValueError("Got unexpected field names: %r"
                                  % kwds.keys())
-            return result 
+            return result
 
         def __getnewargs__(self):
-            return tuple(self) 
+            return tuple(self)
 
         youngest_rev = property(itemgetter(0))
         oldest_rev = property(itemgetter(1))
@@ -578,7 +578,8 @@ class Storage(object):
         """returns list of (local) branches, with active (= HEAD) one being
         the first item
         """
-        return self.rev_cache.branch_dict
+        return ((self._fs_to_unicode(name), sha)
+                for name, sha in self.rev_cache.branch_dict)
 
     def get_commits(self):
         return self.rev_cache.rev_dict
@@ -604,7 +605,8 @@ class Storage(object):
             return []
 
         if resolve:
-            return [(k, v) for k, v in _rev_cache.branch_dict if v in rheads]
+            return ((self._fs_to_unicode(k), v)
+                    for k, v in _rev_cache.branch_dict if v in rheads)
 
         return rheads
 
@@ -655,13 +657,13 @@ class Storage(object):
             try:
                 self.__cat_file_pipe.stdin.write(sha + '\n')
                 self.__cat_file_pipe.stdin.flush()
-            
+
                 split_stdout_line = self.__cat_file_pipe.stdout.readline() \
                                                                .split()
                 if len(split_stdout_line) != 3:
                     raise GitError("internal error (could not split line "
                                    "'%s')" % (split_stdout_line,))
-                    
+
                 _sha, _type, _size = split_stdout_line
 
                 if _type != kind:
@@ -680,12 +682,12 @@ class Storage(object):
                 terminate(self.__cat_file_pipe)
                 self.__cat_file_pipe.wait()
                 self.__cat_file_pipe = None
-        
+
     def verifyrev(self, rev):
         """verify/lookup given revision object and return a sha id or None
         if lookup failed
         """
-        rev = str(rev)
+        rev = self._fs_from_unicode(rev)
 
         _rev_cache = self.rev_cache
 
@@ -769,7 +771,8 @@ class Storage(object):
         return None
 
     def get_tags(self):
-        return [ e.strip() for e in self.repo.tag('-l').splitlines() ]
+        return (self._fs_to_unicode(e.strip())
+                for e in self.repo.tag('-l').splitlines())
 
     def ls_tree(self, rev, path=''):
         rev = rev and str(rev) or 'HEAD' # paranoia

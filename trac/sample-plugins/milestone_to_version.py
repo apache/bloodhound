@@ -6,8 +6,8 @@ from trac.resource import ResourceNotFound
 from trac.ticket.api import IMilestoneChangeListener
 from trac.ticket.model import Version
 
-revision = "$Rev$"
-url = "$URL$"
+revision = "$Rev: 11490 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/milestone_to_version.py $"
 
 
 class MilestoneToVersion(Component):
@@ -56,7 +56,7 @@ class MilestoneToVersion(Component):
             version = Version(self.env)
             version.name = version_name
             version.time = milestone.completed
-            version.insert()             
+            version.insert()
             self.log.info('New version "%s" created from completed milstone '
                           '"%s".' % (version.name, milestone.name))
 

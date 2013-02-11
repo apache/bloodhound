@@ -29,14 +29,16 @@ from trac.config import ConfigSection, ExtensionOption
 from trac.core import *
 from trac.perm import IPermissionRequestor
 from trac.resource import *
-from trac.search import ISearchSource, search_to_sql, shorten_result
+from trac.search import ISearchSource, search_to_regexps, shorten_result
 from trac.util import as_bool
-from trac.util.datefmt import parse_date, utc, to_utimestamp, \
+from trac.util.datefmt import parse_date, utc, to_utimestamp, to_datetime, \
                               get_datetime_format_hint, format_date, \
                               format_datetime, from_utimestamp, user_time
 from trac.util.text import CRLF
 from trac.util.translation import _, tag_
-from trac.ticket import Milestone, Ticket, TicketSystem, group_milestones
+from trac.ticket.api import TicketSystem
+from trac.ticket.model import Milestone, MilestoneCache, Ticket, \
+                              group_milestones
 from trac.timeline.api import ITimelineEventProvider
 from trac.web import IRequestHandler, RequestDone
 from trac.web.chrome import (Chrome, INavigationContributor,
@@ -71,7 +73,7 @@ class TicketGroupStats(object):
         self.done_percent = 0
         self.done_count = 0
 
-    def add_interval(self, title, count, qry_args, css_class, 
+    def add_interval(self, title, count, qry_args, css_class,
                      overall_completion=None):
         """Adds a division to this stats' group's progress bar.
 
@@ -87,7 +89,7 @@ class TicketGroupStats(object):
                                    interval count towards overall
                                    completion of this group of
                                    tickets.
-          
+
         .. versionchanged :: 0.12
            deprecated `countsToProg` argument was removed, use
            `overall_completion` instead
@@ -109,7 +111,7 @@ class TicketGroupStats(object):
         self.done_percent = 0
         self.done_count = 0
         for interval in self.intervals:
-            interval['percent'] = round(float(interval['count'] / 
+            interval['percent'] = round(float(interval['count'] /
                                         float(self.count) * 100))
             total_percent = total_percent + interval['percent']
             if interval['overall_completion']:
@@ -151,7 +153,7 @@ class DefaultTicketGroupStatsProvider(Component):
         //status//, nothing else. In particular, it's not possible to
         distinguish between different closed tickets based on the
         //resolution//.
-        
+
         Example configuration with three groups, //closed//, //new//
         and //active// (the default only has closed and active):
         {{{
@@ -170,12 +172,12 @@ class DefaultTicketGroupStatsProvider(Component):
         # .overall_completion: indicates groups that count for overall
         #                      completion percentage
         closed.overall_completion = true
-        
+
         new = new
         new.order = 1
         new.css_class = new
         new.label = new
-        
+
         # Note: one catch-all group for other statuses is allowed
         active = *
         active.order = 2
@@ -186,17 +188,17 @@ class DefaultTicketGroupStatsProvider(Component):
         # .label: displayed label for this group
         active.label = in progress
         }}}
-        
+
         The definition consists in a comma-separated list of accepted
         status.  Also, '*' means any status and could be used to
         associate all remaining states to one catch-all group.
-        
+
         The CSS class can be one of: new (yellow), open (no color) or
         closed (green). Other styles can easily be added using custom
         CSS rule: `table.progress td.<class> { background: <color> }`
         to a [TracInterfaceCustomization#SiteAppearance site/style.css] file
         for example.
-        
+
         (''since 0.11'')""")
 
     default_milestone_groups =  [
@@ -281,7 +283,7 @@ class DefaultTicketGroupStatsProvider(Component):
                         if '=' in kv]:
                 k, v = [a.strip() for a in arg.split('=', 1)]
                 query_args.setdefault(k, []).append(v)
-            stat.add_interval(group.get('label', group['name']), 
+            stat.add_interval(group.get('label', group['name']),
                               group_cnt, query_args,
                               group.get('css_class', group['name']),
                               as_bool(group.get('overall_completion')))
@@ -306,7 +308,7 @@ def get_tickets_for_milestone(env, db=None, milestone=None, field='component'):
                      ORDER BY %s""" % (field, field)
             args = (milestone,)
         else:
-            sql = """SELECT id, status, value FROM ticket 
+            sql = """SELECT id, status, value FROM ticket
                        LEFT OUTER JOIN ticket_custom ON (id=ticket AND name=%s)
                       WHERE milestone=%s ORDER BY value"""
             args = (field, milestone)
@@ -336,7 +338,7 @@ def milestone_stats_data(env, req, stat, name, grouped_by='component',
 
 def grouped_stats_data(env, stats_provider, tickets, by, per_group_stats_data):
     """Get the `tickets` stats data grouped by ticket field `by`.
-    
+
     `per_group_stats_data(gstat, group_name)` should return a data dict to
     include for the group with field value `group_name`.
     """
@@ -386,7 +388,7 @@ class RoadmapModule(Component):
     stats_provider = ExtensionOption('roadmap', 'stats_provider',
                                      ITicketGroupStatsProvider,
                                      'DefaultTicketGroupStatsProvider',
-        """Name of the component implementing `ITicketGroupStatsProvider`, 
+        """Name of the component implementing `ITicketGroupStatsProvider`,
         which is used to collect statistics on groups of tickets for display
         in the roadmap views.""")
 
@@ -489,7 +491,7 @@ class RoadmapModule(Component):
                     return 'CANCELLED'
             else: return ''
 
-        def escape_value(text): 
+        def escape_value(text):
             s = ''.join(map(lambda c: '\\' + c if c in ';,\\' else c, text))
             return '\\n'.join(re.split(r'[\r\n]+', s))
 
@@ -584,14 +586,14 @@ class MilestoneModule(Component):
     implements(INavigationContributor, IPermissionRequestor, IRequestHandler,
                ITimelineEventProvider, IWikiSyntaxProvider, IResourceManager,
                ISearchSource)
- 
+
     stats_provider = ExtensionOption('milestone', 'stats_provider',
                                      ITicketGroupStatsProvider,
                                      'DefaultTicketGroupStatsProvider',
-        """Name of the component implementing `ITicketGroupStatsProvider`, 
+        """Name of the component implementing `ITicketGroupStatsProvider`,
         which is used to collect statistics on groups of tickets for display
         in the milestone views.""")
-    
+
 
     # INavigationContributor methods
 
@@ -617,22 +619,21 @@ class MilestoneModule(Component):
     def get_timeline_events(self, req, start, stop, filters):
         if 'milestone' in filters:
             milestone_realm = Resource('milestone')
-            for completed, name, description in self.env.db_query("""
-                    SELECT completed, name, description FROM milestone
-                    WHERE completed>=%s AND completed<=%s
-                    """, (to_utimestamp(start), to_utimestamp(stop))):
-                # TODO: creation and (later) modifications should also be
-                #       reported
-                milestone = milestone_realm(id=name)
-                if 'MILESTONE_VIEW' in req.perm(milestone):
-                    yield ('milestone', from_utimestamp(completed),
-                           '', (milestone, description)) # FIXME: author?
+            for name, due, completed, description \
+                    in MilestoneCache(self.env).milestones.itervalues():
+                if completed and start <= completed <= stop:
+                    # TODO: creation and (later) modifications should also be
+                    #       reported
+                    milestone = milestone_realm(id=name)
+                    if 'MILESTONE_VIEW' in req.perm(milestone):
+                        yield ('milestone', completed, '', # FIXME: author?
+                               (milestone, description))
 
             # Attachments
             for event in AttachmentModule(self.env).get_timeline_events(
                 req, milestone_realm, start, stop):
                 yield event
-                
+
     def render_timeline_event(self, context, field, event):
         milestone, description = event[3]
         if field == 'url':
@@ -656,7 +657,7 @@ class MilestoneModule(Component):
     def process_request(self, req):
         milestone_id = req.args.get('id')
         req.perm('milestone', milestone_id).require('MILESTONE_VIEW')
-        
+
         add_link(req, 'up', req.href.roadmap(), _('Roadmap'))
 
         action = req.args.get('action', 'view')
@@ -710,7 +711,7 @@ class MilestoneModule(Component):
 
         old_name = milestone.name
         new_name = req.args.get('name')
-        
+
         milestone.description = req.args.get('description', '')
 
         if 'due' in req.args:
@@ -760,7 +761,7 @@ class MilestoneModule(Component):
 
         if warnings:
             return self._render_editor(req, milestone)
-        
+
         # -- actually save changes
         if milestone.exists:
             milestone.update()
@@ -793,11 +794,12 @@ class MilestoneModule(Component):
 
     def _render_editor(self, req, milestone):
         # Suggest a default due time of 18:00 in the user's timezone
-        default_due = datetime.now(req.tz).replace(hour=18, minute=0, second=0,
-                                                   microsecond=0)
-        if default_due <= datetime.now(utc):
+        now = datetime.now(req.tz)
+        default_due = datetime(now.year, now.month, now.day, 18)
+        if now.hour > 18:
             default_due += timedelta(days=1)
-        
+        default_due = to_datetime(default_due, req.tz)
+
         data = {
             'milestone': milestone,
             'datetime_hint': get_datetime_format_hint(req.lc_time),
@@ -853,7 +855,7 @@ class MilestoneModule(Component):
             'context': context,
             'milestone': milestone,
             'attachments': AttachmentModule(self.env).attachment_data(context),
-            'available_groups': available_groups, 
+            'available_groups': available_groups,
             'grouped_by': by,
             'groups': milestone_groups
             }
@@ -861,7 +863,7 @@ class MilestoneModule(Component):
 
         if by:
             def per_group_stats_data(gstat, group_name):
-                return milestone_stats_data(self.env, req, gstat, 
+                return milestone_stats_data(self.env, req, gstat,
                                             milestone.name, by, group_name)
             milestone_groups.extend(
                 grouped_stats_data(self.env, self.stats_provider, tickets, by,
@@ -923,7 +925,7 @@ class MilestoneModule(Component):
             return tag.a(label, class_='missing milestone', href=href + extra,
                          rel='nofollow')
         return tag.a(label, class_='missing milestone')
-        
+
     # IResourceManager methods
 
     def get_resource_realms(self):
@@ -943,18 +945,17 @@ class MilestoneModule(Component):
         """
         >>> from trac.test import EnvironmentStub
         >>> env = EnvironmentStub()
-        
+
         >>> m1 = Milestone(env)
         >>> m1.name = 'M1'
         >>> m1.insert()
-        
+
         >>> MilestoneModule(env).resource_exists(Resource('milestone', 'M1'))
         True
         >>> MilestoneModule(env).resource_exists(Resource('milestone', 'M2'))
         False
         """
-        return bool(self.env.db_query("""
-                SELECT name FROM milestone WHERE name=%s""", (resource.id,)))
+        return resource.id in MilestoneCache(self.env).milestones
 
     # ISearchSource methods
 
@@ -965,21 +966,20 @@ class MilestoneModule(Component):
     def get_search_results(self, req, terms, filters):
         if not 'milestone' in filters:
             return
-        with self.env.db_query as db:
-            sql_query, args = search_to_sql(db, ['name', 'description'], terms)
-
-            milestone_realm = Resource('milestone')
-            for name, due, completed, description in db("""
-                    SELECT name, due, completed, description FROM milestone
-                    WHERE """ + sql_query, args):
+        term_regexps = search_to_regexps(terms)
+        milestone_realm = Resource('milestone')
+        for name, due, completed, description \
+                in MilestoneCache(self.env).milestones.itervalues():
+            if any(r.search(description) or r.search(name)
+                   for r in term_regexps):
                 milestone = milestone_realm(id=name)
                 if 'MILESTONE_VIEW' in req.perm(milestone):
-                    dt = (from_utimestamp(completed) if completed else
-                          from_utimestamp(due) if due else datetime.now(utc))
+                    dt = (completed if completed else
+                          due if due else datetime.now(utc))
                     yield (get_resource_url(self.env, milestone, req.href),
                            get_resource_name(self.env, milestone), dt,
                            '', shorten_result(description, terms))
-        
+
         # Attachments
         for result in AttachmentModule(self.env).get_search_results(
                 req, milestone_realm, terms):

@@ -259,7 +259,7 @@ class TestTicketCustomFieldTextNoFormat(FunctionalTwillTestCaseSetup):
 
 class TestTicketCustomFieldTextAreaNoFormat(FunctionalTwillTestCaseSetup):
     def runTest(self):
-        """Test custom textarea field with no format explicitly specified, 
+        """Test custom textarea field with no format explicitly specified,
         its contents should be rendered as plain text.
         """
         env = self._testenv.get_trac_environment()
@@ -279,7 +279,7 @@ class TestTicketCustomFieldTextAreaNoFormat(FunctionalTwillTestCaseSetup):
 
 class TestTicketCustomFieldTextWikiFormat(FunctionalTwillTestCaseSetup):
     def runTest(self):
-        """Test custom text field with `wiki` format. 
+        """Test custom text field with `wiki` format.
         Its contents should through the wiki engine, wiki-links and all.
         Feature added in http://trac.edgewall.org/ticket/1791
         """
@@ -303,7 +303,7 @@ class TestTicketCustomFieldTextWikiFormat(FunctionalTwillTestCaseSetup):
 
 class TestTicketCustomFieldTextAreaWikiFormat(FunctionalTwillTestCaseSetup):
     def runTest(self):
-        """Test custom textarea field with no format explicitly specified, 
+        """Test custom textarea field with no format explicitly specified,
         its contents should be rendered as plain text.
         """
         env = self._testenv.get_trac_environment()
@@ -352,7 +352,7 @@ class TestTicketCustomFieldTextReferenceFormat(FunctionalTwillTestCaseSetup):
 
 class TestTicketCustomFieldTextListFormat(FunctionalTwillTestCaseSetup):
     def runTest(self):
-        """Test custom text field with `list` format. 
+        """Test custom text field with `list` format.
         Its contents are treated as a space-separated list of values
         and are rendered as separate auto-query links per word.
         Feature added in http://trac.edgewall.org/ticket/10643
@@ -376,6 +376,58 @@ class TestTicketCustomFieldTextListFormat(FunctionalTwillTestCaseSetup):
         querylink1 = '<a href="/query\?%s">%s</a>' % (query1, word1)
         querylink2 = '<a href="/query\?%s">%s</a>' % (query2, word2)
         querylinks = '%s %s' % (querylink1, querylink2)
+        tc.find('<td headers="h_newfield"[^>]*>\s*%s\s*</td>' % querylinks)
+
+
+class RegressionTestTicket10828(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/10828
+        Rendered property changes should be described as lists of added and
+        removed items, even in the presence of comma and semicolon separators.
+        """
+        env = self._testenv.get_trac_environment()
+        env.config.set('ticket-custom', 'newfield', 'text')
+        env.config.set('ticket-custom', 'newfield.label',
+                       'A Custom Field')
+        env.config.set('ticket-custom', 'newfield.format', 'list')
+        env.config.save()
+
+        self._testenv.restart()
+        ticketid = self._tester.create_ticket(summary=random_sentence(3))
+        self._tester.go_to_ticket(ticketid)
+
+        word1 = random_unique_camel()
+        word2 = random_word()
+        val = "%s %s" % (word1, word2)
+        tc.formvalue('propertyform', 'field-newfield', val)
+        tc.submit('submit')
+        tc.find('<em>%s</em> <em>%s</em> added' % (word1, word2))
+
+        word3 = random_unique_camel()
+        word4 = random_unique_camel()
+        val = "%s,  %s; %s" % (word2, word3, word4)
+        tc.formvalue('propertyform', 'field-newfield', val)
+        tc.submit('submit')
+        tc.find('<em>%s</em> <em>%s</em> added; <em>%s</em> removed'
+                % (word3, word4, word1))
+
+        tc.formvalue('propertyform', 'field-newfield', '')
+        tc.submit('submit')
+        tc.find('<em>%s</em> <em>%s</em> <em>%s</em> removed'
+                % (word2, word3, word4))
+
+        val = "%s %s,%s" % (word1, word2, word3)
+        tc.formvalue('propertyform', 'field-newfield', val)
+        tc.submit('submit')
+        tc.find('<em>%s</em> <em>%s</em> <em>%s</em> added'
+                % (word1, word2, word3))
+        query1 = 'status=!closed&amp;newfield=~%s' % word1
+        query2 = 'status=!closed&amp;newfield=~%s' % word2
+        query3 = 'status=!closed&amp;newfield=~%s' % word3
+        querylink1 = '<a href="/query\?%s">%s</a>' % (query1, word1)
+        querylink2 = '<a href="/query\?%s">%s</a>' % (query2, word2)
+        querylink3 = '<a href="/query\?%s">%s</a>' % (query3, word3)
+        querylinks = '%s %s, %s' % (querylink1, querylink2, querylink3)
         tc.find('<td headers="h_newfield"[^>]*>\s*%s\s*</td>' % querylinks)
 
 
@@ -1004,12 +1056,12 @@ class TestNewReport(FunctionalTwillTestCaseSetup):
                reporter, time AS created,
                changetime AS modified, description AS _description,
                priority,
-               round(julianday('now') - 
+               round(julianday('now') -
                      julianday(changetime, 'unixepoch')) as days,
                resolution,
                owner as __group__
               FROM ticket t
-              LEFT JOIN enum p ON p.name = t.priority AND 
+              LEFT JOIN enum p ON p.name = t.priority AND
                                   p.type = 'priority'
               WHERE ((julianday('now') -
                       julianday(changetime, 'unixepoch')) < 7)
@@ -1091,7 +1143,7 @@ class RegressionTestTicket4447(FunctionalTwillTestCaseSetup):
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/4447"""
         ticketid = self._tester.create_ticket(summary="Hello World")
-        
+
         env = self._testenv.get_trac_environment()
         env.config.set('ticket-custom', 'newfield', 'text')
         env.config.set('ticket-custom', 'newfield.label',
@@ -1646,6 +1698,7 @@ def functionalSuite(suite=None):
     suite.addTest(TestTicketCustomFieldTextAreaWikiFormat())
     suite.addTest(TestTicketCustomFieldTextReferenceFormat())
     suite.addTest(TestTicketCustomFieldTextListFormat())
+    suite.addTest(RegressionTestTicket10828())
     suite.addTest(TestTimelineTicketDetails())
     suite.addTest(TestAdminComponent())
     suite.addTest(TestAdminComponentDuplicates())

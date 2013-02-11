@@ -4,8 +4,8 @@ from trac.core import implements,Component
 from trac.ticket.api import ITicketActionController
 from trac.perm import IPermissionRequestor
 
-revision = "$Rev$"
-url = "$URL$"
+revision = "$Rev: 11490 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/workflow/DeleteTicket.py $"
 
 class DeleteTicketActionController(Component):
     """Provides the admin with a way to delete a ticket.
@@ -47,5 +47,5 @@ class DeleteTicketActionController(Component):
     def apply_action_side_effects(self, req, ticket, action):
         # Be paranoid here, as this should only be called when
         # action is delete...
-        if action == 'delete': 
+        if action == 'delete':
             ticket.delete()

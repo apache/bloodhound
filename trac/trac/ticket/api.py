@@ -47,7 +47,7 @@ class ITicketActionController(Interface):
         `action` is a key used to identify that particular action.
         (note that 'history' and 'diff' are reserved and should not be used
         by plugins)
-        
+
         The actions will be presented on the page in descending order of the
         integer weight. The first action in the list is used as the default
         action.
@@ -69,7 +69,7 @@ class ITicketActionController(Interface):
         `label` is a short text that will be used when listing the action,
         `control` is the markup for the action control and `hint` should
         explain what will happen if this action is taken.
-        
+
         This method will only be called if the controller claimed to handle
         the given `action` in the call to `get_ticket_actions`.
 
@@ -114,7 +114,7 @@ class ITicketChangeListener(Interface):
 
     def ticket_changed(ticket, comment, author, old_values):
         """Called when a ticket is modified.
-        
+
         `old_values` is a dictionary containing the previous values of the
         fields that have changed.
         """
@@ -132,7 +132,7 @@ class ITicketManipulator(Interface):
 
     def validate_ticket(req, ticket):
         """Validate a ticket after it's been populated from user input.
-        
+
         Must return a list of `(field, message)` tuples, one for each problem
         detected. `field` can be `None` to indicate an overall problem with the
         ticket. Therefore, a return value of `[]` means everything is OK."""
@@ -193,7 +193,7 @@ class TicketSystem(Component):
     ticket_field_providers = ExtensionPoint(ITicketFieldProvider)
     change_listeners = ExtensionPoint(ITicketChangeListener)
     milestone_change_listeners = ExtensionPoint(IMilestoneChangeListener)
-    
+
     ticket_custom_section = ConfigSection('ticket-custom',
         """In this section, you can define additional fields for tickets. See
         TracTicketsCustomFields for more details.""")
@@ -209,7 +209,7 @@ class TicketSystem(Component):
         Be sure to understand the performance implications before activating
         this option. See
         [TracTickets#Assign-toasDrop-DownList Assign-to as Drop-Down List].
-        
+
         Please note that e-mail addresses are '''not''' obfuscated in the
         resulting drop-down menu, so this option should not be used if
         e-mail addresses must remain protected.
@@ -253,7 +253,7 @@ class TicketSystem(Component):
         (''since 0.11'').""")
 
     def __init__(self):
-        self.log.debug('action controllers for ticket workflow: %r' % 
+        self.log.debug('action controllers for ticket workflow: %r' %
                 [c.__class__.__name__ for c in self.action_controllers])
 
     # Public API
@@ -319,7 +319,7 @@ class TicketSystem(Component):
         fields.append({'name': 'reporter', 'type': 'text',
                        'label': N_('Reporter')})
 
-        # Owner field, by default text but can be changed dynamically 
+        # Owner field, by default text but can be changed dynamically
         # into a drop-down depending on configuration (restrict_owner=true)
         field = {'name': 'owner', 'label': N_('Owner')}
         field['type'] = 'text'
@@ -358,9 +358,10 @@ class TicketSystem(Component):
             fields.append(field)
 
         # Advanced text fields
-        fields.append({'name': 'keywords', 'type': 'text',
+        fields.append({'name': 'keywords', 'type': 'text', 'format': 'list',
                        'label': N_('Keywords')})
-        fields.append({'name': 'cc', 'type': 'text', 'label': N_('Cc')})
+        fields.append({'name': 'cc', 'type': 'text',  'format': 'list',
+                       'label': N_('Cc')})
 
         # Date/time fields
         fields.append({'name': 'time', 'type': 'time',
@@ -543,7 +544,7 @@ class TicketSystem(Component):
                                      class_=status)
                 return tag.a(label, href=href, title=title)
         return label
- 
+
     # IResourceManager methods
 
     def get_resource_realms(self):

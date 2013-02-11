@@ -371,7 +371,7 @@
     $("table.listing tr td.id").each(function() {
       var tId = $(this).text().substring(1);
       $(this).before(
-        $('<td class="batchmod_selector">').append(
+        $('<td class="batchmod_selector sel">').append(
           $('<input type="checkbox" name="selected_ticket" />').attr({
             title: babel.format(_("Select ticket %(id)s for modification"), {id: tId}),
             value: tId
@@ -379,20 +379,30 @@
     });
 
     // Add a checkbox at the top of the column
-    // to select ever ticket in the group.
-    $("table.listing tr th.id").each(function() { 
+    // to select every ticket in the group.
+    $("table.listing tr th.id").each(function() {
       $(this).before(
-        $('<th class="batchmod_selector">').append(
+        $('<th class="batchmod_selector sel">').append(
           $('<input type="checkbox" name="batchmod_toggleGroup" />').attr({
             title: _("Toggle selection of all tickets shown in this group")
           })));
     });
 
-    // Add the click behavior for the group toggle. 
-    $("input[name='batchmod_toggleGroup']").click(function() { 
+    // Add the click behavior for the group toggle.
+    $("input[name='batchmod_toggleGroup']").click(function() {
       $("tr td.batchmod_selector input",
-        $(this).parents("table.listing tbody, table.listing thead").next())
-          .attr("checked", this.checked);
+        $(this).closest("table.listing thead, table.listing tbody").next())
+        .prop("checked", this.checked);
+    });
+    $("input[name='selected_ticket']").click(function() {
+      var tbody = $(this).closest("table.listing tbody");
+      var checkboxes = $("tr td.batchmod_selector input", tbody);
+      var numSelected = checkboxes.filter(":checked").length;
+      var noneSelected = numSelected === 0;
+      var allSelected = numSelected === checkboxes.length;
+      $("tr th.batchmod_selector input", tbody.prev())
+        .prop({"checked": allSelected,
+               "indeterminate": !(noneSelected || allSelected)});
     });
 
     // At least one ticket must be selected to submit the batch.
@@ -495,6 +505,9 @@
         batchInput[1].focus();
       this.selectedIndex = 0;
     });
+
+    // Make the form visible
+    $("#batchmod_form").show();
   }
 
 })(jQuery);
