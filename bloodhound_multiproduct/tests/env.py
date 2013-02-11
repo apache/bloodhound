@@ -161,8 +161,10 @@ class MultiproductTestCase(unittest.TestCase):
     def _upgrade_mp(self, env):
         r"""Apply multi product upgrades
         """
+        # Do not break wiki parser ( see #373 )
         env.disable_component(TicketModule)
         env.disable_component(ReportModule)
+
         self.mpsystem = MultiProductSystem(env)
         try:
             self.mpsystem.upgrade_environment(env.db_transaction)
