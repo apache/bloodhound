@@ -117,13 +117,14 @@ class MultiproductTestCase(unittest.TestCase):
 
     # Test setup
 
-    def _setup_test_env(self, create_folder=True, path=None):
+    def _setup_test_env(self, create_folder=True, path=None, **kwargs):
         r"""Prepare a new test environment . 
 
         Optionally set its path to a meaningful location (temp folder
         if `path` is `None`).
         """
-        self.env = env = EnvironmentStub(enable=['trac.*', 'multiproduct.*'])
+        kwargs.setdefault('enable', ['trac.*', 'multiproduct.*'])
+        self.env = env = EnvironmentStub(**kwargs)
         if create_folder:
             if path is None:
                 env.path = tempfile.mkdtemp('bh-product-tempenv')
@@ -171,6 +172,20 @@ class MultiproductTestCase(unittest.TestCase):
         except OperationalError:
             # table remains but database version is deleted
             pass
+
+    def _load_default_data(self, env):
+        r"""Initialize environment with default data by respecting
+        values set in system table.
+        """
+        from trac import db_default
+
+        with env.db_transaction as db:
+            for table, cols, vals in db_default.get_data(db):
+                if table != 'system':
+                    db.executemany('INSERT INTO %s (%s) VALUES (%s)' %
+                            (table, ','.join(cols), 
+                                    ','.join(['%s' for c in cols])),
+                            vals)
 
     def _mp_setup(self):
         """Shortcut for quick product-aware environment setup.

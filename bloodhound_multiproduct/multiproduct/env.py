@@ -105,7 +105,7 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         self.parent = None
         self.product = None
         self.mpsystem = None
-        super(EnvironmentStub, self).__init__(default_data=default_data,
+        super(EnvironmentStub, self).__init__(default_data=False,
                                               enable=enable, disable=disable,
                                               path=path, destroying=destroying)
         # Apply multi product upgrades. This is required as the database proxy (translator)
@@ -116,6 +116,9 @@ class EnvironmentStub(trac.test.EnvironmentStub):
             self.mpsystem.upgrade_environment()
         except OperationalError:
             pass
+
+        if default_data:
+            self.reset_db(default_data)
 
     @staticmethod
     def enable_component_in_config(env, cls):
