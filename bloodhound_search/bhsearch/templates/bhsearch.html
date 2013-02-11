@@ -126,7 +126,7 @@
             </py:if>
           </div>
 
-          <div class="${'span12' if not facet_counts else 'span9'}">
+          <div class="${'span12' if not facet_counts else 'span9 search_results'}">
             <h2>
               Results <small>(${results.displayed_items()})</small>
             </h2>
@@ -177,8 +177,7 @@
                               <py:when test="name == 'cc'">${format_emails(ticket_context, value)}</py:when>
                               <py:when test="name == 'owner' and value">${authorinfo(value)}</py:when>
                               <py:when test="name == 'milestone'"><a py:if="value" title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
-                              <!--<py:when test="name == 'content'">${wiki_to_oneliner(ticket_context, value)}</py:when>-->
-                              <py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>
+                              <!--<py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>-->
                               <py:otherwise>$value</py:otherwise>
                             </td>
                           </py:with>
@@ -195,7 +194,7 @@
                 <dl id="results">
                   <py:for each="result in results">
                     <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
-                    <dd class="searchable">${result.excerpt}</dd>
+                    <dd class="searchable">${result.content}</dd>
                     <dd>
                       <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
                       <span class="date">${result.date}</span>
