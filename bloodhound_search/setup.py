@@ -23,7 +23,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-DESC = """Search plugin for Apache(TM) Bloodhound
+DESC = """Search plugin for Apache(TM) Bloodhound.
 
 Add free text search and query functionality to Bloodhound sites.
 """
@@ -128,6 +128,9 @@ setup(
     name=DIST_NM,
     version=latest,
     description=DESC.split('\n', 1)[0],
+    author = "Apache Bloodhound",
+    license = "Apache License v2",
+    url = "http://incubator.apache.org/bloodhound/",
     requires = ['trac'],
     install_requires = [
         'setuptools>=0.6b1',

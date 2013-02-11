@@ -18,20 +18,14 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import unittest
-import tempfile
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
-from trac.test import EnvironmentStub
-
-
 class TicketIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(
-            enable=['bhsearch.*'],
-            path=tempfile.mkdtemp('bhsearch-tempenv'),
-        )
+        super(TicketIndexerSilenceOnExceptionTestCase, self).setUp()
+        self.env.config.set('bhsearch', 'silence_on_error', "True")
         self.ticket_indexer = TicketIndexer(self.env)
 
     def tearDown(self):

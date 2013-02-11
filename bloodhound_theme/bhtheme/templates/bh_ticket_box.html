@@ -42,8 +42,15 @@ Arguments:
         <div class="span4">
           <div class="row">
             <div class="span2">
-              <h5 id="${'h_' + field.name if field else None}" class="pull-right">
-                <py:if test="field"><i18n:msg params="field">${field.label or field.name}:</i18n:msg></py:if>
+              <h5 id="${'h_' + field.name if field else None}">
+                <py:if test="field">
+                  <span class="hidden-phone pull-right">
+                    <i18n:msg params="field">${field.label or field.name}:</i18n:msg>
+                  </span>
+                  <span class="visible-phone">
+                    <i18n:msg params="field">${field.label or field.name}:</i18n:msg>
+                  </span>
+                </py:if>
               </h5>
             </div>
             <div class="span2" data-edit="${'inplace' if (field and field.name != 'status') else None}" id="${'vc-' + field.name if field else None}">
@@ -125,7 +132,7 @@ Arguments:
 
     <div class="properties">
       <py:for each="_fields, count in 
-          [(text_fields, _colcount / 2), (area_fields, colspan, 1)]">
+          [(text_fields, _colcount / 2), (area_fields, 1)]">
         <div py:for="fields_row in group(_fields, count)" class="row">
           ${render_fields_row(fields_row, None, False)}
         </div>

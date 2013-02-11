@@ -55,152 +55,159 @@
   </head>
   <body>
     <div id="content" class="row">
+      <div class="span12">
+        <h1>Advanced search</h1>
+        <div class="btn-group">
+          <form id="fullsearch" action="${href.bhsearch()}" method="get">
+            <!--So far, we will not support noquickjump mode for form submission-->
+            <!--<input type="hidden" name="noquickjump" value="1" />-->
+            <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
+            <input py:if="active_view" type="hidden" name="view" value="${active_view}" />
+            <py:for each="active_filter in active_filter_queries">
+              <input type="hidden" name="fq" value="${active_filter.query}" />
+            </py:for>
 
-      <h1>Advanced search</h1>
-      <form id="fullsearch" action="${href.bhsearch()}" method="get">
-        <p>
-          <input type="text" id="q" name="q" size="60" value="${query}" />
-          <!--So far, we will not support noquickjump mode for form submission-->
-          <!--<input type="hidden" name="noquickjump" value="1" />-->
-          <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
-          <py:for each="active_filter in active_filter_queries">
-            <input type="hidden" name="fq" value="${active_filter.query}" />
-          </py:for>
-          <input py:if="active_view" type="hidden" name="view" value="${active_view}" />
-          <input type="submit" value="${_('Search')}" />
-        </p>
-      </form>
-
-      <py:if test="quickjump">
-        <dt id="quickjump">
-          <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
-        </dt>
-        <dd>${quickjump.description}</dd>
-      </py:if>
-
-      <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
-      <div>
-        <!--Render type tabs: All, Ticket, Wiki, etc.-->
-        <ul class="nav nav-tabs" id="search_types">
-          <li py:for="idx, item in enumerate(i for i in types)"
-              class="${classes(first_last(idx, types), active=item.active)}">
-                <a href="${item.href}">${item.label}</a>
-          </li>
-
-        </ul>
+            <div class="input-append">
+              <input type="text" id="q" name="q" class="span4" value="${query}" />
+              <button type="submit" class="btn btn-warning">
+                <span class="hidden-phone">${_('Search')}</span>
+                <i class="icon-search icon-white"></i>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
-      <py:if test="active_filter_queries">
-        <div id="active_filter_queries">
-          <py:for each="active_filter in active_filter_queries">
-            &gt; <a href="${active_filter.href}">${active_filter.label}</a>
-          </py:for>
+      <div class="span12">
+        <py:if test="quickjump">
+          <dt id="quickjump">
+            <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+          </dt>
+          <dd>${quickjump.description}</dd>
+        </py:if>
+
+        <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
+        <div>
+          <!--Render type tabs: All, Ticket, Wiki, etc.-->
+          <ul class="nav nav-tabs" id="search_types">
+            <li py:for="idx, item in enumerate(i for i in types)"
+                class="${classes(first_last(idx, types), active=item.active)}">
+                  <a href="${item.href}">${item.label}</a>
+            </li>
+
+          </ul>
         </div>
-      </py:if>
 
-      <py:if test="results">
-        <div class="span8">
-          <h2>
-            Results <small>(${results.displayed_items()})</small>
-          </h2>
-
-          <div class="pull-right" py:if="all_views">
-            <!--TODO: change presentation. Current implementation is very basic. -->
-            View as:
-            <py:for each="idx, view in enumerate(all_views)">
-              <b py:if="view.is_active">${view.label}</b>
-              <a href="${view.href}" py:if="not view.is_active">${view.label}</a>
-              <py:if test="idx+1!=len(all_views)"> | </py:if>
+        <py:if test="active_filter_queries">
+          <div id="active_filter_queries">
+            <py:for each="active_filter in active_filter_queries">
+              &gt; <a href="${active_filter.href}">${active_filter.label}</a>
             </py:for>
           </div>
+        </py:if>
 
-          <div>
-            <py:if test="view=='grid'">
-              <!--todo: implement rendering in pluggable manner-->
-              <!--Rendering results in grid view-->
-              <table class="listing tickets table table-bordered table-condensed query" style="border-radius: 0px 0px 4px 4px">
-                <!--render table header-->
-                <thead>
-                  <tr class="trac-columns">
-                      <th py:for="header in headers"
-                          class="$header.name${(' desc' if header.sort=='DESC' else ' asc') if header.sort else ''}">
-                        <?python asc = _('(ascending)'); desc = _('(descending)') ?>
-                        <a title="${_('Sort by %(col)s %(direction)s', col=header.label,
-                                      direction=(desc if header.sort=='ASC' else asc))}"
-                           href="$header.href">${header.label}</a>
-                      </th>
-                  </tr>
-                </thead>
+        <div py:if="results" class="row">
+          <div class="span3 facets">
+            <py:if test="facet_counts">
+              <!--Render facet counts-->
+              <h3>Facets</h3>
+              <ul id="facet_counts">
+                <li py:for="field, per_value_counts in facet_counts.iteritems()">
+                  <h4 style="display: inline;">${field}</h4>
+                  <ul id="facet_counts_value">
+                    <li py:for="value, item in per_value_counts.iteritems()">
+                      <a href="${item.href}"><strong>${display_value(value)}</strong></a>
+                      <span class="badge badge-info">${item.count}</span>
+                    </li>
+                    </ul>
+                </li>
 
-                <tbody>
-                  <!--render table rows-->
-                  <py:for each="idx, result in enumerate(results)">
-                    <tr class="${'odd' if idx % 2 else 'even'} prio${result.priority_value}${
-                      ' added' if 'added' in result else ''}${
-                      ' changed' if 'changed' in result else ''}${
-                      ' removed' if 'removed' in result else ''}">
-                      <py:for each="idx, header in enumerate(headers)" py:choose="">
-                        <py:with vars="name = header.name; value = result[name];  title = _('View ')+ result['type']">
-                          <td py:when="name == 'id'" class="id"><a href="$result.href" title="${title}"
-                              class="${classes(closed=result.status == 'closed')}">#$result.id</a></td>
-                          <td py:otherwise="" class="$name" py:choose="">
-                            <a py:when="name == 'summary'" href="$result.href" title="title">$value</a>
-                            <py:when test="isinstance(value, datetime)">${pretty_dateinfo(value, dateonly=True)}</py:when>
-                            <py:when test="name == 'reporter'">${authorinfo(value)}</py:when>
-                            <py:when test="name == 'cc'">${format_emails(ticket_context, value)}</py:when>
-                            <py:when test="name == 'owner' and value">${authorinfo(value)}</py:when>
-                            <py:when test="name == 'milestone'"><a py:if="value" title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
-                            <!--<py:when test="name == 'content'">${wiki_to_oneliner(ticket_context, value)}</py:when>-->
-                            <py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>
-                            <py:otherwise>$value</py:otherwise>
-                          </td>
-                        </py:with>
-                      </py:for>
-                    </tr>
-                  </py:for>
-                </tbody>
-              </table>
-            </py:if>
-
-            <!--<py:if test="not headers">-->
-            <py:if test="not view">
-              <!--Rendering results in free form-->
-              <dl id="results">
-                <py:for each="result in results">
-                  <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
-                  <dd class="searchable">${result.excerpt}</dd>
-                  <dd>
-                    <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
-                    <span class="date">${result.date}</span>
-                  </dd>
-                </py:for>
-              </dl>
+              </ul>
             </py:if>
           </div>
 
-          <xi:include py:with="paginator = results" href="bh_page_index.html" />
+          <div class="${'span12' if not facet_counts else 'span9 search_results'}">
+            <h2>
+              Results <small>(${results.displayed_items()})</small>
+            </h2>
+
+            <div class="pull-right" py:if="all_views">
+              <!--TODO: change presentation. Current implementation is very basic. -->
+              View as:
+              <py:for each="idx, view in enumerate(all_views)">
+                <b py:if="view.is_active">${view.label}</b>
+                <a href="${view.href}" py:if="not view.is_active">${view.label}</a>
+                <py:if test="idx+1!=len(all_views)"> | </py:if>
+              </py:for>
+            </div>
+
+            <div>
+              <py:if test="view=='grid'">
+                <!--todo: implement rendering in pluggable manner-->
+                <!--Rendering results in grid view-->
+                <table class="listing tickets table table-bordered table-condensed query" style="border-radius: 0px 0px 4px 4px">
+                  <!--render table header-->
+                  <thead>
+                    <tr class="trac-columns">
+                        <th py:for="header in headers"
+                            class="$header.name${(' desc' if header.sort=='DESC' else ' asc') if header.sort else ''}">
+                          <?python asc = _('(ascending)'); desc = _('(descending)') ?>
+                          <a title="${_('Sort by %(col)s %(direction)s', col=header.label,
+                                        direction=(desc if header.sort=='ASC' else asc))}"
+                             href="$header.href">${header.label}</a>
+                        </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <!--render table rows-->
+                    <py:for each="idx, result in enumerate(results)">
+                      <tr class="${'odd' if idx % 2 else 'even'} prio${result.priority_value}${
+                        ' added' if 'added' in result else ''}${
+                        ' changed' if 'changed' in result else ''}${
+                        ' removed' if 'removed' in result else ''}">
+                        <py:for each="idx, header in enumerate(headers)" py:choose="">
+                          <py:with vars="name = header.name; value = result[name];  title = _('View ')+ result['type']">
+                            <td py:when="name == 'id'" class="id"><a href="$result.href" title="${title}"
+                                class="${classes(closed=result.status == 'closed')}">#$result.id</a></td>
+                            <td py:otherwise="" class="$name" py:choose="">
+                              <a py:when="name == 'summary'" href="$result.href" title="title">$value</a>
+                              <py:when test="isinstance(value, datetime)">${pretty_dateinfo(value, dateonly=True)}</py:when>
+                              <py:when test="name == 'reporter'">${authorinfo(value)}</py:when>
+                              <py:when test="name == 'cc'">${format_emails(ticket_context, value)}</py:when>
+                              <py:when test="name == 'owner' and value">${authorinfo(value)}</py:when>
+                              <py:when test="name == 'milestone'"><a py:if="value" title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
+                              <!--<py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>-->
+                              <py:otherwise>$value</py:otherwise>
+                            </td>
+                          </py:with>
+                        </py:for>
+                      </tr>
+                    </py:for>
+                  </tbody>
+                </table>
+              </py:if>
+
+              <!--<py:if test="not headers">-->
+              <py:if test="not view">
+                <!--Rendering results in free form-->
+                <dl id="results">
+                  <py:for each="result in results">
+                    <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
+                    <dd class="searchable">${result.content}</dd>
+                    <dd>
+                      <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                      <span class="date">${result.date}</span>
+                    </dd>
+                  </py:for>
+                </dl>
+              </py:if>
+            </div>
+
+            <xi:include py:with="paginator = results" href="bh_page_index.html" />
+          </div>
         </div>
-
-        <div class="span4">
-          <py:if test="facet_counts">
-            <!--Render facet counts-->
-            <h3>Facets</h3>
-            <ul id="facet_counts">
-              <li py:for="field, per_value_counts in facet_counts.iteritems()">
-                <h4 style="display: inline;">${field}</h4>
-                <ul id="facet_counts_value">
-                  <li py:for="value, item in per_value_counts.iteritems()">
-                    <a href="${item.href}"><strong>${display_value(value)}</strong></a>
-                    <span class="badge badge-info">${item.count}</span>
-                  </li>
-                  </ul>
-              </li>
-
-            </ul>
-          </py:if>
-        </div>
-
-      </py:if>
+      </div>
 
 
       <div class="span12"

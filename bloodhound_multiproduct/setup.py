@@ -22,6 +22,10 @@ from setuptools import setup
 setup(
     name = 'BloodhoundMultiProduct',
     version = '0.4.0',
+    description = "Multiproduct support for Apache(TM) Bloodhound.",
+    author = "Apache Bloodhound",
+    license = "Apache License v2",
+    url = "http://incubator.apache.org/bloodhound/",
     packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
     package_data = {'multiproduct' : ['templates/*.html',]},
     entry_points = {'trac.plugins': [

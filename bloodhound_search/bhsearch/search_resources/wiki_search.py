@@ -37,8 +37,10 @@ class WikiIndexer(BaseIndexer):
         """Index a recently created ticket."""
         self._index_wiki(page)
 
+
     def wiki_page_changed(self, page, version, t, comment, author, ipnr):
         """Reindex a recently modified ticket."""
+        # pylint: disable=too-many-arguments, unused-argument
         self._index_wiki(page)
 
     def wiki_page_deleted(self, page):
@@ -110,11 +112,15 @@ class WikiIndexer(BaseIndexer):
 class WikiSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
 
+    participant_type = WIKI_TYPE
+    required_permission = 'WIKI_VIEW'
+
     default_facets = []
     default_grid_fields = [
         IndexFields.ID,
         IndexFields.TIME,
-        IndexFields.AUTHOR
+        IndexFields.AUTHOR,
+        IndexFields.CONTENT,
     ]
     prefix = WIKI_TYPE
 
@@ -137,10 +143,6 @@ class WikiSearchParticipant(BaseSearchParticipant):
         doc="""Default fields for grid view for specific resource""")
 
     #ISearchParticipant members
-    def get_search_filters(self, req=None):
-        if not req or 'WIKI_VIEW' in req.perm:
-            return WIKI_TYPE
-
     def get_title(self):
         return "Wiki"
 

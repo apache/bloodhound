@@ -28,6 +28,7 @@
   <py:match path="head" once="true"><head>
     <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
     <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
+    <meta py:if="responsive_layout" name="viewport" content="width=device-width, initial-scale=1.0" />
     <title py:with="title = list(select('title/text()'))" py:choose="">
       <py:when test="title">${title}</py:when>
       <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
@@ -214,7 +215,7 @@
           <!--! main navigation tabs -->
           <div class="span6">
             <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
-                class="nav nav-tabs pull-right hidden-phone"
+                class="nav nav-tabs pull-right"
                 id="mainnav"
                 py:with="mainnav_show = ('wiki', 'tickets', 'browser');
                          metanav_hide = ('login', 'logout', 'prefs', 'help', 'about')">

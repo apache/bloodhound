@@ -24,8 +24,10 @@ import sys
 setup(
   name = 'BloodhoundTheme',
   version = '0.4.0',
-  description = "Look and feel of Bloodhound issue tracker",
+  description = "Theme for Apache(TM) Bloodhound.",
+  author = "Apache Bloodhound",
   license = "Apache License v2",
+  url = "http://incubator.apache.org/bloodhound/",
   keywords = "trac plugin theme bloodhound",
   packages = ['bhtheme'],
   package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/img/*.*',

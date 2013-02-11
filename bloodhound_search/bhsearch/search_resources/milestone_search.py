@@ -117,6 +117,9 @@ class MilestoneIndexer(BaseIndexer):
 class MilestoneSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
 
+    participant_type = MILESTONE_TYPE
+    required_permission = 'MILESTONE_VIEW'
+
     default_facets = []
     default_grid_fields = [
         MilestoneFields.ID, MilestoneFields.DUE, MilestoneFields.COMPLETED]
@@ -141,10 +144,6 @@ class MilestoneSearchParticipant(BaseSearchParticipant):
         doc="""Default fields for grid view for specific resource""")
 
     #ISearchParticipant members
-    def get_search_filters(self, req=None):
-        if not req or 'MILESTONE_VIEW' in req.perm:
-            return MILESTONE_TYPE
-
     def get_title(self):
         return "Milestone"
 

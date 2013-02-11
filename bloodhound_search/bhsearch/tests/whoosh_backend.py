@@ -27,7 +27,6 @@ from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import (WhooshBackend,
     WhooshEmptyFacetErrorWorkaround)
-from trac.test import EnvironmentStub
 from trac.util.datefmt import FixedOffset, utc
 from whoosh import index, sorting, query
 from whoosh.fields import Schema, ID, TEXT, KEYWORD
@@ -37,8 +36,7 @@ from whoosh.qparser import MultifieldPlugin, QueryParser, WhitespacePlugin, \
 
 class WhooshBackendTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
+        super(WhooshBackendTestCase, self).setUp()
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.parser = DefaultQueryParser(self.env)
@@ -453,8 +451,7 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
 
 class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
+        super(WhooshEmptyFacetErrorWorkaroundTestCase, self).setUp()
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.parser = DefaultQueryParser(self.env)
@@ -498,12 +495,12 @@ class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
         self.assertEquals('(type:ticket AND milestone:aaa)', str(result_filter))
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(WhooshEmptyFacetErrorWorkaroundTestCase,
-        'test'))
-    return suite
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
+    test_suite.addTest(
+        unittest.makeSuite(WhooshEmptyFacetErrorWorkaroundTestCase, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()

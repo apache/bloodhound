@@ -258,7 +258,7 @@ class BloodhoundTheme(ThemeBase):
                 modifier = getattr(self, modifier)
                 modifier(req, template, data, content_type, is_active_theme)
 
-        if is_active_theme:
+        if is_active_theme and data is not None:
             data['responsive_layout'] = self.env.config.getbool(
                     'bloodhound', 'responsive_layout', 'true')
 

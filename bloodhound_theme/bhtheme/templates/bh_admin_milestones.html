@@ -36,7 +36,7 @@
   </head>
 
   <body>
-    <h2>Manage Milestones</h2>
+    <h2>Milestone Management</h2>
 
     <py:choose test="view">
       <form py:when="'detail'" class="well form-horizontal" method="post" 
@@ -107,11 +107,51 @@
       </form>
 
       <py:otherwise>
+        <div py:if="'MILESTONE_CREATE' in req.perm" class="row">
+          <div class="span9">
+            <form class="well form-horizontal" id="addmilestone" method="post" action="">
+              <fieldset>
+                <legend>Add Milestone</legend>
+                <div class="control-group">
+                  <label class="control-label" for="name">Milestone Name</label>
+                  <div class="controls">
+                    <input type="text" name="name" id="name" class="input-xlarge" />
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="duedate">Due Date</label>
+                  <div class="controls">
+                    <input type="text" id="duedate"
+                        name="duedate" size="${len(datetime_hint)}"
+                        class="input-xlarge"
+                        placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <div class="controls">
+                    <input class="btn" type="submit" name="add" value="${_('Add')}" />
+                  </div>
+
+                  <p class="help-block">
+                    <span class="label label-info">Hint</span>
+                    <i18n:msg params="datehint">Format: $datetime_hint</i18n:msg>
+                  </p>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+
         <div class="row">
-          <div class="${'MILESTONE_CREATE' in req.perm and 'span6' or 'span9'}">
+          <div class="span9">
             <py:choose>
-              <form id="milestone_table" method="post" action=""
+              <form id="milestone_table" method="post" action="" class="well"
                     py:when="milestones" py:with="can_remove = 'MILESTONE_DELETE' in req.perm">
+      
+                <legend>Modify Milestones</legend>
+
                 <table id="millist"
                     class="table table-bordered table-striped table-condensed">
                     
@@ -160,28 +200,6 @@
                 will remain completely hidden from the user interface.
               </p>
             </py:choose>
-          </div>
-          <div class="span3" py:if="'MILESTONE_CREATE' in req.perm">
-            <form class="well" id="addmilestone" method="post" action="">
-              <fieldset>
-                <legend>Add Milestone:</legend>
-                <label for="name">Name:</label>
-                <input class="input-medium" type="text" name="name"
-                    id="name" size="22" />
-                <label for="duedate">Due:</label>
-                <input class="input-medium" type="text" id="duedate"
-                    name="duedate" size="${len(datetime_hint)}"
-                    placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
-                <p class="help-block">
-                  <span class="label label-info">Hint</span>
-                  <i18n:msg params="datehint">Format: $datetime_hint</i18n:msg>
-                </p>
-                <div class="control-group">
-                  <input class="btn" type="submit" name="add"
-                      value="${_('Add')}" />
-                </div>
-              </fieldset>
-            </form>
           </div>
         </div>
       </py:otherwise>

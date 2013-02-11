@@ -25,18 +25,17 @@
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
 
-  <py:def function="admin_nav_list()">
-    <div class="well">
-      <ul class="nav nav-list">
+  <py:def function="admin_nav_list(phone)">
+    <div class="${'btn-group' if phone else 'well'}">
+      <py:if test="phone">
+        <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#">Select Module&nbsp;&nbsp;<span class="caret"></span></a>
+      </py:if>
+
+      <ul class="nav nav-list${' dropdown-menu' if phone else None}">
         <py:for each="category, panels in groupby(panels, lambda p: p.category)"
             py:with="cat_is_active = category.id == active_cat">
-          <li class="nav-header">
-            <py:choose test="">
-              <span py:when="cat_is_active" class="label label-important">
-                ${category.label}
-              </span>
-              <py:otherwise>${category.label}</py:otherwise>
-            </py:choose>
+          <li class="nav-header${' nav-header-selected' if cat_is_active else None}">
+            ${category.label}
           </li>
           <li py:for="panel in panels" py:with="panel = panel.panel;
                   pan_is_active = cat_is_active and panel.id == active_panel"
@@ -49,10 +48,16 @@
   </py:def>
   <py:def function="admin_function(fix_legacy)">
     <div id="content" class="admin row">
-      <h1>Administration</h1>
-      <div id="tabs" class="span3">
-        ${admin_nav_list()}
+      <h1 class="span12">Administration</h1>
+
+      <div id="tabs" class="span3 hidden-phone">
+        ${admin_nav_list(False)}
       </div>
+
+      <div class="span9 visible-phone">
+        ${admin_nav_list(True)}
+      </div>
+
       <div id="tabcontent" class="span9">
         <py:choose>
         <py:when test="fix_legacy">

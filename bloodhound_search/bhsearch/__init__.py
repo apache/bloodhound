@@ -29,6 +29,7 @@ from trac.core import TracError
 TracError.__str__ = lambda self: unicode(self).encode('ascii', 'ignore')
 
 try:
+    # pylint: disable=wildcard-import
     from bhsearch import *
     msg = 'Ok'
 except Exception, exc:

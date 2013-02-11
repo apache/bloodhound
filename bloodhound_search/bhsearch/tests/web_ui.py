@@ -18,17 +18,17 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import unittest
-import tempfile
-import shutil
 
 from urllib import urlencode, unquote
+from bhsearch.api import ASC, DESC
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.web_ui import RequestParameters
 from bhsearch.whoosh_backend import WhooshBackend
 
-from trac.test import EnvironmentStub, Mock, MockPerm
+from trac.test import Mock, MockPerm
 from trac.ticket import Ticket
+from trac.core import TracError
 from trac.util.datefmt import FixedOffset
 from trac.util import format_datetime
 from trac.web import Href, arg_list_to_args, parse_arg_list, RequestDone
@@ -514,6 +514,31 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         #assert
         self.assertEqual("grid", data["active_view"])
 
+    def test_can_apply_sorting(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        self.insert_ticket("T2", component="c1", status="new", milestone="B")
+        self.insert_ticket("T3", component="c3", status="new", milestone="C")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.SORT] = "component, milestone desc"
+        data = self.process_request()
+        #assert
+        api_sort = data["debug"]["api_parameters"]["sort"]
+        self.assertEqual([("component", ASC), ("milestone", DESC)], api_sort)
+        ids = [item["summary"] for item in data["results"].items]
+        self.assertEqual(["T2", "T1", "T3"], ids)
+
+
+    def test_that_title_is_set_for_free_text_view(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        data = self.process_request()
+        #assert
+        self.assertIn("title", data["results"].items[0])
+
 
     def _count_parameter_in_url(self, url, parameter_name, value):
         parameter_to_find = (parameter_name, value)
@@ -539,8 +564,53 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         for i in range(1, n+1):
             self.insert_wiki("test %s" % i)
 
+class RequestParametersTest(unittest.TestCase):
+    def setUp(self):
+        self.req = Mock(
+            perm=MockPerm(),
+            chrome={'logo': {}},
+            href=Href("/main"),
+            base_path=BASE_PATH,
+            args=arg_list_to_args([]),
+        )
+
+    def test_can_parse_multiple_sort_terms(self):
+        self.assertEqual(
+            None,
+            self._evaluate_sort("  "))
+        self.assertEqual(
+            None,
+            self._evaluate_sort(" ,  , "))
+        self.assertEqual(
+            [("f1", ASC),],
+            self._evaluate_sort(" f1 "))
+        self.assertEqual(
+            [("f1", ASC),],
+            self._evaluate_sort(" f1 asc"))
+        self.assertEqual(
+            [("f1", DESC),],
+            self._evaluate_sort("f1  desc"))
+        self.assertEqual(
+            [("f1", ASC), ("f2", DESC)],
+            self._evaluate_sort("f1, f2 desc"))
+
+    def test_can_raise_error_on_invalid_sort_term(self):
+        self.assertRaises(
+            TracError,
+            self._evaluate_sort,
+            "f1  desc bb")
+
+    def _evaluate_sort(self, sort_condition):
+        self.req.args[RequestParameters.SORT] = sort_condition
+        parameters = RequestParameters(self.req)
+        return parameters.sort
+
+
 def suite():
-    return unittest.makeSuite(WebUiTestCaseWithWhoosh, 'test')
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(WebUiTestCaseWithWhoosh, 'test'))
+    test_suite.addTest(unittest.makeSuite(RequestParametersTest, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()

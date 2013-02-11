@@ -67,6 +67,10 @@ body {
   display: none
 }
 
+.nav-header-selected {
+  color: #b94a48;
+}
+
 /* @end */
 
 /* @group Heading anchors */
@@ -538,6 +542,18 @@ input[type="submit"].btn.btn-micro {
   }
 }
 
+@media (min-width: 1200px) {
+  .facets {
+      width: 220px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .search_results {
+      width: 920px;
+  }
+}
+
 @media (min-width: 979px) and (max-width: 1199px) {
   .main-nav ul {
     background-color: red;
@@ -553,13 +569,13 @@ input[type="submit"].btn.btn-micro {
   #logo, #usermenu, #breadcrumbbar {
     float: left;
   }
-    
+
   #searchbox {
     float: left;
     margin-right: 10px;
   }
 
-  .breadcrumb {
+  #mainnav {
     margin-top: 7px;
   }
 
@@ -583,12 +599,6 @@ input[type="submit"].btn.btn-micro {
     margin-top: 5px;
   }
 
-  .ticket .properties div[class*="span"] {
-    float: left;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-
   #changelog .change .span2 {
     float: left;
   }
@@ -609,7 +619,7 @@ input[type="submit"].btn.btn-micro {
   .container:first-child {
     border-left: 0px solid white;
     border-right: 0px solid white;
-    padding: 0px;
+    padding: 0px 4px;
   }
 
   header, #belowStatus, #mobile-activity,

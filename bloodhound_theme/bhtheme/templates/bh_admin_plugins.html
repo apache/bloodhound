@@ -29,6 +29,33 @@
     <title>Plugins</title>
     <script type="text/javascript"
         src="${href.chrome('dashboard/js/bootstrap-collapse.js')}"></script>
+    <script type="text/javascript">/*<![CDATA[*/
+    jQuery(document).ready(function($) {
+      // Sets state of group toggler when component checkboxes are clicked
+      function setGroupTogglerState() {
+        var table = $(this).closest("table.table");
+        var checkboxes = $("td.sel input:checkbox:enabled", table);
+        var numSelected = checkboxes.filter(":checked").length;
+        var noneSelected = numSelected === 0;
+        var allSelected = numSelected === checkboxes.length;
+        $("th.sel input:checkbox", table)
+          .prop({"checked": allSelected,
+            "indeterminate": !(noneSelected || allSelected)});
+      }
+      // Add group event behavior for controlling state of toggler
+      $("table.table td.sel input:checkbox:enabled")
+        .click(setGroupTogglerState);
+      // Add click behavior for the group toggler and initialize its state
+      $("table.table th.sel").each(function() {
+          $(this).attr("title", $(this).text())
+      }).html('<input type="checkbox" />')
+        .children()
+        .click(function() {
+          $("td.sel input:checkbox:enabled",
+            $(this).closest("table.table")).prop("checked", this.checked);
+        }).each(setGroupTogglerState);
+    });
+    /*]]>*/</script>
   </head>
 
   <body>

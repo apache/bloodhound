@@ -124,9 +124,12 @@ class ISearchParticipant(Interface):
     def format_search_results(contents):
         """Called to see if the module wants to format the search results."""
 
-    def get_search_filters(req):
+    def is_allowed(req):
         """Called when we want to build the list of components with search.
         Passes the request object to do permission checking."""
+
+    def get_type():
+        """Return type of search participant"""
 
     def get_title():
         """Return resource title."""
@@ -245,6 +248,7 @@ class BloodhoundSearchApi(Component):
         for post_processor in self.result_post_processors:
             post_processor.post_process(query_result)
 
+        query_result.debug["api_parameters"] = query_parameters
         return query_result
 
 
