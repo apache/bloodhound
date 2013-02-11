@@ -188,6 +188,12 @@ class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
             self.assertEquals(u"Voilà l'été", config2.get('a', 'option2'))
         self._test_with_inherit(testcb)
 
+    def test_overwrite(self):
+        config = self._read()
+        config.set('a', 'option', 'value1')
+        self.assertEquals('value1', config.get('a', 'option'))
+        config.set('a', 'option', 'value2')
+        self.assertEquals('value2', config.get('a', 'option'))
 
 def test_suite():
     return unittest.makeSuite(ProductConfigTestCase,'test')

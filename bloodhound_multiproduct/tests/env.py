@@ -38,6 +38,8 @@ from trac.core import Component
 from trac.env import Environment
 from trac.test import EnvironmentStub
 from trac.tests.env import EnvironmentTestCase
+from trac.ticket.report import ReportModule
+from trac.ticket.web_ui import TicketModule
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
@@ -159,6 +161,8 @@ class MultiproductTestCase(unittest.TestCase):
     def _upgrade_mp(self, env):
         r"""Apply multi product upgrades
         """
+        env.disable_component(TicketModule)
+        env.disable_component(ReportModule)
         self.mpsystem = MultiProductSystem(env)
         try:
             self.mpsystem.upgrade_environment(env.db_transaction)
@@ -215,6 +219,13 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
     def tearDown(self):
         # Release reference to transient environment mock object
+        if self.env is not None:
+            try:
+                self.env.reset_db()
+            except OperationalError:
+                # "Database not found ...",
+                # "OperationalError: no such table: system" or the like
+                pass
         self.env = None
         self.product_env = None
 
@@ -303,52 +314,101 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
         global_env = self.env
         product_env = self.product_env
-        
-        def clear_component_rules(env):
-            del env._rules
-            env.enabled.clear()
 
-        # C initially disabled in both envs
-        self.assertFalse(global_env.is_component_enabled(C))
-        self.assertFalse(product_env.is_component_enabled_local(C))
-        self.assertIs(global_env[C], None)
-        self.assertIs(product_env[C], None)
+        def _test_component_enabled(cls):
+            cname = global_env._component_name(cls)
+            disable_component_in_config = global_env.disable_component_in_config
+            enable_component_in_config = global_env.enable_component_in_config
 
-        clear_component_rules(global_env)
-        clear_component_rules(product_env)
+            # cls initially disabled in both envs
+            disable_component_in_config(global_env, cls)
+            disable_component_in_config(product_env, cls)
 
-        # C enabled in product env but not in global env
-        product_env.enable_component(C)
-        self.assertFalse(global_env.is_component_enabled(C))
-        self.assertTrue(product_env.is_component_enabled_local(C))
-        self.assertIs(global_env[C], None)
-        self.assertIs(product_env[C], None)
+            expected_rules = {
+                    'multiproduct' : True,
+                    'trac' : True,
+                    'trac.db' : True,
+                    cname : False,
+                }
+            self.assertEquals(expected_rules, global_env._component_rules)
+            self.assertEquals(expected_rules, product_env._component_rules)
 
-        clear_component_rules(global_env)
-        clear_component_rules(product_env)
+            self.assertFalse(global_env.is_component_enabled(cls))
+            self.assertFalse(product_env.is_component_enabled_local(cls))
+            self.assertIs(global_env[cls], None)
+            self.assertIs(product_env[cls], None)
 
-        # C enabled in both envs
-        product_env.enable_component(C)
-        global_env.enable_component(C)
-        self.assertTrue(global_env.is_component_enabled(C))
-        self.assertTrue(product_env.is_component_enabled_local(C))
-        self.assertIsNot(global_env[C], None)
-        self.assertIsNot(product_env[C], None)
+            # cls enabled in product env but not in global env
+            disable_component_in_config(global_env, cls)
+            enable_component_in_config(product_env, cls)
 
-        clear_component_rules(global_env)
-        clear_component_rules(product_env)
+            expected_rules[cname] = False
+            self.assertEquals(expected_rules, global_env._component_rules)
+            expected_rules[cname] = True
+            self.assertEquals(expected_rules, product_env._component_rules)
 
-        # C enabled in global env but not in product env
-        global_env.enable_component(C)
-        self.assertTrue(global_env.is_component_enabled(C))
-        self.assertFalse(product_env.is_component_enabled_local(C))
-        self.assertIsNot(global_env[C], None)
-        self.assertIs(product_env[C], None)
+            self.assertFalse(global_env.is_component_enabled(cls))
+            self.assertTrue(product_env.is_component_enabled_local(cls))
+            self.assertIs(global_env[cls], None)
+            self.assertIs(product_env[cls], None)
+
+            # cls enabled in both envs
+            enable_component_in_config(global_env, cls)
+            enable_component_in_config(product_env, cls)
+
+            expected_rules[cname] = True
+            self.assertEquals(expected_rules, global_env._component_rules)
+            expected_rules[cname] = True
+            self.assertEquals(expected_rules, product_env._component_rules)
+
+            self.assertTrue(global_env.is_component_enabled(cls))
+            self.assertTrue(product_env.is_component_enabled_local(cls))
+            self.assertIsNot(global_env[cls], None)
+            self.assertIsNot(product_env[cls], None)
+
+            # cls enabled in global env but not in product env
+            enable_component_in_config(global_env, cls)
+            disable_component_in_config(product_env, cls)
+
+            expected_rules[cname] = True
+            self.assertEquals(expected_rules, global_env._component_rules)
+            expected_rules[cname] = False
+            self.assertEquals(expected_rules, product_env._component_rules)
+
+            self.assertTrue(global_env.is_component_enabled(cls))
+            self.assertFalse(product_env.is_component_enabled_local(cls))
+            self.assertIsNot(global_env[cls], None)
+            self.assertIs(product_env[cls], None)
+
+        # Test the rules against custom , external component
+        _test_component_enabled(C)
+
+        for env in (global_env, product_env):
+            env.config.remove('components', env._component_name(C))
+
+         # Test the rules against Trac component class
+        _test_component_enabled(TicketModule)
 
     def test_path(self):
         """Testing env.path"""
         self.assertEqual(self.product_env.path, 
                 os.path.join(self.env.path, 'products', self.default_product))
+
+    def test_env_config_inheritance(self):
+        """Testing env.config"""
+        global_config = self.env.config
+        product_config = self.product_env.config
+
+        # By default inherit global settings ...
+        global_config['section'].set('key', 'value1')
+        self.assertEquals('value1', global_config['section'].get('key'))
+        self.assertEquals('value1', product_config['section'].get('key'))
+
+        # ... but allow for overrides in product scope
+        product_config['section'].set('key', 'value2')
+        self.assertEquals('value1', global_config['section'].get('key'))
+        self.assertEquals('value2', product_config['section'].get('key'))
+
 
 def test_suite():
     return unittest.TestSuite([

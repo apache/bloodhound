@@ -298,7 +298,7 @@ class Section(Section):
                 setting.delete()
             else:
                 # Update existing record
-                setting.value = value
+                setting._data['value'] = value
                 setting.update()
 
     # Helper methods

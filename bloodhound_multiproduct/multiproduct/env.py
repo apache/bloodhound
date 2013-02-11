@@ -117,6 +117,42 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         except OperationalError:
             pass
 
+    @staticmethod
+    def enable_component_in_config(env, cls):
+        """Keep track of enabled state in configuration as well 
+        during test runs. This is closer to reality than 
+        inherited `enable_component` method.
+        """
+        env.config['components'].set(env._component_name(cls), 'enabled')
+        env.enabled.clear()
+        env.components.pop(cls, None)
+        try:
+            del env._rules
+        except AttributeError:
+            pass
+        # FIXME: Shall we ?
+        #env.config.save()
+
+    @staticmethod
+    def disable_component_in_config(env, component):
+        """Keep track of disabled state in configuration as well 
+        during test runs. This is closer to reality than 
+        inherited `disable_component` method.
+        """
+        if isinstance(component, type):
+            cls = component
+        else:
+            cls = component.__class__
+        env.config['components'].set(env._component_name(cls), 'disabled')
+        env.enabled.clear()
+        env.components.pop(cls, None)
+        try:
+            del env._rules
+        except AttributeError:
+            pass
+        # FIXME: Shall we ?
+        #env.config.save()
+
     def reset_db(self, default_data=None):
         from multiproduct.api import DB_VERSION
         schema_version = -1
@@ -126,6 +162,7 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         if self.mpsystem and schema_version != -1:
             with self.db_direct_transaction as db:
                 self.mpsystem._update_db_version(db, DB_VERSION)
+
 
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
@@ -337,7 +374,7 @@ class ProductEnvironment(Component, ComponentManager):
         `None`, the component only gets activated if it is located in
         the `plugins` directory of the environment.
         """
-        if not self.parent.is_component_enabled(cls):
+        if self.parent[cls] is None:
             return False
         return self.is_component_enabled_local(cls)
 
