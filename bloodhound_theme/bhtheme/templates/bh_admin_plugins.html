@@ -62,7 +62,29 @@
     <h2>Manage Plugins</h2>
 
     <div class="row">
-      <div class="span6">
+      <div class="span9">
+        <py:choose>
+          <xi:include href="widget_alert.html" py:when="readonly"
+                      py:with="msglabel = 'Warning'; msgbody = 'The web server
+                      does not have sufficient permissions to store files in
+                      the environment plugins directory.'" />
+          <form id="addplug" class="well form-inline" method="post"
+                enctype="multipart/form-data" action="" py:otherwise="">
+            <fieldset>
+              <legend>Install Plugin:</legend>
+
+              <label i18n:msg="" for="plugin_file">File:</label>
+              <input class="input-medium" type="file" id="plugin_file" size="10"
+                     name="plugin_file" disabled="${readonly or None}" />
+              <input class="btn" type="submit" name="install"
+                     value="${_('Install')}" disabled="${readonly or None}" />
+              <p class="help-inline">
+                Upload a plugin packaged as Python egg.
+              </p>
+            </fieldset>
+          </form>
+        </py:choose>
+
         <div class="accordion" id="pluginlist">
           <div class="accordion-group" id="trac-plugin-$plugin_id"
               py:with="plugin_id = plugin.name.replace('.', '-')"
@@ -135,7 +157,7 @@
                         </td>
                         <td class="sel">
                           <input py:if="not component.required" type="hidden"
-                              name="component" 
+                              name="component"
                               value="${module_name}.${component_name}"/>
                           <input type="checkbox" name="enable"
                                  value="${module_name}.${component_name}"
@@ -155,31 +177,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="span3">
-        <form id="addplug" class="well" method="post" enctype="multipart/form-data" action="">
-          <fieldset>
-            <legend>Install Plugin:</legend>
-            <label i18n:msg="" for="plugin_file">File:</label>
-            <input class="input-medium" type="file" id="plugin_file" size="10"
-                  name="plugin_file" disabled="${readonly or None}" />
-            <py:choose test="readonly">
-              <p class="alert alert-error" py:when="True">
-                <span class="label label-important">Caution</span>
-                The web server does not have sufficient permissions to store files in
-                the environment plugins directory.
-              </p>
-              <p class="help-block" py:otherwise="">
-                <span class="label label-info">Notice</span>
-                Upload a plugin packaged as Python egg.
-              </p>
-            </py:choose>
-            <div class="control-group">
-              <input class="btn" type="submit" name="install"
-                  value="${_('Install')}" disabled="${readonly or None}" />
-            </div>
-          </fieldset>
-        </form>
       </div>
     </div>
   </body>
