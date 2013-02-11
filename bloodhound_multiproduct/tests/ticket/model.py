@@ -18,11 +18,15 @@
 
 """Tests for Apache(TM) Bloodhound's tickets model in product environments"""
 
+from datetime import datetime
+import shutil
 import unittest
 
+from trac.ticket.model import Milestone
 from trac.ticket.tests.model import TicketTestCase, TicketCommentTestCase, \
         TicketCommentEditTestCase, TicketCommentDeleteTestCase, EnumTestCase, \
         MilestoneTestCase, ComponentTestCase, VersionTestCase
+from trac.util.datefmt import to_utimestamp, utc
 
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
@@ -30,11 +34,8 @@ from tests.env import MultiproductTestCase
 class ProductTicketTestCase(TicketTestCase, MultiproductTestCase):
 
     def setUp(self):
-        self.global_env = self._setup_test_env(create_folder=False, 
-                default_data=True)
-        self._upgrade_mp(self.global_env)
-        self._setup_test_log(self.global_env)
-        self._load_product_from_data(self.global_env, self.default_product)
+        self._mp_setup()
+        self.global_env = self.env
         self.env = ProductEnvironment(self.global_env, self.default_product)
         self._load_default_data(self.env)
 
@@ -44,6 +45,72 @@ class ProductTicketTestCase(TicketTestCase, MultiproductTestCase):
 
     def tearDown(self):
         self.global_env.reset_db()
+        self.env = self.global_env = None
+
+class ProductEnumTestCase(EnumTestCase, MultiproductTestCase):
+    def setUp(self):
+        self._mp_setup()
+        self.global_env = self.env
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+        self._load_default_data(self.env)
+
+    def tearDown(self):
+        self.global_env.reset_db()
+        self.env = self.global_env = None
+
+class ProductMilestoneTestCase(MilestoneTestCase, MultiproductTestCase):
+    def setUp(self):
+        self.global_env = self._setup_test_env(create_folder=True)
+        self._upgrade_mp(self.global_env)
+        self._setup_test_log(self.global_env)
+        self._load_product_from_data(self.global_env, self.default_product)
+
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+        self._load_default_data(self.env)
+
+    def tearDown(self):
+        shutil.rmtree(self.global_env.path)
+        self.global_env.reset_db()
+        self.env = self.global_env = None
+
+    def test_update_milestone(self):
+
+        self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
+
+        milestone = Milestone(self.env, 'Test')
+        t1 = datetime(2001, 01, 01, tzinfo=utc)
+        t2 = datetime(2002, 02, 02, tzinfo=utc)
+        milestone.due = t1
+        milestone.completed = t2
+        milestone.description = 'Foo bar'
+        milestone.update()
+
+        self.assertEqual(
+            [('Test', to_utimestamp(t1), to_utimestamp(t2), 'Foo bar', 
+                    self.default_product)],
+            self.env.db_query("SELECT * FROM milestone WHERE name='Test'"))
+
+class ProductComponentTestCase(ComponentTestCase, MultiproductTestCase):
+    def setUp(self):
+        self._mp_setup()
+        self.global_env = self.env
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+        self._load_default_data(self.env)
+
+    def tearDown(self):
+        self.global_env.reset_db()
+        self.env = self.global_env = None
+
+class ProductVersionTestCase(VersionTestCase, MultiproductTestCase):
+    def setUp(self):
+        self._mp_setup()
+        self.global_env = self.env
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+        self._load_default_data(self.env)
+
+    def tearDown(self):
+        self.global_env.reset_db()
+        self.env = self.global_env = None
 
 
 def test_suite():
@@ -51,10 +118,10 @@ def test_suite():
     suite.addTest(unittest.makeSuite(ProductTicketTestCase, 'test'))
 #    suite.addTest(unittest.makeSuite(ProductTicketCommentEditTestCase, 'test'))
 #    suite.addTest(unittest.makeSuite(ProductTicketCommentDeleteTestCase, 'test'))
-#    suite.addTest(unittest.makeSuite(ProductEnumTestCase, 'test'))
-#    suite.addTest(unittest.makeSuite(ProductMilestoneTestCase, 'test'))
-#    suite.addTest(unittest.makeSuite(ProductComponentTestCase, 'test'))
-#    suite.addTest(unittest.makeSuite(ProductVersionTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductEnumTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductMilestoneTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductComponentTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductVersionTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':
