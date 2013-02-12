@@ -607,6 +607,11 @@ input[type="submit"].btn.btn-micro {
   #changelog .change .span2 {
     float: left;
   }
+
+  .compact-left {
+    float: left;
+    margin-left: 10px;
+  }
 }
 
 @media (max-width: 480px) {
