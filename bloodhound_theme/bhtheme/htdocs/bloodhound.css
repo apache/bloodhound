@@ -435,6 +435,11 @@ h1, h2, h3, h4 {
   display: none;
 }
 
+table.listing th.sel, table.listing td.sel {
+ text-align: center;
+ width: 1%
+}
+
 /* @end */
 
 #filters td .trac-clause-lsep {
