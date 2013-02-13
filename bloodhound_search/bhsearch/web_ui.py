@@ -38,7 +38,7 @@ from trac.util.html import find_element
 from trac.web.chrome import (INavigationContributor, ITemplateProvider,
                              add_link, add_stylesheet, web_context)
 from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
-                          DESC, IndexFields)
+                          DESC, IndexFields, SortInstruction)
 from trac.wiki.formatter import extract_link
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
@@ -75,8 +75,8 @@ class RequestParameters(object):
         self.filter_queries = self._remove_possible_duplications(
             self.filter_queries)
 
-        sort_string = req.args.getfirst(self.SORT)
-        self.sort = self._parse_sort(sort_string)
+        self.sort_string = req.args.getfirst(self.SORT)
+        self.sort = self._parse_sort(self.sort_string)
 
         self.pagelen = int(req.args.getfirst(
             RequestParameters.PAGELEN,
@@ -102,25 +102,14 @@ class RequestParameters(object):
             self.params[self.TYPE] = self.type
         if self.filter_queries:
             self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
-        if sort_string:
-            self.params[RequestParameters.SORT] = sort_string
+        if self.sort_string:
+            self.params[RequestParameters.SORT] = self.sort_string
 
     def _parse_sort(self, sort_string):
         if not sort_string:
             return None
         sort_terms = sort_string.split(",")
         sort = []
-
-        def parse_sort_order(sort_order):
-            sort_order = sort_order.lower()
-            if sort_order == ASC:
-                return ASC
-            elif sort_order == DESC:
-                return DESC
-            else:
-                raise TracError(
-                    "Invalid sort order %s in sort parameter %s" %
-                    (sort_order, sort_string))
 
         for term in sort_terms:
             term = term.strip()
@@ -129,9 +118,9 @@ class RequestParameters(object):
             term_parts = term.split()
             parts_count = len(term_parts)
             if parts_count == 1:
-                sort.append((term_parts[0], ASC))
+                sort.append(SortInstruction(term_parts[0], ASC))
             elif parts_count == 2:
-                sort.append((term_parts[0], parse_sort_order(term_parts[1])))
+                sort.append(SortInstruction(term_parts[0], term_parts[1]))
             else:
                 raise TracError("Invalid sort term %s " % term)
 
@@ -154,8 +143,15 @@ class RequestParameters(object):
             force_filters=None,
             view=None,
             skip_view=False,
+            sort=None,
+            skip_sort = False,
     ):
         params = copy.deepcopy(self.params)
+
+        if skip_sort:
+            self._delete_if_exists(params, self.SORT)
+        elif sort:
+            params[self.SORT] = self._create_sort_expression(sort)
 
         #noquickjump parameter should be always set to 1 for urls
         params[self.NO_QUICK_JUMP] = 1
@@ -182,6 +178,21 @@ class RequestParameters(object):
             params[self.FILTER_QUERY] = force_filters
 
         return self.req.href.bhsearch(**params)
+
+    def _create_sort_expression(self, sort):
+        """
+        Accepts single sort instruction e.g. SortInstruction(field, ASC) or
+        list of sort instructions e.g.
+        [SortInstruction(field1, ASC), SortInstruction(field2, DESC)]
+        """
+        if not sort:
+            return None
+
+        if isinstance(sort, SortInstruction):
+            return sort.build_sort_expression()
+
+        return ", ".join([item.build_sort_expression() for item in sort])
+
 
     def _delete_if_exists(self, params, name):
         if name in params:
@@ -288,6 +299,7 @@ class BloodhoundSearchModule(Component):
 class RequestContext(object):
     DATA_ACTIVE_FILTER_QUERIES = 'active_filter_queries'
     DATA_ACTIVE_TYPE = "active_type"
+    DATA_ACTIVE_SORT = "active_sort"
     DATA_TYPES = "types"
     DATA_HEADERS = "headers"
     DATA_ALL_VIEWS = "all_views"
@@ -309,7 +321,7 @@ class RequestContext(object):
 
     VIEWS_WITH_KNOWN_FIELDS = [DATA_VIEW_GRID]
     OBLIGATORY_FIELDS_TO_SELECT = [IndexFields.ID, IndexFields.TYPE]
-    DEFAULT_SORT = [(SCORE, ASC), ("time", DESC)]
+    DEFAULT_SORT = [SortInstruction(SCORE, ASC), SortInstruction("time", DESC)]
 
     def __init__(
             self,
@@ -323,6 +335,7 @@ class RequestContext(object):
         self.env = env
         self.req = req
         self.parameters = RequestParameters(req)
+        self.data = {'query': self.parameters.query}
         self.search_participants = search_participants
         self.default_view = default_view
         self.all_grid_fields = all_grid_fields
@@ -330,6 +343,17 @@ class RequestContext(object):
         self.view = None
         self.page = self.parameters.page
         self.pagelen = self.parameters.pagelen
+
+        if self.parameters.sort:
+            self.sort = self.parameters.sort
+            self.data[self.DATA_ACTIVE_SORT] = dict(
+                expression=self.parameters.sort_string,
+                href=self.parameters.create_href(skip_sort=True)
+            )
+        else:
+            self.sort = self.DEFAULT_SORT
+
+
         self.allowed_participants, self.sorted_participants = \
             self._get_allowed_participants(req)
 
@@ -341,16 +365,13 @@ class RequestContext(object):
             self.active_type = None
             self.active_participant = None
 
-        self.data = {'query': self.parameters.query}
         self._prepare_allowed_types()
         self._prepare_active_filter_queries()
         self._prepare_quick_jump()
+
         self.fields = self._prepare_fields_and_view()
         self.query_filter = self._prepare_query_filter()
         self.facets = self._prepare_facets()
-
-        self.sort = self.parameters.sort if self.parameters.sort \
-            else self.DEFAULT_SORT
 
 
 
@@ -506,14 +527,27 @@ class RequestContext(object):
         return fields_to_select
 
     def _create_headers_item(self, field):
+        current_sort_direction = self._get_current_sort_direction_for_field(
+            field)
+        href_sort_direction = DESC if current_sort_direction == ASC else ASC
         return dict(
             name=field,
-            href="",
+            href=self.parameters.create_href(
+                skip_page=True,
+                sort=SortInstruction(field, href_sort_direction)
+            ),
             #TODO:add translated column label. Now it is really temporary
-            #workaround
+            # workaround
             label=field,
-            sort=None,
+            sort=current_sort_direction,
         )
+
+    def _get_current_sort_direction_for_field(self, field):
+        if self.sort and len(self.sort) == 1:
+            single_sort = self.sort[0]
+            if single_sort.field == field:
+                return single_sort.order
+        return None
 
     def _prepare_query_filter(self):
         query_filters = list(self.parameters.filter_queries)

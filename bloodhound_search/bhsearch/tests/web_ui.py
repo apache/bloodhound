@@ -20,7 +20,7 @@
 import unittest
 
 from urllib import urlencode, unquote
-from bhsearch.api import ASC, DESC
+from bhsearch.api import ASC, DESC, SortInstruction
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.web_ui import RequestParameters
@@ -525,10 +525,14 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         api_sort = data["debug"]["api_parameters"]["sort"]
-        self.assertEqual([("component", ASC), ("milestone", DESC)], api_sort)
+        self.assertEqual(
+            [
+                SortInstruction("component", ASC),
+                SortInstruction("milestone", DESC),
+            ],
+            api_sort)
         ids = [item["summary"] for item in data["results"].items]
         self.assertEqual(["T2", "T1", "T3"], ids)
-
 
     def test_that_title_is_set_for_free_text_view(self):
         #arrange
@@ -538,6 +542,57 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         self.assertIn("title", data["results"].items[0])
+
+
+    def test_that_grid_header_has_correct_sort_when_default_sorting(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.VIEW] = "grid"
+        data = self.process_request()
+        #assert
+        headers = data["headers"]
+        id_header = self._find_header(headers, "id")
+        self.assertIn("sort=id+asc", id_header["href"])
+        self.assertEquals(None, id_header["sort"])
+
+        time_header = self._find_header(headers, "time")
+        self.assertIn("sort=time+asc", time_header["href"])
+        self.assertEquals(None, time_header["sort"])
+
+    def test_that_grid_header_has_correct_sort_if_acs_sorting(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.QUERY] = "*"
+        self.req.args[RequestParameters.VIEW] = "grid"
+        self.req.args[RequestParameters.SORT] = "id"
+
+        data = self.process_request()
+        #assert
+        headers = data["headers"]
+        id_header = self._find_header(headers, "id")
+        self.assertIn("sort=id+desc", id_header["href"])
+        self.assertEquals("asc", id_header["sort"])
+
+    def test_that_active_sort_is_set(self):
+        #arrange
+        self.insert_ticket("T1", component="c1", status="new", milestone="A")
+        #act
+        self.req.args[RequestParameters.SORT] = "id, time desc"
+
+        data = self.process_request()
+        #assert
+        active_sort = data["active_sort"]
+        self.assertEquals("id, time desc", active_sort["expression"])
+        self.assertNotIn("sort=", active_sort["href"])
+
+    def _find_header(self, headers, name):
+        for header in headers:
+            if header["name"] == name:
+                return header
+        raise Exception("Header not found: %s" % name)
 
 
     def _count_parameter_in_url(self, url, parameter_name, value):
@@ -582,16 +637,16 @@ class RequestParametersTest(unittest.TestCase):
             None,
             self._evaluate_sort(" ,  , "))
         self.assertEqual(
-            [("f1", ASC),],
+            [SortInstruction("f1", ASC),],
             self._evaluate_sort(" f1 "))
         self.assertEqual(
-            [("f1", ASC),],
+            [SortInstruction("f1", ASC),],
             self._evaluate_sort(" f1 asc"))
         self.assertEqual(
-            [("f1", DESC),],
+            [SortInstruction("f1", DESC),],
             self._evaluate_sort("f1  desc"))
         self.assertEqual(
-            [("f1", ASC), ("f2", DESC)],
+            [SortInstruction("f1", ASC), SortInstruction("f2", DESC)],
             self._evaluate_sort("f1, f2 desc"))
 
     def test_can_raise_error_on_invalid_sort_term(self):
@@ -599,6 +654,23 @@ class RequestParametersTest(unittest.TestCase):
             TracError,
             self._evaluate_sort,
             "f1  desc bb")
+
+    def test_can_create_href_with_single_sort(self):
+        href = RequestParameters(self.req).create_href(
+            sort=SortInstruction("field1", ASC))
+        href = unquote(href)
+        print href
+        self.assertIn("sort=field1+asc", href)
+
+    def test_can_create_href_with_multiple_sort(self):
+        href = RequestParameters(self.req).create_href(
+            sort=[
+                SortInstruction("field1", ASC),
+                SortInstruction("field2", DESC),
+            ])
+        href = unquote(href)
+        print href
+        self.assertIn("sort=field1+asc,+field2+desc", href)
 
     def _evaluate_sort(self, sort_condition):
         self.req.args[RequestParameters.SORT] = sort_condition

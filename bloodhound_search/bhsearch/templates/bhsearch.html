@@ -57,12 +57,12 @@
     <div id="content" class="row">
       <div class="span12">
         <h1>Advanced search</h1>
-        <div class="btn-group">
           <form id="fullsearch" action="${href.bhsearch()}" method="get">
             <!--So far, we will not support noquickjump mode for form submission-->
             <!--<input type="hidden" name="noquickjump" value="1" />-->
             <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
             <input py:if="active_view" type="hidden" name="view" value="${active_view}" />
+            <input py:if="active_sort" type="hidden" name="sort" value="${active_sort.expression}" />
             <py:for each="active_filter in active_filter_queries">
               <input type="hidden" name="fq" value="${active_filter.query}" />
             </py:for>
@@ -74,8 +74,12 @@
                 <i class="icon-search icon-white"></i>
               </button>
             </div>
+
+            <div id="active_sort" py:if="active_sort">
+                Sort by: <strong>${active_sort.expression}</strong> (<a href="${active_sort.href}">remove</a>)
+            </div>
+
           </form>
-        </div>
       </div>
 
       <div class="span12">
@@ -98,13 +102,12 @@
           </ul>
         </div>
 
-        <py:if test="active_filter_queries">
-          <div id="active_filter_queries">
-            <py:for each="active_filter in active_filter_queries">
-              &gt; <a href="${active_filter.href}">${active_filter.label}</a>
-            </py:for>
-          </div>
-        </py:if>
+        <!--Render filters breadcrumbs-->
+        <div id="active_filter_queries" py:if="active_filter_queries">
+          <py:for each="active_filter in active_filter_queries">
+            &gt; <a href="${active_filter.href}">${active_filter.label}</a>
+          </py:for>
+        </div>
 
         <div py:if="results" class="row">
           <div class="span3 facets">
@@ -150,11 +153,15 @@
                   <thead>
                     <tr class="trac-columns">
                         <th py:for="header in headers"
-                            class="$header.name${(' desc' if header.sort=='DESC' else ' asc') if header.sort else ''}">
+                            class="$header.name${(' desc' if header.sort=='desc' else ' asc') if header.sort else ''}"  py:with="">
                           <?python asc = _('(ascending)'); desc = _('(descending)') ?>
                           <a title="${_('Sort by %(col)s %(direction)s', col=header.label,
-                                        direction=(desc if header.sort=='ASC' else asc))}"
-                             href="$header.href">${header.label}</a>
+                                        direction=(desc if header.sort=='asc' else asc))}"
+                             href="${header.href}">
+                            ${header.label}
+                            <i py:if="header.sort"
+                                class="${'icon-chevron-down' if header.sort=='desc' else 'icon-chevron-up'}"></i>
+                          </a>
                         </th>
                     </tr>
                   </thead>

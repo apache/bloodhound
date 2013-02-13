@@ -20,7 +20,7 @@
 
 r"""Core Bloodhound Search components."""
 from trac.config import ExtensionOption
-from trac.core import Interface, Component, ExtensionPoint
+from trac.core import Interface, Component, ExtensionPoint, TracError
 
 ASC = "asc"
 DESC = "desc"
@@ -43,6 +43,35 @@ class QueryResult(object):
         self.docs = []
         self.facets = None
         self.debug = {}
+
+class SortInstruction(object):
+    def __init__(self, field, order):
+        self.field = field
+        self.order = self._parse_sort_order(order)
+
+    def _parse_sort_order(self, order):
+        if not order:
+            return ASC
+        order = order.strip().lower()
+        if order == ASC:
+            return ASC
+        elif order == DESC:
+            return DESC
+        else:
+            raise TracError(
+                "Invalid sort order %s in sort instruction" % order)
+
+    def build_sort_expression(self):
+        return "%s %s" % (self.field, self.order)
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def __eq__(self, other):
+        if not isinstance(other, SortInstruction):
+            return False
+        return self.__dict__ == other.__dict__
+
 
 
 class ISearchBackend(Interface):
@@ -97,8 +126,7 @@ class ISearchBackend(Interface):
         Perform query implementation
 
         :param query: Parsed query object
-        :param sort: list of tuples  with field name and sort order:
-            [("field_name", "ASC")]
+        :param sort: list of SortInstruction objects
         :param fields: list of fields to select
         :param boost: list of fields with boost values
         :param filter: filter query object
