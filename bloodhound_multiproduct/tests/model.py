@@ -54,6 +54,23 @@ class ProductTestCase(unittest.TestCase):
         shutil.rmtree(self.env.path)
         self.env.reset_db()
     
+    def test_set_table_field(self):
+        """tests that table.field style update works"""
+        test = {'prefix': 'td',
+                'name': 'test field access',
+                'description': 'product to test field setting'}
+        
+        product = Product(self.env)
+        
+        # attempt to set the fields from the data
+        product.prefix = test['prefix']
+        product.name = test['name']
+        product.description = test['description']
+        
+        self.assertEqual(product._data['prefix'], test['prefix'])
+        self.assertEqual(product._data['name'], test['name'])
+        self.assertEqual(product._data['description'], test['description'])
+    
     def test_select(self):
         """tests that select can search Products by fields"""
         
