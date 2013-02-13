@@ -47,6 +47,37 @@ class ProductTicketTestCase(TicketTestCase, MultiproductTestCase):
         self.global_env.reset_db()
         self.env = self.global_env = None
 
+class ProductTicketCommentTestCase(MultiproductTestCase):
+
+    @property
+    def env(self):
+        env = getattr(self, '_env', None)
+        if env is None:
+            self.global_env = self._setup_test_env()
+            self._upgrade_mp(self.global_env)
+            self._setup_test_log(self.global_env)
+            self._load_product_from_data(self.global_env, self.default_product)
+            self._env = env = ProductEnvironment(
+                    self.global_env, self.default_product)
+            self._load_default_data(env)
+        return env
+
+    @env.setter
+    def env(self, value):
+        pass
+
+    def tearDown(self):
+        self.global_env.reset_db()
+        self._env = self.global_env = None
+
+class ProductTicketCommentEditTestCase(TicketCommentEditTestCase,
+        ProductTicketCommentTestCase):
+    pass
+
+class ProductTicketCommentDeleteTestCase(TicketCommentDeleteTestCase,
+        ProductTicketCommentTestCase):
+    pass
+
 class ProductEnumTestCase(EnumTestCase, MultiproductTestCase):
     def setUp(self):
         self._mp_setup()
@@ -116,8 +147,8 @@ class ProductVersionTestCase(VersionTestCase, MultiproductTestCase):
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ProductTicketTestCase, 'test'))
-#    suite.addTest(unittest.makeSuite(ProductTicketCommentEditTestCase, 'test'))
-#    suite.addTest(unittest.makeSuite(ProductTicketCommentDeleteTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductTicketCommentEditTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductTicketCommentDeleteTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductEnumTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductMilestoneTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductComponentTestCase, 'test'))
