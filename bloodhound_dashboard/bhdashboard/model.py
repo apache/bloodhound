@@ -83,9 +83,8 @@ class ModelBase(object):
     
     def __setattr__(self, name, value):
         """Overridden to allow table.field = value style field setting."""
-        data = self.__dict__.get('data')
-        fields = self.__dict__.get('fields')
-        
+        data = self.__dict__.get('_data')
+        fields = self.__dict__.get('_all_fields')
         if data and fields and name in fields:
             self._data[name] = value
         else:
