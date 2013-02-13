@@ -339,7 +339,7 @@ class BloodhoundTheme(ThemeBase):
             if bm and not list(bm.get_navigation_items(req)):
                 yield ('mainnav', 'browser', 
                        tag.a(_('Browse Source'),
-                             href=req.href.wiki('Guide/RepositoryAdmin')))
+                             href=req.href.wiki('TracRepositoryAdmin')))
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
