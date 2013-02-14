@@ -189,6 +189,11 @@ div.reports form {
   color: grey;
 }
 
+.activityfeed * tt {
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
 #mobile-activity {
   margin-top: 50px;
 }
