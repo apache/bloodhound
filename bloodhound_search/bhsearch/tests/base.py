@@ -28,17 +28,28 @@ from pprint import pprint
 
 from bhsearch.web_ui import BloodhoundSearchModule
 from trac.ticket import Ticket, Milestone
-from trac.test import EnvironmentStub
+from trac.test import EnvironmentStub, Mock, MockPerm
+from trac.web import Href, arg_list_to_args
 from trac.wiki import WikiPage
+
+BASE_PATH = "/main/"
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
 
-    def setUp(self, enabled = None):
+    def setUp(self, enabled = None, create_req = False):
         if not enabled:
             enabled = ['bhsearch.*']
         self.env = EnvironmentStub(enable=enabled)
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
         self.env.config.set('bhsearch', 'silence_on_error', "False")
+        if create_req:
+            self.req = Mock(
+                perm=MockPerm(),
+                chrome={'logo': {}},
+                href=Href("/main"),
+                base_path=BASE_PATH,
+                args=arg_list_to_args([]),
+            )
 
     def tearDown(self):
         shutil.rmtree(self.env.path)

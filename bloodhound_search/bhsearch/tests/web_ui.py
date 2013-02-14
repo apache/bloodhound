@@ -39,7 +39,12 @@ DEFAULT_DOCS_PER_PAGE = 10
 
 class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def setUp(self):
-        super(WebUiTestCaseWithWhoosh, self).setUp(['trac.*', 'bhsearch.*'])
+        super(WebUiTestCaseWithWhoosh, self).setUp(
+            ['trac.*', 'bhsearch.*'],
+            create_req=True,
+        )
+        self.req.redirect = self.redirect
+
         whoosh_backend = WhooshBackend(self.env)
         whoosh_backend.recreate_index()
 
