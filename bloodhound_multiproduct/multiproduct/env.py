@@ -22,7 +22,7 @@ import os.path
 from urlparse import urlsplit
 from sqlite3 import OperationalError
 
-from trac.config import ConfigSection, Option
+from trac.config import BoolOption, ConfigSection, Option
 from trac.core import Component, ComponentManager, implements
 from trac.db.api import TransactionContextManager, QueryContextManager
 from trac.util import get_pkginfo, lazy
@@ -240,11 +240,25 @@ class ProductEnvironment(Component, ComponentManager):
         """
         return ''
 
-    # TODO: Estimate product base URL considering global base URL, pattern, ...
-    base_url = ''
+    base_url = Option('trac', 'base_url', '',
+        """Reference URL for the Trac deployment.
+        
+        This is the base URL that will be used when producing
+        documents that will be used outside of the web browsing
+        context, like for example when inserting URLs pointing to Trac
+        resources in notification e-mails.""")
 
-    # TODO: Estimate product base URL considering global base URL, pattern, ...
-    base_url_for_redirect = ''
+    base_url_for_redirect = BoolOption('trac', 'use_base_url_for_redirect',
+            False, 
+        """Optionally use `[trac] base_url` for redirects.
+        
+        In some configurations, usually involving running Trac behind
+        a HTTP proxy, Trac can't automatically reconstruct the URL
+        that is used to access it. You may need to use this option to
+        force Trac to use the `base_url` setting also for
+        redirects. This introduces the obvious limitation that this
+        environment will only be usable when accessible from that URL,
+        as redirects are frequently used. ''(since 0.10.5)''""")
 
     @property
     def project_name(self):
@@ -590,9 +604,16 @@ class ProductEnvironment(Component, ComponentManager):
         """The application URL"""
         if not self._abs_href:
             if not self.base_url:
-                self.log.warn("base_url option not set in configuration, "
-                              "generated links may be incorrect")
-                self._abs_href = Href('')
+                urlpattern = MultiProductSystem(self.parent).product_base_url
+                if not urlpattern:
+                    self.log.warn("product_base_url option not set in "
+                                  "configuration, generated links may be "
+                                  "incorrect")
+                    urlpattern = 'product/$(prefix)s'
+                url = urlpattern.replace('$(', '%(') \
+                     .replace('%(prefix)s', self.product.prefix) \
+                     .replace('%(name)s', self.product.name)
+                self._abs_href = Href(self.parent.abs_href(url))
             else:
                 self._abs_href = Href(self.base_url)
         return self._abs_href

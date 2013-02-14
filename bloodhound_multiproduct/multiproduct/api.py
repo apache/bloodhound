@@ -24,7 +24,7 @@ from genshi.builder import tag
 import copy
 
 from pkg_resources import resource_filename
-from trac.config import PathOption
+from trac.config import Option, PathOption
 from trac.core import Component, TracError, implements
 from trac.db import Table, Column, DatabaseManager, Index
 from trac.env import IEnvironmentSetupParticipant
@@ -45,6 +45,19 @@ class MultiProductSystem(Component):
 
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
             IPermissionRequestor, ITicketFieldProvider, IResourceManager)
+
+    product_base_url = Option('multiproduct', 'product_base_url', '',
+        """A pattern used to generate the base URL of product environments,
+        e.g. the use cases listed in bh:wiki:/Proposals/BEP-0003#url-mapping .
+        Both absolute as well as relative URLs are supported. The later 
+        will be resolved with respect to the base URL of the parent global
+        environment. The pattern may contain references to $(prefix)s and 
+        $(name)s placeholders representing the product prefix and name
+        respectively . If nothing is set the following will be used 
+        `products/$(prefix)s`
+
+        Note the usage of `$(...)s` instead of `%(...)s` as the later form 
+        would be interpreted by the ConfigParser itself. """)
 
     product_config_parent = PathOption('inherit', 'multiproduct', '',
         """The path to the configuration file containing the settings shared
