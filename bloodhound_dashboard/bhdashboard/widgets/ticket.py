@@ -307,6 +307,7 @@ class TicketGroupStatsWidget(WidgetBase):
         stat = get_ticket_stats(statsp, tickets)
 
         add_stylesheet(req, 'dashboard/css/bootstrap.css')
+        add_stylesheet(req, 'dashboard/css/bootstrap-responsive.css')
         add_stylesheet(req, 'dashboard/css/roadmap.css')
         return 'widget_progress.html', \
                 {

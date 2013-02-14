@@ -177,15 +177,15 @@ div.reports form {
   font-weight: normal;
 }
 
-#activityfeed img {
+.activityfeed img {
   display: none;
 }
 
-#activityfeed dt {
+.activityfeed dt {
   font-weight: normal;
 }
 
-#activityfeed dd {
+.activityfeed dd {
   color: grey;
 }
 

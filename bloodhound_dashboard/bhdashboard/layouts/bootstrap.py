@@ -57,6 +57,7 @@ class BootstrapLayout(Component):
         """
         req = context.req
         add_stylesheet(req, 'dashboard/css/bootstrap.css')
+        add_stylesheet(req, 'dashboard/css/bootstrap-responsive.css')
 
         if name == 'bootstrap_btnbar':
             self._process_btnbar(req, options)
