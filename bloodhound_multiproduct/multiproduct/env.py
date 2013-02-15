@@ -414,7 +414,7 @@ class ProductEnvironment(Component, ComponentManager):
            with env.db_query as db:
                ...
         """
-        return BloodhoundConnectionWrapper(DatabaseManager(self).get_connection(), self)
+        return BloodhoundConnectionWrapper(self.parent.get_db_cnx(), self)
 
     @lazy
     def db_exc(self):
@@ -444,7 +444,7 @@ class ProductEnvironment(Component, ComponentManager):
 
         See `trac.db.api.get_read_db` for detailed documentation.
         """
-        return BloodhoundConnectionWrapper(DatabaseManager(self).get_connection(readonly=True), self)
+        return BloodhoundConnectionWrapper(self.parent.get_read_db(), self)
 
     @property
     def db_query(self):
