@@ -23,7 +23,7 @@ import sqlparse
 import sqlparse.tokens as Tokens
 import sqlparse.sql as Types
 
-__all__ = ['BloodhoundIterableCursor']
+__all__ = ['BloodhoundIterableCursor', 'BloodhoundConnectionWrapper', 'ProductEnvContextManager']
 
 SKIP_TABLES = ['system', 'auth_cookie',
                'session', 'session_attribute',
@@ -110,8 +110,27 @@ class BloodhoundConnectionWrapper(object):
         return self.connection.executemany(query, params=params)
 
     def cursor(self):
+        return BloodhoundCursorWrapper(self.connection.cursor(), self.env)
+
+class BloodhoundCursorWrapper(object):
+
+    def __init__(self, cursor, env):
+        self.cursor = cursor
+        self.env = env
+
+    def __getattr__(self, name):
+        return getattr(self.cursor, name)
+
+    def __iter__(self):
+        return self.cursor.__iter__()
+
+    def execute(self, sql, args=None):
         BloodhoundIterableCursor.set_env(self.env)
-        return self.connection.cursor()
+        return self.cursor.execute(sql, args=args)
+
+    def executemany(self, sql, args=None):
+        BloodhoundIterableCursor.set_env(self.env)
+        return self.cursor.executemany(sql, args=args)
 
 class ProductEnvContextManager(object):
     """Wrap an underlying database context manager so as to keep track

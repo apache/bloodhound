@@ -24,7 +24,7 @@ from sqlite3 import OperationalError
 
 from trac.config import BoolOption, ConfigSection, Option
 from trac.core import Component, ComponentManager, implements
-from trac.db.api import TransactionContextManager, QueryContextManager
+from trac.db.api import TransactionContextManager, QueryContextManager, DatabaseManager
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
@@ -32,7 +32,7 @@ from trac.web.href import Href
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.config import Configuration
-from multiproduct.dbcursor import ProductEnvContextManager
+from multiproduct.dbcursor import ProductEnvContextManager, BloodhoundConnectionWrapper
 from multiproduct.model import Product
 
 import trac.env
@@ -414,8 +414,7 @@ class ProductEnvironment(Component, ComponentManager):
            with env.db_query as db:
                ...
         """
-        # share connection pool with global environment
-        return self.parent.get_db_cnx()
+        return BloodhoundConnectionWrapper(DatabaseManager(self).get_connection(), self)
 
     @lazy
     def db_exc(self):
@@ -445,7 +444,7 @@ class ProductEnvironment(Component, ComponentManager):
 
         See `trac.db.api.get_read_db` for detailed documentation.
         """
-        raise NotImplementedError('Deprecated method')
+        return BloodhoundConnectionWrapper(DatabaseManager(self).get_connection(readonly=True), self)
 
     @property
     def db_query(self):
