@@ -161,21 +161,22 @@ class TimelineWidget(WidgetBase):
             if start is not None:
                 fakereq.args['from'] = start.strftime('%x %X')
 
+            wcontext = context.child()
             if (realm, rid) != (None, None):
                 # Override rendering context
                 resource = Resource(realm, rid)
                 if resource_exists(self.env, resource) or \
                         realm == rid == '':
-                    context = RenderingContext(resource)
-                    context.req = req
+                    wcontext = context.child(resource)
+                    wcontext.req = req
                 else:
                     self.log.warning("TimelineWidget: Resource %s not found",
                             resource)
             # FIXME: Filter also if existence check is not conclusive ?
-            if resource_exists(self.env, context.resource):
-                module = FilteredTimeline(self.env, context)
+            if resource_exists(self.env, wcontext.resource):
+                module = FilteredTimeline(self.env, wcontext)
                 self.log.debug('Filtering timeline events for %s', \
-                        context.resource)
+                        wcontext.resource)
             else:
                 module = timemdl
             data = module.process_request(fakereq)[1]
@@ -188,7 +189,10 @@ class TimelineWidget(WidgetBase):
                         exclude=["stylesheet", "alternate"])
             data['today'] = today = datetime.now(req.tz)
             data['yesterday'] = today - timedelta(days=1)
-            data['context'] = context
+            if 'context' in data:
+                # Needed for abbreviated messages in widget events (#340)
+                wcontext.set_hints(**(data['context']._hints or {}))
+            data['context'] = wcontext
             return 'widget_timeline.html', \
                     {
                         'title' : _('Activity'),
