@@ -185,6 +185,10 @@ class MultiProductSystem(Component):
                         self.log.info("Populating table '%s' for product '%s' ('%s')", table, product.name, product.prefix)
                         db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s_temp" %
                             (table, cols, cols, product.prefix, table))
+                    if table == 'permission':
+                        self.log.info("Populating table '%s' for global scope", table)
+                        db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s_temp" %
+                           (table, cols, cols, '', table))
                     db("DROP TABLE %s_temp" % table)
                 db_installed_version = self._update_db_version(db, 3)
 
