@@ -17,6 +17,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+from contextlib import closing
 
 import unittest
 import shutil
@@ -26,7 +27,8 @@ from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
 from bhsearch.whoosh_backend import WhooshBackend
-
+from trac.test import MockPerm
+from trac.web import Href
 
 class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
@@ -114,9 +116,60 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
         self.print_result(results)
         self.assertEqual(2, results.hits)
 
+class FormattingTestCase(BaseBloodhoundSearchTest):
+    def setUp(self):
+        super(FormattingTestCase, self).setUp(
+            ['trac.*', 'bhsearch.*'],
+            create_req=True,
+        )
+
+    def test_can_format_wiki_to_text(self):
+        wiki_content = """= Header #overview
+
+        '''bold''', ''italic'', '''''Wikipedia style'''''
+
+        {{{
+        code
+        }}}
+
+        [[PageOutline]]
+
+        || '''Table''' || sampe ||
+
+          - list
+          - sample
+
+        [[Image(mockup_tickets.png)]] [wiki:SomePage p1] [ticket:1 ticket one]
+        http://www.edgewall.com/,
+        [http://www.edgewall.com Edgewall Software]
+
+        [#point1]
+        """
+#        wiki_content = """
+#'''''one''''', '''''two''''', '''''three''''', '''''four'''''
+#        """
+
+        page = self.create_wiki("Dummy wiki", wiki_content)
+        from trac.mimeview.api import RenderingContext
+        context = RenderingContext(
+            page.resource,
+            href=Href('/'),
+            perm=MockPerm(),
+        )
+        context.req = None # 1.0 FIXME .req shouldn't be required by formatter
+#        result = format_to_oneliner(self.env, context, wiki_content)
+#        from trac.wiki.formatter import format_to_oneliner
+        from trac.web.chrome import  format_to_html
+        result = format_to_html(self.env, context, wiki_content)
+        print result
+#
+
 
 def suite():
-    return unittest.makeSuite(IndexWhooshTestCase, 'test')
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(IndexWhooshTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(FormattingTestCase, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()

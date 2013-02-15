@@ -1,7 +1,7 @@
 """Example macro."""
 
-revision = "$Rev$"
-url = "$URL$"
+revision = "$Rev: 11490 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/HelloWorld.py $"
 
 #
 # The following shows the code for macro, old-style.
@@ -18,7 +18,7 @@ def execute(hdf, txt, env):
     # From a wiki page
     if hdf:
         hdf['wiki.macro.greeting'] = 'Hello World'
-        
+
     # args will be `None` if the macro is called without parenthesis.
     args = txt or 'No arguments'
 
@@ -59,7 +59,7 @@ class HelloWorldMacro(WikiMacroBase):
           [[HelloWorld]]), then `args` is `None`.
         """
         return 'Hello World, args = ' + unicode(args)
-    
+
     # Note that there's no need to HTML escape the returned data,
     # as the template engine (Genshi) will do it for us.
 # --

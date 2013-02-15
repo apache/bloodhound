@@ -257,7 +257,9 @@ class WhooshBackend(Component):
         if not sort:
             return None
         sortedby = []
-        for (field, order) in sort:
+        for sort_instruction in sort:
+            field = sort_instruction.field
+            order = sort_instruction.order
             if field.lower() == SCORE:
                 if self._is_desc(order):
                     #We can implement tis later by our own ScoreFacet with

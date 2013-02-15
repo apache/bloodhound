@@ -153,7 +153,8 @@ class FunctionalTester(object):
         return comment
 
     def attach_file_to_ticket(self, ticketid, data=None, tempfilename=None,
-                              description=None, replace=False):
+                              description=None, replace=False,
+                              content_type=None):
         """Attaches a file to the given ticket id, with random data if none is
         provided.  Assumes the ticket exists.
         """
@@ -172,7 +173,8 @@ class FunctionalTester(object):
         tc.url(self.url + "/attachment/ticket/" \
                "%s/\\?action=new&attachfilebutton=Attach\\+file" % ticketid)
         fp = StringIO(data)
-        tc.formfile('attachment', 'attachment', tempfilename, fp=fp)
+        tc.formfile('attachment', 'attachment', tempfilename,
+                    content_type=content_type, fp=fp)
         tc.formvalue('attachment', 'description', description)
         if replace:
             tc.formvalue('attachment', 'replace', True)
@@ -216,12 +218,14 @@ class FunctionalTester(object):
         tc.submit()
         tc.find(page + ".*created")
 
-    def attach_file_to_wiki(self, name, data=None):
+    def attach_file_to_wiki(self, name, data=None, tempfilename=None):
         """Attaches a file to the given wiki page, with random content if none
         is provided.  Assumes the wiki page exists.
         """
         if data == None:
             data = random_page()
+        if tempfilename is None:
+            tempfilename = random_word()
         self.go_to_wiki(name)
         # set the value to what it already is, so that twill will know we
         # want this form.
@@ -229,7 +233,6 @@ class FunctionalTester(object):
         tc.submit()
         tc.url(self.url + "/attachment/wiki/" \
                "%s/\\?action=new&attachfilebutton=Attach\\+file" % name)
-        tempfilename = random_word()
         fp = StringIO(data)
         tc.formfile('attachment', 'attachment', tempfilename, fp=fp)
         tc.formvalue('attachment', 'description', random_sentence())

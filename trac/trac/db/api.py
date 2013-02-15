@@ -30,8 +30,6 @@ from .pool import ConnectionPool
 from .util import ConnectionWrapper
 
 
-_transaction_local = ThreadLocal(wdb=None, rdb=None)
-
 def with_transaction(env, db=None):
     """Function decorator to emulate a context manager for database
     transactions.
@@ -44,7 +42,29 @@ def with_transaction(env, db=None):
     >>>         result[0] = value2
     >>>     return result[0]
 
-    :deprecated: use instead the new context manager:
+    In this example, the `implementation()` function is called
+    automatically right after its definition, with a database
+    connection as an argument. If the function completes, a COMMIT is
+    issued on the connection. If the function raises an exception, a
+    ROLLBACK is issued and the exception is re-raised. Nested
+    transactions are supported, and a COMMIT will only be issued when
+    the outermost transaction block in a thread exits.
+
+    This mechanism is intended to replace the former practice of
+    getting a database connection with `env.get_db_cnx()` and issuing
+    an explicit commit or rollback, for mutating database
+    accesses. Its automatic handling of commit, rollback and nesting
+    makes it much more robust.
+
+    The optional `db` argument is intended for legacy code and should
+    not be used in new code.
+
+    :deprecated: This decorator is in turn deprecated in favor of
+                 context managers now that python 2.4 support has been
+                 dropped. Use instead the new context manager,
+                 `QueryContextManager` and
+                 `TransactionContextManager`, which makes for much
+                 simpler to write code:
 
     >>> def api_method(p1, p2):
     >>>     result = value1
@@ -52,25 +72,11 @@ def with_transaction(env, db=None):
     >>>         # implementation
     >>>         result = value2
     >>>     return result
-    
-    In this example, the `implementation()` function is called automatically
-    right after its definition, with a database connection as an argument.
-    If the function completes, a COMMIT is issued on the connection. If the
-    function raises an exception, a ROLLBACK is issued and the exception is
-    re-raised. Nested transactions are supported, and a COMMIT will only be
-    issued when the outermost transaction block in a thread exits.
-    
-    This mechanism is intended to replace the former practice of getting a
-    database connection with `env.get_db_cnx()` and issuing an explicit commit
-    or rollback, for mutating database accesses. Its automatic handling of
-    commit, rollback and nesting makes it much more robust.
-    
-    The optional `db` argument is intended for legacy code and should not
-    be used in new code.
 
-    This decorator is in turn deprecated in favor of context managers 
-    now that python 2.4 support has been dropped.
     """
+    dbm = DatabaseManager(env)
+    _transaction_local = dbm._transaction_local
+
     def transaction_wrapper(fn):
         ldb = _transaction_local.wdb
         if db is not None:
@@ -86,7 +92,7 @@ def with_transaction(env, db=None):
         elif ldb:
             fn(ldb)
         else:
-            ldb = _transaction_local.wdb = DatabaseManager(env).get_connection()
+            ldb = _transaction_local.wdb = dbm.get_connection()
             try:
                 fn(ldb)
                 ldb.commit()
@@ -102,13 +108,13 @@ def with_transaction(env, db=None):
 class DbContextManager(object):
     """Database Context Manager
 
-    The outermost DbContextManager will close the connection.
+    The outermost `DbContextManager` will close the connection.
     """
 
     db = None
 
     def __init__(self, env):
-        self.env = env
+        self.dbmgr = DatabaseManager(env)
 
     def execute(self, query, params=None):
         """Shortcut for directly executing a query."""
@@ -124,73 +130,76 @@ class DbContextManager(object):
 
 
 class TransactionContextManager(DbContextManager):
-    """Transactioned Database Context Manager
+    """Transactioned Database Context Manager for retrieving a
+    `~trac.db.util.ConnectionWrapper`.
 
-    The outermost such context manager will perform a commit upon normal exit
-    or a rollback after an exception.
+    The outermost such context manager will perform a commit upon
+    normal exit or a rollback after an exception.
     """
 
     def __enter__(self):
-        db = _transaction_local.wdb # outermost writable db
+        db = self.dbmgr._transaction_local.wdb # outermost writable db
         if not db:
-            db = _transaction_local.rdb # reuse wrapped connection
+            db = self.dbmgr._transaction_local.rdb # reuse wrapped connection
             if db:
                 db = ConnectionWrapper(db.cnx, db.log)
             else:
-                db = DatabaseManager(self.env).get_connection()
-            _transaction_local.wdb = self.db = db
+                db = self.dbmgr.get_connection()
+            self.dbmgr._transaction_local.wdb = self.db = db
         return db
 
-    def __exit__(self, et, ev, tb): 
-        if self.db: 
-            _transaction_local.wdb = None
-            if et is None: 
+    def __exit__(self, et, ev, tb):
+        if self.db:
+            self.dbmgr._transaction_local.wdb = None
+            if et is None:
                 self.db.commit()
-            else: 
+            else:
                 self.db.rollback()
-            if not _transaction_local.rdb:
+            if not self.dbmgr._transaction_local.rdb:
                 self.db.close()
 
 
 class QueryContextManager(DbContextManager):
-    """Database Context Manager for retrieving a readonly ConnectionWrapper"""
+    """Database Context Manager for retrieving a read-only
+    `~trac.db.util.ConnectionWrapper`.
+    """
 
     def __enter__(self):
-        db = _transaction_local.rdb # outermost readonly db
+        db = self.dbmgr._transaction_local.rdb # outermost readonly db
         if not db:
-            db = _transaction_local.wdb # reuse wrapped connection
+            db = self.dbmgr._transaction_local.wdb # reuse wrapped connection
             if db:
                 db = ConnectionWrapper(db.cnx, db.log, readonly=True)
             else:
-                db = DatabaseManager(self.env).get_connection(readonly=True)
-            _transaction_local.rdb = self.db = db
+                db = self.dbmgr.get_connection(readonly=True)
+            self.dbmgr._transaction_local.rdb = self.db = db
         return db
 
-    def __exit__(self, et, ev, tb): 
+    def __exit__(self, et, ev, tb):
         if self.db:
-            _transaction_local.rdb = None
-            if not _transaction_local.wdb:
+            self.dbmgr._transaction_local.rdb = None
+            if not self.dbmgr._transaction_local.wdb:
                 self.db.close()
 
 
 class IDatabaseConnector(Interface):
-    """Extension point interface for components that support the connection to
-    relational databases.
+    """Extension point interface for components that support the
+    connection to relational databases.
     """
 
     def get_supported_schemes():
-        """Return the connection URL schemes supported by the connector, and
-        their relative priorities as an iterable of `(scheme, priority)`
-        tuples.
-        
+        """Return the connection URL schemes supported by the
+        connector, and their relative priorities as an iterable of
+        `(scheme, priority)` tuples.
+
         If `priority` is a negative number, this is indicative of an
-        error  condition with the connector. An error message should be 
+        error condition with the connector. An error message should be
         attached to the `error` attribute of the connector.
         """
 
     def get_connection(path, log=None, **kwargs):
         """Create a new connection to the database."""
-    
+
     def get_exceptions():
         """Return an object (typically a module) containing all the
         backend-specific exception types as attributes, named
@@ -202,14 +211,16 @@ class IDatabaseConnector(Interface):
         """Initialize the database."""
 
     def to_sql(table):
-        """Return the DDL statements necessary to create the specified table,
-        including indices."""
-        
+        """Return the DDL statements necessary to create the specified
+        table, including indices."""
+
     def backup(dest):
-        """Backup the database to a location defined by trac.backup_dir"""
+        """Backup the database to a location defined by
+        trac.backup_dir"""
 
 
 class DatabaseManager(Component):
+    """Component used to manage the `IDatabaseConnector` implementations."""
 
     connectors = ExtensionPoint(IDatabaseConnector)
 
@@ -231,6 +242,7 @@ class DatabaseManager(Component):
 
     def __init__(self):
         self._cnx_pool = None
+        self._transaction_local = ThreadLocal(wdb=None, rdb=None)
 
     def init_db(self):
         connector, args = self.get_connector()
@@ -260,11 +272,12 @@ class DatabaseManager(Component):
             self._cnx_pool.shutdown(tid)
             if not tid:
                 self._cnx_pool = None
-                
+
     def backup(self, dest=None):
         """Save a backup of the database.
 
-        @param dest: base filename to write to.
+        :param dest: base filename to write to.
+
         Returns the file actually written.
         """
         connector, args = self.get_connector()
@@ -300,7 +313,7 @@ class DatabaseManager(Component):
 
         if scheme == 'sqlite':
             if args['path'] == ':memory:':
-                # Special case for SQLite in-memory database, always get 
+                # Special case for SQLite in-memory database, always get
                 # the /same/ connection over
                 pass
             elif not args['path'].startswith('/'):
@@ -317,6 +330,7 @@ class DatabaseManager(Component):
 
 
 def get_column_names(cursor):
+    """Retrieve column names from a cursor, if possible."""
     return [unicode(d[0], 'utf-8') if isinstance(d[0], str) else d[0]
             for d in cursor.description] if cursor.description else []
 

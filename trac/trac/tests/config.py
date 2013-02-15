@@ -185,6 +185,15 @@ class ConfigurationTestCase(unittest.TestCase):
         self.assertEquals(['', 'bar', 'baz'],
                           config.getlist('a', 'option', keep_empty=True))
 
+    def test_read_and_getlist_false_values(self):
+        config = self._read()
+        values = [None, False, '', 'foo', u'', u'bar',
+                  0, 0L, 0.0, 0j, 42, 43.0]
+        self.assertEquals([False, 'foo', u'bar', 0, 0L, 0.0, 0j, 42, 43.0],
+                          config.getlist('a', 'false', values))
+        self.assertEquals(values, config.getlist('a', 'false', values,
+                                                 keep_empty=True))
+
     def test_read_and_choice(self):
         self._write(['[a]', 'option = 2', 'invalid = d'])
         config = self._read()
@@ -194,10 +203,10 @@ class ConfigurationTestCase(unittest.TestCase):
             option = (ChoiceOption)('a', 'option', ['Item1', 2, '3'])
             other = (ChoiceOption)('a', 'other', [1, 2, 3])
             invalid = (ChoiceOption)('a', 'invalid', ['a', 'b', 'c'])
-        
+
             def __init__(self):
                 self.config = config
-        
+
         foo = Foo()
         self.assertEquals('2', foo.option)
         self.assertEquals('1', foo.other)
@@ -233,13 +242,13 @@ class ConfigurationTestCase(unittest.TestCase):
         self.assertEquals(['# -*- coding: utf-8 -*-\n',
                            '\n',
                            '[aä]\n',
-                           "option1 = Voilà l'été\n", 
-                           "option2 = Voilà l'été\n", 
-                           'öption0 = x\n', 
-                           # "option3 = VoilÃ  l'Ã©tÃ©\n", 
+                           "option1 = Voilà l'été\n",
+                           "option2 = Voilà l'été\n",
+                           'öption0 = x\n',
+                           # "option3 = VoilÃ  l'Ã©tÃ©\n",
                            '\n',
                            '[b]\n',
-                           'öption0 = y\n', 
+                           'öption0 = y\n',
                            '\n'],
                           configfile.readlines())
         configfile.close()
@@ -263,11 +272,11 @@ class ConfigurationTestCase(unittest.TestCase):
             self.assertEquals(['# -*- coding: utf-8 -*-\n',
                                '\n',
                                '[a]\n',
-                               "option1 = Voilà l'été\n", 
-                               "option2 = Voilà l'été\n", 
+                               "option1 = Voilà l'été\n",
+                               "option2 = Voilà l'été\n",
                                '\n',
                                '[inherit]\n',
-                               "file = trac-site.ini\n", 
+                               "file = trac-site.ini\n",
                                '\n'],
                               configfile.readlines())
             configfile.close()
@@ -293,12 +302,12 @@ class ConfigurationTestCase(unittest.TestCase):
         self._write(['[a]', 'option = x', '[b]', 'option = y'])
         config = self._read()
         self.assertEquals(['a', 'b'], config.sections())
-        
+
         class Foo(object):
             # enclose in parentheses to avoid messages extraction
             section_c = (ConfigSection)('c', 'Doc for c')
             option_c = Option('c', 'option', 'value')
-        
+
         self.assertEquals(['a', 'b', 'c'], config.sections())
         foo = Foo()
         foo.config = config
@@ -309,10 +318,10 @@ class ConfigurationTestCase(unittest.TestCase):
         self._write([u'[aä]', u'öption = x', '[b]', 'option = y'])
         config = self._read()
         self.assertEquals([u'aä', 'b'], config.sections())
-        
+
         class Foo(object):
             option_c = Option(u'cä', 'option', 'value')
-        
+
         self.assertEquals([u'aä', 'b', u'cä'], config.sections())
 
     def test_options(self):
@@ -324,10 +333,10 @@ class ConfigurationTestCase(unittest.TestCase):
         self.assertEquals('option', iter(config['a']).next())
         self.assertEquals('option', iter(config['b']).next())
         self.assertRaises(StopIteration, iter(config['c']).next)
-        
+
         class Foo(object):
             option_a = Option('a', 'b', 'c')
-        
+
         self.assertEquals([('option', 'x'), ('b', 'c')],
                                 list(config.options('a')))
 
@@ -338,10 +347,10 @@ class ConfigurationTestCase(unittest.TestCase):
         self.assertEquals(('option', 'y'), iter(config.options('b')).next())
         self.assertRaises(StopIteration, iter(config.options('c')).next)
         self.assertEquals(u'öption', iter(config['ä']).next())
-        
+
         class Foo(object):
             option_a = Option(u'ä', u'öption2', 'c')
-        
+
         self.assertEquals([(u'öption', 'x'), (u'öption2', 'c')],
                                 list(config.options(u'ä')))
 
@@ -356,7 +365,7 @@ class ConfigurationTestCase(unittest.TestCase):
 
         class Foo(object):
             option_a = Option('a', 'option2', 'x2')
-        
+
         self.assertEquals(True, config.has_option('a', 'option2'))
 
     def test_has_option_unicode(self):
@@ -370,7 +379,7 @@ class ConfigurationTestCase(unittest.TestCase):
 
         class Foo(object):
             option_a = Option(u'ä', u'öption2', 'x2')
-        
+
         self.assertEquals(True, config.has_option(u'ä', u'öption2'))
 
     def test_reparse(self):

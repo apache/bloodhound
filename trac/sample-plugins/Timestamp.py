@@ -1,7 +1,7 @@
 """Inserts the current time (in seconds) into the wiki page."""
 
-revision = "$Rev$"
-url = "$URL$"
+revision = "$Rev: 10617 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/Timestamp.py $"
 
 #
 # The following shows the code for macro, old-style.

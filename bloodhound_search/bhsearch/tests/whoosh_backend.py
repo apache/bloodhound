@@ -22,7 +22,7 @@ from datetime import datetime
 import unittest
 import tempfile
 import shutil
-from bhsearch.api import ASC, DESC, SCORE
+from bhsearch.api import ASC, DESC, SCORE, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import (WhooshBackend,
@@ -50,7 +50,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="2", type="ticket"))
         result = self.whoosh_backend.query(
             query.Every(),
-            sort = [("id", ASC)],
+            sort = [SortInstruction("id", ASC)],
         )
         self.print_result(result)
         self.assertEqual(2, result.hits)
@@ -99,7 +99,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket1"))
         result = self.whoosh_backend.query(
             query.Every(),
-            sort = [("type", ASC), ("id", ASC)],
+            sort = [SortInstruction("type", ASC), SortInstruction("id", ASC)],
             fields=("id", "type"),
         )
         self.print_result(result)
@@ -116,7 +116,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket1"))
         result = self.whoosh_backend.query(
             query.Every(),
-            sort = [("type", ASC), ("id", DESC)],
+            sort = [SortInstruction("type", ASC), SortInstruction("id", DESC)],
             fields=("id", "type"),
         )
         self.print_result(result)
@@ -163,7 +163,10 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
 
         result = self.whoosh_backend.query(
             parsed_query,
-            sort = [(SCORE, ASC), ("time", DESC)],
+            sort = [
+                SortInstruction(SCORE, ASC),
+                SortInstruction("time", DESC)
+            ],
         )
         self.print_result(result)
         self.assertEqual(3, result.hits)
@@ -181,7 +184,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend.add_doc(dict(id="3", type="wiki", product="A"))
         result = self.whoosh_backend.query(
             query.Every(),
-            sort = [("type", ASC), ("id", DESC)],
+            sort = [SortInstruction("type", ASC), SortInstruction("id", DESC)],
             fields=("id", "type"),
             facets= ("type", "product")
         )
@@ -207,7 +210,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
     def test_can_return_empty_result(self):
         result = self.whoosh_backend.query(
             query.Every(),
-            sort = [("type", ASC), ("id", DESC)],
+            sort = [SortInstruction("type", ASC), SortInstruction("id", DESC)],
             fields=("id", "type"),
             facets= ("type", "product")
         )

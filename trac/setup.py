@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2003-2012 Edgewall Software
+# Copyright (C) 2003-2013 Edgewall Software
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -28,7 +28,7 @@ extra = {}
 
 try:
     import babel
-    
+
     extractors = [
         ('**.py',                'trac.dist:extract_python', None),
         ('**/templates/**.html', 'genshi', None),
@@ -55,7 +55,7 @@ except ImportError:
 
 setup(
     name = 'Trac',
-    version = '1.0',
+    version = '1.0.1',
     description = 'Integrated SCM, wiki, issue tracker and project environment',
     long_description = """
 Trac is a minimalistic web-based software project management and bug/issue

@@ -81,13 +81,13 @@
       </p>
     </py:when>
     <py:when test="'compact'">
-      <div class="span3">
+      <div class="span3 compact-left">
         <p style="margin-bottom: -2px">${progress_percent()}</p>
         ${progress_bar()}
         <p style="margin-top: -12px">${progress_total()}</p>
       </div>
-      <div class="offset3">
-        <div py:for="idx, interval in enumerate(stats.intervals)" class="span2">
+      <div class="offset3 compact-left">
+        <div py:for="idx, interval in enumerate(stats.intervals)" class="span2 compact-left">
           <p style="margin-bottom: -2px; text-transform: capitalize">
             ${interval.title}
           </p>

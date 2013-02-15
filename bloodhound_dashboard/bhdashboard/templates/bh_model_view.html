@@ -27,15 +27,26 @@
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip=""
-      py:with="colspan = 'span8' if bhdb else 'span12'">
+      py:with="colspan = 'span8';
+               cols_activity = 'span4'">
+
+  <!--! hack for hiding the activity feed title in desktop/tablet landscape mode (the title is part of the sticky) -->
+  <style>
+    @media (min-width: 768px) {
+      #activity h3 { display: none !important; }
+    }
+    @media (max-width: 767px) {
+      #activity h3 { display: inherit !important; }
+    }
+  </style>
+  <script type="text/javascript" src="${href.chrome('dashboard/js/bloodhound-stickyscroll.js')}"></script>
   <xi:include href="widget_macros.html" />
 
-  <div class="$colspan">
-    <div class="stickyBox">
-      <div id="overview" class="stickyStatus $colspan">
-        <div class="whitebox"></div>
+  <div id="stickyStatus" class="span12">
+    <div class="row">
+      <div class="$colspan">
         $heading
-        <br/>
+
         <py:choose>
           <py:when test="progress_data">
             <xi:include href="widget_progress.html"
@@ -44,32 +55,36 @@
                     interval_hrefs = progress_data.interval_hrefs;
                     " />
           </py:when>
-          <py:when test="ticket_query">
-            <bh:widget urn="TicketGroupStats">
-              <bh:args>
-                <bh:arg name="query">$ticket_query</bh:arg>
-                <bh:arg name="view">compact</bh:arg>
-              </bh:args>
-            </bh:widget>
-          </py:when>
         </py:choose>
-        <div class="stickyEndMark"></div>
       </div>
-    </div>
-    <script type="text/javascript">
-      setup_sticky_panel('#overview');
-    </script>
-    <div class="${'span7' if bhdb else 'span11'}" >
-      <div class="well">
-        $description
-        $buttons
+      <div class="$cols_activity hidden-phone">
+        <h2>${_('Activity')}</h2>
       </div>
-    </div>
-    <div>
-      $widgets
     </div>
   </div>
-  <div py:if="bhdb" class="span4">
+
+  <div class="stickyOffset" style="height: 0px;"></div>
+
+  <div class="$colspan">
+    <div py:if="ticket_query" id="overview">
+      <bh:widget urn="TicketGroupStats">
+        <bh:args>
+          <bh:arg name="query">$ticket_query</bh:arg>
+          <bh:arg name="view">compact</bh:arg>
+        </bh:args>
+      </bh:widget>
+    </div>
+
+    <div py:if="description" class="well">
+      $description
+    </div>
+
+    $buttons
+    $widgets
+  </div>
+
+  <div py:if="bhdb" id="activity" class="$cols_activity">
+    <div class="visible-phone" id="mobile-activity"></div>
     <bh:widget urn="Timeline">
       <bh:args py:if="resource_realm and resource_id">
         <bh:arg name="realm">$resource_realm</bh:arg>
@@ -78,3 +93,4 @@
     </bh:widget>
   </div>
 </div>
+

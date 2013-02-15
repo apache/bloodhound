@@ -57,9 +57,7 @@ def rpartition(s, sep):
 
 # An error is raised by subprocess if we ever pass close_fds=True on Windows.
 # We want it to be True on all other platforms to not leak file descriptors.
-close_fds = True
-if os.name == 'nt':
-    close_fds = False
+close_fds = os.name != 'nt'
 
 # inspect.cleandoc() was introduced in 2.6
 try:
@@ -70,7 +68,7 @@ except ImportError:
     # Taken from Python 2.6
     def cleandoc(doc):
         """De-indent a multi-line text.
-    
+
         Any whitespace that can be uniformly removed from the second line
         onwards is removed."""
         try:

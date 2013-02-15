@@ -9,8 +9,30 @@
   <head>
     <title>Plugins</title>
     <script type="text/javascript" src="${chrome.htdocs_location}js/folding.js"></script>
-    <script type="text/javascript">
-      jQuery(document).ready(function($){
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        // Sets state of group toggler when component checkboxes are clicked
+        function setGroupTogglerState() {
+          var table = $(this).closest("table.listing");
+          var checkboxes = $("td.sel input:checkbox:enabled", table);
+          var numSelected = checkboxes.filter(":checked").length;
+          var noneSelected = numSelected === 0;
+          var allSelected = numSelected === checkboxes.length;
+          $("th.sel input:checkbox", table)
+            .prop({"checked": allSelected,
+                   "indeterminate": !(noneSelected || allSelected)});
+        }
+        // Add group event behavior for controlling state of toggler
+        $("table.listing td.sel input:checkbox:enabled")
+          .click(setGroupTogglerState);
+        // Add click behavior for the group toggler and initialize its state
+        $("table.listing th.sel").wrapInner('<label></label>').children()
+          .each(function() {
+            $('<input type="checkbox"/>').click(function() {
+              $("td.sel input:checkbox:enabled",
+                $(this).closest("table.listing")).prop("checked", this.checked);
+            }).prependTo(this).each(setGroupTogglerState);
+          });
         $("h3.foldable").enableFolding(true, true);
         $("p.foldable").enableFolding(true, false);
         $("thead .trac-toggler a").each(function() {
@@ -28,7 +50,7 @@
           });
         });
       });
-    </script>
+    /*]]>*/</script>
   </head>
 
   <body>
@@ -118,7 +140,7 @@
                 <p class="trac-heading${' foldable' if module.description else None}">
                   <py:choose>
                     <a py:when="module.description" class="trac-name"
-                       href="${href.admin('general', 'plugin', show=module_name if not show_doc else None)                                                     
+                       href="${href.admin('general', 'plugin', show=module_name if not show_doc else None)
                                + '#trac-mod-' + module_name}">${module_name}.*</a>
                     <span py:otherwise="" class="trac-name">${module_name}.*</span>
                   </py:choose>
@@ -134,7 +156,7 @@
                 <p class="trac-heading${' foldable' if component.description else None}">
                   <py:choose>
                     <a py:when="component.description" class="trac-name"
-                       href="${href.admin('general', 'plugin', show=component.full_name if not show_doc else None)                                             
+                       href="${href.admin('general', 'plugin', show=component.full_name if not show_doc else None)
                                + '#trac-comp-' + component.full_name}">${component_name}</a>
                     <span py:otherwise="" class="trac-name">${component_name}</span>
                   </py:choose>

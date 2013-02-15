@@ -22,14 +22,14 @@ import re
 import sys
 import time
 from datetime import tzinfo, timedelta, datetime, date
-from locale import getlocale, getpreferredencoding, LC_TIME
+from locale import getlocale, LC_TIME
 
 try:
     import babel
     from babel import Locale
     from babel.core import LOCALE_ALIASES
     from babel.dates import (
-        format_datetime as babel_format_datetime, 
+        format_datetime as babel_format_datetime,
         format_date as babel_format_date,
         format_time as babel_format_time,
         get_datetime_format, get_date_format,
@@ -40,7 +40,7 @@ except ImportError:
     babel = None
 
 from trac.core import TracError
-from trac.util.text import to_unicode
+from trac.util.text import to_unicode, getpreferredencoding
 from trac.util.translation import _, ngettext, get_available_locales
 
 # Date/time utilities
@@ -48,32 +48,33 @@ from trac.util.translation import _, ngettext, get_available_locales
 # -- conversion
 
 def to_datetime(t, tzinfo=None):
-    """Convert `t` into a `datetime` object, using the following rules:
-    
-     - If `t` is already a `datetime` object and `tzinfo` is None, it is simply
-       returned.
-     - If `t` is already a `datetime` object and `tzinfo` is not None, it will
-       adjust `t` to `tzinfo` timezone.
-     - If `t` is None, the current time will be used.
-     - If `t` is a number, it is interpreted as a timestamp.
-     
-    If no `tzinfo` is given, the local timezone will be used.
+    """Convert ``t`` into a `datetime` object in the ``tzinfo`` timezone.
+
+    If no ``tzinfo`` is given, the local timezone `localtz` will be used.
+
+    ``t`` is converted using the following rules:
+
+     - If ``t`` is already a `datetime` object,
+       - if it is timezone-"naive", it is localized to ``tzinfo``
+       - if it is already timezone-aware, ``t`` is mapped to the given
+         timezone (`datetime.datetime.astimezone`)
+     - If ``t`` is None, the current time will be used.
+     - If ``t`` is a number, it is interpreted as a timestamp.
 
     Any other input will trigger a `TypeError`.
+
+    All returned datetime instances are timezone aware and normalized.
     """
+    tz = tzinfo or localtz
     if t is None:
-        return datetime.now(tzinfo or localtz)
+        dt = datetime.now(tz)
     elif isinstance(t, datetime):
-        if tzinfo is not None:
-            if t.tzinfo is None:
-                t = t.replace(tzinfo=tzinfo)
-            else:
-                t = tzinfo.normalize(t.astimezone(tzinfo))
-        return t
+        if t.tzinfo:
+            dt = t.astimezone(tz)
+        else:
+            dt = tz.localize(t)
     elif isinstance(t, date):
-        tz = tzinfo or localtz
-        t = tz.localize(datetime(t.year, t.month, t.day))
-        return tz.normalize(t)
+        dt = tz.localize(datetime(t.year, t.month, t.day))
     elif isinstance(t, (int, long, float)):
         if not (_min_ts <= t <= _max_ts):
             # Handle microsecond timestamps for 0.11 compatibility
@@ -82,9 +83,12 @@ def to_datetime(t, tzinfo=None):
             # Work around negative fractional times bug in Python 2.4
             # http://bugs.python.org/issue1646728
             frac, integer = math.modf(t)
-            return datetime.fromtimestamp(integer - 1, tzinfo or localtz) \
-                   + timedelta(seconds=frac + 1)
-        return datetime.fromtimestamp(t, tzinfo or localtz)
+            dt = datetime.fromtimestamp(integer - 1, tz) + \
+                    timedelta(seconds=frac + 1)
+        else:
+            dt = datetime.fromtimestamp(t, tz)
+    if dt:
+        return tz.normalize(dt)
     raise TypeError('expecting datetime, int, long, float, or None; got %s' %
                     type(t))
 
@@ -129,7 +133,7 @@ def pretty_timedelta(time1, time2=None, resolution=None):
     time2 = to_datetime(time2)
     if time1 > time2:
         time2, time1 = time1, time2
-    
+
     diff = time2 - time1
     age_s = int(diff.days * 86400 + diff.seconds)
     if resolution and age_s < resolution:
@@ -167,10 +171,9 @@ _ISO8601_FORMATS = {
         'long': 'iso8601time', 'full': 'iso8601time',
         'iso8601': 'iso8601time', None: 'iso8601time'},
 }
+_STRFTIME_HINTS = {'%x %X': 'datetime', '%x': 'date', '%X': 'time'}
 
-def _format_datetime_without_babel(t, format, tzinfo):
-    tz = tzinfo or localtz
-    t = to_datetime(t, tzinfo).astimezone(tz)
+def _format_datetime_without_babel(t, format):
     normalize_Z = False
     if format.lower().startswith('iso8601'):
         if 'date' in format:
@@ -190,69 +193,55 @@ def _format_datetime_without_babel(t, format, tzinfo):
                or sys.getdefaultencoding()
     return unicode(text, encoding, 'replace')
 
+def _format_datetime(t, format, tzinfo, locale, hint):
+    t = to_datetime(t, tzinfo or localtz)
+
+    if (format in ('iso8601', 'iso8601date', 'iso8601time') or
+        locale == 'iso8601'):
+        format = _ISO8601_FORMATS[hint].get(format, format)
+        return _format_datetime_without_babel(t, format)
+
+    if babel and locale:
+        if format is None:
+            format = 'medium'
+        elif format in _STRFTIME_HINTS:
+            hint = _STRFTIME_HINTS[format]
+            format = 'medium'
+        if format in ('short', 'medium', 'long', 'full'):
+            if hint == 'datetime':
+                return babel_format_datetime(t, format, None, locale)
+            if hint == 'date':
+                return babel_format_date(t, format, locale)
+            if hint == 'time':
+                return babel_format_time(t, format, None, locale)
+
+    format = _BABEL_FORMATS[hint].get(format, format)
+    return _format_datetime_without_babel(t, format)
+
 def format_datetime(t=None, format='%x %X', tzinfo=None, locale=None):
     """Format the `datetime` object `t` into an `unicode` string
 
     If `t` is None, the current time will be used.
-    
+
     The formatting will be done using the given `format`, which consist
     of conventional `strftime` keys. In addition the format can be 'iso8601'
     to specify the international date format (compliant with RFC 3339).
 
     `tzinfo` will default to the local timezone if left to `None`.
     """
-    if locale == 'iso8601':
-        format = _ISO8601_FORMATS['datetime'].get(format, format)
-        return _format_datetime_without_babel(t, format, tzinfo)
-    if babel and locale:
-        if format == '%x':
-            return babel_format_date(t, 'medium', locale)
-        if format == '%X':
-            t = to_datetime(t, tzinfo)
-            return babel_format_time(t, 'medium', None, locale)
-        if format in ('%x %X', None):
-            format = 'medium'
-        if format in _BABEL_FORMATS['datetime']:
-            t = to_datetime(t, tzinfo)
-            return babel_format_datetime(t, format, None, locale)
-    format = _BABEL_FORMATS['datetime'].get(format, format)
-    return _format_datetime_without_babel(t, format, tzinfo)
+    return _format_datetime(t, format, tzinfo, locale, 'datetime')
 
 def format_date(t=None, format='%x', tzinfo=None, locale=None):
     """Convenience method for formatting the date part of a `datetime` object.
     See `format_datetime` for more details.
     """
-    if locale == 'iso8601':
-        format = _ISO8601_FORMATS['date'].get(format, format)
-        return _format_datetime_without_babel(t, format, tzinfo)
-    if format == 'iso8601':
-        format = 'iso8601date'
-    if babel and locale:
-        if format in ('%x', None):
-            format = 'medium'
-        if format in _BABEL_FORMATS['date']:
-            t = to_datetime(t, tzinfo)
-            return babel_format_date(t, format, locale)
-    format = _BABEL_FORMATS['date'].get(format, format)
-    return _format_datetime_without_babel(t, format, tzinfo)
+    return _format_datetime(t, format, tzinfo, locale, 'date')
 
 def format_time(t=None, format='%X', tzinfo=None, locale=None):
     """Convenience method for formatting the time part of a `datetime` object.
     See `format_datetime` for more details.
     """
-    if locale == 'iso8601':
-        format = _ISO8601_FORMATS['time'].get(format, format)
-        return _format_datetime_without_babel(t, format, tzinfo)
-    if format == 'iso8601':
-        format = 'iso8601time'
-    if babel and locale:
-        if format in ('%X', None):
-            format = 'medium'
-        if format in _BABEL_FORMATS['time']:
-            t = to_datetime(t, tzinfo)
-            return babel_format_time(t, format, None, locale)
-    format = _BABEL_FORMATS['time'].get(format, format)
-    return _format_datetime_without_babel(t, format, tzinfo)
+    return _format_datetime(t, format, tzinfo, locale, 'time')
 
 def get_date_format_hint(locale=None):
     """Present the default format used by `format_date` in a human readable
@@ -398,7 +387,7 @@ def is_24_hours(locale):
 
 def http_date(t=None):
     """Format `datetime` object `t` as a rfc822 timestamp"""
-    t = to_datetime(t).astimezone(utc)
+    t = to_datetime(t, utc)
     weekdays = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
     months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
               'Oct', 'Nov', 'Dec')
@@ -473,22 +462,19 @@ def parse_date(text, tzinfo=None, locale=None, hint='date'):
                 'date': get_date_format_hint
                }.get(hint, lambda(l): hint)(locale)
         raise TracError(_('"%(date)s" is an invalid date, or the date format '
-                          'is not known. Try "%(hint)s" instead.', 
+                          'is not known. Try "%(hint)s" instead.',
                           date=text, hint=hint), _('Invalid Date'))
     # Make sure we can convert it to a timestamp and back - fromtimestamp()
     # may raise ValueError if larger than platform C localtime() or gmtime()
     try:
-        to_datetime(to_timestamp(dt), tzinfo)
+        datetime.utcfromtimestamp(to_timestamp(dt))
     except ValueError:
         raise TracError(_('The date "%(date)s" is outside valid range. '
                           'Try a date closer to present time.', date=text),
                           _('Invalid Date'))
     return dt
 
-def _i18n_parse_date_patterns():
-    if not babel:
-        return {}
-
+def _i18n_parse_date_pattern(locale):
     format_keys = {
         'y': ('y', 'Y'),
         'M': ('M',),
@@ -497,67 +483,67 @@ def _i18n_parse_date_patterns():
         'm': ('m',),
         's': ('s',),
     }
-    patterns = {}
+    regexp = [r'[0-9]+']
 
-    for locale in get_available_locales():
-        regexp = [r'[0-9]+']
+    date_format = get_date_format('medium', locale=locale)
+    time_format = get_time_format('medium', locale=locale)
+    datetime_format = get_datetime_format('medium', locale=locale)
+    formats = (
+        datetime_format.replace('{0}', time_format.format) \
+                       .replace('{1}', date_format.format),
+        date_format.format)
 
-        date_format = get_date_format('medium', locale=locale)
-        time_format = get_time_format('medium', locale=locale)
-        datetime_format = get_datetime_format('medium', locale=locale)
+    orders = []
+    for format in formats:
+        order = []
+        for key, chars in format_keys.iteritems():
+            for char in chars:
+                idx = format.find('%(' + char)
+                if idx != -1:
+                    order.append((idx, key))
+                    break
+        order.sort()
+        order = dict((key, idx) for idx, (_, key) in enumerate(order))
+        orders.append(order)
 
-        formats = (
-            datetime_format.replace('{0}', time_format.format) \
-                           .replace('{1}', date_format.format),
-            date_format.format)
-
-        orders = []
-        for format in formats:
-            order = []
-            for key, chars in format_keys.iteritems():
-                for char in chars:
-                    idx = format.find('%(' + char)
-                    if idx != -1:
-                        order.append((idx, key))
-                        break
-            order.sort()
-            order = dict((key, idx) for idx, (_, key) in enumerate(order))
-            orders.append(order)
-
-        month_names = {
-            'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
-            'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
-        }
-        if formats[0].find('%(MMM)s') != -1:
-            for width in ('wide', 'abbreviated'):
-                names = get_month_names(width, locale=locale)
-                for num, name in names.iteritems():
-                    name = name.lower()
-                    month_names[name] = num
-        regexp.extend(month_names.iterkeys())
-
-        period_names = {'am': 'am', 'pm': 'pm'}
-        if formats[0].find('%(a)s') != -1:
-            names = get_period_names(locale=locale)
-            for period, name in names.iteritems():
+    month_names = {
+        'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+        'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    }
+    if formats[0].find('%(MMM)s') != -1:
+        for width in ('wide', 'abbreviated'):
+            names = get_month_names(width, locale=locale)
+            for num, name in names.iteritems():
                 name = name.lower()
-                period_names[name] = period
-        regexp.extend(period_names.iterkeys())
+                month_names[name] = num
+    regexp.extend(month_names.iterkeys())
 
-        patterns[locale] = {
-            'orders': orders,
-            'regexp': re.compile('(%s)' % '|'.join(regexp),
-                                 re.IGNORECASE | re.UNICODE),
-            'month_names': month_names,
-            'period_names': period_names,
-        }
+    period_names = {'am': 'am', 'pm': 'pm'}
+    if formats[0].find('%(a)s') != -1:
+        names = get_period_names(locale=locale)
+        for period, name in names.iteritems():
+            name = name.lower()
+            period_names[name] = period
+    regexp.extend(period_names.iterkeys())
 
-    return patterns
+    return {
+        'orders': orders,
+        'regexp': re.compile('(%s)' % '|'.join(regexp),
+                             re.IGNORECASE | re.UNICODE),
+        'month_names': month_names,
+        'period_names': period_names,
+    }
 
-_I18N_PARSE_DATE_PATTERNS = _i18n_parse_date_patterns()
+_I18N_PARSE_DATE_PATTERNS = dict(map(lambda l: (l, False),
+                                     get_available_locales()))
 
 def _i18n_parse_date(text, tzinfo, locale):
-    pattern = _I18N_PARSE_DATE_PATTERNS.get(str(locale))
+    locale = Locale.parse(locale)
+    key = str(locale)
+    pattern = _I18N_PARSE_DATE_PATTERNS.get(key)
+    if pattern is False:
+        pattern = _i18n_parse_date_pattern(locale)
+        _I18N_PARSE_DATE_PATTERNS[key] = pattern
     if pattern is None:
         return None
 
@@ -648,45 +634,55 @@ _time_intervals = dict(
 _TIME_START_RE = re.compile(r'(this|last)\s*'
                             r'(second|minute|hour|day|week|month|year)$')
 _time_starts = dict(
-    second=lambda now: now.replace(microsecond=0),
-    minute=lambda now: now.replace(microsecond=0, second=0),
-    hour=lambda now: now.replace(microsecond=0, second=0, minute=0),
-    day=lambda now: now.replace(microsecond=0, second=0, minute=0, hour=0),
-    week=lambda now: now.replace(microsecond=0, second=0, minute=0, hour=0) \
+    second=lambda now: datetime(now.year, now.month, now.day, now.hour,
+                                now.minute, now.second),
+    minute=lambda now: datetime(now.year, now.month, now.day, now.hour,
+                                now.minute),
+    hour=lambda now: datetime(now.year, now.month, now.day, now.hour),
+    day=lambda now: datetime(now.year, now.month, now.day),
+    week=lambda now: datetime(now.year, now.month, now.day) \
                      - timedelta(days=now.weekday()),
-    month=lambda now: now.replace(microsecond=0, second=0, minute=0, hour=0,
-                                  day=1),
-    year=lambda now: now.replace(microsecond=0, second=0, minute=0, hour=0,
-                                  day=1, month=1),
+    month=lambda now: datetime(now.year, now.month, 1),
+    year=lambda now: datetime(now.year, 1, 1),
 )
 
-def _parse_relative_time(text, tzinfo):
-    now = tzinfo.localize(datetime.now())
+def _parse_relative_time(text, tzinfo, now=None):
+    if now is None:     # now argument for unit tests
+        now = datetime.now(tzinfo)
     if text == 'now':
         return now
+
+    dt = None
     if text == 'today':
-        return now.replace(microsecond=0, second=0, minute=0, hour=0)
-    if text == 'yesterday':
-        return now.replace(microsecond=0, second=0, minute=0, hour=0) \
-               - timedelta(days=1)
-    match = _REL_TIME_RE.match(text)
-    if match:
-        (value, interval) = match.groups()
-        return now - _time_intervals[interval](float(value))
-    match = _TIME_START_RE.match(text)
-    if match:
-        (which, start) = match.groups()
-        dt = _time_starts[start](now)
-        if which == 'last':
-            if start == 'month':
-                if dt.month > 1:
-                    dt = dt.replace(month=dt.month - 1)
+        dt = _time_starts['day'](now)
+    elif text == 'yesterday':
+        dt = _time_starts['day'](now) - timedelta(days=1)
+    if dt is None:
+        match = _REL_TIME_RE.match(text)
+        if match:
+            (value, interval) = match.groups()
+            dt = now - _time_intervals[interval](float(value))
+    if dt is None:
+        match = _TIME_START_RE.match(text)
+        if match:
+            (which, start) = match.groups()
+            dt = _time_starts[start](now)
+            if which == 'last':
+                if start == 'month':
+                    if dt.month > 1:
+                        dt = dt.replace(month=dt.month - 1)
+                    else:
+                        dt = dt.replace(year=dt.year - 1, month=12)
+                elif start == 'year':
+                    dt = dt.replace(year=dt.year - 1)
                 else:
-                    dt = dt.replace(year=dt.year - 1, month=12)
-            else:
-                dt -= _time_intervals[start](1)
-        return dt
-    return None
+                    dt -= _time_intervals[start](1)
+
+    if dt is None:
+        return None
+    if not dt.tzinfo:
+        dt = tzinfo.localize(dt)
+    return tzinfo.normalize(dt)
 
 # -- formatting/parsing helper functions
 
@@ -742,61 +738,113 @@ class FixedOffset(tzinfo):
         return dt
 
 
-STDOFFSET = timedelta(seconds=-time.timezone)
-if time.daylight:
-    DSTOFFSET = timedelta(seconds=-time.altzone)
-else:
-    DSTOFFSET = STDOFFSET
-
-DSTDIFF = DSTOFFSET - STDOFFSET
-
-
 class LocalTimezone(tzinfo):
     """A 'local' time zone implementation"""
-    
+
+    _std_offset = None
+    _dst_offset = None
+    _dst_diff = None
+    _std_tz = None
+    _dst_tz = None
+
+    @classmethod
+    def _initialize(cls):
+        cls._std_tz = cls(False)
+        cls._std_offset = timedelta(seconds=-time.timezone)
+        if time.daylight:
+            cls._dst_tz = cls(True)
+            cls._dst_offset = timedelta(seconds=-time.altzone)
+        else:
+            cls._dst_tz = cls._std_tz
+            cls._dst_offset = cls._std_offset
+        cls._dst_diff = cls._dst_offset - cls._std_offset
+
+    def __init__(self, is_dst=None):
+        self.is_dst = is_dst
+
     def __str__(self):
-        return self.tzname(datetime.now())
-    
+        offset = self.utcoffset(datetime.now())
+        secs = offset.days * 3600 * 24 + offset.seconds
+        hours, rem = divmod(abs(secs), 3600)
+        return 'UTC%c%02d:%02d' % ('-' if secs < 0 else '+', hours, rem / 60)
+
     def __repr__(self):
-        return '<LocalTimezone "%s" %s "%s" %s>' % (
-            time.tzname[False], STDOFFSET,
-            time.tzname[True], DSTOFFSET)
+        if self.is_dst is None:
+            return '<LocalTimezone "%s" %s "%s" %s>' % \
+                   (time.tzname[False], self._std_offset,
+                    time.tzname[True], self._dst_offset)
+        if self.is_dst:
+            offset = self._dst_offset
+        else:
+            offset = self._std_offset
+        return '<LocalTimezone "%s" %s>' % (time.tzname[self.is_dst], offset)
+
+    def _is_dst(self, dt, is_dst=False):
+        if self.is_dst is not None:
+            return self.is_dst
+
+        tt = (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second,
+              dt.weekday(), 0)
+        try:
+            std_tt = time.localtime(time.mktime(tt + (0,)))
+            dst_tt = time.localtime(time.mktime(tt + (1,)))
+        except (ValueError, OverflowError):
+            return False
+
+        std_correct = std_tt.tm_isdst == 0
+        dst_correct = dst_tt.tm_isdst == 1
+        if std_correct is dst_correct:
+            if is_dst is None:
+                if std_correct is True:
+                    raise ValueError('Ambiguous time "%s"' % dt)
+                if std_correct is False:
+                    raise ValueError('Non existent time "%s"' % dt)
+            return is_dst
+        if std_correct:
+            return False
+        if dst_correct:
+            return True
 
     def utcoffset(self, dt):
-        if self._isdst(dt):
-            return DSTOFFSET
+        if self._is_dst(dt):
+            return self._dst_offset
         else:
-            return STDOFFSET
+            return self._std_offset
 
     def dst(self, dt):
-        if self._isdst(dt):
-            return DSTDIFF
+        if self._is_dst(dt):
+            return self._dst_diff
         else:
             return _zero
 
     def tzname(self, dt):
-        return time.tzname[self._isdst(dt)]
-
-    def _isdst(self, dt):
-        tt = (dt.year, dt.month, dt.day,
-              dt.hour, dt.minute, dt.second,
-              dt.weekday(), 0, -1)
-        try:
-            stamp = time.mktime(tt)
-            tt = time.localtime(stamp)
-            return tt.tm_isdst > 0
-        except OverflowError:
-            return False
+        return time.tzname[self._is_dst(dt)]
 
     def localize(self, dt, is_dst=False):
         if dt.tzinfo is not None:
             raise ValueError('Not naive datetime (tzinfo is already set)')
-        return dt.replace(tzinfo=self)
+        if self._is_dst(dt, is_dst):
+            tz = self._dst_tz
+        else:
+            tz = self._std_tz
+        return dt.replace(tzinfo=tz)
 
     def normalize(self, dt, is_dst=False):
         if dt.tzinfo is None:
             raise ValueError('Naive time (no tzinfo set)')
-        return dt
+        if dt.tzinfo is localtz: # if not localized, returns without changes
+            return dt
+        return self.fromutc(dt.replace(tzinfo=self) - dt.utcoffset())
+
+    def fromutc(self, dt):
+        if dt.tzinfo is None or dt.tzinfo is not self:
+            raise ValueError('fromutc: dt.tzinfo is not self')
+        tt = time.localtime(to_timestamp(dt.replace(tzinfo=utc)))
+        if tt.tm_isdst > 0:
+            tz = self._dst_tz
+        else:
+            tz = self._std_tz
+        return datetime(microsecond=dt.microsecond, tzinfo=tz, *tt[0:6])
 
 
 utc = FixedOffset(0, 'UTC')
@@ -807,7 +855,13 @@ _zero = timedelta(0)
 _min_ts = -(1 << 31)
 _max_ts = (1 << 31) - 1
 
+LocalTimezone._initialize()
 localtz = LocalTimezone()
+
+STDOFFSET = LocalTimezone._std_offset
+DSTOFFSET = LocalTimezone._dst_offset
+DSTDIFF = LocalTimezone._dst_diff
+
 
 # Use a makeshift timezone implementation if pytz is not available.
 # This implementation only supports fixed offset time zones.
@@ -865,7 +919,7 @@ try:
     _gmt_index = bisect(_pytz_zones, 'GMT')
     all_timezones = _pytz_zones[:_gmt_index] + all_timezones[1:] + \
                     _pytz_zones[_gmt_index:]
- 
+
 except ImportError:
     pytz = None
 

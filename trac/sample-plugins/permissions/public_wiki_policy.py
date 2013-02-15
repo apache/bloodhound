@@ -4,13 +4,13 @@ from trac.config import Option
 from trac.core import *
 from trac.perm import IPermissionPolicy
 
-revision = "$Rev$"
-url = "$URL$"
+revision = "$Rev: 11490 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/permissions/public_wiki_policy.py $"
 
 class PublicWikiPolicy(Component):
     """Allow public access to some wiki pages.
 
-    This is a sample permission policy plugin illustrating how to check 
+    This is a sample permission policy plugin illustrating how to check
     permission on realms.
 
     Don't forget to integrate that plugin in the appropriate place in the
@@ -50,10 +50,10 @@ class PublicWikiPolicy(Component):
                     if fnmatchcase(resource.id, pattern):
                         return True
                 else: # ... it's a realm
-                    return True 
+                    return True
                     # this policy ''may'' grant permissions on some wiki pages
         else: # coarse-grained permission check
-            # 
+            #
             # support for the legacy permission checks: no resource specified
             # and realm information in the action name itself.
             #
