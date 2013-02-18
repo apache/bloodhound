@@ -75,6 +75,8 @@ $( function () {
     $('#qct-create').click(
         function() {
           var base_url = $('#qct-create').attr('data-target');
+          if (base_url === '/')
+            base_url = '';
           $.post(base_url + '/qct', $('#qct-form').serialize(), 
               function(ticket_id) {
                 qct_alert({
