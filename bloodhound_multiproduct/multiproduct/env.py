@@ -551,29 +551,40 @@ class ProductEnvironment(Component, ComponentManager):
         """Initialize the logging sub-system."""
         from trac.log import logger_handler_factory
         logtype = self.log_type
+        logfile = self.log_file
+        format = self.log_format
+
         self.parent.log.debug("Log type '%s' for product '%s'", 
                 logtype, self.product.prefix)
+
+        # Force logger inheritance on identical configuration
+        if (logtype, logfile, format) == (self.parent.log_type, 
+                self.parent.log_file, self.parent.log_format):
+            logtype = 'inherit'
+
         if logtype == 'inherit':
-            logtype = self.parent.log_type
-            logfile = self.parent.log_file
-            format = self.parent.log_format
+            self.log = self.parent.log
+            self._log_handler = self.parent._log_handler
+            self.parent.log.warning("Inheriting parent logger for product '%s'",
+                    self.product.prefix)
         else:
-            logfile = self.log_file
-            format = self.log_format
-        if logtype == 'file' and not os.path.isabs(logfile):
-            logfile = os.path.join(self.get_log_dir(), logfile)
-        logid = 'Trac.%s.%s' % \
-                (sha1(self.parent.path).hexdigest(), self.product.prefix)
-        if format:
-            format = format.replace('$(', '%(') \
-                     .replace('%(path)s', self.path) \
-                     .replace('%(basename)s', os.path.basename(self.path)) \
-                     .replace('%(project)s', self.project_name)
-        self.log, self._log_handler = logger_handler_factory(
-            logtype, logfile, self.log_level, logid, format=format)
+            if logtype == 'file' and not os.path.isabs(logfile):
+                logfile = os.path.join(self.get_log_dir(), logfile)
+            logid = 'Trac.%s.%s' % \
+                    (sha1(self.parent.path).hexdigest(), self.product.prefix)
+            if format:
+                format = format.replace('$(', '%(') \
+                         .replace('%(path)s', self.path) \
+                         .replace('%(basename)s', os.path.basename(self.path)) \
+                         .replace('%(project)s', self.project_name)
+            self.log, self._log_handler = logger_handler_factory(
+                logtype, logfile, self.log_level, logid, format=format)
 
         from trac import core, __version__ as VERSION
-        self.log.info('-' * 32 + ' environment startup [Trac %s] ' + '-' * 32,
+        self.log.info('-' * 32 + 
+                        ' product %s environment startup [Trac %s] ' + 
+                        '-' * 32,
+                      self.product.prefix,
                       get_pkginfo(core).get('version', VERSION))
 
     def needs_upgrade(self):
