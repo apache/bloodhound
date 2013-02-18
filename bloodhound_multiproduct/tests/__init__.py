@@ -50,7 +50,11 @@ class TestLoader(unittest.TestLoader):
         tests = []
         while pending:
             mdlnm, loader, isdir = pending.popleft()
-            mdl = self._get_module_from_name(mdlnm)
+            try:
+                mdl = self._get_module_from_name(mdlnm)
+            except ImportError:
+                # Skip packages not having __init__.py
+                continue
             loader = getattr(mdl, self.testLoaderAttribute, None) or loader
             if mdlnm != package_or_requirement and hasattr(mdl, 'test_suite'):
                 tests.append(mdl.test_suite())
