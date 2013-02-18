@@ -45,6 +45,13 @@ from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 
+class ProductEnvironmentStub(ProductEnvironment):
+    r"""A product environment slightly tweaked for testing purposes
+    """
+    def get_known_users(self, cnx=None):
+        return self.known_users
+
+
 # FIXME: Subclass TestCase explictly ?
 class MultiproductTestCase(unittest.TestCase):
     r"""Mixin providing access to multi-product testing extensions.
