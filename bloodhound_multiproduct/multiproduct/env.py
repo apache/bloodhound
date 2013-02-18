@@ -217,7 +217,10 @@ class ProductEnvironment(Component, ComponentManager):
         top-level directory of the global environment will be the root of 
         product file system area.
         """
-        return os.path.join(self.parent.path, 'products', self.product.prefix)
+        folder = os.path.join(self.parent.path, 'products', self.product.prefix)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        return folder
 
     @property
     def setup_participants(self):

@@ -137,6 +137,8 @@ class MultiproductTestCase(unittest.TestCase):
                 env.path = tempfile.mkdtemp('bh-product-tempenv')
             else:
                 env.path = path
+                if not os.path.exists(path):
+                    os.mkdir(path)
         return env
 
     def _setup_test_log(self, env):

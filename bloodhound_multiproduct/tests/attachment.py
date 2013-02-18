@@ -44,7 +44,6 @@ class ProductAttachmentTestCase(AttachmentTestCase, MultiproductTestCase):
             self._setup_test_log(global_env)
             self._load_product_from_data(global_env, self.default_product)
             self.env = ProductEnvironment(global_env, self.default_product)
-            os.makedirs(self.env.path)
 
             # Root folder for default product environment
             self.attachments_dir = os.path.join(self.global_env.path,
