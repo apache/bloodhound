@@ -73,6 +73,14 @@ class SortInstruction(object):
         return self.__dict__ == other.__dict__
 
 
+class ISearchWikiSyntaxFormatter(Interface):
+    """Extension point interface for wiki syntax processing.
+    """
+
+    def format(self, wiki_text):
+        """
+        Process wiki syntax and return text representation suitable for search
+        """
 
 class ISearchBackend(Interface):
     """Extension point interface for search backend systems.

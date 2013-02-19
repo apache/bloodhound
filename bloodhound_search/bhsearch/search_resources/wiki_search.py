@@ -99,7 +99,7 @@ class WikiIndexer(BaseIndexer):
             IndexFields.TYPE: WIKI_TYPE,
             IndexFields.TIME: page.time,
             IndexFields.AUTHOR: page.author,
-            IndexFields.CONTENT: page.text,
+            IndexFields.CONTENT: self.wiki_formatter.format(page.text),
         }
         return doc
 

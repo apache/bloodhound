@@ -128,6 +128,16 @@ class WikiIndexerEventsTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(1, results.hits)
         self.assertEqual("version1", results.docs[0]["content"])
 
+    def test_can_strip_wiki_formatting(self):
+        #arrange
+        self.insert_wiki(self.DUMMY_PAGE_NAME, " = Header")
+        #act
+        results = self.search_api.query("*:*")
+        #assert
+        self.print_result(results)
+        self.assertEqual(1, results.hits)
+        self.assertEqual("Header", results.docs[0]["content"])
+
 def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(unittest.makeSuite(

@@ -24,7 +24,7 @@ from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
     IIndexParticipant, IndexFields
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from genshi.builder import tag
-from trac.ticket.api import ITicketChangeListener
+from trac.ticket.api import ITicketChangeListener, TicketSystem
 from trac.ticket import Ticket
 from trac.ticket.query import Query
 from trac.config import ListOption, Option
@@ -54,6 +54,10 @@ class TicketIndexer(BaseIndexer):
         'reporter': TicketFields.AUTHOR,
     }
 
+    def __init__(self):
+        self.fields = TicketSystem(self.env).get_ticket_fields()
+        self.text_area_fields = set(
+            f['name'] for f in self.fields if f['type'] =='textarea')
 
     #ITicketChangeListener methods
     def ticket_created(self, ticket):
@@ -103,10 +107,14 @@ class TicketIndexer(BaseIndexer):
 
         for field, index_field in self.optional_fields.iteritems():
             if field in ticket.values:
-                doc[index_field] = ticket.values[field]
+                field_content = ticket.values[field]
+                if field in self.text_area_fields:
+                    field_content = self.wiki_formatter.format(field_content)
+                doc[index_field] = field_content
 
         doc[TicketFields.CHANGES] = u'\n\n'.join(
-            [x[4] for x in ticket.get_changelog() if x[2] == u'comment'])
+            [self.wiki_formatter.format(x[4]) for x in ticket.get_changelog()
+             if x[2] == u'comment'])
         return doc
 
     def get_entries_for_index(self):
