@@ -176,6 +176,36 @@ class ProductTestCase(unittest.TestCase):
         product.description = new_description
         self.assertEqual(new_description, product.description)
 
+    def test_missing_unique_fields(self):
+        """ensure that that insert method works when _meta does not specify
+        unique fields when inserting more than one ProductResourceMap instances
+        """
+        from multiproduct.model import ModelBase
+        class TestModel(ModelBase):
+            """A test model with no unique_fields"""
+            _meta = {'table_name': 'bloodhound_testmodel',
+                     'object_name': 'TestModelObject',
+                     'key_fields': ['id',],
+                     'non_key_fields': ['value'],
+                     'unique_fields': [],}
+
+        from trac.db import DatabaseManager
+        schema = [TestModel._get_schema(), ]
+        with self.env.db_transaction as db:
+            db_connector, dummy = DatabaseManager(self.env)._get_connector()
+            for table in schema:
+                for statement in db_connector.to_sql(table):
+                    db(statement)
+        
+        structure =  dict([(table.name, [col.name for col in table.columns])
+                           for table in schema])
+        tm1 = TestModel(self.env)
+        tm1._data.update({'id':1,'value':'value1'})
+        tm1.insert()
+        tm2 = TestModel(self.env)
+        tm2._data.update({'id':2,'value':'value2'})
+        tm2.insert()
+
 if __name__ == '__main__':
     unittest.main()
 
