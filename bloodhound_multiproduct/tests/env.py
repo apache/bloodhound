@@ -159,6 +159,21 @@ class MultiproductTestCase(unittest.TestCase):
         env.log.info('%s test case: %s %s',
                 '-' * 10, self.id(), '-' * 10)
 
+        # Clean-up logger instance and associated handler
+        # Otherwise large test suites will only result in ERROR eventually
+        # (at least in Unix systems) with messages 
+        #
+        # TracError: Error reading '/path/to/file', make sure it is readable.
+        # error: /path/to/: Too many open files
+        self.addCleanup(self._teardown_test_log, env)
+
+    def _teardown_test_log(self, env):
+        if env.log and hasattr(env, '_log_handler'):
+            env.log.removeHandler(env._log_handler)
+            env._log_handler.flush()
+            env._log_handler.close()
+            del env._log_handler
+
     def _load_product_from_data(self, env, prefix):
         r"""Ensure test product with prefix is loaded
         """
