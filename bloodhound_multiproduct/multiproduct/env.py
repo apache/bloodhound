@@ -419,7 +419,7 @@ class ProductEnvironment(Component, ComponentManager):
         """
         return BloodhoundConnectionWrapper(self.parent.get_db_cnx(), self)
 
-    @lazy
+    @property
     def db_exc(self):
         """Return an object (typically a module) containing all the
         backend-specific exception types as attributes, named
@@ -435,7 +435,7 @@ class ProductEnvironment(Component, ComponentManager):
                 ...
         """
         # exception types same as in global environment
-        return self.parent.db_exc()
+        return self.parent.db_exc
 
     def with_transaction(self, db=None):
         """Decorator for transaction functions :deprecated:
