@@ -51,7 +51,7 @@
 
   <body>
     <div id="content" class="query row">
-      <h1>$title <small class="numrows">(${ngettext('%(num)s match', '%(num)s matches', query.num_items)})</small></h1>
+      <span class="span12"><h1>$title <small class="numrows">(${ngettext('%(num)s match', '%(num)s matches', query.num_items)})</small></h1></span>
 
       <div py:if="description" id="description" class="span12"
           xml:space="preserve">
