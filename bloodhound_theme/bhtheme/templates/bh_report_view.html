@@ -36,9 +36,9 @@
 
   <body>
     <div id="content" class="report row">
-      <h1>$title
+      <span class='span12'><h1>$title
         <small py:if="numrows" class="numrows">(${ngettext('%(num)s match', '%(num)s matches', numrows)})</small>
-      </h1>
+      </h1></span>
 
       <div class="span9">
         <div py:if="description" id="description" xml:space="preserve">
