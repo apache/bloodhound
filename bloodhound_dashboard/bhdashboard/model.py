@@ -144,7 +144,7 @@ class ModelBase(object):
                                       for k in self._meta['key_fields']]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
                                      for k in self._meta['key_fields']])}
-        elif len(self.select(self._env, where =
+        elif self._meta['unique_fields'] and len(self.select(self._env, where = 
                                 dict([(k,self._data[k])
                                       for k in self._meta['unique_fields']]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
