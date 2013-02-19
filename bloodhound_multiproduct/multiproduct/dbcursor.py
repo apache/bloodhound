@@ -248,7 +248,7 @@ class BloodhoundProductSQLTranslate(object):
         return sql
 
     def _prefixed_table_entity_name(self, tablename):
-        return "%s_%s" % (self._product_prefix, tablename)
+        return "%s_%s" % (self._product_prefix, tablename) if self._product_prefix else tablename
 
     def _prefixed_table_view_sql(self, name, alias):
         return '(SELECT * FROM %s) AS %s' % (self._prefixed_table_entity_name(name),
