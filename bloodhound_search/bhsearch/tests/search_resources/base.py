@@ -28,7 +28,6 @@ from trac.wiki import format_to_html
 class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
         super(SimpleSearchWikiSyntaxFormatterTestCase, self).setUp(
-            ['trac.*', 'bhsearch.*'],
             create_req=True,
         )
         self.text_formatter = SimpleSearchWikiSyntaxFormatter(self.env)
@@ -57,7 +56,8 @@ class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
         self.assertEqual("sometext1 point1 sometext2", result)
 
     def test_can_format_wiki_link(self):
-        self.assertEqual("wiki:SomePage p1", self._call_format("[wiki:SomePage p1]"))
+        self.assertEqual(
+            "wiki:SomePage p1", self._call_format("[wiki:SomePage p1]"))
 
     def test_can_format_sample_wiki_link(self):
         self.assertEqual("WikiPage", self._call_format("WikiPage"))
@@ -83,17 +83,7 @@ class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
     def test_can_format_non_wiki_camel_case(self):
         self.assertEqual("WikiPage", self._call_format("!WikiPage"))
 
-
     def _call_format(self, wiki_content):
-#        page = self.create_wiki("Dummy wiki", wiki_content)
-#        from trac.mimeview.api import RenderingContext
-#        context = RenderingContext(
-#            page.resource,
-#            href=Href('/'),
-#            perm=MockPerm(),
-#        )
-#        context.req = None # 1.0 FIXME .req shouldn't be required by formatter
-#        result = self.text_formatter.format(context, wiki_content)
         result = self.text_formatter.format(wiki_content)
         print "Input text:"
         print wiki_content
@@ -118,7 +108,8 @@ class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(SimpleSearchWikiSyntaxFormatterTestCase, 'test'))
+    test_suite.addTest(
+        unittest.makeSuite(SimpleSearchWikiSyntaxFormatterTestCase, 'test'))
     return test_suite
 
 if __name__ == '__main__':

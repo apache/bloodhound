@@ -76,17 +76,18 @@ class WhooshBackend(Component):
 
     #ISearchBackend methods
     def start_operation(self):
-        return dict(writer = self._create_writer())
+        return self._create_writer()
 
     def _create_writer(self):
         return AsyncWriter(self.index)
 
-    def add_doc(self, doc, writer=None):
+    def add_doc(self, doc, operation_context=None):
         """Add any type of  document index.
 
         The contents should be a dict with fields matching the search schema.
         The only required fields are type and id, everything else is optional.
         """
+        writer = operation_context
         is_local_writer = False
         if writer is None:
             is_local_writer = True
@@ -118,9 +119,10 @@ class WhooshBackend(Component):
             else:
                 doc[key] = self._to_whoosh_format(value)
 
-    def delete_doc(self, doc_type, doc_id, writer=None):
+    def delete_doc(self, doc_type, doc_id, operation_context=None):
         unique_id = self._create_unique_id(doc_type, doc_id)
         self.log.debug('Removing document from the index: %s', unique_id)
+        writer = operation_context
         is_local_writer = False
         if writer is None:
             is_local_writer = True
@@ -138,15 +140,6 @@ class WhooshBackend(Component):
     def optimize(self):
         writer = AsyncWriter(self.index)
         writer.commit(optimize=True)
-
-    def commit(self, optimize, writer):
-        writer.commit(optimize=optimize)
-
-    def cancel(self, writer):
-        try:
-            writer.cancel()
-        except Exception, ex:
-            self.env.log.error("Error during writer cancellation: %s", ex)
 
     def recreate_index(self):
         self.log.info('Creating Whoosh index in %s' % self.index_dir)
@@ -380,7 +373,12 @@ class WhooshEmptyFacetErrorWorkaround(Component):
                     if field == self.NULL_MARKER:
                         count_dict[None] = count
                         del count_dict[self.NULL_MARKER]
-        #we can fix query_result.docs later if needed
+
+        #fix query_result.docs
+        for doc in query_result.docs:
+            for field, value in doc.items():
+                if value == self.NULL_MARKER:
+                    del doc[field]
 
     #IQueryPreprocessor methods
     def query_pre_process(self, query_parameters):

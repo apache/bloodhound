@@ -53,22 +53,6 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(1, results.hits)
         self.assertEqual("Header", results.docs[0]["content"])
 
-    @unittest.skip("TODO")
-    def test_can_reflect_milestone_renaming(self):
-        #act
-        INITIAL_MILESTONE = "initial_milestone"
-        RENAMED_MILESTONE = "renamed_name"
-        milestone = self.insert_milestone(INITIAL_MILESTONE)
-        self.insert_ticket("T1", milestone=INITIAL_MILESTONE)
-        milestone.name = RENAMED_MILESTONE
-        milestone.update()
-
-        #assert
-        results = self.search_api.query("type:ticket")
-        self.print_result(results)
-        self.assertEqual(1, results.hits)
-        self.assertEqual(RENAMED_MILESTONE, results.docs[0]["milestone"])
-
 def suite():
     return unittest.makeSuite(TicketIndexerTestCase, 'test')
 

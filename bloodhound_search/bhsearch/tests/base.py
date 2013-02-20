@@ -38,7 +38,7 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
 
     def setUp(self, enabled = None, create_req = False):
         if not enabled:
-            enabled = ['bhsearch.*']
+            enabled = ['trac.*', 'bhsearch.*']
         self.env = EnvironmentStub(enable=enabled)
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
         self.env.config.set('bhsearch', 'silence_on_error', "False")
@@ -75,7 +75,8 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
     def insert_ticket(self, summary, **kw):
         """Helper for inserting a ticket into the database"""
         ticket = self.create_ticket(summary, **kw)
-        return ticket.insert()
+        ticket.insert()
+        return ticket
 
     def create_wiki(self, name, text,  **kw):
         page = WikiPage(self.env, name)

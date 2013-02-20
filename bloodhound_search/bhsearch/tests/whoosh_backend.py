@@ -451,6 +451,41 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
             facets_result[name] = non_paged_results.groups(name)
         return facets_result
 
+    def test_can_auto_commit(self):
+        # pylint: disable=unused-argument
+
+        schema = Schema(
+                unique_id=ID(stored=True, unique=True),
+                type=ID(stored=True),
+                )
+
+        ix = index.create_in(self.index_dir, schema=schema)
+        with ix.writer() as w:
+            w.add_document(unique_id=u"1", type=u"type1")
+            w.add_document(unique_id=u"2", type=u"type2")
+
+        with ix.searcher() as s:
+            results = s.search(query.Every())
+            self.assertEquals(2, len(results))
+
+    def test_can_auto_cancel(self):
+        schema = Schema(
+                unique_id=ID(stored=True, unique=True),
+                type=ID(stored=True),
+                )
+
+        ix = index.create_in(self.index_dir, schema=schema)
+        try:
+            with ix.writer() as w:
+                w.add_document(unique_id=u"1", type=u"type1")
+                w.add_document(unique_id=u"2", type=u"type2")
+                raise Exception("some exception")
+        except Exception:
+            pass
+
+        with ix.searcher() as s:
+            results = s.search(query.Every())
+            self.assertEquals(0, len(results))
 
 class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
     def setUp(self):

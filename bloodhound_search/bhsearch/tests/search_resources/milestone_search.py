@@ -121,6 +121,55 @@ class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(self.DUMMY_MILESTONE_NAME, doc["id"])
         self.assertEqual("milestone", doc["type"])
 
+    def test_that_tickets_updated_after_milestone_renaming(self):
+        #asser
+        INITIAL_MILESTONE = "initial_milestone"
+        RENAMED_MILESTONE = "renamed_name"
+        milestone = self.insert_milestone(INITIAL_MILESTONE)
+        self.insert_ticket("T1", milestone=INITIAL_MILESTONE)
+        self.insert_ticket("T2", milestone=INITIAL_MILESTONE)
+        #act
+        milestone.name = RENAMED_MILESTONE
+        milestone.update()
+        #assert
+        results = self.search_api.query("type:ticket")
+        self.print_result(results)
+        self.assertEqual(2, results.hits)
+        self.assertEqual(RENAMED_MILESTONE, results.docs[0]["milestone"])
+        self.assertEqual(RENAMED_MILESTONE, results.docs[1]["milestone"])
+
+    def test_that_tickets_updated_after_milestone_delete_no_retarget(self):
+        #asser
+        INITIAL_MILESTONE = "initial_milestone"
+        milestone = self.insert_milestone(INITIAL_MILESTONE)
+        self.insert_ticket("T1", milestone=INITIAL_MILESTONE)
+        self.insert_ticket("T2", milestone=INITIAL_MILESTONE)
+        #act
+        milestone.delete()
+        #assert
+        results = self.search_api.query("type:ticket")
+        self.print_result(results)
+        self.assertEqual(2, results.hits)
+        self.assertNotIn("milestone", results.docs[0])
+        self.assertNotIn("milestone", results.docs[1])
+
+    def test_that_tickets_updated_after_milestone_delete_with_retarget(self):
+        #asser
+        INITIAL_MILESTONE = "initial_milestone"
+        RETARGET_MILESTONE = "retarget_milestone"
+        milestone = self.insert_milestone(INITIAL_MILESTONE)
+        self.insert_milestone(RETARGET_MILESTONE)
+        self.insert_ticket("T1", milestone=INITIAL_MILESTONE)
+        self.insert_ticket("T2", milestone=INITIAL_MILESTONE)
+        #act
+        milestone.delete(retarget_to=RETARGET_MILESTONE)
+        #assert
+        results = self.search_api.query("type:ticket")
+        self.print_result(results)
+        self.assertEqual(2, results.hits)
+        self.assertEqual(RETARGET_MILESTONE, results.docs[0]["milestone"])
+        self.assertEqual(RETARGET_MILESTONE, results.docs[1]["milestone"])
+
 class MilestoneSearchParticipantTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
         super(MilestoneSearchParticipantTestCase, self).setUp()

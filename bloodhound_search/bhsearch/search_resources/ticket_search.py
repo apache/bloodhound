@@ -81,14 +81,35 @@ class TicketIndexer(BaseIndexer):
             else:
                 raise
 
+    def reindex_tickets(self, search_api, operation_context, milestone=None):
+        for ticket in self._fetch_tickets(milestone):
+            self._index_ticket(ticket, search_api, operation_context)
+
+    def _fetch_tickets(self, milestone = None):
+#        with self.env.db_transaction as db:
+        for ticket_id in self._fetch_ids(milestone):
+            yield Ticket(self.env, ticket_id)
+
+    def _fetch_ids(self, milestone):
+        sql = "SELECT id FROM ticket"
+        args = []
+        conditions = []
+        if milestone:
+            args.append(milestone)
+            conditions.append("milestone=%s")
+        if conditions:
+            sql = sql + " WHERE " + " AND ".join(conditions)
+        for row in self.env.db_query(sql, args):
+            yield int(row[0])
+
+
     def _index_ticket(
-            self,
-            ticket,
-            ):
+            self, ticket, search_api = None, operation_context = None):
         try:
-            search_api = BloodhoundSearchApi(self.env)
+            if not search_api:
+                search_api = BloodhoundSearchApi(self.env)
             doc = self.build_doc(ticket)
-            search_api.add_doc(doc)
+            search_api.add_doc(doc, operation_context)
         except Exception, e:
             if self.silence_on_error:
                 self.log.error("Error occurs during ticket indexing. \
@@ -118,10 +139,7 @@ class TicketIndexer(BaseIndexer):
         return doc
 
     def get_entries_for_index(self):
-        #is there any better way to get all tickets?
-        query_records = self._load_ticket_ids()
-        for record in query_records:
-            ticket = Ticket(self.env, record["id"])
+        for ticket in self._fetch_tickets():
             yield self.build_doc(ticket)
 
     def _load_ticket_ids(self):
