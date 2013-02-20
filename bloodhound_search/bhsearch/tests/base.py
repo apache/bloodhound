@@ -93,7 +93,8 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         milestone = self.create_milestone(
             name = name,
             description = description)
-        return milestone.insert()
+        milestone.insert()
+        return milestone
 
     def create_milestone(self, name, description = None):
         milestone = Milestone(self.env)

@@ -23,9 +23,9 @@ from bhsearch.api import BloodhoundSearchApi
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
-class TicketIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
+class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        super(TicketIndexerSilenceOnExceptionTestCase, self).setUp()
+        super(TicketIndexerTestCase, self).setUp()
         self.ticket_indexer = TicketIndexer(self.env)
         self.search_api = BloodhoundSearchApi(self.env)
         self.env.config.set('bhsearch', 'silence_on_error', "False")
@@ -53,9 +53,24 @@ class TicketIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(1, results.hits)
         self.assertEqual("Header", results.docs[0]["content"])
 
+    @unittest.skip("TODO")
+    def test_can_reflect_milestone_renaming(self):
+        #act
+        INITIAL_MILESTONE = "initial_milestone"
+        RENAMED_MILESTONE = "renamed_name"
+        milestone = self.insert_milestone(INITIAL_MILESTONE)
+        self.insert_ticket("T1", milestone=INITIAL_MILESTONE)
+        milestone.name = RENAMED_MILESTONE
+        milestone.update()
+
+        #assert
+        results = self.search_api.query("type:ticket")
+        self.print_result(results)
+        self.assertEqual(1, results.hits)
+        self.assertEqual(RENAMED_MILESTONE, results.docs[0]["milestone"])
 
 def suite():
-    return unittest.makeSuite(TicketIndexerSilenceOnExceptionTestCase, 'test')
+    return unittest.makeSuite(TicketIndexerTestCase, 'test')
 
 if __name__ == '__main__':
     unittest.main()
