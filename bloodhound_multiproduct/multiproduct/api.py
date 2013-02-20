@@ -173,7 +173,7 @@ class MultiProductSystem(Component):
                 for table in migrate_tables:
                     cols = ','.join(table_columns[table])
                     self.log.info("Migrating table '%s' to a new schema", table)
-                    db("CREATE TEMPORARY TABLE %s_temp AS SELECT %s FROM %s" %
+                    db("CREATE TABLE %s_temp AS SELECT %s FROM %s" %
                         (table, cols, table))
                     db("DROP TABLE %s" % table)
                     db_connector, _ = DatabaseManager(self.env)._get_connector()
