@@ -84,7 +84,25 @@
 
       <py:otherwise>
         <div class="row">
-          <div class="span6">
+          <div class="span9">
+            <form class="well form-inline" id="addversion" method="post" action="">
+              <fieldset>
+                <legend>Add Version:</legend>
+                <input class="btn" type="submit" name="add"
+                       value="${_('Add')}" />
+                <label class="control-label" for="name">Name:</label>
+                <input class="input-medium" type="text" name="name"
+                       id="name" size="22" />
+                <label class="control-label" for="releaseddate">Released:</label>
+                <input type="text" id="releaseddate"
+                       name="time" size="${len(datetime_hint)}"
+                       value="${format_datetime()}" />
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="span9">
             <py:choose>
               <form py:when="versions" id="version_table" method="post" action="">
                 <table id="verlist"
@@ -114,7 +132,7 @@
                       value="${_('Apply changes')}" />
                 </div>
                 <p class="help-block">
-                  <span class="label label-info">Notice</span>
+                  <span class="label label-info">Note</span>
                   You can remove all items from this list to completely hide this
                   field from the user interface.
                 </p>
@@ -127,31 +145,7 @@
               </p>
             </py:choose>
           </div>
-          <div class="span3">
-            <form class="well" id="addversion" method="post" action="">
-              <fieldset>
-                <legend>Add Version:</legend>
-                <label for="name">Name:</label>
-                <input class="input-medium" type="text" name="name"
-                    id="name" size="22" />
-                <label for="releaseddate">Released:</label>
-                <input class="input-medium" type="text" id="releaseddate"
-                    name="time" size="${len(datetime_hint)}"
-                    placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}"
-                    value="${format_datetime()}" />
-                <p class="help-block">
-                  <span class="label label-info">Hint</span>
-                  <i18n:msg params="datehint">Format: $datetime_hint</i18n:msg>
-                </p>
-                <div class="control-group">
-                  <input class="btn" type="submit" name="add"
-                      value="${_('Add')}" />
-                </div>
-              </fieldset>
-            </form>
-          </div>
         </div>
-
       </py:otherwise>
     </py:choose>
   </body>
