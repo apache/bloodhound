@@ -76,7 +76,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'theme': {'theme': 'bloodhound',},
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
                                              'tickets', 'newticket', 'timeline',
-                                             'roadmap', 'search', 'admin']),},
+                                             'roadmap', 'search', 'admin']),
+                        'environment_factory': '',},
                'project': {'footer': ('Visit Apache Bloodhound at<br />'
                                       '<a href="%(site)s">%(site)s</a>'
                                       % {'site': BH_PROJECT_SITE,}),},
@@ -214,7 +215,14 @@ class BloodhoundSetup(object):
             print ("Warning: Environment already exists at %s." % new_env)
             self.writeconfig(tracini, [{'inherit': {'file': baseini},},])
 
-        self.writeconfig(baseini, [BASE_CONFIG, accounts_config])
+        base_config = dict(BASE_CONFIG)
+        environment_factory_path = os.path.abspath(
+                                      os.path.normpath(
+                                          os.path.join(options['sourcedir'],
+                                                               'bloodhound_multiproduct/multiproduct/hooks.py')))
+        base_config['trac']['environment_factory'] = environment_factory_path
+
+        self.writeconfig(baseini, [base_config, accounts_config])
 
         if os.path.exists(digestfile):
             backupfile(digestfile)
@@ -296,6 +304,9 @@ def handle_options():
     # Base Trac Options
     parser.add_option('--project', dest='project',
                       help='Set the top project name', default='main')
+    parser.add_option('--source_directory', dest='sourcedir',
+                      help='Specify root source code directory',
+                      default=os.path.normpath(os.path.join(os.getcwd(), '../'))),
     parser.add_option('--environments_directory', dest='envsdir',
                       help='Set the directory to contain environments',
                       default=os.path.join('bloodhound', 'environments'))
