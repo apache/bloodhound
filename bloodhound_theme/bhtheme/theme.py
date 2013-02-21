@@ -149,7 +149,7 @@ class BloodhoundTheme(ThemeBase):
             footer_left_prefix = self.labels_footer_left_prefix,
             footer_left_postfix = self.labels_footer_left_postfix,
             footer_right = self.labels_footer_right,
-            application_version = ".".join(map(str, application_version)))
+            application_version = application_version)
 
     # ITemplateStreamFilter methods
 
@@ -441,5 +441,4 @@ class QuickCreateTicketDialog(Component):
                                    "of ticket #%s: %s" % (t.id, e))
         return t.id
 
-application_version = tuple(int(i) for i in get_distribution('BloodhoundTheme')
-    .parsed_version if i.startswith('0'))
+application_version = get_distribution('BloodhoundTheme').version
