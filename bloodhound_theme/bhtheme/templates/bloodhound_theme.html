@@ -65,8 +65,10 @@
           <!--! logo -->
           <div id="logo" class="span4">
             <p>
-              <img src="${chrome.logo.src or href.chrome('theme/img/bh_logo.png')}"
-                  alt="Bloodhound Logo" />
+              <a href="${chrome.logo.link or href()}">
+                <img src="${chrome.logo.src or href.chrome('theme/img/bh_logo.png')}"
+                     alt="Bloodhound Logo" />
+              </a>
             </p>
           </div>
           <!--! top menu (login, logout...) -->
