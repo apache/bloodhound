@@ -22,7 +22,7 @@ from setuptools import setup
 
 setup(
   name = 'BloodhoundTheme',
-  version = '0.4.0',
+  version = '0.5.0',
   description = "Theme for Apache(TM) Bloodhound.",
   author = "Apache Bloodhound",
   license = "Apache License v2",
