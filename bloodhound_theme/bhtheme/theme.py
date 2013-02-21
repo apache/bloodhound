@@ -307,7 +307,6 @@ class BloodhoundTheme(ThemeBase):
     def _modify_ticket(self, req, template, data, content_type, is_active):
         """Ticket modifications
         """
-        self._modify_scrollspy(req, template, data, content_type, is_active)
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
@@ -322,11 +321,6 @@ class BloodhoundTheme(ThemeBase):
                                       ('product', 'PRODUCT_VIEW')]:
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
-
-    def _modify_scrollspy(self, req, template, data, content_type, is_active):
-        """Insert Bootstrap scroll spy files.
-        """
-        add_script(req, 'dashboard/js/bootstrap-scrollspy.js')
 
     # INavigationContributor methods
 

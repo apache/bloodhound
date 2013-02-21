@@ -82,8 +82,6 @@ class BootstrapLayout(Component):
     def _process_btnbar(self, req, options):
         """Determine toolbar groups
         """
-        add_script(req, 'dashboard/js/bootstrap-button.js')
-        add_script(req, 'dashboard/js/bootstrap-tab.js')
         layout_data = options['schema']
         orig_tb = layout_data.get('toolbar', [])
         ready = layout_data.get('ready')
