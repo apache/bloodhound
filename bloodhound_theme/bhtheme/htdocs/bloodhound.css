@@ -285,6 +285,8 @@ pre.wiki {
   display: none;
 }
 
+#trac-comment-editor textarea { width: 100%; }
+
 /* @end */
 
 /* @group Quick Ticket fieldset */
