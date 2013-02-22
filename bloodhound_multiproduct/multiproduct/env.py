@@ -193,6 +193,14 @@ class ProductEnvironment(Component, ComponentManager):
 
     implements(trac.env.ISystemInfoProvider)
 
+    def __getitem__(self, cls):
+        if issubclass(cls, trac.env.Environment):
+            return self.parent
+        elif cls is self.__class__:
+            return self
+        else:
+            return ComponentManager.__getitem__(self, cls)
+
     def __getattr__(self, attrnm):
         """Forward attribute access request to parent environment.
 
@@ -210,6 +218,11 @@ class ProductEnvironment(Component, ComponentManager):
         except AttributeError:
             raise AttributeError("'%s' object has no attribute '%s'" %
                     (self.__class__.__name__, attrnm))
+
+    def __repr__(self):
+        return "<%s %s at %s>" % (self.__class__.__name__, 
+                                 repr(self.product.prefix),
+                                 hex(id(self)))
 
     @lazy
     def path(self):
@@ -394,7 +407,14 @@ class ProductEnvironment(Component, ComponentManager):
         `None`, the component only gets activated if it is located in
         the `plugins` directory of the environment.
         """
-        if self.parent[cls] is None:
+        if cls is self.__class__:
+            # Prevent lookups in parent env ... will always fail 
+            return True
+        # FIXME : Maybe checking for ComponentManager is too drastic 
+        elif issubclass(cls, ComponentManager):
+            # Avoid clashes with overridden Environment's options 
+            return False
+        elif self.parent[cls] is None:
             return False
         return self.is_component_enabled_local(cls)
 
