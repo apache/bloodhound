@@ -141,6 +141,10 @@ class Section(Section):
     """
     __slots__ = ['config', 'name', 'overridden', '_cache']
 
+    @staticmethod
+    def optionxform(optionstr):
+        return to_unicode(optionstr.lower());
+
     def __init__(self, config, name):
         self.config = config
         self.name = to_unicode(name)
@@ -156,7 +160,7 @@ class Section(Section):
         return self.config.product
 
     def contains(self, key, defaults=True):
-        key = to_unicode(key)
+        key = self.optionxform(key)
         if ProductSetting.exists(self.env, self.product, self.name, key):
             return True
         for parent in self.config.parents:
@@ -176,18 +180,19 @@ class Section(Section):
         name_str = self.name
         for setting in ProductSetting.select(self.env,
                 where={'product':self.product, 'section':name_str}):
-            option = to_unicode(setting.option)
-            options.add(option.lower())
+            option = self.optionxform(setting.option)
+            options.add(option)
             yield option
         for parent in self.config.parents:
             for option in parent[self.name].iterate(defaults=False):
-                loption = option.lower()
+                loption = self.optionxform(option)
                 if loption not in options:
                     options.add(loption)
                     yield option
         if defaults:
             for section, option in Option.get_registry(compmgr).keys():
-                if section == self.name and option.lower() not in options:
+                if section == self.name and \
+                        self.optionxform(option) not in options:
                     yield option
 
     __iter__ = iterate
@@ -201,6 +206,7 @@ class Section(Section):
 
         Valid default input is a string. Returns a string.
         """
+        key = self.optionxform(key)
         cached = self._cache.get(key, _use_default)
         if cached is not _use_default:
             return cached
@@ -252,7 +258,7 @@ class Section(Section):
 
         Like for `set()`, the changes won't persist until `save()` gets called.
         """
-        key_str = to_unicode(key)
+        key_str = self.optionxform(key)
         option_key = {
                 'product' : self.product, 
                 'section' : self.name,
@@ -272,7 +278,7 @@ class Section(Section):
 
         These changes will be persistent right away.
         """
-        key_str = to_unicode(key)
+        key_str = self.optionxform(key)
         value_str = to_unicode(value)
         self._cache.pop(key_str, None)
         option_key = {

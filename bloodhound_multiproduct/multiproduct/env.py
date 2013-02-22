@@ -605,14 +605,14 @@ class ProductEnvironment(Component, ComponentManager):
         # FIXME: True or False ?
         return True
 
-    @property
+    @lazy
     def href(self):
         """The application root path"""
         if not self._href:
             self._href = Href(urlsplit(self.abs_href.base)[2])
         return self._href
 
-    @property
+    @lazy
     def abs_href(self):
         """The application URL"""
         if not self._abs_href:
