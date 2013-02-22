@@ -34,6 +34,8 @@ from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
 from trac.web.main import RequestDispatcher
 
 from multiproduct.model import Product
+from multiproduct.util import ProductDelegate
+
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 
@@ -161,18 +163,11 @@ class ProductModule(Component):
             elif action == 'edit':
                 return self._do_save(req, product)
             elif action == 'delete':
-                req.perm(product.resource).require('PRODUCT_DELETE')
-                retarget_to = req.args.get('retarget', None)
-                name = product.name
-                product.delete(resources_to=retarget_to)
-                add_notice(req, _('The product "%(n)s" has been deleted.',
-                                  n = name))
-                req.redirect(req.href.products())
+                raise TracError(_('Product removal is not allowed!'))
         elif action in ('new', 'edit'):
             return self._render_editor(req, product)
         elif action == 'delete':
-            req.perm(product.resource).require('PRODUCT_DELETE')
-            return 'product_delete.html', data, None
+            raise TracError(_('Product removal is not allowed!'))
         
         if pid is None:
             data = {'products': products,
@@ -258,12 +253,10 @@ class ProductModule(Component):
                        'choose a different name.', name=name))
             
             if not warnings:
-                prod = Product(self.env)
-                prod.update_field_dict(keys)
-                prod.update_field_dict(field_data)
-                prod.insert()
+                ProductDelegate.add_product(self.env, product, keys, field_data)
                 add_notice(req, _('The product "%(id)s" has been added.',
-                                  id=prefix))
+                    id=prefix))
+
         if warnings:
             product.update_field_dict(keys)
             product.update_field_dict(field_data)

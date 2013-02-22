@@ -27,6 +27,8 @@ from trac.resource import ResourceNotFound
 from model import Product
 from trac.util.translation import _, N_, gettext
 from trac.web.chrome import Chrome, add_notice, add_warning
+from multiproduct.util import ProductDelegate
+
 
 class ProductAdminPanel(TicketAdminPanel):
     """The Product Admin Panel"""
@@ -74,11 +76,10 @@ class ProductAdminPanel(TicketAdminPanel):
                         prod = Product(self.env, keys)
                     except ResourceNotFound:
                         prod = Product(self.env)
-                        prod.update_field_dict(keys)
-                        prod.update_field_dict(field_data)
-                        prod.insert()
-                        add_notice(req, _('The product "%(id)s" has been '
-                                          'added.', id=prefix))
+                        ProductDelegate.add_product(self.env, prod, keys, field_data)
+                        add_notice(req,
+                            _('The product "%(id)s" has been added.',
+                            id=prefix))
                         req.redirect(req.href.admin(cat, page))
                     else:
                         if prod.prefix is None:
@@ -88,19 +89,7 @@ class ProductAdminPanel(TicketAdminPanel):
                 
                 # Remove product
                 elif req.args.get('remove'):
-                    req.perm.require('PRODUCT_DELETE')
-                    sel = req.args.get('sel')
-                    if not sel:
-                        raise TracError(_('No product selected'))
-                    if not isinstance(sel, list):
-                        sel = [sel]
-                    with self.env.db_transaction:
-                        for prefix in sel:
-                            prod = Product(self.env, {'prefix':prefix})
-                            prod.delete()
-                    add_notice(req, _("The selected products have been "
-                                      "removed."))
-                    req.redirect(req.href.admin(cat, page))
+                    raise TracError(_('Product removal is not allowed!'))
                 
                 # Set default product
                 elif req.args.get('apply'):

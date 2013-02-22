@@ -68,6 +68,10 @@ class MultiProductSystem(Component):
     SCHEMA = [mcls._get_schema() \
               for mcls in (Product, ProductResourceMap)]
 
+    # Tables which should be migrated (extended with 'product' column)
+    MIGRATE_TABLES = ['enum', 'component', 'milestone', 'version', 'permission', 'wiki']
+
+
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
         rows = self.env.db_query("""
@@ -136,10 +140,8 @@ class MultiProductSystem(Component):
 
                 DEFAULT_PRODUCT = 'default'
 
-                migrate_tables = ['enum', 'component', 'milestone', 'version', 'permission', 'wiki']
-
                 # extend trac default schema by adding product column and extending key with product
-                table_defs = [copy.deepcopy(t) for t in trac.db_default.schema if t.name in migrate_tables]
+                table_defs = [copy.deepcopy(t) for t in trac.db_default.schema if t.name in self.MIGRATE_TABLES]
                 for t in table_defs:
                     t.columns.append(Column('product'))
                     if isinstance(t.key, list):
@@ -170,7 +172,7 @@ class MultiProductSystem(Component):
                         WHERE product=''""" % DEFAULT_PRODUCT)
 
                 self.log.info("Migrating tables to a new schema")
-                for table in migrate_tables:
+                for table in self.MIGRATE_TABLES:
                     cols = ','.join(table_columns[table])
                     self.log.info("Migrating table '%s' to a new schema", table)
                     db("CREATE TABLE %s_temp AS SELECT %s FROM %s" %

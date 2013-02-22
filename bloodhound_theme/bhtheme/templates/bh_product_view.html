@@ -47,7 +47,7 @@
   <py:def function="product_buttons()">
     <div py:if="'PRODUCT_MODIFY' in perm(product.resource) or
                 'PRODUCT_DELETE' in perm(product.resource) or
-                attachments.can_create"
+                (attachments and attachments.can_create)"
         class="buttons">
       <form py:if="'PRODUCT_MODIFY' in perm(product.resource)"
           method="get" action="" id="editproduct"
