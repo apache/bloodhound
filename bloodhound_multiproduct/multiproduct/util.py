@@ -30,6 +30,7 @@ class ProductDelegate(object):
 
         env.log.debug("Adding product info (%s) to tables:" % product.prefix)
         with env.db_direct_transaction as db:
+            # create the default entries for this Product from defaults
             for table in db_default.get_data(db):
                 if not table[0] in MultiProductSystem.MIGRATE_TABLES:
                     continue
@@ -41,4 +42,13 @@ class ProductDelegate(object):
                     "INSERT INTO %s (%s) VALUES (%s)" %
                     (table[0], ','.join(cols), ','.join(['%s' for c in cols])),
                     rows)
+
+            # in addition copy global admin permissions (they are
+            # not part of the default permission table)
+            rows = db("""SELECT username FROM permission WHERE action='TRAC_ADMIN'
+                         AND product=''""")
+            rows = [(r[0], 'TRAC_ADMIN', product.prefix) for r in rows]
+            cols = ('username', 'action', 'product')
+            db.executemany("INSERT INTO permission (%s) VALUES (%s)" %
+                (','.join(cols), ','.join(['%s' for c in cols])), rows)
 
