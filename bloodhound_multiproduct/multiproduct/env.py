@@ -193,48 +193,6 @@ class ProductEnvironment(Component, ComponentManager):
 
     implements(trac.env.ISystemInfoProvider)
 
-    def __getitem__(self, cls):
-        if issubclass(cls, trac.env.Environment):
-            return self.parent
-        elif cls is self.__class__:
-            return self
-        else:
-            return ComponentManager.__getitem__(self, cls)
-
-    def __getattr__(self, attrnm):
-        """Forward attribute access request to parent environment.
-
-        Initially this will affect the following members of
-        `trac.env.Environment` class:
-
-        system_info_providers, secure_cookies, project_admin_trac_url,
-        get_system_info, get_version, get_templates_dir, get_templates_dir,
-        get_log_dir, backup
-        """
-        try:
-            if attrnm in ('parent', '_rules'):
-                raise AttributeError
-            return getattr(self.parent, attrnm)
-        except AttributeError:
-            raise AttributeError("'%s' object has no attribute '%s'" %
-                    (self.__class__.__name__, attrnm))
-
-    def __repr__(self):
-        return "<%s %s at %s>" % (self.__class__.__name__, 
-                                 repr(self.product.prefix),
-                                 hex(id(self)))
-
-    @lazy
-    def path(self):
-        """The subfolder `./products/<product prefix>` relative to the 
-        top-level directory of the global environment will be the root of 
-        product file system area.
-        """
-        folder = os.path.join(self.parent.path, 'products', self.product.prefix)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-        return folder
-
     @property
     def setup_participants(self):
         """Setup participants list for product environments will always
@@ -383,6 +341,48 @@ class ProductEnvironment(Component, ComponentManager):
         self._href = self._abs_href = None
 
         self.setup_config()
+
+    def __getitem__(self, cls):
+        if issubclass(cls, trac.env.Environment):
+            return self.parent
+        elif cls is self.__class__:
+            return self
+        else:
+            return ComponentManager.__getitem__(self, cls)
+
+    def __getattr__(self, attrnm):
+        """Forward attribute access request to parent environment.
+
+        Initially this will affect the following members of
+        `trac.env.Environment` class:
+
+        system_info_providers, secure_cookies, project_admin_trac_url,
+        get_system_info, get_version, get_templates_dir, get_templates_dir,
+        get_log_dir, backup
+        """
+        try:
+            if attrnm in ('parent', '_rules'):
+                raise AttributeError
+            return getattr(self.parent, attrnm)
+        except AttributeError:
+            raise AttributeError("'%s' object has no attribute '%s'" %
+                    (self.__class__.__name__, attrnm))
+
+    def __repr__(self):
+        return "<%s %s at %s>" % (self.__class__.__name__, 
+                                 repr(self.product.prefix),
+                                 hex(id(self)))
+
+    @lazy
+    def path(self):
+        """The subfolder `./products/<product prefix>` relative to the 
+        top-level directory of the global environment will be the root of 
+        product file system area.
+        """
+        folder = os.path.join(self.parent.path, 'products', self.product.prefix)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        return folder
 
     # ISystemInfoProvider methods
 

@@ -60,7 +60,11 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
 
     def tearDown(self):
         self.global_env.reset_db()
-        self.global_env = self._env = None
+        try:
+            if self._teardown:
+                self._teardown(self)
+        finally:
+            self.global_env = self._env = None
 
     def __init__(self, title, input, correct, file, line, setup=None,
                  teardown=None, context=None):
