@@ -15,7 +15,8 @@ from trac.ticket.model import (
     Ticket, Component, Milestone, Priority, Type, Version
 )
 from trac.ticket.api import (
-    IMilestoneChangeListener, ITicketChangeListener, TicketSystem
+    IMilestoneChangeListener, ITicketChangeListener, TicketSystem,
+    IResourceChangeListener,
 )
 from trac.test import EnvironmentStub
 from trac.util.datefmt import from_utimestamp, to_utimestamp, utc
@@ -1005,6 +1006,27 @@ class MilestoneTestCase(unittest.TestCase):
         self.assertEqual('deleted', listener.action)
         self.assertEqual(milestone, listener.milestone)
 
+class TestResourceChangeListener(core.Component):
+    implements(IResourceChangeListener)
+
+    def callback(self, action, resource, old_values = None):
+        pass
+
+    def resource_created(self, resource):
+        self.action = "created"
+        self.resource = resource
+        self.callback(self.action, self.resource)
+
+    def resource_changed(self, resource, old_values):
+        self.action = "changed"
+        self.resource = resource
+        self.old_values = old_values
+        self.callback(self.action, self.resource, old_values=self.old_values)
+
+    def resource_deleted(self, resource):
+        self.action = "deleted"
+        self.resource = resource
+        self.callback(self.action, self.resource)
 
 class ComponentTestCase(unittest.TestCase):
 
@@ -1040,6 +1062,49 @@ class ComponentTestCase(unittest.TestCase):
         component.update()
         self.assertEqual([('Test', 'joe', None)], self.env.db_query(
             "SELECT name, owner, description FROM component WHERE name='Test'"))
+
+    def test_change_listener_created(self):
+        listener = TestResourceChangeListener(self.env)
+        self._create_component(name='Component 1')
+        self.assertEqual('created', listener.action)
+        self.assertIsInstance(listener.resource, Component)
+        self.assertEqual('Component 1', listener.resource.name)
+
+    def test_change_listener_changed(self):
+        listener = TestResourceChangeListener(self.env)
+        component = self._create_component(name='Component 1')
+        component.name = 'Component 2'
+        component.update()
+        self.assertEqual('changed', listener.action)
+        self.assertIsInstance(listener.resource, Component)
+        self.assertEqual('Component 2', listener.resource.name)
+        self.assertEqual("Component 1" ,listener.old_values["name"])
+
+    def test_change_listener_deleted(self):
+        listener = TestResourceChangeListener(self.env)
+
+        #component.name property is set to None during delete operation
+        #We need mechanism to remember component name
+        listener.callback = self.listener_callback
+
+        component = self._create_component(name='Component 1')
+        component.delete()
+        self.assertEqual('deleted', listener.action)
+        self.assertIsInstance(listener.resource, Component)
+        self.assertEqual('Component 1', self.resource_name)
+
+    def listener_callback(self, action, resource, old_values = None):
+        self.resource_name = resource.name
+
+    def _create_component(self, name, description = None, owner=None):
+        component = Component(self.env)
+        component.name = name
+        if description is None:
+            component.description = description
+        if owner is None:
+            component.owner = owner
+        component.insert()
+        return component
 
 class VersionTestCase(unittest.TestCase):
 
