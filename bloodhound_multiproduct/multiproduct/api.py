@@ -69,7 +69,11 @@ class MultiProductSystem(Component):
               for mcls in (Product, ProductResourceMap)]
 
     # Tables which should be migrated (extended with 'product' column)
-    MIGRATE_TABLES = ['enum', 'component', 'milestone', 'version', 'permission', 'wiki']
+    MIGRATE_TABLES = ['enum', 'component', 'milestone', 'version',
+                      'permission',
+                      'wiki',
+                      'report',
+                      ]
 
 
     def get_version(self):
@@ -139,9 +143,13 @@ class MultiProductSystem(Component):
                 import trac.db_default
 
                 DEFAULT_PRODUCT = 'default'
+                TICKET_TABLES = ['ticket_change', 'ticket_custom',
+                                 'attachment',
+                                ]
 
                 # extend trac default schema by adding product column and extending key with product
-                table_defs = [copy.deepcopy(t) for t in trac.db_default.schema if t.name in self.MIGRATE_TABLES]
+                table_defs = [copy.deepcopy(t) for t in trac.db_default.schema
+                                                    if t.name in self.MIGRATE_TABLES + TICKET_TABLES]
                 for t in table_defs:
                     t.columns.append(Column('product'))
                     if isinstance(t.key, list):
@@ -154,10 +162,9 @@ class MultiProductSystem(Component):
                                         (t.name, t.key, PLUGIN_NAME, db_installed_version, 3))
                 table_columns = dict()
                 for table in table_defs:
-                    table_columns[table.name] = filter(lambda column: column != 'product',
-                                                         [column.name for column in
-                                                            list(filter(lambda t: t.name == table.name,
-                                                                                  table_defs)[0].columns)])
+                    table_columns[table.name] = [c for c in [column.name for column in
+                                                                [t for t in table_defs if t.name == table.name][0].columns]
+                                                                    if c != 'product']
                 self.log.info("Creating default product")
                 default_product = Product(self.env)
                 default_product.update_field_dict({'prefix': DEFAULT_PRODUCT,
@@ -171,27 +178,68 @@ class MultiProductSystem(Component):
                 db("""UPDATE ticket SET product='%s'
                         WHERE product=''""" % DEFAULT_PRODUCT)
 
-                self.log.info("Migrating tables to a new schema")
-                for table in self.MIGRATE_TABLES:
-                    cols = ','.join(table_columns[table])
+                def create_temp_table(table):
+                    table_temp_name = '%s_temp' % table
+                    if table == 'report':
+                        cols = ','.join([c for c in table_columns[table] if c != 'id'])
+                    else:
+                        cols = ','.join(table_columns[table])
                     self.log.info("Migrating table '%s' to a new schema", table)
-                    db("CREATE TABLE %s_temp AS SELECT %s FROM %s" %
-                        (table, cols, table))
+                    db("CREATE TABLE %s AS SELECT %s FROM %s" %
+                       (table_temp_name, cols, table))
                     db("DROP TABLE %s" % table)
                     db_connector, _ = DatabaseManager(self.env)._get_connector()
-                    table_schema = filter(lambda t: t.name == table, table_defs)[0]
+                    table_schema = [t for t in table_defs if t.name == table][0]
                     for sql in db_connector.to_sql(table_schema):
                         db(sql)
-                    products = Product.select(self.env)
-                    for product in products:
-                        self.log.info("Populating table '%s' for product '%s' ('%s')", table, product.name, product.prefix)
-                        db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s_temp" %
-                            (table, cols, cols, product.prefix, table))
+                    return table_temp_name, cols
+
+                def drop_temp_table(table):
+                    db("DROP TABLE %s" % table)
+
+                self.log.info("Migrating system tables to a new schema")
+                for table in self.MIGRATE_TABLES:
+                    temp_table_name, cols = create_temp_table(table)
+                    if table == 'wiki':
+                        self.log.info("Populating table '%s'", table)
+                        db("INSERT INTO %s (%s, product) SELECT %s,'' FROM %s" %
+                           (table, cols, cols, temp_table_name))
+                    else:
+                        products = Product.select(self.env)
+                        for product in products:
+                            self.log.info("Populating table '%s' for product '%s' ('%s')",
+                                          table, product.name, product.prefix)
+                            db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s" %
+                                (table, cols, cols, product.prefix, temp_table_name))
                     if table == 'permission':
                         self.log.info("Populating table '%s' for global scope", table)
-                        db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s_temp" %
-                           (table, cols, cols, '', table))
-                    db("DROP TABLE %s_temp" % table)
+                        db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s" %
+                           (table, cols, cols, '', temp_table_name))
+                    drop_temp_table(temp_table_name)
+
+                # Update ticket related tables
+                # Upgrade schema
+                self.log.info("Migrating ticket tables to a new schema")
+                for table in TICKET_TABLES:
+                    temp_table_name, cols = create_temp_table(table)
+                    db("INSERT INTO %s (%s, product) SELECT %s,'' FROM %s" %
+                       (table, cols, cols, temp_table_name))
+                    drop_temp_table(temp_table_name)
+
+                # Update product column based on ticket product
+                for table in TICKET_TABLES:
+                    if table == 'attachment':
+                        db("""UPDATE attachment
+                              SET product=(SELECT ticket.product FROM ticket WHERE ticket.id=attachment.id)
+                              WHERE type='ticket'""")
+                    else:
+                        db("""UPDATE %s
+                              SET product=(SELECT ticket.product FROM ticket WHERE ticket.id=%s.ticket)""" %
+                           (table, table))
+                db("""UPDATE attachment
+                      SET product=(SELECT wiki.product FROM wiki WHERE wiki.name=attachment.id)
+                      WHERE type='wiki'""")
+
                 db_installed_version = self._update_db_version(db, 3)
 
             if db_installed_version < 4:

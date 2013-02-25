@@ -26,26 +26,6 @@ data = {
     # non-translated SELECTs
     'system_select_nontranslated' : [
         (
-"""SELECT TYPE, id,
-                     filename,
-                     time,
-                     description,
-                     author
-        FROM attachment
-        WHERE time > %s
-          AND time < %s
-          AND TYPE = %s""",
-"""SELECT TYPE, id,
-                     filename,
-                     time,
-                     description,
-                     author
-        FROM attachment
-        WHERE time > %s
-          AND time < %s
-          AND TYPE = %s"""
-        ),
-        (
 """SELECT id,
                name,
                value
@@ -73,6 +53,26 @@ data = {
 
     # translated SELECTs
     'system_select_translated' : [
+        (
+"""SELECT TYPE, id,
+                     filename,
+                     time,
+                     description,
+                     author
+        FROM attachment
+        WHERE time > %s
+          AND time < %s
+          AND TYPE = %s""",
+"""SELECT TYPE, id,
+                     filename,
+                     time,
+                     description,
+                     author
+        FROM (SELECT * FROM attachment WHERE product="PRODUCT") AS attachment
+        WHERE time > %s
+          AND time < %s
+          AND TYPE = %s"""
+        ),
         (
 """SELECT name,
                due,
@@ -131,7 +131,7 @@ data = {
                tc.field,
                tc.oldvalue,
                tc.newvalue
-        FROM ticket_change tc
+        FROM (SELECT * FROM ticket_change WHERE product="PRODUCT") AS tc
         INNER JOIN (SELECT * FROM ticket WHERE product="PRODUCT") AS t ON t.id = tc.ticket
         AND tc.time>=1351375199999999
         AND tc.time<=1354057199999999
@@ -576,7 +576,7 @@ data = {
                reporter AS _reporter
           FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
           LEFT JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS p  ON p.name = t.priority AND p.type = 'priority'
-          LEFT JOIN ticket_change  ON tc.ticket = t.id AND tc.author = %s
+          LEFT JOIN (SELECT * FROM ticket_change WHERE product="PRODUCT") AS tc  ON tc.ticket = t.id AND tc.author = %s
                                         AND tc.field = 'comment'
           WHERE t.status <> 'closed'
                 AND (owner = %s OR reporter = %s OR author = %s)
@@ -618,16 +618,6 @@ data = {
     # non-translated INSERTs
     'system_insert_nontranslated' : [
         (
-"""INSERT INTO ticket_custom (ticket, name, value)
-          SELECT id, 'totalhours', '0' FROM ticket WHERE id NOT IN (
-            SELECT ticket from ticket_custom WHERE name='totalhours'
-          )""",
-"""INSERT INTO ticket_custom (ticket, name, value)
-          SELECT id, 'totalhours', '0' FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
-            SELECT ticket from ticket_custom WHERE name='totalhours'
-          )"""
-        ),
-        (
 """INSERT INTO session VALUES (%s,%s,0)""",
 """INSERT INTO session VALUES (%s,%s,0)"""
         ),
@@ -637,11 +627,21 @@ data = {
     'system_insert_translated' : [
         (
 """INSERT INTO ticket_custom (ticket, name, value)
+          SELECT id, 'totalhours', '0' FROM ticket WHERE id NOT IN (
+            SELECT ticket from ticket_custom WHERE name='totalhours'
+          )""",
+"""INSERT INTO ticket_custom (ticket, name, value, product)
+              SELECT id, 'totalhours', '0', product FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
+                SELECT ticket from (SELECT * FROM ticket_custom WHERE product="PRODUCT") AS ticket_custom WHERE name='totalhours'
+              )"""
+        ),
+        (
+"""INSERT INTO ticket_custom (ticket, name, value)
                     SELECT id, 'totalhours', '0' FROM ticket WHERE id NOT IN (
                     SELECT ticket from ticket_custom WHERE name='totalhours')""",
-"""INSERT INTO ticket_custom (ticket, name, value)
-                    SELECT id, 'totalhours', '0' FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
-                    SELECT ticket from ticket_custom WHERE name='totalhours')"""
+"""INSERT INTO ticket_custom (ticket, name, value, product)
+                        SELECT id, 'totalhours', '0', product FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
+                        SELECT ticket from (SELECT * FROM ticket_custom WHERE product="PRODUCT") AS ticket_custom WHERE name='totalhours')"""
         ),
         (
 """INSERT INTO session (sid, last_visit, authenticated)
@@ -707,7 +707,7 @@ data = {
                           ORDER BY time DESC LIMIT 1)
                           WHERE id=%s""",
 """UPDATE ticket SET changetime=(
-                          SELECT time FROM ticket_change WHERE ticket=%s
+                          SELECT time FROM (SELECT * FROM ticket_change WHERE product="PRODUCT") AS ticket_change WHERE ticket=%s
                           UNION
                           SELECT time FROM (
                               SELECT time FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id=%s LIMIT 1) AS t
@@ -756,6 +756,32 @@ data = {
                            SET
                                 id_project='%s' WHERE product='PRODUCT' AND milestone='%s'"""
         ),
+        (
+"""UPDATE ticket_change  SET  newvalue=%s
+                               WHERE ticket=%s and author=%s and time=%s and field=%s""",
+"""UPDATE ticket_change  SET  newvalue=%s
+                               WHERE product='PRODUCT' AND ticket=%s and author=%s and time=%s and field=%s"""
+        ),
+        (
+"""UPDATE ticket_change  SET oldvalue=%s, newvalue=%s
+                               WHERE ticket=%s and author=%s and time=%s and field=%s""",
+"""UPDATE ticket_change  SET oldvalue=%s, newvalue=%s
+                               WHERE product='PRODUCT' AND ticket=%s and author=%s and time=%s and field=%s"""
+        ),
+        (
+"""UPDATE
+                                ticket_custom
+                              SET
+                                value = '%s'
+                              WHERE
+                                name = 'project' AND value = '%s'""",
+"""UPDATE
+                                ticket_custom
+                              SET
+                                value = '%s'
+                              WHERE
+                                product='PRODUCT' AND name = 'project' AND value = '%s'"""
+        ),
     ],
 
     # non-translated UPDATEs
@@ -783,32 +809,6 @@ data = {
 """UPDATE  auth_cookie
                             SET time=%s
                         WHERE   cookie=%s"""
-        ),
-        (
-"""UPDATE ticket_change  SET  newvalue=%s
-                               WHERE ticket=%s and author=%s and time=%s and field=%s""",
-"""UPDATE ticket_change  SET  newvalue=%s
-                               WHERE ticket=%s and author=%s and time=%s and field=%s"""
-        ),
-        (
-"""UPDATE ticket_change  SET oldvalue=%s, newvalue=%s
-                               WHERE ticket=%s and author=%s and time=%s and field=%s""",
-"""UPDATE ticket_change  SET oldvalue=%s, newvalue=%s
-                               WHERE ticket=%s and author=%s and time=%s and field=%s"""
-        ),
-        (
-"""UPDATE
-                                ticket_custom
-                              SET
-                                value = '%s'
-                              WHERE
-                                name = 'project' AND value = '%s'""",
-"""UPDATE
-                                ticket_custom
-                              SET
-                                value = '%s'
-                              WHERE
-                                name = 'project' AND value = '%s'"""
         ),
     ],
 

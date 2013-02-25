@@ -28,13 +28,17 @@ __all__ = ['BloodhoundIterableCursor', 'BloodhoundConnectionWrapper', 'ProductEn
 SKIP_TABLES = ['system', 'auth_cookie',
                'session', 'session_attribute',
                'cache',
-               'attachment', 'repository', 'revision', 'node_change',
-               'ticket_change', 'ticket_custom',
-               'report',
+               'repository', 'revision', 'node_change',
                'bloodhound_product', 'bloodhound_productresourcemap', 'bloodhound_productconfig',
                'sqlite_master'
                ]
-TRANSLATE_TABLES = ['ticket', 'enum', 'component', 'milestone', 'version', 'permission', 'wiki']
+TRANSLATE_TABLES = ['ticket', 'ticket_change', 'ticket_custom',
+                    'attachment',
+                    'enum', 'component', 'milestone', 'version',
+                    'permission',
+                    'wiki',
+                    'report',
+                   ]
 PRODUCT_COLUMN = 'product'
 GLOBAL_PRODUCT = ''
 
@@ -310,7 +314,7 @@ class BloodhoundProductSQLTranslate(object):
 
     def _select_expression_tokens(self, parent, first_token, end_words):
         if isinstance(first_token, Types.IdentifierList):
-            return first_token, [first_token]
+            return first_token, [list(first_token.flatten())]
         tokens = list()
         current_list = list()
         current_token = first_token
