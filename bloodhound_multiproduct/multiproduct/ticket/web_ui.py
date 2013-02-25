@@ -54,7 +54,7 @@ class ProductTicketModule(TicketModule):
                 req.path_info == '/products'):
                 raise TracError(_("id can't be set for a new ticket request."))
             ticket = Ticket(self.env, ticketid)
-            if productid and ticket['product'] != req.args.get('product',''):
+            if productid and ticket['product'] != productid:
                 msg = "Ticket %(id)s in product '%(prod)' does not exist."
                 raise ResourceNotFound(_(msg, id=ticketid, prod=productid),
                                        _("Invalid ticket number"))
