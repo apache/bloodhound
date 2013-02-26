@@ -203,6 +203,7 @@ class MultiproductTestCase(unittest.TestCase):
         """
         from trac import db_default
 
+        env.log.debug('Loading default data')
         with env.db_transaction as db:
             for table, cols, vals in db_default.get_data(db):
                 if table != 'system':
@@ -210,6 +211,7 @@ class MultiproductTestCase(unittest.TestCase):
                             (table, ','.join(cols), 
                                     ','.join(['%s' for c in cols])),
                             vals)
+        env.log.debug('Loaded default data')
 
     def _mp_setup(self):
         """Shortcut for quick product-aware environment setup.
