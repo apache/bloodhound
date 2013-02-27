@@ -19,8 +19,11 @@
 #  under the License.
 
 r"""Base classes for Bloodhound Search plugin."""
-from trac.core import Component
-from trac.config import BoolOption
+import re
+
+from bhsearch.api import ISearchWikiSyntaxFormatter
+from trac.core import Component, implements
+from trac.config import BoolOption, ExtensionOption
 
 class BaseIndexer(Component):
     """
@@ -28,6 +31,12 @@ class BaseIndexer(Component):
     """
     silence_on_error = BoolOption('bhsearch', 'silence_on_error', "True",
         """If true, do not throw an exception during indexing a resource""")
+
+    wiki_formatter = ExtensionOption('bhsearch', 'wiki_syntax_formatter',
+        ISearchWikiSyntaxFormatter, 'SimpleSearchWikiSyntaxFormatter',
+        'Name of the component implementing wiki syntax to text formatter \
+        interface: ISearchWikiSyntaxFormatter.')
+
 
 
 class BaseSearchParticipant(Component):
@@ -53,3 +62,25 @@ class BaseSearchParticipant(Component):
 
     def get_participant_type(self):
         return self.participant_type
+
+class SimpleSearchWikiSyntaxFormatter(Component):
+    """
+    This class provide very naive formatting of wiki syntax to text
+    appropriate for indexing and search result presentation.
+    A lot of things can be improved here.
+    """
+    implements(ISearchWikiSyntaxFormatter)
+
+    STRIP_CHARS = re.compile(r'([=#\'\"\*/])')
+    REPLACE_CHARS = re.compile(r'([=#\[\]\{\}|])')
+
+    WHITE_SPACE_RE = re.compile(r'([\s]+)')
+    def format(self, wiki_content):
+        if not wiki_content:
+            return wiki_content
+        intermediate = self.STRIP_CHARS.sub("", wiki_content)
+        intermediate = self.REPLACE_CHARS.sub(" ", intermediate)
+        result = self.WHITE_SPACE_RE.sub(" ", intermediate)
+        return result.strip()
+
+

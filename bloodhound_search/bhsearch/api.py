@@ -73,18 +73,26 @@ class SortInstruction(object):
         return self.__dict__ == other.__dict__
 
 
+class ISearchWikiSyntaxFormatter(Interface):
+    """Extension point interface for wiki syntax processing.
+    """
+
+    def format(self, wiki_text):
+        """
+        Process wiki syntax and return text representation suitable for search
+        """
 
 class ISearchBackend(Interface):
     """Extension point interface for search backend systems.
     """
 
 #    def add_doc(self, doc, **kwargs):
-    def add_doc(doc, **kwargs):
+    def add_doc(doc, operation_context):
         """
         Called when new document instance must be added
         """
 
-    def delete_doc(doc_type, doc_id, **kwargs):
+    def delete_doc(doc_type, doc_id, operation_context):
         """
         Delete document from index
         """
@@ -92,16 +100,6 @@ class ISearchBackend(Interface):
     def optimize():
         """
         Optimize index if needed
-        """
-
-    def commit(optimize, **kwargs):
-        """
-        Commit changes
-        """
-
-    def cancel(**kwargs):
-        """
-        Cancel changes if possible
         """
 
     def recreate_index():
@@ -279,59 +277,53 @@ class BloodhoundSearchApi(Component):
         query_result.debug["api_parameters"] = query_parameters
         return query_result
 
+    def start_operation(self):
+        return self.backend.start_operation()
 
     def rebuild_index(self):
         """Rebuild underlying index"""
         self.log.info('Rebuilding the search index.')
         self.backend.recreate_index()
-        operation_data = self.backend.start_operation()
-        doc = None
-        try:
-            for participant in self.index_participants:
-                docs = participant.get_entries_for_index()
-                for doc in docs:
-#                    if doc["id"] == u'TracFastCgi':
-                    self._add_doc(doc, **operation_data)
+        with self.backend.start_operation() as operation_context:
             doc = None
-            self.backend.commit(True, **operation_data)
-        except Exception, ex:
-            self.log.error(ex)
-            if doc:
-                self.log.error("Doc that triggers the error: %s" % doc)
-            self.backend.cancel(**operation_data)
-            raise
+            try:
+                for participant in self.index_participants:
+                    docs = participant.get_entries_for_index()
+                    for doc in docs:
+                        self.add_doc(doc, operation_context)
+            except Exception, ex:
+                self.log.error(ex)
+                if doc:
+                    self.log.error("Doc that triggers the error: %s" % doc)
+                raise
 
-    def change_doc_id(self, doc, old_id):
-        operation_data = self.backend.start_operation()
-        try:
-            self.backend.delete_doc(
-                doc[IndexFields.TYPE],
-                old_id,
-                **operation_data)
-            self._add_doc(doc, **operation_data)
-            self.backend.commit(False, **operation_data)
-        except:
-            self.backend.cancel(**operation_data)
-            raise
+    def change_doc_id(self, doc, old_id, operation_context=None):
+        if operation_context is None:
+            with self.backend.start_operation() as operation_context:
+                self._change_doc_id(doc, old_id, operation_context)
+        else:
+            self._change_doc_id(doc, old_id, operation_context)
+
+    def _change_doc_id(self, doc, old_id, operation_context):
+        self.backend.delete_doc(
+            doc[IndexFields.TYPE],
+            old_id,
+            operation_context
+        )
+        self.add_doc(doc, operation_context)
 
 
     def optimize(self):
         """Optimize underlying index"""
         self.backend.optimize()
 
-    def add_doc(self, doc):
+    def add_doc(self, doc, operation_context = None):
         """Add a document to underlying search backend.
-
         The doc must be dictionary with obligatory "type" field
         """
-
-        operation_data = self.backend.start_operation()
-        try:
-            self._add_doc(doc, **operation_data)
-            self.backend.commit(False, **operation_data)
-        except:
-            self.backend.cancel(**operation_data)
-            raise
+        for preprocessor in self.index_pre_processors:
+            preprocessor.pre_process(doc)
+        self.backend.add_doc(doc, operation_context)
 
 
     def delete_doc(self, doc_type, doc_id):
@@ -339,18 +331,7 @@ class BloodhoundSearchApi(Component):
 
         The doc must be dictionary with obligatory "type" field
         """
-        operation_data = self.backend.start_operation()
-        try:
-            self.backend.delete_doc(doc_type, doc_id, **operation_data)
-            self.backend.commit(False, **operation_data)
-        except:
-            self.backend.cancel(**operation_data)
-            raise
+        self.backend.delete_doc(doc_type, doc_id)
 
-
-    def _add_doc(self, doc, **operation_data):
-        for preprocessor in self.index_pre_processors:
-            preprocessor.pre_process(doc)
-        self.backend.add_doc(doc, **operation_data)
 
 

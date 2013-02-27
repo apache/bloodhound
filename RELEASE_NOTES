@@ -1,3 +1,9 @@
+0.5
+
+ * Upgraded Bootstrap to version 2.3.0.
+ * Upgraded Trac to version 1.0.1.
+ * Various bug fixes.
+
 0.4
 
  * Replaces ticket edit form with a new 'in-place' edit and workflow control

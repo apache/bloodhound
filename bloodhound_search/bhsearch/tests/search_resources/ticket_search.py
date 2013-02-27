@@ -18,20 +18,23 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import unittest
+from bhsearch.api import BloodhoundSearchApi
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 
-class TicketIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
+class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        super(TicketIndexerSilenceOnExceptionTestCase, self).setUp()
-        self.env.config.set('bhsearch', 'silence_on_error', "True")
+        super(TicketIndexerTestCase, self).setUp()
         self.ticket_indexer = TicketIndexer(self.env)
+        self.search_api = BloodhoundSearchApi(self.env)
+        self.env.config.set('bhsearch', 'silence_on_error', "False")
 
     def tearDown(self):
         pass
 
     def test_does_not_raise_exception_by_default(self):
+        self.env.config.set('bhsearch', 'silence_on_error', "True")
         self.ticket_indexer.ticket_created(None)
 
     def test_raise_exception_if_configured(self):
@@ -41,9 +44,17 @@ class TicketIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):
             self.ticket_indexer.ticket_created,
             None)
 
+    def test_can_strip_wiki_syntax(self):
+        #act
+        self.insert_ticket("T1", description=" = Header")
+        #assert
+        results = self.search_api.query("*:*")
+        self.print_result(results)
+        self.assertEqual(1, results.hits)
+        self.assertEqual("Header", results.docs[0]["content"])
 
 def suite():
-    return unittest.makeSuite(TicketIndexerSilenceOnExceptionTestCase, 'test')
+    return unittest.makeSuite(TicketIndexerTestCase, 'test')
 
 if __name__ == '__main__':
     unittest.main()

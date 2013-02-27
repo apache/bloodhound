@@ -39,7 +39,7 @@
     <h2>Milestone Management</h2>
 
     <py:choose test="view">
-      <form py:when="'detail'" class="well form-horizontal" method="post" 
+      <form py:when="'detail'" class="well form-horizontal" method="post"
           id="modifymilestone" action=""
           py:with="readonly = 'MILESTONE_MODIFY' not in req.perm or None">
         <fieldset>
@@ -70,7 +70,7 @@
               <input type="text" id="completeddate" name="completeddate"
                      size="${len(datetime_hint)}"
                      value="${format_datetime(milestone.completed)}" readonly="${readonly}"
-                     placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}"/>
+                     placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
             </div>
             <script type="text/javascript">
               jQuery(document).ready(function($) {
@@ -98,7 +98,7 @@
             </fieldset>
           </div>
           <div class="control-group">
-            <input class="btn" type="submit" name="cancel"
+            <input class="btn-link" type="submit" name="cancel"
                 value="${_('Cancel')}"/>
             <input class="btn" type="submit" name="save"
                 value="${_('Save')}" disabled="${readonly}"/>
@@ -109,7 +109,7 @@
       <py:otherwise>
         <div py:if="'MILESTONE_CREATE' in req.perm" class="row">
           <div class="span9">
-            <form class="well form-horizontal" id="addmilestone" method="post" action="">
+            <form id="addmilestone" class="well form-horizontal" method="post" action="">
               <fieldset>
                 <legend>Add Milestone</legend>
                 <div class="control-group">
@@ -133,11 +133,6 @@
                   <div class="controls">
                     <input class="btn" type="submit" name="add" value="${_('Add')}" />
                   </div>
-
-                  <p class="help-block">
-                    <span class="label label-info">Hint</span>
-                    <i18n:msg params="datehint">Format: $datetime_hint</i18n:msg>
-                  </p>
                 </div>
               </fieldset>
             </form>
@@ -188,7 +183,7 @@
                       value="${_('Apply changes')}" />
                 </div>
                 <p class="help-block">
-                  <span class="label label-info">Notice</span>
+                  <span class="label label-info">Note</span>
                   You can remove all items from this list to completely hide this
                   field from the user interface.
                 </p>

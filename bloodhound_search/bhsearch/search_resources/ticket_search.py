@@ -24,7 +24,7 @@ from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
     IIndexParticipant, IndexFields
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from genshi.builder import tag
-from trac.ticket.api import ITicketChangeListener
+from trac.ticket.api import ITicketChangeListener, TicketSystem
 from trac.ticket import Ticket
 from trac.ticket.query import Query
 from trac.config import ListOption, Option
@@ -54,6 +54,10 @@ class TicketIndexer(BaseIndexer):
         'reporter': TicketFields.AUTHOR,
     }
 
+    def __init__(self):
+        self.fields = TicketSystem(self.env).get_ticket_fields()
+        self.text_area_fields = set(
+            f['name'] for f in self.fields if f['type'] =='textarea')
 
     #ITicketChangeListener methods
     def ticket_created(self, ticket):
@@ -77,14 +81,35 @@ class TicketIndexer(BaseIndexer):
             else:
                 raise
 
+    def reindex_tickets(self, search_api, operation_context, milestone=None):
+        for ticket in self._fetch_tickets(milestone):
+            self._index_ticket(ticket, search_api, operation_context)
+
+    def _fetch_tickets(self, milestone = None):
+#        with self.env.db_transaction as db:
+        for ticket_id in self._fetch_ids(milestone):
+            yield Ticket(self.env, ticket_id)
+
+    def _fetch_ids(self, milestone):
+        sql = "SELECT id FROM ticket"
+        args = []
+        conditions = []
+        if milestone:
+            args.append(milestone)
+            conditions.append("milestone=%s")
+        if conditions:
+            sql = sql + " WHERE " + " AND ".join(conditions)
+        for row in self.env.db_query(sql, args):
+            yield int(row[0])
+
+
     def _index_ticket(
-            self,
-            ticket,
-            ):
+            self, ticket, search_api = None, operation_context = None):
         try:
-            search_api = BloodhoundSearchApi(self.env)
+            if not search_api:
+                search_api = BloodhoundSearchApi(self.env)
             doc = self.build_doc(ticket)
-            search_api.add_doc(doc)
+            search_api.add_doc(doc, operation_context)
         except Exception, e:
             if self.silence_on_error:
                 self.log.error("Error occurs during ticket indexing. \
@@ -103,17 +128,18 @@ class TicketIndexer(BaseIndexer):
 
         for field, index_field in self.optional_fields.iteritems():
             if field in ticket.values:
-                doc[index_field] = ticket.values[field]
+                field_content = ticket.values[field]
+                if field in self.text_area_fields:
+                    field_content = self.wiki_formatter.format(field_content)
+                doc[index_field] = field_content
 
         doc[TicketFields.CHANGES] = u'\n\n'.join(
-            [x[4] for x in ticket.get_changelog() if x[2] == u'comment'])
+            [self.wiki_formatter.format(x[4]) for x in ticket.get_changelog()
+             if x[2] == u'comment'])
         return doc
 
     def get_entries_for_index(self):
-        #is there any better way to get all tickets?
-        query_records = self._load_ticket_ids()
-        for record in query_records:
-            ticket = Ticket(self.env, record["id"])
+        for ticket in self._fetch_tickets():
             yield self.build_doc(ticket)
 
     def _load_ticket_ids(self):

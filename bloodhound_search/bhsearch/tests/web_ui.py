@@ -27,7 +27,6 @@ from bhsearch.web_ui import RequestParameters
 from bhsearch.whoosh_backend import WhooshBackend
 
 from trac.test import Mock, MockPerm
-from trac.ticket import Ticket
 from trac.core import TracError
 from trac.util.datefmt import FixedOffset
 from trac.util import format_datetime
@@ -40,7 +39,6 @@ DEFAULT_DOCS_PER_PAGE = 10
 class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def setUp(self):
         super(WebUiTestCaseWithWhoosh, self).setUp(
-            ['trac.*', 'bhsearch.*'],
             create_req=True,
         )
         self.req.redirect = self.redirect
@@ -84,8 +82,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
     def test_can_return_utc_time(self):
         #arrange
-        ticket_id = self.insert_ticket("bla")
-        ticket = Ticket(self.env, ticket_id)
+        ticket = self.insert_ticket("bla")
         ticket_time = ticket.time_changed
         #act
         self.req.args[RequestParameters.QUERY] = "*:*"
@@ -101,8 +98,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
     def test_can_return_user_time(self):
         #arrange
-        ticket_id = self.insert_ticket("bla")
-        ticket = Ticket(self.env, ticket_id)
+        ticket = self.insert_ticket("bla")
         ticket_time = ticket.time_changed
         #act
         self.req.tz = FixedOffset(60, 'GMT +1:00')

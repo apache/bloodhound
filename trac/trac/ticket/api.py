@@ -156,6 +156,31 @@ class IMilestoneChangeListener(Interface):
     def milestone_deleted(milestone):
         """Called when a milestone is deleted."""
 
+class IResourceChangeListener(Interface):
+    """Extension point interface for components that require notification
+    when resources are created, modified, or deleted.
+
+    'resource' instance of the a resource e.g. ticket, milestone etc.
+    'context' action context, may contain author, comment etc. Context
+    content depends on a resource type.
+    """
+
+    def resource_created(resource, context):
+        """
+        Called when a resource is created.
+        """
+
+    def resource_changed(resource, old_values, context):
+        """Called when a resource is modified.
+
+        `old_values` is a dictionary containing the previous values of the
+        resource properties that changed. Properties are specific for resource
+        type.
+        """
+
+    def resource_deleted(resource, context):
+        """Called when a resource is deleted."""
+
 class ITicketFieldProvider(Interface):
     """Extension point interface for components that provide fields for the
     ticket system."""
@@ -193,6 +218,7 @@ class TicketSystem(Component):
     ticket_field_providers = ExtensionPoint(ITicketFieldProvider)
     change_listeners = ExtensionPoint(ITicketChangeListener)
     milestone_change_listeners = ExtensionPoint(IMilestoneChangeListener)
+    resource_change_listeners = ExtensionPoint(IResourceChangeListener)
 
     ticket_custom_section = ConfigSection('ticket-custom',
         """In this section, you can define additional fields for tickets. See

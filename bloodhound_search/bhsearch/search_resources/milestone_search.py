@@ -23,6 +23,7 @@ from bhsearch import BHSEARCH_CONFIG_SECTION
 from bhsearch.api import (IIndexParticipant, BloodhoundSearchApi, IndexFields,
     ISearchParticipant)
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
+from bhsearch.search_resources.ticket_search import TicketIndexer
 from trac.ticket import IMilestoneChangeListener, Milestone
 from trac.config import ListOption, Option
 from trac.core import implements
@@ -64,11 +65,13 @@ class MilestoneIndexer(BaseIndexer):
                 raise
 
     def _rename_milestone(self, milestone, old_name):
-        #todo: reindex tickets that are referencing the renamed milestone
         try:
             doc = self.build_doc(milestone)
             search_api = BloodhoundSearchApi(self.env)
-            search_api.change_doc_id(doc, old_name)
+            with search_api.start_operation() as operation_context:
+                search_api.change_doc_id(doc, old_name, operation_context)
+                TicketIndexer(self.env).reindex_tickets(
+                    search_api, operation_context, milestone=milestone.name)
         except Exception, e:
             if self.silence_on_error:
                 self.log.error("Error occurs during renaming milestone from \

@@ -844,8 +844,11 @@ class Component(object):
         with self.env.db_transaction as db:
             self.env.log.info("Deleting component %s", self.name)
             db("DELETE FROM component WHERE name=%s", (self.name,))
-            self.name = self._old_name = None
             TicketSystem(self.env).reset_ticket_fields()
+
+        for listener in TicketSystem(self.env).resource_change_listeners:
+            listener.resource_deleted(self)
+        self.name = self._old_name = None
 
     def insert(self, db=None):
         """Insert a new component.
@@ -866,6 +869,9 @@ class Component(object):
             self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
 
+        for listener in TicketSystem(self.env).resource_change_listeners:
+            listener.resource_created(self)
+
     def update(self, db=None):
         """Update the component.
 
@@ -877,6 +883,7 @@ class Component(object):
         if not self.name:
             raise TracError(_("Invalid component name."))
 
+        old_name = self._old_name
         with self.env.db_transaction as db:
             self.env.log.info("Updating component '%s'", self.name)
             db("""UPDATE component SET name=%s,owner=%s, description=%s
@@ -889,6 +896,10 @@ class Component(object):
                    (self.name, self._old_name))
                 self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
+
+        old_values = dict(name=old_name)
+        for listener in TicketSystem(self.env).resource_change_listeners:
+            listener.resource_changed(self, old_values)
 
     @classmethod
     def select(cls, env, db=None):

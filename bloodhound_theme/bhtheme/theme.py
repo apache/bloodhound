@@ -149,7 +149,7 @@ class BloodhoundTheme(ThemeBase):
             footer_left_prefix = self.labels_footer_left_prefix,
             footer_left_postfix = self.labels_footer_left_postfix,
             footer_right = self.labels_footer_right,
-            application_version = ".".join(map(str, application_version)))
+            application_version = application_version)
 
     # ITemplateStreamFilter methods
 
@@ -307,7 +307,6 @@ class BloodhoundTheme(ThemeBase):
     def _modify_ticket(self, req, template, data, content_type, is_active):
         """Ticket modifications
         """
-        self._modify_scrollspy(req, template, data, content_type, is_active)
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
@@ -322,11 +321,6 @@ class BloodhoundTheme(ThemeBase):
                                       ('product', 'PRODUCT_VIEW')]:
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
-
-    def _modify_scrollspy(self, req, template, data, content_type, is_active):
-        """Insert Bootstrap scroll spy files.
-        """
-        add_script(req, 'dashboard/js/bootstrap-scrollspy.js')
 
     # INavigationContributor methods
 
@@ -446,5 +440,4 @@ class QuickCreateTicketDialog(Component):
                                    "of ticket #%s: %s" % (t.id, e))
         return t.id
 
-application_version = tuple(int(i) for i in get_distribution('BloodhoundTheme')
-    .parsed_version if i.startswith('0'))
+application_version = get_distribution('BloodhoundTheme').version
