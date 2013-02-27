@@ -642,7 +642,7 @@ class ProductEnvironment(Component, ComponentManager):
                     self.log.warn("product_base_url option not set in "
                                   "configuration, generated links may be "
                                   "incorrect")
-                    urlpattern = 'product/$(prefix)s'
+                    urlpattern = 'products/$(prefix)s'
                 url = urlpattern.replace('$(', '%(') \
                      .replace('%(prefix)s', self.product.prefix) \
                      .replace('%(name)s', self.product.name)

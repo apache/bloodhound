@@ -22,6 +22,7 @@ import multiproduct.dbcursor
 import re
 
 from trac.hooks import EnvironmentFactoryBase
+from trac.web.main import RequestWithSession
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 
@@ -35,5 +36,11 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
         if m:
             pid = m.group('pid')
         if pid:
+            if not global_env._abs_href:
+                # make sure global environment absolute href is set before
+                # instantiating product environment. This would normally
+                # happen from within trac.web.main.dispatch_request
+                req = RequestWithSession(environ, None)
+                global_env._abs_href = req.abs_href
             env = multiproduct.env.ProductEnvironment(global_env, pid)
         return env
