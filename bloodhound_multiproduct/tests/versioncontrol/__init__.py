@@ -18,3 +18,8 @@
 
 """Tests for Apache(TM) Bloodhound's version control in product environments"""
 
+from tests import TestLoader
+
+def test_suite():
+    return TestLoader().discover_package(__name__, pattern='*.py')
+
