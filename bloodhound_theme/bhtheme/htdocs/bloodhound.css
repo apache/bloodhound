@@ -548,6 +548,10 @@ input[type="submit"].btn.btn-micro {
   padding: 7px 14px;
 }
 
+#breadcrumbbar .btn-group a:hover {
+  text-decoration: none;
+}
+
 @media (max-width: 979px) {
   .hidden-desktop {
     display: inherit !important;

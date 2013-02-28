@@ -26,11 +26,24 @@
     <a title="View the dashboard" href="${href.dashboard()}">Dashboard</a>
     <span class="divider">/</span>
   </li>
-  <li py:if="ticket.product" py:with="prodlink = path_show_product and href.products(ticket.product) or href.query(product=ticket['product'], active='!closed')">
-    <a title="Active tickets for product ${ticket.product}"
-        href="${prodlink}">
-      ${ticket.product}
-    </a>
+  <li py:if="ticket.product"
+      py:with="prodlink = path_show_product and href.products(ticket.product) or href.query(product=ticket['product'], active='!closed') ;
+          single_product = not product_list or len(product_list) &lt; 2">
+    <div class="btn-group" py:strip="single_product">
+      <button class="btn btn-mini" py:strip="single_product">
+        <a title="Active tickets for product ${ticket.product}" href="${prodlink}">${ticket.product}</a>
+      </button>
+      <py:if test="not single_product">
+        <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li py:for="prefix,name in product_list">
+            <a title="Active tickets for product ${prefix}" href="${href.products(prefix)}">${prefix}</a>
+          </li>
+        </ul>
+      </py:if>
+    </div>
     <span class="divider">/</span>
   </li>
   <li py:if="ticket.milestone" py:with="mslink = path_show_milestone and href.milestone(ticket.milestone) or href.query(milestone=ticket['milestone'], active='!closed')">

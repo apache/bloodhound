@@ -50,6 +50,8 @@ from pkg_resources import get_distribution
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
+from multiproduct.model import Product
+
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
 except ImportError:
@@ -321,6 +323,13 @@ class BloodhoundTheme(ThemeBase):
                                       ('product', 'PRODUCT_VIEW')]:
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
+
+            # add list of products available to this user
+            product_list = []
+            for product in Product.select(self.env):
+                if 'PRODUCT_VIEW' in req.perm(product.resource):
+                    product_list.append((product.prefix, product.name))
+            data['product_list'] = product_list
 
     # INavigationContributor methods
 
