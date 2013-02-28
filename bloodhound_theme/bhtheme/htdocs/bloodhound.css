@@ -166,7 +166,6 @@ div.reports form {
 
 #ticket footer {
   text-align: right;
-
 }
 
 #trac-ticket-title {
@@ -352,6 +351,9 @@ h1, h2, h3, h4 {
 .clip.edit-active, .affix .clip-affix.edit-active {
   overflow: visible;
 }
+
+.table tbody tr:hover td { background: #eed !important }
+
 /* @end */
 
 /* @group Alternate download links */
@@ -430,8 +432,8 @@ h1, h2, h3, h4 {
 
 /* @group Admin */
 
-.table .default  {
- text-align: center
+.table .default {
+  text-align: center
 }
 
 /* @end */
