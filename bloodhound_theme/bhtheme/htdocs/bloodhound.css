@@ -222,8 +222,10 @@ div.reports h2 {
   border-radius: 10px;
 }
 
-pre.wiki {
+pre {
   overflow: auto;
+  white-space: pre;
+  word-wrap: normal;
 }
 
 .trac-modifiedby {
