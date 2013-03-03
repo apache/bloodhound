@@ -655,11 +655,24 @@ input[type="submit"].btn.btn-micro {
 }
 
 /* Revert some changes introduced in 2.1.0 */
-
 h6 {
   color: #A4A4A4;
   margin: 0px 0.5em;
   text-transform: uppercase;
+}
+
+/* Style tt elements like code elements (#420/t:#11094). */
+tt {
+  background-color: #f7f7f9;
+  border: 1px solid #e1e1e8;
+  color: #d14;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 12px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
 }
 
 /* @end */
