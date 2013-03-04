@@ -337,6 +337,86 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.print_result(result)
         self.assertEqual(0, result.hits)
 
+    def test_can_highlight_given_terms(self):
+        term = 'search_term'
+        text = "foo foo %s bar bar" % term
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket", content=text))
+        self.whoosh_backend.add_doc(dict(id="3", type="wiki", content=text))
+        search_query = self.parser.parse(term)
+
+        result = self.whoosh_backend.query(
+            search_query,
+            highlight=True,
+            highlight_fields=['content', 'summary']
+        )
+        self.print_result(result)
+
+        self.assertEqual(len(result.highlighting), 2)
+        for highlight in result.highlighting:
+            self.assertIn(self._highlighted(term), highlight['content'])
+            self.assertEquals("", highlight['summary'])
+
+    def test_that_highlighting_escapes_html(self):
+        term = 'search_term'
+        text = "bla <a href=''>%s bar</a> bla" % term
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket", content=text))
+        search_query = self.parser.parse(term)
+
+        result = self.whoosh_backend.query(
+            search_query,
+            highlight=True,
+            highlight_fields=['content']
+        )
+        self.print_result(result)
+
+        self.assertEqual(len(result.highlighting), 1)
+        highlight = result.highlighting[0]
+        self.assertEquals(
+            "bla &lt;a href=''&gt;<em>search_term</em> bar&lt;/a&gt; bla",
+            highlight['content'])
+
+    def test_highlights_all_text_fields_by_default(self):
+        term = 'search_term'
+        text = "foo foo %s bar bar" % term
+        self.whoosh_backend.add_doc(dict(id="1", type="ticket", content=text))
+        self.whoosh_backend.add_doc(dict(id="3", type="wiki", content=text))
+        search_query = self.parser.parse(term)
+
+        result = self.whoosh_backend.query(
+            search_query,
+            highlight=True,
+        )
+        self.print_result(result)
+
+        self.assertEqual(len(result.highlighting), 2)
+        for highlight in result.highlighting:
+            self.assertIn('content', highlight)
+            self.assertIn('summary', highlight)
+            self.assertIn(self._highlighted(term), highlight['content'])
+
+    def test_only_highlights_terms_in_fields_that_match_query(self):
+        term = 'search_term'
+        self.whoosh_backend.add_doc(dict(id=term, type="wiki", content=term))
+        self.whoosh_backend.add_doc(dict(id=term, type="ticket", summary=term))
+        search_query = self.parser.parse('id:%s' % term)
+
+        result = self.whoosh_backend.query(
+            search_query,
+            highlight=True,
+            highlight_fields=["id", "content", "summary"]
+        )
+        self.print_result(result)
+
+        self.assertEqual(len(result.highlighting), 2)
+        for highlight in result.highlighting:
+            self.assertIn(self._highlighted(term), highlight['id'])
+            self.assertNotIn(self._highlighted(term), highlight['summary'])
+            self.assertNotIn(self._highlighted(term), highlight['content'])
+
+    def _highlighted(self, term):
+        return '<em>%s</em>' % term
+
+
 class WhooshFunctionalityTestCase(unittest.TestCase):
     def setUp(self):
         self.index_dir = tempfile.mkdtemp('whoosh_index')

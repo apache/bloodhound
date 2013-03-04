@@ -203,6 +203,7 @@ class TicketSearchParticipant(BaseSearchParticipant):
             else:
                 stat = res[TicketFields.STATUS]
 
-        id = tag(tag.span('#'+res['id'], class_=css_class))
-        return id + ': %s (%s)' % (res['summary'], stat)
+        id = res['hilited_id'] or res['id']
+        id = tag.span('#', id, class_=css_class)
+        return tag(id, ': ', res['hilited_summary'], ' (%s)' % stat)
 

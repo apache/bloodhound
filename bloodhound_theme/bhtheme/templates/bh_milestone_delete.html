@@ -38,7 +38,7 @@
 
   <body>
     <div id="content" class="milestone row">
-      <h1>Delete Milestone ${milestone.name}</h1>
+      <h1 class="span12">Delete Milestone ${milestone.name}</h1>
 
       <div class="span12">
         <form id="edit" action="" method="post">
@@ -49,7 +49,7 @@
               <strong>Are you sure you want to delete this milestone?</strong>
             </p>
             <input type="checkbox" id="retarget" name="retarget" checked="checked" />
-            <label for="target">Retarget associated tickets to milestone</label>
+            <label for="retarget">Retarget associated tickets to milestone</label>
             <select name="target" id="target">
               <option value="">None</option>
               <optgroup py:for="(label, milestones) in milestone_groups"
@@ -60,10 +60,10 @@
             </select>
           </div>
           <div class="buttons">
-            <input type="submit" name="cancel" value="${_('Cancel')}" 
-                class="btn-link" />
             <input type="submit" value="${_('Delete milestone')}" 
                 class="btn" />
+            <input type="submit" name="cancel" value="${_('Cancel')}"
+                   class="btn-link" />
           </div>
         </form>
       </div>

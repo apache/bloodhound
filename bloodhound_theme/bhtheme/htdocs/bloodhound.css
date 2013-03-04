@@ -166,7 +166,6 @@ div.reports form {
 
 #ticket footer {
   text-align: right;
-
 }
 
 #trac-ticket-title {
@@ -223,8 +222,10 @@ div.reports h2 {
   border-radius: 10px;
 }
 
-pre.wiki {
+pre {
   overflow: auto;
+  white-space: pre;
+  word-wrap: normal;
 }
 
 .trac-modifiedby {
@@ -352,6 +353,9 @@ h1, h2, h3, h4 {
 .clip.edit-active, .affix .clip-affix.edit-active {
   overflow: visible;
 }
+
+.table tbody tr:hover td { background: #eed !important }
+
 /* @end */
 
 /* @group Alternate download links */
@@ -426,12 +430,23 @@ h1, h2, h3, h4 {
   font-size: 13px;
 }
 
+.search_results dt {
+    font-weight: inherit;
+    text-decoration: underline;
+}
+
+
+.searchable em {
+    font-style: inherit;
+    font-weight: bold;
+}
+
 /* @end */
 
 /* @group Admin */
 
-.table .default  {
- text-align: center
+.table .default {
+  text-align: center
 }
 
 /* @end */
@@ -655,11 +670,24 @@ input[type="submit"].btn.btn-micro {
 }
 
 /* Revert some changes introduced in 2.1.0 */
-
 h6 {
   color: #A4A4A4;
   margin: 0px 0.5em;
   text-transform: uppercase;
+}
+
+/* Style tt elements like code elements (#420/t:#11094). */
+tt {
+  background-color: #f7f7f9;
+  border: 1px solid #e1e1e8;
+  color: #d14;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 12px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
 }
 
 /* @end */

@@ -20,6 +20,7 @@
 
 r"""Bloodhound Search user interface."""
 import copy
+from collections import defaultdict
 
 import pkg_resources
 from bhsearch import BHSEARCH_CONFIG_SECTION
@@ -27,6 +28,7 @@ import re
 
 from trac.core import Component, implements, TracError
 from genshi.builder import tag
+from genshi import HTML
 from trac.perm import IPermissionRequestor
 from trac.search import shorten_result
 from trac.config import OrderedExtensionsOption, ListOption, Option
@@ -270,7 +272,7 @@ class BloodhoundSearchModule(Component):
             self.default_facets
         )
 
-        query_result =  BloodhoundSearchApi(self.env).query(
+        query_result = BloodhoundSearchApi(self.env).query(
             request_context.parameters.query,
             pagenum=request_context.page,
             pagelen=request_context.pagelen,
@@ -278,6 +280,7 @@ class BloodhoundSearchModule(Component):
             fields=request_context.fields,
             facets=request_context.facets,
             filter=request_context.query_filter,
+            highlight=True,
         )
 
         request_context.process_results(query_result)
@@ -578,15 +581,17 @@ class RequestContext(object):
         ui_doc = dict(doc)
         ui_doc["href"] = self.req.href(doc['type'], doc['id'])
         #todo: perform content adaptation here
-        if doc.has_key('content'):
+
+        if doc['content']:
             ui_doc['content'] = shorten_result(doc['content'])
-        if doc.has_key('time'):
+
+        if doc['time']:
             ui_doc['date'] = user_time(self.req, format_datetime, doc['time'])
 
         is_free_text_view = self.view is None
         if is_free_text_view:
-            ui_doc['title'] = self.allowed_participants[
-                              doc['type']].format_search_results(doc)
+            participant = self.allowed_participants[doc['type']]
+            ui_doc['title'] = participant.format_search_results(doc)
         return ui_doc
 
     def _prepare_results(self, result_docs, hits):
@@ -626,7 +631,9 @@ class RequestContext(object):
         results.shown_pages = [dict(zip(fields, p)) for p in page_data]
 
     def process_results(self, query_result):
-        self._prepare_results(query_result.docs, query_result.hits)
+        docs = self._prepare_docs(query_result.docs,
+                                  query_result.highlighting)
+        self._prepare_results(docs, query_result.hits)
         self._prepare_result_facet_counts(query_result.facets)
         self.data[self.DATA_DEBUG] = query_result.debug
         self.data[self.DATA_PAGE_HREF] = self.parameters.create_href()
@@ -674,3 +681,19 @@ class RequestContext(object):
 
         self.data[self.DATA_FACET_COUNTS] = facet_counts
 
+    def _prepare_docs(self, docs, highlights):
+        new_docs = []
+        for doc, highlight in zip(docs, highlights):
+            doc = defaultdict(str, doc)
+            for field in highlight.iterkeys():
+                highlighted_field = 'hilited_%s' % field
+                if highlight[field]:
+                    fragment = self._create_genshi_fragment(highlight[field])
+                    doc[highlighted_field] = fragment
+                else:
+                    doc[highlighted_field] = ''
+            new_docs.append(doc)
+        return new_docs
+
+    def _create_genshi_fragment(self, html_fragment):
+        return tag(HTML(html_fragment))

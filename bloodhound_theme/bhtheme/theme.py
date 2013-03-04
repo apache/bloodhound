@@ -108,6 +108,10 @@ class BloodhoundTheme(ThemeBase):
         'report_view.html' : ('bh_report_view.html', None),
         'ticket.html' : ('bh_ticket.html', '_modify_ticket'),
         'ticket_preview.html' : ('bh_ticket_preview.html', None),
+        'ticket_delete.html' : ('bh_ticket_delete.html', None),
+
+        # Attachment
+        'attachment.html' : ('bh_attachment.html', None),
 
         # Multi Product
         'product_view.html' : ('bh_product_view.html', None),
