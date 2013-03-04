@@ -25,7 +25,7 @@ import copy
 
 from pkg_resources import resource_filename
 from trac.config import Option, PathOption
-from trac.core import Component, TracError, implements
+from trac.core import Component, TracError, implements, Interface
 from trac.db import Table, Column, DatabaseManager, Index
 from trac.env import IEnvironmentSetupParticipant
 from trac.perm import IPermissionRequestor
@@ -40,11 +40,28 @@ DB_VERSION = 4
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
 
+class ISupportMultiProductEnvironment(Interface):
+    """Extension point interface for components that are aware of multi
+    product environment and its specifics.
+
+    Component implementing this interface is handled in a special way in the
+    following scenarios:
+
+    * if implementing `IEnvironmentSetupParticipant` interface, the component
+      will only be invoked once per global environment creation/upgrade. It is
+      up to the component to install/update it's environment specifics (schema,
+      possibly files, etc.) for all products. In contrast, components that don't
+      implement `ISupportMultiProductEnvironment` interface will be, during
+      install/update, invoked per product environment.
+    """
+    pass
+
 class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
 
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
-            IPermissionRequestor, ITicketFieldProvider, IResourceManager)
+               IPermissionRequestor, ITicketFieldProvider, IResourceManager,
+               ISupportMultiProductEnvironment)
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,

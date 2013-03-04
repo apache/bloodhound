@@ -23,19 +23,30 @@ from urlparse import urlsplit
 from sqlite3 import OperationalError
 
 from trac.config import BoolOption, ConfigSection, Option
-from trac.core import Component, ComponentManager, implements
+from trac.core import Component, ComponentManager, implements, Interface, ExtensionPoint
 from trac.db.api import TransactionContextManager, QueryContextManager, DatabaseManager
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
 from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
-from multiproduct.api import MultiProductSystem
+from multiproduct.api import MultiProductSystem, ISupportMultiProductEnvironment
 from multiproduct.config import Configuration
 from multiproduct.dbcursor import ProductEnvContextManager, BloodhoundConnectionWrapper
 from multiproduct.model import Product
 
 import trac.env
+
+class ComponentEnvironmentContext(object):
+    def __init__(self, env, component):
+        self._env = env
+        self._component = component
+    def __enter__(self):
+        self._old_env = self._component.env
+        self._env.component_activated(self._component)
+        return self
+    def __exit__(self, type, value, traceback):
+        self._old_env.component_activated(self._component)
 
 class Environment(trac.env.Environment):
     """Bloodhound environment manager
@@ -46,12 +57,19 @@ class Environment(trac.env.Environment):
     to ProductEnvironment that features per-product view of the database
     (in the context of selected product).
     """
+
+    multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
+
     def __init__(self, path, create=False, options=[]):
         # global environment w/o parent, set these two before super.__init__
         # as database access can take place within trac.env.Environment
         self.parent = None
         self.product = None
         super(Environment, self).__init__(path, create=create, options=options)
+        self._global_setup_participants = set.intersection(set(self.setup_participants),
+                                                           set(self.multi_product_support_components))
+        self._product_setup_participants = [participant for participant in self.setup_participants
+                                                if not participant in self._global_setup_participants]
 
     @property
     def db_query(self):
@@ -68,6 +86,98 @@ class Environment(trac.env.Environment):
     @property
     def db_direct_transaction(self):
         return ProductEnvContextManager(super(Environment, self).db_transaction)
+
+    def needs_upgrade(self):
+        """Return whether the environment needs to be upgraded."""
+        def needs_upgrade_in_env_list(env_list, participants):
+            for env in env_list:
+                for participant in participants:
+                    # make sure to skip anything but global environment for multi
+                    # product aware components
+                    if participant in self._global_setup_participants and \
+                       not env == self:
+                        continue
+                    with ComponentEnvironmentContext(env, participant):
+                        with env.db_query as db:
+                            if participant.environment_needs_upgrade(db):
+                                self.log.warn("component %s.%s requires environment upgrade in environment %s...",
+                                              participant.__module__, participant.__class__.__name__,
+                                              env)
+                                return True
+        if needs_upgrade_in_env_list([self], self._global_setup_participants):
+            return True
+        product_envs = [self] + [ProductEnvironment(self, product) for product in Product.select(self)]
+        if needs_upgrade_in_env_list(product_envs, self._product_setup_participants):
+            return True
+        return False
+
+    def upgrade(self, backup=False, backup_dest=None):
+        """Upgrade database.
+
+        :param backup: whether or not to backup before upgrading
+        :param backup_dest: name of the backup file
+        :return: whether the upgrade was performed
+        """
+        def upgraders_for_env_list(env_list, participants):
+            upgraders = []
+            if not participants:
+                return upgraders
+            for env in env_list:
+                for participant in participants:
+                    # skip global participants in non-global environments
+                    if participant in self._global_setup_participants and \
+                        not env == self:
+                        continue
+                    with ComponentEnvironmentContext(env, participant):
+                        with env.db_query as db:
+                            if participant.environment_needs_upgrade(db):
+                                self.log.info("%s.%s needs upgrade in environment %s...",
+                                              participant.__module__, participant.__class__.__name__,
+                                              env)
+                                upgraders.append((env, participant))
+            return upgraders
+
+        def upgraders_for_product_envs():
+            product_envs = [self] + [ProductEnvironment(self, product) for product in Product.select(self)]
+            return upgraders_for_env_list(product_envs, self._product_setup_participants)
+
+        # first enumerate components that are multi product aware and require upgrade
+        # in global environment
+        global_upgraders = upgraders_for_env_list([self], self._global_setup_participants)
+        product_upgraders = None
+        if not global_upgraders:
+            # if no upgrades required in global environment, enumerate required upgrades
+            # for product environments
+            product_upgraders = upgraders_for_product_envs()
+
+        if not global_upgraders + (product_upgraders or []):
+            return False
+
+        if backup:
+            try:
+                self.backup(backup_dest)
+            except Exception, e:
+                raise trac.env.BackupError(e)
+
+        def execute_upgrades(upgraders_list):
+            for env, participant in upgraders_list:
+                self.log.info("%s.%s upgrading in environment %s...",
+                              participant.__module__, participant.__class__.__name__,
+                              env)
+                with ComponentEnvironmentContext(env, participant):
+                    with env.db_transaction as db:
+                        participant.upgrade_environment(db)
+                # Database schema may have changed, so close all connections
+                DatabaseManager(env).shutdown()
+
+        # execute global upgrades first, product environment upgrades next
+        if global_upgraders:
+            execute_upgrades(global_upgraders)
+        if product_upgraders == None:
+            product_upgraders = upgraders_for_product_envs()
+        if product_upgraders:
+            execute_upgrades(product_upgraders)
+        return True
 
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
