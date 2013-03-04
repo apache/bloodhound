@@ -430,6 +430,17 @@ h1, h2, h3, h4 {
   font-size: 13px;
 }
 
+.search_results dt {
+    font-weight: inherit;
+    text-decoration: underline;
+}
+
+
+.searchable em {
+    font-style: inherit;
+    font-weight: bold;
+}
+
 /* @end */
 
 /* @group Admin */

@@ -41,6 +41,7 @@ class QueryResult(object):
         self.page_number = 0
         self.offset = 0
         self.docs = []
+        self.highlighting = []
         self.facets = None
         self.debug = {}
 
@@ -119,7 +120,9 @@ class ISearchBackend(Interface):
             filter = None,
             facets = None,
             pagenum = 1,
-            pagelen = 20):
+            pagelen = 20,
+            highlight=False,
+            highlight_fields=None):
         """
         Perform query implementation
 
@@ -131,6 +134,8 @@ class ISearchBackend(Interface):
         :param facets: list of facet fields
         :param pagenum: page number
         :param pagelen: page length
+        :param highlight: highlight matched terms in fields
+        :param highlight_fields: list of fields to highlight
         :return: ResultsPage
         """
 
@@ -231,7 +236,9 @@ class BloodhoundSearchApi(Component):
             filter = None,
             facets = None,
             pagenum = 1,
-            pagelen = 20):
+            pagelen = 20,
+            highlight = False,
+            highlight_fields = None):
         """Return query result from an underlying search backend.
 
         Arguments:
@@ -245,6 +252,8 @@ class BloodhoundSearchApi(Component):
         :param facets: optional list of facet terms, can be field or expression
         :param page: paging support
         :param pagelen: paging support
+        :param highlight: highlight matched terms in fields
+        :param highlight_fields: list of fields to highlight
 
         :return: result QueryResult
         """
@@ -265,6 +274,8 @@ class BloodhoundSearchApi(Component):
             facets = facets,
             pagenum = pagenum,
             pagelen = pagelen,
+            highlight = highlight,
+            highlight_fields = highlight_fields,
         )
         for query_processor in self.query_processors:
             query_processor.query_pre_process(query_parameters)

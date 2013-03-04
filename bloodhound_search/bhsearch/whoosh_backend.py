@@ -25,12 +25,13 @@ from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE, \
 import os
 from bhsearch.search_resources.ticket_search import TicketFields
 from trac.core import Component, implements, TracError
-from trac.config import Option
+from trac.config import Option, IntOption
 from trac.util.text import empty
 from trac.util.datefmt import utc
 from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
 from whoosh import index
 import whoosh
+import whoosh.highlight
 from whoosh.writing import AsyncWriter
 from datetime import datetime
 
@@ -67,6 +68,15 @@ class WhooshBackend(Component):
         content=TEXT(stored=True),
         changes=TEXT(),
         )
+
+    max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,
+                               'The maximum number of characters allowed in a '
+                               'fragment.')
+
+    fragment_surround = IntOption('bhsearch', 'fragment_surround', 60,
+                               'The number of extra characters of context '
+                               'to add both before the first matched term '
+                               'and after the last matched term.')
 
     def __init__(self):
         self.index_dir = self.index_dir_setting
@@ -159,7 +169,9 @@ class WhooshBackend(Component):
               filter = None,
               facets = None,
               pagenum = 1,
-              pagelen = 20):
+              pagelen = 20,
+              highlight = False,
+              highlight_fields = None):
         """
         Perform query.
 
@@ -174,6 +186,9 @@ class WhooshBackend(Component):
         of Whoosh is applied.
         """
         with self.index.searcher() as searcher:
+            highlight_fields = self._prepare_highlight_fields(highlight,
+                                                              highlight_fields)
+
             sortedby = self._prepare_sortedby(sort)
 
             #TODO: investigate how faceting is applied to multi-value fields
@@ -199,7 +214,10 @@ class WhooshBackend(Component):
             self.env.log.debug("Whoosh query to execute: %s",
                 query_parameters)
             raw_page = searcher.search_page(**query_parameters)
-            results = self._process_results(raw_page, fields, query_parameters)
+            results = self._process_results(raw_page,
+                                            fields,
+                                            highlight_fields,
+                                            query_parameters)
         return results
 
     def _workaround_join_query_and_filter(
@@ -267,10 +285,30 @@ class WhooshBackend(Component):
             sortedby.append(sort_condition)
         return sortedby
 
+    def _prepare_highlight_fields(self, highlight, highlight_fields):
+        if not highlight:
+            return ()
+
+        if not highlight_fields:
+            highlight_fields = self._all_highlightable_fields()
+
+        return highlight_fields
+
+    def _all_highlightable_fields(self):
+        return [name for name, field in self.SCHEMA.items()
+                if self._is_highlightable(field)]
+
+    def _is_highlightable(self, field):
+        return not isinstance(field, whoosh.fields.DATETIME) and field.stored
+
     def _is_desc(self, order):
         return (order.lower()==DESC)
 
-    def _process_results(self, page, fields, search_parameters = None):
+    def _process_results(self,
+                         page,
+                         fields,
+                         highlight_fields,
+                         search_parameters=None):
         # It's important to grab the hits first before slicing. Otherwise, this
         # can cause pagination failures.
         """
@@ -285,10 +323,17 @@ class WhooshBackend(Component):
         results.facets = self._load_facets(page)
 
         docs = []
+        highlighting = []
         for retrieved_record in page:
             result_doc = self._process_record(fields, retrieved_record)
             docs.append(result_doc)
+
+            result_highlights = self._create_highlights(highlight_fields,
+                                                        retrieved_record)
+            highlighting.append(result_highlights)
         results.docs = docs
+        results.highlighting = highlighting
+
         results.debug["search_parameters"] = search_parameters
         return results
 
@@ -331,6 +376,28 @@ class WhooshBackend(Component):
                 "The path to Whoosh index '%s' is not writable for the\
                  current user."
                 % self.index_dir)
+
+    def _create_highlights(self, fields, record):
+        result_highlights = dict()
+        fragmenter = whoosh.highlight.ContextFragmenter(
+            self.max_fragment_size,
+            self.fragment_surround,
+        )
+        highlighter = whoosh.highlight.Highlighter(
+            formatter=WhooshEmFormatter(),
+            fragmenter=fragmenter)
+
+        for field in fields:
+            if field in record:
+                highlighted = highlighter.highlight_hit(record, field)
+            else:
+                highlighted = ''
+            result_highlights[field] = highlighted
+        return result_highlights
+
+
+class WhooshEmFormatter(whoosh.highlight.HtmlFormatter):
+    template = '<em>%(t)s</em>'
 
 
 class WhooshEmptyFacetErrorWorkaround(Component):

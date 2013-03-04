@@ -147,7 +147,8 @@ class WikiSearchParticipant(BaseSearchParticipant):
         return "Wiki"
 
     def format_search_results(self, res):
-        return u'%s: %s...' % (res['id'], res['content'][:50])
+        title = res['hilited_id'] or res['id']
+        return title
 
 
 

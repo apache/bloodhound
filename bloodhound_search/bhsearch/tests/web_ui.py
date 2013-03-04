@@ -589,6 +589,92 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertEquals("id, time desc", active_sort["expression"])
         self.assertNotIn("sort=", active_sort["href"])
 
+    def test_that_document_summary_contains_highlighted_search_terms(self):
+        term = "searchterm"
+        long_text = "foo " * 200 + term + " bar" * 100
+        self.insert_wiki("Dummy title", long_text)
+
+        self.req.args[RequestParameters.QUERY] = term
+        data = self.process_request()
+
+        content = str(data["results"].items[0]["hilited_content"])
+        matched_term = '<em>%s</em>' % term
+        self.assertIn(matched_term, content)
+
+    def test_that_only_matched_terms_are_highlighted(self):
+        term = "search_term"
+        self.insert_wiki(term, term)
+
+        self.req.args[RequestParameters.QUERY] = "id:%s" % term
+        data = self.process_request()
+
+        title = str(data["results"].items[0]["title"])
+        content = str(data["results"].items[0]["content"])
+        matched_term = '<em>%s</em>' % term
+        self.assertIn(matched_term, title)
+        self.assertNotIn(matched_term, content)
+
+    def test_that_matched_terms_in_title_are_highlighted(self):
+        term = "search_term"
+        self.insert_wiki(term, 'content')
+        self.insert_ticket(term)
+
+        self.req.args[RequestParameters.QUERY] = term
+        data = self.process_request()
+
+        for row in data["results"].items:
+            title = str(row["title"])
+            matched_term = '<em>%s</em>' % term
+            self.assertIn(matched_term, str(title))
+
+    def test_that_html_tags_are_escaped(self):
+        term = "search_term"
+        content = '%s <b>%s</b>' % (term, term)
+        self.insert_wiki(term, content)
+
+        self.req.args[RequestParameters.QUERY] = "content:%s" % term
+        data = self.process_request()
+
+        content = str(data["results"].items[0]["hilited_content"])
+        matched_term = '<em>%s</em>' % term
+        self.assertIn(matched_term, content)
+        self.assertNotIn('<b>', content)
+        self.assertIn('&lt;b&gt;', content)
+
+    def test_that_id_is_displayed_even_if_it_doesnt_contain_query_terms(self):
+        id, term = "1", "search_term"
+        self.insert_ticket(term, id=id)
+        self.insert_wiki(id, term)
+
+        self.req.args[RequestParameters.QUERY] =  term
+        data = self.process_request()
+
+        for row in data["results"].items:
+            title = row["title"]
+            print id, title
+            self.assertIn(id, str(title))
+
+
+    def test_that_id_is_highlighted_in_title(self):
+        self.insert_ticket("some summary")
+        id = "1"
+        self.req.args[RequestParameters.QUERY] = id
+        data = self.process_request()
+        row = data["results"].items[0]
+        title = row["title"]
+        print id, title
+        self.assertIn('<em>%s</em>' % id, str(title))
+
+    def test_that_content_summary_is_trimmed(self):
+        content = "foo " * 1000
+        self.insert_wiki("title", content)
+
+        data = self.process_request()
+
+        for row in data["results"].items:
+            self.assertLess(len(row['content']), 500)
+            self.assertLess(len(row['hilited_content']), 500)
+
     def _find_header(self, headers, name):
         for header in headers:
             if header["name"] == name:
