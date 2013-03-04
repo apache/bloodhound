@@ -110,6 +110,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Attachment
         'attachment.html' : ('bh_attachment.html', None),
+        'preview_file.html' : ('bh_preview_file.html', None),
 
         # Multi Product
         'product_view.html' : ('bh_product_view.html', None),
