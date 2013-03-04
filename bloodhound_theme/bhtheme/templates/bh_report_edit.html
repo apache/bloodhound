@@ -32,7 +32,9 @@
   <body>
     <div id="content" class="report row">
 
-      <h1>${_('New Report') if action == 'new' else report.title}</h1>
+      <h1 class="span12">
+        ${_('New Report') if action == 'new' else report.title}
+      </h1>
       <div class="span12">
         <form action="${href.report(report.id)}" method="post" id="edit_report"
             class="form-horizontal">
