@@ -234,9 +234,11 @@
               </li>
             </ul>
           </div>
+        </div>
 
+        <div class="row" id="breadcrumb-row">
           <!--! breadcrumb (TODO: which ones do we hide on the phones/tablets?) -->
-          <div id="breadcrumbbar" class="span12">
+          <div id="stickyStatus" class="span12">
             <ul class="breadcrumb">
               <li py:choose="">
                 <xi:include py:when="value_of('resourcepath_template')" 
@@ -288,6 +290,7 @@
           </div>
         </div>
       </header>
+      <div class="stickyOffset" style="height: 0px;"></div>
 
       <!--! main content -->
       ${select('*|text()|comment()')}
