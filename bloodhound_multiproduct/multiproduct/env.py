@@ -56,6 +56,13 @@ class Environment(trac.env.Environment):
     are replaced to provide global view of the database in contrast
     to ProductEnvironment that features per-product view of the database
     (in the context of selected product).
+
+        :param path:   the absolute path to the Trac environment
+        :param create: if `True`, the environment is created and
+                       populated with default data; otherwise, the
+                       environment is expected to already exist.
+        :param options: A list of `(section, name, value)` tuples that
+                        define configuration options
     """
 
     multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
@@ -65,11 +72,33 @@ class Environment(trac.env.Environment):
         # as database access can take place within trac.env.Environment
         self.parent = None
         self.product = None
-        super(Environment, self).__init__(path, create=create, options=options)
+
+        # `trac.env.Environment.__init__` is not invoked as creation is handled differently
+        # from base implementation - different setup participants are invoked when creating
+        # global environment.
+        ComponentManager.__init__(self)
+
+        self.path = path
+        self.systeminfo = []
+        self._href = self._abs_href = None
+
+        if create:
+            self.create(options)
+        else:
+            self.verify()
+            self.setup_config()
+
         self._global_setup_participants = set.intersection(set(self.setup_participants),
                                                            set(self.multi_product_support_components))
         self._product_setup_participants = [participant for participant in self.setup_participants
                                                 if not participant in self._global_setup_participants]
+
+        # invoke `IEnvironmentSetupParticipant.environment_created` for all
+        # global setup participants
+        if create:
+            for participant in self._global_setup_participants:
+                with ComponentEnvironmentContext(self, participant):
+                    participant.environment_created()
 
     @property
     def db_query(self):
@@ -179,25 +208,37 @@ class Environment(trac.env.Environment):
             execute_upgrades(product_upgraders)
         return True
 
+    def get_version(self, db=None, initial=False):
+        """Return the current version of the database.  If the
+        optional argument `initial` is set to `True`, the version of
+        the database used at the time of creation will be returned.
+        """
+        rows = self.db_direct_query("""
+                SELECT value FROM system WHERE name='%sdatabase_version'
+                """ % ('initial_' if initial else ''))
+        return rows and int(rows[0][0])
+
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
 
-def _environment_setup_environment_created(self):
-    """Insert default data into the database.
+class EnvironmentSetup(trac.env.EnvironmentSetup):
 
-    This code is copy pasted from trac.env.EnvironmentSetup with a slight change
-    of using direct (non-translated) transaction to setup default data.
-    """
-    from trac import db_default
-    with self.env.db_direct_transaction as db:
-        for table, cols, vals in db_default.get_data(db):
-            db.executemany("INSERT INTO %s (%s) VALUES (%s)"
-                           % (table, ','.join(cols), ','.join(['%s' for c in cols])),
-                              vals)
-    self._update_sample_config()
+    def environment_created(self):
+        """Insert default data into the database.
 
-# replace trac.env.EnvironmentSetup.environment_created with the patched version
-trac.env.EnvironmentSetup.environment_created = _environment_setup_environment_created
+        This code is copy pasted from trac.env.EnvironmentSetup with a slight change
+        of using direct (non-translated) transaction to setup default data.
+        """
+        from trac import db_default
+        with self.env.db_direct_transaction as db:
+            for table, cols, vals in db_default.get_data(db):
+                db.executemany("INSERT INTO %s (%s) VALUES (%s)"
+                               % (table, ','.join(cols), ','.join(['%s' for c in cols])),
+                                  vals)
+        self._update_sample_config()
+
+# replace trac.env.EnvironmentSetup with EnvironmentSetup
+trac.env.EnvironmentSetup = EnvironmentSetup
 
 # this must follow the monkey patch (trac.env.Environment) above, otherwise
 # trac.test.EnvironmentStub will not be correct as the class will derive from
@@ -215,18 +256,10 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         self.parent = None
         self.product = None
         self.mpsystem = None
+        self._db_direct = False
         super(EnvironmentStub, self).__init__(default_data=False,
                                               enable=enable, disable=disable,
                                               path=path, destroying=destroying)
-        # Apply multi product upgrades. This is required as the database proxy (translator)
-        # is installed in any case, we want it to see multi-product enabled database
-        # schema...
-        self.mpsystem = MultiProductSystem(self)
-        try:
-            self.mpsystem.upgrade_environment()
-        except OperationalError:
-            pass
-
         if default_data:
             self.reset_db(default_data)
 
@@ -267,14 +300,17 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         #env.config.save()
 
     def reset_db(self, default_data=None):
-        from multiproduct.api import DB_VERSION
-        schema_version = -1
-        if self.mpsystem:
-            schema_version = self.mpsystem.get_version()
+        self._db_direct = True
         super(EnvironmentStub, self).reset_db(default_data=default_data)
-        if self.mpsystem and schema_version != -1:
-            with self.db_direct_transaction as db:
-                self.mpsystem._update_db_version(db, DB_VERSION)
+        self._db_direct = False
+
+    @property
+    def db_query(self):
+        return super(EnvironmentStub, self).db_query if not self._db_direct else self.db_direct_query
+
+    @property
+    def db_transaction(self):
+        return super(EnvironmentStub, self).db_transaction if not self._db_direct else self.db_direct_transaction
 
 
 # replace trac.test.EnvironmentStub
@@ -303,13 +339,8 @@ class ProductEnvironment(Component, ComponentManager):
 
     implements(trac.env.ISystemInfoProvider)
 
-    @property
-    def setup_participants(self):
-        """Setup participants list for product environments will always
-        be empty based on the fact that upgrades will only be handled by
-        the global environment.
-        """
-        return ()
+    setup_participants = ExtensionPoint(trac.env.IEnvironmentSetupParticipant)
+    multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
 
     components_section = ConfigSection('components',
         """This section is used to enable or disable components
@@ -417,7 +448,7 @@ class ProductEnvironment(Component, ComponentManager):
 
         ''(since 0.10.5)''""")
 
-    def __init__(self, env, product):
+    def __init__(self, env, product, create=False):
         """Initialize the product environment.
 
         :param env:     the global Trac environment
@@ -442,7 +473,7 @@ class ProductEnvironment(Component, ComponentManager):
                 product = products[0]
             else:
                 env.log.debug("Products for '%s' : %s",
-                        product, products)
+                              product, products)
                 raise LookupError("Missing product %s" % (product,))
 
         self.parent = env
@@ -451,6 +482,18 @@ class ProductEnvironment(Component, ComponentManager):
         self._href = self._abs_href = None
 
         self.setup_config()
+
+        self._global_setup_participants = set.intersection(set(self.setup_participants),
+                                                           set(self.multi_product_support_components))
+        self._product_setup_participants = [participant for participant in self.setup_participants
+                                                            if not participant in self._global_setup_participants]
+
+        # when creating product environment, invoke `IEnvironmentSetupParticipant.environment_created`
+        # for all setup participants that don't support multi product environments
+        if create:
+            for participant in self._product_setup_participants:
+                with ComponentEnvironmentContext(self, participant):
+                    participant.environment_created()
 
     def __getitem__(self, cls):
         if issubclass(cls, trac.env.Environment):
@@ -722,6 +765,7 @@ class ProductEnvironment(Component, ComponentManager):
 
     def needs_upgrade(self):
         """Return whether the environment needs to be upgraded."""
+        # Upgrades are handled by global environment
         return False
 
     def upgrade(self, backup=False, backup_dest=None):
@@ -731,8 +775,7 @@ class ProductEnvironment(Component, ComponentManager):
         :param backup_dest: name of the backup file
         :return: whether the upgrade was performed
         """
-        # (Database) upgrades handled by global environment
-        # FIXME: True or False ?
+        # Upgrades handled by global environment
         return True
 
     @lazy

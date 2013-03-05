@@ -95,7 +95,7 @@ class MultiProductSystem(Component):
 
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
-        rows = self.env.db_query("""
+        rows = self.env.db_direct_query("""
             SELECT value FROM system WHERE name = %s
             """, (DB_SYSTEM_KEY,))
         return int(rows[0][0]) if rows else -1
@@ -163,10 +163,11 @@ class MultiProductSystem(Component):
                 TICKET_TABLES = ['ticket_change', 'ticket_custom',
                                  'attachment',
                                 ]
+                SYSTEM_TABLES = ['system']
 
                 # extend trac default schema by adding product column and extending key with product
                 table_defs = [copy.deepcopy(t) for t in trac.db_default.schema
-                                                    if t.name in self.MIGRATE_TABLES + TICKET_TABLES]
+                                                    if t.name in self.MIGRATE_TABLES + TICKET_TABLES + SYSTEM_TABLES]
                 for t in table_defs:
                     t.columns.append(Column('product'))
                     if isinstance(t.key, list):
@@ -256,6 +257,15 @@ class MultiProductSystem(Component):
                 db("""UPDATE attachment
                       SET product=(SELECT wiki.product FROM wiki WHERE wiki.name=attachment.id)
                       WHERE type='wiki'""")
+
+                # Update system tables
+                # Upgrade schema
+                self.log.info("Migrating system tables to a new schema")
+                for table in SYSTEM_TABLES:
+                    temp_table_name, cols = create_temp_table(table)
+                    db("INSERT INTO %s (%s, product) SELECT %s,'' FROM %s" %
+                       (table, cols, cols, temp_table_name))
+                    drop_temp_table(temp_table_name)
 
                 db_installed_version = self._update_db_version(db, 3)
 
