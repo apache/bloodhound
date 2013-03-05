@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import sys
+import sys, copy
 
 from genshi.builder import tag
 from genshi.core import TEXT
@@ -70,16 +70,16 @@ class BloodhoundTheme(ThemeBase):
     )
     BLOODHOUND_TEMPLATE_MAP = {
         # Admin
-        'admin_basics.html' : ('bh_admin_basics.html', None),
-        'admin_components.html' : ('bh_admin_components.html', None),
-        'admin_enums.html' : ('bh_admin_enums.html', None),
-        'admin_logging.html' : ('bh_admin_logging.html', None),
-        'admin_milestones.html' : ('bh_admin_milestones.html', None),
-        'admin_perms.html' : ('bh_admin_perms.html', None),
-        'admin_plugins.html' : ('bh_admin_plugins.html', None),
-        'admin_repositories.html' : ('bh_admin_repositories.html', None),
-        'admin_versions.html' : ('bh_admin_versions.html', None),
-        'admin_products.html' : ('bh_admin_products.html', None),
+        'admin_basics.html' : ('bh_admin_basics.html', '_modify_admin_breadcrumb'),
+        'admin_components.html' : ('bh_admin_components.html', '_modify_admin_breadcrumb'),
+        'admin_enums.html' : ('bh_admin_enums.html', '_modify_admin_breadcrumb'),
+        'admin_logging.html' : ('bh_admin_logging.html', '_modify_admin_breadcrumb'),
+        'admin_milestones.html' : ('bh_admin_milestones.html', '_modify_admin_breadcrumb'),
+        'admin_perms.html' : ('bh_admin_perms.html', '_modify_admin_breadcrumb'),
+        'admin_plugins.html' : ('bh_admin_plugins.html', '_modify_admin_breadcrumb'),
+        'admin_repositories.html' : ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
+        'admin_versions.html' : ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
+        'admin_products.html' : ('bh_admin_products.html', '_modify_admin_breadcrumb'),
 
         # Preferences
         'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
@@ -321,6 +321,24 @@ class BloodhoundTheme(ThemeBase):
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
+    def _get_product_list(self, req):
+        product_list = []
+        is_product_scope = isinstance(req.perm.env, ProductEnvironment)
+        for product in Product.select(self.env):
+            if is_product_scope:
+                # Per-product permissions only work when checking them against
+                # the appropriate ProductEnvironment (i.e. not cross-product).
+                # Reaquest's permissions are thus copied and associated with
+                # another ProductEnvironment for each check.
+                perm = copy.copy(req.perm)
+                perm.env = ProductEnvironment(product._env.parent, product.prefix)
+                if 'PRODUCT_VIEW' in perm(product.resource):
+                    product_list.append(product)
+            else:
+                product_list.append(product)
+
+        return product_list
+
     def _modify_resource_breadcrumb(self, req, template, data, content_type,
                                     is_active):
         """Provides logic for breadcrumb resource permissions
@@ -334,17 +352,21 @@ class BloodhoundTheme(ThemeBase):
                 data['path_show_' + resname] = permname in req.perm(res)
 
             # add list of products available to this user
-            product_list = []
-            for product in Product.select(self.env):
-                # Per-product permissions only work when checking them against
-                # the appropriate ProductEnvironment (i.e. not cross-product).
-                # Reaquest's permissions are thus copied and associated with
-                # another ProductEnvironment for each check.
-                perm = req.perm
-                perm.env = ProductEnvironment(product._env.parent, product.prefix)
-                if 'PRODUCT_VIEW' in perm(product.resource):
-                    product_list.append((product.prefix, product.name))
-            data['product_list'] = product_list
+            data['product_list'] = [(p.prefix, p.name)
+                for p in self._get_product_list(req)]
+
+    def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
+        glsettings = (_('(Global settings)'), req.href.admin())
+        data['admin_product_list'] = [ glsettings, ] + \
+            [(p.name, req.href.products(p.prefix, 'admin'))
+                for p in self._get_product_list(req)]
+
+        if isinstance(req.perm.env, ProductEnvironment):
+            product = req.perm.env.product
+            data['admin_current_product'] = (product.name,
+                req.href.products(product.prefix, 'admin'))
+        else:
+            data['admin_current_product'] = glsettings
 
     def _modify_generic_vcs(self, req, template, data, content_type, is_active):
         """Locate path to file in breadcrumbs area rather than title.
