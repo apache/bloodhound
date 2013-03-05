@@ -33,7 +33,7 @@ class TestLoader(unittest.TestLoader):
     sortTestMethodsUsing = cmp
     suiteClass = unittest.TestSuite
 
-    def discover_package(self, package_or_requirement, pattern='test*.py'):
+    def discover_package(self, package_or_requirement, pattern='test*.py', ignore_subpkg_root=True):
         """Find and return all test modules from the specified package
         directory, recursing into subdirectories to find them. Only test files
         that match the pattern will be loaded. (Using shell style pattern
@@ -56,10 +56,11 @@ class TestLoader(unittest.TestLoader):
                 # Skip packages not having __init__.py
                 continue
             loader = getattr(mdl, self.testLoaderAttribute, None) or loader
-            if mdlnm != package_or_requirement and hasattr(mdl, 'test_suite'):
-                tests.append(mdl.test_suite())
-            else:
-                tests.append(loader.loadTestsFromModule(mdl))
+            if not (isdir and ignore_subpkg_root):
+                if mdlnm != package_or_requirement and hasattr(mdl, 'test_suite'):
+                    tests.append(mdl.test_suite())
+                else:
+                    tests.append(loader.loadTestsFromModule(mdl))
             if isdir and resource_exists(mdlnm, '__init__.py'):
                 for fnm in resource_listdir(mdlnm, ''):
                     if resource_isdir(mdlnm, fnm):

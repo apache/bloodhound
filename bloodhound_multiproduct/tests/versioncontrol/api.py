@@ -54,42 +54,42 @@ class ProductResourceManagerTestCase(ResourceManagerTestCase, \
     def test_resource_changeset(self):
         res = Resource('changeset', '42')
         self.assertEqual('Changeset 42', get_resource_description(self.env, res))
-        self.assertEqual('/trac.cgi/product/tp1/changeset/42',
+        self.assertEqual('/trac.cgi/products/tp1/changeset/42',
                          get_resource_url(self.env, res, self.env.href))
 
         repo = Resource('repository', 'repo')
         res = Resource('changeset', '42', parent=repo)
         self.assertEqual('Changeset 42 in repo',
                          get_resource_description(self.env, res))
-        self.assertEqual('/trac.cgi/product/tp1/changeset/42/repo',
+        self.assertEqual('/trac.cgi/products/tp1/changeset/42/repo',
                          get_resource_url(self.env, res, self.env.href))
 
     def test_resource_source(self):
         res = Resource('source', '/trunk/src')
         self.assertEqual('path /trunk/src',
                          get_resource_description(self.env, res))
-        self.assertEqual('/trac.cgi/product/tp1/browser/trunk/src',
+        self.assertEqual('/trac.cgi/products/tp1/browser/trunk/src',
                          get_resource_url(self.env, res, self.env.href))
 
         repo = Resource('repository', 'repo')
         res = Resource('source', '/trunk/src', parent=repo)
         self.assertEqual('path /trunk/src in repo',
                          get_resource_description(self.env, res))
-        self.assertEqual('/trac.cgi/product/tp1/browser/repo/trunk/src',
+        self.assertEqual('/trac.cgi/products/tp1/browser/repo/trunk/src',
                          get_resource_url(self.env, res, self.env.href))
 
         repo = Resource('repository', 'repo')
         res = Resource('source', '/trunk/src', version=42, parent=repo)
         self.assertEqual('path /trunk/src@42 in repo',
                          get_resource_description(self.env, res))
-        self.assertEqual('/trac.cgi/product/tp1/browser/repo/trunk/src?rev=42',
+        self.assertEqual('/trac.cgi/products/tp1/browser/repo/trunk/src?rev=42',
                          get_resource_url(self.env, res, self.env.href))
 
     def test_resource_repository(self):
         res = Resource('repository', 'testrepo')
         self.assertEqual('Repository testrepo',
                          get_resource_description(self.env, res))
-        self.assertEqual('/trac.cgi/product/tp1/browser/testrepo',
+        self.assertEqual('/trac.cgi/products/tp1/browser/testrepo',
                          get_resource_url(self.env, res, self.env.href))
 
 
