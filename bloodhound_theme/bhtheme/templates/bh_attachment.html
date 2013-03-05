@@ -24,82 +24,100 @@
   </head>
 
   <body>
-    <div py:choose="mode" id="content" class="attachment">
+    <div py:choose="mode" id="content" class="attachment row">
       <py:when test="'new'">
-        <h1 i18n:msg="parent">Add Attachment to <a href="${url_of(parent)}">${name_of(parent)}</a></h1>
-        <form id="attachment" method="post" enctype="multipart/form-data" action="">
-          <div class="field">
+        <h1 i18n:msg="parent" class="span12">
+          Add Attachment to <a href="${url_of(parent)}">${name_of(parent)}</a>
+        </h1>
+        <div class="span12">
+          <form id="attachment" method="post" enctype="multipart/form-data" action="">
             <label>File<py:if test="max_size >= 0">
-              <i18n:msg params="value">(size limit ${pretty_size(max_size)})</i18n:msg></py:if>:<br />
-              <input type="file" name="attachment" /></label>
-          </div>
-          <fieldset>
-            <legend>Attachment Info</legend>
-            <py:if test="authname == 'anonymous'">
-              <div class="field">
-                <label>Your email or username:<br />
-                  <input type="text" name="author" size="30" value="${attachment.author or author}" />
-                </label>
-              </div>
-              </py:if>
-            <div class="field">
-              <label>Description of the file (optional):<br />
-                <input type="text" name="description" size="60" value="$attachment.description"/></label>
-            </div>
-            <br />
-            <py:if test="authname and authname != 'anonymous'">
-              <div class="options">
-                <label><input type="checkbox" name="replace" checked="${is_replace or None}" />
-                  Replace existing attachment of the same name</label>
-              </div>
+              <i18n:msg params="value">
+                (size limit ${pretty_size(max_size)})</i18n:msg></py:if>:
               <br />
-            </py:if>
-          </fieldset>
-          <div class="control-group">
-            <input type="hidden" name="action" value="new" />
-            <input type="hidden" name="realm" value="$parent.realm" />
-            <input type="hidden" name="id" value="$parent.id" />
-            <input class="btn" type="submit" value="${_('Add attachment')}" />
-            <input class="btn-link" type="submit" name="cancel"
-                   value="${_('Cancel')}" />
-          </div>
-        </form>
-      </py:when>
-
-      <py:when test="'delete'">
-        <h1><a href="${url_of(parent)}">${name_of(parent)}</a>: $attachment.filename</h1>
-        <p><strong>Are you sure you want to delete this attachment?</strong><br />
-          This is an irreversible operation.</p>
-        <div class="control-group">
-          <form method="post" action="">
-            <div id="delete">
-              <input type="hidden" name="action" value="delete" />
+              <input type="file" name="attachment" />
+            </label>
+            <div class="well">
+              <fieldset>
+                <legend>Attachment Info</legend>
+                <py:if test="authname == 'anonymous'">
+                  <label>Your email or username:</label>
+                  <input type="text" class="input-xlarge" name="author"
+                         value="${attachment.author or author}" />
+                  <br />
+                </py:if>
+                <label>Description of the file:</label>
+                <input type="text" name="description" class="input-xlarge"
+                       placeholder="optional" value="$attachment.description" />
+                <br />
+                <label py:if="authname and authname != 'anonymous'"
+                       class="checkbox">
+                  <input type="checkbox" name="replace"
+                         checked="${is_replace or None}" />
+                  Replace existing attachment of the same name
+                </label>
+              </fieldset>
+            </div>
+            <div class="control-group">
+              <input type="hidden" name="action" value="new" />
+              <input type="hidden" name="realm" value="$parent.realm" />
+              <input type="hidden" name="id" value="$parent.id" />
               <input class="btn" type="submit"
-                     value="${_('Delete attachment')}" />
-              <input class="btn-group" type="submit" name="cancel"
+                     value="${_('Add attachment')}" />
+              <input class="btn-link" type="submit" name="cancel"
                      value="${_('Cancel')}" />
             </div>
           </form>
         </div>
       </py:when>
 
+      <py:when test="'delete'">
+        <div class="span12">
+          <h1><a href="${url_of(parent)}">${name_of(parent)}</a>: $attachment.filename</h1>
+          <p class="alert alert-error">
+            <span class="label label-important">Caution</span>
+            <strong>Are you sure you want to delete this attachment?</strong><br />
+            This is an irreversible operation.
+          </p>
+          <div class="control-group">
+            <form method="post" action="">
+              <div id="delete">
+                <input type="hidden" name="action" value="delete" />
+                <input class="btn" type="submit"
+                       value="${_('Delete attachment')}" />
+                <input class="btn-link" type="submit" name="cancel"
+                       value="${_('Cancel')}" />
+              </div>
+            </form>
+          </div>
+        </div>
+      </py:when>
+
       <py:when test="'list'">
-        <h1><a href="${url_of(parent)}">${name_of(parent)}</a></h1>
-        <py:with vars="context = context.child(parent)">
-          <?python add_button_title = _('Attach another file') ?>
-          <xi:include href="list_of_attachments.html" py:with="alist = attachments"/>
-        </py:with>
+        <h1 class="span12"><a href="${url_of(parent)}">${name_of(parent)}</a></h1>
+        <div class="span12">
+          <py:with vars="context = context.child(parent)">
+            <?python add_button_title = _('Attach another file') ?>
+            <xi:include href="bh_list_of_attachments.html" py:with="alist = attachments"/>
+          </py:with>
+        </div>
       </py:when>
 
       <py:otherwise> <!--! 'render' mode -->
-        <h1><a href="${url_of(parent)}">${name_of(parent)}</a>: $attachment.filename</h1>
-        <table id="info" summary="Description">
+        <h1 class="span12">
+          <a href="${url_of(parent)}">${name_of(parent)}</a>:
+          $attachment.filename
+        </h1>
+        <table id="info" class="span12" summary="Description">
           <tbody>
             <tr>
               <th scope="col" i18n:msg="file,size,author,date">
                 File $attachment.filename,
-                <span title="${_('%(size)s bytes', size=attachment.size)}">${pretty_size(attachment.size)}</span>
-                (added by ${authorinfo(attachment.author)}, ${pretty_dateinfo(attachment.date)})
+                <span title="${_('%(size)s bytes', size=attachment.size)}">
+                  ${pretty_size(attachment.size)}
+                </span>
+                (added by ${authorinfo(attachment.author)},
+                ${pretty_dateinfo(attachment.date)})
               </th>
             </tr>
             <tr>
@@ -110,16 +128,17 @@
           </tbody>
         </table>
 
-        <div py:if="preview" id="preview" class="searchable">
-          <xi:include href="preview_file.html" py:with="preview = preview"/>
+        <div py:if="preview" id="preview" class="searchable span12">
+          <xi:include href="bh_preview_file.html" py:with="preview = preview"/>
         </div>
 
         <py:if test="attachment and 'ATTACHMENT_DELETE' in perm(attachment.resource)">
-          <div class="buttons">
+          <div class="span12">
             <form method="get" action="">
-              <div id="delete">
+              <div id="delete control-group">
                 <input type="hidden" name="action" value="delete" />
-                <input type="submit" value="${_('Delete attachment')}" />
+                <input type="submit" class="btn"
+                       value="${_('Delete attachment')}" />
               </div>
             </form>
           </div>

@@ -113,6 +113,10 @@ class BloodhoundTheme(ThemeBase):
 
         # Attachment
         'attachment.html' : ('bh_attachment.html', None),
+        'preview_file.html' : ('bh_preview_file.html', None),
+
+        # Version control
+        'revisionlog.html' : ('bh_revisionlog.html', '_modify_generic_vcs'),
 
         # Multi Product
         'product_view.html' : ('bh_product_view.html', None),
@@ -341,6 +345,14 @@ class BloodhoundTheme(ThemeBase):
                 if 'PRODUCT_VIEW' in perm(product.resource):
                     product_list.append((product.prefix, product.name))
             data['product_list'] = product_list
+
+    def _modify_generic_vcs(self, req, template, data, content_type, is_active):
+        """Locate path to file in breadcrumbs area rather than title.
+        """
+        data.update(dict(
+                resourcepath_template='bh_path_links.html',
+                path_depth_limit=2
+            ))
 
     # INavigationContributor methods
 

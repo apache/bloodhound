@@ -187,9 +187,11 @@
           </div>
         </py:when>
       </py:choose>
-      
-      <xi:include href="list_of_attachments.html"
-                  py:with="alist = attachments; compact = True; foldable = True"/>
+
+      <div class="span12">
+        <xi:include href="bh_list_of_attachments.html"
+                    py:with="alist = attachments; compact = True; foldable = True"/>
+      </div>
     </div>
   </body>
 </html>

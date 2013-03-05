@@ -669,6 +669,10 @@ input[type="submit"].btn.btn-micro {
   }
 }
 
+.breadcrumb .dropdown-menu li {
+  display: block;
+}
+
 /* Revert some changes introduced in 2.1.0 */
 h6 {
   color: #A4A4A4;
@@ -975,6 +979,11 @@ table.wiki th {
   padding: 0.1em 0.25em;
   background-color: #F7F7F7;
 }
+
+.more:before {
+  content: "... "
+}
+
 /* @end */
 
 /* @group Wiki Toolbar */
@@ -1010,6 +1019,14 @@ table.wiki th {
 .wikitoolbar a#np { background-position: 0 -96px }
 .wikitoolbar a#br { background-position: 0 -112px }
 .wikitoolbar a#img { background-position: 0 -128px }
+
+/* @end */
+
+/* @group Version control */
+
+.log .age {
+  white-space: nowrap;
+}
 
 /* @end */
 
