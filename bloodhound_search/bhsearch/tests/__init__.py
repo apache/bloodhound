@@ -19,7 +19,7 @@
 #  under the License.
 import unittest
 from bhsearch.tests import (whoosh_backend, index_with_whoosh, web_ui,
-                            api)
+                            api, query_parser)
 from bhsearch.tests.search_resources import (ticket_search, wiki_search,
                                              milestone_search, base)
 
