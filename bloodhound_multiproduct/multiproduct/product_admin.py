@@ -28,6 +28,7 @@ from model import Product
 from trac.util.translation import _, N_, gettext
 from trac.web.chrome import Chrome, add_notice, add_warning
 from multiproduct.util import ProductDelegate
+from multiproduct.env import ProductEnvironment
 
 
 class ProductAdminPanel(TicketAdminPanel):
@@ -37,6 +38,11 @@ class ProductAdminPanel(TicketAdminPanel):
     
     def get_admin_commands(self): 
         return None
+
+    def get_admin_panels(self, req):
+        if isinstance(req.perm.env, ProductEnvironment):
+            return None
+        return super(ProductAdminPanel, self).get_admin_panels(req)
     
     def _render_admin_panel(self, req, cat, page, product):
         req.perm.require('PRODUCT_VIEW')
