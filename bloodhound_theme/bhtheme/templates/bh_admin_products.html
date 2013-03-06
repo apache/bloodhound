@@ -36,14 +36,14 @@
       <div class="control-group">
         <label class="control-label" for="owner">Owner: </label>
         <div class="controls" py:choose="">
-          <select class="input-medium"
+          <select class="input-large"
               py:when="owners" size="1" id="owner" name="owner">
             <option py:for="owner in owners"
                     selected="${owner==default_owner or None}" value="$owner">$owner</option>
             <option py:if="default_owner and default_owner not in owners"
                     selected="selected" value="$default_owner">$default_owner</option>
           </select>
-          <input py:otherwise="" class="input-medium" type="text" id="owner"
+          <input py:otherwise="" class="input-large" type="text" id="owner"
               name="owner" value="$default_owner" />
         </div>
       </div>
@@ -96,7 +96,32 @@
 
       <py:otherwise>
         <div class="row">
-          <div class="span6">
+          <div class="span9">
+            <form id="addproduct" class="well form-horizontal" method="post" action="">
+              <fieldset>
+                <legend>Add Product:</legend>
+                <div class="control-group">
+                  <label class="control-label" for="prefix">Prefix:</label>
+                  <div class="controls">
+                    <input type="text" id="prefix" class="input-large"
+                           name="prefix" />
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="name">Name:</label>
+                  <div class="controls">
+                    <input type="text" id="name" class="input-large" name="name" />
+                  </div>
+                </div>
+                ${owner_field()}
+                <div class="control-group">
+                  <input type="submit" class="btn" name="add"
+                         value="${_('Add')}" />
+                </div>
+              </fieldset>
+            </form>
+          </div>
+          <div class="span9">
             <py:choose>
               <form py:when="products" id="product_table" method="post" action="">
                 <table id="prodlist"
@@ -130,32 +155,18 @@
                       value="${_('Apply changes')}" />
                 </div>
                 <p class="help-block">
-                  <span class="label label-info">Notice</span>
+                  <span class="label label-info">Note</span>
                   You can remove all items from this list to completely hide this
                   field from the user interface.
                 </p>
               </form>
     
               <p py:otherwise="" class="help-block">
-                <span class="label label-warning">Warning</span>
+                <span class="label label-info">Note</span>
                 As long as you don't add any items to the list, this field
                 will remain completely hidden from the user interface.
               </p>
             </py:choose>
-          </div>
-          <div class="span3">
-            <form class="well" id="addproduct" method="post" action="">
-              <fieldset>
-                <legend>Add Product:</legend>
-                <label for="prefix">Prefix:</label>
-                <input class="input-medium" type="text" id="prefix" name="prefix" />
-                <label for="name">Name:</label>
-                <input class="input-medium" type="text" id="name" name="name" />
-                ${owner_field()}
-                <input class="btn" type="submit" name="add"
-                    value="${_('Add')}"/>
-              </fieldset>
-            </form>
           </div>
         </div>
 

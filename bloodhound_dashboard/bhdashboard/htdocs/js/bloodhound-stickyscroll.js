@@ -19,41 +19,40 @@
 
 $(document).ready(function stickyStatus() {
 
-  $(window).scroll(function onScroll() {
-
-    var windowWidth = $(window).width();
-
+  function stickyLogic() {
+    var windowHeight = $(window).height();
+    var headerHeight = $("header").height();
     var docViewTop = $(window).scrollTop();
-    var docViewBottom = docViewTop + $(window).height();
 
+    var headerStickyHeight = $("header #stickyStatus").height();
     var headerTop = $("header").offset().top;
-    var headerBottom = headerTop + $("header").height();
+    var headerBottom = headerTop + headerHeight - headerStickyHeight;
 
-    var statusTop = $("#stickyStatus").offset().top;
-    var statusBottom = statusTop + $("#stickyStatus").height();
-
-    var desktopStickyHeight = $("#stickyStatus").outerHeight();
-
-    if(windowWidth >= 768) {
-      if (docViewTop > headerBottom) {
-        $("#stickyStatus").addClass("sticky");
-        $(".stickyOffset").css("height", desktopStickyHeight + "px");
-      }
-      else {
-        $("#stickyStatus").removeClass("sticky");
-        $(".stickyOffset").css("height", "0px");
-      }
+    var stickyHeight;
+    if(windowHeight >= 768) {
+      headerBottom = 0;
+      $("div#breadcrumb-row div").attr('id','oldstickyStatus');
+      $("div#breadcrumb-row div").removeClass("sticky");
+      $('header').attr('id','stickyStatus');
+      stickyHeight = $("#stickyStatus").outerHeight();
     }
     else {
-      if (docViewTop > headerBottom) {
-        $("#stickyStatus").addClass("sticky");
-        $(".stickyOffset").css("height", mobileStickyHeight + "px");
-      }
-      else {
-        $("#stickyStatus").removeClass("sticky");
-        $(".stickyOffset").css("height", "0px");
-      }
+      $('header').attr('id','oldstickyStatus');
+      $("header").removeClass("sticky");
+      $("div#breadcrumb-row div").attr('id','stickyStatus');
+      stickyHeight = $("#stickyStatus").outerHeight();
     }
-
-  });
+    
+    if (docViewTop > headerBottom) {
+      $("#stickyStatus").addClass("sticky");
+      $(".stickyOffset").css("height", stickyHeight + "px");
+    }
+    else {
+      $("#stickyStatus").removeClass("sticky");
+      $(".stickyOffset").css("height", "0px");
+    }
+    $("#oldstickyStatus").removeClass("sticky");
+  };
+  $(window).scroll(stickyLogic);
+  $(window).resize(stickyLogic);
 });

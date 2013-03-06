@@ -39,9 +39,9 @@
     <h2>Manage Milestones</h2>
 
     <py:choose test="view">
-      <form py:when="'detail'" class="well form-horizontal" method="post"
-          id="modifymilestone" action=""
-          py:with="readonly = 'MILESTONE_MODIFY' not in req.perm or None">
+      <form py:when="'detail'" id="modifymilestone"
+            class="well form-horizontal" method="post" action=""
+            py:with="readonly = 'MILESTONE_MODIFY' not in req.perm or None">
         <fieldset>
           <legend>Modify Milestone:</legend>
           <div class="control-group">
@@ -107,49 +107,41 @@
       </form>
 
       <py:otherwise>
-        <div py:if="'MILESTONE_CREATE' in req.perm" class="row">
-          <div class="span9">
-            <form id="addmilestone" class="well form-horizontal" method="post" action="">
-              <fieldset>
-                <legend>Add Milestone:</legend>
-                <div class="control-group">
-                  <label class="control-label" for="name">Name:</label>
-                  <div class="controls">
-                    <input type="text" name="name" id="name" class="input-xlarge" />
+        <div class="row">
+          <div py:if="'MILESTONE_CREATE' in req.perm">
+            <div class="span9">
+              <form id="addmilestone" class="well form-horizontal" method="post" action="">
+                <fieldset>
+                  <legend>Add Milestone:</legend>
+                  <div class="control-group">
+                    <label class="control-label" for="name">Name:</label>
+                    <div class="controls">
+                      <input type="text" name="name" id="name" class="input-xlarge" />
+                    </div>
                   </div>
-                </div>
-
-                <div class="control-group">
-                  <label class="control-label" for="duedate">Due:</label>
-                  <div class="controls">
-                    <input type="text" id="duedate"
-                        name="duedate" size="${len(datetime_hint)}"
-                        class="input-xlarge"
-                        placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
+                  <div class="control-group">
+                    <label class="control-label" for="duedate">Due:</label>
+                    <div class="controls">
+                      <input type="text" id="duedate"
+                          name="duedate" size="${len(datetime_hint)}"
+                          class="input-xlarge"
+                          placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
+                    </div>
                   </div>
-                </div>
-
-                <div class="control-group">
-                  <div class="controls">
+                  <div class="control-group">
                     <input class="btn" type="submit" name="add" value="${_('Add')}" />
                   </div>
-                </div>
-              </fieldset>
-            </form>
+                </fieldset>
+              </form>
+            </div>
           </div>
-        </div>
 
-        <div class="row">
           <div class="span9">
             <py:choose>
-              <form id="milestone_table" method="post" action="" class="well"
+              <form id="milestone_table" method="post" action=""
                     py:when="milestones" py:with="can_remove = 'MILESTONE_DELETE' in req.perm">
-      
-                <legend>Modify Milestones</legend>
-
                 <table id="millist"
-                    class="table table-bordered table-striped table-condensed">
-                    
+                       class="table table-bordered table-striped table-condensed">
                   <thead>
                     <tr><th py:if="can_remove"><i class="icon-check"></i></th>
                       <th class="full-x">Name</th>
@@ -188,13 +180,12 @@
                   field from the user interface.
                 </p>
               </form>
-    
               <p py:otherwise="" class="help-block">
-                <span class="label label-warning">Warning</span>
+                <span class="label label-info">Note</span>
                 As long as you don't add any items to the list, this field
                 will remain completely hidden from the user interface.
               </p>
-            </py:choose>
+          </py:choose>
           </div>
         </div>
       </py:otherwise>

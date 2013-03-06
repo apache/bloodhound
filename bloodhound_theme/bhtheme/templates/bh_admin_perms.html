@@ -34,7 +34,67 @@
     <h2>Manage Permissions and Groups</h2>
 
     <div class="row">
-      <div class="${can_revoke and 'span6' or 'span9'}">
+      <div class="span9" py:if="'PERMISSION_GRANT' in perm">
+        <form id="addperm" class="well form-horizontal" method="post" action="">
+          <fieldset>
+            <legend>Grant Permission:</legend>
+            <div class="control-group">
+              <label class="control-label" for="gp_subject">Subject:</label>
+              <div class="controls">
+                <input type="text" id="gp_subject" class="input-large"
+                       name="subject" />
+              </div>
+            </div>
+            <div class="control-group">
+            <label class="control-label" for="action">Action:</label>
+              <div class="controls">
+                <select id="action" name="action" class="input-large">
+                  <option py:for="action in sorted(actions)">$action</option>
+                </select>
+              </div>
+            </div>
+            <div class="control-group">
+              <input type="submit" class="btn" name="add"
+                     value="${_('Add')}" />
+            </div>
+            <p class="help-block">
+              <span class="label label-info">Note</span> Grant permission
+              for an action to a subject, which can be either a user
+              or a group.
+            </p>
+          </fieldset>
+        </form>
+
+        <form id="addsubj" class="well form-horizontal" method="post" action="">
+          <fieldset>
+            <legend>Add to Group:</legend>
+            <div class="control-group">
+              <label class="control-label" for="sg_subject">Subject:</label>
+              <div class="controls">
+                <input id="sg_subject" type="text" name="subject"
+                       class="input-medium" />
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="sg_group">Group:</label>
+              <div class="controls">
+                <input id="sg_group" type="text" name="group"
+                       class="input-medium" />
+              </div>
+            </div>
+            <div class="control-group">
+                <input type="submit" class="btn" name="add"
+                       value="${_('Add')}"/>
+            </div>
+            <p class="help-block">
+              <span class="label label-info">Note</span> Add a user or group
+              to an existing permission group.
+            </p>
+          </fieldset>
+        </form>
+      </div>
+
+      <div class="span9">
         <form id="revokeform" method="post" action="">
           <h3>Permissions</h3>
           <table class="table table-bordered table-striped table-condensed" 
@@ -109,49 +169,6 @@
         </p>
       </div>
 
-      <div class="span3" py:if="'PERMISSION_GRANT' in perm">
-        <form id="addperm" class="well" method="post" action="">
-          <fieldset>
-            <legend>Grant Permission:</legend>
-            <label for="gp_subject">Subject:</label>
-            <input class="input-medium" id="gp_subject" type="text"
-                name="subject" />
-            <label for="action">Action:</label>
-            <select id="action" name="action" class="input-medium">
-              <option py:for="action in sorted(actions)">$action</option>
-            </select>
-            <p class="help-block">
-              <span class="label label-info">Note</span> Grant permission
-              for an action to a subject, which can be either a user
-              or a group.
-            </p>
-            <div class="control-group">
-              <input class="btn" type="submit" name="add"
-                  value="${_('Add')}" />
-            </div>
-          </fieldset>
-        </form>
-    
-        <form id="addsubj" class="well" method="post" action="">
-          <fieldset>
-            <legend>Add to Group:</legend>
-            <label for="sg_subject">Subject:</label>
-            <input id="sg_subject" type="text" name="subject"
-                class="input-medium" />
-            <label for="sg_group">Group:</label>
-            <input id="sg_group" type="text" name="group"
-                class="input-medium" />
-            <p class="help-block">
-              <span class="label label-info">Note</span> Add a user or group
-              to an existing permission group.
-            </p>
-            <div class="control-group">
-              <input class="btn" type="submit" name="add"
-                  value="${_('Add')}"/>
-            </div>
-          </fieldset>
-        </form>
-      </div>
     </div>
 
   </body>

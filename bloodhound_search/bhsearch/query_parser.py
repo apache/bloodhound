@@ -20,11 +20,56 @@
 
 r"""Provides Bloodhound Search query parsing functionality"""
 
-from bhsearch.api import IQueryParser
+from bhsearch.api import IQueryParser, IMetaKeywordParser, ISearchParticipant
 from bhsearch.whoosh_backend import WhooshBackend
+from trac.config import ExtensionPoint
 from trac.core import Component, implements
-from whoosh import query
+from whoosh import query, qparser
 from whoosh.qparser import MultifieldParser
+
+
+class MetaKeywordNode(qparser.GroupNode):
+    def __init__(self, group_node=None, **kwargs):
+        nodes = group_node.nodes if group_node else []
+        super(MetaKeywordNode, self).__init__(nodes, kwargs=kwargs)
+
+
+class MetaKeywordPlugin(qparser.TaggingPlugin):
+    priority = 0
+    expr = r"[$](?P<text>[^ \t\r\n]+)(?= |$|\))"
+    nodetype = qparser.syntax.WordNode
+
+    def __init__(self, meta_keyword_parsers=()):
+        super(MetaKeywordPlugin, self).__init__()
+        self.meta_keyword_parsers = meta_keyword_parsers
+
+    def match(self, parser, text, pos):
+        match = qparser.TaggingPlugin.match(self, parser, text, pos)
+        if match is None:
+            return
+
+        candidate = match.text
+        for meta_keyword_parser in self.meta_keyword_parsers:
+            expanded_meta_keyword = meta_keyword_parser.match(candidate)
+            if expanded_meta_keyword is not None:
+                node = MetaKeywordNode(parser.tag(expanded_meta_keyword))
+                return node.set_range(match.startchar, match.endchar)
+
+    def filters(self, parser):
+        # must execute before GroupPlugin with priority 0
+        return [(self.unroll_meta_keyword_nodes, -100)]
+
+    def unroll_meta_keyword_nodes(self, parser, group):
+        newgroup = group.empty_copy()
+        for node in group:
+            if isinstance(node, MetaKeywordNode):
+                newgroup.extend(self.unroll_meta_keyword_nodes(parser, node))
+            elif isinstance(node, qparser.GroupNode):
+                newgroup.append(self.unroll_meta_keyword_nodes(parser, node))
+            else:
+                newgroup.append(node)
+        return newgroup
+
 
 class DefaultQueryParser(Component):
     implements(IQueryParser)
@@ -43,11 +88,19 @@ class DefaultQueryParser(Component):
         content = 1,
         changes = 1,
     )
-    parser = MultifieldParser(
-        field_boosts.keys(),
-        WhooshBackend.SCHEMA,
-        fieldboosts=field_boosts
-    )
+
+    meta_keyword_parsers = ExtensionPoint(IMetaKeywordParser)
+
+    def __init__(self):
+        super(DefaultQueryParser, self).__init__()
+        self.parser = MultifieldParser(
+            self.field_boosts.keys(),
+            WhooshBackend.SCHEMA,
+            fieldboosts=self.field_boosts
+        )
+        self.parser.add_plugin(
+            MetaKeywordPlugin(meta_keyword_parsers=self.meta_keyword_parsers)
+        )
 
     def parse(self, query_string):
         query_string = query_string.strip()
@@ -71,3 +124,32 @@ class DefaultQueryParser(Component):
 
     def _parse_filter(self, filter):
         return self.parse(unicode(filter))
+
+
+class DocTypeMetaKeywordParser(Component):
+    implements(IMetaKeywordParser)
+
+    search_participants = ExtensionPoint(ISearchParticipant)
+
+    def match(self, text):
+        documents = [p.get_participant_type()
+                     for p in self.search_participants]
+        if text in documents:
+            return u'type:%s' % text
+
+
+class ResolvedMetaKeywordParser(Component):
+    implements(IMetaKeywordParser)
+
+    def match(self, text):
+        if text == u'resolved':
+            return u'status:(resolved OR closed)'
+
+
+class UnResolvedMetaKeywordParser(Component):
+    implements(IMetaKeywordParser)
+
+    def match(self, text):
+        if text == u'unresolved':
+            return u'NOT $resolved'
+

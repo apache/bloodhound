@@ -208,6 +208,14 @@ class IQueryPreprocessor(Interface):
     def query_pre_process(query_parameters):
         """Process query parameters"""
 
+
+class IMetaKeywordParser(Interface):
+    """Extension point for custom meta keywords."""
+
+    def match(text):
+        """If text matches the keyword, return its transformed value."""
+
+
 class BloodhoundSearchApi(Component):
     """Implements core indexing functionality, provides methods for
     searching, adding and deleting documents from index.

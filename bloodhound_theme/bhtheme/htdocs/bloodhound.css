@@ -597,7 +597,7 @@ input[type="submit"].btn.btn-micro {
     padding-right: 8px;
   }
 
-  #logo, #usermenu, #breadcrumbbar {
+  #logo, #usermenu, #stickyStatus{
     float: left;
   }
 
