@@ -62,7 +62,7 @@ class BloodhoundTheme(ThemeBase):
     disable_all_trac_css = True
     BLOODHOUND_KEEP_CSS = set(
         (
-            'diff.css',
+            'diff.css', 'code.css'
         )
     )
     BLOODHOUND_TEMPLATE_MAP = {
@@ -114,6 +114,8 @@ class BloodhoundTheme(ThemeBase):
 
         # Version control
         'revisionlog.html' : ('bh_revisionlog.html', '_modify_generic_vcs'),
+        'browser.html' : ('bh_browser.html', '_modify_browser'),
+        'dir_entries.html' : ('bh_dir_entries.html', None),
 
         # Multi Product
         'product_view.html' : ('bh_product_view.html', None),
@@ -337,6 +339,12 @@ class BloodhoundTheme(ThemeBase):
                 resourcepath_template='bh_path_links.html',
                 path_depth_limit=2
             ))
+
+    def _modify_browser(self, req, template, data, content_type, is_active):
+        """Locate path to file in breadcrumbs area rather than title.
+        """
+        self._modify_generic_vcs(req, template, data, content_type, is_active)
+        add_stylesheet(req, 'theme/css/browser.css')
 
     # INavigationContributor methods
 
