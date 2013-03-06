@@ -140,10 +140,8 @@
             <py:choose>
               <form id="milestone_table" method="post" action=""
                     py:when="milestones" py:with="can_remove = 'MILESTONE_DELETE' in req.perm">
-
                 <table id="millist"
-                    class="table table-bordered table-striped table-condensed">
-                    
+                       class="table table-bordered table-striped table-condensed">
                   <thead>
                     <tr><th py:if="can_remove"><i class="icon-check"></i></th>
                       <th class="full-x">Name</th>
@@ -182,13 +180,12 @@
                   field from the user interface.
                 </p>
               </form>
-    
               <p py:otherwise="" class="help-block">
-                <span class="label label-warning">Warning</span>
+                <span class="label label-info">Note</span>
                 As long as you don't add any items to the list, this field
                 will remain completely hidden from the user interface.
               </p>
-            </py:choose>
+          </py:choose>
           </div>
         </div>
       </py:otherwise>
