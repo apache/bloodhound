@@ -113,7 +113,7 @@ class BloodhoundTheme(ThemeBase):
         'preview_file.html' : ('bh_preview_file.html', None),
 
         # Version control
-        'revisionlog.html' : ('bh_revisionlog.html', '_modify_generic_vcs'),
+        'revisionlog.html' : ('bh_revisionlog.html', '_modify_browser'),
         'browser.html' : ('bh_browser.html', '_modify_browser'),
         'dir_entries.html' : ('bh_dir_entries.html', None),
 
@@ -332,18 +332,14 @@ class BloodhoundTheme(ThemeBase):
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
 
-    def _modify_generic_vcs(self, req, template, data, content_type, is_active):
+    def _modify_browser(self, req, template, data, content_type, is_active):
         """Locate path to file in breadcrumbs area rather than title.
+        Add browser-specific CSS.
         """
         data.update(dict(
                 resourcepath_template='bh_path_links.html',
                 path_depth_limit=2
             ))
-
-    def _modify_browser(self, req, template, data, content_type, is_active):
-        """Locate path to file in breadcrumbs area rather than title.
-        """
-        self._modify_generic_vcs(req, template, data, content_type, is_active)
         add_stylesheet(req, 'theme/css/browser.css')
 
     # INavigationContributor methods
