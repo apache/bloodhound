@@ -2,6 +2,7 @@
 
  * Upgraded Bootstrap to version 2.3.1.
  * Upgraded Trac to version 1.0.1.
+ * Implemented Bootstrap templates for the repository browser and log viewer.
  * Various bug fixes.
 
 0.4
@@ -34,7 +35,6 @@
  * Not fixed for this release:
    * Some issues with the installer remain
    * Custom text area fields break layout in ticket view
-
 
 
 0.1.0
