@@ -77,7 +77,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
                                              'tickets', 'newticket', 'timeline',
                                              'roadmap', 'search', 'admin']),
-                        'environment_factory': '',},
+                        'environment_factory': '',
+                        'request_factory': '',},
                'project': {'footer': ('Visit Apache Bloodhound at<br />'
                                       '<a href="%(site)s">%(site)s</a>'
                                       % {'site': BH_PROJECT_SITE,}),},
@@ -220,7 +221,12 @@ class BloodhoundSetup(object):
                                       os.path.normpath(
                                           os.path.join(options['sourcedir'],
                                                                'bloodhound_multiproduct/multiproduct/hooks.py')))
+        request_factory_path = os.path.abspath(
+                                   os.path.normpath(
+                                       os.path.join(options['sourcedir'],
+                                                            'bloodhound_multiproduct/multiproduct/hooks.py')))
         base_config['trac']['environment_factory'] = environment_factory_path
+        base_config['trac']['request_factory'] = request_factory_path
 
         self.writeconfig(baseini, [base_config, accounts_config])
 
