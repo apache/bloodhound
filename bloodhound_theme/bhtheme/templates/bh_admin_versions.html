@@ -85,23 +85,31 @@
       <py:otherwise>
         <div class="row">
           <div class="span9">
-            <form class="well form-inline" id="addversion" method="post" action="">
+            <form id="addversion" class="well form-horizontal" method="post" action="">
               <fieldset>
                 <legend>Add Version:</legend>
-                <input class="btn" type="submit" name="add"
-                       value="${_('Add')}" />
-                <label class="control-label" for="name">Name:</label>
-                <input class="input-medium" type="text" name="name"
-                       id="name" size="22" />
-                <label class="control-label" for="releaseddate">Released:</label>
-                <input type="text" id="releaseddate"
-                       name="time" size="${len(datetime_hint)}"
-                       value="${format_datetime()}" />
+                <div class="control-group">
+                  <label class="control-label" for="name">Name:</label>
+                  <div class="controls">
+                    <input type="text" id="name" class="input-large" name="name" />
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="releaseddate">Released:</label>
+                  <div class="controls">
+                    <input type="text" id="releaseddate"
+                           name="time" size="${len(datetime_hint)}"
+                           value="${format_datetime()}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls">
+                    <input type="submit" class="btn" name="add" value="${_('Add')}" />
+                  </div>
+                </div>
               </fieldset>
             </form>
           </div>
-        </div>
-        <div class="row">
           <div class="span9">
             <py:choose>
               <form py:when="versions" id="version_table" method="post" action="">

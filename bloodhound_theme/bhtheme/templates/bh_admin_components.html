@@ -37,13 +37,13 @@
         <label class="control-label" for="owner">Owner:</label>
         <div class="controls" py:choose="" py:strip="inline">
           <select py:when="owners" id="owner"
-                  class="input-medium" size="1" name="owner">
+                  class="input-large" size="1" name="owner">
             <option py:for="owner in owners"
                     selected="${owner==default_owner or None}" value="$owner">$owner</option>
             <option py:if="default_owner and default_owner not in owners"
                     selected="selected" value="$default_owner">$default_owner</option>
           </select>
-          <input py:otherwise="" class="input-medium" type="text" id="owner"
+          <input py:otherwise="" class="input-large" type="text" id="owner"
                  name="owner" value="$default_owner" />
         </div>
       </div>
@@ -57,7 +57,7 @@
           <div class="control-group">
             <label class="control-label" for="name">Name: </label>
             <div class="controls">
-              <input class="input-medium" type="text" id="name" name="name" value="$component.name"/>
+              <input class="input-large" type="text" id="name" name="name" value="$component.name"/>
             </div>
           </div>
           ${owner_field(component.owner)}
@@ -91,21 +91,25 @@
       <py:otherwise>
         <div class="row">
           <div class="span9">
-            <form id="addcomponent" class="well form-inline" method="post" action="">
+            <form id="addcomponent" class="well form-horizontal" method="post" action="">
               <fieldset>
                 <legend>Add Component:</legend>
                 <div class="control-group">
-                  <input class="btn" type="submit" name="add"
-                         value="${_('Add')}"/>
                   <label class="control-label" for="name">Name:</label>
-                  <input id="name" class="input-medium" type="text" name="name" />
-                  ${owner_field(inline=True)}
+                  <div class="controls">
+                    <input type="text" id="name" class="input-large" name="name" />
+                  </div>
+                </div>
+                ${owner_field()}
+                <div class="control-group">
+                  <div class="controls">
+                    <input type="submit" class="btn" name="add"
+                           value="${_('Add')}"/>
+                  </div>
                 </div>
               </fieldset>
             </form>
           </div>
-        </div>
-        <div class="row">
           <div class="span9">
             <py:choose>
               <form py:when="components" id="component_table"
