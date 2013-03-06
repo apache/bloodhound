@@ -51,7 +51,7 @@ from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
 from multiproduct.model import Product
-from multiproduct.env import ProductEnvironment
+from multiproduct.env import ProductEnvironment, ProductEnvironmentFactory
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
@@ -335,7 +335,7 @@ class BloodhoundTheme(ThemeBase):
                 # Reaquest's permissions are thus copied and associated with
                 # another ProductEnvironment for each check.
                 perm = copy.copy(req.perm)
-                perm.env = ProductEnvironment(product._env.parent, product.prefix)
+                perm.env = ProductEnvironmentFactory(product._env.parent, product.prefix)
                 if 'PRODUCT_VIEW' in perm(product.resource):
                     product_list.append(product)
             else:

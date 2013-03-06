@@ -42,5 +42,5 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                 # happen from within trac.web.main.dispatch_request
                 req = RequestWithSession(environ, None)
                 global_env._abs_href = req.abs_href
-            env = multiproduct.env.ProductEnvironment(global_env, pid)
+            env = multiproduct.env.ProductEnvironmentFactory(global_env, pid)
         return env

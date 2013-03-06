@@ -135,7 +135,7 @@ class Environment(trac.env.Environment):
                                 return True
         if needs_upgrade_in_env_list([self], self._global_setup_participants):
             return True
-        product_envs = [self] + [ProductEnvironment(self, product) for product in Product.select(self)]
+        product_envs = [self] + [ProductEnvironmentFactory(self, product) for product in Product.select(self)]
         if needs_upgrade_in_env_list(product_envs, self._product_setup_participants):
             return True
         return False
@@ -167,7 +167,7 @@ class Environment(trac.env.Environment):
             return upgraders
 
         def upgraders_for_product_envs():
-            product_envs = [self] + [ProductEnvironment(self, product) for product in Product.select(self)]
+            product_envs = [self] + [ProductEnvironmentFactory(self, product) for product in Product.select(self)]
             return upgraders_for_env_list(product_envs, self._product_setup_participants)
 
         # first enumerate components that are multi product aware and require upgrade
@@ -804,3 +804,10 @@ class ProductEnvironment(Component, ComponentManager):
                 self._abs_href = Href(self.base_url)
         return self._abs_href
 
+from multiproduct.util import lru_cache
+
+@lru_cache(maxsize=100)
+def ProductEnvironmentFactory(global_env, product):
+    """Product environment factory
+    """
+    return ProductEnvironment(global_env, product)
