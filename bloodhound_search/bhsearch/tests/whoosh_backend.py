@@ -416,6 +416,20 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
     def _highlighted(self, term):
         return '<em>%s</em>' % term
 
+    def test_detects_that_index_needs_upgrade(self):
+        index_dir = self.whoosh_backend.index.storage.folder
+        wrong_schema = Schema(content=TEXT())
+        ix = index.create_in(index_dir, schema=wrong_schema)
+
+        self.assertEqual(self.whoosh_backend.is_index_outdated(), False)
+
+        # Inform WhooshBackend about the new index
+        self.whoosh_backend.index = ix
+        self.assertEqual(self.whoosh_backend.is_index_outdated(), True)
+        # Recreate index
+        self.whoosh_backend.recreate_index()
+        self.assertEqual(self.whoosh_backend.is_index_outdated(), False)
+
 
 class WhooshFunctionalityTestCase(unittest.TestCase):
     def setUp(self):

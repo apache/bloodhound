@@ -151,10 +151,14 @@ class WhooshBackend(Component):
         writer = AsyncWriter(self.index)
         writer.commit(optimize=True)
 
+    def is_index_outdated(self):
+        return not self.index.schema == self.SCHEMA
+
     def recreate_index(self):
         self.log.info('Creating Whoosh index in %s' % self.index_dir)
         self._make_dir_if_not_exists()
-        return index.create_in(self.index_dir, schema=self.SCHEMA)
+        self.index = index.create_in(self.index_dir, schema=self.SCHEMA)
+        return self.index
 
     def _open_or_create_index_if_missing(self):
         if index.exists_in(self.index_dir):

@@ -20,7 +20,9 @@
 
 r"""Core Bloodhound Search components."""
 from trac.config import ExtensionOption
-from trac.core import Interface, Component, ExtensionPoint, TracError
+from trac.core import (Interface, Component, ExtensionPoint, TracError,
+    implements)
+from trac.env import IEnvironmentSetupParticipant
 
 ASC = "asc"
 DESC = "desc"
@@ -101,6 +103,11 @@ class ISearchBackend(Interface):
     def optimize():
         """
         Optimize index if needed
+        """
+
+    def is_index_outdated():
+        """
+        Check if index is outdated and needs to be recreated.
         """
 
     def recreate_index():
@@ -220,6 +227,8 @@ class BloodhoundSearchApi(Component):
     """Implements core indexing functionality, provides methods for
     searching, adding and deleting documents from index.
     """
+    implements(IEnvironmentSetupParticipant)
+
     backend = ExtensionOption('bhsearch', 'search_backend',
         ISearchBackend, 'WhooshBackend',
         'Name of the component implementing Bloodhound Search backend \
@@ -352,5 +361,13 @@ class BloodhoundSearchApi(Component):
         """
         self.backend.delete_doc(doc_type, doc_id)
 
+    # IEnvironmentSetupParticipant methods
 
+    def environment_created(self):
+        self.upgrade_environment(self.env.db_transaction)
 
+    def environment_needs_upgrade(self, db):
+        return self.backend.is_index_outdated()
+
+    def upgrade_environment(self, db):
+        self.rebuild_index()
