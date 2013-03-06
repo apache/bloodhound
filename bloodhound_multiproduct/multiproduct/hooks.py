@@ -21,8 +21,9 @@ import multiproduct.dbcursor
 
 import re
 
-from trac.hooks import EnvironmentFactoryBase
+from trac.hooks import EnvironmentFactoryBase, RequestFactoryBase
 from trac.web.main import RequestWithSession
+from trac.web.href import Href
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 
@@ -44,3 +45,33 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                 global_env._abs_href = req.abs_href
             env = multiproduct.env.ProductEnvironmentFactory(global_env, pid)
         return env
+
+class ProductizedHref(Href):
+    def __init__(self, global_href, base):
+        super(ProductizedHref, self).__init__(base)
+        self._global_href = global_href
+
+    def __call__(self, *args, **kwargs):
+        if args:
+            # TODO: this should be done using regex or similar
+            if args[0] == 'chrome' or \
+               args[0].startswith('js/') or \
+               args[0].startswith('css/') or\
+               args[0].startswith('img/') or\
+               args[0].startswith('products'):
+                return self._global_href(*args, **kwargs)
+        return super(ProductizedHref, self).__call__(*args, **kwargs)
+
+class ProductRequestWithSession(RequestWithSession):
+    def __init__(self, env, environ, start_response):
+        super(ProductRequestWithSession, self).__init__(environ, start_response)
+        self.base_url = env.base_url
+        self.href = ProductizedHref(self.href, env.href.base)
+        self.abs_href = ProductizedHref(self.abs_href, env.abs_href.base)
+
+class ProductRequestFactory(RequestFactoryBase):
+    def create_request(self, env, environ, start_response):
+        if isinstance(env, multiproduct.env.ProductEnvironment):
+            return ProductRequestWithSession(env, environ, start_response)
+        else:
+            return RequestWithSession(environ, start_response)

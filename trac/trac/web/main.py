@@ -434,6 +434,7 @@ def dispatch_request(environ, start_response):
     run_once = environ['wsgi.run_once']
 
     env = env_error = None
+    global_env = None
     try:
         from trac.hooks import environment_factory
         global_env = open_environment(env_path, use_cache=not run_once)
@@ -464,7 +465,10 @@ def dispatch_request(environ, start_response):
     except Exception, e:
         env_error = e
 
-    req = RequestWithSession(environ, start_response)
+    from trac.hooks import request_factory
+    factory = request_factory(global_env)
+    req = factory().create_request(env, environ, start_response) if factory \
+            else RequestWithSession(environ, start_response)
     translation.make_activable(lambda: req.locale, env.path if env else None)
     try:
         return _dispatch_request(req, env, env_error)

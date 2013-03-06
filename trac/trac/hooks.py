@@ -28,6 +28,10 @@ class EnvironmentFactoryBase(object):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
         return None
 
+class RequestFactoryBase(object):
+    def create_request(self, env, environ, start_response):
+        return None
+
 def _get_plugins_dir(env_path):
     return os.path.normcase(os.path.realpath(os.path.join(env_path, 'plugins')))
 
@@ -73,3 +77,7 @@ def install_global_hooks():
 def environment_factory(env):
     hook_path = env.config.get('trac', 'environment_factory', default=None)
     return _get_hook_class(env.path, hook_path, EnvironmentFactoryBase) if hook_path else None
+
+def request_factory(env):
+    hook_path = env.config.get('trac', 'request_factory', default=None)
+    return _get_hook_class(env.path, hook_path, RequestFactoryBase) if hook_path else None
