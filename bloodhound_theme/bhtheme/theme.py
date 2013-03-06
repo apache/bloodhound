@@ -80,6 +80,10 @@ class BloodhoundTheme(ThemeBase):
         'admin_repositories.html' : ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
         'admin_versions.html' : ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
         'admin_products.html' : ('bh_admin_products.html', '_modify_admin_breadcrumb'),
+        # no template substitutions below - use the default template,
+        # but call the modifier nonetheless
+        'admin_accountsconfig.html' : ('admin_accountsconfig.html', '_modify_admin_breadcrumb'),
+        'admin_users.html' : ('admin_users.html', '_modify_admin_breadcrumb'),
 
         # Preferences
         'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
