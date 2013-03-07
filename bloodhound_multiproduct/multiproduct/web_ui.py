@@ -129,10 +129,9 @@ class ProductModule(Component):
     
     # IRequestHandler methods
     def match_request(self, req):
-        """match request handler"""
-        if req.path_info.startswith('/products'):
-            return True
-        return False
+        m = PRODUCT_RE.match(req.path_info)
+        # handle '/products', but excluding QuickCreateTicket (qct) requests
+        return m and m.group('pathinfo').strip('/') != 'qct'
     
     def process_request(self, req):
         """process request handler"""

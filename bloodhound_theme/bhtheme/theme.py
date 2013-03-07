@@ -52,6 +52,7 @@ from wsgiref.util import setup_testing_defaults
 
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment, ProductEnvironmentFactory
+from multiproduct.web_ui import PRODUCT_RE
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
@@ -443,7 +444,8 @@ class QuickCreateTicketDialog(Component):
     def match_request(self, req):
         """Handle requests sent to /qct
         """
-        return req.path_info == '/qct'
+        m = PRODUCT_RE.match(req.path_info)
+        return m and m.group('pathinfo').strip('/') == 'qct'
 
     def process_request(self, req):
         """Forward new ticket request to `trac.ticket.web_ui.TicketModule`
