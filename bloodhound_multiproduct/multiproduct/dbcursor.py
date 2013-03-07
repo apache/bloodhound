@@ -23,6 +23,8 @@ import sqlparse
 import sqlparse.tokens as Tokens
 import sqlparse.sql as Types
 
+from multiproduct.util import lru_cache
+
 __all__ = ['BloodhoundIterableCursor', 'BloodhoundConnectionWrapper', 'ProductEnvContextManager']
 
 SKIP_TABLES = ['auth_cookie',
@@ -49,36 +51,36 @@ class empty_translator(object):
 
 translator_not_set = empty_translator()
 
+@lru_cache(maxsize=1000)
+def translate_sql(env, sql):
+    translator = None
+    log = None
+    if env is not None:
+        # FIXME: This is the right way to do it but breaks translation
+        # if trac.db.api.DatabaseManager(self.env).debug_sql:
+        if (env.parent or env).config['trac'].get('debug_sql', False):
+            log = env.log
+        product_prefix = env.product.prefix if env.product else GLOBAL_PRODUCT
+        translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
+                                                   TRANSLATE_TABLES,
+                                                   PRODUCT_COLUMN,
+                                                   product_prefix)
+        if log:
+            log.debug('Original SQl: %s', sql)
+    return translator.translate(sql) if (translator is not None) else sql
+
 class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     __slots__ = trac.db.util.IterableCursor.__slots__ + ['_translator']
     _tls = concurrency.ThreadLocal(env=None)
 
     def __init__(self, cursor, log=None):
         super(BloodhoundIterableCursor, self).__init__(cursor, log=log)
-        self._translator = translator_not_set
-
-    def _translate_sql(self, sql):
-        if self._translator is translator_not_set:
-            self._translator = None
-            if self.env is not None:
-                # FIXME: This is the right way to do it but breaks translation
-                # if trac.db.api.DatabaseManager(self.env).debug_sql:
-                if (self.env.parent or self.env).config['trac'].get('debug_sql', False):
-                    self.log = self.env.log
-                product_prefix = self.env.product.prefix if self.env.product else GLOBAL_PRODUCT
-                self._translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
-                                                                 TRANSLATE_TABLES,
-                                                                 PRODUCT_COLUMN,
-                                                                 product_prefix)
-        if self.log:
-            self.log.debug('Original SQl: %s', sql)
-        return self._translator.translate(sql) if (self._translator is not None) else sql
 
     def execute(self, sql, args=None):
-        return super(BloodhoundIterableCursor, self).execute(self._translate_sql(sql), args=args)
+        return super(BloodhoundIterableCursor, self).execute(translate_sql(self.env, sql), args=args)
 
     def executemany(self, sql, args=None):
-        return super(BloodhoundIterableCursor, self).executemany(self._translate_sql(sql), args=args)
+        return super(BloodhoundIterableCursor, self).executemany(translate_sql(self.env, sql), args=args)
 
     @property
     def env(self):
