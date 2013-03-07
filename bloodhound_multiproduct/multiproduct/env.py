@@ -804,7 +804,7 @@ class ProductEnvironment(Component, ComponentManager):
                 self._abs_href = Href(self.base_url)
         return self._abs_href
 
-from multiproduct.util import lru_cache
+from multiproduct.cache import lru_cache
 
 @lru_cache(maxsize=100)
 def ProductEnvironmentFactory(global_env, product):

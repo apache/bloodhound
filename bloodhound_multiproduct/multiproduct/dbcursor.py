@@ -23,7 +23,7 @@ import sqlparse
 import sqlparse.tokens as Tokens
 import sqlparse.sql as Types
 
-from multiproduct.util import lru_cache
+from multiproduct.cache import lru_cache
 
 __all__ = ['BloodhoundIterableCursor', 'BloodhoundConnectionWrapper', 'ProductEnvContextManager']
 

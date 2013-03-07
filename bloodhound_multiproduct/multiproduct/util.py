@@ -21,9 +21,6 @@
 from trac import db_default
 from multiproduct.api import MultiProductSystem
 
-import collections
-import functools
-
 class ProductDelegate(object):
     @staticmethod
     def add_product(env, product, keys, field_data):
@@ -54,25 +51,3 @@ class ProductDelegate(object):
             cols = ('username', 'action', 'product')
             db.executemany("INSERT INTO permission (%s) VALUES (%s)" %
                 (','.join(cols), ','.join(['%s' for c in cols])), rows)
-
-def lru_cache(maxsize=100):
-    """Simple LRU cache decorator, using `collections.OrderedDict` for
-    item store
-    """
-    def wrap(f):
-        cache = collections.OrderedDict()
-        @functools.wraps(f)
-        def wrapped_func(*args, **kwargs):
-            key = args
-            if kwargs:
-                key += tuple(sorted(kwargs.items()))
-            try:
-                item = cache.pop(key)
-            except KeyError:
-                item = f(*args, **kwargs)
-                if len(cache) >= maxsize:
-                    cache.popitem(last=False)
-            cache[key] = item
-            return item
-        return wrapped_func
-    return wrap
