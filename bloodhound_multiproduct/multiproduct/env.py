@@ -32,7 +32,7 @@ from trac.web.href import Href
 
 from multiproduct.api import MultiProductSystem, ISupportMultiProductEnvironment
 from multiproduct.config import Configuration
-from multiproduct.dbcursor import ProductEnvContextManager, BloodhoundConnectionWrapper
+from multiproduct.dbcursor import ProductEnvContextManager, BloodhoundConnectionWrapper, BloodhoundIterableCursor
 from multiproduct.model import Product
 
 import trac.env
@@ -98,12 +98,12 @@ class Environment(trac.env.Environment):
         # invoke `IEnvironmentSetupParticipant.environment_created` for all
         # global setup participants
         if create:
-            for participant in self._global_setup_participants:
+            # when creating environment, run global setup participants if schema has been upgraded
+            # to multi-product. If not, run setup participants ...
+            for participant in self._global_setup_participants if self._multiproduct_schema_enabled \
+                                                                   else self.setup_participants:
                 with ComponentEnvironmentContext(self, participant):
                     participant.environment_created()
-
-        if not self._multiproduct_schema_enabled:
-            self.log.warn("Running environment schema not upgraded to multi-product")
 
     @property
     def db_query(self):
@@ -122,6 +122,9 @@ class Environment(trac.env.Environment):
     @property
     def db_direct_transaction(self):
         return ProductEnvContextManager(super(Environment, self).db_transaction)
+
+    def _all_product_envs(self):
+        return [ProductEnvironmentFactory(self, product) for product in Product.select(self)]
 
     def needs_upgrade(self):
         """Return whether the environment needs to be upgraded."""
@@ -142,9 +145,12 @@ class Environment(trac.env.Environment):
                                 return True
         if needs_upgrade_in_env_list([self], self._global_setup_participants):
             return True
-        product_envs = [self] + [ProductEnvironmentFactory(self, product) for product in Product.select(self)]
-        if needs_upgrade_in_env_list(product_envs, self._product_setup_participants):
-            return True
+        # until schema is multi product aware, product environments can't (and shouldn't) be
+        # instantiated
+        if self._multiproduct_schema_enabled:
+            product_envs = [self] + self._all_product_envs()
+            if needs_upgrade_in_env_list(product_envs, self._product_setup_participants):
+                return True
         return False
 
     def upgrade(self, backup=False, backup_dest=None):
@@ -174,7 +180,7 @@ class Environment(trac.env.Environment):
             return upgraders
 
         def upgraders_for_product_envs():
-            product_envs = [self] + [ProductEnvironmentFactory(self, product) for product in Product.select(self)]
+            product_envs = [self] + self._all_product_envs()
             return upgraders_for_env_list(product_envs, self._product_setup_participants)
 
         # first enumerate components that are multi product aware and require upgrade
@@ -223,32 +229,14 @@ class Environment(trac.env.Environment):
         rows = self.db_direct_query("""
                 SELECT value FROM system WHERE name='%sdatabase_version'
                 """ % ('initial_' if initial else ''))
-        return rows and int(rows[0][0])
+        return (rows and int(rows[0][0])) or 0
 
     def enable_multiproduct_schema(self, enable=True):
         self._multiproduct_schema_enabled = enable
+        BloodhoundIterableCursor.cache_reset()
 
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
-
-class EnvironmentSetup(trac.env.EnvironmentSetup):
-
-    def environment_created(self):
-        """Insert default data into the database.
-
-        This code is copy pasted from trac.env.EnvironmentSetup with a slight change
-        of using direct (non-translated) transaction to setup default data.
-        """
-        from trac import db_default
-        with self.env.db_direct_transaction as db:
-            for table, cols, vals in db_default.get_data(db):
-                db.executemany("INSERT INTO %s (%s) VALUES (%s)"
-                               % (table, ','.join(cols), ','.join(['%s' for c in cols])),
-                                  vals)
-        self._update_sample_config()
-
-# replace trac.env.EnvironmentSetup with EnvironmentSetup
-trac.env.EnvironmentSetup = EnvironmentSetup
 
 # this must follow the monkey patch (trac.env.Environment) above, otherwise
 # trac.test.EnvironmentStub will not be correct as the class will derive from

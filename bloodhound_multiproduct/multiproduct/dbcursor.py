@@ -94,6 +94,10 @@ class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     def get_env(cls):
         return cls._tls.env
 
+    @classmethod
+    def cache_reset(cls):
+        translate_sql.clear()
+
 # replace trac.db.util.IterableCursor with BloodhoundIterableCursor
 trac.db.util.IterableCursor = BloodhoundIterableCursor
 
