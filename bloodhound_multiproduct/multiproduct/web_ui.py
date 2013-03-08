@@ -79,6 +79,24 @@ class ProductModule(Component):
                     pathinfo = '/'.join(pathinfo[:1] + pathinfo[3:])
                     environ['PATH_INFO'] = pathinfo
                     newreq = Request(environ, lambda *args, **kwds: None)
+                    # Request.args[] are lazily evaluated, so special care must be
+                    # taken when creating new Requests from an old environment, as
+                    # the args will be evaluated again. In case of POST requests,
+                    # this comes down to re-evaluating POST parameters such as
+                    # <form> arguments, which in turn causes yet another read() on
+                    # a socket, causing the request to block (deadlock).
+                    #
+                    # The following happens during Requests.args[] evaluation:
+                    #   1. Requests.callbacks['args'] is called -> arg_list_to_args(req.arg_list)
+                    #   2. req.arg_list is evaluated, calling Request._parse_arg_list
+                    #   3. _parse_arg_list() calls _FieldStorage() for reading the params
+                    #   4. _FieldStorage() constructor calls self.read_urlencoded()
+                    #   5. this calls self.fp.read() which reads from the socket
+                    #
+                    # Since the 'newreq' above is created from the same environ as 'req',
+                    # the newreq.args below caused a re-evaluation, thus a deadlock.
+                    # The fix is to copy the args from the old request to the new one.
+                    setattr(newreq, 'args', req.args)
                     
                     new_handler = None
                     for hndlr in dispatcher.handlers:

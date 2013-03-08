@@ -47,7 +47,6 @@ class ProductTicketModule(TicketModule):
         """Override for TicketModule process_request"""
         ticketid = req.args.get('id')
         productid = req.args.get('productid','')
-        ticket = Ticket(self.env, ticketid)
         
         if ticketid:
             if (req.path_info == '/products/' + productid + '/newticket' or
