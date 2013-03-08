@@ -114,7 +114,10 @@ class MultiProductSystem(Component):
             this version of the %s (%d).''' % (db_installed_version,
                                                PLUGIN_NAME,
                                                DB_VERSION))
-        return db_installed_version < DB_VERSION
+        needs_upgrade = db_installed_version < DB_VERSION
+        if not needs_upgrade:
+            self.env.enable_multiproduct_schema(True)
+        return needs_upgrade
 
     def _update_db_version(self, db, version):
         old_version = self.get_version()
@@ -276,6 +279,8 @@ class MultiProductSystem(Component):
                 for statement in db_connector.to_sql(ProductSetting._get_schema()):
                     db(statement)
                 db_installed_version = self._update_db_version(db, 4)
+
+            self.env.enable_multiproduct_schema(True)
 
     # ITemplateProvider methods
     def get_templates_dirs(self):

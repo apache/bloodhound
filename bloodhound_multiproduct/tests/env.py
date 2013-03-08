@@ -196,6 +196,9 @@ class MultiproductTestCase(unittest.TestCase):
         except OperationalError:
             # table remains but database version is deleted
             pass
+        # assume that the database schema has been upgraded, enable
+        # multi-product schema support in environment
+        env.enable_multiproduct_schema(True)
 
     def _load_default_data(self, env):
         r"""Initialize environment with default data by respecting

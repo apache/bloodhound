@@ -82,6 +82,8 @@ class Environment(trac.env.Environment):
         self.systeminfo = []
         self._href = self._abs_href = None
 
+        self._multiproduct_schema_enabled = False
+
         if create:
             self.create(options)
         else:
@@ -100,13 +102,18 @@ class Environment(trac.env.Environment):
                 with ComponentEnvironmentContext(self, participant):
                     participant.environment_created()
 
+        if not self._multiproduct_schema_enabled:
+            self.log.warn("Running environment schema not upgraded to multi-product")
+
     @property
     def db_query(self):
-        return ProductEnvContextManager(super(Environment, self).db_query, self)
+        return ProductEnvContextManager(super(Environment, self).db_query, self) \
+            if self._multiproduct_schema_enabled else self.db_direct_query
 
     @property
     def db_transaction(self):
-        return ProductEnvContextManager(super(Environment, self).db_transaction, self)
+        return ProductEnvContextManager(super(Environment, self).db_transaction, self) \
+            if self._multiproduct_schema_enabled else self.db_direct_transaction
 
     @property
     def db_direct_query(self):
@@ -218,6 +225,9 @@ class Environment(trac.env.Environment):
                 """ % ('initial_' if initial else ''))
         return rows and int(rows[0][0])
 
+    def enable_multiproduct_schema(self, enable=True):
+        self._multiproduct_schema_enabled = enable
+
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
 
@@ -255,8 +265,9 @@ class EnvironmentStub(trac.test.EnvironmentStub):
                  path=None, destroying=False):
         self.parent = None
         self.product = None
-        self.mpsystem = None
-        self._db_direct = False
+
+        self._multiproduct_schema_enabled = False
+
         super(EnvironmentStub, self).__init__(default_data=False,
                                               enable=enable, disable=disable,
                                               path=path, destroying=destroying)
@@ -300,18 +311,12 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         #env.config.save()
 
     def reset_db(self, default_data=None):
-        self._db_direct = True
-        super(EnvironmentStub, self).reset_db(default_data=default_data)
-        self._db_direct = False
-
-    @property
-    def db_query(self):
-        return super(EnvironmentStub, self).db_query if not self._db_direct else self.db_direct_query
-
-    @property
-    def db_transaction(self):
-        return super(EnvironmentStub, self).db_transaction if not self._db_direct else self.db_direct_transaction
-
+        multiproduct_schema = self._multiproduct_schema_enabled
+        self._multiproduct_schema_enabled = False
+        try:
+            super(EnvironmentStub, self).reset_db(default_data=default_data)
+        finally:
+            self._multiproduct_schema_enabled = multiproduct_schema
 
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
