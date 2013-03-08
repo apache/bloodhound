@@ -29,7 +29,7 @@ from trac.config import Option, IntOption
 from trac.util.text import empty
 from trac.util.datefmt import utc
 from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
-from whoosh import index
+from whoosh import index, analysis
 import whoosh
 import whoosh.highlight
 from whoosh.writing import AsyncWriter
@@ -64,9 +64,11 @@ class WhooshBackend(Component):
         status=ID(stored=True),
         resolution=ID(stored=True),
         keywords=KEYWORD(scorable=True),
-        summary=TEXT(stored=True),
-        content=TEXT(stored=True),
-        changes=TEXT(),
+        summary=TEXT(stored=True,
+                     analyzer=analysis.StandardAnalyzer(stoplist=None)),
+        content=TEXT(stored=True,
+                     analyzer=analysis.StandardAnalyzer(stoplist=None)),
+        changes=TEXT(analyzer=analysis.StandardAnalyzer(stoplist=None)),
         )
 
     max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,

@@ -31,7 +31,7 @@ from trac.util.datefmt import FixedOffset, utc
 from whoosh import index, sorting, query
 from whoosh.fields import Schema, ID, TEXT, KEYWORD
 from whoosh.qparser import MultifieldPlugin, QueryParser, WhitespacePlugin, \
-    PhrasePlugin
+    PhrasePlugin, MultifieldParser
 
 
 class WhooshBackendTestCase(BaseBloodhoundSearchTest):
@@ -580,6 +580,32 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
         with ix.searcher() as s:
             results = s.search(query.Every())
             self.assertEquals(0, len(results))
+
+    def test_handles_stop_words_in_queries(self):
+        schema = WhooshBackend.SCHEMA
+        ix = index.create_in(self.index_dir, schema=schema)
+        with ix.writer() as w:
+            w.add_document(content=u"A nice sentence with stop words.")
+
+        with ix.searcher() as s:
+            query = u"with stop"
+
+            # field_names both ignore stop words
+            q = MultifieldParser(['content', 'summary'],
+                                 WhooshBackend.SCHEMA).parse(query)
+            self.assertEqual(q.simplify(s).__unicode__(),
+                             u'((content:with OR summary:with) AND '
+                             u'(content:stop OR summary:stop))')
+            self.assertEqual(len(s.search(q)), 1)
+
+            # 'content' and 'id' ignores stop words
+            q = MultifieldParser(['content', 'id'],
+                                 WhooshBackend.SCHEMA).parse(query)
+            self.assertEqual(q.simplify(s).__unicode__(),
+                             u'((content:with OR id:with) AND '
+                             u'(content:stop OR id:stop))')
+            self.assertEqual(len(s.search(q)), 1)
+
 
 class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
