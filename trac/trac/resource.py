@@ -227,7 +227,7 @@ class IResourceChangeListener(Interface):
     content depends on a resource type.
     """
 
-    def match_request(resource):
+    def match_resource(resource):
         """Return whether the listener wants to process the given resource."""
 
     def resource_created(resource, context):
