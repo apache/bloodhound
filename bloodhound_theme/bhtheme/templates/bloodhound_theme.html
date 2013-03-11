@@ -142,6 +142,15 @@
                       ${field_select(field, None)}
                     </div>
                   </py:for>
+
+                  <label class="control-label" for="field-product-name">Product</label>
+                  <div class="controls">
+                    <input type="text" disabled="disabled" class="input-medium"
+                      id="field-product-name" name="field_product_name"
+                      value="$req.perm.env.product.name ($req.perm.env.product.prefix)" />
+                    <input type="hidden" id="field-product" name="field_product"
+                      value="$req.perm.env.product.prefix" />
+                  </div>
                 </div>
               </py:def>
               <py:choose test="">

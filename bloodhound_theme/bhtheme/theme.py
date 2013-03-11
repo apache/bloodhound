@@ -402,7 +402,7 @@ class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
     qct_fields = ListOption('ticket', 'quick_create_fields', 
-                            'product,version,type',
+                            'version,type',
         doc="""Multiple selection fields displayed in create ticket menu""")
 
     # IRequestFilter(Interface):
