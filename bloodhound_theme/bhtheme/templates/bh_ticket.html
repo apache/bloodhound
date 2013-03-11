@@ -86,15 +86,24 @@
           if ($('#vc-summary').is('.edit-active'))
             // Already in editable state
             return;
+          $('h2#vc-summary span').attr('contenteditable', 'true');
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).addClass('edit-active');
               var fieldnm = fc.attr('id').substr(3);
-              fc.attr('data-edit-orig', fc.html()).empty();
+              fc.attr('data-edit-orig', fc.html());
+              
+              if (fieldnm != 'summary') {
+                fc.empty();
+              }
               var editor = $('#properties #field-' + fieldnm);
               if (editor.length == 0)
                 editor = $('#editor-' + fieldnm);
               var fieldval = editor.val();
-              editor = editor.clone(false).appendTo(fc).val(fieldval);
+              editor = editor.clone(false);
+              if (fieldnm === 'summary') {
+                editor.hide();
+              }
+              editor.appendTo(fc).val(fieldval);
               if (editor.prop('tagName') === 'TEXTAREA') {
                 if (editor.is('.wikitext'))
                   addWikiFormattingToolbar(editor.get(0));
@@ -146,8 +155,9 @@
           //$('#inplace-propertyform').autoSubmit({preview : 1}, 
           //    full_preview, '#overview .trac-loading')
           $('#inplace-propertyform').submit(function() {
-              $('#hidden-comment').val($('#comment').val())
+              $('#hidden-comment').val($('#comment').val());
             })
+          $('#inplace-edit-button').hide();
         }
 
         function revert_ticket() {
@@ -155,9 +165,20 @@
               var fc = $(this).removeClass('edit-active');
               fc.html(fc.attr('data-edit-orig')).attr('data-edit-orig', '');
             });
+          $('#inplace-edit-button').show();
+          $('h2#vc-summary span').attr('contenteditable', 'false');
         }
 
-        $('.local-nav a[href = "#inplace-edit"]').click(modify_ticket);
+        $('h2#vc-summary span').blur(function () {
+          if ($('#vc-summary.edit-active').length == 1) {
+            $('#vc-summary.ticket-summary input#field-summary').val($('#vc-summary span').text());
+          }
+        });
+
+        $('#inplace-edit-button button#inplace-edit').click(function (e) {
+          modify_ticket();
+          e.preventDefault();
+        });
         </py:if>
 
         $('body').scrollspy({
@@ -239,33 +260,18 @@
 
     <py:def function="render_ticket_summary(t, showid)">
       <h2 class="ticket-summary searchable clip-affix" py:choose="" data-edit="${'inplace' if can_modify or can_create else None}" id="vc-summary">
-        <py:when test="t.exists"><py:if test="showid"><span class="visible-phone">#$t.id - </span></py:if>  &#9734; $t.summary</py:when>
+        <py:when test="t.exists"><py:if test="showid">
+        <span class="visible-phone">#$t.id - </span></py:if>  &#9734; <span contenteditable="false">$t.summary</span></py:when>
         <py:otherwise>Create Ticket</py:otherwise>
       </h2>
-    </py:def>
-
-    <py:def function="render_ticket_navbar(t)">
-      <div class="ticket-navbar" py:if="t.exists"
-          py:with="sections = (
-                  (_('Overview'), 'content', True, _('View ticket fields and description'), 'icon-list'),
-                  (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
-                  (_('Comments'), 'changelog', True, _('Go to the changelog'), 'icon-comment'),
-                  (_('Add comment'), 'propertyform', t.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
-                  (_('Modify Ticket'), 'inplace-edit', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
-              )">
-          <ul class="btn-group local-nav nav">
-            <li py:for="s in sections" py:if="s[2]" class="btn">
-              <a href="#${s[1]}" title="${s[3]}">
-                <i class="${s[4]}"></i>
-                <!-- show first three descriptions on tables, hide all on phones -->
-                <py:choose>
-                  <span py:when="sections.index(s) > 2" class="hidden-phone hidden-tablet">${s[0]}</span>
-                  <span py:otherwise="" class="hidden-phone">${s[0]}</span>
-                </py:choose>
-              </a>
-            </li>
-          </ul>
-      </div>
+      <py:if test="t.exists">
+        <div id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar">
+          <button id="inplace-edit" class="btn">
+            <i class="icon-edit"></i>
+            <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
+          </button>
+        </div>
+      </py:if>
     </py:def>
 
     <div class="ticket">
@@ -314,9 +320,6 @@
                     </span>
                   </h5>
                 </div>
-
-                <!--! ticket navbar -->
-                ${render_ticket_navbar(ticket)}
               </div>
 
               <!--! activity header -->
