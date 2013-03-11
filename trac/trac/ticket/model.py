@@ -1241,15 +1241,15 @@ class ResourceToMilestoneChangeListenerAdapter(core.Component):
     def match_resource(self, resource):
         return isinstance(resource, Milestone)
 
-    def resource_created(self, resource, context = None):
+    def resource_created(self, resource, context):
         for listener in TicketSystem(self.env).milestone_change_listeners:
             listener.milestone_created(resource)
 
-    def resource_changed(self, resource, old_values, context = None):
+    def resource_changed(self, resource, old_values, context):
         for listener in TicketSystem(self.env).milestone_change_listeners:
             listener.milestone_changed(resource, old_values)
 
-    def resource_deleted(self, resource, context = None):
+    def resource_deleted(self, resource, context):
         for listener in TicketSystem(self.env).milestone_change_listeners:
             listener.milestone_deleted(resource)
 
@@ -1265,11 +1265,11 @@ class ResourceToTicketChangeListenerAdapter(core.Component):
     def match_resource(self, resource):
         return isinstance(resource, Ticket)
 
-    def resource_created(self, resource, context = None):
+    def resource_created(self, resource, context):
         for listener in TicketSystem(self.env).change_listeners:
             listener.ticket_created(resource)
 
-    def resource_changed(self, resource, old_values, context = None):
+    def resource_changed(self, resource, old_values, context):
         author = None
         comment = None
         if context:
@@ -1279,7 +1279,7 @@ class ResourceToTicketChangeListenerAdapter(core.Component):
         for listener in TicketSystem(self.env).change_listeners:
             listener.ticket_changed(resource, comment, author, old_values)
 
-    def resource_deleted(self, resource, context = None):
+    def resource_deleted(self, resource, context):
         for listener in TicketSystem(self.env).change_listeners:
             listener.ticket_deleted(resource)
 

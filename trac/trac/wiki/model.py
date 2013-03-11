@@ -231,11 +231,11 @@ class ResourceToWikiChangeListenerAdapter(Component):
     def match_resource(self, resource):
         return isinstance(resource, WikiPage)
 
-    def resource_created(self, resource, context = None):
+    def resource_created(self, resource, context):
         for listener in WikiSystem(self.env).change_listeners:
             listener.wiki_page_added(resource)
 
-    def resource_changed(self, resource, old_values, context = None):
+    def resource_changed(self, resource, old_values, context):
         if context is not None and context.get("source_action") == "rename":
             for listener in WikiSystem(self.env).change_listeners:
                  if hasattr(listener, 'wiki_page_renamed'):
@@ -252,7 +252,7 @@ class ResourceToWikiChangeListenerAdapter(Component):
                         context.get("remote_addr"),
                     )
 
-    def resource_deleted(self, resource, context = None):
+    def resource_deleted(self, resource, context):
         for listener in WikiSystem(self.env).change_listeners:
             listener.wiki_page_deleted(resource)
 

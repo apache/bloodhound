@@ -1107,11 +1107,11 @@ class ResourceToAttachmentChangeListenerAdapter(Component):
     def match_resource(self, resource):
         return isinstance(resource, Attachment)
 
-    def resource_created(self, resource, context = None):
+    def resource_created(self, resource, context):
         for listener in AttachmentModule(self.env).change_listeners:
             listener.attachment_added(resource)
 
-    def resource_changed(self, resource, old_values, context = None):
+    def resource_changed(self, resource, old_values, context):
         for listener in AttachmentModule(self.env).change_listeners:
             if hasattr(listener, 'attachment_reparented'):
                 listener.attachment_reparented(
@@ -1119,7 +1119,7 @@ class ResourceToAttachmentChangeListenerAdapter(Component):
                     old_values.get("parent_realm"),
                     old_values.get("parent_id"))
 
-    def resource_deleted(self, resource, context = None):
+    def resource_deleted(self, resource, context):
         for listener in AttachmentModule(self.env).change_listeners:
             listener.attachment_deleted(resource)
 

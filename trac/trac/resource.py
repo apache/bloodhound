@@ -230,7 +230,7 @@ class IResourceChangeListener(Interface):
     def match_request(resource):
         """Return whether the listener wants to process the given resource."""
 
-    def resource_created(resource, context=None):
+    def resource_created(resource, context):
         """
         Called when a resource is created.
         """

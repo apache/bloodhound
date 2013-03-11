@@ -58,13 +58,13 @@ class TestResourceChangeListener(Component):
             return False
         return isinstance(resource, self.resource_type)
 
-    def resource_created(self, resource, context = None):
+    def resource_created(self, resource, context):
         self.action = "created"
         self.resource = resource
         self.context = context
         self.callback(self.action, resource, context)
 
-    def resource_changed(self, resource, old_values, context = None):
+    def resource_changed(self, resource, old_values, context):
         self.action = "changed"
         self.resource = resource
         self.old_values = old_values
@@ -72,7 +72,7 @@ class TestResourceChangeListener(Component):
         self.callback(
             self.action, resource, context, old_values=self.old_values)
 
-    def resource_deleted(self, resource, context = None):
+    def resource_deleted(self, resource, context):
         self.action = "deleted"
         self.resource = resource
         self.context = context
