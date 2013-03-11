@@ -55,24 +55,50 @@
         $("#editrows").change(function() {
           resizeTextArea("text", this.options[this.selectedIndex].value);
         });
+        $("#sidebyside").change(function() {
+          $("#edit input[type=submit][name=preview]").click();
+        });
         <py:if test="not sidebyside and (action == 'preview' or diff)">
           $("#info").scrollToTop();
         </py:if>
-        <py:if test="sidebyside">
+        <py:if test="sidebyside">/*<![CDATA[*/
+          function editorHeight() {
+            return $("#text").closest("fieldset").innerHeight();
+          }
+          function previewHeight() {
+            return $("#preview").innerHeight();
+          }
+          var preview_pad = previewHeight() - $("#preview").height();
+          var editor_pad = editorHeight() - $("#text").height();
           function autoResizeText() {
-            var preview_height = $("#preview").height();
-            if (preview_height)
-              $("#text").height(preview_height + 15);
+            $("#preview").height(0); // neutralize preview
+            $("#text").height("auto"); // adapt textarea to its content
+            var text_height = $("#text").prop("scrollHeight");
+            var wikipage_height = $("#preview div.wikipage").height();
+            if (wikipage_height > text_height) {
+              // expand #text to its natural height and adapt #preview to it
+              $("#text").height(text_height).css("overflow-y", "hidden");
+              $("#preview").height(Math.max(16, editorHeight() - preview_pad));
+            } else {
+              // expand .wikipage to its natural height and adapt #text to it
+              $("#preview").height("auto");
+              $("#text").height(Math.max(16, previewHeight() - editor_pad))
+                .css("overflow-y", "auto");
+            }
           }
           autoResizeText();
           $(window).resize(autoResizeText);
-        </py:if>
+        /*]]>*/</py:if>
         <py:if test="sidebyside and not diff">
           $("#text").autoPreview("${href.wiki_render()}", {
               realm: "${page.resource.realm}", id: "${page.resource.id}"
             }, function(textarea, text, rendered) {
+              var window_scroll_top = $(window).scrollTop();
+              var editor_scroll_top = $("#text").scrollTop();
               $("#preview div.wikipage").html(rendered);
               autoResizeText();
+              $(window).scrollTop(window_scroll_top);
+              $("#text").scrollTop(editor_scroll_top);
           });
         </py:if>
         $(".foldable").enableFolding(true, true);
@@ -83,18 +109,15 @@
   <body>
     <div id="content" class="wiki row"
          py:with="preview_or_review = action == 'preview' and (not diff or changes[0].diffs)">
-      <div class="trac-topnav span12" py:if="sidebyside or preview_or_review" py:choose="">
-        <a py:when="sidebyside" href="#changeinfo"
-           title="Go to Save, Preview, Review or Cancel buttons">Actions</a>
+      <div class="trac-topnav span12" py:if="not sidebyside and preview_or_review" py:choose="">
         <a py:when="diff" href="#info" title="See the diffs">Review</a>
         <a py:otherwise="" href="#info" title="See the preview">Preview</a>
         &darr;
       </div>
-      <span class="span12"><h1 i18n:msg="name">Editing ${name_of(page.resource)}</h1></span>
+      <h1 class="span12" i18n:msg="name">Editing ${name_of(page.resource)}</h1>
       <div py:if="merge" class="system-message span12">
         <div class="alert">
-          <p>
-          <span class="label label-important">Important</span>
+          <p><span class="label label-important">Important</span>
           Someone else has modified that page since you started your edits.</p><br />
           <p i18n:msg=""><strong>If you save right away, you risk to revert those changes
           (highlighted below as deletions).</strong></p><br />
@@ -130,7 +153,7 @@
       (the  #preview will float at the right of the edit form's textarea)
 
       -->
-      <div class="span12" py:if="not sidebyside">
+      <div py:if="not sidebyside" class="span12">
         <xi:include href="bh_wiki_edit_form.html" />
       </div>
       <py:choose test="action">
@@ -152,15 +175,15 @@
           </div>
           <div class="${sidebyside and 'sidebyside preview-right span6' or 'span12'}"
               py:choose="">
-            <div class="trac-nav" py:if="not sidebyside and preview_or_review">
+            <div py:if="not sidebyside and preview_or_review" class="trac-nav">
               <a href="#content" title="Go to the editor">Edit</a> &uarr;
             </div>
-            <h2 py:choose="">
+            <h2 py:if="not sidebyside" py:choose="">
               <py:when test="preview_or_review and diff">Review Changes</py:when>
-              <py:when test="preview_or_review">Preview</py:when>
+              <py:when test="preview_or_review"></py:when>
               <py:otherwise>No changes</py:otherwise>
             </h2>
-            <div id="preview">
+            <div id="preview" class="trac-content">
               <div py:when="diff" class="diff">
                 <xi:include href="diff_div.html" py:with="no_id=True" />
               </div>
