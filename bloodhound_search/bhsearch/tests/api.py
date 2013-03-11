@@ -119,6 +119,16 @@ class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
         self.assertEqual("t1", docs[0]["summary"])
         self.assertEqual("t2", docs[1]["summary"])
 
+    def test_that_upgrading_environment_adds_documents_to_index(self):
+        self.insert_ticket("t1")
+        self.insert_ticket("t2")
+
+        self.search_api.upgrade_environment(self.env.db_transaction)
+
+        results = self.search_api.query("type:ticket")
+
+        self.assertEqual(2, results.hits)
+
 
 #TODO: check this later
 #    @unittest.skip("Check with Whoosh community")

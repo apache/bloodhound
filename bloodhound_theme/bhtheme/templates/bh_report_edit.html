@@ -37,25 +37,25 @@
       </h1>
       <div class="span12">
         <form action="${href.report(report.id)}" method="post" id="edit_report"
-            class="form-horizontal">
+              class="form-horizontal">
           <input type="hidden" name="action" value="$action" />
           <div>
             <div class="control-group">
               <label class="control-label" for="title">Report Title:</label>
               <div class="controls">
-                <input type="text" id="title" name="title" value="$report.title" size="50"/><br />
+                <input type="text" id="title" name="title" value="$report.title" /><br />
               </div>
             </div>
             <div class="control-group">
-              <label for="description" class="control-label" i18n:msg="">
+              <label class="control-label" for="description" i18n:msg="">
                 Description:
               </label>
               <div class="controls">
-                <textarea id="description" name="description" class="wikitext trac-resizable" rows="10" cols="78">
+                <textarea id="description" name="description" class="wikitext trac-resizable" rows="10">
 $report.description</textarea>
                 <p class="help-block">
                   <span class="label label-info">Tip</span>
-                  (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
+                  You may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here.
                 </p>
               </div>
             </div>
@@ -64,15 +64,15 @@ $report.description</textarea>
                 <span class="label label-important">Error:</span> $error
               </div>
               <label class="control-label" for="query" i18n:msg="">
-                Query for Report
+                Query for Report:
               </label>
               <div class="controls">
-                <textarea id="query" name="query" class="trac-resizable" cols="85" rows="20">
+                <textarea id="query" name="query" class="trac-resizable" rows="20">
 $report.sql</textarea>
                 <p class="help-block">
                   <span class="label label-info">Tip</span>
-                  can be either SQL or, if starting with <code>query:</code>,
-                  a <a tabindex="42" href="${href.wiki('TracQuery') + '#QueryLanguage'}">TracQuery</a> expression)
+                  Can be either SQL or, if starting with <code>query:</code>,
+                  a <a tabindex="42" href="${href.wiki('TracQuery') + '#QueryLanguage'}">TracQuery</a> expression.
                 </p>
               </div>
             </div>

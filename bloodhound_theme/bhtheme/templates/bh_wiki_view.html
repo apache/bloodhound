@@ -49,20 +49,22 @@
     <div id="content" class="wiki row">
 
       <py:if test="version">
-        <br />
-        <table id="info" summary="Revision info">
-          <tbody>
-            <tr><th scope="row" i18n:msg="version, author, date">
-               Version $page.version (modified by ${authorinfo(page.author)}, ${pretty_dateinfo(page.time)})
-               (<a href="${href.wiki(page.name, action='diff', version=page.version)}">diff</a>)
-            </th></tr>
-            <tr><td xml:space="preserve">
-              <div class="alert alert-success">
-                ${wiki_to_html(context, page.comment or '--')}
-              </div>
-            </td></tr>
-          </tbody>
-        </table>
+        <div class="span12">
+          <br />
+          <table id="info" summary="Revision info">
+            <tbody>
+              <tr><th scope="row" i18n:msg="version, author, date">
+                 Version $page.version (modified by ${authorinfo(page.author)}, ${pretty_dateinfo(page.time)})
+                 (<a href="${href.wiki(page.name, action='diff', version=page.version)}">diff</a>)
+              </th></tr>
+              <tr><td xml:space="preserve">
+                <div class="alert alert-success">
+                  ${wiki_to_html(context, page.comment or '--')}
+                </div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
       </py:if>
 
       <div class="wikipage searchable span12" py:choose="" xml:space="preserve">
