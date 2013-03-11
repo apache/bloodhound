@@ -457,6 +457,16 @@ h1, h2, h3, h4 {
   display: none;
 }
 
+.report input#title {
+  max-width: 500px;
+  width: 100%;
+}
+
+.report textarea.trac-resizable {
+  max-width: 500px;
+  width: 100%;
+}
+
 table.listing th.sel, table.listing td.sel {
  text-align: center;
  width: 1%
