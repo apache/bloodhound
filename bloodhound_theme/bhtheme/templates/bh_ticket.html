@@ -434,13 +434,23 @@
               <div id="modify" class="well">
                 <!--! Properties -->
                 <fieldset id="properties" py:if="can_modify or can_edit or can_create"
-                          py:with="fields = [f for f in fields if not f.skip]">
+                          py:with="fields = [f for f in fields if not f.skip and f.name != 'product']">
                   <legend py:choose="">
                     <py:when test="ticket.exists">Change Properties</py:when>
                     <py:otherwise>Properties</py:otherwise>
                   </legend>
 
                   <table id="modifyproperties">
+                    <tr py:if="can_modify or can_create">
+                      <td colspan="2">
+                        <label for="field-product-name">Product:</label>
+                        <input type="text" disabled="disabled" class="${'span2' if ticket.exists else 'span7'}"
+                          id="field-product-name" name="field_product_name"
+                          value="$req.perm.env.product.name ($req.perm.env.product.prefix)" />
+                        <input type="hidden" id="field-product" name="field_product" value="$req.perm.env.product.prefix" />
+                      </td>
+                    </tr>
+
                     <tr py:if="can_modify or can_create">
                       <td colspan="2">
                         <label for="field-summary">Summary:</label>
