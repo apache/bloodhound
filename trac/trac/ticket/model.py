@@ -25,8 +25,9 @@ from datetime import datetime
 from trac.attachment import Attachment
 from trac import core
 from trac.cache import cached
-from trac.core import TracError
-from trac.resource import Resource, ResourceNotFound
+from trac.core import TracError, implements
+from trac.resource import (Resource, ResourceNotFound, IResourceChangeListener,
+                           ResourceSystem)
 from trac.ticket.api import TicketSystem
 from trac.util import embedded_numbers, partition
 from trac.util.text import empty
@@ -252,8 +253,7 @@ class Ticket(object):
         self.resource = self.resource(id=tkt_id)
         self._old = {}
 
-        for listener in TicketSystem(self.env).change_listeners:
-            listener.ticket_created(self)
+        ResourceSystem(self.env).resource_created(self)
 
         return self.id
 
@@ -361,8 +361,9 @@ class Ticket(object):
         self._old = {}
         self.values['changetime'] = when
 
-        for listener in TicketSystem(self.env).change_listeners:
-            listener.ticket_changed(self, comment, author, old_values)
+        context = dict(comment=comment, author=author)
+        ResourceSystem(self.env).resource_changed(self, old_values, context)
+
         return int(cnum.rsplit('.', 1)[-1])
 
     def get_changelog(self, when=None, db=None):
@@ -425,8 +426,7 @@ class Ticket(object):
             db("DELETE FROM ticket_change WHERE ticket=%s", (self.id,))
             db("DELETE FROM ticket_custom WHERE ticket=%s", (self.id,))
 
-        for listener in TicketSystem(self.env).change_listeners:
-            listener.ticket_deleted(self)
+        ResourceSystem(self.env).resource_deleted(self)
 
     def get_change(self, cnum=None, cdate=None, db=None):
         """Return a ticket change by its number or date.
@@ -712,6 +712,8 @@ class AbstractEnum(object):
                 except ValueError:
                     pass # Ignore cast error for this non-essential operation
             TicketSystem(self.env).reset_ticket_fields()
+
+        ResourceSystem(self.env).resource_deleted(self)
         self.value = self._old_value = None
         self.name = self._old_name = None
 
@@ -739,6 +741,7 @@ class AbstractEnum(object):
 
         self._old_name = self.name
         self._old_value = self.value
+        ResourceSystem(self.env).resource_created(self)
 
     def update(self, db=None):
         """Update the enum value.
@@ -762,8 +765,10 @@ class AbstractEnum(object):
                    (self.name, self._old_name))
             TicketSystem(self.env).reset_ticket_fields()
 
+        old_values = dict(name=self._old_name, value=self._old_value)
         self._old_name = self.name
         self._old_value = self.value
+        ResourceSystem(self.env).resource_changed(self, old_values)
 
     @classmethod
     def select(cls, env, db=None):
@@ -846,8 +851,7 @@ class Component(object):
             db("DELETE FROM component WHERE name=%s", (self.name,))
             TicketSystem(self.env).reset_ticket_fields()
 
-        for listener in TicketSystem(self.env).resource_change_listeners:
-            listener.resource_deleted(self)
+        ResourceSystem(self.env).resource_deleted(self)
         self.name = self._old_name = None
 
     def insert(self, db=None):
@@ -869,8 +873,7 @@ class Component(object):
             self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
 
-        for listener in TicketSystem(self.env).resource_change_listeners:
-            listener.resource_created(self)
+        ResourceSystem(self.env).resource_created(self)
 
     def update(self, db=None):
         """Update the component.
@@ -898,8 +901,7 @@ class Component(object):
             TicketSystem(self.env).reset_ticket_fields()
 
         old_values = dict(name=old_name)
-        for listener in TicketSystem(self.env).resource_change_listeners:
-            listener.resource_changed(self, old_values)
+        ResourceSystem(self.env).resource_changed(self, old_values)
 
     @classmethod
     def select(cls, env, db=None):
@@ -1035,8 +1037,7 @@ class Milestone(object):
             del self.cache.milestones
             TicketSystem(self.env).reset_ticket_fields()
 
-        for listener in TicketSystem(self.env).milestone_change_listeners:
-            listener.milestone_deleted(self)
+        ResourceSystem(self.env).resource_deleted(self)
 
     def insert(self, db=None):
         """Insert a new milestone.
@@ -1057,8 +1058,7 @@ class Milestone(object):
             self.checkin()
             TicketSystem(self.env).reset_ticket_fields()
 
-        for listener in TicketSystem(self.env).milestone_change_listeners:
-            listener.milestone_created(self)
+        ResourceSystem(self.env).resource_created(self)
 
     def update(self, db=None):
         """Update the milestone.
@@ -1096,8 +1096,7 @@ class Milestone(object):
 
         old_values = dict((k, v) for k, v in old.iteritems()
                           if getattr(self, k) != v)
-        for listener in TicketSystem(self.env).milestone_change_listeners:
-            listener.milestone_changed(self, old_values)
+        ResourceSystem(self.env).resource_changed(self, old_values)
 
     @classmethod
     def select(cls, env, include_completed=True, db=None):
@@ -1161,8 +1160,10 @@ class Version(object):
         with self.env.db_transaction as db:
             self.env.log.info("Deleting version %s", self.name)
             db("DELETE FROM version WHERE name=%s", (self.name,))
-            self.name = self._old_name = None
             TicketSystem(self.env).reset_ticket_fields()
+
+        ResourceSystem(self.env).resource_deleted(self)
+        self.name = self._old_name = None
 
     def insert(self, db=None):
         """Insert a new version.
@@ -1182,6 +1183,8 @@ class Version(object):
             self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
 
+        ResourceSystem(self.env).resource_created(self)
+
     def update(self, db=None):
         """Update the version.
 
@@ -1193,6 +1196,7 @@ class Version(object):
         if not self.name:
             raise TracError(_("Invalid version name."))
 
+        old_name=self._old_name
         with self.env.db_transaction as db:
             self.env.log.info("Updating version '%s'", self.name)
             db("""UPDATE version
@@ -1205,6 +1209,9 @@ class Version(object):
                    (self.name, self._old_name))
                 self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
+
+        old_values = dict(name=old_name)
+        ResourceSystem(self.env).resource_changed(self, old_values)
 
     @classmethod
     def select(cls, env, db=None):
@@ -1223,3 +1230,59 @@ class Version(object):
         def version_order(v):
             return (v.time or utcmax, embedded_numbers(v.name))
         return sorted(versions, key=version_order, reverse=True)
+
+class ResourceToMilestoneChangeListenerAdapter(core.Component):
+    """
+    The class provides backward compatibility for components implementing
+    IMilestoneChangeListener interface.
+    """
+    implements(IResourceChangeListener)
+
+    def match_resource(self, resource):
+        return isinstance(resource, Milestone)
+
+    def resource_created(self, resource, context = None):
+        for listener in TicketSystem(self.env).milestone_change_listeners:
+            listener.milestone_created(resource)
+
+    def resource_changed(self, resource, old_values, context = None):
+        for listener in TicketSystem(self.env).milestone_change_listeners:
+            listener.milestone_changed(resource, old_values)
+
+    def resource_deleted(self, resource, context = None):
+        for listener in TicketSystem(self.env).milestone_change_listeners:
+            listener.milestone_deleted(resource)
+
+    def resource_version_deleted(self, resource, context):
+        pass
+
+class ResourceToTicketChangeListenerAdapter(core.Component):
+    """
+    The class provides backward compatibility for components implementing
+    ITicketChangeListener interface.
+    """
+    implements(IResourceChangeListener)
+    def match_resource(self, resource):
+        return isinstance(resource, Ticket)
+
+    def resource_created(self, resource, context = None):
+        for listener in TicketSystem(self.env).change_listeners:
+            listener.ticket_created(resource)
+
+    def resource_changed(self, resource, old_values, context = None):
+        author = None
+        comment = None
+        if context:
+            comment = context.get("comment")
+            author = context.get("author")
+
+        for listener in TicketSystem(self.env).change_listeners:
+            listener.ticket_changed(resource, comment, author, old_values)
+
+    def resource_deleted(self, resource, context = None):
+        for listener in TicketSystem(self.env).change_listeners:
+            listener.ticket_deleted(resource)
+
+    def resource_version_deleted(self, resource, context):
+        pass
+

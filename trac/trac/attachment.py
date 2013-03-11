@@ -221,7 +221,7 @@ class Attachment(object):
         with self.env.db_transaction as db:
             db("""
                 DELETE FROM attachment WHERE type=%s AND id=%s AND filename=%s
-                """, (self.parent_realm, self.parent_id, self.filename))
+                    """, (self.parent_realm, self.parent_id, self.filename))
             path = self.path
             if os.path.isfile(path):
                 try:
@@ -235,8 +235,7 @@ class Attachment(object):
 
         self.env.log.info("Attachment removed: %s" % self.title)
 
-        for listener in AttachmentModule(self.env).change_listeners:
-            listener.attachment_deleted(self)
+        ResourceSystem(self.env).resource_deleted(self)
 
     def reparent(self, new_realm, new_id):
         assert self.filename, "Cannot reparent non-existent attachment"
@@ -284,9 +283,8 @@ class Attachment(object):
 
         self.env.log.info("Attachment reparented: %s" % self.title)
 
-        for listener in AttachmentModule(self.env).change_listeners:
-            if hasattr(listener, 'attachment_reparented'):
-                listener.attachment_reparented(self, old_realm, old_id)
+        old_values = dict(parent_realm=old_realm, parent_id=old_id)
+        ResourceSystem(self.env).resource_changed(self, old_values=old_values)
 
     def insert(self, filename, fileobj, size, t=None, db=None):
         """Create a new Attachment record and save the file content.
@@ -330,8 +328,7 @@ class Attachment(object):
                 self.env.log.info("New attachment: %s by %s", self.title,
                                   self.author)
 
-        for listener in AttachmentModule(self.env).change_listeners:
-            listener.attachment_added(self)
+        ResourceSystem(self.env).resource_created(self)
 
 
     @classmethod
@@ -1101,3 +1098,30 @@ class AttachmentAdmin(Component):
                 if destination is not None:
                     output.close()
 
+class ResourceToAttachmentChangeListenerAdapter(Component):
+    """
+    The class provides backward compatibility for components implementing
+    IAttachmentChangeListener interface.
+    """
+    implements(IResourceChangeListener)
+    def match_resource(self, resource):
+        return isinstance(resource, Attachment)
+
+    def resource_created(self, resource, context = None):
+        for listener in AttachmentModule(self.env).change_listeners:
+            listener.attachment_added(resource)
+
+    def resource_changed(self, resource, old_values, context = None):
+        for listener in AttachmentModule(self.env).change_listeners:
+            if hasattr(listener, 'attachment_reparented'):
+                listener.attachment_reparented(
+                    resource,
+                    old_values.get("parent_realm"),
+                    old_values.get("parent_id"))
+
+    def resource_deleted(self, resource, context = None):
+        for listener in AttachmentModule(self.env).change_listeners:
+            listener.attachment_deleted(resource)
+
+    def resource_version_deleted(self, resource, context):
+        pass
