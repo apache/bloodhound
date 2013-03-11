@@ -31,6 +31,7 @@ Add free text search and query functionality to Bloodhound sites.
 versions = [
     (0, 4, 0),
     (0, 5, 0),
+    (0, 6, 0),
     ]
 
 latest = '.'.join(str(x) for x in versions[-1])
