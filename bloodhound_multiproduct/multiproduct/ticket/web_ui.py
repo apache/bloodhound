@@ -20,6 +20,8 @@
 
 import re
 
+from genshi.builder import tag
+
 from trac.core import TracError
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
@@ -30,8 +32,11 @@ from trac.resource import Resource, get_resource_shortname, ResourceNotFound
 from trac.search import search_to_sql, shorten_result
 from trac.util.datefmt import from_utimestamp
 from trac.util.translation import _, tag_
-from genshi.builder import tag
+from trac.wiki.parser import WikiParser
 
+from multiproduct.api import MultiProductSystem, PRODUCT_SYNTAX_DELIMITER_RE
+from multiproduct.env import lookup_product_env, ProductEnvironment
+from multiproduct.util import IDENTIFIER
 from multiproduct.web_ui import ProductModule
 
 REPORT_RE = re.compile(r'/report(?:/(?:([0-9]+)|-1))?$')
@@ -135,3 +140,67 @@ class ProductReportModule(ReportModule):
         if 'REPORT_VIEW' in req.perm:
             href = ProductModule.get_product_path(self.env, req, 'report')
             yield ('mainnav', 'tickets', tag.a(_('View Tickets'), href=href))
+
+    # IWikiSyntaxProvider methods
+    #def get_link_resolvers(self):
+    # not yet required
+
+    def get_wiki_syntax(self):
+        # FIXME: yield from
+        for s in super(ProductReportModule, self).get_wiki_syntax():
+            yield s
+        # Previously unmatched prefix 
+        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}" % 
+                    (IDENTIFIER, PRODUCT_SYNTAX_DELIMITER_RE),
+               lambda x, y, z: self._format_link(x, 'report', y[1:-1], y, z))
+        # Absolute product report syntax
+        yield (r"!?\{(?P<prns>global:|product:%s(?:\s+|:))"
+               r"(?P<prid>[0-9]+)\}" % (IDENTIFIER,),
+               lambda x, y, z: (self._format_mplink(x, 'report', y[1:-1], y, z)))
+
+    def _format_link(self, formatter, ns, target, label, fullmatch=None):
+        intertrac = formatter.shorthand_intertrac_helper(ns, target, label,
+                                                         fullmatch)
+        if intertrac:
+            return intertrac
+
+        # second chance to match InterTrac prefix as product prefix
+        it_report = fullmatch.group('it_' + ns) or fullmatch.group('prp')
+        if it_report:
+            return self._format_mplink(formatter, ns, target, label, fullmatch)
+
+        report, args, fragment = formatter.split_link(target)
+        return tag.a(label, href=formatter.href.report(report) + args,
+                     class_='report')
+
+    def _format_mplink(self, formatter, ns, target, label, fullmatch=None):
+        mpsys = self.env[MultiProductSystem]
+        if mpsys is not None:
+            substeps = []
+            prns = fullmatch.group('prns')
+            if not prns:
+                # Forwarded from _format_link, inherit current context
+                product_id = fullmatch.group('it_' + ns) or \
+                             fullmatch.group('prp') 
+                if product_id:
+                    product_ns = 'product'
+                    substeps = [product_id.strip()]
+                elif isinstance(self.env, ProductEnvironment):
+                    product_ns = 'product'
+                    substeps = [self.env.product.prefix]
+                else:
+                    product_ns = 'global'
+            elif prns == 'global:':
+                product_ns = 'global'
+            elif prns.startswith('product:'):
+                product_ns, product_id = prns.strip().split(':')[:2]
+                substeps = [product_id]
+            report_id = fullmatch.group('prid') or \
+                        re.match(r'^.*?(\d+)$', target).group(1)
+            substeps += [ns, report_id]
+            
+            return mpsys._format_link(formatter, product_ns, 
+                                      u':'.join(substeps),
+                                      label, fullmatch)
+        else:
+            return tag.a(label, class_='missing product')

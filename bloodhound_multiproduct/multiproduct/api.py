@@ -40,7 +40,7 @@ from trac.wiki.formatter import LinkFormatter
 from trac.wiki.parser import WikiParser
 
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
-from multiproduct.util import EmbeddedLinkFormatter
+from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER
 
 __all__ = 'MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER'
 
@@ -344,10 +344,10 @@ class MultiProductSystem(Component):
     short_syntax_delimiter = u'~'
 
     def get_wiki_syntax(self):
-        yield (r'(?<!\S)!?(?P<pid>(?!\d)\w+)' + 
-               ''.join('[%s]' % c for c in self.short_syntax_delimiter) +
-               r'(?P<ptarget>%s:(?:%s)|%s|%s(?:%s*%s)?)' %
-                    (WikiParser.LINK_SCHEME, WikiParser.QUOTED_STRING, 
+        yield (r'(?<!\S)!?(?P<pid>%s)%s(?P<ptarget>%s:(?:%s)|%s|%s(?:%s*%s)?)' %
+                    (IDENTIFIER,
+                     PRODUCT_SYNTAX_DELIMITER_RE,
+                     WikiParser.LINK_SCHEME, WikiParser.QUOTED_STRING, 
                      WikiParser.QUOTED_STRING, WikiParser.SHREF_TARGET_FIRST, 
                      WikiParser.SHREF_TARGET_MIDDLE, WikiParser.SHREF_TARGET_LAST),
                lambda f, m, fm : 
@@ -356,8 +356,8 @@ class MultiProductSystem(Component):
                                                  unquote_label(fm.group('ptarget'))),
                                       fm.group(0), fm))
         if self.env[ProductTicketModule] is not None:
-            yield (r"(?<!\S)!?(?P<jtp>(?!\d)\w+)-(?P<jtt>\d+)"
-                   r"(?P<jtf>[?#]\S+)?",
+            yield (r"(?<!\S)!?(?P<jtp>%s)-(?P<jtt>\d+)(?P<jtf>[?#]\S+)?" %
+                        (IDENTIFIER,),
                    lambda f, m, fm : 
                         self._format_link(f, 'product', 
                                           '%s:ticket:%s' % 
@@ -487,6 +487,8 @@ class MultiProductSystem(Component):
 
 
 PRODUCT_SYNTAX_DELIMITER = MultiProductSystem.short_syntax_delimiter
+PRODUCT_SYNTAX_DELIMITER_RE = ''.join('[%s]' % c 
+                                      for c in PRODUCT_SYNTAX_DELIMITER)
 
 from multiproduct.env import ProductEnvironment, lookup_product_env, \
         resolve_product_href

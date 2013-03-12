@@ -26,6 +26,8 @@ import shutil
 import tempfile
 import unittest
 
+from genshi.core import escape
+
 from trac.attachment import Attachment
 from trac.web.href import Href
 from trac.tests import wikisyntax
@@ -80,8 +82,8 @@ PRODUCT_TICKET_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-ticket-link-tests.txt'))
 PRODUCT_TICKET_JIRA = to_unicode(pkg_resources.resource_string(
         __name__, 'product-ticket-jira-tests.txt'))
-#PRODUCT_REPORT_LINKS = to_unicode(pkg_resources.resource_string(
-#        __name__, 'product-report-link-tests.txt'))
+PRODUCT_REPORT_LINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-report-link-tests.txt'))
 PRODUCT_MILESTONE_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-milestone-link-tests.txt'))
 PRODUCT_QUERY_LINKS = to_unicode(pkg_resources.resource_string(
@@ -98,8 +100,8 @@ PRODUCT_SEARCH_SHORTLINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-search-link-tests.short.txt'))
 PRODUCT_TICKET_SHORTLINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-ticket-link-tests.short.txt'))
-#PRODUCT_REPORT_SHORTLINKS = to_unicode(pkg_resources.resource_string(
-#        __name__, 'product-report-link-tests.short.txt'))
+PRODUCT_REPORT_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-report-link-tests.short.txt'))
 PRODUCT_MILESTONE_SHORTLINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-milestone-link-tests.short.txt'))
 PRODUCT_QUERY_SHORTLINKS = to_unicode(pkg_resources.resource_string(
@@ -152,6 +154,7 @@ def link_mp_setup(_setup):
 #                         i.e. the product under test
 # load_products         : optional product prefixes list to load at setup time
 # *_product_name        : target product name (e.g. setup_product_name ) 
+# *_escaped             : escaped forms used to match output
 TEST_PRODUCT_CONTEXTS = [
                          {'tc_title_prefix' : 'product: links',
                           'link_prefix' : 'product:tp1:',
@@ -208,17 +211,20 @@ TEST_PRODUCT_CONTEXTS_COMPACT = [
                           },
                         ]
 
-for _ctx in TEST_PRODUCT_CONTEXTS:
-    _product_names = {}
-    for k,v in _ctx.iteritems():
-        if k.endswith('_product'):
-            if v in MultiproductTestCase.PRODUCT_DATA:
-                _product_names[k + '_name'] = MultiproductTestCase.PRODUCT_DATA[v]['name']
-            else:
-                _product_names[k + '_name'] = ''
-    _ctx.update(_product_names)
+for ctxlst in (TEST_PRODUCT_CONTEXTS, TEST_PRODUCT_CONTEXTS_COMPACT):
+    for _ctx in ctxlst:
+        _product_extras = {}
+        for k,v in _ctx.iteritems():
+            _product_extras[k + '_escaped'] = escape(v)
+            if k.endswith('_product'):
+                if v in MultiproductTestCase.PRODUCT_DATA:
+                    _product_extras[k + '_name'] = MultiproductTestCase.PRODUCT_DATA[v]['name']
+                else:
+                    _product_extras[k + '_name'] = ''
+                _product_extras[k + '_name_escaped'] = escape(_product_extras[k + '_name'])
+        _ctx.update(_product_extras)
 
-del _ctx, k, v, _product_names
+del _ctx, k, v, _product_extras
 
 def test_suite():
     suite = unittest.TestSuite()
@@ -270,11 +276,11 @@ def test_suite():
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS 
                    if ctx['path_prefix'])
-#    suite.addTests(formatter.test_suite(PRODUCT_REPORT_LINKS % ctx, 
-#                                  link_mp_setup(ticket_wikisyntax.report_setup), 
-#                                  __file__,
-#                                  mpctx=ctx)
-#                   for ctx in TEST_PRODUCT_CONTEXTS)
+    suite.addTests(formatter.test_suite(PRODUCT_REPORT_LINKS % ctx, 
+                                  link_mp_setup(ticket_wikisyntax.report_setup), 
+                                  __file__,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS)
     suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_LINKS % ctx, 
                                   link_mp_setup(ticket_wikisyntax.milestone_setup),
                                   __file__, 
@@ -321,11 +327,11 @@ def test_suite():
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
 
-#    suite.addTests(formatter.test_suite(PRODUCT_REPORT_SHORTLINKS % ctx, 
-#                                  link_mp_setup(ticket_wikisyntax.report_setup), 
-#                                  __file__,
-#                                  mpctx=ctx)
-#                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+    suite.addTests(formatter.test_suite(PRODUCT_REPORT_SHORTLINKS % ctx, 
+                                  link_mp_setup(ticket_wikisyntax.report_setup), 
+                                  __file__,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
     suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_SHORTLINKS % ctx, 
                                   link_mp_setup(ticket_wikisyntax.milestone_setup),
                                   __file__, 

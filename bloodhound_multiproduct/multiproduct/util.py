@@ -140,3 +140,8 @@ class EmbeddedLinkFormatter(LinkFormatter):
                  else fullmatch.group('label'))
         return self._make_lhref_link(match, fullmatch, rel, ns, target, label)
 
+#----------------------
+# Useful regex
+#----------------------
+
+IDENTIFIER = r'(?!\d)\w+'
