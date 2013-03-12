@@ -126,6 +126,7 @@ class BloodhoundTheme(ThemeBase):
         # General purpose
         'about.html' : ('bh_about.html', None),
         'history_view.html' : ('bh_history_view.html', None),
+        'timeline.html' : ('bh_timeline.html', None),
 
         # Account manager plugin
         'login.html' : ('bh_login.html', None),
