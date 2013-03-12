@@ -35,9 +35,10 @@ from trac.web.main import RequestDispatcher
 
 from multiproduct.model import Product
 from multiproduct.util import ProductDelegate
-
+from multiproduct.api import DEFAULT_PRODUCT
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
+REDIRECT_DEFAULT_RE = re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|ticket|wiki|qct|timeline|(raw-|zip-)?attachment|diff|batchmodify|search)(?P<pathinfo>.*)')
 
 class ProductModule(Component):
     """Base Product behaviour"""
@@ -60,19 +61,19 @@ class ProductModule(Component):
     def pre_process_request(self, req, handler):
         """pre process request filter"""
         pid = None
-        match = PRODUCT_RE.match(req.path_info)
-        if match:
+        product_match = PRODUCT_RE.match(req.path_info)
+        if product_match:
             dispatcher = self.env[RequestDispatcher]
             if dispatcher is None:
                 raise TracError('Unable to load RequestDispatcher.')
-            pid = match.group('pid')
-        
+            pid = product_match.group('pid')
+
         if pid:
             products = Product.select(self.env, where={'prefix': pid})
             if pid and len(products) == 1:
                 req.args['productid'] = pid
                 req.args['product'] = products[0].name
-                if handler is self and match.group('pathinfo') not in ('', '/'):
+                if handler is self and product_match.group('pathinfo') not in ('', '/'):
                     # select a new handler
                     environ = req.environ.copy()
                     pathinfo = environ['PATH_INFO'].split('/')
@@ -97,7 +98,7 @@ class ProductModule(Component):
                     # the newreq.args below caused a re-evaluation, thus a deadlock.
                     # The fix is to copy the args from the old request to the new one.
                     setattr(newreq, 'args', req.args)
-                    
+
                     new_handler = None
                     for hndlr in dispatcher.handlers:
                         if hndlr is not self and hndlr.match_request(newreq):
@@ -116,7 +117,17 @@ class ProductModule(Component):
             else:
                 raise ResourceNotFound(_("Product %(id)s does not exist.", 
                                          id=pid), _("Invalid product id"))
-        
+        else:
+            redirect_match = REDIRECT_DEFAULT_RE.match(req.path_info)
+            if redirect_match:
+                target = req.href.products(DEFAULT_PRODUCT,
+                                           redirect_match.group('section'),
+                                           redirect_match.group('pathinfo') \
+                                               if redirect_match.group('pathinfo') else None)
+                if req.query_string:
+                    target += '?' + req.query_string
+                req.redirect(target, permanent=True)
+
         return handler
     
     def post_process_request(self, req, template, data, content_type):

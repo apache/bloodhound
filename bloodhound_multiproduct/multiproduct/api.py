@@ -42,11 +42,13 @@ from trac.wiki.parser import WikiParser
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER
 
-__all__ = 'MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER'
+__all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER', 'DEFAULT_PRODUCT']
 
 DB_VERSION = 4
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
+
+DEFAULT_PRODUCT = '@'
 
 class ISupportMultiProductEnvironment(Interface):
     """Extension point interface for components that are aware of multi
@@ -99,7 +101,6 @@ class MultiProductSystem(Component):
                       'wiki',
                       'report',
                       ]
-
 
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
@@ -170,7 +171,6 @@ class MultiProductSystem(Component):
                 from multiproduct.model import Product
                 import trac.db_default
 
-                DEFAULT_PRODUCT = 'default'
                 TICKET_TABLES = ['ticket_change', 'ticket_custom',
                                  'attachment',
                                 ]
@@ -230,9 +230,9 @@ class MultiProductSystem(Component):
                 for table in self.MIGRATE_TABLES:
                     temp_table_name, cols = create_temp_table(table)
                     if table == 'wiki':
-                        self.log.info("Populating table '%s'", table)
-                        db("INSERT INTO %s (%s, product) SELECT %s,'' FROM %s" %
-                           (table, cols, cols, temp_table_name))
+                        self.log.info("Migrating wiki to default product")
+                        db("INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s" %
+                           (table, cols, cols, DEFAULT_PRODUCT, temp_table_name))
                     else:
                         products = Product.select(self.env)
                         for product in products:

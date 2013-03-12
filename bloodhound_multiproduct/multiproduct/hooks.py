@@ -52,6 +52,9 @@ class ProductizedHref(Href):
                           'logout',
                           'prefs',
                           'products',
+                          'verify_email',
+                          'reset_password',
+                          'register',
                           ]
     STATIC_PREFIXES = ['js/',
                        'css/',
