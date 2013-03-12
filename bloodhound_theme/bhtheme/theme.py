@@ -206,7 +206,7 @@ class BloodhoundTheme(ThemeBase):
     def pre_process_request(self, req, handler):
         """Pre process request filter"""
         def hwiki(*args, **kw):
-            
+
             def new_name(name):
                 new_name = wiki.new_name(name)
                 if new_name != name:
@@ -215,11 +215,11 @@ class BloodhoundTheme(ThemeBase):
                         self._wiki_pages = wiki_admin.get_wiki_list()
                     if new_name in self._wiki_pages:
                         return new_name
-                return name 
-            
+                return name
+
             a = tuple([new_name(x) for x in args])
-            return req.href.__call__("wiki", *a)
-            
+            return req.href.__call__("wiki", *a, **kw)
+
         req.href.wiki = hwiki
         
         return handler
