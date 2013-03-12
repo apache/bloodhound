@@ -18,26 +18,18 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import unittest
-import tempfile
 import shutil
 from bhsearch.api import BloodhoundSearchApi, ASC, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketSearchParticipant
-
 from bhsearch.whoosh_backend import WhooshBackend
-from trac.test import EnvironmentStub
-from trac.ticket.api import TicketSystem
 
 
 class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        self.env = EnvironmentStub(enable=['bhsearch.*'])
-        self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
-        self.env.config.set('bhsearch', 'silence_on_error', "False")
-        self.ticket_system = TicketSystem(self.env)
-        self.whoosh_backend = WhooshBackend(self.env)
-        self.whoosh_backend.recreate_index()
+        super(ApiQueryWithWhooshTestCase, self).setUp()
+        WhooshBackend(self.env).recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
         self.ticket_participant = TicketSearchParticipant(self.env)
         self.query_parser = DefaultQueryParser(self.env)
