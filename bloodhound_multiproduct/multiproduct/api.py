@@ -338,16 +338,27 @@ class MultiProductSystem(Component):
         return bool(products)
 
     # IWikiSyntaxProvider methods
-    PRODUCT_SYNTAX_DELIMITER = u'-'
+
+    short_syntax_delimiter = u'->'
 
     def get_wiki_syntax(self):
-        return []
-
+        if self.env[ProductTicketModule] is not None:
+            yield (r"(?<!\S)!?(?P<jtp>()(?!\d)\w+)-(?P<jtt>\d+)"
+                   r"(?P<jtf>[?#]\S+)?",
+                   lambda f, m, fm : 
+                        self._format_link(f, 'product', 
+                                          '%s:ticket:%s' % 
+                                                (fm.group('jtp'), 
+                                                 fm.group('jtt') +
+                                                 (fm.group('jtf') or '')), 
+                                          m, fm))
+ 
     def get_link_resolvers(self):
         yield ('global', self._format_link)
         yield ('product', self._format_link)
 
     # Internal methods
+
     def _render_link(self, context, name, label, extra='', prefix=None):
         """Render link to product page.
         """
@@ -455,7 +466,8 @@ class MultiProductSystem(Component):
         return subformatter.match(sublink + extra)
 
 
-PRODUCT_SYNTAX_DELIMITER = MultiProductSystem.PRODUCT_SYNTAX_DELIMITER
+PRODUCT_SYNTAX_DELIMITER = MultiProductSystem.short_syntax_delimiter
 
 from multiproduct.env import ProductEnvironment, lookup_product_env, \
         resolve_product_href
+from multiproduct.ticket.web_ui import ProductTicketModule
