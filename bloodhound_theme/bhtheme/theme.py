@@ -23,7 +23,7 @@ from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
 
-from trac.config import Option
+from trac.config import Option, BoolOption
 from trac.core import *
 from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
@@ -147,6 +147,8 @@ class BloodhoundTheme(ThemeBase):
     labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '')
     
     labels_footer_right = Option('labels', 'footer_right', '')
+
+    is_bhsearch_default = BoolOption('bhsearch', 'is_default', False)
 
     _wiki_pages = None
     Chrome.default_html_doctype = DocType.HTML5
@@ -274,6 +276,7 @@ class BloodhoundTheme(ThemeBase):
         if is_active_theme and data is not None:
             data['responsive_layout'] = self.env.config.getbool(
                     'bloodhound', 'responsive_layout', 'true')
+            data['is_bhsearch_default'] = self.is_bhsearch_default
 
         return template, data, content_type
 
