@@ -87,11 +87,14 @@ class BloodhoundTheme(ThemeBase):
         'admin_users.html' : ('admin_users.html', '_modify_admin_breadcrumb'),
 
         # Preferences
+        'prefs.html' : ('bh_prefs.html', None),
         'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
         'prefs_datetime.html' : ('bh_prefs_datetime.html', None),
         'prefs_general.html' : ('bh_prefs_general.html', None),
+        'prefs_language.html' : ('bh_prefs_language.html', None),
         'prefs_keybindings.html' : ('bh_prefs_keybindings.html', None),
         'prefs_pygments.html' : ('bh_prefs_pygments.html', None),
+        'prefs_userinterface.html' : ('bh_prefs_userinterface.html', None),
 
         # Search
         'search.html' : ('bh_search.html', '_modify_search_data'),
@@ -214,7 +217,7 @@ class BloodhoundTheme(ThemeBase):
     def pre_process_request(self, req, handler):
         """Pre process request filter"""
         def hwiki(*args, **kw):
-            
+
             def new_name(name):
                 new_name = wiki.new_name(name)
                 if new_name != name:
@@ -223,11 +226,11 @@ class BloodhoundTheme(ThemeBase):
                         self._wiki_pages = wiki_admin.get_wiki_list()
                     if new_name in self._wiki_pages:
                         return new_name
-                return name 
-            
+                return name
+
             a = tuple([new_name(x) for x in args])
-            return req.href.__call__("wiki", *a)
-            
+            return req.href.__call__("wiki", *a, **kw)
+
         req.href.wiki = hwiki
         
         return handler

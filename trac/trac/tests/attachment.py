@@ -6,11 +6,13 @@ from StringIO import StringIO
 import tempfile
 import unittest
 
-from trac.attachment import Attachment, AttachmentModule
+from trac.attachment import (Attachment, AttachmentModule,
+                             IAttachmentChangeListener)
 from trac.core import Component, implements, TracError
 from trac.perm import IPermissionPolicy, PermissionCache
 from trac.resource import Resource, resource_exists
 from trac.test import EnvironmentStub
+from trac.tests.resource import TestResourceChangeListener
 
 
 hashes = {
@@ -27,6 +29,24 @@ hashes = {
     u'bar.aäc': '70d0e3b813fdc756602d82748719a3ceb85cbf29',
     u'ÜberSicht': 'a16c6837f6d3d2cc3addd68976db1c55deb694c8',
 }
+
+class TestAttachmentChangeListener(Component):
+    implements(IAttachmentChangeListener)
+
+    def attachment_added(self, attachment):
+        self.action = "added"
+        self.attachment = attachment
+
+    def attachment_deleted(self, attachment):
+        self.action = "deleted"
+        self.attachment = attachment
+
+    def attachment_reparented(
+            self, attachment, old_parent_realm, old_parent_id):
+        self.action = "reparented"
+        self.attachment = attachment
+        self.old_parent_realm = old_parent_realm
+        self.old_parent_id = old_parent_id
 
 
 class TicketOnlyViewsTicket(Component):
@@ -221,10 +241,94 @@ class AttachmentTestCase(unittest.TestCase):
         att.insert('file.txt', StringIO(''), 1)
         self.assertTrue(resource_exists(self.env, att.resource))
 
+    def test_change_listener_created(self):
+        listener = TestAttachmentChangeListener(self.env)
+        attachment = self._create_attachment()
+        self.assertEqual('added', listener.action)
+        self.assertEqual(attachment, listener.attachment)
+
+    def test_change_listener_deleted(self):
+        listener = TestAttachmentChangeListener(self.env)
+        attachment = self._create_attachment()
+        attachment.delete()
+        self.assertEqual('deleted', listener.action)
+        self.assertEqual(attachment, listener.attachment)
+
+    def test_change_listener_deleted(self):
+        listener = TestAttachmentChangeListener(self.env)
+        attachment = self._create_attachment()
+        old_parent_realm = attachment.parent_realm
+        old_parent_id = attachment.parent_id
+        attachment.reparent("wiki", "SomePage")
+        self.assertEqual('reparented', listener.action)
+        self.assertEqual(attachment, listener.attachment)
+        self.assertEqual(old_parent_realm, listener.old_parent_realm)
+        self.assertEqual(old_parent_id, listener.old_parent_id)
+
+    def _create_attachment(self):
+        attachment = Attachment(self.env, 'wiki', 'WikiStart')
+        attachment.insert('file.txt', StringIO(''), 1)
+        return attachment
+
+
+class AttachmentResourceChangeListenerTestCase(unittest.TestCase):
+    DUMMY_PARENT_REALM = "wiki"
+    DUMMY_PARENT_ID = "WikiStart"
+
+    def setUp(self):
+        self.env = EnvironmentStub(default_data=True)
+        self.listener = TestResourceChangeListener(self.env)
+        self.listener.resource_type = Attachment
+        self.listener.callback = self.listener_callback
+
+    def tearDown(self):
+        self.env.reset_db()
+
+    def test_change_listener_created(self):
+        attachment = self._create_attachment()
+        self.assertEqual('created', self.listener.action)
+        self.assertIsInstance(self.listener.resource, Attachment)
+        self.assertEqual(attachment.filename, self.filename)
+        self.assertEqual(attachment.parent_realm, self.parent_realm)
+        self.assertEqual(attachment.parent_id, self.parent_id)
+
+    def test_change_listener_reparent(self):
+        attachment = self._create_attachment()
+        attachment.reparent(self.DUMMY_PARENT_REALM, "SomePage")
+
+        self.assertEqual('changed', self.listener.action)
+        self.assertIsInstance(self.listener.resource, Attachment)
+        self.assertEqual(attachment.filename, self.filename)
+        self.assertEqual(attachment.parent_realm, self.parent_realm)
+        self.assertEqual("SomePage", self.parent_id)
+        self.assertEqual(
+            self.DUMMY_PARENT_REALM, self.listener.old_values["parent_realm"])
+        self.assertEqual(
+            self.DUMMY_PARENT_ID, self.listener.old_values["parent_id"])
+
+    def test_change_listener_deleted(self):
+        attachment = self._create_attachment()
+        attachment.delete()
+        self.assertEqual('deleted', self.listener.action)
+        self.assertIsInstance(self.listener.resource, Attachment)
+        self.assertEqual(attachment.filename, self.filename)
+
+    def _create_attachment(self):
+        attachment = Attachment(
+            self.env, self.DUMMY_PARENT_REALM, self.DUMMY_PARENT_ID)
+        attachment.insert('file.txt', StringIO(''), 1)
+        return attachment
+
+    def listener_callback(self, action, resource, context, old_values = None):
+        self.parent_realm = resource.parent_realm
+        self.parent_id = resource.parent_id
+        self.filename = resource.filename
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AttachmentTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(
+        AttachmentResourceChangeListenerTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':

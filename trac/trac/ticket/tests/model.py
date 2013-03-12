@@ -16,11 +16,10 @@ from trac.ticket.model import (
 )
 from trac.ticket.api import (
     IMilestoneChangeListener, ITicketChangeListener, TicketSystem,
-    IResourceChangeListener,
 )
 from trac.test import EnvironmentStub
+from trac.tests.resource import TestResourceChangeListener
 from trac.util.datefmt import from_utimestamp, to_utimestamp, utc
-
 
 class TestTicketChangeListener(core.Component):
     implements(ITicketChangeListener)
@@ -1006,28 +1005,6 @@ class MilestoneTestCase(unittest.TestCase):
         self.assertEqual('deleted', listener.action)
         self.assertEqual(milestone, listener.milestone)
 
-class TestResourceChangeListener(core.Component):
-    implements(IResourceChangeListener)
-
-    def callback(self, action, resource, old_values = None):
-        pass
-
-    def resource_created(self, resource):
-        self.action = "created"
-        self.resource = resource
-        self.callback(self.action, self.resource)
-
-    def resource_changed(self, resource, old_values):
-        self.action = "changed"
-        self.resource = resource
-        self.old_values = old_values
-        self.callback(self.action, self.resource, old_values=self.old_values)
-
-    def resource_deleted(self, resource):
-        self.action = "deleted"
-        self.resource = resource
-        self.callback(self.action, self.resource)
-
 class ComponentTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -1063,49 +1040,6 @@ class ComponentTestCase(unittest.TestCase):
         self.assertEqual([('Test', 'joe', None)], self.env.db_query(
             "SELECT name, owner, description FROM component WHERE name='Test'"))
 
-    def test_change_listener_created(self):
-        listener = TestResourceChangeListener(self.env)
-        self._create_component(name='Component 1')
-        self.assertEqual('created', listener.action)
-        self.assertIsInstance(listener.resource, Component)
-        self.assertEqual('Component 1', listener.resource.name)
-
-    def test_change_listener_changed(self):
-        listener = TestResourceChangeListener(self.env)
-        component = self._create_component(name='Component 1')
-        component.name = 'Component 2'
-        component.update()
-        self.assertEqual('changed', listener.action)
-        self.assertIsInstance(listener.resource, Component)
-        self.assertEqual('Component 2', listener.resource.name)
-        self.assertEqual("Component 1" ,listener.old_values["name"])
-
-    def test_change_listener_deleted(self):
-        listener = TestResourceChangeListener(self.env)
-
-        #component.name property is set to None during delete operation
-        #We need mechanism to remember component name
-        listener.callback = self.listener_callback
-
-        component = self._create_component(name='Component 1')
-        component.delete()
-        self.assertEqual('deleted', listener.action)
-        self.assertIsInstance(listener.resource, Component)
-        self.assertEqual('Component 1', self.resource_name)
-
-    def listener_callback(self, action, resource, old_values = None):
-        self.resource_name = resource.name
-
-    def _create_component(self, name, description = None, owner=None):
-        component = Component(self.env)
-        component.name = name
-        if description is None:
-            component.description = description
-        if owner is None:
-            component.owner = owner
-        component.insert()
-        return component
-
 class VersionTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -1140,6 +1074,107 @@ class VersionTestCase(unittest.TestCase):
         self.assertEqual([('Test', 0, 'Some text')], self.env.db_query(
             "SELECT name, time, description FROM version WHERE name='Test'"))
 
+class BaseResourceChangeListenerTestCase(unittest.TestCase):
+    DUMMY_RESOURCE_NAME = "Resource 1"
+    resource_type = None
+    name_field = "name"
+
+    def setUp(self):
+        self.env = EnvironmentStub(default_data=True)
+        self.listener = TestResourceChangeListener(self.env)
+        self.listener.resource_type = self.resource_type
+        self.listener.callback = self.listener_callback
+
+    def tearDown(self):
+        self.env.reset_db()
+
+    def test_change_listener_created(self):
+        self._create_resource(self.DUMMY_RESOURCE_NAME)
+        self.assertEqual('created', self.listener.action)
+        self.assertIsInstance(self.listener.resource, self.resource_type)
+        self.assertEqual(
+            self.DUMMY_RESOURCE_NAME,
+            self.resource_name)
+
+    def test_change_listener_changed(self):
+        resource = self._create_resource(self.DUMMY_RESOURCE_NAME)
+        self._rename_resource(resource, "UpdatedName")
+        self.assertEqual('changed', self.listener.action)
+        self.assertIsInstance(self.listener.resource, self.resource_type)
+        self.assertEqual("UpdatedName", self.resource_name)
+        self.assertEqual(
+            self.DUMMY_RESOURCE_NAME,
+            self.listener.old_values[self.name_field])
+
+    def test_change_listener_deleted(self):
+        resource = self._create_resource(self.DUMMY_RESOURCE_NAME)
+        resource.delete()
+        self.assertEqual('deleted', self.listener.action)
+        self.assertIsInstance(self.listener.resource, self.resource_type)
+        self.assertEqual(self.DUMMY_RESOURCE_NAME, self.resource_name)
+
+    def _create_resource(self, name):
+        resource = self.resource_type(self.env)
+        resource.name = name
+        resource.insert()
+        return resource
+
+    def _rename_resource(self, resource, new_name):
+        resource.name = new_name
+        resource.update()
+        return resource
+
+    def _get_resource_name(self, resource):
+        return resource.name
+
+    def listener_callback(self, action, resource, context, old_values = None):
+        self.resource_name = self._get_resource_name(resource)
+
+class ComponentResourceChangeListenerTestCase(
+    BaseResourceChangeListenerTestCase):
+    resource_type = Component
+
+class VersionResourceChangeListenerTestCase(
+    BaseResourceChangeListenerTestCase):
+    resource_type = Version
+
+class PriorityResourceChangeListenerTestCase(
+    BaseResourceChangeListenerTestCase):
+    resource_type = Priority
+
+class MilestoneResourceChangeListenerTestCase(
+    BaseResourceChangeListenerTestCase):
+    resource_type = Milestone
+
+class TicketResourceChangeListenerTestCase(
+    BaseResourceChangeListenerTestCase):
+    resource_type = Ticket
+    name_field = "summary"
+    dummy_author = "anAuthor"
+    dummy_comment = "some comment"
+
+    def test_change_listener_changed(self):
+        super(
+            TicketResourceChangeListenerTestCase,
+            self).test_change_listener_changed()
+
+        self.assertEqual(self.dummy_author, self.listener.context["author"])
+        self.assertEqual(self.dummy_comment, self.listener.context["comment"])
+
+
+    def _create_resource(self, name):
+        ticket = Ticket(self.env)
+        ticket["summary"] = name
+        ticket.insert()
+        return ticket
+
+    def _rename_resource(self, resource, new_name):
+        resource["summary"] = new_name
+        resource.save_changes(self.dummy_author, self.dummy_comment)
+        return resource
+
+    def _get_resource_name(self, resource):
+        return resource["summary"]
 
 def suite():
     suite = unittest.TestSuite()
@@ -1150,6 +1185,16 @@ def suite():
     suite.addTest(unittest.makeSuite(MilestoneTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ComponentTestCase, 'test'))
     suite.addTest(unittest.makeSuite(VersionTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(
+        ComponentResourceChangeListenerTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(
+        VersionResourceChangeListenerTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(
+        PriorityResourceChangeListenerTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(
+        MilestoneResourceChangeListenerTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(
+        TicketResourceChangeListenerTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':
