@@ -47,20 +47,25 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
         return env
 
 class ProductizedHref(Href):
+    PATHS_NO_TRANSFORM = ['chrome',
+                          'login',
+                          'logout',
+                          'prefs',
+                          'products',
+                          ]
+    STATIC_PREFIXES = ['js/',
+                       'css/',
+                       'img/',
+                       ]
     def __init__(self, global_href, base):
         super(ProductizedHref, self).__init__(base)
         self._global_href = global_href
 
     def __call__(self, *args, **kwargs):
         if args:
-            # TODO: this should be done using regex or similar
-            if args[0] == 'chrome' or \
-               (len(args) == 1 and args[0] in
-                ['admin', 'login', 'logout', 'prefs']) or \
-               args[0].startswith('js/') or \
-               args[0].startswith('css/') or\
-               args[0].startswith('img/') or\
-               args[0].startswith('products'):
+            if args[0] in self.PATHS_NO_TRANSFORM or \
+               (len(args) == 1 and args[0] == 'admin') or \
+               filter(lambda x: args[0].startswith(x), self.STATIC_PREFIXES):
                 return self._global_href(*args, **kwargs)
         return super(ProductizedHref, self).__call__(*args, **kwargs)
 
