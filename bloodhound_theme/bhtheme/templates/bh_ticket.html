@@ -66,36 +66,21 @@
         // Install in place editing
 
         var modify_elem = $('#modify');
-        <py:choose test="ticket.exists">
-          <py:when test="True">
-            modify_elem.parent().hide();
-            $('#propertyform .buttons [name="preview"]').hide();
-            $('#comment').change(function (e) {
-              $('#hidden-comment').val($('#comment').val());
-            });
-            $('#propertyform .buttons [name="submit"]').click(function (e) {
-              if ($('button#edit-submit').length) {
-                // if available trigger the edit state's update button
-                $('button#edit-submit').click();
-                e.preventDefault();
-              }
-              // otherwise the default submit comment only happens
-            });
-          </py:when>
-          <py:otherwise>
-            $('#propertyform .buttons [name="submit"]').click(function(e) {
-              /*
-                change the form action from /products to
-                  /products/target_product/newticket#ticket
-              */
-              var form = $('#propertyform');
-              var action = form.attr('action') + '/' + 
-                $('#propertyform [name="field_product"]').val() +
-                '/newticket#ticket';
-              form.attr('action', action);
-            });
-          </py:otherwise>
-        </py:choose>
+        <py:if test="ticket.exists">
+          modify_elem.parent().hide();
+          $('#propertyform .buttons [name="preview"]').hide();
+          $('#comment').change(function (e) {
+            $('#hidden-comment').val($('#comment').val());
+          });
+          $('#propertyform .buttons [name="submit"]').click(function (e) {
+            if ($('button#edit-submit').length) {
+              // if available trigger the edit state's update button
+              $('button#edit-submit').click();
+              e.preventDefault();
+            }
+            // otherwise the default submit comment only happens
+          });
+        </py:if>
   
         function modify_ticket() {
           if ($('#vc-summary').is('.edit-active'))
@@ -397,7 +382,7 @@
           <!--! add comment + modify ticket -->
           <form py:if="has_property_editor" method="post" id="propertyform"
                   action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists
-                            else href.products()}">
+                            else href.newticket() + '#ticket'}">
             <div py:if="ticket.exists and can_append">
               <!--! Add comment -->
               <div id="trac-add-comment" class="field">
