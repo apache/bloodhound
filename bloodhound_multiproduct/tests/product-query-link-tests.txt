@@ -2,7 +2,7 @@
 
         Product query links
 
-============================== query: link resolver
+============================== %(tc_title_prefix)s - query: link resolver
 %(link_prefix)squery:?order=priority
 
 %(link_prefix)squery:?order=priority&owner=me
@@ -49,42 +49,42 @@
 <a class="query" href="%(path_prefix)s/query?summary=r%%C3%%A9sum%%C3%%A9&amp;order=priority">%(link_prefix)squery:summary=résumé</a>
 </p>
 ------------------------------
-============================== TicketQuery macro: no results, list form
+============================== %(tc_title_prefix)s - TicketQuery macro: no results, list form
 Reopened tickets: [[TicketQuery(status=reopened)]]
 ------------------------------
 <p>
 Reopened tickets: <span class="query_no_results">No results</span>
 </p>
 ------------------------------
-============================== TicketQuery macro: no results, count 0
+============================== %(tc_title_prefix)s - TicketQuery macro: no results, count 0
 Reopened tickets: [[TicketQuery(status=reopened, format=count)]]
 ------------------------------
 <p>
 Reopened tickets: <span class="query_count" title="0 tickets for which status=reopened&amp;max=0&amp;order=id">0</span>
 </p>
 ------------------------------
-============================== TicketQuery macro: no results, compact form
+============================== %(tc_title_prefix)s - TicketQuery macro: no results, compact form
 Reopened tickets: [[TicketQuery(status=reopened, format=compact)]]
 ------------------------------
 <p>
 Reopened tickets: <span class="query_no_results">No results</span>
 </p>
 ------------------------------
-============================== TicketQuery macro: one result, list form
+============================== %(tc_title_prefix)s - TicketQuery macro: one result, list form
 New tickets: [[TicketQuery(status=new)]]
 ------------------------------
 <p>
 New tickets: </p><div><dl class="wiki compact"><dt><a class="new" href="%(path_prefix)s/ticket/1" title="This is the summary">#1</a></dt><dd>This is the summary</dd></dl></div><p>
 </p>
 ------------------------------
-============================== TicketQuery macro: one result, count 1
+============================== %(tc_title_prefix)s - TicketQuery macro: one result, count 1
 New tickets: [[TicketQuery(status=new, format=count)]]
 ------------------------------
 <p>
 New tickets: <span class="query_count" title="1 tickets for which status=new&amp;max=0&amp;order=id">1</span>
 </p>
 ------------------------------
-============================== TicketQuery macro: one result, compact form
+============================== %(tc_title_prefix)s - TicketQuery macro: one result, compact form
 New tickets: [[TicketQuery(status=new, format=compact)]]
 ------------------------------
 <p>

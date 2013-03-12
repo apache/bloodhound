@@ -69,6 +69,7 @@ def ticket_setup(tc):
     ticket.insert()
 
 
+# Full syntax
 PRODUCT_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-link-tests.txt'))
 PRODUCT_ATTACHMENT_LINKS = to_unicode(pkg_resources.resource_string(
@@ -89,6 +90,23 @@ PRODUCT_QUERY2_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-query2-link-tests.txt'))
 PRODUCT_COMMENT_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-comment-link-tests.txt'))
+
+# Compact syntax
+PRODUCT_ATTACHMENT_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-attachment-link-tests.short.txt')) 
+PRODUCT_SEARCH_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-search-link-tests.short.txt'))
+PRODUCT_TICKET_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-ticket-link-tests.short.txt'))
+#PRODUCT_REPORT_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+#        __name__, 'product-report-link-tests.short.txt'))
+PRODUCT_MILESTONE_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-milestone-link-tests.short.txt'))
+PRODUCT_QUERY_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-query-link-tests.short.txt'))
+PRODUCT_COMMENT_SHORTLINKS = to_unicode(pkg_resources.resource_string(
+        __name__, 'product-comment-link-tests.short.txt'))
+
 PRODUCT_NOMATCH_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-nomatch-link-tests.txt'))
 
@@ -135,22 +153,22 @@ def link_mp_setup(_setup):
 # load_products         : optional product prefixes list to load at setup time
 # *_product_name        : target product name (e.g. setup_product_name ) 
 TEST_PRODUCT_CONTEXTS = [
-#                         {'tc_title_prefix' : 'product: links',
-#                          'link_prefix' : 'product:tp1:',
-#                          'link_prefix_quote' : 'product:"tp1:',
-#                          'path_prefix' : '/products/tp1',
-#                          'main_product' : 'tp2',
-#                          'setup_product' : 'tp1',
-#                          'link_title_prefix' : '[tp1] ',
-#                          },
-#                         {'tc_title_prefix' : 'product: links unicode prefix',
-#                          'link_prefix' : u'product:xü:',
-#                          'link_prefix_quote' : u'product:"xü:',
-#                          'path_prefix' : '/products/x%C3%BC',
-#                          'main_product' : 'tp2',
-#                          'setup_product' : u'xü',
-#                          'link_title_prefix' : u'[xü] ',
-#                          },
+                         {'tc_title_prefix' : 'product: links',
+                          'link_prefix' : 'product:tp1:',
+                          'link_prefix_quote' : 'product:"tp1:',
+                          'path_prefix' : '/products/tp1',
+                          'main_product' : 'tp2',
+                          'setup_product' : 'tp1',
+                          'link_title_prefix' : '[tp1] ',
+                          },
+                         {'tc_title_prefix' : 'product: links unicode prefix',
+                          'link_prefix' : u'product:xü:',
+                          'link_prefix_quote' : u'product:"xü:',
+                          'path_prefix' : '/products/x%C3%BC',
+                          'main_product' : 'tp2',
+                          'setup_product' : u'xü',
+                          'link_title_prefix' : u'[xü] ',
+                          },
 
                          # Ignored as TracLinks resolver won't match expression
                          #{'tc_title_prefix' : 'product:: refs to global',
@@ -161,26 +179,35 @@ TEST_PRODUCT_CONTEXTS = [
                          # 'link_title_prefix' : '<global> '
                          # },
 
-#                         {'tc_title_prefix' : 'global: links',
-#                          'link_prefix' : 'global:',
-#                          'link_prefix_quote' : 'global:"',
-#                          'path_prefix' : '',
-#                          'main_product' : 'tp2',
-#                          'setup_product' : '',
-#                          'link_title_prefix' : '&lt;global&gt; ',
-#                          },
+                         {'tc_title_prefix' : 'global: links',
+                          'link_prefix' : 'global:',
+                          'link_prefix_quote' : 'global:"',
+                          'path_prefix' : '',
+                          'main_product' : 'tp2',
+                          'setup_product' : '',
+                          'link_title_prefix' : '&lt;global&gt; ',
+                          },
+                        ]
+
+TEST_PRODUCT_CONTEXTS_COMPACT = [
                           {'tc_title_prefix' : 'short product syntax',
                           'link_prefix' : 'tp1' + PRODUCT_SYNTAX_DELIMITER,
+                          'link_prefix_quote' : 'tp1%s"' % PRODUCT_SYNTAX_DELIMITER,
                           'path_prefix' : '/products/tp1',
                           'main_product' : 'tp2',
+                          'setup_product' : 'tp1',
+                          'link_title_prefix' : '[tp1] ',
                           },
                          {'tc_title_prefix' : 'short product syntax unicode prefix',
                           'link_prefix' : u'xü' + PRODUCT_SYNTAX_DELIMITER,
+                          'link_prefix_quote' : u'xü%s"' % PRODUCT_SYNTAX_DELIMITER,
                           'path_prefix' : '/products/x%C3%BC',
                           'main_product' : 'tp2',
                           'setup_product' : u'xü',
+                          'link_title_prefix' : u'[xü] ',
                           },
                         ]
+
 for _ctx in TEST_PRODUCT_CONTEXTS:
     _product_names = {}
     for k,v in _ctx.iteritems():
@@ -228,8 +255,6 @@ def test_suite():
                                   teardown=attachment_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-
-
     suite.addTests(formatter.test_suite(PRODUCT_TICKET_LINKS % ctx, 
                                   link_mp_setup(ticket_wikisyntax.ticket_setup), 
                                   __file__,
@@ -274,6 +299,53 @@ def test_suite():
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
 
+
+    # Compact syntax
+    suite.addTests(formatter.test_suite(PRODUCT_SEARCH_SHORTLINKS % ctx, 
+                                  file=__file__,
+                                  setup=clear_base_href_setup,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+    suite.addTests(formatter.test_suite(PRODUCT_ATTACHMENT_SHORTLINKS % ctx, 
+                                  file=__file__,
+                                  context=('wiki', 'WikiStart'),
+                                  setup=link_mp_setup(attachment_setup),
+                                  teardown=attachment_teardown,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+    suite.addTests(formatter.test_suite(PRODUCT_TICKET_SHORTLINKS % ctx, 
+                                  link_mp_setup(ticket_wikisyntax.ticket_setup), 
+                                  __file__,
+                                  # No need to invoke it anymore
+                                  # ticket_wikisyntax.ticket_teardown,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+
+#    suite.addTests(formatter.test_suite(PRODUCT_REPORT_SHORTLINKS % ctx, 
+#                                  link_mp_setup(ticket_wikisyntax.report_setup), 
+#                                  __file__,
+#                                  mpctx=ctx)
+#                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+    suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_SHORTLINKS % ctx, 
+                                  link_mp_setup(ticket_wikisyntax.milestone_setup),
+                                  __file__, 
+                                  ticket_wikisyntax.milestone_teardown,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+    suite.addTests(formatter.test_suite(PRODUCT_QUERY_SHORTLINKS % ctx, 
+                                  link_mp_setup(ticket_setup), 
+                                  __file__,
+                                  ticket_wikisyntax.ticket_teardown,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+    suite.addTests(formatter.test_suite(PRODUCT_COMMENT_SHORTLINKS % ctx,
+                                  clear_base_href_setup,
+                                  __file__,
+                                  mpctx=ctx)
+                   for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
+
+
+    # Unmatched expressions
     suite.addTest(formatter.test_suite(PRODUCT_NOMATCH_LINKS,
                                   file=__file__))
 

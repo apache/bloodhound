@@ -31,12 +31,13 @@ from trac.env import IEnvironmentSetupParticipant
 from trac.perm import IPermissionRequestor, PermissionCache
 from trac.resource import IResourceManager
 from trac.ticket.api import ITicketFieldProvider
-from trac.util.text import to_unicode
+from trac.util.text import to_unicode, unquote_label
 from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider
 from trac.web.main import FakePerm, FakeSession
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.formatter import LinkFormatter
+from trac.wiki.parser import WikiParser
 
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter
@@ -340,11 +341,22 @@ class MultiProductSystem(Component):
 
     # IWikiSyntaxProvider methods
 
-    short_syntax_delimiter = u'->'
+    short_syntax_delimiter = u'~'
 
     def get_wiki_syntax(self):
+        yield (r'(?<!\S)!?(?P<pid>(?!\d)\w+)' + 
+               ''.join('[%s]' % c for c in self.short_syntax_delimiter) +
+               r'(?P<ptarget>%s:(?:%s)|%s|%s(?:%s*%s)?)' %
+                    (WikiParser.LINK_SCHEME, WikiParser.QUOTED_STRING, 
+                     WikiParser.QUOTED_STRING, WikiParser.SHREF_TARGET_FIRST, 
+                     WikiParser.SHREF_TARGET_MIDDLE, WikiParser.SHREF_TARGET_LAST),
+               lambda f, m, fm : 
+                    self._format_link(f, 'product', 
+                                      '%s:%s' % (fm.group('pid'), 
+                                                 unquote_label(fm.group('ptarget'))),
+                                      fm.group(0), fm))
         if self.env[ProductTicketModule] is not None:
-            yield (r"(?<!\S)!?(?P<jtp>()(?!\d)\w+)-(?P<jtt>\d+)"
+            yield (r"(?<!\S)!?(?P<jtp>(?!\d)\w+)-(?P<jtt>\d+)"
                    r"(?P<jtf>[?#]\S+)?",
                    lambda f, m, fm : 
                         self._format_link(f, 'product', 
