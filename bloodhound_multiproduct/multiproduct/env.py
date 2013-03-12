@@ -830,7 +830,7 @@ class ProductEnvironment(Component, ComponentManager):
             # Lookup product by name
             products = Product.select(global_env, where={'name' : name})
             if products:
-                return MultiProductEnvironmentFactory(global_env, products[0])
+                return ProductEnvironmentFactory(global_env, products[0])
             else:
                 raise LookupError("Missing product '%s'" % (name,))
         else:
