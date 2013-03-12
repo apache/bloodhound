@@ -79,11 +79,12 @@
       <bh:args>
         <bh:arg name="max">10</bh:arg>
         <bh:arg name="query">product=${product.prefix}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
-        <bh:arg name="title">Active tickets</bh:arg>
+        <bh:arg name="title">Active Tickets</bh:arg>
       </bh:args>
     </bh:widget>
     <bh:widget urn="TicketFieldValues">
       <bh:args>
+        <bh:arg name="title">Versions</bh:arg>
         <bh:arg name="field">version</bh:arg>
         <bh:arg name="verbose">true</bh:arg>
         <bh:arg name="query">product=${product.prefix}&amp;group=version</bh:arg>
@@ -91,6 +92,15 @@
     </bh:widget>
     <bh:widget urn="TicketFieldValues">
       <bh:args>
+        <bh:arg name="title">Milestones</bh:arg>
+        <bh:arg name="field">milestone</bh:arg>
+        <bh:arg name="verbose">true</bh:arg>
+        <bh:arg name="query">product=${product.prefix}&amp;group=milestone</bh:arg>
+      </bh:args>
+    </bh:widget>
+    <bh:widget urn="TicketFieldValues">
+      <bh:args>
+        <bh:arg name="title">Components</bh:arg>
         <bh:arg name="field">component</bh:arg>
         <bh:arg name="verbose">true</bh:arg>
         <bh:arg name="query">product=${product.prefix}&amp;group=component</bh:arg>
