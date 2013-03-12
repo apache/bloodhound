@@ -33,7 +33,7 @@
 
   <body>
     <div id="content" class="${resource.realm} row">
-      <h1 py:choose="">
+      <h1 class="span12" py:choose="">
         <py:when test="old_version"><i18n:msg params="old, new, name">Changes between
           <a href="${old_url or url_of(resource, version=old_version)}">Version $old_version</a> and
           <a href="${new_url or url_of(resource, version=new_version)}">Version $new_version</a> of
