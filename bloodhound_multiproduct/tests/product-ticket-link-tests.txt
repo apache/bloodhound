@@ -90,13 +90,17 @@
 %(link_prefix)s#⁴²
 %(link_prefix)s#1-⁵,42
 %(link_prefix)s#1,³,5,7
+%(link_prefix_quote)s#1"-⁵,42
+%(link_prefix_quote)s#1",³,5,7
 %(link_prefix)s#T²⁰⁴¹
 %(link_prefix)s#trac²⁰⁴¹
 ------------------------------
 <p>
 %(link_prefix)s#⁴²
-<a class="new ticket" href="/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">#1</a>-⁵,42
-<a class="new ticket" href="/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">#1</a>,³,5,7
+<a class="new ticket" href="%(path_prefix)s/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">#1</a>
+<a class="new ticket" href="%(path_prefix)s/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">#1</a>
+<a class="new ticket" href="%(path_prefix)s/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">#1</a>-⁵,42
+<a class="new ticket" href="%(path_prefix)s/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">#1</a>,³,5,7
 %(link_prefix)s#T²⁰⁴¹
 %(link_prefix)s#trac²⁰⁴¹
 </p>

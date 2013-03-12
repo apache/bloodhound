@@ -21,6 +21,7 @@
 import copy
 
 from genshi.builder import tag, Element
+from genshi.core import escape
 
 from pkg_resources import resource_filename
 from trac.config import Option, PathOption
@@ -463,7 +464,14 @@ class MultiProductSystem(Component):
                                 if isinstance(link, Element) 
                                     and 'title' in link.attrib 
                                 else link)
-        return subformatter.match(sublink + extra)
+        link = subformatter.match(sublink + extra)
+        if link:
+            return link
+        else:
+            # Return outermost match unchanged like if it was !-escaped
+            for itype, match in fullmatch.groupdict().items():
+                if match and not itype in formatter.wikiparser.helper_patterns:
+                    return escape(match)
 
 
 PRODUCT_SYNTAX_DELIMITER = MultiProductSystem.short_syntax_delimiter
