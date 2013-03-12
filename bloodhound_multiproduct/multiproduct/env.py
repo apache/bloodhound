@@ -16,6 +16,7 @@
 #  under the License.
 
 """Bloodhound product environment and related APIs"""
+from multiproduct.hooks import MultiProductEnvironmentFactory
 
 import os.path
 from urlparse import urlsplit
@@ -821,7 +822,7 @@ class ProductEnvironment(Component, ComponentManager):
             return env
         if prefix:
             try:
-                return ProductEnvironment(global_env, prefix)
+                return ProductEnvironmentFactory(global_env, prefix)
             except LookupError:
                 if not name:
                     raise
@@ -829,7 +830,7 @@ class ProductEnvironment(Component, ComponentManager):
             # Lookup product by name
             products = Product.select(global_env, where={'name' : name})
             if products:
-                return ProductEnvironment(global_env, products[0])
+                return MultiProductEnvironmentFactory(global_env, products[0])
             else:
                 raise LookupError("Missing product '%s'" % (name,))
         else:
