@@ -64,6 +64,8 @@
 
         <py:if test="has_property_editor">
         // Install in place editing
+        install_workflow();
+        $('#edit-cancel').click(revert_ticket);
 
         var modify_elem = $('#modify');
         <py:if test="ticket.exists">
@@ -109,45 +111,7 @@
                   addWikiFormattingToolbar(editor.get(0));
               }
               if (fieldnm === 'summary') {
-                // Install inline edit form 
-                var submit_ticket = $('#tmpl-inplace-submit').html();
-                submit_ticket = $(submit_ticket).prepend(editor)
-                    .appendTo(fc);
-                submit_ticket.find('#edit-cancel').click(revert_ticket);
                 editor.wrap('<div class="btn-group"></div>')
-
-                // Workflow actions
-                var actions_box = submit_ticket.find('#workflow-actions')
-                    .click(function(e) { e.stopPropagation(); });
-                $('#action').children('div').each(function() {
-                    var action_ui = $(this).clone(false).prependTo(actions_box)
-                        .wrap('<li style="padding: 5px 10px"></li>');
-                    var action_trigger = action_ui.find('input[name=action]');
-
-                    function action_click() {
-                      var newlabel = action_ui.find('label[for^=action_]')
-                          .text();
-                      $('#submit-action-label').text(newlabel);
-
-                      // Enable | disable action controls
-                      actions_box.find('input[name=action]').each(function() {
-                          $(this).siblings().find("*[id]")
-                              .enable($(this).checked());
-                          $(this).siblings().filter("*[id]")
-                              .enable($(this).checked());
-                        });
-                    }
-                    action_trigger.click(action_click);
-                    if (action_trigger.attr('checked'))
-                      action_click();
-
-                    var action_help = action_ui.find('.help-block').detach()
-                        .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
-                        .replace(/^\s$/, '');
-                    if (action_help)
-                        $('<i class="icon-info-sign"></i>').appendTo(action_ui)
-                            .attr('title', action_help);
-                  })
               }
             });
 
@@ -157,17 +121,71 @@
           $('#inplace-propertyform').submit(function() {
               $('#hidden-comment').val($('#comment').val());
             })
-          $('#inplace-edit-button').hide();
+          $('#inplace-edit').hide();
+          $('#edit-state-buttons').show();
+          $('#vc-status a').hide();
+          $('#edit-workflow-buttons').show();
         }
 
-        function revert_ticket() {
+        function revert_ticket(e) {
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).removeClass('edit-active');
               fc.html(fc.attr('data-edit-orig')).attr('data-edit-orig', '');
             });
-          $('#inplace-edit-button').show();
+          $('#inplace-edit').show();
           $('h2#vc-summary span').attr('contenteditable', 'false');
+          $('#edit-state-buttons').hide();
+          $('#vc-status a').show();
+          $('#edit-workflow-buttons').hide();
+          e.preventDefault();
         }
+
+        function install_workflow(){
+          var actions_box = $('#workflow-actions')
+              .click(function(e) { e.stopPropagation(); });
+          $('#action').children('div').each(function() {
+              var action_ui = $(this).clone(false).prependTo(actions_box)
+                  .wrap('<li style="padding: 5px 10px"></li>');
+              var action_trigger = action_ui.find('input[name=action]');
+              var action_select_trigger = action_ui.find('select');
+              var action_input_trigger = action_ui.find('input:not([name=action])');
+
+              function action_click() {
+                var action = action_ui.find('input[name=action]').val();
+                var newowner = action_ui.find('input[id$=_reassign_owner]').val();
+                var newresolution = action_ui.find('select[id$=_resolution]').val();
+                var newlabel = action_ui.find('label[for^=action_]')
+                    .text();
+                if (action === 'leave')
+                  newlabel = newlabel + ' as ' + $('#vc-status a').text();
+                else if (newowner)
+                  newlabel = newlabel + ' to ' + newowner;
+                else if (newresolution)
+                  newlabel = newlabel + ' as ' + newresolution;
+                $('#submit-action-label').text(newlabel);
+
+                // Enable | disable action controls
+                actions_box.find('input[name=action]').each(function() {
+                    $(this).siblings().find("*[id]")
+                        .enable($(this).checked());
+                    $(this).siblings().filter("*[id]")
+                        .enable($(this).checked());
+                  });
+              }
+              action_trigger.click(action_click);
+              action_select_trigger.change(action_click);
+              action_input_trigger.blur(action_click);
+              if (action_trigger.attr('checked'))
+                action_click();
+
+              var action_help = action_ui.find('.help-block').detach()
+                  .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
+                  .replace(/^\s$/, '');
+              if (action_help)
+                  $('<i class="icon-info-sign"></i>').appendTo(action_ui)
+                      .attr('title', action_help);
+            });
+          }
 
         $('h2#vc-summary span').blur(function () {
           if ($('#vc-summary.edit-active').length == 1) {
@@ -270,6 +288,15 @@
             <i class="icon-edit"></i>
             <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
           </button>
+          <div id="edit-state-buttons" class="btn-toolbar" style="display: None">
+            <button id="edit-submit" class="btn" type="submit"
+                value="Submit changes" name="submit">
+              Submit changes
+            </button>
+            <button id="edit-cancel" class="btn-link" title="Discard changes">
+              Cancel
+            </button>
+          </div>
         </div>
       </py:if>
     </py:def>
@@ -654,24 +681,6 @@
 
     <script type="text/x-tmpl" id="tmpl-inplace-submit" py:if="has_property_editor">
       <div class="btn-toolbar">
-        <div class="btn-group">
-          <button id="edit-submit" class="btn btn-primary" type="submit" 
-              value="Submit changes" name="submit">
-            Update (<span id="submit-action-label"></span>)
-          </button>
-          <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <fieldset id="workflow-actions">
-            </fieldset>
-          </ul>
-        </div>
-        <div class="btn-group">
-          <button id="edit-cancel" class="btn-link" title="Discard changes">
-            Cancel
-          </button>
-        </div>
         <div class="btn-group">
           <span class="trac-loading">&nbsp;</span>
         </div>
