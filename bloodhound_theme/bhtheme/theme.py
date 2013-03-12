@@ -79,11 +79,14 @@ class BloodhoundTheme(ThemeBase):
         'admin_products.html' : ('bh_admin_products.html', None),
 
         # Preferences
+        'prefs.html' : ('bh_prefs.html', None),
         'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
         'prefs_datetime.html' : ('bh_prefs_datetime.html', None),
         'prefs_general.html' : ('bh_prefs_general.html', None),
+        'prefs_language.html' : ('bh_prefs_language.html', None),
         'prefs_keybindings.html' : ('bh_prefs_keybindings.html', None),
         'prefs_pygments.html' : ('bh_prefs_pygments.html', None),
+        'prefs_userinterface.html' : ('bh_prefs_userinterface.html', None),
 
         # Search
         'search.html' : ('bh_search.html', '_modify_search_data'),
