@@ -194,22 +194,6 @@ class ProductModule(Component):
                     'context': web_context(req, Resource('products', None))}
             return 'product_list.html', data, None
         
-        def add_product_link(rel, product):
-            href = req.href.products(product.prefix)
-            add_link(req, rel, href, _('Product "%(name)s"',
-                                       name=product.name))
-        
-        idx = [i for i, p in enumerate(products) if p.name == product.name]
-        if idx:
-            idx = idx[0]
-            if idx > 0:
-                add_product_link('first', products[0])
-                add_product_link('prev', products[idx - 1])
-            if idx < len(products) - 1:
-                add_product_link('next', products[idx + 1])
-                add_product_link('last', products[-1])        
-        prevnext_nav(req, _('Previous Product'), _('Next Product'),
-                     _('Back to Product List'))
         return 'product_view.html', data, None
     
     def _render_editor(self, req, product):

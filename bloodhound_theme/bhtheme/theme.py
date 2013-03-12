@@ -109,7 +109,8 @@ class BloodhoundTheme(ThemeBase):
         # Ticket
         'milestone_edit.html' : ('bh_milestone_edit.html', None),
         'milestone_delete.html' : ('bh_milestone_delete.html', None),
-        'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_css'),
+        'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),
+        'roadmap.html' : ('roadmap.html', '_add_products_general_breadcrumb'),
         'query.html' : ('bh_query.html', None),
         'report_delete.html' : ('bh_report_delete.html', None),
         'report_edit.html' : ('bh_report_edit.html', None), 
@@ -129,7 +130,7 @@ class BloodhoundTheme(ThemeBase):
         'dir_entries.html' : ('bh_dir_entries.html', None),
 
         # Multi Product
-        'product_view.html' : ('bh_product_view.html', None),
+        'product_view.html' : ('bh_product_view.html', '_add_products_general_breadcrumb'),
 
         # General purpose
         'about.html' : ('bh_about.html', None),
@@ -320,10 +321,12 @@ class BloodhoundTheme(ThemeBase):
         if is_active:
             data['resourcepath_template'] = 'bh_path_wikipage.html'
 
-    def _modify_roadmap_css(self, req, template, data, content_type, is_active):
-        """Insert roadmap.css
+    def _modify_roadmap_page(self, req, template, data, content_type, is_active):
+        """Insert roadmap.css + products breadcrumb
         """
         add_stylesheet(req, 'dashboard/css/roadmap.css')
+        self._add_products_general_breadcrumb(req, template, data,
+            content_type, is_active)
 
     def _modify_ticket(self, req, template, data, content_type, is_active):
         """Ticket modifications
@@ -387,6 +390,13 @@ class BloodhoundTheme(ThemeBase):
                 path_depth_limit=2
             ))
         add_stylesheet(req, 'theme/css/browser.css')
+
+
+    def _add_products_general_breadcrumb(self, req, template, data,
+                                         content_type, is_active):
+        data['product_list'] = [(p.prefix, p.name)
+            for p in self._get_product_list(req)]
+        data['resourcepath_template'] = 'bh_path_general.html'
 
     # INavigationContributor methods
 
