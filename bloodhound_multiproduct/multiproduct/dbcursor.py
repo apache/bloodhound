@@ -65,9 +65,12 @@ def translate_sql(env, sql):
                                                    TRANSLATE_TABLES,
                                                    PRODUCT_COLUMN,
                                                    product_prefix)
-        if log:
-            log.debug('Original SQl: %s', sql)
-    return translator.translate(sql) if (translator is not None) else sql
+    if log:
+        log.debug('Original SQl: %s', sql)
+    realsql = translator.translate(sql) if (translator is not None) else sql
+    if log:
+        log.debug('SQL: %s', realsql)
+    return realsql
 
 class BloodhoundIterableCursor(trac.db.util.IterableCursor):
     __slots__ = trac.db.util.IterableCursor.__slots__ + ['_translator']

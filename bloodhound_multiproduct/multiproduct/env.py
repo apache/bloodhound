@@ -1,4 +1,3 @@
-
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -805,24 +804,36 @@ class ProductEnvironment(Component, ComponentManager):
     # Multi-product API extensions
 
     @classmethod
-    def lookup_env(cls, env, prefix=None):
-        """Instantiate environment according to product prefix
+    def lookup_env(cls, env, prefix=None, name=None):
+        """Instantiate environment according to product prefix or name
 
-        @throws LookupError if no product matches prefix
+        @throws LookupError if no product matches neither prefix nor name 
         """
         if isinstance(env, ProductEnvironment):
-            if not prefix:
-                return env.parent
-            elif env.product.prefix == prefix:
-                return env
-            else:
-                return ProductEnvironment(env.parent, prefix)
+            global_env = env.parent
         else:
-            # `self` bound to global environment
-            if not prefix:
-                return env
+            global_env = env
+
+        if not prefix and not name:
+            return global_env
+        elif isinstance(env, ProductEnvironment) and \
+                env.product.prefix == prefix:
+            return env
+        if prefix:
+            try:
+                return ProductEnvironment(global_env, prefix)
+            except LookupError:
+                if not name:
+                    raise
+        if name:
+            # Lookup product by name
+            products = Product.select(global_env, where={'name' : name})
+            if products:
+                return ProductEnvironment(global_env, products[0])
             else:
-                return ProductEnvironment(env, prefix)
+                raise LookupError("Missing product '%s'" % (name,))
+        else:
+            raise LookupError("Mising product '%s'" % (prefix or name,))
 
     @classmethod
     def resolve_href(cls, to_env, at_env):

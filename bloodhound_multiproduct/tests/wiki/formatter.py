@@ -84,6 +84,8 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
                     and (self.env is self.global_env or 
                          prefix != self.env.product.prefix):
                 self._env = ProductEnvironment(self.global_env, prefix)
+            # Enable multi-product components
+            self._env.config.set('components', 'multiproduct.*', 'enabled')
 
     def tearDown(self):
         self.global_env.reset_db()

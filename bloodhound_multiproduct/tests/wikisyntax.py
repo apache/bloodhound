@@ -37,6 +37,7 @@ from trac.util.text import to_unicode
 
 from multiproduct.api import PRODUCT_SYNTAX_DELIMITER
 from multiproduct.env import ProductEnvironment
+from multiproduct.ticket.query import ProductTicketQueryMacro
 from tests.env import MultiproductTestCase
 from tests.wiki import formatter
 
