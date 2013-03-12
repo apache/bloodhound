@@ -107,15 +107,15 @@ class BloodhoundTheme(ThemeBase):
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
 
         # Ticket
-        'milestone_edit.html' : ('bh_milestone_edit.html', None),
-        'milestone_delete.html' : ('bh_milestone_delete.html', None),
+        'milestone_edit.html' : ('bh_milestone_edit.html', '_add_products_general_breadcrumb'),
+        'milestone_delete.html' : ('bh_milestone_delete.html', '_add_products_general_breadcrumb'),
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),
         'roadmap.html' : ('roadmap.html', '_add_products_general_breadcrumb'),
-        'query.html' : ('bh_query.html', None),
-        'report_delete.html' : ('bh_report_delete.html', None),
-        'report_edit.html' : ('bh_report_edit.html', None), 
-        'report_list.html' : ('bh_report_list.html', None),
-        'report_view.html' : ('bh_report_view.html', None),
+        'query.html' : ('bh_query.html', '_add_products_general_breadcrumb'),
+        'report_delete.html' : ('bh_report_delete.html', '_add_products_general_breadcrumb'),
+        'report_edit.html' : ('bh_report_edit.html', '_add_products_general_breadcrumb'), 
+        'report_list.html' : ('bh_report_list.html', '_add_products_general_breadcrumb'),
+        'report_view.html' : ('bh_report_view.html', '_add_products_general_breadcrumb'),
         'ticket.html' : ('bh_ticket.html', '_modify_ticket'),
         'ticket_preview.html' : ('bh_ticket_preview.html', None),
         'ticket_delete.html' : ('bh_ticket_delete.html', None),
@@ -310,10 +310,12 @@ class BloodhoundTheme(ThemeBase):
         if is_active:
             # Insert query string in search box (see bloodhound_theme.html)
             req.search_query = data.get('query')
-            # Breadcrumbs nav
-            data['resourcepath_template'] = 'bh_path_search.html'
             # Context nav
             prevnext_nav(req, _('Previous'), _('Next'))
+        # Breadcrumbs nav
+        data['product_list'] = [(p.prefix, p.name)
+            for p in self._get_product_list(req)]
+        data['resourcepath_template'] = 'bh_path_search.html'
 
     def _modify_wiki_page_path(self, req, template, data, content_type, is_active):
         """Override wiki breadcrumbs nav items
