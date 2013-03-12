@@ -55,7 +55,7 @@ class ProductizedHref(Href):
         if args:
             # TODO: this should be done using regex or similar
             if args[0] == 'chrome' or \
-               (args[0] == 'admin' and len(args) == 1) or \
+               (len(args) == 1 and args[0] in ['admin', 'login', 'logout']) or \
                args[0].startswith('js/') or \
                args[0].startswith('css/') or\
                args[0].startswith('img/') or\
