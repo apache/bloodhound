@@ -27,6 +27,7 @@ from trac.core import Component, ComponentManager, implements, Interface, Extens
 from trac.db.api import TransactionContextManager, QueryContextManager, DatabaseManager
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
+from trac.util.text import to_unicode, unicode_quote
 from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
@@ -789,13 +790,60 @@ class ProductEnvironment(Component, ComponentManager):
                                   "configuration, generated links may be "
                                   "incorrect")
                     urlpattern = 'products/$(prefix)s'
+                prefix = unicode_quote(self.product.prefix, safe="")
+                name = unicode_quote(self.product.name, safe="")
                 url = urlpattern.replace('$(', '%(') \
-                     .replace('%(prefix)s', self.product.prefix) \
-                     .replace('%(name)s', self.product.name)
-                self._abs_href = Href(self.parent.abs_href(url))
+                     .replace('%(prefix)s', prefix) \
+                     .replace('%(name)s', name)
+                parent_href = Href(self.parent.abs_href(), path_safe="/!~*'()%",
+                                   query_safe="!~*'()%")
+                self._abs_href = Href(parent_href(url))
             else:
                 self._abs_href = Href(self.base_url)
         return self._abs_href
+
+    # Multi-product API extensions
+
+    @classmethod
+    def lookup_env(cls, env, prefix=None):
+        """Instantiate environment according to product prefix
+
+        @throws LookupError if no product matches prefix
+        """
+        if isinstance(env, ProductEnvironment):
+            if not prefix:
+                return env.parent
+            elif env.product.prefix == prefix:
+                return env
+            else:
+                return ProductEnvironment(env.parent, prefix)
+        else:
+            # `self` bound to global environment
+            if not prefix:
+                return env
+            else:
+                return ProductEnvironment(env, prefix)
+
+    @classmethod
+    def resolve_href(cls, to_env, at_env):
+        """Choose absolute or relative href when generating links to 
+        a product (or global) environment.
+
+        @param at_env:        href expansion is taking place in the 
+                              scope of this environment 
+        @param to_env:        generated URLs point to resources in
+                              this environment
+        """
+        at_href = at_env.abs_href()
+        target_href = to_env.abs_href()
+        if urlsplit(at_href)[1] == urlsplit(target_href)[1]:
+            return to_env.href
+        else:
+            return to_env.abs_href
+
+
+lookup_product_env = ProductEnvironment.lookup_env
+resolve_product_href = ProductEnvironment.resolve_href
 
 from multiproduct.cache import lru_cache
 

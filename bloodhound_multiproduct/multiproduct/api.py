@@ -17,24 +17,30 @@
 #  under the License.
 
 """Core components to support multi-product"""
-from datetime import datetime
-
-from genshi.builder import tag
 
 import copy
+
+from genshi.builder import tag, Element
 
 from pkg_resources import resource_filename
 from trac.config import Option, PathOption
 from trac.core import Component, TracError, implements, Interface
 from trac.db import Table, Column, DatabaseManager, Index
 from trac.env import IEnvironmentSetupParticipant
-from trac.perm import IPermissionRequestor
+from trac.perm import IPermissionRequestor, PermissionCache
 from trac.resource import IResourceManager
 from trac.ticket.api import ITicketFieldProvider
+from trac.util.text import to_unicode
 from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider
+from trac.web.main import FakePerm, FakeSession
+from trac.wiki.api import IWikiSyntaxProvider
+from trac.wiki.formatter import LinkFormatter
 
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
+from multiproduct.util import EmbeddedLinkFormatter
+
+__all__ = 'MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER'
 
 DB_VERSION = 4
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
@@ -61,7 +67,7 @@ class MultiProductSystem(Component):
 
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
                IPermissionRequestor, ITicketFieldProvider, IResourceManager,
-               ISupportMultiProductEnvironment)
+               ISupportMultiProductEnvironment, IWikiSyntaxProvider)
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
@@ -308,7 +314,6 @@ class MultiProductSystem(Component):
         return []
 
     # IResourceManager methods
-
     def get_resource_realms(self):
         """Manage 'product' realm.
         """
@@ -326,24 +331,131 @@ class MultiProductSystem(Component):
         else:
             return desc
 
-    def _render_link(self, context, name, label, extra=''):
-        """Render link to product page.
-        """
-        product = Product.select(self.env, where={'name' : name})
-        if product:
-            product = product[0]
-            href = context.href.products(product.prefix)
-            if 'PRODUCT_VIEW' in context.perm(product.resource):
-                return tag.a(label, class_='product', href=href + extra)
-        elif 'PRODUCT_CREATE' in context.perm('product', name):
-            return tag.a(label, class_='missing product', 
-                    href=context.href('products', action='new'),
-                    rel='nofollow')
-        return tag.a(label, class_='missing product')
-
     def resource_exists(self, resource):
         """Check whether product exists physically.
         """
         products = Product.select(self.env, where={'name' : resource.id})
         return bool(products)
 
+    # IWikiSyntaxProvider methods
+    PRODUCT_SYNTAX_DELIMITER = u'-'
+
+    def get_wiki_syntax(self):
+        return []
+
+    def get_link_resolvers(self):
+        yield ('global', self._format_link)
+        yield ('product', self._format_link)
+
+    # Internal methods
+    def _render_link(self, context, name, label, extra='', prefix=None):
+        """Render link to product page.
+        """
+        product_env = product = None
+        env = self.env
+        if isinstance(env, ProductEnvironment):
+            if (prefix is not None and env.product.prefix == prefix) \
+                    or (prefix is None and env.name == name): 
+                product_env = env
+            env = env.parent
+        try:
+            if product_env is None:
+                if prefix is not None:
+                    product_env = ProductEnvironment(env, to_unicode(prefix))
+                else:
+                    product = Product.select(env, 
+                                             where={'name' : to_unicode(name)})
+                    if not product:
+                        raise LookupError("Missing product")
+                    product_env = ProductEnvironment(env, 
+                                                     to_unicode(product[0]))
+        except LookupError:
+            pass
+
+        if product_env is not None:
+            product = product_env.product
+            href = resolve_product_href(to_env=product_env, at_env=self.env)
+            if 'PRODUCT_VIEW' in context.perm(product.resource):
+                return tag.a(label, class_='product', href=href() + extra,
+                             title=product.name)
+        if 'PRODUCT_CREATE' in context.perm('product', name):
+            params = [('action', 'new')]
+            if prefix:
+                params.append( ('prefix', prefix) )
+            if name:
+                params.append( ('name', name) )
+            return tag.a(label, class_='missing product', 
+                    href=env.href('products', params),
+                    rel='nofollow')
+        return tag.a(label, class_='missing product')
+
+    def _format_link(self, formatter, ns, target, label, fullmatch):
+        link, params, fragment = formatter.split_link(target)
+        expr = link.split(':', 1)
+        if ns == 'product' and len(expr) == 1:
+            # product:prefix form
+            return self._render_link(formatter.context, None, label, 
+                                     params + fragment, expr[0])
+        elif ns == 'global' or (ns == 'product' and expr[0] == ''):
+            # global scope
+            sublink = link if ns == 'global' else expr[1]
+            target_env = self.env.parent \
+                            if isinstance(self.env, ProductEnvironment) \
+                            else self.env
+            return self._make_sublink(target_env, sublink, formatter, ns, 
+                                      target, label, fullmatch, 
+                                      extra=params + fragment)
+        else:
+            # product:prefix:realm:id:...
+            prefix, sublink = expr
+            try:
+                target_env = lookup_product_env(self.env, prefix)
+            except LookupError:
+                return tag.a(label, class_='missing product')
+            # TODO: Check for nested product links 
+            # e.g. product:p1:product:p2:ticket:1 
+            return self._make_sublink(target_env, sublink, formatter, ns,
+                                      target, label, fullmatch,
+                                      extra=params + fragment)
+
+    FakePermClass = FakePerm
+
+    def _make_sublink(self, env, sublink, formatter, ns, target, label, 
+                      fullmatch, extra=''):
+        parent_match = {'ns' : ns,
+                        'target' : target,
+                        'label': label,
+                        'fullmatch' : fullmatch,
+                        }
+
+        # Tweak nested context to work in target product/global scope 
+        subctx = formatter.context.child()
+        subctx.href = resolve_product_href(to_env=env, at_env=self.env)
+        try:
+            req = formatter.context.req
+        except AttributeError:
+            pass
+        else:
+            # Authenticate in local context but use foreign permissions
+            subctx.perm = self.FakePermClass() \
+                            if isinstance(req.session, FakeSession) \
+                            else PermissionCache(env, req.authname)
+            subctx.req = req
+
+        subformatter = EmbeddedLinkFormatter(env, subctx, parent_match)
+        subformatter.auto_quote = True
+        ctxtag = '[%s] ' % (env.product.prefix,) \
+                    if isinstance(env, ProductEnvironment) \
+                    else '<global> ' 
+        subformatter.enhance_link = lambda link : (
+                                link(title=ctxtag + link.attrib.get('title')) 
+                                if isinstance(link, Element) 
+                                    and 'title' in link.attrib 
+                                else link)
+        return subformatter.match(sublink + extra)
+
+
+PRODUCT_SYNTAX_DELIMITER = MultiProductSystem.PRODUCT_SYNTAX_DELIMITER
+
+from multiproduct.env import ProductEnvironment, lookup_product_env, \
+        resolve_product_href

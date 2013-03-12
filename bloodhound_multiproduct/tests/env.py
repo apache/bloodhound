@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -36,10 +37,11 @@ else:
 from trac.config import Option
 from trac.core import Component
 from trac.env import Environment
-from trac.test import EnvironmentStub
+from trac.test import EnvironmentStub, MockPerm
 from trac.tests.env import EnvironmentTestCase
 from trac.ticket.report import ReportModule
 from trac.ticket.web_ui import TicketModule
+from trac.util.text import to_unicode
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
@@ -115,12 +117,43 @@ class MultiproductTestCase(unittest.TestCase):
     default_product = 'tp1'
     MAX_TEST_PRODUCT = 3
 
-    PRODUCT_DATA = dict(
-            ['tp' + str(i), {'prefix':'tp' + str(i),
-                             'name' : 'test product ' + str(i),
-                             'description' : 'desc for tp' + str(i)}]
-            for i in xrange(1, MAX_TEST_PRODUCT)
-        )
+    PRODUCT_DATA = {
+                    'tp1' : {
+                             'prefix':'tp1',
+                             'name' : 'test product 1',
+                             'description' : 'desc for tp1',
+                             },
+                    'tp2' : {
+                             'prefix':'tp2',
+                             'name' : 'test product 2',
+                             'description' : 'desc for tp2',
+                             },
+                    u'xü' : {
+                             'prefix':u'xü',
+                             'name' : 'Non-ASCII chars',
+                             'description' : 'Unicode chars in name',
+                             },
+                    u'Überflüssigkeit' : {
+                             'prefix':u'Überflüssigkeit',
+                             'name' : 'Non-ASCII chars (long)',
+                             'description' : 'Long name with unicode chars',
+                             },
+                    'Foo Bar' : {
+                             'prefix':'Foo Bar',
+                             'name' : 'Whitespaces',
+                             'description' : 'Whitespace chars in name',
+                             },
+                    'Foo Bar#baz' : {
+                             'prefix':'Foo Bar#baz',
+                             'name' : 'Non-alphanumeric',
+                             'description' : 'Special chars in name',
+                             },
+                    'pl/de' : {
+                             'prefix':'pl/de',
+                             'name' : 'Path separator',
+                             'description' : 'URL path separator in name',
+                             },
+                    }
 
     # Test setup
 
@@ -130,6 +163,7 @@ class MultiproductTestCase(unittest.TestCase):
         Optionally set its path to a meaningful location (temp folder
         if `path` is `None`).
         """
+        MultiProductSystem.FakePermClass = MockPerm
         kwargs.setdefault('enable', ['trac.*', 'multiproduct.*'])
         self.env = env = EnvironmentStub(**kwargs)
         if create_folder:
@@ -179,6 +213,7 @@ class MultiproductTestCase(unittest.TestCase):
         """
         # TODO: Use fixtures implemented in #314
         product_data = self.PRODUCT_DATA[prefix]
+        prefix = to_unicode(prefix)
         product = Product(env)
         product._data.update(product_data)
         product.insert()

@@ -22,9 +22,11 @@ import os.path
 import re
 import unittest
 
+from trac.web.main import FakeSession
 from trac.wiki.tests import formatter
 
 from multiproduct.env import ProductEnvironment
+from multiproduct.model import Product
 from tests.env import MultiproductTestCase
 
 class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
@@ -46,8 +48,16 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
                 )
             self._upgrade_mp(self.global_env)
             self._load_product_from_data(self.global_env, self.default_product)
-            self._env = env = ProductEnvironment(
-                    self.global_env, self.default_product)
+            prefix = self.default_product
+            if self.mpctx:
+                prefix = self.mpctx.get('setup_product', prefix)
+                if prefix and prefix != self.default_product:
+                    self._load_product_from_data(self.global_env, prefix)
+            if prefix:
+                self._env = env = ProductEnvironment(
+                        self.global_env, prefix or self.default_product)
+            else:
+                self._env = env = self.global_env
         return env
 
     @env.setter
@@ -57,6 +67,23 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
     def setUp(self):
         self._setup_test_log(self.global_env)
         formatter.WikiTestCase.setUp(self)
+        if self.context.req:
+            self.context.req.session = FakeSession()
+        if self.mpctx:
+            candidates = set(self.mpctx.get('load_products', []) + 
+                             [self.mpctx.get('main_product')])
+            candidates -= set([self.default_product, None, 
+                              self.mpctx.get('setup_product')])
+            for prefix in candidates:
+                self._load_product_from_data(self.env, prefix)
+
+            prefix = self.mpctx.get('main_product', NotImplemented)
+            if prefix is None:
+                self._env = self.global_env
+            elif prefix is not NotImplemented \
+                    and (self.env is self.global_env or 
+                         prefix != self.env.product.prefix):
+                self._env = ProductEnvironment(self.global_env, prefix)
 
     def tearDown(self):
         self.global_env.reset_db()
@@ -67,8 +94,9 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
             self.global_env = self._env = None
 
     def __init__(self, title, input, correct, file, line, setup=None,
-                 teardown=None, context=None):
+                 teardown=None, context=None, mpctx=None):
         MultiproductTestCase.__init__(self, 'test')
+        self.mpctx = mpctx
         formatter.WikiTestCase.__init__(self, title, input, correct, file, line, 
                 setup, teardown, context)
 
@@ -84,7 +112,7 @@ class ProductOutlineTestCase(ProductWikiTestCase):
 
 
 def test_suite(data=None, setup=None, file=formatter.__file__, 
-        teardown=None, context=None):
+        teardown=None, context=None, mpctx=None):
     suite = unittest.TestSuite()
     def add_test_cases(data, filename):
         tests = re.compile('^(%s.*)$' % ('=' * 30), re.MULTILINE).split(data)
@@ -106,19 +134,19 @@ def test_suite(data=None, setup=None, file=formatter.__file__,
             if page:
                 page = ProductWikiTestCase(
                     title, input, page, filename, line, setup,
-                    teardown, context)
+                    teardown, context, mpctx)
             if oneliner:
                 oneliner = ProductOneLinerTestCase(
                     title, input, oneliner[:-1], filename, line, setup,
-                    teardown, context)
+                    teardown, context, mpctx)
             if page_escape_nl:
                 page_escape_nl = ProductEscapeNewLinesTestCase(
                     title, input, page_escape_nl, filename, line, setup,
-                    teardown, context)
+                    teardown, context, mpctx)
             if outline:
                 outline = ProductOutlineTestCase(
                     title, input, outline, filename, line, setup,
-                    teardown, context)
+                    teardown, context, mpctx)
             for tc in [page, oneliner, page_escape_nl, outline]:
                 if tc:
                     suite.addTest(tc)
