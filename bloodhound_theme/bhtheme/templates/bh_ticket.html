@@ -385,12 +385,6 @@
                       py:with="preview_mode = change_preview.fields ; 
                           colcount = 4 if bhdb else 6"/>
                 </div>
-
-                <!--! do not show attachments for old versions of this ticket or for new tickets -->
-                <div py:if="not version and version != 0 and ticket.exists">
-                  <xi:include href="bh_list_of_attachments.html"
-                              py:with="alist = attachments; foldable = True"/>
-                </div>
               </py:if>
 
             </div>
@@ -403,6 +397,12 @@
               <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
             </bh:args>
           </bh:widget>
+        </div>
+
+        <!--! do not show attachments for old versions of this ticket or for new tickets -->
+        <div class="$colspan" py:if="not version and version != 0 and ticket.exists">
+          <xi:include href="bh_list_of_attachments.html"
+                      py:with="alist = attachments; foldable = True"/>
         </div>
 
         <div class="$colspan">
