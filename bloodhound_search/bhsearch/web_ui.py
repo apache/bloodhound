@@ -60,6 +60,7 @@ class RequestParameters(object):
     FILTER_QUERY = "fq"
     VIEW = "view"
     SORT = "sort"
+    DEBUG = "debug"
 
     def __init__(self, req):
         self.req = req
@@ -85,6 +86,7 @@ class RequestParameters(object):
             DEFAULT_RESULTS_PER_PAGE))
         self.page = int(req.args.getfirst(self.PAGE, '1'))
         self.type = req.args.getfirst(self.TYPE)
+        self.debug = int(req.args.getfirst(self.DEBUG, '0'))
 
         self.params = {
             RequestParameters.FILTER_QUERY: []
@@ -106,6 +108,8 @@ class RequestParameters(object):
             self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
         if self.sort_string:
             self.params[RequestParameters.SORT] = self.sort_string
+        if self.debug:
+            self.params[RequestParameters.DEBUG] = self.debug
 
     def _parse_sort(self, sort_string):
         if not sort_string:
@@ -272,6 +276,9 @@ class BloodhoundSearchModule(Component):
             self.default_facets
         )
 
+        # compatibility with legacy search
+        req.search_query = request_context.parameters.query
+
         query_result = BloodhoundSearchApi(self.env).query(
             request_context.parameters.query,
             pagenum=request_context.page,
@@ -281,6 +288,7 @@ class BloodhoundSearchModule(Component):
             facets=request_context.facets,
             filter=request_context.query_filter,
             highlight=True,
+            context=request_context,
         )
 
         request_context.process_results(query_result)
@@ -301,20 +309,19 @@ class BloodhoundSearchModule(Component):
 
 class RequestContext(object):
     DATA_ACTIVE_FILTER_QUERIES = 'active_filter_queries'
-    DATA_ACTIVE_TYPE = "active_type"
-    DATA_ACTIVE_SORT = "active_sort"
+    DATA_BREADCRUMBS_TEMPLATE = 'resourcepath_template'
     DATA_TYPES = "types"
     DATA_HEADERS = "headers"
     DATA_ALL_VIEWS = "all_views"
-    DATA_ACTIVE_VIEW = "active_view"
     DATA_VIEW = "view"
     DATA_VIEW_GRID = "grid"
     DATA_FACET_COUNTS = 'facet_counts'
     DATA_DEBUG = 'debug'
     DATA_PAGE_HREF = 'page_href'
     DATA_RESULTS = 'results'
+    DATA_QUERY = 'query'
     DATA_QUICK_JUMP = "quickjump"
-
+    DATA_SEARCH_EXTRAS = 'extra_search_fields'
 
     #bhsearch may support more pluggable views later
     VIEWS_SUPPORTED = {
@@ -338,7 +345,10 @@ class RequestContext(object):
         self.env = env
         self.req = req
         self.parameters = RequestParameters(req)
-        self.data = {'query': self.parameters.query}
+        self.data = {
+            self.DATA_QUERY: self.parameters.query,
+            self.DATA_SEARCH_EXTRAS: [],
+        }
         self.search_participants = search_participants
         self.default_view = default_view
         self.all_grid_fields = all_grid_fields
@@ -349,9 +359,8 @@ class RequestContext(object):
 
         if self.parameters.sort:
             self.sort = self.parameters.sort
-            self.data[self.DATA_ACTIVE_SORT] = dict(
-                expression=self.parameters.sort_string,
-                href=self.parameters.create_href(skip_sort=True)
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.SORT, self.parameters.sort_string)
             )
         else:
             self.sort = self.DEFAULT_SORT
@@ -417,7 +426,9 @@ class RequestContext(object):
                 ),
             ))
         self.data[self.DATA_TYPES] = allowed_types
-        self.data[self.DATA_ACTIVE_TYPE] = active_type
+        self.data[self.DATA_SEARCH_EXTRAS].append(
+            (RequestParameters.TYPE, active_type)
+        )
 
     def _prepare_active_filter_queries(self):
         current_filters = self.parameters.filter_queries
@@ -435,6 +446,10 @@ class RequestContext(object):
             ) for filter_query in self.parameters.filter_queries
         ]
         self.data[self.DATA_ACTIVE_FILTER_QUERIES] = active_filter_queries
+        for filter_query in active_filter_queries:
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.FILTER_QUERY, filter_query['query'])
+            )
 
     def _prepare_quick_jump(self):
         if not self.parameters.query:
@@ -497,7 +512,9 @@ class RequestContext(object):
     def _add_views_selector(self):
         active_view = self.parameters.view
         if active_view:
-            self.data[self.DATA_ACTIVE_VIEW] = active_view
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.VIEW, active_view)
+            )
 
         all_views = []
         for view, label in self.VIEWS_SUPPORTED.iteritems():
@@ -635,7 +652,11 @@ class RequestContext(object):
                                   query_result.highlighting)
         self._prepare_results(docs, query_result.hits)
         self._prepare_result_facet_counts(query_result.facets)
+        self._prepare_breadcrumbs_template()
         self.data[self.DATA_DEBUG] = query_result.debug
+        if self.parameters.debug:
+            self.data[self.DATA_DEBUG]['enabled'] = True
+            self.data[self.DATA_SEARCH_EXTRAS].append(('debug', '1'))
         self.data[self.DATA_PAGE_HREF] = self.parameters.create_href()
 
     def _prepare_result_facet_counts(self, result_facets):
@@ -697,3 +718,6 @@ class RequestContext(object):
 
     def _create_genshi_fragment(self, html_fragment):
         return tag(HTML(html_fragment))
+
+    def _prepare_breadcrumbs_template(self):
+        self.data[self.DATA_BREADCRUMBS_TEMPLATE] = 'bhsearch_breadcrumbs.html'

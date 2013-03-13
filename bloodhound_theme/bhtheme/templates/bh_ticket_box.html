@@ -60,6 +60,18 @@ Arguments:
                   <py:otherwise>${ticket[field.name]}</py:otherwise>
                 </py:choose>
               </py:if>
+              <py:if test="field.name == 'status'">
+                <div id="edit-workflow-buttons" class="btn-group" style="display: none">
+                  <button class="btn dropdown-toggle" data-toggle="dropdown" style="white-space: normal">
+                    <span id="submit-action-label"></span>
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <fieldset id="workflow-actions">
+                    </fieldset>
+                  </ul>
+                </div>
+              </py:if>
             </div>
           </div>
         </div>

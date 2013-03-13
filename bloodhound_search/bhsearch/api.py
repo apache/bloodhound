@@ -186,7 +186,7 @@ class IQueryParser(Interface):
     """Extension point for Bloodhound Search query parser.
     """
 
-    def parse(query_string):
+    def parse(query_string, context):
         """Parse query from string"""
 
     def parse_filters(filters):
@@ -219,7 +219,7 @@ class IQueryPreprocessor(Interface):
 class IMetaKeywordParser(Interface):
     """Extension point for custom meta keywords."""
 
-    def match(text):
+    def match(text, context):
         """If text matches the keyword, return its transformed value."""
 
 
@@ -255,7 +255,8 @@ class BloodhoundSearchApi(Component):
             pagenum = 1,
             pagelen = 20,
             highlight = False,
-            highlight_fields = None):
+            highlight_fields = None,
+            context = None):
         """Return query result from an underlying search backend.
 
         Arguments:
@@ -271,12 +272,13 @@ class BloodhoundSearchApi(Component):
         :param pagelen: paging support
         :param highlight: highlight matched terms in fields
         :param highlight_fields: list of fields to highlight
+        :param context: request context
 
         :return: result QueryResult
         """
         self.env.log.debug("Receive query request: %s", locals())
 
-        parsed_query = self.parser.parse(query)
+        parsed_query = self.parser.parse(query, context)
 
         parsed_filters = self.parser.parse_filters(filter)
         # TODO: add query parsers and meta keywords post-parsing

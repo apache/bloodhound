@@ -56,33 +56,6 @@
   <body>
     <div id="content" class="row">
       <div class="span12">
-        <h1>Advanced search</h1>
-          <form id="fullsearch" action="${href.bhsearch()}" method="get">
-            <!--So far, we will not support noquickjump mode for form submission-->
-            <!--<input type="hidden" name="noquickjump" value="1" />-->
-            <input py:if="active_type" type="hidden" name="type" value="${active_type}" />
-            <input py:if="active_view" type="hidden" name="view" value="${active_view}" />
-            <input py:if="active_sort" type="hidden" name="sort" value="${active_sort.expression}" />
-            <py:for each="active_filter in active_filter_queries">
-              <input type="hidden" name="fq" value="${active_filter.query}" />
-            </py:for>
-
-            <div class="input-append">
-              <input type="text" id="q" name="q" class="span4" value="${query}" />
-              <button type="submit" class="btn btn-warning">
-                <span class="hidden-phone">${_('Search')}</span>
-                <i class="icon-search icon-white"></i>
-              </button>
-            </div>
-
-            <div id="active_sort" py:if="active_sort">
-                Sort by: <strong>${active_sort.expression}</strong> (<a href="${active_sort.href}">remove</a>)
-            </div>
-
-          </form>
-      </div>
-
-      <div class="span12">
         <py:if test="quickjump">
           <dt id="quickjump">
             <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
@@ -100,13 +73,6 @@
             </li>
 
           </ul>
-        </div>
-
-        <!--Render filters breadcrumbs-->
-        <div id="active_filter_queries" py:if="active_filter_queries">
-          <py:for each="active_filter in active_filter_queries">
-            &gt; <a href="${active_filter.href}">${active_filter.label}</a>
-          </py:for>
         </div>
 
         <div py:if="results" class="row">
@@ -128,7 +94,8 @@
             </py:if>
           </div>
 
-          <div class="${'span12' if not facet_counts else 'span9 search_results'}">
+            <div class="${'span12' if not facet_counts else 'span9'}${
+                        ' search_results'}">
             <h2>
               Results <small>(${results.displayed_items()})</small>
             </h2>
@@ -200,7 +167,7 @@
                 <dl id="results">
                   <py:for each="result in results">
                     <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
-                    <dd class="searchable">${result.content}</dd>
+                    <dd class="searchable">${result.hilited_content or result.content}</dd>
                     <dd>
                       <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
                       <span class="date">${result.date}</span>
@@ -215,11 +182,16 @@
         </div>
       </div>
 
-
       <div class="span12"
           py:if="query and not (results or quickjump)">
         <p id="notfound" class="alert">
           No matches found.
+        </p>
+      </div>
+
+      <div py:if="debug.enabled" class="span12">
+        <p>DEBUG INFO:
+        <pre>${pprint(debug)}</pre>
         </p>
       </div>
 

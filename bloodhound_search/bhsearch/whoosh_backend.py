@@ -69,7 +69,9 @@ class WhooshBackend(Component):
         content=TEXT(stored=True,
                      analyzer=analysis.StandardAnalyzer(stoplist=None)),
         changes=TEXT(analyzer=analysis.StandardAnalyzer(stoplist=None)),
-        )
+        owner=TEXT(stored=True,
+                   analyzer=analysis.SimpleAnalyzer()),
+    )
 
     max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,
                                'The maximum number of characters allowed in a '
@@ -224,6 +226,11 @@ class WhooshBackend(Component):
                                             fields,
                                             highlight_fields,
                                             query_parameters)
+            try:
+                results.debug['actual_query'] = unicode(query.simplify(searcher))
+            except TypeError:
+                # Simplify has a bug that causes it to fail sometimes.
+                pass
         return results
 
     def _workaround_join_query_and_filter(
