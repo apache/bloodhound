@@ -24,6 +24,8 @@ import re
 from trac.hooks import EnvironmentFactoryBase, RequestFactoryBase
 from trac.web.main import RequestWithSession
 from trac.web.href import Href
+from trac.perm import PermissionCache
+from trac.core import TracError
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
 
@@ -78,6 +80,18 @@ class ProductRequestWithSession(RequestWithSession):
         self.base_url = env.base_url
         self.href = ProductizedHref(self.href, env.href.base)
         self.abs_href = ProductizedHref(self.abs_href, env.abs_href.base)
+
+    def product_perm(self, product, resource=None):
+        """Helper for per product permissions"""
+        from multiproduct.env import Environment, ProductEnvironment, ProductEnvironmentFactory
+        if isinstance(self.perm.env, Environment):
+            return PermissionCache(ProductEnvironmentFactory(self.perm.env, product),
+                                   username=self.authname, resource=resource)
+        elif isinstance(self.perm.env, ProductEnvironment):
+            return PermissionCache(ProductEnvironmentFactory(self.perm.env.parent, product),
+                                   username=self.authname, resource=resource)
+        else:
+            raise TracError("Internal error, product permissions evaluated on invalid environment.")
 
 class ProductRequestFactory(RequestFactoryBase):
     def create_request(self, env, environ, start_response):

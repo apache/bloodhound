@@ -349,11 +349,7 @@ class BloodhoundTheme(ThemeBase):
             if is_product_scope:
                 # Per-product permissions only work when checking them against
                 # the appropriate ProductEnvironment (i.e. not cross-product).
-                # Reaquest's permissions are thus copied and associated with
-                # another ProductEnvironment for each check.
-                perm = copy.copy(req.perm)
-                perm.env = ProductEnvironmentFactory(product._env.parent, product.prefix)
-                if 'PRODUCT_VIEW' in perm(product.resource):
+                if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
                     product_list.append(product)
             else:
                 product_list.append(product)
