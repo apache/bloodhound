@@ -60,6 +60,7 @@ class RequestParameters(object):
     FILTER_QUERY = "fq"
     VIEW = "view"
     SORT = "sort"
+    DEBUG = "debug"
 
     def __init__(self, req):
         self.req = req
@@ -85,6 +86,7 @@ class RequestParameters(object):
             DEFAULT_RESULTS_PER_PAGE))
         self.page = int(req.args.getfirst(self.PAGE, '1'))
         self.type = req.args.getfirst(self.TYPE)
+        self.debug = int(req.args.getfirst(self.DEBUG, '0'))
 
         self.params = {
             RequestParameters.FILTER_QUERY: []
@@ -106,6 +108,8 @@ class RequestParameters(object):
             self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
         if self.sort_string:
             self.params[RequestParameters.SORT] = self.sort_string
+        if self.debug:
+            self.params[RequestParameters.DEBUG] = self.debug
 
     def _parse_sort(self, sort_string):
         if not sort_string:
@@ -284,6 +288,7 @@ class BloodhoundSearchModule(Component):
             facets=request_context.facets,
             filter=request_context.query_filter,
             highlight=True,
+            context=request_context,
         )
 
         request_context.process_results(query_result)
@@ -649,6 +654,9 @@ class RequestContext(object):
         self._prepare_result_facet_counts(query_result.facets)
         self._prepare_breadcrumbs_template()
         self.data[self.DATA_DEBUG] = query_result.debug
+        if self.parameters.debug:
+            self.data[self.DATA_DEBUG]['enabled'] = True
+            self.data[self.DATA_SEARCH_EXTRAS].append(('debug', '1'))
         self.data[self.DATA_PAGE_HREF] = self.parameters.create_href()
 
     def _prepare_result_facet_counts(self, result_facets):

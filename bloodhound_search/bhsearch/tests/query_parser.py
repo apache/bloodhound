@@ -69,6 +69,26 @@ class MetaKeywordsParsingTestCase(BaseBloodhoundSearchTest):
                              )
                          ]))
 
+    def test_can_parse_keyword_me(self):
+        context = self._mock_context_with_username('username')
+
+        parsed_query = self.parser.parse("author:$me", context)
+
+        self.assertEqual(parsed_query, terms.Term('author', 'username'))
+
+    def test_can_parse_keyword_my(self):
+        context = self._mock_context_with_username('username')
+
+        parsed_query = self.parser.parse("$my", context)
+
+        self.assertEqual(parsed_query, terms.Term('owner', 'username'))
+
+    def _mock_context_with_username(self, username):
+        class context:
+            class req:
+                authname = username
+        return context
+
 
 def suite():
     test_suite = unittest.TestSuite()

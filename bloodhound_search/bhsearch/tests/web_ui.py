@@ -140,8 +140,8 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         #act
         data = self.process_request()
         #assert
-        active_type = data["active_type"]
-        self.assertEquals("ticket", active_type)
+        extra_search_options = dict(data["extra_search_fields"])
+        self.assertEquals("ticket", extra_search_options['type'])
 
         resource_types = data["types"]
 
@@ -513,7 +513,8 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.VIEW] = "grid"
         data = self.process_request()
         #assert
-        self.assertEqual("grid", data["active_view"])
+        extra_search_options = dict(data["extra_search_fields"])
+        self.assertEqual("grid", extra_search_options["view"])
 
     def test_can_apply_sorting(self):
         #arrange
@@ -585,9 +586,9 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
         data = self.process_request()
         #assert
-        active_sort = data["active_sort"]
-        self.assertEquals("id, time desc", active_sort["expression"])
-        self.assertNotIn("sort=", active_sort["href"])
+        extra_search_options = dict(data["extra_search_fields"])
+        self.assertEquals("id, time desc", extra_search_options["sort"])
+        #self.assertNotIn("sort=", active_sort["href"])
 
     def test_that_document_summary_contains_highlighted_search_terms(self):
         term = "searchterm"

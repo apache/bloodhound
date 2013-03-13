@@ -182,11 +182,16 @@
         </div>
       </div>
 
-
       <div class="span12"
           py:if="query and not (results or quickjump)">
         <p id="notfound" class="alert">
           No matches found.
+        </p>
+      </div>
+
+      <div py:if="debug.enabled" class="span12">
+        <p>DEBUG INFO:
+        <pre>${pprint(debug)}</pre>
         </p>
       </div>
 

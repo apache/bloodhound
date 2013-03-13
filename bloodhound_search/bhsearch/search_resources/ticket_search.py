@@ -39,6 +39,7 @@ class TicketFields(IndexFields):
     KEYWORDS = "keywords"
     RESOLUTION = "resolution"
     CHANGES = 'changes'
+    OWNER = 'owner'
 
 class TicketIndexer(BaseIndexer):
     implements(ITicketChangeListener, IIndexParticipant)
@@ -52,6 +53,7 @@ class TicketIndexer(BaseIndexer):
         'status': TicketFields.STATUS,
         'resolution': TicketFields.RESOLUTION,
         'reporter': TicketFields.AUTHOR,
+        'owner': TicketFields.OWNER,
     }
 
     def __init__(self):
