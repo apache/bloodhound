@@ -45,7 +45,7 @@
 {%(link_prefix)strac 1}
 ------------------------------
 <p>
-<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>%(link_prefix)strac:report:1</a>
+<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>%(link_prefix_escaped)strac:report:1</a>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>Trac r1</a>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>{T1}</a>
 <a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>{trac1}</a>

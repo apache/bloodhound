@@ -18,6 +18,7 @@ import copy
 import re
 
 from genshi.builder import tag
+from genshi.core import Markup, unescape
 
 from trac.cache import cached
 from trac.config import *
@@ -508,7 +509,11 @@ class TicketSystem(Component):
                 ranges = str(r)
                 if params:
                     params = '&' + params[1:]
-                label_wrap = label.replace(',', u',\u200b')
+                if isinstance(label, Markup):
+                    _label = unescape(label)
+                else:
+                    _label = label
+                label_wrap = _label.replace(',', u',\u200b')
                 ranges_wrap = ranges.replace(',', u', ')
                 return tag.a(label_wrap,
                              title=_("Tickets %(ranges)s", ranges=ranges_wrap),

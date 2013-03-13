@@ -21,7 +21,7 @@
 import copy
 
 from genshi.builder import tag, Element
-from genshi.core import escape
+from genshi.core import escape, Markup, unescape
 
 from pkg_resources import resource_filename
 from trac.config import Option, PathOption
@@ -341,7 +341,7 @@ class MultiProductSystem(Component):
 
     # IWikiSyntaxProvider methods
 
-    short_syntax_delimiter = u'~'
+    short_syntax_delimiter = u'->'
 
     def get_wiki_syntax(self):
         yield (r'(?<!\S)!?(?P<pid>%s)%s(?P<ptarget>%s:(?:%s)|%s|%s(?:%s*%s)?)' %
@@ -448,7 +448,9 @@ class MultiProductSystem(Component):
                       fullmatch, extra=''):
         parent_match = {'ns' : ns,
                         'target' : target,
-                        'label': label,
+                        'label': Markup(escape(unescape(label)
+                                               if isinstance(label, Markup)
+                                               else label)),
                         'fullmatch' : fullmatch,
                         }
 
