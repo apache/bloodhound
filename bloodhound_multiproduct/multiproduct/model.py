@@ -53,9 +53,10 @@ class Product(ModelBase):
                 sdata.update(self._meta)
                 raise TracError('%(object_name)s %(new_table)s does not exist' %
                                 sdata)
+        original_prefix = self._data['prefix']
         super(Product, self).delete()
         #find and update all resources that should move
-        where = {'product_id':self._data['prefix']}
+        where = {'product_id':original_prefix}
         for prm in ProductResourceMap.select(self._env, where=where):
             prm._data['product_id'] = resources_to
             prm.update()

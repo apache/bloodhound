@@ -18,7 +18,7 @@
 
 from trac.db import Table, Column
 from trac.core import TracError
-from trac.resource import ResourceNotFound
+from trac.resource import ResourceNotFound, ResourceSystem
 from trac.ticket.api import TicketSystem
 
 
@@ -132,9 +132,11 @@ class ModelBase(object):
         with self._env.db_transaction as db:
             db(sql, values)
             self._exists = False
-            self._data = dict([(k, None) for k in self._data.keys()])
-            self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
+        ResourceSystem(self._env).resource_deleted(self)
+        self._data = dict([(k, None) for k in self._data.keys()])
+        self._old_data.update(self._data)
+
     
     def insert(self):
         """Create new record in the database"""
@@ -172,6 +174,7 @@ class ModelBase(object):
             self._exists = True
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
+        ResourceSystem(self._env).resource_created(self)
 
     def _update_relations(self, db):
         """Extra actions due to update"""
@@ -200,11 +203,15 @@ class ModelBase(object):
         sdata.update(self._meta)
         sql = """UPDATE %(table_name)s SET %(values)s
                  WHERE %(where)s""" % sdata
+        old_data = self._old_data.copy()
         with self._env.db_transaction as db:
             db(sql, setvalues + values)
             self._update_relations(db)
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
+
+        ResourceSystem(self._env).resource_changed(self, old_data)
+
     
     @classmethod
     def select(cls, env, db=None, where=None):

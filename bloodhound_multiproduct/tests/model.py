@@ -28,9 +28,14 @@ from trac.core import TracError
 
 from multiproduct.model import Product
 from multiproduct.api import MultiProductSystem
+from trac.tests.resource import TestResourceChangeListener
 
 class ProductTestCase(unittest.TestCase):
     """Unit tests covering the Product model"""
+    INITIAL_PREFIX = 'tp'
+    INITIAL_NAME = 'test project'
+    INITIAL_DESCRIPTION = 'a test project'
+
     def setUp(self):
         self.env = EnvironmentStub(enable=['trac.*', 'multiproduct.*'])
         self.env.path = tempfile.mkdtemp('bh-product-tempenv')
@@ -42,18 +47,32 @@ class ProductTestCase(unittest.TestCase):
             # table remains but database version is deleted
             pass
         
-        self.default_data = {'prefix':'tp',
-                             'name':'test project',
-                             'description':'a test project'}
+        self.listener = self._enable_resource_change_listener()
+        self.default_data = {'prefix':self.INITIAL_PREFIX,
+                             'name':self.INITIAL_NAME,
+                             'description':self.INITIAL_DESCRIPTION}
         
-        product = Product(self.env)
-        product._data.update(self.default_data)
-        product.insert()
-    
+        self.product = Product(self.env)
+        self.product._data.update(self.default_data)
+        self.product.insert()
+
     def tearDown(self):
         shutil.rmtree(self.env.path)
         self.env.reset_db()
     
+    def _enable_resource_change_listener(self):
+        listener = TestResourceChangeListener(self.env)
+        listener.resource_type = Product
+        listener.callback = self.listener_callback
+        return listener
+
+    def listener_callback(self, action, resource, context, old_values = None):
+        # pylint: disable=unused-argument
+        # pylint: disable=attribute-defined-outside-init
+        self.prefix = resource.prefix
+        self.name = resource.name
+        self.description = resource.description
+
     def test_set_table_field(self):
         """tests that table.field style update works"""
         test = {'prefix': 'td',
@@ -91,10 +110,11 @@ class ProductTestCase(unittest.TestCase):
         
         products = list(Product.select(self.env, where={'prefix':'tp'}))
         self.assertEqual(1, len(products))
-        products = list(Product.select(self.env, where={'name':'test project'}))
+        products = list(Product.select(self.env,
+            where={'name':'test project'}))
         self.assertEqual(1, len(products))
-        products = list(Product.select(self.env, where={'prefix':'tp3',
-                                                        'name':'test project 3'}))
+        products = list(Product.select(self.env,
+            where={'prefix':'tp3', 'name':'test project 3'}))
         self.assertEqual(1, len(products))
     
     def test_update(self):
@@ -200,11 +220,43 @@ class ProductTestCase(unittest.TestCase):
         structure =  dict([(table.name, [col.name for col in table.columns])
                            for table in schema])
         tm1 = TestModel(self.env)
-        tm1._data.update({'id':1,'value':'value1'})
+        tm1._data.update({'id':1, 'value':'value1'})
         tm1.insert()
         tm2 = TestModel(self.env)
-        tm2._data.update({'id':2,'value':'value2'})
+        tm2._data.update({'id':2, 'value':'value2'})
         tm2.insert()
+
+    def test_change_listener_created(self):
+        self.assertEqual('created', self.listener.action)
+        self.assertIsInstance(self.listener.resource, Product)
+        self.assertEqual(self.INITIAL_PREFIX, self.prefix)
+        self.assertEqual(self.INITIAL_NAME, self.name)
+        self.assertEqual(self.INITIAL_DESCRIPTION, self.description)
+
+    def test_change_listener_changed(self):
+        CHANGED_NAME = "changed name"
+        self.product.name = CHANGED_NAME
+        self.product.update()
+        self.assertEqual('changed', self.listener.action)
+        self.assertIsInstance(self.listener.resource, Product)
+        self.assertEqual(CHANGED_NAME, self.name)
+        self.assertEqual(
+            self.INITIAL_PREFIX, self.listener.old_values["prefix"])
+        self.assertEqual(
+            self.INITIAL_NAME, self.listener.old_values["name"])
+        self.assertEqual(
+            self.INITIAL_DESCRIPTION, self.listener.old_values["description"])
+
+    def test_change_listener_deleted(self):
+        self.product.delete()
+        self.assertEqual('deleted', self.listener.action)
+        self.assertIsInstance(self.listener.resource, Product)
+        self.assertEqual(self.INITIAL_PREFIX, self.prefix)
+
+def suite():
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(ProductTestCase, 'test'))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()
