@@ -588,20 +588,20 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
             w.add_document(content=u"A nice sentence with stop words.")
 
         with ix.searcher() as s:
-            query = u"with stop"
+            query_text = u"with stop"
 
             # field_names both ignore stop words
             q = MultifieldParser(['content', 'summary'],
-                                 WhooshBackend.SCHEMA).parse(query)
-            self.assertEqual(q.simplify(s).__unicode__(),
+                                 WhooshBackend.SCHEMA).parse(query_text)
+            self.assertEqual(unicode(q.simplify(s)),
                              u'((content:with OR summary:with) AND '
                              u'(content:stop OR summary:stop))')
             self.assertEqual(len(s.search(q)), 1)
 
             # 'content' and 'id' ignores stop words
             q = MultifieldParser(['content', 'id'],
-                                 WhooshBackend.SCHEMA).parse(query)
-            self.assertEqual(q.simplify(s).__unicode__(),
+                                 WhooshBackend.SCHEMA).parse(query_text)
+            self.assertEqual(unicode(q.simplify(s)),
                              u'((content:with OR id:with) AND '
                              u'(content:stop OR id:stop))')
             self.assertEqual(len(s.search(q)), 1)
