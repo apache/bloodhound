@@ -15,11 +15,12 @@ from trac.ticket.model import (
     Ticket, Component, Milestone, Priority, Type, Version
 )
 from trac.ticket.api import (
-    IMilestoneChangeListener, ITicketChangeListener, TicketSystem,
+    IMilestoneChangeListener, ITicketChangeListener, TicketSystem
 )
 from trac.test import EnvironmentStub
 from trac.tests.resource import TestResourceChangeListener
 from trac.util.datefmt import from_utimestamp, to_utimestamp, utc
+
 
 class TestTicketChangeListener(core.Component):
     implements(ITicketChangeListener)
@@ -1004,6 +1005,7 @@ class MilestoneTestCase(unittest.TestCase):
         self.assertEqual(False, milestone.exists)
         self.assertEqual('deleted', listener.action)
         self.assertEqual(milestone, listener.milestone)
+
 
 class ComponentTestCase(unittest.TestCase):
 

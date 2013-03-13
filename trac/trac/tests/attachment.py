@@ -6,8 +6,7 @@ from StringIO import StringIO
 import tempfile
 import unittest
 
-from trac.attachment import (Attachment, AttachmentModule,
-                             IAttachmentChangeListener)
+from trac.attachment import Attachment, AttachmentModule
 from trac.core import Component, implements, TracError
 from trac.perm import IPermissionPolicy, PermissionCache
 from trac.resource import Resource, resource_exists
@@ -29,24 +28,6 @@ hashes = {
     u'bar.aäc': '70d0e3b813fdc756602d82748719a3ceb85cbf29',
     u'ÜberSicht': 'a16c6837f6d3d2cc3addd68976db1c55deb694c8',
 }
-
-class TestAttachmentChangeListener(Component):
-    implements(IAttachmentChangeListener)
-
-    def attachment_added(self, attachment):
-        self.action = "added"
-        self.attachment = attachment
-
-    def attachment_deleted(self, attachment):
-        self.action = "deleted"
-        self.attachment = attachment
-
-    def attachment_reparented(
-            self, attachment, old_parent_realm, old_parent_id):
-        self.action = "reparented"
-        self.attachment = attachment
-        self.old_parent_realm = old_parent_realm
-        self.old_parent_id = old_parent_id
 
 
 class TicketOnlyViewsTicket(Component):
@@ -240,35 +221,6 @@ class AttachmentTestCase(unittest.TestCase):
         att = Attachment(self.env, 'wiki', 'WikiStart')
         att.insert('file.txt', StringIO(''), 1)
         self.assertTrue(resource_exists(self.env, att.resource))
-
-    def test_change_listener_created(self):
-        listener = TestAttachmentChangeListener(self.env)
-        attachment = self._create_attachment()
-        self.assertEqual('added', listener.action)
-        self.assertEqual(attachment, listener.attachment)
-
-    def test_change_listener_deleted(self):
-        listener = TestAttachmentChangeListener(self.env)
-        attachment = self._create_attachment()
-        attachment.delete()
-        self.assertEqual('deleted', listener.action)
-        self.assertEqual(attachment, listener.attachment)
-
-    def test_change_listener_deleted(self):
-        listener = TestAttachmentChangeListener(self.env)
-        attachment = self._create_attachment()
-        old_parent_realm = attachment.parent_realm
-        old_parent_id = attachment.parent_id
-        attachment.reparent("wiki", "SomePage")
-        self.assertEqual('reparented', listener.action)
-        self.assertEqual(attachment, listener.attachment)
-        self.assertEqual(old_parent_realm, listener.old_parent_realm)
-        self.assertEqual(old_parent_id, listener.old_parent_id)
-
-    def _create_attachment(self):
-        attachment = Attachment(self.env, 'wiki', 'WikiStart')
-        attachment.insert('file.txt', StringIO(''), 1)
-        return attachment
 
 
 class AttachmentResourceChangeListenerTestCase(unittest.TestCase):
