@@ -21,7 +21,7 @@ from __future__ import with_statement
 from datetime import datetime
 
 from trac.core import *
-from trac.resource import Resource, ResourceSystem, IResourceChangeListener
+from trac.resource import Resource, ResourceSystem
 from trac.util.datefmt import from_utimestamp, to_utimestamp, utc
 from trac.util.translation import _
 from trac.wiki.api import WikiSystem, validate_page_name
@@ -110,8 +110,13 @@ class WikiPage(object):
 
         # Let change listeners know about the deletion
         if not self.exists:
+            for listener in WikiSystem(self.env).change_listeners:
+                listener.wiki_page_deleted(self)
             ResourceSystem(self.env).resource_deleted(self)
         else:
+            for listener in WikiSystem(self.env).change_listeners:
+                if hasattr(listener, 'wiki_page_version_deleted'):
+                    listener.wiki_page_version_deleted(self)
             ResourceSystem(self.env).resource_version_deleted(self)
 
     def save(self, author, comment, remote_addr, t=None, db=None):
@@ -150,6 +155,12 @@ class WikiPage(object):
         self.comment = comment
         self.time = t
 
+        for listener in WikiSystem(self.env).change_listeners:
+            if self.version == 1:
+                listener.wiki_page_added(self)
+            else:
+                listener.wiki_page_changed(self, self.version, t, comment,
+                                           author, remote_addr)
         context=dict(
             version=self.version,
             time=t,
@@ -200,6 +211,9 @@ class WikiPage(object):
         self.name = new_name
         self.env.log.info('Renamed page %s to %s', old_name, new_name)
 
+        for listener in WikiSystem(self.env).change_listeners:
+            if hasattr(listener, 'wiki_page_renamed'):
+                listener.wiki_page_renamed(self, old_name)
 
         ResourceSystem(self.env).resource_changed(
             self,
@@ -221,42 +235,3 @@ class WikiPage(object):
                 WHERE name=%s AND version<=%s ORDER BY version DESC
                 """, (self.name, self.version)):
             yield version, from_utimestamp(ts), author, comment, ipnr
-
-class ResourceToWikiChangeListenerAdapter(Component):
-    """
-    The class provides backward compatibility for components implementing
-    IWikiChangeListener interface.
-    """
-    implements(IResourceChangeListener)
-    def match_resource(self, resource):
-        return isinstance(resource, WikiPage)
-
-    def resource_created(self, resource, context):
-        for listener in WikiSystem(self.env).change_listeners:
-            listener.wiki_page_added(resource)
-
-    def resource_changed(self, resource, old_values, context):
-        if context is not None and context.get("source_action") == "rename":
-            for listener in WikiSystem(self.env).change_listeners:
-                 if hasattr(listener, 'wiki_page_renamed'):
-                     listener.wiki_page_renamed(
-                         resource, old_values.get("name"))
-        else:
-            for listener in WikiSystem(self.env).change_listeners:
-                    listener.wiki_page_changed(
-                        resource,
-                        context.get("version"),
-                        context.get("time"),
-                        context.get("comment"),
-                        context.get("author"),
-                        context.get("remote_addr"),
-                    )
-
-    def resource_deleted(self, resource, context):
-        for listener in WikiSystem(self.env).change_listeners:
-            listener.wiki_page_deleted(resource)
-
-    def resource_version_deleted(self, resource, context):
-        for listener in WikiSystem(self.env).change_listeners:
-            if hasattr(listener, 'wiki_page_version_deleted'):
-                listener.wiki_page_version_deleted(resource)
