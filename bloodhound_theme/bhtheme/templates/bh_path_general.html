@@ -40,7 +40,30 @@
         <li py:for="prefix,name in product_list">
           <a title="Product $name ($prefix)" href="${href.products(prefix)}">$name ($prefix)</a>
         </li>
+        <li class="divider"></li>
+        <li><a title="Back to products" href="${href.products()}">All products</a></li>
       </ul>
     </py:if>
   </div>
+  <py:if test="milestone"
+   py:with="single_milestone = not milestone_list or len(milestone_list) &lt; 2">
+    <li><span class="divider">/</span></li>
+    <div class="btn-group" py:strip="single_milestone">
+      <button class="btn btn-mini" py:strip="single_milestone">
+        <a title="Current milestone" href="${href.milestone(milestone.name)}">${milestone.name}</a>
+      </button>
+      <py:if test="not single_milestone">
+        <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li py:for="name in milestone_list">
+            <a title="Milestone $name" href="${href.milestone(name)}">$name</a>
+          </li>
+          <li class="divider"></li>
+          <li><a title="Back to roadmap" href="${href.roadmap()}">Roadmap</a></li>
+        </ul>
+      </py:if>
+    </div>
+  </py:if>
 </div>

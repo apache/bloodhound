@@ -23,17 +23,9 @@
      xmlns:xi="http://www.w3.org/2001/XInclude"
     py:strip="">
 
-  <py:if test="ticket.product">
-    <xi:include href="bh_path_general.html" />
-    <li><span class="divider">/</span></li>
-  </py:if>
-
-  <li py:if="ticket.milestone" py:with="mslink = path_show_milestone and href.milestone(ticket.milestone) or href.query(milestone=ticket['milestone'], active='!closed')">
-    <a title="Active tickets in milestone ${ticket.milestone}"
-        href="${mslink}">
-      ${ticket.milestone}
-    </a>
+  <xi:include href="bh_path_general.html" />
+  <li>
     <span class="divider">/</span>
+    <span>Ticket #${ticket.id}</span>
   </li>
-  <li><span>Ticket #${ticket.id}</span></li>
 </div>

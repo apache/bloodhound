@@ -29,7 +29,7 @@ from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
 from trac.resource import Resource
 from trac.ticket.api import TicketSystem
-from trac.ticket.model import Ticket
+from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
@@ -107,10 +107,10 @@ class BloodhoundTheme(ThemeBase):
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
 
         # Ticket
-        'milestone_edit.html' : ('bh_milestone_edit.html', '_add_products_general_breadcrumb'),
-        'milestone_delete.html' : ('bh_milestone_delete.html', '_add_products_general_breadcrumb'),
+        'milestone_edit.html' : ('bh_milestone_edit.html', '_modify_roadmap_page'),
+        'milestone_delete.html' : ('bh_milestone_delete.html', '_modify_roadmap_page'),
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),
-        'roadmap.html' : ('roadmap.html', '_add_products_general_breadcrumb'),
+        'roadmap.html' : ('roadmap.html', '_modify_roadmap_page'),
         'query.html' : ('bh_query.html', '_add_products_general_breadcrumb'),
         'report_delete.html' : ('bh_report_delete.html', '_add_products_general_breadcrumb'),
         'report_edit.html' : ('bh_report_edit.html', '_add_products_general_breadcrumb'), 
@@ -329,6 +329,8 @@ class BloodhoundTheme(ThemeBase):
         add_stylesheet(req, 'dashboard/css/roadmap.css')
         self._add_products_general_breadcrumb(req, template, data,
             content_type, is_active)
+        data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
+        req.chrome['ctxtnav'] = []
 
     def _modify_ticket(self, req, template, data, content_type, is_active):
         """Ticket modifications
@@ -366,9 +368,13 @@ class BloodhoundTheme(ThemeBase):
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
 
-            # add list of products available to this user
+            # add list of products available to this user, and their milestones
             data['product_list'] = [(p.prefix, p.name)
                 for p in self._get_product_list(req)]
+            data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
+            mname = data['ticket']['milestone']
+            if mname:
+                data['milestone'] = Milestone(self.env, mname)
 
     def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
         glsettings = (_('(Global settings)'), req.href.admin())
