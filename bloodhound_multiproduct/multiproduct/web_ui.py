@@ -34,7 +34,6 @@ from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
 from trac.web.main import RequestDispatcher
 
 from multiproduct.model import Product
-from multiproduct.util import ProductDelegate
 from multiproduct.api import DEFAULT_PRODUCT
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
@@ -268,9 +267,12 @@ class ProductModule(Component):
                        'choose a different name.', name=name))
             
             if not warnings:
-                ProductDelegate.add_product(self.env, product, keys, field_data)
+                prod = Product(self.env)
+                prod.update_field_dict(keys)
+                prod.update_field_dict(field_data)
+                prod.insert()
                 add_notice(req, _('The product "%(id)s" has been added.',
-                    id=prefix))
+                                  id=prefix))
 
         if warnings:
             product.update_field_dict(keys)

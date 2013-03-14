@@ -38,6 +38,7 @@ from trac.web.main import FakePerm, FakeSession
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.formatter import LinkFormatter
 from trac.wiki.parser import WikiParser
+from trac.resource import IResourceChangeListener
 
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER
@@ -71,7 +72,8 @@ class MultiProductSystem(Component):
 
     implements(IEnvironmentSetupParticipant, ITemplateProvider,
                IPermissionRequestor, ITicketFieldProvider, IResourceManager,
-               ISupportMultiProductEnvironment, IWikiSyntaxProvider)
+               ISupportMultiProductEnvironment, IWikiSyntaxProvider,
+               IResourceChangeListener)
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
@@ -96,11 +98,16 @@ class MultiProductSystem(Component):
               for mcls in (Product, ProductResourceMap)]
 
     # Tables which should be migrated (extended with 'product' column)
-    MIGRATE_TABLES = ['enum', 'component', 'milestone', 'version',
+    MIGRATE_TABLES = ['component',
+                      'milestone',
+                      'version',
+                      'enum',
                       'permission',
                       'wiki',
                       'report',
                       ]
+
+    PRODUCT_POPULATE_TABLES = list(set(MIGRATE_TABLES) - set(['wiki']))
 
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
@@ -195,13 +202,8 @@ class MultiProductSystem(Component):
                                                                 [t for t in table_defs if t.name == table.name][0].columns]
                                                                     if c != 'product']
                 self.log.info("Creating default product")
-                default_product = Product(self.env)
-                default_product.update_field_dict({'prefix': DEFAULT_PRODUCT,
-                                                   'name': 'Default',
-                                                   'description': 'Default product',
-                                                   'owner': '',
-                                                 })
-                default_product.insert()
+                db("INSERT INTO bloodhound_product (prefix, name, description, owner) " \
+                   "VALUES ('%s', '%s', '%s', '')" % (DEFAULT_PRODUCT, 'Default', 'Default product'))
 
                 self.log.info("Migrating tickets w/o product to default product")
                 db("""UPDATE ticket SET product='%s'
@@ -289,6 +291,54 @@ class MultiProductSystem(Component):
                 db_installed_version = self._update_db_version(db, 4)
 
             self.env.enable_multiproduct_schema(True)
+
+
+    # IResourceChangeListener methods
+    def match_resource(self, resource):
+        return isinstance(resource, Product)
+
+    def resource_created(self, resource, context):
+        import trac.db_default
+        from multiproduct.env import EnvironmentStub
+
+        # Don't populate product database when running from within test
+        # environment stub as test cases really don't expect that ...
+        if isinstance(self.env, EnvironmentStub):
+            return
+
+        product = resource
+        self.log.debug("Adding product info (%s) to tables:" % product.prefix)
+        with self.env.db_direct_transaction as db:
+            # create the default entries for this Product from defaults
+            for table in trac.db_default.get_data(db):
+                if not table[0] in self.PRODUCT_POPULATE_TABLES:
+                    continue
+
+                self.log.debug("  -> %s" % table[0])
+                cols = table[1] + ('product', )
+                rows = [p + (product.prefix, ) for p in table[2]]
+                db.executemany(
+                    "INSERT INTO %s (%s) VALUES (%s)" %
+                    (table[0], ','.join(cols), ','.join(['%s' for c in cols])),
+                    rows)
+
+            # in addition copy global admin permissions (they are
+            # not part of the default permission table)
+            rows = db("""SELECT username FROM permission WHERE action='TRAC_ADMIN'
+                         AND product=''""")
+            rows = [(r[0], 'TRAC_ADMIN', product.prefix) for r in rows]
+            cols = ('username', 'action', 'product')
+            db.executemany("INSERT INTO permission (%s) VALUES (%s)" %
+                           (','.join(cols), ','.join(['%s' for c in cols])), rows)
+
+    def resource_changed(self, resource, old_values, context):
+        return
+
+    def resource_deleted(self, resource, context):
+        return
+
+    def resource_version_deleted(self, resource, context):
+        return
 
     # ITemplateProvider methods
     def get_templates_dirs(self):

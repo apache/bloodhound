@@ -27,7 +27,6 @@ from trac.resource import ResourceNotFound
 from model import Product
 from trac.util.translation import _, N_, gettext
 from trac.web.chrome import Chrome, add_notice, add_warning
-from multiproduct.util import ProductDelegate
 from multiproduct.env import ProductEnvironment
 
 
@@ -82,10 +81,11 @@ class ProductAdminPanel(TicketAdminPanel):
                         prod = Product(self.env, keys)
                     except ResourceNotFound:
                         prod = Product(self.env)
-                        ProductDelegate.add_product(self.env, prod, keys, field_data)
-                        add_notice(req,
-                            _('The product "%(id)s" has been added.',
-                            id=prefix))
+                        prod.update_field_dict(keys)
+                        prod.update_field_dict(field_data)
+                        prod.insert()
+                        add_notice(req, _('The product "%(id)s" has been added.',
+                                          id=prefix))
                         req.redirect(req.href.admin(cat, page))
                     else:
                         if prod.prefix is None:
