@@ -24,46 +24,72 @@
      xmlns:xi="http://www.w3.org/2001/XInclude"
      py:strip=""
      py:with="single_product = not product_list or len(product_list) &lt; 2">
-  <li py:if="bhdb">
-    <a title="View the dashboard" href="${href.dashboard()}">Dashboard</a>
-    <span class="divider">/</span>
-  </li>
-  <div class="btn-group" py:strip="single_product">
-    <button class="btn btn-mini" py:strip="single_product">
-      <a title="Current product" href="${href.products(req.perm.env.product.prefix)}">${req.perm.env.product.name}</a>
-    </button>
-    <py:if test="not single_product">
-      <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        <li py:for="prefix,name in product_list">
-          <a title="Product $name ($prefix)" href="${href.products(prefix)}">$name ($prefix)</a>
-        </li>
-        <li class="divider"></li>
-        <li><a title="Back to products" href="${href.products()}">All products</a></li>
-      </ul>
-    </py:if>
-  </div>
-  <py:if test="milestone"
-   py:with="single_milestone = not milestone_list or len(milestone_list) &lt; 2">
-    <li><span class="divider">/</span></li>
-    <div class="btn-group" py:strip="single_milestone">
-      <button class="btn btn-mini" py:strip="single_milestone">
-        <a title="Current milestone" href="${href.milestone(milestone.name)}">${milestone.name}</a>
-      </button>
-      <py:if test="not single_milestone">
-        <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-          <span class="caret"></span>
+
+  <py:choose test="">
+    <py:when test="admin_product_list">
+      <li py:with="prefix,name,url = admin_current_product">
+        <div class="btn-group">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="$url"
+              title="Select product to administer">
+            $name
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li py:with="prefix,name,url = admin_product_list[0]">
+              <a href="${url}">${name}</a>
+            </li>
+            <li class="divider"></li>
+            <li py:for="prefix,name,url in admin_product_list[1:]">
+              <a href="${url}">${name}</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </py:when>
+
+    <py:otherwise>
+      <li py:if="bhdb">
+        <a title="View the dashboard" href="${href.dashboard()}">Dashboard</a>
+        <span class="divider">/</span>
+      </li>
+      <div class="btn-group" py:strip="single_product">
+        <button class="btn btn-mini" py:strip="single_product">
+          <a title="Current product" href="${href.products(req.perm.env.product.prefix)}">${req.perm.env.product.name}</a>
         </button>
-        <ul class="dropdown-menu">
-          <li py:for="name in milestone_list">
-            <a title="Milestone $name" href="${href.milestone(name)}">$name</a>
-          </li>
-          <li class="divider"></li>
-          <li><a title="Back to roadmap" href="${href.roadmap()}">Roadmap</a></li>
-        </ul>
+        <py:if test="not single_product">
+          <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li py:for="prefix,name,url in product_list">
+              <a title="Product $name ($prefix)" href="$url">$name ($prefix)</a>
+            </li>
+            <li class="divider"></li>
+            <li><a title="Back to products" href="${href.products()}">All products</a></li>
+          </ul>
+        </py:if>
+      </div>
+      <py:if test="milestone"
+       py:with="single_milestone = not milestone_list or len(milestone_list) &lt; 2">
+        <li><span class="divider">/</span></li>
+        <div class="btn-group" py:strip="single_milestone">
+          <button class="btn btn-mini" py:strip="single_milestone">
+            <a title="Current milestone" href="${href.milestone(milestone.name)}">${milestone.name}</a>
+          </button>
+          <py:if test="not single_milestone">
+            <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li py:for="name in milestone_list">
+                <a title="Milestone $name" href="${href.milestone(name)}">$name</a>
+              </li>
+              <li class="divider"></li>
+              <li><a title="Back to roadmap" href="${href.roadmap()}">Roadmap</a></li>
+            </ul>
+          </py:if>
+        </div>
       </py:if>
-    </div>
-  </py:if>
+    </py:otherwise>
+  </py:choose>
 </div>

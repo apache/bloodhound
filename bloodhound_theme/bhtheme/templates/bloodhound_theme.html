@@ -258,25 +258,6 @@
           <!--! breadcrumb (TODO: which ones do we hide on the phones/tablets?) -->
           <div id="stickyStatus" class="span12">
             <ul class="breadcrumb">
-              <li py:if="admin_product_list">
-                <div class="btn-group">
-                  <a class="btn dropdown-toggle" data-toggle="dropdown" href="${admin_current_product[1]}"
-                     title="Select product to administer">
-                    ${admin_current_product[0]}
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li py:with="name,url = admin_product_list[0]">
-                      <a href="${url}">${name}</a>
-                    </li>
-                    <li class="divider"></li>
-                    <li py:for="name,url in admin_product_list[1:]">
-                      <a href="${url}">${name}</a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-
               <li py:choose="">
                 <xi:include py:when="value_of('resourcepath_template')" 
                     href="${resourcepath_template}" />

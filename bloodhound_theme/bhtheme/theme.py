@@ -256,6 +256,9 @@ class BloodhoundTheme(ThemeBase):
 
         req.chrome['labels'] = self._get_whitelabelling()
 
+        if data is not None:
+            data['product_list'] = self._get_product_list(req)
+
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
         if self.env.project_icon == 'common/trac.ico':
@@ -317,8 +320,6 @@ class BloodhoundTheme(ThemeBase):
             # Context nav
             prevnext_nav(req, _('Previous'), _('Next'))
         # Breadcrumbs nav
-        data['product_list'] = [(p.prefix, p.name)
-            for p in self._get_product_list(req)]
         data['resourcepath_template'] = 'bh_path_search.html'
 
     def _modify_wiki_page_path(self, req, template, data, content_type, is_active):
@@ -342,18 +343,21 @@ class BloodhoundTheme(ThemeBase):
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
-    def _get_product_list(self, req):
+    def _get_product_list(self, req, href_fcn=None):
+        """Returns a list of products as (prefix, name, url) tuples
+        """
+        if href_fcn is None:
+            href_fcn = req.href.products
         product_list = []
         is_product_scope = isinstance(req.perm.env, ProductEnvironment)
         for product in Product.select(self.env):
             if is_product_scope:
-                # Per-product permissions only work when checking them against
-                # the appropriate ProductEnvironment (i.e. not cross-product).
                 if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
-                    product_list.append(product)
+                    product_list.append((product.prefix, product.name,
+                        href_fcn(product.prefix)))
             else:
-                product_list.append(product)
-
+                product_list.append((product.prefix, product.name,
+                    href_fcn(product.prefix)))
         return product_list
 
     def _modify_resource_breadcrumb(self, req, template, data, content_type,
@@ -368,26 +372,26 @@ class BloodhoundTheme(ThemeBase):
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
 
-            # add list of products available to this user, and their milestones
-            data['product_list'] = [(p.prefix, p.name)
-                for p in self._get_product_list(req)]
+            # add milestone list + current milestone to the breadcrumb
             data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
             mname = data['ticket']['milestone']
             if mname:
                 data['milestone'] = Milestone(self.env, mname)
 
     def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
-        glsettings = (_('(Global settings)'), req.href.admin())
+        # override 'normal' product list with the admin one
+        glsettings = (None, _('(Global settings)'), req.href.admin())
         data['admin_product_list'] = [ glsettings, ] + \
-            [(p.name, req.href.products(p.prefix, 'admin'))
-                for p in self._get_product_list(req)]
+            self._get_product_list(req,
+                lambda x: req.href.products(x, 'admin'))
 
         if isinstance(req.perm.env, ProductEnvironment):
             product = req.perm.env.product
-            data['admin_current_product'] = (product.name,
+            data['admin_current_product'] = (product.prefix, product.name,
                 req.href.products(product.prefix, 'admin'))
         else:
             data['admin_current_product'] = glsettings
+        data['resourcepath_template'] = 'bh_path_general.html'
 
     def _modify_browser(self, req, template, data, content_type, is_active):
         """Locate path to file in breadcrumbs area rather than title.
@@ -402,8 +406,6 @@ class BloodhoundTheme(ThemeBase):
 
     def _add_products_general_breadcrumb(self, req, template, data,
                                          content_type, is_active):
-        data['product_list'] = [(p.prefix, p.name)
-            for p in self._get_product_list(req)]
         data['resourcepath_template'] = 'bh_path_general.html'
 
     # INavigationContributor methods
