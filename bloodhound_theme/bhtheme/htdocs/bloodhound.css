@@ -18,57 +18,58 @@
 */
 
 body {
-  background-color: rgb(92%, 91%, 88%);
+ background-color: rgb(92%, 91%, 88%);
 }
 
 .container:first-child {
-  background-color: rgb(100%, 100%, 100%);
-  padding: 5px 20px;
-  border-left: 1px solid rgb(70%, 70%, 70%);
-  border-right: 1px solid rgb(70%, 70%, 70%);
-  border-bottom: 1px solid rgb(70%, 70%, 70%);
-  box-shadow: 0px 0px 10px 2px rgba(50%, 50%, 50%, 0.4);
-  border-bottom-left-radius: 7px;
-  border-bottom-right-radius: 7px;
+ background-color: rgb(100%, 100%, 100%);
+ padding: 5px 20px;
+ border-left: 1px solid rgb(70%, 70%, 70%);
+ border-right: 1px solid rgb(70%, 70%, 70%);
+ border-bottom: 1px solid rgb(70%, 70%, 70%);
+ box-shadow: 0px 0px 10px 2px rgba(50%, 50%, 50%, 0.4);
+ border-bottom-left-radius: 7px;
+ border-bottom-right-radius: 7px;
 }
 
 #searchbox {
-  margin-top: 0;
-  margin-bottom: 0;
+ margin-top: 0;
+ margin-bottom: 0;
 }
 
 #mainsearch {
-  margin-bottom: 0;
-  display: inline-block;
+ margin-bottom: 0;
+ display: inline-block;
 }
 
 #mainnav {
-  margin-bottom: 0px;
-  border-bottom: 0px solid #333;
+ margin-bottom: 0px;
+ border-bottom: 0px solid #333;
 }
 
 /* @group Section folding */
 
 .foldable :link,
 .foldable :visited {
-  background: url(../common/expanded.png) 0 50% no-repeat;
-  border: none;
-  padding-left: 16px;
+ background: url(../common/expanded.png) 0 50% no-repeat;
+ border: none;
+ padding-left: 16px;
 }
 
 .collapsed > .foldable :link,
 .collapsed > .foldable :visited {
-  background-image: url("../common/collapsed.png");
+ background-image: url("../common/collapsed.png");
 }
+
 .collapsed > div,
 .collapsed > table,
 .collapsed > ul,
 .collapsed > dl {
-  display: none
+ display: none
 }
 
 .nav-header-selected {
-  color: #b94a48;
+ color: #b94a48;
 }
 
 /* @end */
@@ -76,33 +77,34 @@ body {
 /* @group Heading anchors */
 
 .anchor:link, .anchor:visited {
-  border: none;
-  color: #d7d7d7;
-  font-size: .8em;
-  vertical-align: text-top;
+ border: none;
+ color: #d7d7d7;
+ font-size: .8em;
+ vertical-align: text-top;
 }
+
 * > .anchor:link, * > .anchor:visited {
-  visibility: hidden;
+ visibility: hidden;
 }
 
 h1:hover .anchor, h2:hover .anchor, h3:hover .anchor,
 h4:hover .anchor, h5:hover .anchor, h6:hover .anchor,
 span:hover .anchor {
-  visibility: visible;
-  text-decoration: none;
+ visibility: visible;
+ text-decoration: none;
 }
 
 h1 .anchor:hover, h2 .anchor:hover, h3 .anchor:hover,
 h4 .anchor:hover, h5 .anchor:hover, h6 .anchor:hover,
 span:hover .anchor {
-  background-color: #f1f1f1;
+ background-color: #f1f1f1;
 }
 
 /* @end */
 
 h1:target, h2:target, h3:target, h4:target, h5:target, h6:target,
 span:target {
-  background: #ffb;
+ background: #ffb;
 }
 
 /* @group Ensuring buttons align horizontally */
@@ -120,11 +122,11 @@ label > input,
 div.inlinebuttons,
 div.reports h2,
 div.reports form {
-	display: inline;
+ display: inline;
 }
 
 .filters label {
-	margin-right: 10px;
+ margin-right: 10px;
 }
 
 /* @end */
@@ -132,12 +134,12 @@ div.reports form {
 /* @group Metanav */
 
 .metanav {
-	margin-top: 10px;
-	margin-right: 20px;
+ margin-top: 10px;
+ margin-right: 20px;
 }
 
 .metanav span {
-	margin-left: 10px;
+ margin-left: 10px;
 }
 
 /* @end */
@@ -145,95 +147,94 @@ div.reports form {
 /* @group Footer */
 
 .footer {
-	margin-top: 20px;
-	color: grey;
+ margin-top: 20px;
+ color: grey;
 }
 
 .footer a {
-	color: #565656;
+ color: #565656;
 }
 
 .footer .pull-right {
-	text-align:right;
+ text-align: right;
 }
 
 /* @end */
 
 #ticket .properties table td,
 #ticket .properties table th {
-  border: none;
+ border: none;
 }
 
 #ticket footer {
-  text-align: right;
+ text-align: right;
 }
 
 #trac-ticket-title {
-  margin-bottom: 5px;
+ margin-bottom: 5px;
 }
 
 #trac-ticket-title span.ticket-info {
-  font-weight: normal;
+ font-weight: normal;
 }
 
 .activityfeed img {
-  display: none;
+ display: none;
 }
 
 .activityfeed dt {
-  font-weight: normal;
+ font-weight: normal;
 }
 
 .activityfeed dd {
-  color: grey;
+ color: grey;
 }
 
 .activityfeed * tt {
-  word-wrap: break-word;
-  word-break: break-all;
+ word-wrap: break-word;
+ word-break: break-all;
 }
 
 #mobile-activity {
-  margin-top: 50px;
+ margin-top: 50px;
 }
-
 
 div.reports form,
 div.reports .inlinebutton {
-  float: right;
-  margin-bottom: 0px;
+ float: right;
+ margin-bottom: 0px;
 }
 
 div.reports .inlinebutton {
-  margin-left: 10px;
+ margin-left: 10px;
 }
 
 div.reports h2 {
-  font-size: 20px;
+ font-size: 20px;
 }
 
 /* @group Wiki */
 
 .wiki-toc {
-  float: right;
-  margin-left: 25px;
-  padding: 10px;
-  border: 1px solid #999;
-  border-radius: 10px;
+ float: right;
+ margin-left: 25px;
+ padding: 10px;
+ border: 1px solid #999;
+ border-radius: 10px;
 }
 
 pre {
-  overflow: auto;
-  white-space: pre;
-  word-wrap: normal;
+ overflow: auto;
+ white-space: pre;
+ word-wrap: normal;
 }
 
 .trac-modifiedby {
-  float: right;
+ float: right;
 }
 
 .trac-modifiedby .trac-print {
-  display: none;
+ display: none;
 }
 
 /* @end */
@@ -241,144 +242,148 @@ pre {
 /* @group Ticket page modifications */
 
 .bh-ticket-buttons {
-  padding-left: 5px;
+ padding-left: 5px;
 }
 
 .clearboth {
-  clear: both;
+ clear: both;
 }
 
 .ticket .keywords {
-  margin: 20px 0;
+ margin: 20px 0;
 }
 
 .ticket .properties h5 {
-  margin-top: 0;
-  margin-bottom: 0;
+ margin-top: 0;
+ margin-bottom: 0;
 }
 
 .ticket-box-field, .ticket-box-info {
-  margin-top: 0;
-  margin-bottom: 0;
+ margin-top: 0;
+ margin-bottom: 0;
 }
 
 .ticket-box-info dt {
-  text-align: left;
+ text-align: left;
 }
 
 #modifyproperties th, #modifyproperties td {
-  vertical-align: baseline;
-  border: none;
+ vertical-align: baseline;
+ border: none;
 }
 
 .ticket-summary #field-summary {
-  margin-bottom: 0;
+ margin-bottom: 0;
 }
 
 .ticket .properties .enum h5 {
-  margin-top: 0px;
+ margin-top: 0px;
 }
 
 .trac-loading {
-  background: url(../common/loading.gif) 0 50% no-repeat;
-  margin: 0 1em;
-  padding-left: 16px;
-  display: none;
+ background: url(../common/loading.gif) 0 50% no-repeat;
+ margin: 0 1em;
+ padding-left: 16px;
+ display: none;
 }
 
-#trac-comment-editor textarea { width: 100%; }
+#trac-comment-editor textarea {
+ width: 100%;
+}
 
 /* @end */
 
 /* @group Quick Ticket fieldset */
 
 #qct-fieldset {
-  position: relative;
+ position: relative;
 }
 
 #qct-fieldset .form-horizontal {
-  position: relative;
-  left: -65px;
+ position: relative;
+ left: -65px;
 }
 
 #qct-fieldset .controls {
-  margin-bottom: 5px;
+ margin-bottom: 5px;
 }
 
 #qct-fieldset #field-summary {
-  width: 260px;
+ width: 100%;
 }
 
 #qct-fieldset #field-description {
-  width: auto;
+ width: 100%;
 }
 
 #qct-box #qct-cancel {
-  display: inline;
-  color: #08C;
-  margin-top: 5px;
-  padding: 5px 15px;
+ display: inline;
+ color: #08C;
+ margin-top: 5px;
+ padding: 5px 15px;
 }
 
 #qct-create {
-  margin-left: 100px;
+ margin-left: 100px;
 }
 
 #qct-cancel {
-  position: relative;
-  top: 5px;
+ position: relative;
+ top: 5px;
 }
 
 #qct-box p {
-  white-space: normal;
+ white-space: normal;
 }
 
 /* @group Generic rules */
 
 .full-x {
-  width: 100%;
+ width: 100%;
 }
 
 h1, h2, h3, h4 {
-  font-weight: bold;
-  page-break-after: avoid;
+ font-weight: bold;
+ page-break-after: avoid;
 }
 
 .clip, .affix .clip-affix {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ white-space: nowrap;
 }
 
 .clip.edit-active, .affix .clip-affix.edit-active {
-  overflow: visible;
+ overflow: visible;
 }
 
-.table tbody tr:hover td { background: #eed !important }
+.table tbody tr:hover td {
+ background: #eed !important
+}
 
 /* copied from bootstrap for appropriate focus/unfocused state for contenteditable*/
 span[contenteditable="true"] {
-  border-radius: 4px 4px 4px 4px;
-  background-color: #ffffff;
-  border: 1px solid #cccccc;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-     -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
-       -o-transition: border linear 0.2s, box-shadow linear 0.2s;
-          transition: border linear 0.2s, box-shadow linear 0.2s;
+ border-radius: 4px 4px 4px 4px;
+ background-color: #ffffff;
+ border: 1px solid #cccccc;
+ -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+ -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+      -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+         transition: border linear 0.2s, box-shadow linear 0.2s;
 }
 
 span[contenteditable="true"]:focus {
-  border-color: rgba(82, 168, 236, 0.8);
-  outline: 0;
-  outline: thin dotted \9;
-  /* IE6-9 */
+ border-color: rgba(82, 168, 236, 0.8);
+ outline: 0;
+ outline: thin dotted  \9;
+ /* IE6-9 */
 
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+ -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
 }
 
 /* @end */
@@ -386,40 +391,40 @@ span[contenteditable="true"]:focus {
 /* @group Alternate download links */
 
 #altlinks {
-  clear: both;
-  text-align: center;
+ clear: both;
+ text-align: center;
 }
 
 #altlinks h3 {
-  font-size: 12px;
-  letter-spacing: normal;
-  margin: 0;
+ font-size: 12px;
+ letter-spacing: normal;
+ margin: 0;
 }
 
 #altlinks ul {
-  list-style: none outside none;
-  margin: 0;
-  padding: 0 0 1em;
+ list-style: none outside none;
+ margin: 0;
+ padding: 0 0 1em;
 }
 
 #altlinks li.last {
-  border-right: medium none;
+ border-right: medium none;
 }
 
 #altlinks li {
-  border-right: 1px solid #D7D7D7;
-  display: inline;
-  font-size: 11px;
-  line-height: 1.5;
-  padding: 0 1em;
-  white-space: nowrap;
+ border-right: 1px solid #D7D7D7;
+ display: inline;
+ font-size: 11px;
+ line-height: 1.5;
+ padding: 0 1em;
+ white-space: nowrap;
 }
 
 #altlinks li *:link, #altlinks li *:visited {
-  background-repeat: no-repeat;
-  border: medium none;
-  color: #666666;
-  padding: 0 0 2px;
+ background-repeat: no-repeat;
+ border: medium none;
+ color: #666666;
+ padding: 0 0 2px;
  text-decoration: none;
 }
 
@@ -444,7 +449,7 @@ span[contenteditable="true"]:focus {
 
 #results .author,
 #results .date {
-  color: #090;
+ color: #090;
 }
 
 /* @end */
@@ -452,18 +457,17 @@ span[contenteditable="true"]:focus {
 /* @group Search */
 
 .comment blockquote p {
-  font-size: 13px;
+ font-size: 13px;
 }
 
 .search_results dt {
-    font-weight: inherit;
-    text-decoration: underline;
+ font-weight: inherit;
+ text-decoration: underline;
 }
 
-
 .searchable em {
-    font-style: inherit;
-    font-weight: bold;
+ font-style: inherit;
+ font-weight: bold;
 }
 
 /* @end */
@@ -471,7 +475,7 @@ span[contenteditable="true"]:focus {
 /* @group Admin */
 
 .table .default {
-  text-align: center
+ text-align: center
 }
 
 /* @end */
@@ -479,17 +483,17 @@ span[contenteditable="true"]:focus {
 /* @group Reports */
 
 .report span.foldable {
-  display: none;
+ display: none;
 }
 
 .report input#title {
-  max-width: 500px;
-  width: 100%;
+ max-width: 500px;
+ width: 100%;
 }
 
 .report textarea.trac-resizable {
-  max-width: 500px;
-  width: 100%;
+ max-width: 500px;
+ width: 100%;
 }
 
 table.listing th.sel, table.listing td.sel {
@@ -500,37 +504,37 @@ table.listing th.sel, table.listing td.sel {
 /* @end */
 
 #filters td .trac-clause-lsep {
-  float: left;
-  line-height: 50%;
-  width: 47%;
+ float: left;
+ line-height: 50%;
+ width: 47%;
 }
 
 #filters td .trac-clause-msep {
-  float: left;
-  text-align: center;
-  width: 5%;
+ float: left;
+ text-align: center;
+ width: 5%;
 }
 
 #filters td .trac-clause-rsep {
-  float: right;
-  line-height: 50%;
-  width: 47%;
+ float: right;
+ line-height: 50%;
+ width: 47%;
 }
 
 #filters td .trac-clause-lsep hr, #filters td .trac-clause-rsep hr {
-  margin: 0px;
+ margin: 0px;
 }
 
 .and label, .or label {
-  display: inline;
+ display: inline;
 }
 
 .and select, .or select {
-  width: 150px;
+ width: 150px;
 }
 
 .or {
-  text-align: right;
+ text-align: right;
 }
 
 /* @end */
@@ -538,191 +542,191 @@ table.listing th.sel, table.listing td.sel {
 /* @group Bootstrap extensions */
 
 .form-search label, .form-inline label {
-  margin-left: 2em;
+ margin-left: 2em;
 }
 
 .btn-micro {
-  padding: 0px 6px !important;
-  font-size: 10px !important;
-  line-height: 13px !important;
+ padding: 0px 6px !important;
+ font-size: 10px !important;
+ line-height: 13px !important;
 }
 
 button.btn.btn-micro,
 input[type="submit"].btn.btn-micro {
-  *padding-top: 1px !important;
-  *padding-bottom: 1px !important;
+ *padding-top: 1px !important;
+ *padding-bottom: 1px !important;
 }
 
 .btn-group > .btn-micro.dropdown-toggle {
-  padding-right: 5px !important;
-  padding-left: 5px !important;
+ padding-right: 5px !important;
+ padding-left: 5px !important;
 }
 
 .btn-micro .caret {
-  margin-top: 2px !important;
+ margin-top: 2px !important;
 }
 
 .visible-affix {
-  display: none !important;
+ display: none !important;
 }
 
 .affix .visible-affix {
-  display: inherit !important;
+ display: inherit !important;
 }
 
 .hidden-affix {
-  display: inherit !important;
+ display: inherit !important;
 }
 
 .affix .hidden-affix {
-  display: none !important;
+ display: none !important;
 }
 
 .hidden-desktop {
-  display: none !important;
+ display: none !important;
 }
 
 .visible-desktop-hover:hover .hidden-desktop {
-  display: inherit !important;
+ display: inherit !important;
 }
 
 .breadcrumb {
-  background-color: #FBFBFB;
-  background-image: -moz-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-repeat: repeat-x;
-  border: 1px solid #DDDDDD;
-  border-radius: 3px 3px 3px 3px;
-  box-shadow: 0 1px 0 #FFFFFF inset;
-  list-style: none outside none;
-  margin: 0 0 18px;
-  padding: 7px 14px;
+ background-color: #FBFBFB;
+ background-image: -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-repeat: repeat-x;
+ border: 1px solid #DDDDDD;
+ border-radius: 3px 3px 3px 3px;
+ box-shadow: 0 1px 0 #FFFFFF inset;
+ list-style: none outside none;
+ margin: 0 0 18px;
+ padding: 7px 14px;
 }
 
 @media (max-width: 979px) {
-  .hidden-desktop {
-    display: inherit !important;
-  }
+ .hidden-desktop {
+  display: inherit !important;
+ }
 }
 
 @media (min-width: 1200px) {
-  .facets {
-      width: 220px;
-  }
+ .facets {
+  width: 220px;
+ }
 }
 
 @media (min-width: 1200px) {
-  .search_results {
-      width: 920px;
-  }
+ .search_results {
+  width: 920px;
+ }
 }
 
 @media (min-width: 979px) and (max-width: 1199px) {
-  .main-nav ul {
-    background-color: red;
-  }
+ .main-nav ul {
+  background-color: red;
+ }
 }
 
 @media (max-width: 767px) {
-  body {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
+ body {
+  padding-left: 8px;
+  padding-right: 8px;
+ }
 
-  #logo, #usermenu, #stickyStatus{
-    float: left;
-  }
+ #logo, #usermenu, #stickyStatus {
+  float: left;
+ }
 
-  #searchbox {
-    float: left;
-    margin-right: 10px;
-  }
+ #searchbox {
+  float: left;
+  margin-right: 10px;
+ }
 
-  #mainnav {
-    margin-top: 7px;
-  }
+ #mainnav {
+  margin-top: 7px;
+ }
 
-  .comment-meta {
-    margin-bottom: 5px;
-  }
+ .comment-meta {
+  margin-bottom: 5px;
+ }
 
-  .comment-meta .id,
-  .comment-meta .date {
-    text-align: right;
-  }
+ .comment-meta .id,
+ .comment-meta .date {
+  text-align: right;
+ }
 
-  .sticky {
-    width: 100%;
-    position: relative;
-    left: 0px;
-    padding-left: 29px; 
-  }
+ .sticky {
+  width: 100%;
+  position: relative;
+  left: 0px;
+  padding-left: 29px;
+ }
 
-  #belowStatus {
-    margin-top: 5px;
-  }
+ #belowStatus {
+  margin-top: 5px;
+ }
 
-  #changelog .change .span2 {
-    float: left;
-  }
+ #changelog .change .span2 {
+  float: left;
+ }
 
-  .compact-left {
-    float: left;
-    margin-left: 10px;
-  }
+ .compact-left {
+  float: left;
+  margin-left: 10px;
+ }
 }
 
 @media (max-width: 480px) {
-  body {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
+ body {
+  padding-left: 0px;
+  padding-right: 0px;
+ }
 
-  h1 {
-    font-size: 30px;
-    margin-bottom: 0px;
-    line-height: 1;
-  }
+ h1 {
+  font-size: 30px;
+  margin-bottom: 0px;
+  line-height: 1;
+ }
 
-  .container:first-child {
-    border-left: 0px solid white;
-    border-right: 0px solid white;
-    padding: 0px 4px;
-  }
+ .container:first-child {
+  border-left: 0px solid white;
+  border-right: 0px solid white;
+  padding: 0px 4px;
+ }
 
-  header, #belowStatus, #mobile-activity,
-  #stickyStatus, #footer-container {
-    padding-left: 7px;
-    padding-right: 7px;
-  }
+ header, #belowStatus, #mobile-activity,
+ #stickyStatus, #footer-container {
+  padding-left: 7px;
+  padding-right: 7px;
+ }
 
-  .ownership {
-    padding-left: 15px;
-  }
+ .ownership {
+  padding-left: 15px;
+ }
 }
 
 .breadcrumb .dropdown-menu li {
-  display: block;
+ display: block;
 }
 
 /* Revert some changes introduced in 2.1.0 */
 h6 {
-  color: #A4A4A4;
-  margin: 0px 0.5em;
-  text-transform: uppercase;
+ color: #A4A4A4;
+ margin: 0px 0.5em;
+ text-transform: uppercase;
 }
 
 /* Style tt elements like code elements (#420/t:#11094). */
 tt {
-  background-color: #f7f7f9;
-  border: 1px solid #e1e1e8;
-  color: #d14;
-  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
-  font-size: 12px;
-  padding: 2px 4px;
-  white-space: nowrap;
-  -webkit-border-radius: 3px;
-     -moz-border-radius: 3px;
-          border-radius: 3px;
+ background-color: #f7f7f9;
+ border: 1px solid #e1e1e8;
+ color: #d14;
+ font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+ font-size: 12px;
+ padding: 2px 4px;
+ white-space: nowrap;
+ -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+         border-radius: 3px;
 }
 
 /* @end */
@@ -730,166 +734,165 @@ tt {
 /* @group Bootstrap extensions */
 
 #alert-log {
-  left: 500px;
-  position: fixed;
-  top: 50px;
-  width: 250px;
+ left: 500px;
+ position: fixed;
+ top: 50px;
+ width: 250px;
 }
 
 /* @end */
 
 /* @group jQuery UI extensions (fix for Bootstrap) */
 .ui-datepicker {
-  background-color: #FBFBFB;
-  background-image: -webkit-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -moz-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -o-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -ms-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-repeat: repeat-x;
-  border: 1px solid #DDDDDD;
-  border-radius: 3px 3px 3px 3px;
-  box-shadow: 0 1px 0 #FFFFFF inset;
-  list-style: none outside none;
-  margin: 0 0 18px;
-  padding: 7px 14px;
+ background-color: #FBFBFB;
+ background-image: -webkit-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:    -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:      -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:     -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:         linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-repeat: repeat-x;
+ border: 1px solid #DDDDDD;
+ border-radius: 3px 3px 3px 3px;
+ box-shadow: 0 1px 0 #FFFFFF inset;
+ list-style: none outside none;
+ margin: 0 0 18px;
+ padding: 7px 14px;
 }
 
 .ui-datepicker a.ui-datepicker-prev,
 .ui-datepicker a.ui-datepicker-next {
-  background-color: #FBFBFB;
-  background-image: -webkit-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -moz-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -o-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -ms-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-repeat: repeat-x;
-  border: 1px solid #DDDDDD;
-  border-radius: 3px 3px 3px 3px;
-  box-shadow: 0 1px 0 #FFFFFF inset;
-  padding: 2px 10px;
-  margin: 2px 0 10px 0;
-  cursor: pointer;
-  text-decoration: none;
+ background-color: #FBFBFB;
+ background-image: -webkit-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:    -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:      -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:     -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:         linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-repeat: repeat-x;
+ border: 1px solid #DDDDDD;
+ border-radius: 3px 3px 3px 3px;
+ box-shadow: 0 1px 0 #FFFFFF inset;
+ padding: 2px 10px;
+ margin: 2px 0 10px 0;
+ cursor: pointer;
+ text-decoration: none;
 }
 
 .ui-datepicker a.ui-datepicker-prev:before {
-  content: "\ab\a0";
+ content: "\ab\a0";
 }
 
 .ui-datepicker a.ui-datepicker-next:after {
-  content: "\a0\bb";
+ content: "\a0\bb";
 }
 
 .ui-datepicker a.ui-datepicker-prev {
-  float: left;
+ float: left;
 }
 
 .ui-datepicker a.ui-datepicker-next {
-  float: right;
+ float: right;
 }
 
 .ui-datepicker-title {
-  clear: both;
+ clear: both;
 }
 
 .ui-datepicker-calendar td {
-  background-color: #FBFBFB;
-  background-image: -webkit-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -moz-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -o-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: -ms-linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-image: linear-gradient(center top , #FFFFFF, #F5F5F5);
-  background-repeat: repeat-x;
-  border: 1px solid #DDDDDD;
-  border-radius: 3px 3px 3px 3px;
-  box-shadow: 0 1px 0 #FFFFFF inset;
-  text-align: center;
+ background-color: #FBFBFB;
+ background-image: -webkit-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:    -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:      -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:     -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image:         linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-repeat: repeat-x;
+ border: 1px solid #DDDDDD;
+ border-radius: 3px 3px 3px 3px;
+ box-shadow: 0 1px 0 #FFFFFF inset;
+ text-align: center;
 }
 
 .ui-datepicker-calendar td a {
-  display: block;
-  padding: 2px 4px;
-  text-decoration: none;
+ display: block;
+ padding: 2px 4px;
+ text-decoration: none;
 }
 
 .ui-datepicker-calendar td a.ui-state-hover,
 .ui-datepicker-calendar td a.ui-state-active {
-  color: #FBFBFB;
-  background-color: #08c;
+ color: #FBFBFB;
+ background-color: #08c;
 }
 
 /* stuff below was copied from bootstrap's default button rules */
 .ui-datepicker button {
-  display: inline-block;
-  *display: inline;
-  padding: 4px 12px;
-  margin-bottom: 0;
-  *margin-left: .3em;
-  font-size: 14px;
-  line-height: 20px;
-  *line-height: 20px;
-  color: #333333;
-  text-align: center;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
-  vertical-align: middle;
-  cursor: pointer;
-  background-color: #f5f5f5;
-  *background-color: #e6e6e6;
-  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%,
-from(#ffffff), to(#e6e6e6));
-  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
-  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
-  background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
-  background-repeat: repeat-x;
-  border: 1px solid #bbbbbb;
-  *border: 0;
-  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  border-bottom-color: #a2a2a2;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-          border-radius: 4px;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',
-endColorstr='#ffe6e6e6', GradientType=0);
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-  *zoom: 1;
-  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
+ display: inline-block;
+ *display: inline;
+ padding: 4px 12px;
+ margin-bottom: 0;
+ *margin-left: .3em;
+ font-size: 14px;
+ line-height: 20px;
+ *line-height: 20px;
+ color: #333333;
+ text-align: center;
+ text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+ vertical-align: middle;
+ cursor: pointer;
+ background-color: #f5f5f5;
+ *background-color: #e6e6e6;
+ background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+ background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+ background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+ background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+ background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+ background-repeat: repeat-x;
+ border: 1px solid #bbbbbb;
+ *border: 0;
+ border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+ border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+ border-bottom-color: #a2a2a2;
+ -webkit-border-radius: 4px;
+ -moz-border-radius: 4px;
+ border-radius: 4px;
+ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',
+ endColorstr='#ffe6e6e6', GradientType=0);
+ filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+ *zoom: 1;
+ -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
 2px rgba(0, 0, 0, 0.05);
-     -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
+    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
 2px rgba(0, 0, 0, 0.05);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
+         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
 2px rgba(0, 0, 0, 0.05);
-  border-color: #c5c5c5;
-  border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
+ border-color: #c5c5c5;
+ border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
 
-  margin-right: .3em;
+ margin-right: .3em;
 }
 
 .ui-datepicker button:hover,
 .ui-datepicker button:active {
-  color: #333333;
-  background-color: #e6e6e6;
-  *background-color: #d9d9d9;
+ color: #333333;
+ background-color: #e6e6e6;
+ *background-color: #d9d9d9;
 }
 
 .ui-datepicker button:active {
-  background-color: #cccccc;
+ background-color: #cccccc;
 }
 
 .ui-datepicker button:hover {
-  color: #333333;
-  text-decoration: none;
-  background-color: #e6e6e6;
-  *background-color: #d9d9d9;
-  /* Buttons in IE7 don't get borders, so darken on hover */
+ color: #333333;
+ text-decoration: none;
+ background-color: #e6e6e6;
+ *background-color: #d9d9d9;
+ /* Buttons in IE7 don't get borders, so darken on hover */
 
-  background-position: 0 -15px;
-  -webkit-transition: background-position 0.1s linear;
-     -moz-transition: background-position 0.1s linear;
-       -o-transition: background-position 0.1s linear;
-          transition: background-position 0.1s linear;
+ background-position: 0 -15px;
+ -webkit-transition: background-position 0.1s linear;
+    -moz-transition: background-position 0.1s linear;
+      -o-transition: background-position 0.1s linear;
+         transition: background-position 0.1s linear;
 }
 
 /* @end */
@@ -897,97 +900,97 @@ endColorstr='#ffe6e6e6', GradientType=0);
 /* @group Sticky Status */
 
 #stickyStatus {
-  position: relative;
-  background-color: white;
-  z-index: 20;
+ position: relative;
+ background-color: white;
+ z-index: 20;
 }
 
 /*  The box-shadow overhanging to the left and right are hacks only.
     We should look for a better solution for production code. */
 #stickyStatus.sticky {
-  position: fixed !important;
-  top: 0px;
-  opacity: 1;
-  background-color: rgb(93%, 93%, 93%);
+ position: fixed !important;
+ top: 0px;
+ opacity: 1;
+ background-color: rgb(93%, 93%, 93%);
 
-  padding-bottom: 10px;
+ padding-bottom: 10px;
 
-  border-bottom: 1px solid rgba(75%, 75%, 75%, 0.5);
+ border-bottom: 1px solid rgba(75%, 75%, 75%, 0.5);
 
-  -webkit-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
-                     -20px 0px 0px rgb(93%, 93%, 93%),
-                      20px 0px 0px rgb(93%, 93%, 93%);
-     -moz-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
-                     -20px 0px 0px rgb(93%, 93%, 93%),
-                      20px 0px 0px rgb(93%, 93%, 93%);
-          box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
-                     -20px 0px 0px rgb(93%, 93%, 93%),
-                      20px 0px 0px rgb(93%, 93%, 93%);
+ -webkit-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+                    -20px 0px 0px rgb(93%, 93%, 93%),
+                     20px 0px 0px rgb(93%, 93%, 93%);
+    -moz-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+                    -20px 0px 0px rgb(93%, 93%, 93%),
+                     20px 0px 0px rgb(93%, 93%, 93%);
+         box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
+                    -20px 0px 0px rgb(93%, 93%, 93%),
+                     20px 0px 0px rgb(93%, 93%, 93%);
 
-  -webkit-transition: all 0.3s ease-out;
-     -moz-transition: all 0.3s ease-out;
-       -o-transition: all 0.3s ease-out;
-      -ms-transition: all 0.3s ease-out;
-          transition: all 0.3s ease-out;
+ -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+      -o-transition: all 0.3s ease-out;
+     -ms-transition: all 0.3s ease-out;
+         transition: all 0.3s ease-out;
 }
 
 #belowStatus {
-  position: relative;
-  margin-top: 20px;
+ position: relative;
+ margin-top: 20px;
 }
 
 .offsetSticky {
-  height: 130px;
+ height: 130px;
 }
 
 #stickyStatus h2,
 #stickyStatus ul {
-	margin-bottom: 3px;
+ margin-bottom: 3px;
 }
 
 #stickyStatus h2 {
-	line-height: 30px;
+ line-height: 30px;
 }
 
 .local-nav {
-	display: inline-block;
-	margin-left: 0;
+ display: inline-block;
+ margin-left: 0;
 }
 
 .ownership {
-	padding-left: 25px;
+ padding-left: 25px;
 }
 
 #description {
-	margin-top: 10px;
+ margin-top: 10px;
 }
 
 .comment {
-	border-top: 1px solid rgb(80%, 80%, 80%);
-	margin-bottom: 10px;
-	padding-top: 5px;
+ border-top: 1px solid rgb(80%, 80%, 80%);
+ margin-bottom: 10px;
+ padding-top: 5px;
 }
 
 .comment-meta {
-		overflow: hidden;
+ overflow: hidden;
 }
 
 .comment-meta .id,
 .comment-meta .date {
-	float: right;
-	color: #888;
-	font-size: 90%;
+ float: right;
+ color: #888;
+ font-size: 90%;
 }
 
 .comment-meta span:first-child {
-	font-weight: 700;
+ font-weight: 700;
 }
 
 .add-comment textarea {
-	height: 100px;
-	border: 1px solid #eee;
-	color: lightgray;
-	display: block;
+ height: 100px;
+ border: 1px solid #eee;
+ color: lightgray;
+ display: block;
 }
 
 /* @end */
@@ -995,24 +998,24 @@ endColorstr='#ffe6e6e6', GradientType=0);
 /* @group Wiki Tables */
 
 table.wiki {
-  border: 1px solid #CCCCCC;
-  border-collapse: collapse;
-  border-spacing: 0;
+ border: 1px solid #CCCCCC;
+ border-collapse: collapse;
+ border-spacing: 0;
 }
 
 table.wiki td {
-  border: 1px solid #CCCCCC;
-  padding: 0.1em 0.25em;
+ border: 1px solid #CCCCCC;
+ padding: 0.1em 0.25em;
 }
 
 table.wiki th {
-  border: 1px solid #BBBBBB;
-  padding: 0.1em 0.25em;
-  background-color: #F7F7F7;
+ border: 1px solid #BBBBBB;
+ padding: 0.1em 0.25em;
+ background-color: #F7F7F7;
 }
 
 .more:before {
-  content: "... "
+ content: "... "
 }
 
 /* @end */
@@ -1020,44 +1023,72 @@ table.wiki th {
 /* @group Wiki Toolbar */
 
 .wikitoolbar {
-  margin-top: 0.3em;
-  margin-left: 2px;
-  border: solid #d7d7d7;
-  border-width: 1px 1px 1px 0;
-  height: 18px;
-  width: 234px;
+ margin-top: 0.3em;
+ margin-left: 2px;
+ border: solid #d7d7d7;
+ border-width: 1px 1px 1px 0;
+ height: 18px;
+ width: 234px;
 }
+
 .wikitoolbar :link, .wikitoolbar :visited {
-  background: transparent url(../common/edit_toolbar.png) no-repeat;
-  border: 1px solid #fff;
-  border-left-color: #d7d7d7;
-  cursor: default;
-  display: block;
-  float: left;
-  width: 24px;
-  height: 16px;
+ background: transparent url(../common/edit_toolbar.png) no-repeat;
+ border: 1px solid #fff;
+ border-left-color: #d7d7d7;
+ cursor: default;
+ display: block;
+ float: left;
+ width: 24px;
+ height: 16px;
 }
+
 .wikitoolbar :link:hover, .wikitoolbar :visited:hover {
-  background-color: transparent;
-  border: 1px solid #fb2;
+ background-color: transparent;
+ border: 1px solid #fb2;
 }
-.wikitoolbar a#em { background-position: 0 0 }
-.wikitoolbar a#strong { background-position: 0 -16px }
-.wikitoolbar a#heading { background-position: 0 -32px }
-.wikitoolbar a#link { background-position: 0 -48px }
-.wikitoolbar a#code { background-position: 0 -64px }
-.wikitoolbar a#hr { background-position: 0 -80px }
-.wikitoolbar a#np { background-position: 0 -96px }
-.wikitoolbar a#br { background-position: 0 -112px }
-.wikitoolbar a#img { background-position: 0 -128px }
+
+.wikitoolbar a#em {
+ background-position: 0 0
+}
+
+.wikitoolbar a#strong {
+ background-position: 0 -16px
+}
+
+.wikitoolbar a#heading {
+ background-position: 0 -32px
+}
+
+.wikitoolbar a#link {
+ background-position: 0 -48px
+}
+
+.wikitoolbar a#code {
+ background-position: 0 -64px
+}
+
+.wikitoolbar a#hr {
+ background-position: 0 -80px
+}
+
+.wikitoolbar a#np {
+ background-position: 0 -96px
+}
+
+.wikitoolbar a#br {
+ background-position: 0 -112px
+}
+
+.wikitoolbar a#img {
+ background-position: 0 -128px
+}
 
 /* @end */
 
 /* @group Version control */
 
 .log .age {
-  white-space: nowrap;
+ white-space: nowrap;
 }
 
 /* @end */
-
