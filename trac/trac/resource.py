@@ -217,6 +217,38 @@ class Resource(object):
         """
         return Resource(realm, id, version, self)
 
+class IResourceChangeListener(Interface):
+    """Extension point interface for components that require notification
+    when resources are created, modified, or deleted.
+
+    'resource' parameters is instance of the a resource e.g. ticket, milestone
+    etc.
+    'context' is an action context, may contain author, comment etc. Context
+    content depends on a resource type.
+    """
+
+    def match_resource(resource):
+        """Return whether the listener wants to process the given resource."""
+
+    def resource_created(resource, context):
+        """
+        Called when a resource is created.
+        """
+
+    def resource_changed(resource, old_values, context):
+        """Called when a resource is modified.
+
+        `old_values` is a dictionary containing the previous values of the
+        resource properties that changed. Properties are specific for resource
+        type.
+        """
+
+    def resource_deleted(resource, context):
+        """Called when a resource is deleted."""
+
+    def resource_version_deleted(resource, context):
+        """Called when a version of a resource has been deleted."""
+
 
 class ResourceSystem(Component):
     """Resource identification and description manager.
@@ -226,6 +258,8 @@ class ResourceSystem(Component):
     """
 
     resource_managers = ExtensionPoint(IResourceManager)
+    change_listeners = ExtensionPoint(IResourceChangeListener)
+
 
     def __init__(self):
         self._resource_managers_map = None
@@ -255,6 +289,25 @@ class ResourceSystem(Component):
                 realms.append(realm)
         return realms
 
+    def resource_created(self, resource, context=None):
+        for listener in self.change_listeners:
+            if listener.match_resource(resource):
+                listener.resource_created(resource, context)
+
+    def resource_changed(self, resource, old_values, context=None):
+        for listener in self.change_listeners:
+            if listener.match_resource(resource):
+                listener.resource_changed(resource, old_values, context)
+
+    def resource_deleted(self, resource, context=None):
+        for listener in self.change_listeners:
+            if listener.match_resource(resource):
+                listener.resource_deleted(resource, context)
+
+    def resource_version_deleted(self, resource, context=None):
+        for listener in self.change_listeners:
+            if listener.match_resource(resource):
+                listener.resource_version_deleted(resource, context)
 
 # -- Utilities for manipulating resources in a generic way
 

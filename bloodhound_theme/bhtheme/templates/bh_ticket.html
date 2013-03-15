@@ -64,6 +64,8 @@
 
         <py:if test="has_property_editor">
         // Install in place editing
+        install_workflow();
+        $('#edit-cancel').click(revert_ticket);
 
         var modify_elem = $('#modify');
         <py:if test="ticket.exists">
@@ -86,59 +88,30 @@
           if ($('#vc-summary').is('.edit-active'))
             // Already in editable state
             return;
+          $('h2#vc-summary span').attr('contenteditable', 'true');
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).addClass('edit-active');
               var fieldnm = fc.attr('id').substr(3);
-              fc.attr('data-edit-orig', fc.html()).empty();
+              fc.attr('data-edit-orig', fc.html());
+              
+              if (fieldnm != 'summary') {
+                fc.empty();
+              }
               var editor = $('#properties #field-' + fieldnm);
               if (editor.length == 0)
                 editor = $('#editor-' + fieldnm);
               var fieldval = editor.val();
-              editor = editor.clone(false).appendTo(fc).val(fieldval);
+              editor = editor.clone(false);
+              if (fieldnm === 'summary') {
+                editor.hide();
+              }
+              editor.appendTo(fc).val(fieldval);
               if (editor.prop('tagName') === 'TEXTAREA') {
                 if (editor.is('.wikitext'))
                   addWikiFormattingToolbar(editor.get(0));
               }
               if (fieldnm === 'summary') {
-                // Install inline edit form 
-                var submit_ticket = $('#tmpl-inplace-submit').html();
-                submit_ticket = $(submit_ticket).prepend(editor)
-                    .appendTo(fc);
-                submit_ticket.find('#edit-cancel').click(revert_ticket);
                 editor.wrap('<div class="btn-group"></div>')
-
-                // Workflow actions
-                var actions_box = submit_ticket.find('#workflow-actions')
-                    .click(function(e) { e.stopPropagation(); });
-                $('#action').children('div').each(function() {
-                    var action_ui = $(this).clone(false).prependTo(actions_box)
-                        .wrap('<li style="padding: 5px 10px"></li>');
-                    var action_trigger = action_ui.find('input[name=action]');
-
-                    function action_click() {
-                      var newlabel = action_ui.find('label[for^=action_]')
-                          .text();
-                      $('#submit-action-label').text(newlabel);
-
-                      // Enable | disable action controls
-                      actions_box.find('input[name=action]').each(function() {
-                          $(this).siblings().find("*[id]")
-                              .enable($(this).checked());
-                          $(this).siblings().filter("*[id]")
-                              .enable($(this).checked());
-                        });
-                    }
-                    action_trigger.click(action_click);
-                    if (action_trigger.attr('checked'))
-                      action_click();
-
-                    var action_help = action_ui.find('.help-block').detach()
-                        .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
-                        .replace(/^\s$/, '');
-                    if (action_help)
-                        $('<i class="icon-info-sign"></i>').appendTo(action_ui)
-                            .attr('title', action_help);
-                  })
               }
             });
 
@@ -146,18 +119,84 @@
           //$('#inplace-propertyform').autoSubmit({preview : 1}, 
           //    full_preview, '#overview .trac-loading')
           $('#inplace-propertyform').submit(function() {
-              $('#hidden-comment').val($('#comment').val())
+              $('#hidden-comment').val($('#comment').val());
             })
+          $('#inplace-edit').hide();
+          $('#edit-state-buttons').show();
+          $('#vc-status a').hide();
+          $('#edit-workflow-buttons').show();
         }
 
-        function revert_ticket() {
+        function revert_ticket(e) {
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).removeClass('edit-active');
               fc.html(fc.attr('data-edit-orig')).attr('data-edit-orig', '');
             });
+          $('#inplace-edit').show();
+          $('h2#vc-summary span').attr('contenteditable', 'false');
+          $('#edit-state-buttons').hide();
+          $('#vc-status a').show();
+          $('#edit-workflow-buttons').hide();
+          e.preventDefault();
         }
 
-        $('.local-nav a[href = "#inplace-edit"]').click(modify_ticket);
+        function install_workflow(){
+          var actions_box = $('#workflow-actions')
+              .click(function(e) { e.stopPropagation(); });
+          $('#action').children('div').each(function() {
+              var action_ui = $(this).clone(false).prependTo(actions_box)
+                  .wrap('<li style="padding: 5px 10px"></li>');
+              var action_trigger = action_ui.find('input[name=action]');
+              var action_select_trigger = action_ui.find('select');
+              var action_input_trigger = action_ui.find('input:not([name=action])');
+
+              function action_click() {
+                var action = action_ui.find('input[name=action]').val();
+                var newowner = action_ui.find('input[id$=_reassign_owner]').val();
+                var newresolution = action_ui.find('select[id$=_resolution]').val();
+                var newlabel = action_ui.find('label[for^=action_]')
+                    .text();
+                if (action === 'leave')
+                  newlabel = newlabel + ' as ' + $('#vc-status a').text();
+                else if (newowner)
+                  newlabel = newlabel + ' to ' + newowner;
+                else if (newresolution)
+                  newlabel = newlabel + ' as ' + newresolution;
+                $('#submit-action-label').text(newlabel);
+
+                // Enable | disable action controls
+                actions_box.find('input[name=action]').each(function() {
+                    $(this).siblings().find("*[id]")
+                        .enable($(this).checked());
+                    $(this).siblings().filter("*[id]")
+                        .enable($(this).checked());
+                  });
+              }
+              action_trigger.click(action_click);
+              action_select_trigger.change(action_click);
+              action_input_trigger.blur(action_click);
+              if (action_trigger.attr('checked'))
+                action_click();
+
+              var action_help = action_ui.find('.help-block').detach()
+                  .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
+                  .replace(/^\s$/, '');
+              if (action_help)
+                  $('<i class="icon-info-sign"></i>').appendTo(action_ui)
+                      .attr('title', action_help);
+            });
+          }
+
+        $('h2#vc-summary span').blur(function () {
+          if ($('#vc-summary.edit-active').length == 1) {
+            $('#vc-summary.ticket-summary input#field-summary').val($('#vc-summary span').text());
+          }
+        });
+
+        $('#inplace-edit-button button#inplace-edit').click(function (e) {
+          modify_ticket();
+          e.preventDefault();
+        });
         </py:if>
 
         $('body').scrollspy({
@@ -239,33 +278,27 @@
 
     <py:def function="render_ticket_summary(t, showid)">
       <h2 class="ticket-summary searchable clip-affix" py:choose="" data-edit="${'inplace' if can_modify or can_create else None}" id="vc-summary">
-        <py:when test="t.exists"><py:if test="showid"><span class="visible-phone">#$t.id - </span></py:if>  &#9734; $t.summary</py:when>
+        <py:when test="t.exists"><py:if test="showid">
+        <span class="visible-phone">#$t.id - </span></py:if>  &#9734; <span contenteditable="false">$t.summary</span></py:when>
         <py:otherwise>Create Ticket</py:otherwise>
       </h2>
-    </py:def>
-
-    <py:def function="render_ticket_navbar(t)">
-      <div class="ticket-navbar" py:if="t.exists"
-          py:with="sections = (
-                  (_('Overview'), 'content', True, _('View ticket fields and description'), 'icon-list'),
-                  (_('Attachments'), 'attachments', attachments.attachments or attachments.can_create, _('Go to the list of attachments'), 'icon-file'),
-                  (_('Comments'), 'changelog', True, _('Go to the changelog'), 'icon-comment'),
-                  (_('Add comment'), 'propertyform', t.exists and can_append, _('Go to the ticket editor'), 'icon-plus-sign'),
-                  (_('Modify Ticket'), 'inplace-edit', can_modify or can_edit or can_create, _('Modify ticket fields and description'), 'icon-edit'),
-              )">
-          <ul class="btn-group local-nav nav">
-            <li py:for="s in sections" py:if="s[2]" class="btn">
-              <a href="#${s[1]}" title="${s[3]}">
-                <i class="${s[4]}"></i>
-                <!-- show first three descriptions on tables, hide all on phones -->
-                <py:choose>
-                  <span py:when="sections.index(s) > 2" class="hidden-phone hidden-tablet">${s[0]}</span>
-                  <span py:otherwise="" class="hidden-phone">${s[0]}</span>
-                </py:choose>
-              </a>
-            </li>
-          </ul>
-      </div>
+      <py:if test="t.exists">
+        <div id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar">
+          <button id="inplace-edit" class="btn">
+            <i class="icon-edit"></i>
+            <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
+          </button>
+          <div id="edit-state-buttons" class="btn-toolbar" style="display: None">
+            <button id="edit-submit" class="btn" type="submit"
+                value="Submit changes" name="submit">
+              Submit changes
+            </button>
+            <button id="edit-cancel" class="btn-link" title="Discard changes">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </py:if>
     </py:def>
 
     <div class="ticket">
@@ -314,9 +347,6 @@
                     </span>
                   </h5>
                 </div>
-
-                <!--! ticket navbar -->
-                ${render_ticket_navbar(ticket)}
               </div>
 
               <!--! activity header -->
@@ -355,12 +385,6 @@
                       py:with="preview_mode = change_preview.fields ; 
                           colcount = 4 if bhdb else 6"/>
                 </div>
-
-                <!--! do not show attachments for old versions of this ticket or for new tickets -->
-                <div py:if="not version and version != 0 and ticket.exists">
-                  <xi:include href="bh_list_of_attachments.html"
-                              py:with="alist = attachments; foldable = True"/>
-                </div>
               </py:if>
 
             </div>
@@ -373,6 +397,12 @@
               <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
             </bh:args>
           </bh:widget>
+        </div>
+
+        <!--! do not show attachments for old versions of this ticket or for new tickets -->
+        <div class="$colspan" py:if="not version and version != 0 and ticket.exists">
+          <xi:include href="bh_list_of_attachments.html"
+                      py:with="alist = attachments; foldable = True"/>
         </div>
 
         <div class="$colspan">
@@ -651,24 +681,6 @@
 
     <script type="text/x-tmpl" id="tmpl-inplace-submit" py:if="has_property_editor">
       <div class="btn-toolbar">
-        <div class="btn-group">
-          <button id="edit-submit" class="btn btn-primary" type="submit" 
-              value="Submit changes" name="submit">
-            Update (<span id="submit-action-label"></span>)
-          </button>
-          <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <fieldset id="workflow-actions">
-            </fieldset>
-          </ul>
-        </div>
-        <div class="btn-group">
-          <button id="edit-cancel" class="btn-link" title="Discard changes">
-            Cancel
-          </button>
-        </div>
         <div class="btn-group">
           <span class="trac-loading">&nbsp;</span>
         </div>

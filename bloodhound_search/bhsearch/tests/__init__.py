@@ -29,6 +29,7 @@ def suite():
     test_suite.addTest(whoosh_backend.suite())
     test_suite.addTest(web_ui.suite())
     test_suite.addTest(api.suite())
+    test_suite.addTest(query_parser.suite())
     test_suite.addTest(ticket_search.suite())
     test_suite.addTest(wiki_search.suite())
     test_suite.addTest(milestone_search.suite())

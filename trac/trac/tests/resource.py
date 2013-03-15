@@ -15,6 +15,8 @@ import doctest
 import unittest
 
 from trac import resource
+from trac.resource import IResourceChangeListener
+from trac.core import implements, Component
 
 
 class ResourceTestCase(unittest.TestCase):
@@ -41,6 +43,46 @@ class ResourceTestCase(unittest.TestCase):
         self.assertEqual(r1, r2)
         r2.parent = r2.parent(version=42)
         self.assertNotEqual(r1, r2)
+
+class TestResourceChangeListener(Component):
+    implements(IResourceChangeListener)
+
+    def __init__(self):
+        self.resource_type = None
+
+    def callback(self, action, resource, context, old_values = None):
+        pass
+
+    def match_resource(self, resource):
+        if self.resource_type is None:
+            return False
+        return isinstance(resource, self.resource_type)
+
+    def resource_created(self, resource, context):
+        self.action = "created"
+        self.resource = resource
+        self.context = context
+        self.callback(self.action, resource, context)
+
+    def resource_changed(self, resource, old_values, context):
+        self.action = "changed"
+        self.resource = resource
+        self.old_values = old_values
+        self.context = context
+        self.callback(
+            self.action, resource, context, old_values=self.old_values)
+
+    def resource_deleted(self, resource, context):
+        self.action = "deleted"
+        self.resource = resource
+        self.context = context
+        self.callback(self.action, resource, context)
+
+    def resource_version_deleted(self, resource, context):
+        self.action = "version_deleted"
+        self.resource = resource
+        self.context = context
+        self.callback(self.action, resource, context)
 
 def suite():
     suite = unittest.TestSuite()

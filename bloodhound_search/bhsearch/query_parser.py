@@ -39,9 +39,10 @@ class MetaKeywordPlugin(qparser.TaggingPlugin):
     expr = r"[$](?P<text>[^ \t\r\n]+)(?= |$|\))"
     nodetype = qparser.syntax.WordNode
 
-    def __init__(self, meta_keyword_parsers=()):
+    def __init__(self, meta_keyword_parsers=(), context=None):
         super(MetaKeywordPlugin, self).__init__()
         self.meta_keyword_parsers = meta_keyword_parsers
+        self.context = context
 
     def match(self, parser, text, pos):
         match = qparser.TaggingPlugin.match(self, parser, text, pos)
@@ -50,7 +51,8 @@ class MetaKeywordPlugin(qparser.TaggingPlugin):
 
         candidate = match.text
         for meta_keyword_parser in self.meta_keyword_parsers:
-            expanded_meta_keyword = meta_keyword_parser.match(candidate)
+            expanded_meta_keyword = meta_keyword_parser.match(candidate,
+                                                              self.context)
             if expanded_meta_keyword is not None:
                 node = MetaKeywordNode(parser.tag(expanded_meta_keyword))
                 return node.set_range(match.startchar, match.endchar)
@@ -91,28 +93,13 @@ class DefaultQueryParser(Component):
 
     meta_keyword_parsers = ExtensionPoint(IMetaKeywordParser)
 
-    def __init__(self):
-        super(DefaultQueryParser, self).__init__()
-        self.parser = MultifieldParser(
-            self.field_boosts.keys(),
-            WhooshBackend.SCHEMA,
-            fieldboosts=self.field_boosts
-        )
-        self.parser.add_plugin(
-            MetaKeywordPlugin(meta_keyword_parsers=self.meta_keyword_parsers)
-        )
-
-    def parse(self, query_string):
+    def parse(self, query_string, context=None):
+        parser = self._create_parser(context)
         query_string = query_string.strip()
-
         if query_string == "" or query_string == "*" or query_string == "*:*":
             return query.Every()
-
         query_string = unicode(query_string)
-        parsed_query = self.parser.parse(query_string)
-
-        #todo: impalement pluggable mechanism for query post processing
-        #e.g. meta keyword replacement etc.
+        parsed_query = parser.parse(query_string)
         return parsed_query
 
     def parse_filters(self, filters):
@@ -125,13 +112,26 @@ class DefaultQueryParser(Component):
     def _parse_filter(self, filter):
         return self.parse(unicode(filter))
 
+    def _create_parser(self, context):
+        parser = MultifieldParser(
+            self.field_boosts.keys(),
+            WhooshBackend.SCHEMA,
+            fieldboosts=self.field_boosts
+        )
+        parser.add_plugin(
+            MetaKeywordPlugin(meta_keyword_parsers=self.meta_keyword_parsers,
+                              context=context)
+        )
+        return parser
+
 
 class DocTypeMetaKeywordParser(Component):
     implements(IMetaKeywordParser)
 
     search_participants = ExtensionPoint(ISearchParticipant)
 
-    def match(self, text):
+    def match(self, text, context):
+        # pylint: disable=unused-argument
         documents = [p.get_participant_type()
                      for p in self.search_participants]
         if text in documents:
@@ -141,7 +141,8 @@ class DocTypeMetaKeywordParser(Component):
 class ResolvedMetaKeywordParser(Component):
     implements(IMetaKeywordParser)
 
-    def match(self, text):
+    def match(self, text, context):
+        # pylint: disable=unused-argument
         if text == u'resolved':
             return u'status:(resolved OR closed)'
 
@@ -149,7 +150,25 @@ class ResolvedMetaKeywordParser(Component):
 class UnResolvedMetaKeywordParser(Component):
     implements(IMetaKeywordParser)
 
-    def match(self, text):
+    def match(self, text, context):
+        # pylint: disable=unused-argument
         if text == u'unresolved':
             return u'NOT $resolved'
 
+
+class MeMetaKeywordParser(Component):
+    implements(IMetaKeywordParser)
+
+    def match(self, text, context):
+        if text == u'me':
+            username = unicode(context.req.authname)
+            return username
+
+
+class MyMetaKeywordParser(Component):
+    implements(IMetaKeywordParser)
+
+    def match(self, text, context):
+        # pylint: disable=unused-argument
+        if text == u'my':
+            return u'owner:$me'

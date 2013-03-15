@@ -90,11 +90,20 @@
           <div class="span6">
             <div id="searchbox" class="btn-toolbar">
               <div class="btn-group">
-                <form id="mainsearch" class="form-inline" action="${href.search()}" method="get">
+                <form id="mainsearch" class="form-inline"
+                      action="${href.search()   if req.path_info == u'/search' else
+                                href.bhsearch() if (req.path_info == u'/bhsearch' or
+                                                    is_bhsearch_default) else
+                                href.search()}"
+                      method="get">
                   <div class="input-append">
                     <input type="text" class="span3" id="q" name="q"
                         placeholder="Search anything. Try #EF-492."
                         value="${req.search_query}" />
+                    <input py:for="name, value in extra_search_fields"
+                           type="hidden"
+                           name="$name"
+                           value="$value" />
                     <button type="submit" class="btn btn-warning">
                       <span class="hidden-phone hidden-tablet">Search</span>
                       <i class="icon-search icon-white"></i>

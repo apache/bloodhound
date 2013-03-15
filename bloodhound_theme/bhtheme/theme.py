@@ -23,7 +23,7 @@ from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
 
-from trac.config import Option
+from trac.config import Option, BoolOption
 from trac.core import *
 from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
@@ -79,11 +79,14 @@ class BloodhoundTheme(ThemeBase):
         'admin_products.html' : ('bh_admin_products.html', None),
 
         # Preferences
+        'prefs.html' : ('bh_prefs.html', None),
         'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
         'prefs_datetime.html' : ('bh_prefs_datetime.html', None),
         'prefs_general.html' : ('bh_prefs_general.html', None),
+        'prefs_language.html' : ('bh_prefs_language.html', None),
         'prefs_keybindings.html' : ('bh_prefs_keybindings.html', None),
         'prefs_pygments.html' : ('bh_prefs_pygments.html', None),
+        'prefs_userinterface.html' : ('bh_prefs_userinterface.html', None),
 
         # Search
         'search.html' : ('bh_search.html', '_modify_search_data'),
@@ -123,6 +126,7 @@ class BloodhoundTheme(ThemeBase):
         # General purpose
         'about.html' : ('bh_about.html', None),
         'history_view.html' : ('bh_history_view.html', None),
+        'timeline.html' : ('bh_timeline.html', None),
 
         # Account manager plugin
         'login.html' : ('bh_login.html', None),
@@ -134,16 +138,23 @@ class BloodhoundTheme(ThemeBase):
     )
     
     labels_application_short = Option('labels', 'application_short', 
-        'Bloodhound')
+        'Bloodhound', """A short version of application name most commonly 
+        displayed in text, titles and labels""")
 
     labels_application_full = Option('labels', 'application_full', 
-        'Apache Bloodhound')
+        'Apache Bloodhound', """This is full name with trade mark and 
+        everything, it is currently used in footers and about page only""")
     
-    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '')
+    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '', 
+        """Text to display before full application name in footers""")
 
-    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '')
+    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '', 
+        """Text to display after full application name in footers""")
     
-    labels_footer_right = Option('labels', 'footer_right', '')
+    labels_footer_right = Option('labels', 'footer_right', '',
+        """Text to use as the right aligned footer""")
+
+    is_bhsearch_default = BoolOption('bhsearch', 'is_default', False)
 
     _wiki_pages = None
     Chrome.default_html_doctype = DocType.HTML5
@@ -206,7 +217,7 @@ class BloodhoundTheme(ThemeBase):
     def pre_process_request(self, req, handler):
         """Pre process request filter"""
         def hwiki(*args, **kw):
-            
+
             def new_name(name):
                 new_name = wiki.new_name(name)
                 if new_name != name:
@@ -215,11 +226,11 @@ class BloodhoundTheme(ThemeBase):
                         self._wiki_pages = wiki_admin.get_wiki_list()
                     if new_name in self._wiki_pages:
                         return new_name
-                return name 
-            
+                return name
+
             a = tuple([new_name(x) for x in args])
-            return req.href.__call__("wiki", *a)
-            
+            return req.href.__call__("wiki", *a, **kw)
+
         req.href.wiki = hwiki
         
         return handler
@@ -271,6 +282,7 @@ class BloodhoundTheme(ThemeBase):
         if is_active_theme and data is not None:
             data['responsive_layout'] = self.env.config.getbool(
                     'bloodhound', 'responsive_layout', 'true')
+            data['is_bhsearch_default'] = self.is_bhsearch_default
 
         return template, data, content_type
 

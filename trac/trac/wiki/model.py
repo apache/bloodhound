@@ -21,7 +21,7 @@ from __future__ import with_statement
 from datetime import datetime
 
 from trac.core import *
-from trac.resource import Resource
+from trac.resource import Resource, ResourceSystem
 from trac.util.datefmt import from_utimestamp, to_utimestamp, utc
 from trac.util.translation import _
 from trac.wiki.api import WikiSystem, validate_page_name
@@ -112,10 +112,12 @@ class WikiPage(object):
         if not self.exists:
             for listener in WikiSystem(self.env).change_listeners:
                 listener.wiki_page_deleted(self)
+            ResourceSystem(self.env).resource_deleted(self)
         else:
             for listener in WikiSystem(self.env).change_listeners:
                 if hasattr(listener, 'wiki_page_version_deleted'):
                     listener.wiki_page_version_deleted(self)
+            ResourceSystem(self.env).resource_version_deleted(self)
 
     def save(self, author, comment, remote_addr, t=None, db=None):
         """Save a new version of a page.
@@ -159,6 +161,23 @@ class WikiPage(object):
             else:
                 listener.wiki_page_changed(self, self.version, t, comment,
                                            author, remote_addr)
+        context=dict(
+            version=self.version,
+            time=t,
+            comment=comment,
+            author=author,
+            remote_addr=remote_addr,
+            source_action="save")
+        if self.version == 1:
+            ResourceSystem(self.env).resource_created(self, context)
+        else:
+            ResourceSystem(self.env).resource_changed(
+                self,
+                old_values=dict(
+                    name=self.name,
+                    readonly = self.old_readonly,
+                    text = self.old_text),
+                context = context)
 
         self.old_readonly = self.readonly
         self.old_text = self.text
@@ -195,6 +214,15 @@ class WikiPage(object):
         for listener in WikiSystem(self.env).change_listeners:
             if hasattr(listener, 'wiki_page_renamed'):
                 listener.wiki_page_renamed(self, old_name)
+
+        ResourceSystem(self.env).resource_changed(
+            self,
+            old_values=dict(
+                name=old_name,
+                readonly = self.readonly,
+                text = self.text),
+            context=dict(source_action="rename")
+        )
 
     def get_history(self, db=None):
         """Retrieve the edit history of a wiki page.

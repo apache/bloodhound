@@ -39,6 +39,7 @@ class TicketFields(IndexFields):
     KEYWORDS = "keywords"
     RESOLUTION = "resolution"
     CHANGES = 'changes'
+    OWNER = 'owner'
 
 class TicketIndexer(BaseIndexer):
     implements(ITicketChangeListener, IIndexParticipant)
@@ -52,6 +53,7 @@ class TicketIndexer(BaseIndexer):
         'status': TicketFields.STATUS,
         'resolution': TicketFields.RESOLUTION,
         'reporter': TicketFields.AUTHOR,
+        'owner': TicketFields.OWNER,
     }
 
     def __init__(self):
@@ -205,5 +207,6 @@ class TicketSearchParticipant(BaseSearchParticipant):
 
         id = res['hilited_id'] or res['id']
         id = tag.span('#', id, class_=css_class)
-        return tag(id, ': ', res['hilited_summary'], ' (%s)' % stat)
+        summary = res['hilited_summary'] or res['summary']
+        return tag(id, ': ', summary, ' (%s)' % stat)
 

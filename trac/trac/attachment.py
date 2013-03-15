@@ -221,7 +221,7 @@ class Attachment(object):
         with self.env.db_transaction as db:
             db("""
                 DELETE FROM attachment WHERE type=%s AND id=%s AND filename=%s
-                """, (self.parent_realm, self.parent_id, self.filename))
+                    """, (self.parent_realm, self.parent_id, self.filename))
             path = self.path
             if os.path.isfile(path):
                 try:
@@ -237,6 +237,7 @@ class Attachment(object):
 
         for listener in AttachmentModule(self.env).change_listeners:
             listener.attachment_deleted(self)
+        ResourceSystem(self.env).resource_deleted(self)
 
     def reparent(self, new_realm, new_id):
         assert self.filename, "Cannot reparent non-existent attachment"
@@ -287,6 +288,8 @@ class Attachment(object):
         for listener in AttachmentModule(self.env).change_listeners:
             if hasattr(listener, 'attachment_reparented'):
                 listener.attachment_reparented(self, old_realm, old_id)
+        old_values = dict(parent_realm=old_realm, parent_id=old_id)
+        ResourceSystem(self.env).resource_changed(self, old_values=old_values)
 
     def insert(self, filename, fileobj, size, t=None, db=None):
         """Create a new Attachment record and save the file content.
@@ -332,6 +335,7 @@ class Attachment(object):
 
         for listener in AttachmentModule(self.env).change_listeners:
             listener.attachment_added(self)
+        ResourceSystem(self.env).resource_created(self)
 
 
     @classmethod

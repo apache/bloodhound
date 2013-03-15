@@ -21,7 +21,7 @@ from setuptools import setup
 
 setup(
     name = 'BloodhoundMultiProduct',
-    version = '0.5.0',
+    version = '0.5.1',
     description = "Multiproduct support for Apache(TM) Bloodhound.",
     author = "Apache Bloodhound",
     license = "Apache License v2",
