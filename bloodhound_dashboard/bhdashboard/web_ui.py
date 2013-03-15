@@ -72,8 +72,9 @@ class DashboardModule(Component):
         """
         if data is not None :
             data['bhdb'] = DashboardChrome(self.env)
-            if isinstance(req.perm.env, ProductEnvironment) and \
-                data.get('product_list'):
+            if isinstance(req.perm.env, ProductEnvironment) \
+                and not 'resourcepath_template' in data \
+                and 'product_list' in data:
                 data['resourcepath_template'] = 'bh_path_general.html'
         for item in req.chrome['nav'].get('mainnav', []):
             self.log.debug('%s' % (item,))
