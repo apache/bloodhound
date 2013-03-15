@@ -51,7 +51,7 @@ from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
 from multiproduct.model import Product
-from multiproduct.env import ProductEnvironment, ProductEnvironmentFactory
+from multiproduct.env import ProductEnvironment
 from multiproduct.web_ui import PRODUCT_RE
 
 try:

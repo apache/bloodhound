@@ -127,7 +127,7 @@ class Environment(trac.env.Environment):
         return ProductEnvContextManager(super(Environment, self).db_transaction)
 
     def _all_product_envs(self):
-        return [ProductEnvironmentFactory(self, product) for product in Product.select(self)]
+        return [ProductEnvironment(self, product) for product in Product.select(self)]
 
     def needs_upgrade(self):
         """Return whether the environment needs to be upgraded."""
@@ -850,7 +850,7 @@ class ProductEnvironment(Component, ComponentManager):
             return env
         if prefix:
             try:
-                return ProductEnvironmentFactory(global_env, prefix)
+                return ProductEnvironment(global_env, prefix)
             except LookupError:
                 if not name:
                     raise
@@ -858,7 +858,7 @@ class ProductEnvironment(Component, ComponentManager):
             # Lookup product by name
             products = Product.select(global_env, where={'name' : name})
             if products:
-                return ProductEnvironmentFactory(global_env, products[0])
+                return ProductEnvironment(global_env, products[0])
             else:
                 raise LookupError("Missing product '%s'" % (name,))
         else:
@@ -884,5 +884,3 @@ class ProductEnvironment(Component, ComponentManager):
 
 lookup_product_env = ProductEnvironment.lookup_env
 resolve_product_href = ProductEnvironment.resolve_href
-
-ProductEnvironmentFactory = ProductEnvironment

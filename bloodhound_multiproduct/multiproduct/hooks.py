@@ -45,7 +45,7 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                 # happen from within trac.web.main.dispatch_request
                 req = RequestWithSession(environ, None)
                 global_env._abs_href = req.abs_href
-            env = multiproduct.env.ProductEnvironmentFactory(global_env, pid)
+            env = multiproduct.env.ProductEnvironment(global_env, pid)
         return env
 
 class ProductizedHref(Href):
@@ -84,12 +84,12 @@ class ProductRequestWithSession(RequestWithSession):
 
     def product_perm(self, product, resource=None):
         """Helper for per product permissions"""
-        from multiproduct.env import Environment, ProductEnvironment, ProductEnvironmentFactory
+        from multiproduct.env import Environment, ProductEnvironment
         if isinstance(self.perm.env, Environment):
-            return PermissionCache(ProductEnvironmentFactory(self.perm.env, product),
+            return PermissionCache(ProductEnvironment(self.perm.env, product),
                                    username=self.authname, resource=resource)
         elif isinstance(self.perm.env, ProductEnvironment):
-            return PermissionCache(ProductEnvironmentFactory(self.perm.env.parent, product),
+            return PermissionCache(ProductEnvironment(self.perm.env.parent, product),
                                    username=self.authname, resource=resource)
         else:
             raise TracError("Internal error, product permissions evaluated on invalid environment.")
