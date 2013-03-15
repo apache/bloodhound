@@ -490,6 +490,41 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         self.assertEquals('value1', global_config['section'].get('key'))
         self.assertEquals('value2', product_config['section'].get('key'))
 
+    def test_parametric_singleton(self):
+        self.assertIs(self.product_env, 
+                      ProductEnvironment(self.env, self.default_product))
+
+        for prefix in self.PRODUCT_DATA:
+            if prefix != self.default_product:
+                self._load_product_from_data(self.env, prefix)
+
+        envgen1 = dict([prefix, ProductEnvironment(self.env, prefix)] 
+                   for prefix in self.PRODUCT_DATA)
+        envgen2 = dict([prefix, ProductEnvironment(self.env, prefix)] 
+                   for prefix in self.PRODUCT_DATA)
+
+        for prefix, env1 in envgen1.iteritems():
+            self.assertIs(env1, envgen2[prefix], 
+                          "Identity check (by prefix) '%s'" % (prefix,))
+
+        for prefix, env1 in envgen1.iteritems():
+            self.assertIs(env1, envgen2[prefix], 
+                          "Identity check (by prefix) '%s'" % (prefix,))
+
+        def load_product(prefix):
+            products = Product.select(self.env, where={'prefix' : prefix})
+            if not products:
+                raise LookupError('Missing product %s' % (prefix,))
+            else:
+                return products[0]
+
+        envgen3 = dict([prefix, ProductEnvironment(self.env, 
+                                                   load_product(prefix))] 
+                   for prefix in self.PRODUCT_DATA)
+
+        for prefix, env1 in envgen1.iteritems():
+            self.assertIs(env1, envgen3[prefix], 
+                          "Identity check (by product model) '%s'" % (prefix,))
 
 def test_suite():
     return unittest.TestSuite([

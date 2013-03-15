@@ -3,6 +3,10 @@
 # Developed by Raymond Hettinger
 # (http://code.activestate.com/recipes/498245-lru-and-lfu-cache-decorators/)
 #
+# March 13, 2013 updated by Olemis Lang
+#    Added keymap arg to build custom keys out of actual args
+# March 14, 2013 updated by Olemis Lang
+#    Keep cache consistency on user function failure 
 
 import collections
 import functools
@@ -15,7 +19,7 @@ class Counter(dict):
     def __missing__(self, key):
         return 0
 
-def lru_cache(maxsize=100):
+def lru_cache(maxsize=100, keymap=None):
     '''Least-recently-used cache decorator.
 
     Arguments to the cached function must be hashable.
@@ -23,6 +27,8 @@ def lru_cache(maxsize=100):
     Clear the cache with f.clear().
     http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used
 
+    :param keymap:    build custom keys out of actual arguments.
+                      Its signature will be lambda (args, kwds, kwd_mark)
     '''
     maxqueue = maxsize * 10
     def decorating_function(user_function,
@@ -40,20 +46,32 @@ def lru_cache(maxsize=100):
         @functools.wraps(user_function)
         def wrapper(*args, **kwds):
             # cache key records both positional and keyword args
-            key = args
-            if kwds:
-                key += (kwd_mark,) + tuple(sorted(kwds.items()))
-
-            # record recent use of this key
-            queue_append(key)
-            refcount[key] += 1
+            if keymap is None:
+                key = args
+                if kwds:
+                    key += (kwd_mark,) + tuple(sorted(kwds.items()))
+            else:
+                key = keymap(args, kwds, kwd_mark)
 
             # get cache entry or compute if not found
             try:
                 result = cache[key]
                 wrapper.hits += 1
+
+                # record recent use of this key
+                queue_append(key)
+                refcount[key] += 1
             except KeyError:
-                result = user_function(*args, **kwds)
+                # Explicit exception handling for readability
+                try:
+                    result = user_function(*args, **kwds)
+                except:
+                    raise
+                else:
+                    # record recent use of this key
+                    queue_append(key)
+                    refcount[key] += 1
+
                 cache[key] = result
                 wrapper.misses += 1
 
@@ -91,7 +109,7 @@ def lru_cache(maxsize=100):
     return decorating_function
 
 
-def lfu_cache(maxsize=100):
+def lfu_cache(maxsize=100, keymap=None):
     '''Least-frequenty-used cache decorator.
 
     Arguments to the cached function must be hashable.
@@ -99,6 +117,8 @@ def lfu_cache(maxsize=100):
     Clear the cache with f.clear().
     http://en.wikipedia.org/wiki/Least_Frequently_Used
 
+    :param keymap:    build custom keys out of actual arguments.
+                      Its signature will be lambda (args, kwds, kwd_mark)
     '''
     def decorating_function(user_function):
         cache = {}                      # mapping of args to results
@@ -107,9 +127,12 @@ def lfu_cache(maxsize=100):
 
         @functools.wraps(user_function)
         def wrapper(*args, **kwds):
-            key = args
-            if kwds:
-                key += (kwd_mark,) + tuple(sorted(kwds.items()))
+            if keymap is None:
+                key = args
+                if kwds:
+                    key += (kwd_mark,) + tuple(sorted(kwds.items()))
+            else:
+                key = keymap(args, kwds, kwd_mark)
             use_count[key] += 1
 
             # get cache entry or compute if not found
@@ -140,3 +163,12 @@ def lfu_cache(maxsize=100):
         return wrapper
     return decorating_function
 
+#----------------------
+# Helper functions
+#----------------------
+
+def default_keymap(args, kwds, kwd_mark):
+    key = args
+    if kwds:
+        key += (kwd_mark,) + tuple(sorted(kwds.items()))
+    return key

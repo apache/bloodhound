@@ -23,7 +23,8 @@ from urlparse import urlsplit
 from sqlite3 import OperationalError
 
 from trac.config import BoolOption, ConfigSection, Option
-from trac.core import Component, ComponentManager, implements, Interface, ExtensionPoint
+from trac.core import Component, ComponentManager, ComponentMeta, \
+        ExtensionPoint, implements, Interface
 from trac.db.api import TransactionContextManager, QueryContextManager, DatabaseManager
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
@@ -32,6 +33,7 @@ from trac.versioncontrol import RepositoryManager
 from trac.web.href import Href
 
 from multiproduct.api import MultiProductSystem, ISupportMultiProductEnvironment
+from multiproduct.cache import lru_cache, default_keymap
 from multiproduct.config import Configuration
 from multiproduct.dbcursor import ProductEnvContextManager, BloodhoundConnectionWrapper, BloodhoundIterableCursor
 from multiproduct.model import Product
@@ -319,7 +321,7 @@ class ProductEnvironment(Component, ComponentManager):
 
     Product environments contain among other things:
 
-    * a configuration file, 
+    * configuration key-value pairs stored in the database, 
     * product-aware clones of the wiki and ticket attachments files,
 
     Product environments do not have:
@@ -330,6 +332,32 @@ class ProductEnvironment(Component, ComponentManager):
 
     See https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003
     """
+    
+    class __metaclass__(ComponentMeta):
+
+        def product_env_keymap(args, kwds, kwd_mark):
+            # Remove meta-reference to self (i.e. product env class)
+            args = args[1:]
+            try:
+                product = kwds['product']
+            except KeyError:
+                # Product provided as positional argument
+                if isinstance(args[1], Product):
+                    args = (args[0], args[1].prefix) + args[2:]
+            else:
+                # Product supplied as keyword argument
+                if isinstance(product, Product):
+                    kwds['product'] = product.prefix
+            return default_keymap(args, kwds, kwd_mark)
+
+        @lru_cache(maxsize=100, keymap=product_env_keymap)
+        def __call__(self, *args, **kwargs):
+            """Return an existing instance of there is a hit 
+            in the global LRU cache, otherwise create a new instance.
+            """
+            return ComponentMeta.__call__(self, *args, **kwargs)
+
+        del product_env_keymap
 
     implements(trac.env.ISystemInfoProvider)
 
@@ -857,10 +885,4 @@ class ProductEnvironment(Component, ComponentManager):
 lookup_product_env = ProductEnvironment.lookup_env
 resolve_product_href = ProductEnvironment.resolve_href
 
-from multiproduct.cache import lru_cache
-
-@lru_cache(maxsize=100)
-def ProductEnvironmentFactory(global_env, product):
-    """Product environment factory
-    """
-    return ProductEnvironment(global_env, product)
+ProductEnvironmentFactory = ProductEnvironment
