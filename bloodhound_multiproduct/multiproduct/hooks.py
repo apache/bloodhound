@@ -78,8 +78,9 @@ class ProductRequestWithSession(RequestWithSession):
     def __init__(self, env, environ, start_response):
         super(ProductRequestWithSession, self).__init__(environ, start_response)
         self.base_url = env.base_url
-        self.href = ProductizedHref(self.href, env.href.base)
-        self.abs_href = ProductizedHref(self.abs_href, env.abs_href.base)
+        if isinstance(env, multiproduct.env.ProductEnvironment):
+            self.href = ProductizedHref(self.href, env.href.base)
+            self.abs_href = ProductizedHref(self.abs_href, env.abs_href.base)
 
     def product_perm(self, product, resource=None):
         """Helper for per product permissions"""
@@ -95,7 +96,4 @@ class ProductRequestWithSession(RequestWithSession):
 
 class ProductRequestFactory(RequestFactoryBase):
     def create_request(self, env, environ, start_response):
-        if isinstance(env, multiproduct.env.ProductEnvironment):
-            return ProductRequestWithSession(env, environ, start_response)
-        else:
-            return RequestWithSession(environ, start_response)
+        return ProductRequestWithSession(env, environ, start_response)

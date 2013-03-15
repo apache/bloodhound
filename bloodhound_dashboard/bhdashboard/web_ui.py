@@ -47,6 +47,7 @@ from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
 
 from bhdashboard.api import DashboardSystem, InvalidIdentifier
 from bhdashboard import _json
+from multiproduct.env import ProductEnvironment
 
 class DashboardModule(Component):
     """Web frontend for dashboard infrastructure.
@@ -71,6 +72,9 @@ class DashboardModule(Component):
         """
         if data is not None :
             data['bhdb'] = DashboardChrome(self.env)
+            if isinstance(req.perm.env, ProductEnvironment) and \
+                data.get('product_list'):
+                data['resourcepath_template'] = 'bh_path_general.html'
         for item in req.chrome['nav'].get('mainnav', []):
             self.log.debug('%s' % (item,))
             if item['name'] == 'tickets':
@@ -89,6 +93,7 @@ class DashboardModule(Component):
         return bool(re.match(r'^/dashboard(/.)?', req.path_info))
 
     def process_request(self, req):
+        req.perm.require('PRODUCT_VIEW')
         """Initially this will render static widgets. With time it will be 
         more and more dynamic and flexible.
         """
@@ -149,8 +154,8 @@ class DashboardModule(Component):
                                 {
                                     '_class' : 'span8',
                                     'widgets' : ['my tickets', 'active tickets',
-                                                 'versions', 'milestones',
-                                                 'components']
+                                                 'products', 'versions',
+                                                 'milestones', 'components']
                                 },
                                 {
                                     '_class' : 'span4',
@@ -217,6 +222,9 @@ class DashboardModule(Component):
                         },
                     'activity': {
                             'args' : ['Timeline', None, {'args' : {}}]
+                        },
+                    'products': {
+                            'args' : ['Product', None, {'args': {}}]
                         },
                }
         }

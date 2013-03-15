@@ -351,11 +351,7 @@ class BloodhoundTheme(ThemeBase):
         product_list = []
         is_product_scope = isinstance(req.perm.env, ProductEnvironment)
         for product in Product.select(self.env):
-            if is_product_scope:
-                if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
-                    product_list.append((product.prefix, product.name,
-                        href_fcn(product.prefix)))
-            else:
+            if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
                 product_list.append((product.prefix, product.name,
                     href_fcn(product.prefix)))
         return product_list

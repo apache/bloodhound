@@ -17,27 +17,22 @@
   under the License.
 -->
 
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      py:with="is_global = req.perm.env.product is None">
-  <xi:include href="layout.html" />
-  <head>
-    <title>$title</title>
-  </head>
-
-  <body>
-    <h2 py:if="not is_global">Dashboard for product <i>${req.perm.env.product.name}</i></h2>
-    <xi:include href="bs_grid.html" />
-    <div id="ft" class="row">
-      <div id="help">
-        <strong>Note:</strong> See 
-        <a href="${href.wiki('BloodhoundDashboard')}">BloodhoundDashboard</a>
-        for help on using the dashboard.
-      </div>
-    </div>  
-  </body>
-</html>
+<div id="content" class="product"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  <table py:if="product_list">
+    <thead>
+      <tr>
+        <th>${_('Name')}</th>
+        <th>${_('Prefix')}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr py:for="p in product_list">
+        <td>$p.name</td>
+        <td><a href="${href.products(p.prefix)}">$p.prefix</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
