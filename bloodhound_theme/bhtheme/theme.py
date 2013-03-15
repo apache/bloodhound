@@ -139,6 +139,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Account manager plugin
         'login.html' : ('bh_login.html', None),
+        'prefs_account.html' : ('bh_prefs_account.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
@@ -147,16 +148,21 @@ class BloodhoundTheme(ThemeBase):
     )
     
     labels_application_short = Option('labels', 'application_short', 
-        'Bloodhound')
+        'Bloodhound', """A short version of application name most commonly 
+        displayed in text, titles and labels""")
 
     labels_application_full = Option('labels', 'application_full', 
-        'Apache Bloodhound')
+        'Apache Bloodhound', """This is full name with trade mark and 
+        everything, it is currently used in footers and about page only""")
     
-    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '')
+    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '', 
+        """Text to display before full application name in footers""")
 
-    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '')
+    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '', 
+        """Text to display after full application name in footers""")
     
-    labels_footer_right = Option('labels', 'footer_right', '')
+    labels_footer_right = Option('labels', 'footer_right', '',
+        """Text to use as the right aligned footer""")
 
     is_bhsearch_default = BoolOption('bhsearch', 'is_default', False)
 

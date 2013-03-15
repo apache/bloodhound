@@ -369,7 +369,9 @@ class BloodhoundSearchApi(Component):
         self.upgrade_environment(self.env.db_transaction)
 
     def environment_needs_upgrade(self, db):
+        # pylint: disable=unused-argument
         return self.backend.is_index_outdated()
 
     def upgrade_environment(self, db):
+        # pylint: disable=unused-argument
         self.rebuild_index()

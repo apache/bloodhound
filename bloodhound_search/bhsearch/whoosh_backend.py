@@ -227,7 +227,8 @@ class WhooshBackend(Component):
                                             highlight_fields,
                                             query_parameters)
             try:
-                results.debug['actual_query'] = unicode(query.simplify(searcher))
+                actual_query = unicode(query.simplify(searcher))
+                results.debug['actual_query'] = actual_query
             except TypeError:
                 # Simplify has a bug that causes it to fail sometimes.
                 pass

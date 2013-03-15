@@ -131,6 +131,7 @@ class DocTypeMetaKeywordParser(Component):
     search_participants = ExtensionPoint(ISearchParticipant)
 
     def match(self, text, context):
+        # pylint: disable=unused-argument
         documents = [p.get_participant_type()
                      for p in self.search_participants]
         if text in documents:
@@ -141,6 +142,7 @@ class ResolvedMetaKeywordParser(Component):
     implements(IMetaKeywordParser)
 
     def match(self, text, context):
+        # pylint: disable=unused-argument
         if text == u'resolved':
             return u'status:(resolved OR closed)'
 
@@ -149,6 +151,7 @@ class UnResolvedMetaKeywordParser(Component):
     implements(IMetaKeywordParser)
 
     def match(self, text, context):
+        # pylint: disable=unused-argument
         if text == u'unresolved':
             return u'NOT $resolved'
 
@@ -166,5 +169,6 @@ class MyMetaKeywordParser(Component):
     implements(IMetaKeywordParser)
 
     def match(self, text, context):
+        # pylint: disable=unused-argument
         if text == u'my':
             return u'owner:$me'

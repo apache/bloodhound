@@ -21,6 +21,7 @@
 import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.query_parser import DefaultQueryParser
+from trac.test import Mock
 from whoosh.query import terms, nary, wrappers
 
 
@@ -84,9 +85,11 @@ class MetaKeywordsParsingTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(parsed_query, terms.Term('owner', 'username'))
 
     def _mock_context_with_username(self, username):
-        class context:
-            class req:
-                authname = username
+        context = Mock(
+            req=Mock(
+                authname=username
+            )
+        )
         return context
 
 
