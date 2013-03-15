@@ -12,6 +12,11 @@ class TestWiki(FunctionalTwillTestCaseSetup):
         self._tester.attach_file_to_wiki(pagename)
 
 
+class TestWikiHistory(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Create and edit a wiki page, and then check the page history."""
+        pass
+
 class TestWikiRename(FunctionalTwillTestCaseSetup):
     def runTest(self):
         """Test for simple wiki rename"""

@@ -131,7 +131,8 @@ class Href(object):
 
     >>> href = Href('')
     >>> href.milestone('<look,here>', param='<here,too>')
-    '/milestone/%3Clook%2Chere%3E?param=%3Chere%2Ctoo%3E'
+    '/milestone/%3Clook%2Chere%3E?param=%3Chere%2Ctoo%3Ereq.href.wiki(page.name,
+                                                         action='history')'
 
     >>> href = Href('', path_safe='/<,', query_safe=',>')
     >>> href.milestone('<look,here>', param='<here,too>')

@@ -1,9 +1,10 @@
 0.5
 
+ * Added beta version of bhsearch plugin. Find more information on https://issues.apache.org/bloodhound/wiki/BloodhoundSearch
  * Implemented Bootstrap templates for the repository browser, log viewer and attachment pages.
+ * Added responsive layout support for better experience on tablets and phones
  * Upgraded Bootstrap to version 2.3.1.
  * Upgraded Trac to version 1.0.1.
- * Added beta version of bhsearch plugin. Find more information on https://issues.apache.org/bloodhound/wiki/BloodhoundSearch
  * Various bug fixes and enhancements.
 
  * Not fixed for this release:
