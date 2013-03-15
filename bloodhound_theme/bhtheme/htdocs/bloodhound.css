@@ -361,6 +361,10 @@ h1, h2, h3, h4 {
  background: #eed !important
 }
 
+#content img {
+ margin: 0.5em;
+}
+
 /* copied from bootstrap for appropriate focus/unfocused state for contenteditable*/
 span[contenteditable="true"] {
  border-radius: 4px 4px 4px 4px;
