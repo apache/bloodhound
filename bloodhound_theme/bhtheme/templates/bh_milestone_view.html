@@ -118,6 +118,12 @@
     <title>Milestone ${milestone.name}</title>
     <link py:if="'MILESTONE_MODIFY' in perm(milestone.resource)" rel="alternate" type="application/x-wiki"
           title="Edit this milestone" href="${href.milestone(milestone.name, action='edit')}" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
   </head>
   <body>
     <div id="content" class="row milestone">
@@ -126,6 +132,10 @@
               progress_data = {'stats' : stats, 'interval_hrefs' : interval_hrefs};
               description = wiki_to_html(context, milestone.description);
               widgets = milestone_widgets();" />
+      <div class="span12">
+        <xi:include href="bh_list_of_attachments.html"
+                    py:with="alist = attachments; compact = True; foldable = True"/>
+      </div>
     </div>
   </body>
 
