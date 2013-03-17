@@ -166,18 +166,19 @@ class WikiPage(object):
             time=t,
             comment=comment,
             author=author,
-            remote_addr=remote_addr,
-            source_action="save")
+            remote_addr=remote_addr)
         if self.version == 1:
             ResourceSystem(self.env).resource_created(self, context)
         else:
+            old_values = dict()
+            if self.readonly != self.old_readonly:
+                old_values["readonly"] = self.old_readonly
+            if self.text != self.old_text:
+                old_values["text"] = self.old_text
             ResourceSystem(self.env).resource_changed(
                 self,
-                old_values=dict(
-                    name=self.name,
-                    readonly = self.old_readonly,
-                    text = self.old_text),
-                context = context)
+                old_values,
+                context)
 
         self.old_readonly = self.readonly
         self.old_text = self.text
@@ -217,11 +218,7 @@ class WikiPage(object):
 
         ResourceSystem(self.env).resource_changed(
             self,
-            old_values=dict(
-                name=old_name,
-                readonly = self.readonly,
-                text = self.text),
-            context=dict(source_action="rename")
+            dict(name=old_name)
         )
 
     def get_history(self, db=None):

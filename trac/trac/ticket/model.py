@@ -770,7 +770,11 @@ class AbstractEnum(object):
                    (self.name, self._old_name))
             TicketSystem(self.env).reset_ticket_fields()
 
-        old_values = dict(name=self._old_name, value=self._old_value)
+        old_values = dict()
+        if self.name != self._old_name:
+            old_values["name"] = self._old_name
+        if self.value != self._old_value:
+            old_values["value"] = self._old_value
         self._old_name = self.name
         self._old_value = self.value
         ResourceSystem(self.env).resource_changed(self, old_values)
@@ -905,7 +909,10 @@ class Component(object):
                 self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
 
-        old_values = dict(name=old_name)
+        #todo:add support of old_values for owner and description fields
+        old_values = dict()
+        if self.name != old_name:
+            old_values["name"] = old_name
         ResourceSystem(self.env).resource_changed(self, old_values)
 
     @classmethod
@@ -1221,7 +1228,10 @@ class Version(object):
                 self._old_name = self.name
             TicketSystem(self.env).reset_ticket_fields()
 
-        old_values = dict(name=old_name)
+        #todo: add support of old_values for time and description fields
+        old_values = dict()
+        if self.name != old_name:
+            old_values["name"] = old_name
         ResourceSystem(self.env).resource_changed(self, old_values)
 
     @classmethod

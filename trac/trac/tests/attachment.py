@@ -253,8 +253,7 @@ class AttachmentResourceChangeListenerTestCase(unittest.TestCase):
         self.assertEqual(attachment.filename, self.filename)
         self.assertEqual(attachment.parent_realm, self.parent_realm)
         self.assertEqual("SomePage", self.parent_id)
-        self.assertEqual(
-            self.DUMMY_PARENT_REALM, self.listener.old_values["parent_realm"])
+        self.assertNotIn("parent_realm", self.listener.old_values)
         self.assertEqual(
             self.DUMMY_PARENT_ID, self.listener.old_values["parent_id"])
 
