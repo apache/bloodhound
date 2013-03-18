@@ -240,12 +240,7 @@ class ProductTestCase(unittest.TestCase):
         self.assertEqual('changed', self.listener.action)
         self.assertIsInstance(self.listener.resource, Product)
         self.assertEqual(CHANGED_NAME, self.name)
-        self.assertEqual(
-            self.INITIAL_PREFIX, self.listener.old_values["prefix"])
-        self.assertEqual(
-            self.INITIAL_NAME, self.listener.old_values["name"])
-        self.assertEqual(
-            self.INITIAL_DESCRIPTION, self.listener.old_values["description"])
+        self.assertEqual({"name":self.INITIAL_NAME}, self.listener.old_values)
 
     def test_change_listener_deleted(self):
         self.product.delete()

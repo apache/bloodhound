@@ -203,14 +203,16 @@ class ModelBase(object):
         sdata.update(self._meta)
         sql = """UPDATE %(table_name)s SET %(values)s
                  WHERE %(where)s""" % sdata
-        old_data = self._old_data.copy()
+
+        old_values = dict((k, v) for k, v in self._old_data.iteritems()
+                          if self._data.get(k) != v)
         with self._env.db_transaction as db:
             db(sql, setvalues + values)
             self._update_relations(db)
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
 
-        ResourceSystem(self._env).resource_changed(self, old_data)
+        ResourceSystem(self._env).resource_changed(self, old_values)
 
     
     @classmethod
