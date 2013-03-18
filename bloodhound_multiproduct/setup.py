@@ -30,6 +30,7 @@ setup(
     package_data = {'multiproduct' : ['templates/*.html',]},
     entry_points = {'trac.plugins': [
             'multiproduct.model = multiproduct.model',
+            'multiproduct.perm = multiproduct.perm',
             'multiproduct.product_admin = multiproduct.product_admin',
             'multiproduct.ticket.query = multiproduct.ticket.query',
             'multiproduct.ticket.web_ui = multiproduct.ticket.web_ui',

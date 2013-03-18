@@ -22,12 +22,13 @@ __all__ = 'Configuration', 'Section'
 
 import os.path
 
-from trac.config import Configuration, ConfigurationError, Option, Section, \
-        _use_default
+from trac.config import Configuration, ConfigurationError, Option, \
+        OrderedExtensionsOption, Section, _use_default
 from trac.resource import ResourceNotFound
 from trac.util.text import to_unicode
 
 from multiproduct.model import ProductSetting
+from multiproduct.perm import MultiproductPermissionPolicy
 
 class Configuration(Configuration):
     """Product-aware settings repository equivalent to instances of
@@ -315,3 +316,21 @@ class Section(Section):
             path = os.path.join(env.path, 'conf', path)
         return os.path.normcase(os.path.realpath(path))
 
+#--------------------
+# Option override classes
+#--------------------
+
+class ProductPermissionPolicyOption(OrderedExtensionsOption):
+    """Prepend an instance of `multiproduct.perm.MultiproductPermissionPolicy`
+    """
+    def __get__(self, instance, owner):
+        # FIXME: Better handling of recursive imports
+        from multiproduct.env import ProductEnvironment
+
+        if instance is None:
+            return self
+        components = OrderedExtensionsOption.__get__(self, instance, owner)
+        env = getattr(instance, 'env', None)
+        return [MultiproductPermissionPolicy(env)] + components \
+               if isinstance(env, ProductEnvironment) \
+               else components

@@ -16,16 +16,17 @@
 #  under the License.
 
 """Bloodhound product environment and related APIs"""
-from multiproduct.hooks import MultiProductEnvironmentFactory
 
 import os.path
 from urlparse import urlsplit
 from sqlite3 import OperationalError
 
 from trac.config import BoolOption, ConfigSection, Option
-from trac.core import Component, ComponentManager, ComponentMeta, \
-        ExtensionPoint, implements, Interface
-from trac.db.api import TransactionContextManager, QueryContextManager, DatabaseManager
+from trac.core import Component, ComponentManager, ExtensionPoint, implements, \
+                      ComponentMeta
+from trac.db.api import TransactionContextManager, QueryContextManager, \
+                        DatabaseManager
+from trac.perm import IPermissionRequestor, PermissionSystem
 from trac.util import get_pkginfo, lazy
 from trac.util.compat import sha1
 from trac.util.text import to_unicode, unicode_quote
@@ -35,7 +36,8 @@ from trac.web.href import Href
 from multiproduct.api import MultiProductSystem, ISupportMultiProductEnvironment
 from multiproduct.cache import lru_cache, default_keymap
 from multiproduct.config import Configuration
-from multiproduct.dbcursor import ProductEnvContextManager, BloodhoundConnectionWrapper, BloodhoundIterableCursor
+from multiproduct.dbcursor import BloodhoundConnectionWrapper, BloodhoundIterableCursor, \
+                                  ProductEnvContextManager
 from multiproduct.model import Product
 
 import trac.env
@@ -359,7 +361,7 @@ class ProductEnvironment(Component, ComponentManager):
 
         del product_env_keymap
 
-    implements(trac.env.ISystemInfoProvider)
+    implements(trac.env.ISystemInfoProvider, IPermissionRequestor)
 
     setup_participants = ExtensionPoint(trac.env.IEnvironmentSetupParticipant)
     multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
@@ -558,6 +560,25 @@ class ProductEnvironment(Component, ComponentManager):
         if not os.path.exists(folder):
             os.makedirs(folder)
         return folder
+
+    # IPermissionRequestor methods
+    def get_permission_actions(self):
+        """Implement the product-specific `PRODUCT_ADMIN` meta permission.
+        """
+        actions = set()
+        permsys = PermissionSystem(self)
+        for requestor in permsys.requestors:
+            if requestor is not self and requestor is not permsys:
+                for action in requestor.get_permission_actions() or []:
+                    if isinstance(action, tuple):
+                        actions.add(action[0])
+                    else:
+                        actions.add(action)
+        # PermissionSystem's method was not invoked
+        actions.add('EMAIL_VIEW')
+        # FIXME: should not be needed, JIC better double check
+        actions.discard('TRAC_ADMIN')
+        return [('PRODUCT_ADMIN', list(actions))]
 
     # ISystemInfoProvider methods
 
@@ -884,3 +905,8 @@ class ProductEnvironment(Component, ComponentManager):
 
 lookup_product_env = ProductEnvironment.lookup_env
 resolve_product_href = ProductEnvironment.resolve_href
+
+# Override product-specific options
+from multiproduct.config import ProductPermissionPolicyOption
+PermissionSystem.policies.__class__ = ProductPermissionPolicyOption
+

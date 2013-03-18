@@ -353,7 +353,12 @@ class MultiProductSystem(Component):
     def get_permission_actions(self):
         acts = ['PRODUCT_CREATE', 'PRODUCT_DELETE', 'PRODUCT_MODIFY',
                 'PRODUCT_VIEW']
-        return acts + [('PRODUCT_ADMIN', acts)] + [('ROADMAP_ADMIN', acts)]
+        if not isinstance(self.env, ProductEnvironment):
+            return acts + [('PRODUCT_ADMIN', acts)] + [('ROADMAP_ADMIN', acts)]
+        else:
+            # In product context PRODUCT_ADMIN will be provided by product env
+            # to ensure it will always be handy
+            return acts
 
     # ITicketFieldProvider methods
     def get_select_fields(self):
