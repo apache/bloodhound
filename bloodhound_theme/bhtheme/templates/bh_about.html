@@ -39,15 +39,21 @@
 
   <body>
     <div id="content" class="about">
-          <h1>About ${chrome.labels.application_short} 
-              ${chrome.labels.application_version}
-          </h1>
-          <p>Standing on the shoulders of <a href="http://trac.edgewall.org/">
-            Trac ${trac.version}</a>, ${chrome.labels.application_full} 
-            is a project hosted by the Apache Software Foundation's Incubator 
-            project.
-            <br/>
-            Currently, it has three key aims:
+      <a href="http://incubator.apache.org/bloodhound/"
+         style="border: none; float: right; margin-left: 2em">
+        <img style="display: block" src="${href.chrome('theme/img/bh_logo.png')}"
+             alt="${chrome.labels.application_full}: Integrated SCM &amp; Project Management"/>
+      </a>
+      <h1>About ${chrome.labels.application_short}
+          ${chrome.labels.application_version}
+      </h1>
+      <p>Standing on the shoulders of <a href="http://trac.edgewall.org/">
+        Trac ${trac.version}</a>,
+        <a href="http://incubator.apache.org/bloodhound/">
+        ${chrome.labels.application_full}</a> is a project hosted by the
+        Apache Software Foundation's Incubator project.
+        <br/>
+        Currently, it has three key aims:
         <h4>Multiple Projects</h4>
         It will manage anything from your one pet project to dozens of 
         commercial or open source projects, and scale seamlessly in-between. 

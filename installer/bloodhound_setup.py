@@ -77,8 +77,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
                                              'tickets', 'newticket', 'timeline',
                                              'roadmap', 'search', 'admin']),},
-               'project': {'footer': ('Visit Apache Bloodhound at<br />'
-                                      '<a href="%(site)s">%(site)s</a>'
+               'project': {'footer': ('Get involved with '
+                                      '<a href="%(site)s">Apache Bloodhound</a>'
                                       % {'site': BH_PROJECT_SITE,}),},
                'labels': {'application_short': 'Bloodhound',
                           'application_full': 'Apache Bloodhound',
