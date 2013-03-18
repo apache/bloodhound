@@ -116,6 +116,8 @@ ENTRY_POINTS = {
         'bhsearch.web_ui = bhsearch.web_ui',
         'bhsearch.api = bhsearch.api',
         'bhsearch.admin = bhsearch.admin',
+        'bhsearch.search_resources.changeset_search =\
+            bhsearch.search_resources.changeset_search',
         'bhsearch.search_resources.ticket_search =\
             bhsearch.search_resources.ticket_search',
         'bhsearch.search_resources.wiki_search = \

@@ -21,7 +21,8 @@ import unittest
 from bhsearch.tests import (whoosh_backend, index_with_whoosh, web_ui,
                             api, query_parser)
 from bhsearch.tests.search_resources import (ticket_search, wiki_search,
-                                             milestone_search, base)
+                                             milestone_search, base,
+                                             changeset_search)
 
 def suite():
     test_suite = unittest.TestSuite()
@@ -33,6 +34,7 @@ def suite():
     test_suite.addTest(ticket_search.suite())
     test_suite.addTest(wiki_search.suite())
     test_suite.addTest(milestone_search.suite())
+    test_suite.addTest(changeset_search.suite())
     test_suite.addTest(base.suite())
     return test_suite
 
