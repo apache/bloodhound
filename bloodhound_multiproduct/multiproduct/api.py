@@ -322,15 +322,6 @@ class MultiProductSystem(Component):
                     (table[0], ','.join(cols), ','.join(['%s' for c in cols])),
                     rows)
 
-            # in addition copy global admin permissions (they are
-            # not part of the default permission table)
-            rows = db("""SELECT username FROM permission WHERE action='TRAC_ADMIN'
-                         AND product=''""")
-            rows = [(r[0], 'TRAC_ADMIN', product.prefix) for r in rows]
-            cols = ('username', 'action', 'product')
-            db.executemany("INSERT INTO permission (%s) VALUES (%s)" %
-                           (','.join(cols), ','.join(['%s' for c in cols])), rows)
-
     def resource_changed(self, resource, old_values, context):
         return
 
