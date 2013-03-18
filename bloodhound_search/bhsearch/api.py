@@ -89,7 +89,6 @@ class ISearchBackend(Interface):
     """Extension point interface for search backend systems.
     """
 
-#    def add_doc(self, doc, **kwargs):
     def add_doc(doc, operation_context):
         """
         Called when new document instance must be added

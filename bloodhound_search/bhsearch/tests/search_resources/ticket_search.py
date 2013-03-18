@@ -22,6 +22,7 @@ from bhsearch.api import BloodhoundSearchApi
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
+from trac.ticket.model import Component, Ticket
 
 class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
@@ -35,13 +36,13 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
 
     def test_does_not_raise_exception_by_default(self):
         self.env.config.set('bhsearch', 'silence_on_error', "True")
-        self.ticket_indexer.ticket_created(None)
+        self.ticket_indexer.resource_created(None, None)
 
     def test_raise_exception_if_configured(self):
         self.env.config.set('bhsearch', 'silence_on_error', "False")
         self.assertRaises(
             Exception,
-            self.ticket_indexer.ticket_created,
+            self.ticket_indexer.resource_created,
             None)
 
     def test_can_strip_wiki_syntax(self):
@@ -52,6 +53,40 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
         self.print_result(results)
         self.assertEqual(1, results.hits)
         self.assertEqual("Header", results.docs[0]["content"])
+
+    def test_that_tickets_updated_after_component_renaming(self):
+        #arrange
+        INITIAL_COMPONENT = "initial_name"
+        RENAMED_COMPONENT = "renamed_name"
+        component = self._insert_component(INITIAL_COMPONENT)
+        self.insert_ticket("T1", component=INITIAL_COMPONENT)
+        self.insert_ticket("T2", component=INITIAL_COMPONENT)
+        #act
+        component.name = RENAMED_COMPONENT
+        component.update()
+        #arrange
+        results = self.search_api.query("*")
+        self.print_result(results)
+        for doc in results.docs:
+            self.assertEqual(RENAMED_COMPONENT, doc["component"])
+
+    def test_that_ticket_updated_after_changing(self):
+        #arrange
+        ticket = self.insert_ticket("T1", description="some text")
+        #act
+        CHANGED_SUMMARY = "T1 changed"
+        ticket["summary"] = CHANGED_SUMMARY
+        ticket.save_changes()
+        #arrange
+        results = self.search_api.query("*")
+        self.print_result(results)
+        self.assertEqual(CHANGED_SUMMARY, results.docs[0]["summary"])
+
+    def _insert_component(self, name):
+        component = Component(self.env)
+        component.name = name
+        component.insert()
+        return component
 
 def suite():
     return unittest.makeSuite(TicketIndexerTestCase, 'test')
