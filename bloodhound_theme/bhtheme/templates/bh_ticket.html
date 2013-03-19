@@ -103,9 +103,12 @@
               var fieldval = editor.val();
               editor = editor.clone(false);
               if (fieldnm === 'summary') {
-                editor.hide();
+                editor.hide().appendTo($('#dummy-vc-summary'));
               }
-              editor.appendTo(fc).val(fieldval);
+              else {
+                editor.appendTo(fc);
+              }
+              editor.val(fieldval);
               if (editor.prop('tagName') === 'TEXTAREA') {
                 if (editor.is('.wikitext'))
                   addWikiFormattingToolbar(editor.get(0));
@@ -127,11 +130,22 @@
           $('#edit-workflow-buttons').show();
         }
 
+        function add_update_hidden_summary_fn() {
+          $('h2#vc-summary span').blur(function () {
+            if ($('#vc-summary.edit-active').length == 1) {
+              $('#dummy-vc-summary input#field-summary').val($('#vc-summary span').text());
+            }
+          });
+        }
+
         function revert_ticket(e) {
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).removeClass('edit-active');
               fc.html(fc.attr('data-edit-orig')).attr('data-edit-orig', '');
             });
+          //remove summary field and re-add the summary blur function
+          $('#dummy-vc-summary div').remove();
+          add_update_hidden_summary_fn();
           $('#inplace-edit').show();
           $('h2#vc-summary span').attr('contenteditable', 'false');
           $('#edit-state-buttons').hide();
@@ -187,11 +201,7 @@
             });
           }
 
-        $('h2#vc-summary span').blur(function () {
-          if ($('#vc-summary.edit-active').length == 1) {
-            $('#vc-summary.ticket-summary input#field-summary').val($('#vc-summary span').text());
-          }
-        });
+        add_update_hidden_summary_fn();
 
         $('#inplace-edit-button button#inplace-edit').click(function (e) {
           modify_ticket();
@@ -385,6 +395,7 @@
                       py:with="preview_mode = change_preview.fields ; 
                           colcount = 4 if bhdb else 6"/>
                 </div>
+                <div id="dummy-vc-summary" style="display: none"/>
               </py:if>
 
             </div>
