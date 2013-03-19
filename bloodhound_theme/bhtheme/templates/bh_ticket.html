@@ -338,6 +338,12 @@
         <a href="#propertyform" title="Go to the ticket editor">Modify</a> &darr;
       </div>
       <br/>
+      
+      <div class="row">
+        <div class="span12">
+          ${render_ticket_summary(ticket, False)}
+        </div>
+      </div>
 
       <div class="row">
         <form py:strip="not has_property_editor" method="post" id="inplace-propertyform"
@@ -355,7 +361,6 @@
               <div class="$colspan">
                 <!--! ticket properties -->
                 <div class="properties">
-                  ${render_ticket_summary(ticket, False)}
                   ${render_ticket_summary_details(ticket)}
                 </div>
               </div>
