@@ -955,7 +955,7 @@ tt {
 }
 
 #stickyStatus h2,
-#stickyStatus ul {
+#stickyStatus ul.breadcrumb {
  margin-bottom: 3px;
 }
 
