@@ -346,6 +346,8 @@
       </div>
 
       <div class="row">
+        <div class="$colspan">
+        <div class="row">
         <form py:strip="not has_property_editor" method="post" id="inplace-propertyform"
             action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists else href.newticket() + '#ticket'}">
           <py:if test="has_property_editor">
@@ -354,20 +356,16 @@
           </py:if>
           <input id="hidden-comment" type="hidden" name="comment" value="" />
 
-          <!--! ticket + activity headers -->
-          <div class="span12">
-            <div class="row">
-              <!--! ticket info -->
+
+
               <div class="$colspan">
                 <!--! ticket properties -->
                 <div class="properties">
                   ${render_ticket_summary_details(ticket)}
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div id="content" class="span8">
+          <div id="content" class="$colspan">
             <div id="belowStatus">
 
               <!--! ticket details -->
@@ -402,14 +400,6 @@
             </div>
           </div>
         </form>
-
-        <div py:if="bhdb and ticket.exists" id="activity" class="$cols_activity hidden-phone">
-          <bh:widget urn="Timeline">
-            <bh:args>
-              <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
-            </bh:args>
-          </bh:widget>
-        </div>
 
         <!--! do not show attachments for old versions of this ticket or for new tickets -->
         <div class="$colspan" py:if="not version and version != 0 and ticket.exists">
@@ -666,6 +656,16 @@
             </div>
           </div>
         </div>
+        </div>
+        </div>
+
+        <div py:if="bhdb and ticket.exists" id="activity" class="$cols_activity">
+          <bh:widget urn="Timeline">
+            <bh:args>
+              <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
+            </bh:args>
+          </bh:widget>
+        </div>
 
         <div class="$colspan">
           <div py:if="not ticket.exists">
@@ -675,16 +675,6 @@
           <div id="help" class="help-block pull-right" i18n:msg="">
             <span class="label label-info">Note:</span> See
             <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
-          </div>
-        </div>
-
-        <div py:if="bhdb and ticket.exists" class="$cols_activity visible-phone">
-          <div id="mobile-activity">
-            <bh:widget urn="Timeline">
-              <bh:args>
-                <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
-              </bh:args>
-            </bh:widget>
           </div>
         </div>
 
