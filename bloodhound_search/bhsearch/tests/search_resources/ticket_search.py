@@ -19,14 +19,17 @@
 #  under the License.
 import unittest
 from bhsearch.api import BloodhoundSearchApi
+from bhsearch.whoosh_backend import WhooshBackend
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
-from trac.ticket.model import Component, Ticket
+from trac.ticket.model import Component
 
 class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
         super(TicketIndexerTestCase, self).setUp()
+        self.whoosh_backend = WhooshBackend(self.env)
+        self.whoosh_backend.recreate_index()
         self.ticket_indexer = TicketIndexer(self.env)
         self.search_api = BloodhoundSearchApi(self.env)
         self.env.config.set('bhsearch', 'silence_on_error', "False")
