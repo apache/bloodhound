@@ -22,19 +22,27 @@ from __future__ import with_statement
 
 from itertools import groupby
 from math import ceil
+from datetime import datetime, timedelta
+import re
 
 from genshi.builder import tag
 
 from trac.db import get_column_names
-from trac.ticket.query import Query, TicketQueryMacro
+from trac.mimeview.api import Mimeview
+from trac.ticket.api import TicketSystem
+from trac.ticket.query import Query, QueryModule, TicketQueryMacro
 from trac.util import Ranges, as_bool
-from trac.util.datefmt import from_utimestamp
+from trac.util.datefmt import from_utimestamp, utc, to_timestamp
 from trac.util.text import shorten_line
 from trac.util.translation import _, tag_
-from trac.web.chrome import Chrome, add_stylesheet
+from trac.web.chrome import Chrome, add_stylesheet, add_link, web_context, \
+    add_script_data, add_script
 
 from multiproduct.dbcursor import GLOBAL_PRODUCT
-from multiproduct.env import lookup_product_env, resolve_product_href
+from multiproduct.env import lookup_product_env, resolve_product_href, \
+    Product, ProductEnvironment
+from multiproduct.hooks import ProductizedHref
+
 
 class ProductQuery(Query):
     """Product Overrides for TracQuery.
@@ -52,11 +60,16 @@ class ProductQuery(Query):
 
     def get_columns(self):
         super(ProductQuery, self).get_columns()
-        if not 'product' in self.cols:
+        if not 'product' in self.cols and self.group != 'product':
             # make sure 'product' is always present 
             # (needed for product context, href, permission checks ...)
+            # but don't implicitly include it if items are grouped by product
             self.cols.insert(0, 'product')
         return self.cols
+
+    def _get_ticket_href(self, prefix, tid):
+        product_env = ProductEnvironment(self.env, prefix)
+        return product_env.href.ticket(tid)
 
     def execute(self, req=None, db=None, cached_ids=None, authname=None,
                 tzinfo=None, href=None, locale=None):
@@ -65,13 +78,13 @@ class ProductQuery(Query):
         :since 1.0: the `db` parameter is no longer needed and will be removed
         in version 1.1.1
         """
-        if req is not None:
-            href = req.href
         with self.env.db_direct_query as db:
             cursor = db.cursor()
 
             self.num_items = 0
             sql, args = self.get_sql(req, cached_ids, authname, tzinfo, locale)
+            if sql.startswith('SELECT ') and not sql.startswith('SELECT DISTINCT '):
+                sql = 'SELECT DISTINCT * FROM (' + sql + ')'
             self.num_items = self._count(sql, args)
 
             if self.num_items <= self.max:
@@ -96,6 +109,7 @@ class ProductQuery(Query):
                           [None]
             results = []
 
+            product_idx = columns.index('product')
             column_indices = range(len(columns))
             for row in cursor:
                 result = {}
@@ -105,8 +119,8 @@ class ProductQuery(Query):
                         val = val or 'anonymous'
                     elif name == 'id':
                         val = int(val)
-                        if href is not None:
-                            result['href'] = href.ticket(val)
+                        result['href'] = self._get_ticket_href(
+                            row[product_idx], val)
                     elif name in self.time_fields:
                         val = from_utimestamp(val)
                     elif field and field['type'] == 'checkbox':
@@ -120,6 +134,181 @@ class ProductQuery(Query):
                 results.append(result)
             cursor.close()
             return results
+
+
+class ProductQueryModule(QueryModule):
+    def process_request(self, req):
+        req.perm.assert_permission('TICKET_VIEW')
+
+        constraints = self._get_constraints(req)
+        args = req.args
+        if not constraints and not 'order' in req.args:
+            # If no constraints are given in the URL, use the default ones.
+            if req.authname and req.authname != 'anonymous':
+                qstring = self.default_query
+                user = req.authname
+            else:
+                email = req.session.get('email')
+                name = req.session.get('name')
+                qstring = self.default_anonymous_query
+                user = email or name or None
+
+            self.log.debug('QueryModule: Using default query: %s', str(qstring))
+            if qstring.startswith('?'):
+                arg_list = parse_arg_list(qstring[1:])
+                args = arg_list_to_args(arg_list)
+                constraints = self._get_constraints(arg_list=arg_list)
+            else:
+                query = ProductQuery.from_string(self.env, qstring)
+                args = {'order': query.order, 'group': query.group,
+                        'col': query.cols, 'max': query.max}
+                if query.desc:
+                    args['desc'] = '1'
+                if query.groupdesc:
+                    args['groupdesc'] = '1'
+                constraints = query.constraints
+
+            # Substitute $USER, or ensure no field constraints that depend
+            # on $USER are used if we have no username.
+            for clause in constraints:
+                for field, vals in clause.items():
+                    for (i, val) in enumerate(vals):
+                        if user:
+                            vals[i] = val.replace('$USER', user)
+                        elif val.endswith('$USER'):
+                            del clause[field]
+                            break
+
+        cols = args.get('col')
+        if isinstance(cols, basestring):
+            cols = [cols]
+        # Since we don't show 'id' as an option to the user,
+        # we need to re-insert it here.
+        if cols and 'id' not in cols:
+            cols.insert(0, 'id')
+        rows = args.get('row', [])
+        if isinstance(rows, basestring):
+            rows = [rows]
+        format = req.args.get('format')
+        max = args.get('max')
+        if max is None and format in ('csv', 'tab'):
+            max = 0 # unlimited unless specified explicitly
+        query = ProductQuery(self.env, req.args.get('report'),
+                      constraints, cols, args.get('order'),
+                      'desc' in args, args.get('group'),
+                      'groupdesc' in args, 'verbose' in args,
+                      rows,
+                      args.get('page'),
+                      max)
+
+        if 'update' in req.args:
+            # Reset session vars
+            for var in ('query_constraints', 'query_time', 'query_tickets'):
+                if var in req.session:
+                    del req.session[var]
+            req.redirect(query.get_href(req.href))
+
+        # Add registered converters
+        for conversion in Mimeview(self.env).get_supported_conversions(
+                                             'trac.ticket.Query'):
+            add_link(req, 'alternate',
+                     query.get_href(req.href, format=conversion[0]),
+                     conversion[1], conversion[4], conversion[0])
+
+        if format:
+            filename = 'query' if format != 'rss' else None
+            Mimeview(self.env).send_converted(req, 'trac.ticket.Query', query,
+                                              format, filename=filename)
+
+        return self.display_html(req, query)
+
+    def display_html(self, req, query):
+        # The most recent query is stored in the user session;
+        orig_list = None
+        orig_time = datetime.now(utc)
+        query_time = int(req.session.get('query_time', 0))
+        query_time = datetime.fromtimestamp(query_time, utc)
+        query_constraints = unicode(query.constraints)
+        try:
+            if query_constraints != req.session.get('query_constraints') \
+                    or query_time < orig_time - timedelta(hours=1):
+                tickets = query.execute(req)
+                # New or outdated query, (re-)initialize session vars
+                req.session['query_constraints'] = query_constraints
+                req.session['query_tickets'] = ' '.join([str(t['id'])
+                                                         for t in tickets])
+            else:
+                orig_list = [int(id) for id
+                             in req.session.get('query_tickets', '').split()]
+                tickets = query.execute(req, cached_ids=orig_list)
+                orig_time = query_time
+        except QueryValueError, e:
+            tickets = []
+            for error in e.errors:
+                add_warning(req, error)
+
+        context = web_context(req, 'query')
+        owner_field = [f for f in query.fields if f['name'] == 'owner']
+        if owner_field:
+            TicketSystem(self.env).eventually_restrict_owner(owner_field[0])
+        data = query.template_data(context, tickets, orig_list, orig_time, req)
+
+        req.session['query_href'] = query.get_href(context.href)
+        req.session['query_time'] = to_timestamp(orig_time)
+        req.session['query_tickets'] = ' '.join([str(t['id'])
+                                                 for t in tickets])
+        title = _('Custom Query')
+
+        # Only interact with the report module if it is actually enabled.
+        #
+        # Note that with saved custom queries, there will be some convergence
+        # between the report module and the query module.
+        from trac.ticket.report import ReportModule
+        if 'REPORT_VIEW' in req.perm and \
+               self.env.is_component_enabled(ReportModule):
+            data['report_href'] = req.href.report()
+            add_ctxtnav(req, _('Available Reports'), req.href.report())
+            add_ctxtnav(req, _('Custom Query'), req.href.query())
+            if query.id:
+                for title, description in self.env.db_query("""
+                        SELECT title, description FROM report WHERE id=%s
+                        """, (query.id,)):
+                    data['report_resource'] = Resource('report', query.id)
+                    data['description'] = description
+        else:
+            data['report_href'] = None
+
+        # Only interact with the batch modify module it it is enabled
+        # TODO: fix this for multiproduct
+        """
+        from trac.ticket.batch import BatchModifyModule
+        if 'TICKET_BATCH_MODIFY' in req.perm and \
+                self.env.is_component_enabled(BatchModifyModule):
+            self.env[BatchModifyModule].add_template_data(req, data, tickets)
+        """
+
+        data.setdefault('report', None)
+        data.setdefault('description', None)
+        data['title'] = title
+
+        data['all_columns'] = query.get_all_columns()
+        # Don't allow the user to remove the id column
+        data['all_columns'].remove('id')
+        data['all_textareas'] = query.get_all_textareas()
+
+        properties = dict((name, dict((key, field[key])
+                                      for key in ('type', 'label', 'options',
+                                                  'optgroups')
+                                      if key in field))
+                          for name, field in data['fields'].iteritems())
+        add_script_data(req, properties=properties, modes=data['modes'])
+
+        add_stylesheet(req, 'common/css/report.css')
+        Chrome(self.env).add_jquery_ui(req)
+        add_script(req, 'common/js/query.js')
+
+        return 'query.html', data, None
+
 
 class ProductTicketQueryMacro(TicketQueryMacro):
     """TracQuery macro retrieving results across product boundaries. 

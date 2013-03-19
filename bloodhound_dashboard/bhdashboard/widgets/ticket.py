@@ -45,6 +45,8 @@ from bhdashboard.util import WidgetBase, check_widget_name, \
                             pretty_wrapper, resolve_ep_class, \
                             trac_version, trac_tags
 
+from multiproduct.env import Product, ProductEnvironment
+
 class TicketFieldValuesWidget(WidgetBase):
     """Display a tag cloud representing frequency of values assigned to 
     ticket fields.
@@ -179,13 +181,14 @@ class TicketFieldValuesWidget(WidgetBase):
                         "GROUP BY COALESCE(%(name)s, '')"
             sql = sql % field
             # TODO : Implement threshold and max
-            db = self.env.get_db_cnx()
-            try :
+
+            db_query = req.perm.env.db_query \
+                if isinstance(req.perm.env, ProductEnvironment) \
+                else req.perm.env.db_direct_query
+            with db_query as db:
                 cursor = db.cursor()
                 cursor.execute(sql)
                 items = cursor.fetchall()
-            finally:
-                cursor.close()
 
             QUERY_COLS = ['id', 'summary', 'owner', 'type', 'status', 'priority']
             item_link= lambda item: req.href.query(col=QUERY_COLS + [fieldnm], 

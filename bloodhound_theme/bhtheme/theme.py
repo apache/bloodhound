@@ -355,7 +355,6 @@ class BloodhoundTheme(ThemeBase):
         if href_fcn is None:
             href_fcn = req.href.products
         product_list = []
-        is_product_scope = isinstance(req.perm.env, ProductEnvironment)
         for product in Product.select(self.env):
             if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
                 product_list.append((product.prefix, product.name,

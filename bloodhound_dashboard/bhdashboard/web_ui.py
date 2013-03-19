@@ -28,7 +28,7 @@ __metaclass__ = type
 
 from itertools import izip
 import pkg_resources
-import re
+import re, copy
 from uuid import uuid4
 
 from genshi.builder import tag
@@ -104,7 +104,10 @@ class DashboardModule(Component):
             add_ctxtnav(req, _('Reports'), req.href.report())
         context = Context.from_request(req)
         template, layout_data = self.expand_layout_data(context, 
-            'bootstrap_grid', self.DASHBOARD_SCHEMA)
+            'bootstrap_grid',
+            self.DASHBOARD_SCHEMA if isinstance(self.env, ProductEnvironment)
+                else self.DASHBOARD_GLOBAL_SCHEMA
+            )
         widgets = self.expand_widget_data(context, layout_data) 
         return template, {
                     'context' : Context.from_request(req),
@@ -229,6 +232,17 @@ class DashboardModule(Component):
                         },
                }
         }
+
+    # global dashboard: add milestone column, group by product
+    DASHBOARD_GLOBAL_SCHEMA = copy.deepcopy(DASHBOARD_SCHEMA)
+    DASHBOARD_GLOBAL_SCHEMA['widgets']['active tickets']['args'][2]['args']['query'] = (
+        'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
+        'col=priority&order=priority&col=milestone'
+    )
+    DASHBOARD_GLOBAL_SCHEMA['widgets']['my tickets']['args'][2]['args']['query'] = (
+        'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
+        'col=priority&order=priority&col=milestone&owner=$USER&'
+    )
 
     # Public API
     def expand_layout_data(self, context, layout_name, schema, embed=False):
