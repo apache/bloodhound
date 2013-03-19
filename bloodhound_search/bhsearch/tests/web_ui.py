@@ -19,15 +19,16 @@
 #  under the License.
 import unittest
 
-from urllib import urlencode, unquote
+from urllib import urlencode, unquote, unquote_plus
 from bhsearch.api import ASC, DESC, SortInstruction
 
 from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.web_ui import RequestParameters
+from bhsearch.web_ui import RequestParameters, BloodhoundSearchModule
 from bhsearch.whoosh_backend import WhooshBackend
 
 from trac.test import Mock, MockPerm
 from trac.core import TracError
+from trac.search.web_ui import SearchModule as TracSearchModule
 from trac.util.datefmt import FixedOffset
 from trac.util import format_datetime
 from trac.web import Href, arg_list_to_args, parse_arg_list, RequestDone
@@ -46,15 +47,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         whoosh_backend = WhooshBackend(self.env)
         whoosh_backend.recreate_index()
 
-        self.req = Mock(
-            perm=MockPerm(),
-            chrome={'logo': {}},
-            href=Href("/main"),
-            base_path=BASE_PATH,
-            args=arg_list_to_args([]),
-            redirect=self.redirect
-        )
-
+        self.req.redirect = self.redirect
         self.redirect_url = None
         self.redirect_permanent = None
 
@@ -141,19 +134,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         extra_search_options = dict(data["extra_search_fields"])
-        self.assertEquals("ticket", extra_search_options['type'])
-
-        resource_types = data["types"]
-
-        all = resource_types[0]
-        self._assertResourceType(all, "All", False)
-        self.assertNotIn("type", all["href"])
-
-        ticket = resource_types[1]
-        self._assertResourceType(ticket, "Ticket", True, "type=ticket")
-
-        wiki = resource_types[2]
-        self._assertResourceType(wiki, "Wiki", False, "type=wiki")
+        self.assertEqual("ticket", extra_search_options['type'])
 
     def test_type_parameter_in_links(self):
         self._insert_tickets(12)
@@ -179,51 +160,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         for page in results.shown_pages:
             self.assertIn('type=ticket', page["href"])
 
-    def test_type_grouping(self):
-        self.req.args[RequestParameters.QUERY] = "*:*"
-        data = self.process_request()
-        resource_types =  data["types"]
-
-        all = resource_types[0]
-        self._assertResourceType(all, "All", True)
-        self.assertNotIn("type", all["href"])
-
-        ticket = resource_types[1]
-        self._assertResourceType(ticket, "Ticket", False, "type=ticket")
-
-        wiki = resource_types[2]
-        self._assertResourceType(wiki, "Wiki", False, "type=wiki")
-
-
-    def test_that_there_are_no_page_parameters_for_other_types(self):
-        #arrange
-        self._insert_tickets(12)
-        #act
-        self.req.args[RequestParameters.QUERY] = "*"
-        self.req.args[RequestParameters.PAGELEN] = "4"
-        self.req.args[RequestParameters.PAGE] = "2"
-        data = self.process_request()
-        #assert
-        resource_types =  data["types"]
-
-        all = resource_types[0]
-        self.assertNotIn("page=2", all["href"])
-
-        ticket = resource_types[1]
-        self.assertNotIn("page=", ticket["href"])
-
-    def test_that_there_are_filters_in_type_links(self):
-        #arrange
-#        self._insert_tickets(2)
-        #act
-        self.req.args[RequestParameters.QUERY] = "*"
-        self.req.args[RequestParameters.TYPE] = "ticket"
-        self.req.args[RequestParameters.FILTER_QUERY] = "status:new"
-        data = self.process_request()
-        #assert
-        for type in data["types"]:
-            self.assertNotIn("fq=", type["href"])
-
     def test_that_type_facet_is_in_default_search(self):
         #arrange
         self._insert_tickets(2)
@@ -242,7 +178,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts =  data["facet_counts"]
+        facet_counts = data["facet_counts"]
         status_counts = facet_counts["status"]
         self.assertEquals(1, status_counts["new"]["count"])
         self.assertEquals(1, status_counts["closed"]["count"])
@@ -256,7 +192,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts =  data["facet_counts"]
+        facet_counts = data["facet_counts"]
         status_counts = facet_counts["status"]
         self.assertEquals(1, status_counts["new"]["count"])
         self.assertIn("fq=status%3A%22new%22", status_counts["new"]["href"])
@@ -270,7 +206,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts =  data["facet_counts"]
+        facet_counts = data["facet_counts"]
         status_counts = facet_counts["status"]
         empty_status_count = status_counts[None]
         self.assertEquals(2, empty_status_count["count"])
@@ -280,13 +216,13 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
     def test_can_return_empty_facets_result_for_wiki_pages(self):
         #arrange
-        self.insert_wiki("W1","Some text")
+        self.insert_wiki("W1", "Some text")
         #act
         self.req.args[RequestParameters.TYPE] = "wiki"
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts =  data["facet_counts"]
+        facet_counts = data["facet_counts"]
         self.assertEquals({}, facet_counts)
 
     def test_can_accept_multiple_filter_query_parameters(self):
@@ -357,14 +293,23 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         current_filter_queries = data["active_filter_queries"]
-        self.assertEquals(2, len(current_filter_queries))
+        self.assertEquals(3, len(current_filter_queries))
 
-        component_filter =  current_filter_queries[0]
+        type_filter = current_filter_queries[0]
+        self.assertEquals('Ticket', type_filter["label"])
+        self.assertNotIn("type=", type_filter["href"])
+        self.assertNotIn('fq=', unquote(type_filter["href"]))
+
+        component_filter = current_filter_queries[1]
         self.assertEquals('component:"c1"', component_filter["label"])
-        self.assertNotIn("fq=", component_filter["href"])
+        self.assertIn('type=ticket', component_filter["href"])
+        self.assertNotIn('fq=component:"c1"',
+                         unquote(component_filter["href"]))
+        self.assertIn('fq=status:"new"', unquote(component_filter["href"]))
 
-        status_filter =  current_filter_queries[1]
+        status_filter = current_filter_queries[2]
         self.assertEquals('status:"new"', status_filter["label"])
+        self.assertIn('type=ticket', status_filter["href"])
         self.assertIn('fq=component:"c1"', unquote(status_filter["href"]))
         self.assertNotIn('fq=status:"new"', unquote(status_filter["href"]))
 
@@ -587,8 +532,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         extra_search_options = dict(data["extra_search_fields"])
-        self.assertEquals("id, time desc", extra_search_options["sort"])
-        #self.assertNotIn("sort=", active_sort["href"])
+        self.assertEqual("id, time desc", extra_search_options["sort"])
 
     def test_that_document_summary_contains_highlighted_search_terms(self):
         term = "searchterm"
@@ -655,7 +599,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
             print id, title
             self.assertIn(id, str(title))
 
-
     def test_that_id_is_highlighted_in_title(self):
         self.insert_ticket("some summary")
         id = "1"
@@ -676,12 +619,158 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
             self.assertLess(len(row['content']), 500)
             self.assertLess(len(row['hilited_content']), 500)
 
+    def test_compatibility_with_legacy_search(self):
+        self.env.config.set('bhsearch', 'enable_redirect', "True")
+        self.req.path_info = '/search'
+
+        self.assertRaises(RequestDone, self.process_request)
+        self.assertIn('/bhsearch', self.redirect_url)
+        self.assertEqual(self.redirect_permanent, True)
+
+        self.req.args['wiki'] = 'on'
+        self.assertRaises(RequestDone, self.process_request)
+        redirect_url = unquote_plus(self.redirect_url)
+        self.assertIn('/bhsearch', redirect_url)
+        self.assertIn('type=wiki', redirect_url)
+        self.assertEqual(self.redirect_permanent, True)
+
+        self.req.args['ticket'] = 'on'
+        self.assertRaises(RequestDone, self.process_request)
+        redirect_url = unquote_plus(self.redirect_url)
+        self.assertIn('fq=type:(ticket OR wiki)', redirect_url)
+        self.assertIn('/bhsearch', self.redirect_url)
+        self.assertEqual(self.redirect_permanent, True)
+
+        self.req.args['milestone'] = 'on'
+        self.assertRaises(RequestDone, self.process_request)
+        redirect_url = unquote_plus(self.redirect_url)
+        self.assertIn('fq=type:(ticket OR wiki OR milestone)', redirect_url)
+        self.assertIn('/bhsearch', self.redirect_url)
+        self.assertEqual(self.redirect_permanent, True)
+
+        self.req.args['changeset'] = 'on'
+        self.assertRaises(RequestDone, self.process_request)
+        redirect_url = unquote_plus(self.redirect_url)
+        self.assertIn('fq=type:(ticket OR wiki OR milestone OR changeset)', redirect_url)
+        self.assertIn('/bhsearch', self.redirect_url)
+        self.assertEqual(self.redirect_permanent, True)
+
+    def test_opensearch_integration(self):
+        # pylint: disable=unused-variable
+        self.req.path_info = '/bhsearch/opensearch'
+        bhsearch = BloodhoundSearchModule(self.env)
+
+        url, data, x = bhsearch.process_request(self.req)
+
+        self.assertEqual(url, 'opensearch.xml')
+
+    def test_returns_correct_handler(self):
+        bhsearch = BloodhoundSearchModule(self.env)
+        tracsearch = self.env[TracSearchModule]
+
+        class PathInfoSetter(object):
+            # pylint: disable=incomplete-protocol
+            def __setitem__(other, key, value):
+                if key == "PATH_INFO":
+                    self.req.path_info = value
+        self.req.environ = PathInfoSetter()
+
+        self.env.config.set('bhsearch', 'enable_redirect', "True")
+
+        self.req.path_info = '/search'
+        self.assertIs(bhsearch.pre_process_request(self.req, tracsearch),
+                      bhsearch)
+
+        self.req.path_info = '/bhsearch'
+        self.assertIs(bhsearch.pre_process_request(self.req, tracsearch),
+                      bhsearch)
+
+        self.env.config.set('bhsearch', 'enable_redirect', "False")
+        # With redirect disabled, handler should not be changed.
+        self.req.path_info = '/search'
+        self.assertIs(bhsearch.pre_process_request(self.req, None),
+                      None)
+
+        self.req.path_info = '/bhsearch'
+        self.assertIs(bhsearch.pre_process_request(self.req, None),
+                      None)
+
+    def test_that_correct_search_handle_is_selected_for_quick_search(self):
+        bhsearch = BloodhoundSearchModule(self.env)
+
+        def process_request(path, enable_redirect, is_default):
+            # pylint: disable=unused-variable
+            self.req.path_info = path
+            self.env.config.set('bhsearch', 'enable_redirect',
+                                str(enable_redirect))
+            self.env.config.set('bhsearch', 'is_default', str(is_default))
+            template, data, content_type = \
+                bhsearch.post_process_request(self.req, '', {}, '')
+            return data
+
+        data = process_request('/', enable_redirect=False, is_default=False)
+        self.assertIn('search_handler', data)
+        self.assertEqual(data['search_handler'], self.req.href.search())
+
+        data = process_request('/', enable_redirect=True, is_default=False)
+        self.assertIn('search_handler', data)
+        self.assertEqual(data['search_handler'], self.req.href.bhsearch())
+
+        data = process_request('/', enable_redirect=False, is_default=True)
+        self.assertIn('search_handler', data)
+        self.assertEqual(data['search_handler'], self.req.href.bhsearch())
+
+        data = process_request('/', enable_redirect=True, is_default=True)
+        self.assertIn('search_handler', data)
+        self.assertEqual(data['search_handler'], self.req.href.bhsearch())
+
+        for is_default in [False, True]:
+            data = process_request('/search',
+                                   enable_redirect=False,
+                                   is_default=is_default)
+            self.assertIn('search_handler', data)
+            self.assertEqual(data['search_handler'], self.req.href.search())
+
+        for is_default in [False, True]:
+            data = process_request('/search',
+                                   enable_redirect=True,
+                                   is_default=is_default)
+            self.assertIn('search_handler', data)
+            self.assertEqual(data['search_handler'], self.req.href.bhsearch())
+
+        for enable_redirect in [False, True]:
+            for is_default in [False, True]:
+                data = process_request('/bhsearch',
+                                       enable_redirect=enable_redirect,
+                                       is_default=is_default)
+                self.assertIn('search_handler', data)
+                self.assertEqual(data['search_handler'],
+                                 self.req.href.bhsearch())
+
+    def test_that_active_query_is_set(self):
+        #arrange
+        self.insert_ticket("Ticket 1", component="c1", status="new")
+        self.insert_ticket("Ticket 2", component="c1", status="new")
+        #act
+        self.req.args[RequestParameters.TYPE] = "ticket"
+        self.req.args[RequestParameters.QUERY] = "Ticket"
+        self.req.args[RequestParameters.FILTER_QUERY] = [
+            'component:"c1"',
+            'status:"new"']
+        data = self.process_request()
+        #assert
+        active_query = data["active_query"]
+        self.assertEqual(active_query["label"], '"Ticket"')
+        self.assertEqual(active_query["query"], "Ticket")
+        self.assertNotIn("?q=", unquote(active_query["href"]))
+        self.assertNotIn("&q=", unquote(active_query["href"]))
+        self.assertIn("fq=", unquote(active_query["href"]))
+
     def _find_header(self, headers, name):
         for header in headers:
             if header["name"] == name:
                 return header
         raise Exception("Header not found: %s" % name)
-
 
     def _count_parameter_in_url(self, url, parameter_name, value):
         parameter_to_find = (parameter_name, value)
@@ -706,6 +795,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def _insert_wiki_pages(self, n):
         for i in range(1, n+1):
             self.insert_wiki("test %s" % i)
+
 
 class RequestParametersTest(unittest.TestCase):
     def setUp(self):

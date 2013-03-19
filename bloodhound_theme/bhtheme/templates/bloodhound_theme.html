@@ -91,10 +91,7 @@
             <div id="searchbox" class="btn-toolbar">
               <div class="btn-group">
                 <form id="mainsearch" class="form-inline"
-                      action="${href.search()   if req.path_info == u'/search' else
-                                href.bhsearch() if (req.path_info == u'/bhsearch' or
-                                                    is_bhsearch_default) else
-                                href.search()}"
+                      action="${search_handler or href.search()}"
                       method="get">
                   <div class="input-append">
                     <input type="text" class="span3" id="q" name="q"

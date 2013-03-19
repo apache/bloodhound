@@ -626,9 +626,9 @@ input[type="submit"].btn.btn-micro {
 }
 
 @media (min-width: 1200px) {
- .search_results {
-  width: 920px;
- }
+ .span9.search_results {
+    width: 920px;
+  }
 }
 
 @media (min-width: 979px) and (max-width: 1199px) {

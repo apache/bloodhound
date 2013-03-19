@@ -155,8 +155,6 @@ class BloodhoundTheme(ThemeBase):
     labels_footer_right = Option('labels', 'footer_right', '',
         """Text to use as the right aligned footer""")
 
-    is_bhsearch_default = BoolOption('bhsearch', 'is_default', False)
-
     _wiki_pages = None
     Chrome.default_html_doctype = DocType.HTML5
 
@@ -283,7 +281,6 @@ class BloodhoundTheme(ThemeBase):
         if is_active_theme and data is not None:
             data['responsive_layout'] = self.env.config.getbool(
                     'bloodhound', 'responsive_layout', 'true')
-            data['is_bhsearch_default'] = self.is_bhsearch_default
 
         return template, data, content_type
 

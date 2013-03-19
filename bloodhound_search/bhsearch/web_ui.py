@@ -31,20 +31,24 @@ from genshi.builder import tag
 from genshi import HTML
 from trac.perm import IPermissionRequestor
 from trac.search import shorten_result
-from trac.config import OrderedExtensionsOption, ListOption, Option
+from trac.config import OrderedExtensionsOption, ListOption, Option, BoolOption
 from trac.util.presentation import Paginator
 from trac.util.datefmt import format_datetime, user_time
-from trac.web import IRequestHandler
+from trac.web import IRequestHandler, IRequestFilter
 from trac.util.translation import _
 from trac.util.html import find_element
 from trac.web.chrome import (INavigationContributor, ITemplateProvider,
-                             add_link, add_stylesheet, web_context)
+                             add_link, add_stylesheet, prevnext_nav,
+                             web_context)
 from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
                           DESC, IndexFields, SortInstruction)
 from trac.wiki.formatter import extract_link
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
 DEFAULT_RESULTS_PER_PAGE = 10
+SEARCH_URL = '/search'
+BHSEARCH_URL = '/bhsearch'
+SEARCH_URLS_RE = re.compile(r'/(?P<prefix>bh)?search(?P<suffix>.*)')
 
 class RequestParameters(object):
     """
@@ -132,8 +136,6 @@ class RequestParameters(object):
 
         return sort if sort else None
 
-
-
     def _remove_possible_duplications(self, parameters_list):
         seen = set()
         return [parameter for parameter in parameters_list
@@ -151,6 +153,7 @@ class RequestParameters(object):
             skip_view=False,
             sort=None,
             skip_sort = False,
+            skip_query = False
     ):
         params = copy.deepcopy(self.params)
 
@@ -183,6 +186,9 @@ class RequestParameters(object):
         elif force_filters is not None:
             params[self.FILTER_QUERY] = force_filters
 
+        if skip_query:
+            self._delete_if_exists(params, self.QUERY)
+
         return self.req.href.bhsearch(**params)
 
     def _create_sort_expression(self, sort):
@@ -204,10 +210,11 @@ class RequestParameters(object):
         if name in params:
             del params[name]
 
+
 class BloodhoundSearchModule(Component):
     """Main search page"""
     implements(INavigationContributor, IPermissionRequestor, IRequestHandler,
-        ITemplateProvider,
+        ITemplateProvider, IRequestFilter
         #           IWikiSyntaxProvider #todo: implement later
     )
 
@@ -245,6 +252,10 @@ class BloodhoundSearchModule(Component):
         default=",".join(default_grid_fields),
         doc="""Default fields for grid view for specific resource""")
 
+    default_search = BoolOption('bhsearch', 'is_default', False)
+
+    redirect_enabled = BoolOption('bhsearch', 'enable_redirect',
+                                  False)
 
     # INavigationContributor methods
     def get_active_navigation_item(self, req):
@@ -263,10 +274,15 @@ class BloodhoundSearchModule(Component):
 
     # IRequestHandler methods
     def match_request(self, req):
-        return re.match(r'/bhsearch?', req.path_info) is not None
+        return re.match('^%s' % BHSEARCH_URL, req.path_info) is not None
 
     def process_request(self, req):
         req.perm.assert_permission(SEARCH_PERMISSION)
+
+        if self._is_opensearch_request(req):
+            return ('opensearch.xml', {},
+                    'application/opensearchdescription+xml')
+
         request_context = RequestContext(
             self.env,
             req,
@@ -275,6 +291,9 @@ class BloodhoundSearchModule(Component):
             self.all_grid_fields,
             self.default_facets
         )
+
+        if request_context.requires_redirect:
+            req.redirect(request_context.parameters.create_href(), True)
 
         # compatibility with legacy search
         req.search_query = request_context.parameters.query
@@ -294,6 +313,9 @@ class BloodhoundSearchModule(Component):
         request_context.process_results(query_result)
         return self._return_data(req, request_context.data)
 
+    def _is_opensearch_request(self, req):
+        return req.path_info == BHSEARCH_URL + '/opensearch'
+
     def _return_data(self, req, data):
         add_stylesheet(req, 'common/css/search.css')
         return 'bhsearch.html', data, None
@@ -307,10 +329,29 @@ class BloodhoundSearchModule(Component):
     def get_templates_dirs(self):
         return [pkg_resources.resource_filename(__name__, 'templates')]
 
+    # IRequestFilter methods
+    def pre_process_request(self, req, handler):
+        if SEARCH_URLS_RE.match(req.path_info):
+            if self.redirect_enabled:
+                return self
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        if self.redirect_enabled:
+            data['search_handler'] = req.href.bhsearch()
+        elif req.path_info.startswith(SEARCH_URL):
+            data['search_handler'] = req.href.search()
+        elif self.default_search or req.path_info.startswith(BHSEARCH_URL):
+            data['search_handler'] = req.href.bhsearch()
+        else:
+            data['search_handler'] = req.href.search()
+        return template, data, content_type
+
+
 class RequestContext(object):
     DATA_ACTIVE_FILTER_QUERIES = 'active_filter_queries'
+    DATA_ACTIVE_QUERY = 'active_query'
     DATA_BREADCRUMBS_TEMPLATE = 'resourcepath_template'
-    DATA_TYPES = "types"
     DATA_HEADERS = "headers"
     DATA_ALL_VIEWS = "all_views"
     DATA_VIEW = "view"
@@ -359,12 +400,8 @@ class RequestContext(object):
 
         if self.parameters.sort:
             self.sort = self.parameters.sort
-            self.data[self.DATA_SEARCH_EXTRAS].append(
-                (RequestParameters.SORT, self.parameters.sort_string)
-            )
         else:
             self.sort = self.DEFAULT_SORT
-
 
         self.allowed_participants, self.sorted_participants = \
             self._get_allowed_participants(req)
@@ -377,15 +414,19 @@ class RequestContext(object):
             self.active_type = None
             self.active_participant = None
 
-        self._prepare_allowed_types()
-        self._prepare_active_filter_queries()
+        self._prepare_active_type()
+        self._prepare_breadcrumb_items()
+        self._prepare_hidden_search_fields()
         self._prepare_quick_jump()
+
+        # Compatibility with trac search
+        self._process_legacy_type_filters(req, search_participants)
+        if req.path_info.startswith(SEARCH_URL):
+            self.requires_redirect = True
 
         self.fields = self._prepare_fields_and_view()
         self.query_filter = self._prepare_query_filter()
         self.facets = self._prepare_facets()
-
-
 
     def _get_allowed_participants(self, req):
         allowed_participants = {}
@@ -397,58 +438,67 @@ class RequestContext(object):
                 ordered_participants.append(participant)
         return allowed_participants, ordered_participants
 
-
-    def _prepare_allowed_types(self):
+    def _prepare_active_type(self):
         active_type = self.parameters.type
         if active_type and active_type not in self.allowed_participants:
             raise TracError(_("Unsupported resource type: '%(name)s'",
-                name=active_type))
-        allowed_types = [
-            dict(
-                label=_("All"),
-                active=(active_type is None),
-                href=self.parameters.create_href(
-                    skip_type=True,
-                    skip_page=True,
-                    force_filters=[],
-                ),
-            )
-        ]
-        #we want obtain the same order as in search participants options
-        for participant in self.sorted_participants:
-            allowed_types.append(dict(
-                label=_(participant.get_title()),
-                active=(participant.get_participant_type() == active_type),
-                href=self.parameters.create_href(
-                    type=participant.get_participant_type(),
-                    skip_page=True,
-                    force_filters=[],
-                ),
-            ))
-        self.data[self.DATA_TYPES] = allowed_types
-        self.data[self.DATA_SEARCH_EXTRAS].append(
-            (RequestParameters.TYPE, active_type)
-        )
+                            name=active_type))
 
-    def _prepare_active_filter_queries(self):
+    def _prepare_breadcrumb_items(self):
         current_filters = self.parameters.filter_queries
 
-        def remove_filters_from_list(filer_to_cut_from):
-            return current_filters[:current_filters.index(filer_to_cut_from)]
+        def remove_filter_from_list(filter_to_remove):
+            new_filters = list(current_filters)
+            new_filters.remove(filter_to_remove)
+            return new_filters
+
+        if self.active_type:
+            type_query = self._create_term_expression('type', self.active_type)
+            type_filters = [dict(
+                href=self.parameters.create_href(skip_type=True,
+                                                 force_filters=[]),
+                label=unicode(self.active_type).capitalize(),
+                query=type_query,
+            )]
+        else:
+            type_filters = []
 
         active_filter_queries = [
             dict(
                 href=self.parameters.create_href(
-                    force_filters=remove_filters_from_list(filter_query)
+                    force_filters=remove_filter_from_list(filter_query)
                 ),
                 label=filter_query,
                 query=filter_query,
             ) for filter_query in self.parameters.filter_queries
         ]
-        self.data[self.DATA_ACTIVE_FILTER_QUERIES] = active_filter_queries
-        for filter_query in active_filter_queries:
+        active_query = dict(
+            href=self.parameters.create_href(skip_query=True),
+            label=u'"%s"' % self.parameters.query,
+            query=self.parameters.query
+        )
+
+        self.data[self.DATA_ACTIVE_FILTER_QUERIES] = \
+            type_filters + active_filter_queries
+        self.data[self.DATA_ACTIVE_QUERY] = active_query
+
+    def _prepare_hidden_search_fields(self):
+        if self.active_type:
             self.data[self.DATA_SEARCH_EXTRAS].append(
-                (RequestParameters.FILTER_QUERY, filter_query['query'])
+                (RequestParameters.TYPE, self.active_type)
+            )
+
+        if self.parameters.view:
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.VIEW, self.parameters.view)
+            )
+        if self.parameters.sort:
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.SORT, self.parameters.sort_string)
+            )
+        for filter_query in self.parameters.filter_queries:
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.FILTER_QUERY, filter_query)
             )
 
     def _prepare_quick_jump(self):
@@ -488,7 +538,6 @@ class RequestContext(object):
             else:
                 req.redirect(quickjump_href)
 
-
     def _prepare_fields_and_view(self):
         self._add_views_selector()
         self.view = self._get_view()
@@ -511,10 +560,6 @@ class RequestContext(object):
 
     def _add_views_selector(self):
         active_view = self.parameters.view
-        if active_view:
-            self.data[self.DATA_SEARCH_EXTRAS].append(
-                (RequestParameters.VIEW, active_view)
-            )
 
         all_views = []
         for view, label in self.VIEWS_SUPPORTED.iteritems():
@@ -589,10 +634,30 @@ class RequestContext(object):
     def _prepare_facets(self):
         #TODO: add possibility of specifying facets in query parameters
         if self.active_participant:
-            facets =  self.active_participant.get_default_facets()
+            facets = self.active_participant.get_default_facets()
         else:
-            facets =  self.default_facets
+            facets = self.default_facets
         return facets
+
+    def _process_legacy_type_filters(self, req, search_participants):
+        legacy_type_filters = [sp.get_participant_type()
+                               for sp in search_participants
+                               if sp.get_participant_type() in req.args]
+        if legacy_type_filters:
+            params = self.parameters.params
+            if len(legacy_type_filters) == 1:
+                self.parameters.type = params[RequestParameters.TYPE] = \
+                    legacy_type_filters[0]
+            else:
+                filter_queries = self.parameters.filter_queries
+                if params[RequestParameters.FILTER_QUERY] is not filter_queries:
+                    params[RequestParameters.FILTER_QUERY] = filter_queries
+                filter_queries.append(
+                    'type:(%s)' % ' OR '.join(legacy_type_filters)
+                )
+            self.requires_redirect = True
+        else:
+            self.requires_redirect = False
 
     def _process_doc(self, doc):
         ui_doc = dict(doc)
@@ -636,6 +701,7 @@ class RequestContext(object):
             add_link(self.req, 'prev', prev_href, _('Previous Page'))
 
         self.data[self.DATA_RESULTS] = results
+        prevnext_nav(self.req, _('Previous'), _('Next'))
 
     def _prepare_shown_pages(self, results):
         shown_pages = results.get_shown_pages(self.pagelen)
