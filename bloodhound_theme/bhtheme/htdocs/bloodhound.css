@@ -336,6 +336,13 @@ pre {
  white-space: normal;
 }
 
+#qct-newticket + .popover .popover-content {
+ white-space: nowrap;
+}
+#qct-newticket + .popover .popover-content span {
+ padding: 3px;
+}
+
 /* @group Generic rules */
 
 .full-x {

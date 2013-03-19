@@ -100,10 +100,12 @@ class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
     def test_can_index_delete(self):
         #arrange
         self.insert_milestone(self.DUMMY_MILESTONE_NAME)
-        Milestone(self.env, self.DUMMY_MILESTONE_NAME).delete()
+        results = self.search_api.query("*")
+        self.assertEqual(1, results.hits)
         #act
-        results = self.search_api.query("*.*")
+        Milestone(self.env, self.DUMMY_MILESTONE_NAME).delete()
         #assert
+        results = self.search_api.query("*")
         self.print_result(results)
         self.assertEqual(0, results.hits)
 

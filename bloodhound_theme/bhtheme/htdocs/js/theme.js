@@ -79,12 +79,12 @@ $( function () {
             base_url = '';
           $.post(base_url + '/qct', $('#qct-form').serialize(), 
               function(ticket_id) {
+                var href = base_url + '/ticket/' + ticket_id;
                 qct_alert({
                     ticket: ticket_id,
-                    msg: '<span class="alert alert-success" ' +
-                          ' style="padding:3px"> Has been created</span>' +
-                        '</span> <a href="' + base_url + '/ticket/' +
-                        ticket_id + '" class="pull-right">View / Edit</a>'
+                    msg: '<span class="alert alert-success">' +
+                         'Has been created</span> ' +
+                         '<a href="' + href + '">View / Edit</a>'
                   });
               })
               .error(function(jqXHR, textStatus, errorMsg) {

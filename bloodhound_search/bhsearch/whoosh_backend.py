@@ -71,6 +71,12 @@ class WhooshBackend(Component):
         changes=TEXT(analyzer=analysis.StandardAnalyzer(stoplist=None)),
         owner=TEXT(stored=True,
                    analyzer=analysis.SimpleAnalyzer()),
+        repository=TEXT(stored=True,
+                        analyzer=analysis.SimpleAnalyzer()),
+        revision=TEXT(stored=True,
+                      analyzer=analysis.SimpleAnalyzer()),
+        message=TEXT(stored=True,
+                     analyzer=analysis.SimpleAnalyzer()),
     )
 
     max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,

@@ -299,10 +299,7 @@ class WikiResourceChangeListenerTestCase(unittest.TestCase):
         self.assertIsInstance(self.listener.resource, WikiPage)
         self.assertEqual(self.INITIAL_NAME, self.wiki_name)
         self.assertEqual(CHANGED_TEXT, self.wiki_text)
-        self.assertEqual(
-            dict(text=self.INITIAL_TEXT, readonly=0, name=self.INITIAL_NAME),
-            self.listener.old_values)
-        self.assertEqual("save", self.listener.context["source_action"])
+        self.assertEqual({"text":self.INITIAL_TEXT}, self.listener.old_values)
 
     def test_change_listener_renamed(self):
         wiki_page = self._create_wiki_page(self.INITIAL_NAME)
@@ -312,10 +309,7 @@ class WikiResourceChangeListenerTestCase(unittest.TestCase):
         self.assertIsInstance(self.listener.resource, WikiPage)
         self.assertEqual(CHANGED_NAME, self.wiki_name)
         self.assertEqual(self.INITIAL_TEXT, self.wiki_text)
-        self.assertEqual(
-            dict(text=self.INITIAL_TEXT, readonly=0, name=self.INITIAL_NAME),
-            self.listener.old_values)
-        self.assertEqual("rename", self.listener.context["source_action"])
+        self.assertEqual({"name":self.INITIAL_NAME}, self.listener.old_values)
 
     def test_change_listener_deleted(self):
         wiki_page = self._create_wiki_page(self.INITIAL_NAME)

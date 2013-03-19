@@ -39,8 +39,7 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
 
     def test_can_index_ticket(self):
         ticket = self.create_dummy_ticket()
-        ticket.id = "1"
-        TicketIndexer(self.env).ticket_created(ticket)
+        TicketIndexer(self.env).resource_created(ticket, None)
 
         results = self.search_api.query("*:*")
         self.print_result(results)

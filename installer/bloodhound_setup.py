@@ -79,8 +79,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                                              'roadmap', 'search', 'admin']),
                         'environment_factory': '',
                         'request_factory': '',},
-               'project': {'footer': ('Visit Apache Bloodhound at<br />'
-                                      '<a href="%(site)s">%(site)s</a>'
+               'project': {'footer': ('Get involved with '
+                                      '<a href="%(site)s">Apache Bloodhound</a>'
                                       % {'site': BH_PROJECT_SITE,}),},
                'labels': {'application_short': 'Bloodhound',
                           'application_full': 'Apache Bloodhound',

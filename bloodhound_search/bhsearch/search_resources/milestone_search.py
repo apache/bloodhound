@@ -24,9 +24,10 @@ from bhsearch.api import (IIndexParticipant, BloodhoundSearchApi, IndexFields,
     ISearchParticipant)
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from bhsearch.search_resources.ticket_search import TicketIndexer
-from trac.ticket import IMilestoneChangeListener, Milestone
+from trac.ticket import Milestone
 from trac.config import ListOption, Option
 from trac.core import implements
+from trac.resource import IResourceChangeListener
 
 MILESTONE_TYPE = u"milestone"
 
@@ -35,7 +36,7 @@ class MilestoneFields(IndexFields):
     COMPLETED = "completed"
 
 class MilestoneIndexer(BaseIndexer):
-    implements(IMilestoneChangeListener, IIndexParticipant)
+    implements(IResourceChangeListener, IIndexParticipant)
 
     optional_fields = {
         'description': MilestoneFields.CONTENT,
@@ -43,20 +44,28 @@ class MilestoneIndexer(BaseIndexer):
         'completed': MilestoneFields.COMPLETED,
     }
 
-    # IMilestoneChangeListener methods
-    def milestone_created(self, milestone):
-        self._index_milestone(milestone)
+    # IResourceChangeListener methods
+    def match_resource(self, resource):
+        if isinstance(resource, Milestone):
+            return True
+        return False
 
-    def milestone_changed(self, milestone, old_values):
+    def resource_created(self, resource, context):
+        # pylint: disable=unused-argument
+        self._index_milestone(resource)
+
+    def resource_changed(self, resource, old_values, context):
+        # pylint: disable=unused-argument
         if "name" in old_values:
-            self._rename_milestone(milestone, old_values["name"])
+            self._rename_milestone(resource, old_values["name"])
         else:
-            self._index_milestone(milestone)
+            self._index_milestone(resource)
 
-    def milestone_deleted(self, milestone):
+    def resource_deleted(self, resource, context):
+        # pylint: disable=unused-argument
         try:
             search_api = BloodhoundSearchApi(self.env)
-            search_api.delete_doc(MILESTONE_TYPE, milestone.name)
+            search_api.delete_doc(MILESTONE_TYPE, resource.name)
         except Exception, e:
             if self.silence_on_error:
                 self.log.error("Error occurs during milestone indexing. \

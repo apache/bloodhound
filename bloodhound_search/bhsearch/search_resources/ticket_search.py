@@ -20,15 +20,16 @@
 
 r"""Ticket specifics for Bloodhound Search plugin."""
 from bhsearch import BHSEARCH_CONFIG_SECTION
-from bhsearch.api import ISearchParticipant, BloodhoundSearchApi, \
-    IIndexParticipant, IndexFields
+from bhsearch.api import (ISearchParticipant, BloodhoundSearchApi,
+    IIndexParticipant, IndexFields)
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from genshi.builder import tag
-from trac.ticket.api import ITicketChangeListener, TicketSystem
+from trac.ticket.api import TicketSystem
 from trac.ticket import Ticket
-from trac.ticket.query import Query
 from trac.config import ListOption, Option
 from trac.core import implements
+from trac.resource import IResourceChangeListener
+from trac.ticket.model import Component
 
 TICKET_TYPE = u"ticket"
 
@@ -42,7 +43,7 @@ class TicketFields(IndexFields):
     OWNER = 'owner'
 
 class TicketIndexer(BaseIndexer):
-    implements(ITicketChangeListener, IIndexParticipant)
+    implements(IResourceChangeListener, IIndexParticipant)
 
     optional_fields = {
         'component': TicketFields.COMPONENT,
@@ -61,17 +62,53 @@ class TicketIndexer(BaseIndexer):
         self.text_area_fields = set(
             f['name'] for f in self.fields if f['type'] =='textarea')
 
-    #ITicketChangeListener methods
-    def ticket_created(self, ticket):
-        """Index a recently created ticket."""
-        self._index_ticket(ticket)
+    #IResourceChangeListener methods
+    def match_resource(self, resource):
+        if isinstance(resource, (Component, Ticket)):
+            return True
+        return False
 
-    def ticket_changed(self, ticket, comment, author, old_values):
-        """Reindex a recently modified ticket."""
+    def resource_created(self, resource, context):
         # pylint: disable=unused-argument
-        self._index_ticket(ticket)
+        if isinstance(resource, Ticket):
+            self._index_ticket(resource)
 
-    def ticket_deleted(self, ticket):
+    def resource_changed(self, resource, old_values, context):
+        # pylint: disable=unused-argument
+        if isinstance(resource, Ticket):
+            self._index_ticket(resource)
+        elif isinstance(resource, Component):
+            self._component_changed(resource, old_values)
+
+    def resource_deleted(self, resource, context):
+        # pylint: disable=unused-argument
+        if isinstance(resource, Ticket):
+            self._ticket_deleted(resource)
+
+    def resource_version_deleted(self, resource, context):
+        pass
+
+    def _component_changed(self, component, old_values):
+        if "name" in old_values:
+            old_name = old_values["name"]
+            try:
+                search_api = BloodhoundSearchApi(self.env)
+                with search_api.start_operation() as operation_context:
+                    TicketIndexer(self.env).reindex_tickets(
+                        search_api,
+                        operation_context,
+                        component=component.name)
+            except Exception, e:
+                if self.silence_on_error:
+                    self.log.error("Error occurs during renaming Component \
+                    from %s to %s. The error will not be propagated. \
+                    Exception: %s",
+                    old_name, component.name, e)
+                else:
+                    raise
+
+
+    def _ticket_deleted(self, ticket):
         """Called when a ticket is deleted."""
         try:
             search_api = BloodhoundSearchApi(self.env)
@@ -83,27 +120,28 @@ class TicketIndexer(BaseIndexer):
             else:
                 raise
 
-    def reindex_tickets(self, search_api, operation_context, milestone=None):
-        for ticket in self._fetch_tickets(milestone):
+    def reindex_tickets(self,
+                        search_api,
+                        operation_context,
+                        **kwargs):
+        for ticket in self._fetch_tickets(**kwargs):
             self._index_ticket(ticket, search_api, operation_context)
 
-    def _fetch_tickets(self, milestone = None):
-#        with self.env.db_transaction as db:
-        for ticket_id in self._fetch_ids(milestone):
+    def _fetch_tickets(self,  **kwargs):
+        for ticket_id in self._fetch_ids(**kwargs):
             yield Ticket(self.env, ticket_id)
 
-    def _fetch_ids(self, milestone):
+    def _fetch_ids(self, **kwargs):
         sql = "SELECT id FROM ticket"
         args = []
         conditions = []
-        if milestone:
-            args.append(milestone)
-            conditions.append("milestone=%s")
+        for key, value in kwargs.iteritems():
+            args.append(value)
+            conditions.append(key + "=%s")
         if conditions:
             sql = sql + " WHERE " + " AND ".join(conditions)
         for row in self.env.db_query(sql, args):
             yield int(row[0])
-
 
     def _index_ticket(
             self, ticket, search_api = None, operation_context = None):
@@ -143,11 +181,6 @@ class TicketIndexer(BaseIndexer):
     def get_entries_for_index(self):
         for ticket in self._fetch_tickets():
             yield self.build_doc(ticket)
-
-    def _load_ticket_ids(self):
-        query = Query(self.env, cols=['id'], order='id')
-        return query.execute()
-
 
 class TicketSearchParticipant(BaseSearchParticipant):
     implements(ISearchParticipant)
