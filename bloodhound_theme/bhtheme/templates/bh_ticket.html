@@ -656,6 +656,18 @@
             </div>
           </div>
         </div>
+
+        <div class="$colspan">
+          <div py:if="not ticket.exists">
+            <xi:include href="bh_ticket_box.html" py:with="preview_mode = True"/>
+          </div>
+
+          <div id="help" class="help-block" i18n:msg="">
+            <span class="label label-info">Note:</span> See
+            <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
+          </div>
+        </div>
+
         </div>
         </div>
 
@@ -665,17 +677,6 @@
               <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
             </bh:args>
           </bh:widget>
-        </div>
-
-        <div class="$colspan">
-          <div py:if="not ticket.exists">
-            <xi:include href="bh_ticket_box.html" py:with="preview_mode = True"/>
-          </div>
-
-          <div id="help" class="help-block pull-right" i18n:msg="">
-            <span class="label label-info">Note:</span> See
-            <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
-          </div>
         </div>
 
       </div>
