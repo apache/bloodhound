@@ -292,13 +292,35 @@
         <span class="visible-phone">#$t.id - </span></py:if>  &#9734; <span contenteditable="false">$t.summary</span></py:when>
         <py:otherwise>Create Ticket</py:otherwise>
       </h2>
+    </py:def>
+    
+    <py:def function="render_ticket_summary_details(t)">
+      <h5 id="trac-ticket-title" py:choose="">
+        <py:when test="t.exists">
+          <a href="${href.ticket(t.id)}"
+              i18n:msg="id">Ticket #${t.id}</a> -
+        </py:when>
+        <py:otherwise>
+          New Ticket <small><span py:if="preview_mode and t.type" class="status">(${t.type})</span></small>
+        </py:otherwise>
+
+        <span class="ticket-info">
+          <span id="h_owner">Assigned to
+            ${(owner_link if defined('owner_link') else authorinfo(t.owner)) if t.owner else ''},
+          </span>
+          <py:if test="t.changetime != t.time">
+            <span i18n:msg="modified">last modified ${pretty_dateinfo(t.changetime)}</span>
+          </py:if>
+          <span py:if="not t.exists" class="label label-warning">(ticket not yet created)</span>
+        </span>
+      </h5>
       <py:if test="t.exists">
-        <div id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar">
+        <span id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar">
           <button id="inplace-edit" class="btn">
             <i class="icon-edit"></i>
             <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
           </button>
-          <div id="edit-state-buttons" class="btn-toolbar" style="display: None">
+          <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
             <button id="edit-submit" class="btn" type="submit"
                 value="Submit changes" name="submit">
               Submit changes
@@ -306,8 +328,8 @@
             <button id="edit-cancel" class="btn-link" title="Discard changes">
               Cancel
             </button>
-          </div>
-        </div>
+          </span>
+        </span>
       </py:if>
     </py:def>
 
@@ -334,34 +356,8 @@
                 <!--! ticket properties -->
                 <div class="properties">
                   ${render_ticket_summary(ticket, False)}
-
-                  <h5 id="trac-ticket-title" py:choose="">
-                    <py:when test="ticket.exists">
-                      <a href="${href.ticket(ticket.id)}"
-                          i18n:msg="id">Ticket #${ticket.id}</a>
-                    </py:when>
-                    <py:otherwise>
-                      New Ticket <small><span py:if="preview_mode and ticket.type" class="status">(${ticket.type})</span></small>
-                    </py:otherwise>
-
-                    <span class="ticket-info">
-                      <span id="h_owner">Assigned to
-                        ${(owner_link if defined('owner_link') else authorinfo(ticket.owner)) if ticket.owner else ''}
-                      </span>
-                      <br />
-                      <span i18n:msg="created" py:if="ticket.exists">Opened ${pretty_dateinfo(ticket.time)}</span>
-                      <py:if test="ticket.changetime != ticket.time">,
-                        <span i18n:msg="modified">Last modified ${pretty_dateinfo(ticket.changetime)}</span>
-                      </py:if>
-                      <span py:if="not ticket.exists" class="label label-warning">(ticket not yet created)</span>
-                    </span>
-                  </h5>
+                  ${render_ticket_summary_details(ticket)}
                 </div>
-              </div>
-
-              <!--! activity header -->
-              <div py:if="bhdb and ticket.exists" class="$cols_activity hidden-phone">
-                <h2>${_('Activity')}</h2>
               </div>
             </div>
           </div>
