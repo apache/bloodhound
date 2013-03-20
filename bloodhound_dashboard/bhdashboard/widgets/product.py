@@ -25,10 +25,12 @@ Widgets displaying product information (multiproduct).
 """
 
 from trac.util.translation import _
+from trac.ticket.model import Milestone
 
 from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
 
 from multiproduct.env import Product, ProductEnvironment
+from multiproduct.hooks import ProductizedHref
 
 
 __metaclass__ = type
@@ -49,16 +51,46 @@ class ProductWidget(WidgetBase):
 
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
+    def _get_product_milestones(self, req, product, max_):
+        milestones = []
+        penv = ProductEnvironment(self.env, product.prefix)
+        href = ProductizedHref(self.env, penv.href.base)
+        for m in Milestone.select(penv):
+            m.url = href.milestone(m.name)
+            m.ticket_count = penv.db_query(
+                'SELECT count(*) FROM ticket WHERE milestone="%s" '
+                'AND status <> "closed"' % m.name)[0][0]
+            milestones.append(m)
+            if len(milestones) == max_:
+                break
+
+        milestones.sort(key=lambda x: x.ticket_count, reverse=True)
+        if len(milestones) == max_:
+            m = Milestone(penv)
+            m.name = _('... more')
+            m.url = href.milestone()
+            m.ticket_count = None
+            milestones.append(m)
+
+        # TODO: add a (No milestone) to the list, pointing
+        # to the tickets (query) without a set milestones
+        return milestones
+
+
     def render_widget(self, name, context, options):
         """Gather product list and render data in compact view
         """
         data = {}
         req = context.req
         title = ''
+        params = ('max', )
+        max_, = self.bind_params(name, options, *params)
 
         if not isinstance(req.perm.env, ProductEnvironment):
-            data['product_list'] = [p for p in Product.select(self.env)
-                if 'PRODUCT_VIEW' in req.product_perm(p.prefix)]
+            for p in Product.select(self.env):
+                if 'PRODUCT_VIEW' in req.product_perm(p.prefix):
+                    p.milestones = self._get_product_milestones(req, p, max_)
+                    data.setdefault('product_list', []).append(p)
             title = _('Products')
 
         return 'widget_product.html', \

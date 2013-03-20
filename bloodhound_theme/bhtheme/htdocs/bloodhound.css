@@ -1107,3 +1107,27 @@ table.wiki th {
 }
 
 /* @end */
+
+/* @group Dashboard */
+
+#products h4 {
+  margin: 5px 0 10px 0;
+}
+
+#products h5 {
+  margin: 5px 0 0 0;
+}
+
+#products .product-well {
+  background-color: white;
+  padding: 10px;
+}
+
+#products .milestones {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* @end */
+

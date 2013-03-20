@@ -228,12 +228,12 @@ class DashboardModule(Component):
                             'args' : ['Timeline', None, {'args' : {}}]
                         },
                     'products': {
-                            'args' : ['Product', None, {'args': {}}]
+                            'args' : ['Product', None, {'args': { 'max': 3 }}]
                         },
                }
         }
 
-    # global dashboard: add milestone column, group by product
+    # global dashboard queries: add milestone column, group by product
     DASHBOARD_GLOBAL_SCHEMA = copy.deepcopy(DASHBOARD_SCHEMA)
     DASHBOARD_GLOBAL_SCHEMA['widgets']['active tickets']['args'][2]['args']['query'] = (
         'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
@@ -243,6 +243,8 @@ class DashboardModule(Component):
         'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
         'col=priority&order=priority&col=milestone&owner=$USER&'
     )
+    # TODO: Remove versions, milestones and components from global dashboard.
+    # They will be displayed in the product widgets
 
     # Public API
     def expand_layout_data(self, context, layout_name, schema, embed=False):
