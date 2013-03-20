@@ -23,25 +23,25 @@ from __future__ import with_statement
 from itertools import groupby
 from math import ceil
 from datetime import datetime, timedelta
-import re
 
 from genshi.builder import tag
 
+from trac.core import TracError
 from trac.db import get_column_names
 from trac.mimeview.api import Mimeview
 from trac.ticket.api import TicketSystem
-from trac.ticket.query import Query, QueryModule, TicketQueryMacro
-from trac.util import Ranges, as_bool
+from trac.ticket.query import Query, QueryModule, TicketQueryMacro, QueryValueError
 from trac.util.datefmt import from_utimestamp, utc, to_timestamp
 from trac.util.text import shorten_line
 from trac.util.translation import _, tag_
+from trac.web import parse_arg_list, arg_list_to_args
 from trac.web.chrome import Chrome, add_stylesheet, add_link, web_context, \
-    add_script_data, add_script
+    add_script_data, add_script, add_ctxtnav, add_warning
+from trac.resource import Resource
 
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.env import lookup_product_env, resolve_product_href, \
-    Product, ProductEnvironment
-from multiproduct.hooks import ProductizedHref
+    ProductEnvironment
 
 
 class ProductQuery(Query):
