@@ -63,18 +63,6 @@
           <dd>${quickjump.description}</dd>
         </py:if>
 
-        <!--This just a prototype implementation. Should be replaced by proper UI mocks-->
-        <div>
-          <!--Render type tabs: All, Ticket, Wiki, etc.-->
-          <ul class="nav nav-tabs" id="search_types">
-            <li py:for="idx, item in enumerate(i for i in types)"
-                class="${classes(first_last(idx, types), active=item.active)}">
-                  <a href="${item.href}">${item.label}</a>
-            </li>
-
-          </ul>
-        </div>
-
         <div py:if="results" class="row">
           <div class="span3 facets">
             <py:if test="facet_counts">

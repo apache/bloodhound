@@ -18,7 +18,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from datetime import datetime
-
+import os
 import unittest
 import tempfile
 import shutil
@@ -40,10 +40,6 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.whoosh_backend = WhooshBackend(self.env)
         self.whoosh_backend.recreate_index()
         self.parser = DefaultQueryParser(self.env)
-
-    def tearDown(self):
-        shutil.rmtree(self.env.path)
-        self.env.reset_db()
 
     def test_can_retrieve_docs(self):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))
@@ -416,19 +412,33 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
     def _highlighted(self, term):
         return '<em>%s</em>' % term
 
+
+class WhooshIndexCreationTests(BaseBloodhoundSearchTest):
+    def setUp(self):
+        super(WhooshIndexCreationTests, self).setUp()
+        self.index_dir = os.path.join(self.env.path, 'whoosh_index')
+        if not os.path.exists(self.index_dir):
+            os.mkdir(self.index_dir)
+
+    def test_does_not_automatically_create_index(self):
+        whoosh_backend = WhooshBackend(self.env)
+
+        self.assertIs(whoosh_backend.index, None)
+        self.assertEqual(whoosh_backend.is_index_outdated(), True)
+
+        whoosh_backend.recreate_index()
+        self.assertEqual(whoosh_backend.is_index_outdated(), False)
+        self.assertIsNot(whoosh_backend.index, None)
+
     def test_detects_that_index_needs_upgrade(self):
-        index_dir = self.whoosh_backend.index.storage.folder
         wrong_schema = Schema(content=TEXT())
-        ix = index.create_in(index_dir, schema=wrong_schema)
+        index.create_in(self.index_dir, schema=wrong_schema)
 
-        self.assertEqual(self.whoosh_backend.is_index_outdated(), False)
+        whoosh_backend = WhooshBackend(self.env)
+        self.assertEqual(whoosh_backend.is_index_outdated(), True)
 
-        # Inform WhooshBackend about the new index
-        self.whoosh_backend.index = ix
-        self.assertEqual(self.whoosh_backend.is_index_outdated(), True)
-        # Recreate index
-        self.whoosh_backend.recreate_index()
-        self.assertEqual(self.whoosh_backend.is_index_outdated(), False)
+        whoosh_backend.recreate_index()
+        self.assertEqual(whoosh_backend.is_index_outdated(), False)
 
 
 class WhooshFunctionalityTestCase(unittest.TestCase):

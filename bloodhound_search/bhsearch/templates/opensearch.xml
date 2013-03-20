@@ -1,6 +1,4 @@
-<!DOCTYPE html
-        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -19,15 +17,12 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
-<a py:if="active_filter_queries or query" href="${href.bhsearch()}">Search</a>
-<py:for each="active_filter in active_filter_queries">
-    &gt; <a href="${active_filter.href}">${active_filter.label}</a>
-</py:for>
-<py:if test="query">
-    &gt; <a href="${active_query.href}">${active_query.label}</a>
-</py:if>
-</html>
+<OpenSearchDescription xmlns:py="http://genshi.edgewall.org/"
+                       xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Search $project.name</ShortName>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image py:if="chrome.icon.abs_src" width="16" height="16"
+         type="$chrome.icon.mimetype">$chrome.icon.abs_src</Image>
+  <Url type="text/html"
+       template="${abs_href.bhsearch()}?q={searchTerms}&amp;page={startPage}"/>
+</OpenSearchDescription>

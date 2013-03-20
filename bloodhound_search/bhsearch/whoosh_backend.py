@@ -92,7 +92,10 @@ class WhooshBackend(Component):
         self.index_dir = self.index_dir_setting
         if not os.path.isabs(self.index_dir):
             self.index_dir = os.path.join(self.env.path, self.index_dir)
-        self.index = self._open_or_create_index_if_missing()
+        if index.exists_in(self.index_dir):
+            self.index = index.open_dir(self.index_dir)
+        else:
+            self.index = None
 
     #ISearchBackend methods
     def start_operation(self):
@@ -162,19 +165,13 @@ class WhooshBackend(Component):
         writer.commit(optimize=True)
 
     def is_index_outdated(self):
-        return not self.index.schema == self.SCHEMA
+        return self.index is None or not self.index.schema == self.SCHEMA
 
     def recreate_index(self):
         self.log.info('Creating Whoosh index in %s' % self.index_dir)
         self._make_dir_if_not_exists()
         self.index = index.create_in(self.index_dir, schema=self.SCHEMA)
         return self.index
-
-    def _open_or_create_index_if_missing(self):
-        if index.exists_in(self.index_dir):
-            return index.open_dir(self.index_dir)
-        else:
-            return self.recreate_index()
 
     def query(self,
               query,

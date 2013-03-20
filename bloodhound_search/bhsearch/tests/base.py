@@ -45,9 +45,10 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         if create_req:
             self.req = Mock(
                 perm=MockPerm(),
-                chrome={'logo': {}},
+                chrome={'logo': {}, 'links': {}},
                 href=Href("/main"),
                 base_path=BASE_PATH,
+                path_info='/bhsearch',
                 args=arg_list_to_args([]),
             )
 

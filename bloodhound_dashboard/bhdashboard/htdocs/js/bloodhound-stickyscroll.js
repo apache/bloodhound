@@ -18,7 +18,6 @@
 */
 
 $(document).ready(function stickyStatus() {
-
   function stickyLogic() {
     var windowHeight = $(window).height();
     var headerHeight = $("header").height();
@@ -28,21 +27,18 @@ $(document).ready(function stickyStatus() {
     var headerTop = $("header").offset().top;
     var headerBottom = headerTop + headerHeight - headerStickyHeight;
 
-    var stickyHeight;
     if(windowHeight >= 768) {
-      headerBottom = 0;
+      headerBottom = headerTop + $("header .nonsticky-header").height();
       $("div#breadcrumb-row div").attr('id','oldstickyStatus');
       $("div#breadcrumb-row div").removeClass("sticky");
-      $('header').attr('id','stickyStatus');
-      stickyHeight = $("#stickyStatus").outerHeight();
+      $('header .sticky-header').attr('id','stickyStatus');
     }
     else {
-      $('header').attr('id','oldstickyStatus');
-      $("header").removeClass("sticky");
+      $('header .sticky-header').attr('id','oldstickyStatus');
+      $("header .sticky-header").removeClass("sticky");
       $("div#breadcrumb-row div").attr('id','stickyStatus');
-      stickyHeight = $("#stickyStatus").outerHeight();
     }
-    
+    var stickyHeight = $("#stickyStatus").outerHeight();
     if (docViewTop > headerBottom) {
       $("#stickyStatus").addClass("sticky");
       $(".stickyOffset").css("height", stickyHeight + "px");
