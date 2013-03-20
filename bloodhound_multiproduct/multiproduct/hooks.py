@@ -15,9 +15,11 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-# these two imports monkey patch required classes
+# these import monkey patch classes required to enable
+# multi product support
 import multiproduct.env
 import multiproduct.dbcursor
+import multiproduct.versioncontrol
 
 import re
 

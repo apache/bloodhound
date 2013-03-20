@@ -22,6 +22,38 @@ from genshi.builder import tag
 
 from trac.util.text import unquote_label
 from trac.wiki.formatter import LinkFormatter
+from trac.core import Component, ComponentMeta
+
+#----------------------------
+# Component replacement base
+#----------------------------
+
+class ReplacementComponentMeta(ComponentMeta):
+    """Component replacement meta class"""
+    def __new__(mcs, name, bases, d):
+        base_class = bases[0]
+        if base_class != Component:
+            # undo what has been done by ComponentMeta.__new___ for the
+            # replacement component base class
+
+            # remove implemented interfaces from registry for the base class
+            for itf in base_class._implements:
+                ComponentMeta._registry[itf] = filter(lambda c: c != base_class,
+                                                      ComponentMeta._registry[itf])
+
+            # remove base class from components list
+            ComponentMeta._components = filter(lambda c: c != base_class,
+                                               ComponentMeta._components)
+
+            base_class._implements = []
+            base_class.abstract = True
+
+        return ComponentMeta.__new__(mcs, name, bases, d)
+
+class ReplacementComponent(Component):
+    """Base class for components that replace existing trac
+    implementations"""
+    __metaclass__ = ReplacementComponentMeta
 
 #--------------------------
 # Custom wiki formatters
