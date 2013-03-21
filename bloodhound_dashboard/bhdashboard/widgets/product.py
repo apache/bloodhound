@@ -26,6 +26,7 @@ Widgets displaying product information (multiproduct).
 
 from trac.util.translation import _
 from trac.ticket.model import Milestone
+from trac.ticket.query import Query
 
 from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
 
@@ -52,28 +53,46 @@ class ProductWidget(WidgetBase):
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
     def _get_product_milestones(self, req, product, max_):
-        milestones = []
+        def new_milestone(env, name, url, ticket_count=None):
+            m = Milestone(env)
+            m.name = name
+            m.url = url
+            m.ticket_count = ticket_count
+            return m
+
         penv = ProductEnvironment(self.env, product.prefix)
         href = ProductizedHref(self.env, penv.href.base)
-        for m in Milestone.select(penv):
+        milestones = []
+
+        mquery = Milestone.select(penv)
+        for m in mquery[:max_]:
             m.url = href.milestone(m.name)
             m.ticket_count = penv.db_query(
                 'SELECT count(*) FROM ticket WHERE milestone="%s" '
                 'AND status <> "closed"' % m.name)[0][0]
             milestones.append(m)
-            if len(milestones) == max_:
-                break
+
+        # add a '(No milestone)' entry if there are tickets
+        # without an assigned milestone in the product
+        ticket_count = penv.db_query(
+            'SELECT count(*) FROM ticket WHERE milestone="" '
+            'AND status <> "closed"')[0][0]
+        if ticket_count != 0:
+            milestones.append(new_milestone(penv, _('(No milestone)'),
+                Query.from_string(penv,
+                    'status=!closed&col=id&col=summary&col=owner'
+                    '&col=status&col=priority&order=priority&milestone='
+                ).get_href(href),
+                ticket_count))
 
         milestones.sort(key=lambda x: x.ticket_count, reverse=True)
-        if len(milestones) == max_:
-            m = Milestone(penv)
-            m.name = _('... more')
-            m.url = href.milestone()
-            m.ticket_count = None
-            milestones.append(m)
 
-        # TODO: add a (No milestone) to the list, pointing
-        # to the tickets (query) without a set milestones
+        # add a link to the milestone list if there are
+        # more than max milestones defined
+        if len(mquery) > max_:
+            milestones.append(new_milestone(penv, _('... more'),
+                href.milestone(), None))
+
         return milestones
 
 
