@@ -22,50 +22,52 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   <div py:if="product_list" class="row" id="products">
-    <div py:for="p in product_list" class="span3 well product-well">
-      <h4>&#9734; <a href="${req.href.products(p.prefix)}">$p.name ($p.prefix)</a></h4>
+    <div py:for="p in product_list" class="span4">
+      <div class="well product-well">
+        <h4>&#9734; <a href="${req.href.products(p.prefix)}">$p.name ($p.prefix)</a></h4>
 
-      <h5>Milestones</h5>
-      <py:choose test="">
-        <py:when test="p.milestones">
-          <ul class="subset">
-            <li py:for="m in p.milestones">
-              <a href="$m.url">$m.name<py:if test="m.ticket_count is not None"> ($m.ticket_count)</py:if></a>
-            </li>
-          </ul>
-        </py:when>
-        <py:otherwise>
-          (No milestones for this product)
-        </py:otherwise>
-      </py:choose>
+        <h5>Milestones</h5>
+        <py:choose test="">
+          <py:when test="p.milestones">
+            <ul class="subset">
+              <li py:for="m in p.milestones">
+                <a href="$m.url">$m.name<py:if test="m.ticket_count is not None"> ($m.ticket_count)</py:if></a>
+              </li>
+            </ul>
+          </py:when>
+          <py:otherwise>
+            (No milestones for this product)
+          </py:otherwise>
+        </py:choose>
 
-      <h5>Components</h5>
-      <py:choose test="">
-        <py:when test="p.components">
-          <ul class="subset">
-            <li py:for="c in p.components">
-              <a href="$c.url">$c.name<py:if test="c.ticket_count is not None"> ($c.ticket_count)</py:if></a>
-            </li>
-          </ul>
-        </py:when>
-        <py:otherwise>
-          (No components for this product)
-        </py:otherwise>
-      </py:choose>
+        <h5>Components</h5>
+        <py:choose test="">
+          <py:when test="p.components">
+            <ul class="subset">
+              <li py:for="c in p.components">
+                <a href="$c.url">$c.name<py:if test="c.ticket_count is not None"> ($c.ticket_count)</py:if></a>
+              </li>
+            </ul>
+          </py:when>
+          <py:otherwise>
+            (No components for this product)
+          </py:otherwise>
+        </py:choose>
 
-      <h5>Versions</h5>
-      <py:choose test="">
-        <py:when test="p.versions">
-          <ul class="subset">
-            <li py:for="v in p.versions">
-              <a href="$v.url">$v.name<py:if test="v.ticket_count is not None"> ($v.ticket_count)</py:if></a>
-            </li>
-          </ul>
-        </py:when>
-        <py:otherwise>
-          (No versions for this product)
-        </py:otherwise>
-      </py:choose>
+        <h5>Versions</h5>
+        <py:choose test="">
+          <py:when test="p.versions">
+            <ul class="subset">
+              <li py:for="v in p.versions">
+                <a href="$v.url">$v.name<py:if test="v.ticket_count is not None"> ($v.ticket_count)</py:if></a>
+              </li>
+            </ul>
+          </py:when>
+          <py:otherwise>
+            (No versions for this product)
+          </py:otherwise>
+        </py:choose>
+      </div>
     </div>
   </div>
 </div>
