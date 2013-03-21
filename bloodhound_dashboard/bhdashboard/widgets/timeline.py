@@ -37,6 +37,7 @@ from trac.resource import Resource, resource_exists
 from trac.timeline.web_ui import TimelineModule
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
+from trac.util.datefmt import utc
 from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
 
@@ -145,6 +146,15 @@ class TimelineWidget(WidgetBase):
                         'max', 'realm', 'id')
             start, days, user, precision, filters, count, realm, rid = \
                     self.bind_params(name, options, *params)
+            if context.resource.realm == 'ticket':
+                if days is None:
+                    # calculate a long enough time daysback
+                    ticket = Ticket(self.env, context.resource.id)
+                    ticketage = datetime.now(utc) - ticket.time_created
+                    days = ticketage.days + 1
+                if count is None:
+                    # ignore short count for ticket feeds
+                    count = 0
             if count is None:
                 count = self.default_count
 
@@ -225,6 +235,12 @@ class FilteredTimeline:
     process_request = TimelineModule.__dict__['process_request']
     _provider_failure = TimelineModule.__dict__['_provider_failure']
     _event_data = TimelineModule.__dict__['_event_data']
+    max_daysback = TimelineModule.max_daysback
+
+    @property
+    def max_daysback(self):
+        return (-1 if self.context.resource.realm == 'ticket'
+                   else self.max_daysback)
 
     @property
     def event_providers(self):
