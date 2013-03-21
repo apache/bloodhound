@@ -1123,9 +1123,9 @@ table.wiki th {
   padding: 10px;
 }
 
-#products .milestones {
+#products .subset {
   list-style-type: none;
-  margin: 0;
+  margin: 0 0 10px 0;
   padding: 0;
 }
 

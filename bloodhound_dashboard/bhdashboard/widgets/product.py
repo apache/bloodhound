@@ -24,8 +24,10 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Widgets displaying product information (multiproduct).
 """
 
+import itertools
+
 from trac.util.translation import _
-from trac.ticket.model import Milestone
+from trac.ticket.model import Milestone, Component, Version
 from trac.ticket.query import Query
 
 from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
@@ -52,49 +54,57 @@ class ProductWidget(WidgetBase):
 
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
-    def _get_product_milestones(self, req, product, max_):
-        def new_milestone(env, name, url, ticket_count=None):
-            m = Milestone(env)
-            m.name = name
-            m.url = url
-            m.ticket_count = ticket_count
-            return m
-
+    def _get_product_info(self, product, resource, max_):
         penv = ProductEnvironment(self.env, product.prefix)
         href = ProductizedHref(self.env, penv.href.base)
-        milestones = []
+        results = []
 
-        mquery = Milestone.select(penv)
-        for m in mquery[:max_]:
-            m.url = href.milestone(m.name)
-            m.ticket_count = penv.db_query(
-                'SELECT count(*) FROM ticket WHERE milestone="%s" '
-                'AND status <> "closed"' % m.name)[0][0]
-            milestones.append(m)
+        # some queries return a list/tuple, some a generator,
+        # hence count() to get the result length
+        def count(iter_):
+            try:
+                return len(iter_)
+            except TypeError:
+                return sum(1 for _ in iter_)
 
-        # add a '(No milestone)' entry if there are tickets
-        # without an assigned milestone in the product
+        query = resource['type'].select(penv)
+        for q in itertools.islice(query, max_):
+            q.url = href(resource['name'], q.name) if resource.get('hrefurl') \
+                else Query.from_string(penv, 'order=priority&%s=%s' %
+                    (resource['name'], q.name)).get_href(href)
+            q.ticket_count = penv.db_query(
+                'SELECT COUNT(*) FROM ticket WHERE %s="%s" '
+                'AND status <> "closed"' % (resource['name'], q.name))[0][0]
+            results.append(q)
+
+        # add a '(No <milestone/component/version>)' entry if there are
+        # tickets without an assigned resource in the product
         ticket_count = penv.db_query(
-            'SELECT count(*) FROM ticket WHERE milestone="" '
-            'AND status <> "closed"')[0][0]
+            'SELECT COUNT(*) FROM ticket WHERE %s="" '
+            'AND status <> "closed"' % (resource['name'],))[0][0]
         if ticket_count != 0:
-            milestones.append(new_milestone(penv, _('(No milestone)'),
-                Query.from_string(penv,
-                    'status=!closed&col=id&col=summary&col=owner'
-                    '&col=status&col=priority&order=priority&milestone='
-                ).get_href(href),
-                ticket_count))
+            q = resource['type'](penv)
+            q.name = '(No %s)' % (resource['name'],)
+            q.url = Query.from_string(penv,
+                        'status=!closed&col=id&col=summary&col=owner'
+                        '&col=status&col=priority&order=priority&%s=' %
+                        (resource['name'],)).get_href(href)
+            q.ticket_count = ticket_count
+            results.append(q)
 
-        milestones.sort(key=lambda x: x.ticket_count, reverse=True)
+        results.sort(key=lambda x: x.ticket_count, reverse=True)
 
-        # add a link to the milestone list if there are
-        # more than max milestones defined
-        if len(mquery) > max_:
-            milestones.append(new_milestone(penv, _('... more'),
-                href.milestone(), None))
+        # add a link to the resource list if there are
+        # more than max resources defined
+        if count(query) > max_:
+            q = resource['type'](penv)
+            q.name = _('... more')
+            q.ticket_count = None
+            q.url = href(resource['name']) if resource.get('hrefurl') \
+                else href.product(product.prefix)
+            results.append(q)
 
-        return milestones
-
+        return results
 
     def render_widget(self, name, context, options):
         """Gather product list and render data in compact view
@@ -108,7 +118,13 @@ class ProductWidget(WidgetBase):
         if not isinstance(req.perm.env, ProductEnvironment):
             for p in Product.select(self.env):
                 if 'PRODUCT_VIEW' in req.product_perm(p.prefix):
-                    p.milestones = self._get_product_milestones(req, p, max_)
+                    for resource in (
+                        { 'type': Milestone, 'name': 'milestone', 'hrefurl': True },
+                        { 'type': Component, 'name': 'component' },
+                        { 'type': Version, 'name': 'version' },
+                    ):
+                        setattr(p, resource['name'] + 's',
+                            self._get_product_info(p, resource, max_))
                     data.setdefault('product_list', []).append(p)
             title = _('Products')
 
