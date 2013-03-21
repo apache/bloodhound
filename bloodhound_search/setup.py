@@ -97,6 +97,10 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
                               'htdocs/img/*.*', 'htdocs/js/*.js',
                               'templates/*', 'default-pages/*'],
                           ),
+            'bhsearch.search_resources' : (
+                'bhsearch/search_resources', # Package dir
+                []
+                ),
 #            'search.widgets' : ('bhsearch/widgets',     # Package dir
 #                            # Package data
 #                            ['templates/*', 'htdocs/*.css'],
@@ -107,7 +111,12 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
 #                          ),
             'bhsearch.tests' : ('bhsearch/tests',     # Package dir
                             # Package data
-                            ['data/**'],
+                            ['data/*.*'],
+                          ),
+            'bhsearch.tests.search_resources' : (
+                'bhsearch/tests/search_resources',     # Package dir
+                            # Package data
+                            ['data/*.*'],
                           ),
             }
 
@@ -139,7 +148,7 @@ setup(
     install_requires = [
         'setuptools>=0.6b1',
         'Trac>=0.11',
-        'whoosh>=2.4.1',
+        'whoosh==2.4.1',
     ],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),
