@@ -78,6 +78,8 @@ class ProductQuery(Query):
         :since 1.0: the `db` parameter is no longer needed and will be removed
         in version 1.1.1
         """
+        if req is not None:
+            href = req.href
         with self.env.db_direct_query as db:
             cursor = db.cursor()
 
@@ -119,8 +121,12 @@ class ProductQuery(Query):
                         val = val or 'anonymous'
                     elif name == 'id':
                         val = int(val)
-                        result['href'] = self._get_ticket_href(
-                            row[product_idx], val)
+                        if not isinstance(self.env, ProductEnvironment):
+                            # global -> retrieve ProductizedHref()
+                            result['href'] = self._get_ticket_href(
+                                row[product_idx], val)
+                        elif href is not None:
+                            result['href'] = href.ticket(val)
                     elif name in self.time_fields:
                         val = from_utimestamp(val)
                     elif field and field['type'] == 'checkbox':
