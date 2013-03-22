@@ -37,6 +37,7 @@ from trac.resource import Resource, resource_exists
 from trac.timeline.web_ui import TimelineModule
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
+from trac.ticket.web_ui import TicketModule
 from trac.util.datefmt import utc
 from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
@@ -277,7 +278,17 @@ class TimelineFilterAdapter:
 
     # ITimelineEventProvider methods
 
-    #def get_timeline_filters(self, req):
+    def get_timeline_filters(self, req):
+        gen = self.provider.get_timeline_filters(req)
+        if (self.context.resource.realm == 'ticket' and
+            isinstance(self.provider, TicketModule) and
+            'TICKET_VIEW' in req.perm):
+            # ensure ticket_details appears once if this is a query on a ticket
+            gen = list(gen)
+            if not [g for g in gen if g[0] == 'ticket_details']:
+                gen.append(('ticket_details', _("Ticket updates"), False))
+        return gen
+    
     #def render_timeline_event(self, context, field, event):
 
     def get_timeline_events(self, req, start, stop, filters):
