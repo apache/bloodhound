@@ -251,10 +251,10 @@ class MultiproductTestCase(unittest.TestCase):
                             vals)
         env.log.debug('Loaded default data')
 
-    def _mp_setup(self):
+    def _mp_setup(self, **kwargs):
         """Shortcut for quick product-aware environment setup.
         """
-        self.env = self._setup_test_env()
+        self.env = self._setup_test_env(**kwargs)
         self._upgrade_mp(self.env)
         self._setup_test_log(self.env)
         self._load_product_from_data(self.env, self.default_product)

@@ -23,12 +23,13 @@ import unittest
 
 from trac.admin.api import AdminCommandError
 from trac import perm
+from trac.test import Mock
 from trac.tests.perm import DefaultPermissionStoreTestCase,\
         PermissionSystemTestCase, PermissionCacheTestCase,\
         PermissionPolicyTestCase, TestPermissionPolicy, TestPermissionRequestor
 
 from multiproduct.env import ProductEnvironment
-from multiproduct.perm import MultiproductPermissionPolicy
+from multiproduct.perm import MultiproductPermissionPolicy, sudo
 from tests.env import MultiproductTestCase
 
 
@@ -136,6 +137,98 @@ class ProductPermissionCacheTestCase(PermissionCacheTestCase,
     @env.setter
     def env(self, value):
         pass
+
+
+class SudoTestCase(ProductPermissionCacheTestCase):
+    loader = unittest.defaultTestLoader
+    tcnames = loader.getTestCaseNames(ProductPermissionCacheTestCase)
+    _gen_tests = {}
+
+    def test_sudo_wrong_context(self):
+        sudoperm = sudo(None, 'EMAIL_VIEW', ['TEST_ADMIN'])
+
+        with self.assertRaises(RuntimeError) as test_cm:
+            sudoperm.has_permission('TEST_MODIFY')
+        self.assertEqual('Permission check out of context', 
+                         str(test_cm.exception))
+
+        with self.assertRaises(ValueError) as test_cm:
+            with sudoperm:
+                pass
+        self.assertEquals('Context manager not bound to request object',
+                          str(test_cm.exception))
+
+    def test_sudo_fail_require(self):
+        sudoperm = sudo(None, 'EMAIL_VIEW', ['TEST_ADMIN'])
+
+        sudoperm.perm = self.perm
+        with self.assertRaises(perm.PermissionError) as test_cm:
+            sudoperm.require('TRAC_ADMIN')
+        self.assertEqual('EMAIL_VIEW', test_cm.exception.action)
+
+    def test_sudo_grant_meta_perm(self):
+        self.env.parent.enable_component(perm.PermissionSystem)
+        self.env.enable_component(perm.PermissionSystem)
+        del self.env.parent.enabled[perm.PermissionSystem]
+        del self.env.enabled[perm.PermissionSystem]
+
+        sudoperm = sudo(None, 'TEST_CREATE', ['TRAC_ADMIN'])
+        sudoperm.perm = self.perm
+        
+        self.assertTrue(sudoperm.has_permission('EMAIL_VIEW'))
+
+    def test_sudo_ambiguous(self):
+        with self.assertRaises(ValueError) as test_cm:
+            sudo(None, 'TEST_MODIFY', ['TEST_MODIFY', 'TEST_DELETE'], 
+                 ['TEST_MODIFY', 'TEST_CREATE'])
+        self.assertEquals('Impossible to grant and revoke (TEST_MODIFY)', 
+                          str(test_cm.exception))
+
+        with self.assertRaises(ValueError) as test_cm:
+            sudoperm = sudo(None, 'TEST_MODIFY', ['TEST_ADMIN'], 
+                 ['TEST_MODIFY', 'TEST_CREATE'])
+            sudoperm.perm = self.perm
+        self.assertEquals('Impossible to grant and revoke '
+                          '(TEST_CREATE, TEST_MODIFY)', 
+                          str(test_cm.exception))
+
+        with self.assertRaises(ValueError) as test_cm:
+            req = Mock(perm=self.perm)
+            sudo(req, 'TEST_MODIFY', ['TEST_ADMIN'], 
+                 ['TEST_MODIFY', 'TEST_CREATE'])
+        self.assertEquals('Impossible to grant and revoke '
+                          '(TEST_CREATE, TEST_MODIFY)', 
+                          str(test_cm.exception))
+
+    # Sudo permission context equivalent to  permissions cache
+    # if there's no action to require, allow or deny.
+    def _test_with_sudo_rules(tcnm, prefix, grant):
+        target = getattr(ProductPermissionCacheTestCase, tcnm)
+
+        def _sudo_eq_checker(self):
+            for action in grant:
+                self.perm_system.revoke_permission('testuser', action)
+            realperm = self.perm
+            self.perm = sudo(None, [], grant, [])
+            self.perm.perm = realperm
+            target(self)
+
+        _sudo_eq_checker.func_name = prefix + tcnm
+        return _sudo_eq_checker
+
+    for tcnm in tcnames:
+        f1 = _test_with_sudo_rules(tcnm, '', [])
+        f2 = _test_with_sudo_rules(tcnm, 'test_sudo_partial_', 
+                                   ['TEST_MODIFY'])
+        f3 = _test_with_sudo_rules(tcnm, 'test_sudo_full_', 
+                                   ['TEST_MODIFY', 'TEST_ADMIN'])
+        for f in (f1, f2, f3):
+            _gen_tests[f.func_name] = f
+
+    del loader, tcnames, tcnm, f1, f2, f3
+
+list(setattr(SudoTestCase, tcnm, f)
+     for tcnm, f in SudoTestCase._gen_tests.iteritems())
 
 
 class ProductPermissionPolicyTestCase(PermissionPolicyTestCase, 
@@ -249,6 +342,8 @@ def test_suite():
     suite.addTest(unittest.makeSuite(ProductPermissionSystemTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionCacheTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionPolicyTestCase, 'test'))
+
+    suite.addTest(unittest.makeSuite(SudoTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':

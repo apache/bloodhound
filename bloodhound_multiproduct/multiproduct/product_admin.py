@@ -18,17 +18,25 @@
 
 """Admin panels for product management"""
 
+from trac.admin.api import IAdminPanelProvider
+from trac.admin.web_ui import AdminModule
 from trac.core import *
 from trac.config import *
 from trac.perm import PermissionSystem
-from trac.admin.api import IAdminPanelProvider
-from trac.ticket.admin import TicketAdminPanel, _save_config
 from trac.resource import ResourceNotFound
-from model import Product
+from trac.ticket.admin import TicketAdminPanel, _save_config
+from trac.util import lazy
 from trac.util.translation import _, N_, gettext
+from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome, add_notice, add_warning
-from multiproduct.env import ProductEnvironment
 
+from multiproduct.env import ProductEnvironment
+from multiproduct.model import Product
+from multiproduct.perm import sudo
+
+#--------------------------
+# Product admin panel
+#--------------------------
 
 class ProductAdminPanel(TicketAdminPanel):
     """The Product Admin Panel"""
@@ -125,3 +133,131 @@ class ProductAdminPanel(TicketAdminPanel):
             data['owners'] = None
         return 'admin_products.html', data
 
+#--------------------------
+# Advanced administration in product context
+#--------------------------
+
+class IProductAdminAclContributor(Interface):
+    """Interface implemented by components contributing with entries to the
+    access control white list in order to enable admin panels in product
+    context. 
+    
+    **Notice** that deny entries configured by users in the blacklist
+    (i.e. using TracIni `admin_blacklist` option in `multiproduct` section)
+    will override these entries.
+    """
+    def enable_product_admin_panels():
+        """Return a sequence of `(cat_id, panel_id)` tuples that will be
+        enabled in product context unless specified otherwise in configuration.
+        If `panel_id` is set to `'*'` then all panels in section `cat_id`
+        will have green light.
+        """
+
+
+class ProductAdminModule(Component):
+    """Leverage administration panels in product context based on the
+    combination of white list and black list.
+    """
+    implements(IRequestFilter, IRequestHandler)
+
+    acl_contributors = ExtensionPoint(IProductAdminAclContributor)
+
+    raw_blacklist = ListOption('multiproduct', 'admin_blacklist', 
+        doc="""Do not show any product admin panels in this list even if
+        allowed by white list. Value must be a comma-separated list of
+        `cat:id` strings respectively identifying the section and identifier
+        of target admin panel. Empty values of `cat` and `id` will be ignored
+        and warnings emitted if TracLogging is enabled. If `id` is set
+        to `*` then all panels in `cat` section will be added to blacklist
+        while in product context.""")
+
+    @lazy
+    def acl(self):
+        """Access control table based on blacklist and white list.
+        """
+        # FIXME : Use an immutable (mapping?) type
+        acl = {}
+        if isinstance(self.env, ProductEnvironment):
+            for acl_c in self.acl_contributors:
+                for cat_id, panel_id in acl_c.enable_product_admin_panels():
+                    if cat_id and panel_id:
+                        if panel_id == '*':
+                            acl[cat_id] = True
+                        else:
+                            acl[(cat_id, panel_id)] = True
+                    else:
+                        self.log.warning('Invalid panel %s in white list',
+                                         panel_id)
+    
+            # Blacklist entries will override those in white list
+            warnings = []
+            for panelref in self.raw_blacklist:
+                try:
+                    cat_id, panel_id = panelref.split(':')
+                except ValueError:
+                    cat_id = panel_id = ''
+                if cat_id and panel_id:
+                    if panel_id == '*':
+                        acl[cat_id] = False
+                    else:
+                        acl[(cat_id, panel_id)] = False
+                else:
+                    warnings.append(panelref)
+            if warnings:
+                self.log.warning("Invalid panel descriptors '%s' in blacklist",
+                                 ','.join(warnings))
+        return acl
+
+    # IRequestFilter methods
+    def pre_process_request(self, req, handler):
+        """Intercept admin requests in product context if `TRAC_ADMIN`
+        expectations are not met.
+        """
+        if isinstance(self.env, ProductEnvironment) and \
+                handler is AdminModule(self.env) and \
+                not req.perm.has_permission('TRAC_ADMIN') and \
+                req.perm.has_permission('PRODUCT_ADMIN'):
+            # Intercept admin request
+            return self
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        return template, data, content_type
+
+    # IRequestHandler methods
+    def match_request(self, req):
+        """Never match a request"""
+
+    def process_request(self, req):
+        """Anticipate permission error to hijack admin panel dispatching
+        process in product context if `TRAC_ADMIN` expectations are not met.
+        """
+        # TODO: Verify `isinstance(self.env, ProductEnvironment)` once again ?
+        cat_id = req.args.get('cat_id')
+        panel_id = req.args.get('panel_id')
+        if self._check_panel(cat_id, panel_id):
+            with sudo(req):
+                return self.global_process_request(req)
+        else:
+            raise HTTPNotFound(_('Unknown administration panel'))
+
+    global_process_request = AdminModule.process_request.im_func
+
+    # Internal methods
+    def _get_panels(self, req):
+        if isinstance(self.env, ProductEnvironment):
+            panels, providers = AdminModule(self.env)._get_panels(req)
+            # Filter based on ACLs
+            panels = [p for p in panels if self._check_panel(p[0], p[2])]
+#            providers = dict([k, p] for k, p in providers.iteritems()
+#                                    if self._check_panel(*k))
+            return panels, providers
+        else:
+            return [], []
+
+    def _check_panel(self, cat_id, panel_id):
+        cat_allow = self.acl.get(cat_id)
+        panel_allow = self.acl.get((cat_id, panel_id))
+        return cat_allow is not False and panel_allow is not False \
+               and (cat_allow, panel_allow) != (None, None) \
+               and (cat_id, panel_id) != ('general', 'plugin') # double-check !
