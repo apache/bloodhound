@@ -439,10 +439,12 @@ class PluginAdminPanel(Component):
     # IAdminPanelProvider methods
 
     def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
+        if 'TRAC_ADMIN' in req.perm and not getattr(self.env, 'parent', None):
             yield ('general', _('General'), 'plugin', _('Plugins'))
 
     def render_admin_panel(self, req, cat, page, path_info):
+        if getattr(self.env, 'parent', None):
+            raise PermissionError()
         req.perm.require('TRAC_ADMIN')
 
         if req.method == 'POST':
