@@ -261,3 +261,17 @@ class ProductAdminModule(Component):
         return cat_allow is not False and panel_allow is not False \
                and (cat_allow, panel_allow) != (None, None) \
                and (cat_id, panel_id) != ('general', 'plugin') # double-check !
+
+
+class DefaultProductAdminWhitelist(Component):
+    implements(IProductAdminAclContributor)
+
+    # IProductAdminAclContributor methods
+    def enable_product_admin_panels(self):
+        yield 'general', 'basics'
+        yield 'general', 'perm'
+        yield 'accounts', 'notification'
+        # FIXME: Include users admin panel ?
+        #yield 'accounts', 'users'
+        yield 'ticket', '*'
+        yield 'versioncontrol', 'repository'
