@@ -18,7 +18,8 @@
 
 """Admin panels for product management"""
 
-from trac.admin.api import IAdminPanelProvider
+from trac.admin.api import IAdminCommandProvider, AdminCommandError,\
+    AdminCommandManager
 from trac.admin.web_ui import AdminModule
 from trac.core import *
 from trac.config import *
@@ -26,6 +27,7 @@ from trac.perm import PermissionSystem
 from trac.resource import ResourceNotFound
 from trac.ticket.admin import TicketAdminPanel, _save_config
 from trac.util import lazy
+from trac.util.text import print_table
 from trac.util.translation import _, N_, gettext
 from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome, add_notice, add_warning
@@ -44,7 +46,10 @@ class ProductAdminPanel(TicketAdminPanel):
     _label = ('Product','Products')
     
     def get_admin_commands(self): 
-        return None
+        if not isinstance(self.env, ProductEnvironment):
+            yield ('product list', '',
+                   'Show available products',
+                   None, self._do_product_list)
 
     def get_admin_panels(self, req):
         if isinstance(req.perm.env, ProductEnvironment):
@@ -133,6 +138,13 @@ class ProductAdminPanel(TicketAdminPanel):
             data['owners'] = None
         return 'admin_products.html', data
 
+    def _do_product_list(self):
+        if not isinstance(self.env, ProductEnvironment):
+            print_table([(p.prefix, p.owner, p.name)
+                         for p in Product.select(self.env)],
+                        [_('Prefix'), _('Owner'), _('Name')])
+
+
 #--------------------------
 # Advanced administration in product context
 #--------------------------
@@ -158,7 +170,7 @@ class ProductAdminModule(Component):
     """Leverage administration panels in product context based on the
     combination of white list and black list.
     """
-    implements(IRequestFilter, IRequestHandler)
+    implements(IAdminCommandProvider, IRequestFilter, IRequestHandler)
 
     acl_contributors = ExtensionPoint(IProductAdminAclContributor)
 
@@ -207,6 +219,39 @@ class ProductAdminModule(Component):
                 self.log.warning("Invalid panel descriptors '%s' in blacklist",
                                  ','.join(warnings))
         return acl
+
+    # IAdminCommandProvider methods
+    def get_admin_commands(self):
+        if not isinstance(self.env, ProductEnvironment):
+            yield ('product admin', '<PREFIX> <admin command>',
+                   'Execute admin (sub-)command upon product resources',
+                   self._complete_product_admin, self._do_product_admin)
+
+    def get_products(self):
+        return [p.prefix for p in Product.select(self.env)]
+
+    def product_admincmd_mgr(self, prefix):
+        try:
+            product_env = ProductEnvironment.lookup_env(self.env, prefix)
+        except LookupError:
+            raise AdminCommandError('Unknown product %s' % (prefix,))
+        else:
+            return AdminCommandManager(product_env)
+
+    def _complete_product_admin(self, args):
+        if len(args) == 1:
+            return self.get_products()
+        else:
+            mgr = self.product_admincmd_mgr(args[0])
+            return mgr.complete_command(args[1:])
+
+    def _do_product_admin(self, prefix, *args):
+        mgr = self.product_admincmd_mgr(prefix)
+        if args and args[0] in ('deploy', 'help', 'hotcopy', 'initenv', 
+                                'upgrade'):
+            raise AdminCommandError('%s command not supported for products' %
+                                    (args[0],))
+        mgr.execute_command(*args)
 
     # IRequestFilter methods
     def pre_process_request(self, req, handler):
