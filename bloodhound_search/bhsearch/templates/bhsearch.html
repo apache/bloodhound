@@ -126,7 +126,7 @@
                       <tr class="${'odd' if idx % 2 else 'even'} prio${result.priority_value}${
                         ' added' if 'added' in result else ''}${
                         ' changed' if 'changed' in result else ''}${
-                        ' removed' if 'removed' in result else ''} searchable">
+                        ' removed' if 'removed' in result else ''} highlight_matches">
                         <py:for each="idx, header in enumerate(headers)" py:choose="">
                           <py:with vars="name = header.name; value = result[name]; hilited_value=result['hilited_' + name]; title = _('View ')+ result['type']">
                             <td py:when="name == 'id'" class="id"><a href="$result.href" title="${title}"
@@ -154,8 +154,8 @@
                 <!--Rendering results in free form-->
                 <dl id="results">
                   <py:for each="result in results">
-                    <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
-                    <dd class="searchable">${result.hilited_content or result.content}</dd>
+                    <dt><a href="${result.href}" class="highlight_matches">${result.title}</a></dt>
+                    <dd class="highlight_matches">${result.hilited_content or result.content}</dd>
                     <dd>
                       <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
                       <span class="date">${result.date}</span>

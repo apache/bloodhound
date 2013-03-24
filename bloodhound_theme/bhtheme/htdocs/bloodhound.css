@@ -476,7 +476,7 @@ span[contenteditable="true"]:focus {
  text-decoration: underline;
 }
 
-.searchable em {
+.highlight_matches em {
  font-style: inherit;
  font-weight: bold;
 }
