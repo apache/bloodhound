@@ -26,4 +26,5 @@ TracThemeEngine
 ../bloodhound_dashboard
 ../bloodhound_theme
 TracPermRedirect
+../bloodhound_search
 

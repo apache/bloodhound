@@ -62,7 +62,7 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                               'permredirect.*': 'enabled',
                               'themeengine.api.*': 'enabled',
                               'themeengine.web_ui.*': 'enabled',
-                              'bhsearch.*': 'disabled',
+                              'bhsearch.*': 'enabled',
                               'trac.ticket.web_ui.ticketmodule': 'disabled',
                               'trac.ticket.report.reportmodule': 'disabled',
                               },
@@ -85,6 +85,7 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                           'footer_left_prefix': '',
                           'footer_left_postfix': '',
                           'footer_right': ''},
+               'bhsearch': {'is_default': 'true', 'enable_redirect': 'true'}
                }
 
 ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
