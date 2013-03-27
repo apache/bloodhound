@@ -27,7 +27,7 @@ import trac.web.api
 import trac.resource
 from multiproduct.util import ReplacementComponent
 
-class DbRepositoryProvider(trac.versioncontrol.api.DbRepositoryProvider, ReplacementComponent):
+class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepositoryProvider):
     """Inplace replacement for trac.versioncontrol.api.DbRepositoryProvider. Filters
     repositories based on soft-links to products. Soft links are stored in 'product'
     repository attribute, separated by comma."""
@@ -67,14 +67,5 @@ class DbRepositoryProvider(trac.versioncontrol.api.DbRepositoryProvider, Replace
             return super(DbRepositoryProvider, self).get_repositories()
 
 trac.versioncontrol.api.DbRepositoryProvider = DbRepositoryProvider
+trac.versioncontrol.DbRepositoryProvider = DbRepositoryProvider
 
-class RepositoryManager(trac.versioncontrol.api.RepositoryManager, ReplacementComponent):
-
-    implements(trac.web.api.IRequestFilter,
-               trac.resource.IResourceManager,
-               trac.versioncontrol.api.IRepositoryProvider)
-
-    def __init__(self):
-        super(RepositoryManager, self).__init__()
-
-trac.versioncontrol.api.RepositoryManager = RepositoryManager

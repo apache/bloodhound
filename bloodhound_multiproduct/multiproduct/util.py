@@ -31,8 +31,10 @@ from trac.core import Component, ComponentMeta
 class ReplacementComponentMeta(ComponentMeta):
     """Component replacement meta class"""
     def __new__(mcs, name, bases, d):
-        base_class = bases[0]
-        if base_class != Component:
+        if bases[0] != Component:
+            bases = bases[1:]
+            base_class = bases[0]
+
             # undo what has been done by ComponentMeta.__new___ for the
             # replacement component base class
 
