@@ -27,7 +27,7 @@ from trac.perm import PermissionSystem
 from trac.resource import ResourceNotFound
 from trac.ticket.admin import TicketAdminPanel, _save_config
 from trac.util import lazy
-from trac.util.text import print_table
+from trac.util.text import print_table, to_unicode
 from trac.util.translation import _, N_, gettext
 from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome, add_notice, add_warning
@@ -47,9 +47,21 @@ class ProductAdminPanel(TicketAdminPanel):
     
     def get_admin_commands(self): 
         if not isinstance(self.env, ProductEnvironment):
+            yield ('product add', '<prefix> <owner> <name>',
+                   'Add a new product',
+                   None, self._do_product_add)
+            yield ('product chown', '<prefix> <owner>',
+                   'Change product ownership',
+                   self._complete_product, self._do_product_chown)
             yield ('product list', '',
                    'Show available products',
                    None, self._do_product_list)
+            yield ('product remove', '<prefix>',
+                   'Remove/uninstall a product',
+                   self._complete_product, self._do_product_remove)
+            yield ('product rename', '<prefix> <newname>',
+                   'Rename a product',
+                   self._complete_product, self._do_product_rename)
 
     def get_admin_panels(self, req):
         if isinstance(req.perm.env, ProductEnvironment):
@@ -138,11 +150,42 @@ class ProductAdminPanel(TicketAdminPanel):
             data['owners'] = None
         return 'admin_products.html', data
 
+    def load_product(self, prefix):
+        products = Product.select(self.env, where={'prefix' : prefix})
+        if not products:
+            raise AdminCommandError('Unknown product %s' % (prefix,))
+        return products[0]
+
+    def _complete_product(self, args):
+        if len(args) == 1:
+            return get_products(self.env)
+
+    def _do_product_add(self, prefix, owner, name):
+        product = Product(self.env)
+        product._data.update({'prefix':prefix, 'name':name, 'owner':owner})
+        try:
+            product.insert()
+        except TracError, exc:
+            raise AdminCommandError(to_unicode(exc))
+
+    def _do_product_chown(self, prefix, owner):
+        product = self.load_product(prefix)
+        product._data['owner'] = owner
+        product.update()
+
     def _do_product_list(self):
         if not isinstance(self.env, ProductEnvironment):
             print_table([(p.prefix, p.owner, p.name)
                          for p in Product.select(self.env)],
                         [_('Prefix'), _('Owner'), _('Name')])
+
+    def _do_product_remove(self, prefix):
+        raise AdminCommandError(_("Command 'product remove' not supported yet"))
+
+    def _do_product_rename(self, prefix, newname):
+        product = self.load_product(prefix)
+        product._data['name'] = newname
+        product.update()
 
 
 #--------------------------
@@ -227,9 +270,6 @@ class ProductAdminModule(Component):
                    'Execute admin (sub-)command upon product resources',
                    self._complete_product_admin, self._do_product_admin)
 
-    def get_products(self):
-        return [p.prefix for p in Product.select(self.env)]
-
     def product_admincmd_mgr(self, prefix):
         try:
             product_env = ProductEnvironment.lookup_env(self.env, prefix)
@@ -240,7 +280,7 @@ class ProductAdminModule(Component):
 
     def _complete_product_admin(self, args):
         if len(args) == 1:
-            return self.get_products()
+            return get_products(self.env)
         else:
             mgr = self.product_admincmd_mgr(args[0])
             return mgr.complete_command(args[1:])
@@ -306,6 +346,10 @@ class ProductAdminModule(Component):
         return cat_allow is not False and panel_allow is not False \
                and (cat_allow, panel_allow) != (None, None) \
                and (cat_id, panel_id) != ('general', 'plugin') # double-check !
+
+
+def get_products(env):
+    return [p.prefix for p in Product.select(env)]
 
 
 class DefaultProductAdminWhitelist(Component):
