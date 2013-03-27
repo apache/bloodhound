@@ -271,6 +271,16 @@ class MultiProductSystem(Component):
                       SET product=(SELECT wiki.product FROM wiki WHERE wiki.name=attachment.id)
                       WHERE type='wiki'""")
 
+                # soft link existing repositories to default product
+                repositories_linked = []
+                for id, name in db("""SELECT id, value FROM repository WHERE name='name'"""):
+                    if id in repositories_linked:
+                        continue
+                    db("""INSERT INTO repository (id, name, value) VALUES (%s, 'product', '%s')""" %
+                       (id, DEFAULT_PRODUCT))
+                    repositories_linked.append(id)
+                    self.log.info("Repository '%s' (%s) soft linked to default product", name, id)
+
                 # Update system tables
                 # Upgrade schema
                 self.log.info("Migrating system tables to a new schema")
