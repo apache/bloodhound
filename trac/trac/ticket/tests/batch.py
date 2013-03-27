@@ -1,6 +1,6 @@
 from trac.perm import PermissionCache
 from trac.test import Mock, EnvironmentStub
-from trac.ticket import default_workflow, web_ui
+from trac.ticket import api, default_workflow, web_ui
 from trac.ticket.batch import BatchModifyModule
 from trac.ticket.model import Ticket
 from trac.util.datefmt import utc
@@ -13,7 +13,8 @@ class BatchModifyTestCase(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentStub(default_data=True,
             enable=[default_workflow.ConfigurableTicketWorkflow,
-                    web_ui.TicketModule])
+                    web_ui.TicketModule, 
+                    api.TicketSystem])
         self.req = Mock(href=self.env.href, authname='anonymous', tz=utc)
         self.req.session = {}
         self.req.perm = PermissionCache(self.env)
