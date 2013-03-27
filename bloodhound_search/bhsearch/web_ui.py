@@ -337,14 +337,15 @@ class BloodhoundSearchModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        if self.redirect_enabled:
-            data['search_handler'] = req.href.bhsearch()
-        elif req.path_info.startswith(SEARCH_URL):
-            data['search_handler'] = req.href.search()
-        elif self.default_search or req.path_info.startswith(BHSEARCH_URL):
-            data['search_handler'] = req.href.bhsearch()
-        else:
-            data['search_handler'] = req.href.search()
+        if data is not None:
+            if self.redirect_enabled:
+                data['search_handler'] = req.href.bhsearch()
+            elif req.path_info.startswith(SEARCH_URL):
+                data['search_handler'] = req.href.search()
+            elif self.default_search or req.path_info.startswith(BHSEARCH_URL):
+                data['search_handler'] = req.href.bhsearch()
+            else:
+                data['search_handler'] = req.href.search()
         return template, data, content_type
 
 
