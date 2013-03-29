@@ -502,7 +502,7 @@ data = {
                            summary, description, keywords, product)
           SELECT id, 'defect', time, changetime, component, severity, priority, owner,
                  reporter, cc, version, milestone, status, resolution, summary,
-                 description, keywords, product FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
+                 description, keywords, 'PRODUCT' FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
           WHERE COALESCE(severity,'') <> 'enhancement'"""
         ),
         (
@@ -518,7 +518,7 @@ data = {
                                summary, description, keywords, product)
               SELECT id, 'enhancement', time, changetime, component, 'normal', priority,
                      owner, reporter, cc, version, milestone, status, resolution, summary,
-                     description, keywords, product FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
+                     description, keywords, 'PRODUCT' FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
               WHERE severity = 'enhancement'"""
         ),
         (
@@ -631,7 +631,7 @@ data = {
             SELECT ticket from ticket_custom WHERE name='totalhours'
           )""",
 """INSERT INTO ticket_custom (ticket, name, value, product)
-              SELECT id, 'totalhours', '0', product FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
+              SELECT id, 'totalhours', '0', 'PRODUCT' FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
                 SELECT ticket from (SELECT * FROM ticket_custom WHERE product="PRODUCT") AS ticket_custom WHERE name='totalhours'
               )"""
         ),
@@ -640,7 +640,7 @@ data = {
                     SELECT id, 'totalhours', '0' FROM ticket WHERE id NOT IN (
                     SELECT ticket from ticket_custom WHERE name='totalhours')""",
 """INSERT INTO ticket_custom (ticket, name, value, product)
-                        SELECT id, 'totalhours', '0', product FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
+                        SELECT id, 'totalhours', '0', 'PRODUCT' FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
                         SELECT ticket from (SELECT * FROM ticket_custom WHERE product="PRODUCT") AS ticket_custom WHERE name='totalhours')"""
         ),
         (
@@ -671,7 +671,7 @@ data = {
                                      '127.0.0.1', %s FROM wiki WHERE name=%s""",
 """INSERT INTO wiki(version, name, time, author, ipnr, text, product)
                               SELECT 1 + COALESCE(max(version), 0), %s, %s, 'trac',
-                                     '127.0.0.1', %s, product FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS wiki WHERE name=%s"""
+                                     '127.0.0.1', %s, 'PRODUCT' FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS wiki WHERE name=%s"""
         ),
         (
 """INSERT INTO permission VALUES ('dev','WIKI_VIEW')""",

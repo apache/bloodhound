@@ -467,7 +467,7 @@ class BloodhoundProductSQLTranslate(object):
                 if not field_lists or not field_lists[-1]:
                     raise Exception("Invalid SELECT field list")
                 last_token = list(field_lists[-1][-1].flatten())[-1]
-                for keyword in [self._product_column, ' ', ',']:
+                for keyword in ["'", self._product_prefix, "'", ' ', ',']:
                     self._token_insert_after(last_token.parent, last_token, Types.Token(Tokens.Keyword, keyword))
             return
         table_name_callback = handle_insert_table if insert_table else None
