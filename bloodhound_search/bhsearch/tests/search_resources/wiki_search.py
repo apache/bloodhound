@@ -27,6 +27,7 @@ from bhsearch.whoosh_backend import WhooshBackend
 from bhsearch.search_resources.wiki_search import (
     WikiIndexer, WikiSearchParticipant)
 
+from trac.test import Mock
 from trac.wiki import WikiSystem, WikiPage
 
 
@@ -137,6 +138,25 @@ class WikiIndexerEventsTestCase(BaseBloodhoundSearchTest):
         self.print_result(results)
         self.assertEqual(1, results.hits)
         self.assertEqual("Header", results.docs[0]["content"])
+
+    def test_fills_product_field_if_product_is_set(self):
+        self.env.product = Mock(prefix="p")
+
+        self.insert_wiki(self.DUMMY_PAGE_NAME, "content")
+
+        results = self.search_api.query("*")
+        self.assertEqual(results.docs[0]["product"], 'p')
+
+    def test_can_work_if_env_does_not_have_product(self):
+        if 'product' in self.env:
+            del self.env["product"]
+
+        self.insert_wiki(self.DUMMY_PAGE_NAME, "content")
+
+        results = self.search_api.query("*")
+        self.assertEqual(results.hits, 1)
+        self.assertNotIn("product", results.docs[0])
+
 
 def suite():
     test_suite = unittest.TestSuite()

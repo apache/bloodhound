@@ -128,7 +128,7 @@ class Environment(trac.env.Environment):
     def db_direct_transaction(self):
         return ProductEnvContextManager(super(Environment, self).db_transaction)
 
-    def _all_product_envs(self):
+    def all_product_envs(self):
         return [ProductEnvironment(self, product) for product in Product.select(self)]
 
     def needs_upgrade(self):
@@ -153,7 +153,7 @@ class Environment(trac.env.Environment):
         # until schema is multi product aware, product environments can't (and shouldn't) be
         # instantiated
         if self._multiproduct_schema_enabled:
-            product_envs = [self] + self._all_product_envs()
+            product_envs = [self] + self.all_product_envs()
             if needs_upgrade_in_env_list(product_envs, self._product_setup_participants):
                 return True
         return False
@@ -185,7 +185,7 @@ class Environment(trac.env.Environment):
             return upgraders
 
         def upgraders_for_product_envs():
-            product_envs = [self] + self._all_product_envs()
+            product_envs = [self] + self.all_product_envs()
             return upgraders_for_env_list(product_envs, self._product_setup_participants)
 
         # first enumerate components that are multi product aware and require upgrade
@@ -302,6 +302,9 @@ class EnvironmentStub(trac.test.EnvironmentStub):
             pass
         # FIXME: Shall we ?
         #env.config.save()
+
+    def all_product_envs(self):
+        return []
 
     def reset_db(self, default_data=None):
         multiproduct_schema = self._multiproduct_schema_enabled

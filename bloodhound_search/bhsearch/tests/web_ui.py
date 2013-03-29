@@ -20,8 +20,9 @@
 import unittest
 
 from urllib import urlencode, unquote, unquote_plus
-from bhsearch.api import ASC, DESC, SortInstruction
 
+from bhsearch import web_ui
+from bhsearch.api import ASC, DESC, SortInstruction
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.web_ui import RequestParameters, BloodhoundSearchModule
 from bhsearch.whoosh_backend import WhooshBackend
@@ -50,6 +51,23 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.redirect = self.redirect
         self.redirect_url = None
         self.redirect_permanent = None
+
+        self.old_product_environment = web_ui.ProductEnvironment
+        self._inject_mocked_product_environment()
+
+    def _inject_mocked_product_environment(self):
+        class MockProductEnvironment(object):
+            def __init__(self, env, product):
+                # pylint: disable=unused-argument
+                self.product = product
+
+            def href(self, *args):
+                return ('/main/products/%s/' % self.product) + '/'.join(args)
+
+        web_ui.ProductEnvironment = MockProductEnvironment
+
+    def tearDown(self):
+        web_ui.ProductEnvironment = self.old_product_environment
 
     def redirect(self, url, permanent=False):
         self.redirect_url = url
@@ -114,6 +132,15 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertEqual(1, len(docs))
         self.assertEqual("/main/ticket/1", docs[0]["href"])
 
+    def test_product_ticket_href(self):
+        self.env.product = Mock(prefix='xxx')
+        self._insert_tickets(1)
+        self.req.args[RequestParameters.QUERY] = "*:*"
+        data = self.process_request()
+        docs = data["results"].items
+        self.assertEqual(1, len(docs))
+        self.assertEqual("/main/products/xxx/ticket/1", docs[0]["href"])
+
     def test_page_href(self):
         self._insert_tickets(DEFAULT_DOCS_PER_PAGE+1)
         self.req.args[RequestParameters.QUERY] = "*:*"
@@ -167,7 +194,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        self.assertEquals(1, len(data["facet_counts"]))
+        self.assertEquals(2, len(data["facet_counts"]))
 
     def test_can_return_facets_counts_for_tickets(self):
         #arrange
@@ -651,7 +678,8 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args['changeset'] = 'on'
         self.assertRaises(RequestDone, self.process_request)
         redirect_url = unquote_plus(self.redirect_url)
-        self.assertIn('fq=type:(ticket OR wiki OR milestone OR changeset)', redirect_url)
+        self.assertIn(
+            'fq=type:(ticket OR wiki OR milestone OR changeset)', redirect_url)
         self.assertIn('/bhsearch', self.redirect_url)
         self.assertEqual(self.redirect_permanent, True)
 
@@ -765,6 +793,17 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertNotIn("?q=", unquote(active_query["href"]))
         self.assertNotIn("&q=", unquote(active_query["href"]))
         self.assertIn("fq=", unquote(active_query["href"]))
+
+    def test_redirects_if_product_url_is_used_to_access_search(self):
+        self.req.path_info = '/products/xxx/bhsearch'
+        self.req.args['productid'] = 'xxx'
+
+        self.assertRaises(RequestDone, self.process_request)
+
+        self.assertIn('/bhsearch', self.redirect_url)
+        self.assertNotIn('/products', self.redirect_url)
+        self.assertIn('product_prefix=xxx', self.redirect_url)
+        self.assertTrue(self.redirect_permanent)
 
     def _find_header(self, headers, name):
         for header in headers:

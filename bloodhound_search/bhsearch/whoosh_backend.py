@@ -24,6 +24,7 @@ from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE, \
     IQueryPreprocessor
 import os
 from bhsearch.search_resources.ticket_search import TicketFields
+from bhsearch.utils import get_global_env
 from trac.core import Component, implements, TracError
 from trac.config import Option, IntOption
 from trac.util.text import empty
@@ -91,7 +92,8 @@ class WhooshBackend(Component):
     def __init__(self):
         self.index_dir = self.index_dir_setting
         if not os.path.isabs(self.index_dir):
-            self.index_dir = os.path.join(self.env.path, self.index_dir)
+            self.index_dir = os.path.join(get_global_env(self.env).path,
+                                          self.index_dir)
         if index.exists_in(self.index_dir):
             self.index = index.open_dir(self.index_dir)
         else:
@@ -117,7 +119,9 @@ class WhooshBackend(Component):
             writer = self._create_writer()
 
         self._reformat_doc(doc)
-        doc[UNIQUE_ID] = self._create_unique_id(doc["type"], doc["id"])
+        doc[UNIQUE_ID] = self._create_unique_id(doc.get("product", ''),
+                                                doc["type"],
+                                                doc["id"])
         self.log.debug("Doc to index: %s", doc)
         try:
             writer.update_document(**doc)
@@ -142,8 +146,8 @@ class WhooshBackend(Component):
             else:
                 doc[key] = self._to_whoosh_format(value)
 
-    def delete_doc(self, doc_type, doc_id, operation_context=None):
-        unique_id = self._create_unique_id(doc_type, doc_id)
+    def delete_doc(self, product, doc_type, doc_id, operation_context=None):
+        unique_id = self._create_unique_id(product, doc_type, doc_id)
         self.log.debug('Removing document from the index: %s', unique_id)
         writer = operation_context
         is_local_writer = False
@@ -232,7 +236,8 @@ class WhooshBackend(Component):
             try:
                 actual_query = unicode(query.simplify(searcher))
                 results.debug['actual_query'] = actual_query
-            except TypeError:
+            # pylint: disable=bare-except
+            except:
                 # Simplify has a bug that causes it to fail sometimes.
                 pass
         return results
@@ -245,8 +250,26 @@ class WhooshBackend(Component):
             return query_expression
         return whoosh.query.And((query_expression, query_filter))
 
-    def _create_unique_id(self, doc_type, doc_id):
-        return u"%s:%s" % (doc_type, doc_id)
+    def _create_unique_id(self, product, doc_type, doc_id):
+        product, doc_type, doc_id = \
+            self._apply_empty_facets_workaround(product, doc_type, doc_id)
+
+        if product:
+            return u"%s:%s:%s" % (product, doc_type, doc_id)
+        else:
+            return u"%s:%s" % (doc_type, doc_id)
+
+    def _apply_empty_facets_workaround(self, product, doc_type, doc_id):
+        # Apply the same workaround that is used at insertion time
+        doc = {
+            IndexFields.PRODUCT: product,
+            IndexFields.TYPE: doc_type,
+            IndexFields.ID: doc_id,
+        }
+        WhooshEmptyFacetErrorWorkaround(self.env).pre_process(doc)
+        return (doc[IndexFields.PRODUCT],
+                doc[IndexFields.TYPE],
+                doc[IndexFields.ID])
 
     def _to_whoosh_format(self, value):
         if isinstance(value, basestring):
@@ -440,6 +463,7 @@ class WhooshEmptyFacetErrorWorkaround(Component):
         IndexFields.STATUS,
         TicketFields.MILESTONE,
         TicketFields.COMPONENT,
+        IndexFields.PRODUCT,
     ]
 
     #IDocIndexPreprocessor methods

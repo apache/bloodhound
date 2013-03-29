@@ -42,13 +42,16 @@ from trac.web.chrome import (INavigationContributor, ITemplateProvider,
                              web_context)
 from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
                           DESC, IndexFields, SortInstruction)
+from bhsearch.utils import get_global_env
 from trac.wiki.formatter import extract_link
+from multiproduct.env import ProductEnvironment
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
 DEFAULT_RESULTS_PER_PAGE = 10
 SEARCH_URL = '/search'
 BHSEARCH_URL = '/bhsearch'
 SEARCH_URLS_RE = re.compile(r'/(?P<prefix>bh)?search(?P<suffix>.*)')
+
 
 class RequestParameters(object):
     """
@@ -65,9 +68,12 @@ class RequestParameters(object):
     VIEW = "view"
     SORT = "sort"
     DEBUG = "debug"
+    PRODUCT_PREFIX = "product_prefix"
+    PRODUCT_ID = "productid"
 
-    def __init__(self, req):
+    def __init__(self, req, href=None):
         self.req = req
+        self.href = href or req.href
 
         self.original_query = req.args.getfirst(self.QUERY)
         if self.original_query is None:
@@ -90,6 +96,12 @@ class RequestParameters(object):
             DEFAULT_RESULTS_PER_PAGE))
         self.page = int(req.args.getfirst(self.PAGE, '1'))
         self.type = req.args.getfirst(self.TYPE)
+
+        if self.PRODUCT_ID in req.args:
+            # Accessed using product url
+            self.product = req.args.getfirst(self.PRODUCT_ID)
+        else:
+            self.product = req.args.getfirst(self.PRODUCT_PREFIX)
         self.debug = int(req.args.getfirst(self.DEBUG, '0'))
 
         self.params = {
@@ -108,6 +120,8 @@ class RequestParameters(object):
             self.params[self.PAGE] = self.page
         if self.type:
             self.params[self.TYPE] = self.type
+        if self.product:
+            self.params[self.PRODUCT_PREFIX] = self.product
         if self.filter_queries:
             self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
         if self.sort_string:
@@ -189,7 +203,7 @@ class RequestParameters(object):
         if skip_query:
             self._delete_if_exists(params, self.QUERY)
 
-        return self.req.href.bhsearch(**params)
+        return self.href.bhsearch(**params)
 
     def _create_sort_expression(self, sort):
         """
@@ -227,6 +241,7 @@ class BloodhoundSearchModule(Component):
 
     prefix = "all"
     default_grid_fields = [
+        IndexFields.PRODUCT,
         IndexFields.ID,
         IndexFields.TYPE,
         IndexFields.TIME,
@@ -237,7 +252,7 @@ class BloodhoundSearchModule(Component):
     default_facets = ListOption(
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_facets',
-        default=",".join([IndexFields.TYPE]),
+        default=",".join([IndexFields.TYPE, IndexFields.PRODUCT]),
         doc="""Default facets applied to search view of all resources""")
 
     default_view = Option(
@@ -337,15 +352,17 @@ class BloodhoundSearchModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        if data is not None:
-            if self.redirect_enabled:
-                data['search_handler'] = req.href.bhsearch()
-            elif req.path_info.startswith(SEARCH_URL):
-                data['search_handler'] = req.href.search()
-            elif self.default_search or req.path_info.startswith(BHSEARCH_URL):
-                data['search_handler'] = req.href.bhsearch()
-            else:
-                data['search_handler'] = req.href.search()
+        if data is None:
+            return template, data, content_type
+
+        if self.redirect_enabled:
+            data['search_handler'] = req.href.bhsearch()
+        elif req.path_info.startswith(SEARCH_URL):
+            data['search_handler'] = req.href.search()
+        elif self.default_search or req.path_info.startswith(BHSEARCH_URL):
+            data['search_handler'] = req.href.bhsearch()
+        else:
+            data['search_handler'] = req.href.search()
         return template, data, content_type
 
 
@@ -386,7 +403,10 @@ class RequestContext(object):
             ):
         self.env = env
         self.req = req
-        self.parameters = RequestParameters(req)
+        self.parameters = RequestParameters(
+            req,
+            href=get_global_env(self.env).href
+        )
         self.data = {
             self.DATA_QUERY: self.parameters.query,
             self.DATA_SEARCH_EXTRAS: [],
@@ -422,7 +442,7 @@ class RequestContext(object):
 
         # Compatibility with trac search
         self._process_legacy_type_filters(req, search_participants)
-        if req.path_info.startswith(SEARCH_URL):
+        if not req.path_info.startswith(BHSEARCH_URL):
             self.requires_redirect = True
 
         self.fields = self._prepare_fields_and_view()
@@ -487,6 +507,11 @@ class RequestContext(object):
         if self.active_type:
             self.data[self.DATA_SEARCH_EXTRAS].append(
                 (RequestParameters.TYPE, self.active_type)
+            )
+
+        if self.parameters.product:
+            self.data[self.DATA_SEARCH_EXTRAS].append(
+                (RequestParameters.PRODUCT_PREFIX, self.parameters.product)
             )
 
         if self.parameters.view:
@@ -662,7 +687,12 @@ class RequestContext(object):
 
     def _process_doc(self, doc):
         ui_doc = dict(doc)
-        ui_doc["href"] = self.req.href(doc['type'], doc['id'])
+        if doc['product']:
+            product_href = ProductEnvironment(self.env, doc['product']).href
+            # pylint: disable=too-many-function-args
+            ui_doc["href"] = product_href(doc['type'], doc['id'])
+        else:
+            ui_doc["href"] = self.req.href(doc['type'], doc['id'])
         #todo: perform content adaptation here
 
         if doc['content']:

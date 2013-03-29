@@ -19,6 +19,9 @@
 #  under the License.
 import unittest
 import shutil
+
+from trac.test import Mock
+
 from bhsearch.api import BloodhoundSearchApi, ASC, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.base import BaseBloodhoundSearchTest
@@ -120,6 +123,16 @@ class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
         results = self.search_api.query("type:ticket")
 
         self.assertEqual(2, results.hits)
+
+    def test_can_index_wiki_with_same_id_from_different_products(self):
+        self.env.product = Mock(prefix='p1')
+        self.insert_wiki('title', 'content')
+        self.env.product = Mock(prefix='p2')
+        self.insert_wiki('title', 'content 2')
+
+        results = self.search_api.query("type:wiki")
+
+        self.assertEqual(results.hits, 2)
 
 
 #TODO: check this later
