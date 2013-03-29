@@ -981,9 +981,8 @@ tt {
 }
 
 .comment {
- border-top: 1px solid rgb(80%, 80%, 80%);
  margin-bottom: 10px;
- padding-top: 5px;
+ padding-left: 10px;
 }
 
 .comment-meta {
@@ -1131,3 +1130,11 @@ table.wiki th {
 
 /* @end */
 
+#changelog div.comment-box{
+ border: 2px solid #999999;
+ border-radius: 8px 8px 8px 8px;
+ box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+ padding: 2px 4px 2px 4px;
+ margin: 10px 0px 10px 10px;
+ min-height: 20px;
+}

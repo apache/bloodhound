@@ -34,8 +34,8 @@
           has_edit_comment = 'TICKET_EDIT_COMMENT' in perm(ticket.resource);
           has_property_editor = not version and version != 0 and not cnum_edit
                                 and (can_append or can_modify or can_edit or can_create);
-          colspan = 'span8';
-          cols_activity = 'span4'">
+          colspan = 'span7';
+          cols_activity = 'span5'">
   <xi:include href="layout.html" />
   <xi:include href="widget_macros.html" />
 
@@ -628,8 +628,21 @@
           </form>
         </div>
 
-        <div py:if="ticket.exists and changes" class="$colspan">
-          <h2 class="foldable">Change History</h2>
+        <div class="$colspan">
+          <div py:if="not ticket.exists">
+            <xi:include href="bh_ticket_box.html" py:with="preview_mode = True"/>
+          </div>
+
+          <div id="help" class="help-block" i18n:msg="">
+            <span class="label label-info">Note:</span> See
+            <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
+          </div>
+        </div>
+
+        </div>
+        </div>
+        
+        <div py:if="ticket.exists and changes" class="$cols_activity">
           <div>
             <form id="prefs" method="get" action="${href.prefs()}">
               <div id="trac-comments-order" style="display: inline">
@@ -664,28 +677,6 @@
               </py:for>
             </div>
           </div>
-        </div>
-
-        <div class="$colspan">
-          <div py:if="not ticket.exists">
-            <xi:include href="bh_ticket_box.html" py:with="preview_mode = True"/>
-          </div>
-
-          <div id="help" class="help-block" i18n:msg="">
-            <span class="label label-info">Note:</span> See
-            <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
-          </div>
-        </div>
-
-        </div>
-        </div>
-
-        <div py:if="bhdb and ticket.exists" id="activity" class="$cols_activity">
-          <bh:widget urn="Timeline">
-            <bh:args>
-              <bh:arg name="filters">ticket,ticket_details,changeset</bh:arg>
-            </bh:args>
-          </bh:widget>
         </div>
 
       </div>
