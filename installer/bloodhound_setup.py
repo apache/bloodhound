@@ -254,8 +254,17 @@ class BloodhoundSetup(object):
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
         
-        print "Running wiki bh upgrades"
+        print "Running wiki Bloodhound upgrades"
         bloodhound.onecmd('wiki bh-upgrade')
+
+        print "Loading default product wiki"
+        bloodhound.onecmd('product admin @ wiki load %s' % " ".join(pages))
+
+        print "Running default product wiki upgrades"
+        bloodhound.onecmd('product admin @ wiki upgrade')
+
+        print "Running default product wiki Bloodhound upgrades"
+        bloodhound.onecmd('product admin @ wiki bh-upgrade')
 
         print """
 You can now start Bloodhound by running:

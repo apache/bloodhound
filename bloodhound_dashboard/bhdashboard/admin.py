@@ -91,11 +91,6 @@ class BloodhoundAdmin(Component):
         """Move all wiki pages starting with Trac prefix to unbranded user
         guide pages.
         """
-
-        # set global product scope on wiki pages
-        with self.env.db_direct_transaction as db:
-            db("UPDATE wiki SET product=''")
-
         wiki_admin = WikiAdmin(self.env)
         pages = wiki_admin.get_wiki_list()
         for old_name in pages:

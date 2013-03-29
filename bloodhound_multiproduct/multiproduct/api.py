@@ -335,8 +335,6 @@ class MultiProductSystem(Component):
                 for wiki_name, wiki_version, wiki_product in db("SELECT name, version, product FROM '%s'" % table):
                     if wiki_name in self.system_wiki_list:
                         for product in all_products:
-                            self.log.info("Adding wiki page '%s' to product '%s'",
-                                          wiki_name, product.prefix)
                             db("""INSERT INTO %s (%s, product)
                                   SELECT %s, '%s' FROM %s
                                   WHERE name='%s' AND version=%s AND product='%s'""" %
