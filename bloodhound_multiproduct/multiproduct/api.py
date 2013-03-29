@@ -375,6 +375,21 @@ class MultiProductSystem(Component):
                        (table, cols, cols, temp_table_name))
                     drop_temp_table(temp_table_name)
 
+                # enable multi product hooks in environment configuration
+                import multiproduct.hooks
+                import inspect
+                config_update = False
+                hook_path = os.path.realpath(inspect.getsourcefile(multiproduct.hooks))
+                if not 'environment_factory' in self.env.config['trac']:
+                    self.env.config['trac'].set('environment_factory', hook_path)
+                    config_update = True
+                if not 'request_factory' in self.env.config['trac']:
+                    self.env.config['trac'].set('request_factory', hook_path)
+                    config_update = True
+                if config_update:
+                    self.log.info("Enabling multi product hooks in environment configuration")
+                    self.env.config.save()
+
                 db_installed_version = self._update_db_version(db, 3)
 
             if db_installed_version < 4:
