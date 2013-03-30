@@ -1,0 +1,93 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="admin.html" />
+  <head>
+    <title>Repository Links</title>
+  </head>
+  <body>
+    <h2>Manage repository links</h2>
+    <div class="row">
+      <div class="span8">
+        <form id="trac-repository_table" method="post" action=""
+         py:with="sorted_repos = sorted(repositories.iteritems(), key=lambda item: item[0].lower())">
+          <table py:if="sorted_repos" id="trac-reposlist"
+           class="table table-striped table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th class="sel"><i class="icon-check"></i></th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Directory</th>
+                <th>Revision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr py:for="(reponame, info) in sorted_repos">
+                <td class="sel"><input py:if="info.editable" type="checkbox" name="sel" value="$info.name"/></td>
+                <td class="name">
+                  <a href="${panel_href(info.name or '(default)')}">${info.name or _('(default)')}</a>
+                </td>
+                <td>${(info.type or _('(default)')) if not info.alias else None}</td>
+                <td py:choose="">
+                  <py:when test="info.dir">$info.prettydir</py:when>
+                  <em py:otherwise="" i18n:msg="repo">Alias of ${info.alias or _('(default)')}</em>
+                </td>
+                <td><a py:if="info.rev" href="${href.changeset(info.rev, reponame) or None}">[$info.display_rev]</a></td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div py:if="not sorted_repos" class="alert alert-info">No linked repositories.</div>
+
+          <div class="buttons">
+            <input class="btn" type="submit" name="refresh" value="${_('Refresh')}"/>
+            <input py:if="sorted_repos" class="btn" type="submit"
+             name="remove" value="${_('Remove selected items')}"/>
+          </div>
+        </form>
+      </div>
+
+      <div class="span8">
+        <h4>Add repository link</h4>
+        <py:choose test="">
+          <py:when test="unlinked_repositories">
+            <form class="form-inline" id="repository-link" method="post" action="">
+              <select name="repository">
+                <option py:for="r,v in unlinked_repositories.iteritems()" value="$r">$v.name</option>
+              </select>
+              <button type="submit" name="addlink" class="btn">Add</button>
+            </form>
+          </py:when>
+          <py:otherwise>
+            <div class="alert alert-info">No repositories to add.</div>
+          </py:otherwise>
+        </py:choose>
+      </div>
+    </div>
+  </body>
+</html>
+

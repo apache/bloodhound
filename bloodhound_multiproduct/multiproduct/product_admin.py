@@ -36,6 +36,11 @@ from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.perm import sudo
 
+import multiproduct.versioncontrol
+import trac.versioncontrol.admin
+from trac.versioncontrol import DbRepositoryProvider, RepositoryManager
+from multiproduct.util import ReplacementComponent
+
 #--------------------------
 # Product admin panel
 #--------------------------
@@ -364,3 +369,63 @@ class DefaultProductAdminWhitelist(Component):
         #yield 'accounts', 'users'
         yield 'ticket', '*'
         yield 'versioncontrol', 'repository'
+
+
+class ProductRepositoryAdminPanel(ReplacementComponent, trac.versioncontrol.admin.RepositoryAdminPanel):
+    """Web admin panel for repository administration, product-aware."""
+
+    implements(trac.admin.IAdminPanelProvider)
+
+    # IAdminPanelProvider methods
+
+    def get_admin_panels(self, req):
+        if 'VERSIONCONTROL_ADMIN' in req.perm:
+            yield ('versioncontrol', _('Version Control'), 'repository',
+                   _('Repository Links') if isinstance(self.env, ProductEnvironment)
+                    else _('Repositories'))
+
+    def render_admin_panel(self, req, category, page, path_info):
+        if not isinstance(self.env, ProductEnvironment):
+            return super(ProductRepositoryAdminPanel, self).render_admin_panel(
+                req, category, page, path_info)
+
+        req.perm.require('VERSIONCONTROL_ADMIN')
+        db_provider = self.env[DbRepositoryProvider]
+
+        if req.method == 'POST' and db_provider:
+            if req.args.get('remove'):
+                repolist = req.args.get('sel')
+                if repolist:
+                    if isinstance(repolist, basestring):
+                        repolist = [repolist, ]
+                    for reponame in repolist:
+                        db_provider.unlink_product(reponame)
+            elif req.args.get('addlink') is not None and db_provider:
+                reponame = req.args.get('repository')
+                db_provider.link_product(reponame)
+            req.redirect(req.href.admin(category, page))
+
+        # Retrieve info for all product repositories
+        rm_product = RepositoryManager(self.env)
+        rm_product.reload_repositories()
+        all_product_repos = rm_product.get_all_repositories()
+        repositories = dict((reponame, self._extend_info(
+                                reponame, info.copy(), True))
+                            for (reponame, info) in
+                                all_product_repos.iteritems())
+        types = sorted([''] + rm_product.get_supported_types())
+
+        # construct a list of all repositores not linked to this product
+        rm = RepositoryManager(self.env.parent)
+        all_repos = rm.get_all_repositories()
+        unlinked_repositories = { k: all_repos[k] for k in sorted(
+            set(all_repos) - set(all_product_repos)) }
+
+        data = {'types': types, 'default_type': rm_product.repository_type,
+                'repositories': repositories,
+                'unlinked_repositories': unlinked_repositories}
+        return 'repository_links.html', data
+
+trac.versioncontrol.admin.RepositoryAdminPanel = ProductRepositoryAdminPanel
+
+

@@ -22,10 +22,12 @@ import os.path
 from trac.util.concurrency import threading
 from trac.core import implements
 import trac.versioncontrol.api
+from trac.versioncontrol import RepositoryManager
 import trac.admin
 import trac.web.api
 import trac.resource
 from multiproduct.util import ReplacementComponent
+from multiproduct.env import ProductEnvironment
 
 class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepositoryProvider):
     """Inplace replacement for trac.versioncontrol.api.DbRepositoryProvider. Filters
@@ -52,7 +54,7 @@ class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepos
                     repos.setdefault(id, {})[name] = value
             reponames = {}
             for id, info in repos.iteritems():
-                if 'product' in info and \
+                if not 'product' in info or \
                    not self.env.product.prefix in info['product'].split(','):
                     # skip repository if not soft linked from the current
                     # product environment
@@ -65,6 +67,25 @@ class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepos
             return reponames.iteritems()
         else:
             return super(DbRepositoryProvider, self).get_repositories()
+
+    def link_product(self, reponame):
+        if not isinstance(self.env, ProductEnvironment):
+            return
+        rm = RepositoryManager(self.env.parent)
+        repoid = rm.get_repository_id(reponame)
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO repository (id, name, value)
+                    VALUES(%s, 'product', '%s')""" %
+                    (repoid, self.env.product.prefix))
+
+    def unlink_product(self, reponame):
+        if not isinstance(self.env, ProductEnvironment):
+            return
+        rm = RepositoryManager(self.env.parent)
+        repoid = rm.get_repository_id(reponame)
+        with self.env.db_direct_transaction as db:
+            db("""DELETE FROM repository WHERE id=%s AND name='product'
+                    AND value='%s'""" % (repoid, self.env.product.prefix))
 
 trac.versioncontrol.api.DbRepositoryProvider = DbRepositoryProvider
 trac.versioncontrol.DbRepositoryProvider = DbRepositoryProvider
