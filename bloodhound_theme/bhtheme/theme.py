@@ -85,6 +85,7 @@ class BloodhoundTheme(ThemeBase):
         # but call the modifier nonetheless
         'admin_accountsconfig.html' : ('admin_accountsconfig.html', '_modify_admin_breadcrumb'),
         'admin_users.html' : ('admin_users.html', '_modify_admin_breadcrumb'),
+        'repository_links.html' : ('repository_links.html', '_modify_admin_breadcrumb'),
 
         # Preferences
         'prefs.html' : ('bh_prefs.html', None),
