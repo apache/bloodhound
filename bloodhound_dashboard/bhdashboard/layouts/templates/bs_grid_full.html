@@ -22,13 +22,15 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:with="is_global = req.perm.env.product is None">
   <xi:include href="layout.html" />
   <head>
     <title>$title</title>
   </head>
 
   <body>
+    <h2 py:if="not is_global">Dashboard for product <i>${req.perm.env.product.name}</i></h2>
     <xi:include href="bs_grid.html" />
     <div id="ft" class="row">
       <div id="help">

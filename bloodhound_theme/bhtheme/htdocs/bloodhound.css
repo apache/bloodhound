@@ -613,6 +613,10 @@ input[type="submit"].btn.btn-micro {
  padding: 7px 14px;
 }
 
+#breadcrumbbar .btn-group a:hover {
+  text-decoration: none;
+}
+
 @media (max-width: 979px) {
  .hidden-desktop {
   display: inherit !important;
@@ -1103,7 +1107,29 @@ table.wiki th {
 
 /* @end */
 
- 
+/* @group Dashboard */
+
+#products h4 {
+  margin: 5px 0 10px 0;
+}
+
+#products h5 {
+  margin: 5px 0 0 0;
+}
+
+#products .product-well {
+  background-color: white;
+  padding: 10px;
+}
+
+#products .subset {
+  list-style-type: none;
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+
+/* @end */
+
 #changelog div.comment-box{
  border: 2px solid #999999;
  border-radius: 8px 8px 8px 8px;

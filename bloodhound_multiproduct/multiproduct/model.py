@@ -18,6 +18,7 @@
 
 """Models to support multi-product"""
 from datetime import datetime
+from itertools import izip
 
 from trac.core import TracError
 from trac.resource import Resource
@@ -26,6 +27,10 @@ from trac.ticket.query import Query
 from trac.util.datefmt import utc
 
 from bhdashboard.model import ModelBase
+
+# -------------------------------------------
+# Product API
+# -------------------------------------------
 
 
 class Product(ModelBase):
@@ -37,12 +42,12 @@ class Product(ModelBase):
             'no_change_fields':['prefix',],
             'unique_fields':['name'],
             }
-    
+
     @property
     def resource(self):
         """Allow Product to be treated as a Resource"""
         return Resource('product', self.prefix)
-    
+
     def delete(self, resources_to=None):
         """ override the delete method so that we can move references to this
         object to a new product """
@@ -60,7 +65,7 @@ class Product(ModelBase):
         for prm in ProductResourceMap.select(self._env, where=where):
             prm._data['product_id'] = resources_to
             prm.update()
-    
+
     def _update_relations(self, db=None, author=None):
         """Extra actions due to update"""
         # tickets need to be updated
@@ -72,7 +77,7 @@ class Product(ModelBase):
             for t in Product.get_tickets(self._env, self._data['prefix']):
                 ticket = Ticket(self._env, t['id'], db)
                 ticket.save_changes(author, comment, now)
-    
+
     @classmethod
     def get_tickets(cls, env, product=''):
         """Retrieve all tickets associated with the product."""
@@ -89,7 +94,7 @@ class ProductResourceMap(ModelBase):
             'unique_fields':[],
             'auto_inc_fields': ['id'],
             }
-    
+
     def reparent_resource(self, product=None):
         """a specific function to update a record when it is to move product"""
         if product is not None:
@@ -101,4 +106,40 @@ class ProductResourceMap(ModelBase):
                                 sdata)
         self._data['product_id'] = product
         self.update()
+
+# -------------------------------------------
+# Configuration
+# -------------------------------------------
+
+class ProductSetting(ModelBase):
+    """The Product configuration table
+    """
+    _meta = {'table_name':'bloodhound_productconfig',
+            'object_name':'ProductSetting',
+            'key_fields':['product', 'section', 'option'],
+            'non_key_fields':['value', ],
+            'no_change_fields':['product', 'section', 'option'],
+            'unique_fields':[],
+            }
+
+    @classmethod
+    def exists(cls, env, product, section=None, option=None, db=None):
+        """Determine whether there are configuration values for
+        product, section, option .
+        """
+        if product is None:
+            raise ValueError("Product prefix required")
+        l = locals()
+        option_subkey = ([c, l[c]] for c in ('product', 'section', 'option'))
+        option_subkey = dict(c for c in option_subkey if c[1] is not None)
+        return len(cls.select(env, db, where=option_subkey, limit=1)) > 0
+
+    @classmethod
+    def get_sections(cls, env, product):
+        """Retrieve configuration sections defined for a product
+        """
+        # FIXME: Maybe something more ORM-ish should be added in ModelBase
+        return [row[0] for row in env.db_query("""SELECT DISTINCT section 
+                FROM bloodhound_productconfig WHERE product = %s""", 
+                (product,)) ]
 

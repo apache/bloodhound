@@ -53,7 +53,7 @@ Arguments:
                 </py:if>
               </h5>
             </div>
-            <div class="span2" data-edit="${'inplace' if (field and field.name != 'status') else None}" id="${'vc-' + field.name if field else None}">
+            <div class="span2" data-edit="${'inplace' if (field and field.name not in ('status', 'product')) else None}" id="${'vc-' + field.name if field else None}">
               <py:if test="field">
                 <py:choose test="">
                   <py:when test="'rendered' in field">${field.rendered}</py:when>

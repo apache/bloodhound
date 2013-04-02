@@ -208,7 +208,10 @@ class ComponentManager(object):
         if not self.is_enabled(cls):
             return None
         component = self.components.get(cls)
-        if not component:
+
+        # Leave other manager components out of extension point lists
+        # see bh:comment:5:ticket:438 and ticket:11121
+        if not component and not issubclass(cls, ComponentManager) :
             if cls not in ComponentMeta._components:
                 raise TracError('Component "%s" not registered' % cls.__name__)
             try:

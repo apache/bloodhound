@@ -1,0 +1,25 @@
+============================================================
+
+        Product query links - part 2
+
+============================== %(tc_title_prefix)s - ProductTicketQuery macro: two results, list form
+New tickets: [[ProductTicketQuery(status=new, order=reporter)]]
+------------------------------
+<p>
+New tickets: </p><div><dl class="wiki compact"><dt><a class="new" href="%(path_prefix)s/ticket/2" title="This is another summary">#2</a></dt><dd>This is another summary</dd><dt><a class="new" href="%(path_prefix)s/ticket/1" title="This is the summary">#1</a></dt><dd>This is the summary</dd></dl></div><p>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - ProductTicketQuery macro: two results, count 2
+New tickets: [[ProductTicketQuery(status=new, order=reporter, format=count)]]
+------------------------------
+<p>
+New tickets: <span class="query_count" title="2 tickets for which status=new&amp;max=0&amp;order=reporter">2</span>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - ProductTicketQuery macro: two results, compact form
+New tickets: [[ProductTicketQuery(status=new, order=reporter, format=compact)]]
+------------------------------
+<p>
+New tickets: <span><a class="new" href="%(path_prefix)s/ticket/2" title="This is another summary">#2</a>, <a class="new" href="%(path_prefix)s/ticket/1" title="This is the summary">#1</a></span>
+</p>
+------------------------------

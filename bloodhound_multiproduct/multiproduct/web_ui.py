@@ -34,8 +34,10 @@ from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
 from trac.web.main import RequestDispatcher
 
 from multiproduct.model import Product
+from multiproduct.api import DEFAULT_PRODUCT
 
 PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
+REDIRECT_DEFAULT_RE = re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|ticket|qct|timeline|(raw-|zip-)?attachment|diff|batchmodify|search)(?P<pathinfo>.*)')
 
 class ProductModule(Component):
     """Base Product behaviour"""
@@ -58,26 +60,44 @@ class ProductModule(Component):
     def pre_process_request(self, req, handler):
         """pre process request filter"""
         pid = None
-        match = PRODUCT_RE.match(req.path_info)
-        if match:
+        product_match = PRODUCT_RE.match(req.path_info)
+        if product_match:
             dispatcher = self.env[RequestDispatcher]
             if dispatcher is None:
                 raise TracError('Unable to load RequestDispatcher.')
-            pid = match.group('pid')
-        
+            pid = product_match.group('pid')
+
         if pid:
             products = Product.select(self.env, where={'prefix': pid})
             if pid and len(products) == 1:
                 req.args['productid'] = pid
                 req.args['product'] = products[0].name
-                if handler is self and match.group('pathinfo') not in ('', '/'):
+                if handler is self and product_match.group('pathinfo') not in ('', '/'):
                     # select a new handler
                     environ = req.environ.copy()
                     pathinfo = environ['PATH_INFO'].split('/')
                     pathinfo = '/'.join(pathinfo[:1] + pathinfo[3:])
                     environ['PATH_INFO'] = pathinfo
                     newreq = Request(environ, lambda *args, **kwds: None)
-                    
+                    # Request.args[] are lazily evaluated, so special care must be
+                    # taken when creating new Requests from an old environment, as
+                    # the args will be evaluated again. In case of POST requests,
+                    # this comes down to re-evaluating POST parameters such as
+                    # <form> arguments, which in turn causes yet another read() on
+                    # a socket, causing the request to block (deadlock).
+                    #
+                    # The following happens during Requests.args[] evaluation:
+                    #   1. Requests.callbacks['args'] is called -> arg_list_to_args(req.arg_list)
+                    #   2. req.arg_list is evaluated, calling Request._parse_arg_list
+                    #   3. _parse_arg_list() calls _FieldStorage() for reading the params
+                    #   4. _FieldStorage() constructor calls self.read_urlencoded()
+                    #   5. this calls self.fp.read() which reads from the socket
+                    #
+                    # Since the 'newreq' above is created from the same environ as 'req',
+                    # the newreq.args below caused a re-evaluation, thus a deadlock.
+                    # The fix is to copy the args from the old request to the new one.
+                    setattr(newreq, 'args', req.args)
+
                     new_handler = None
                     for hndlr in dispatcher.handlers:
                         if hndlr is not self and hndlr.match_request(newreq):
@@ -96,7 +116,17 @@ class ProductModule(Component):
             else:
                 raise ResourceNotFound(_("Product %(id)s does not exist.", 
                                          id=pid), _("Invalid product id"))
-        
+        else:
+            redirect_match = REDIRECT_DEFAULT_RE.match(req.path_info)
+            if redirect_match:
+                target = req.href.products(DEFAULT_PRODUCT,
+                                           redirect_match.group('section'),
+                                           redirect_match.group('pathinfo') \
+                                               if redirect_match.group('pathinfo') else None)
+                if req.query_string:
+                    target += '?' + req.query_string
+                req.redirect(target, permanent=True)
+
         return handler
     
     def post_process_request(self, req, template, data, content_type):
@@ -127,10 +157,12 @@ class ProductModule(Component):
     
     # IRequestHandler methods
     def match_request(self, req):
-        """match request handler"""
-        if req.path_info.startswith('/products'):
+        if req.path_info == '/products':
             return True
-        return False
+
+        # handle '/products/...', but excluding QuickCreateTicket (qct) requests
+        m = PRODUCT_RE.match(req.path_info)
+        return m and m.group('pathinfo').strip('/') != 'qct'
     
     def process_request(self, req):
         """process request handler"""
@@ -161,40 +193,17 @@ class ProductModule(Component):
             elif action == 'edit':
                 return self._do_save(req, product)
             elif action == 'delete':
-                req.perm(product.resource).require('PRODUCT_DELETE')
-                retarget_to = req.args.get('retarget', None)
-                name = product.name
-                product.delete(resources_to=retarget_to)
-                add_notice(req, _('The product "%(n)s" has been deleted.',
-                                  n = name))
-                req.redirect(req.href.products())
+                raise TracError(_('Product removal is not allowed!'))
         elif action in ('new', 'edit'):
             return self._render_editor(req, product)
         elif action == 'delete':
-            req.perm(product.resource).require('PRODUCT_DELETE')
-            return 'product_delete.html', data, None
+            raise TracError(_('Product removal is not allowed!'))
         
         if pid is None:
             data = {'products': products,
                     'context': web_context(req, Resource('products', None))}
             return 'product_list.html', data, None
         
-        def add_product_link(rel, product):
-            href = req.href.products(product.prefix)
-            add_link(req, rel, href, _('Product "%(name)s"',
-                                       name=product.name))
-        
-        idx = [i for i, p in enumerate(products) if p.name == product.name]
-        if idx:
-            idx = idx[0]
-            if idx > 0:
-                add_product_link('first', products[0])
-                add_product_link('prev', products[idx - 1])
-            if idx < len(products) - 1:
-                add_product_link('next', products[idx + 1])
-                add_product_link('last', products[-1])        
-        prevnext_nav(req, _('Previous Product'), _('Next Product'),
-                     _('Back to Product List'))
         return 'product_view.html', data, None
     
     def _render_editor(self, req, product):
@@ -264,6 +273,7 @@ class ProductModule(Component):
                 prod.insert()
                 add_notice(req, _('The product "%(id)s" has been added.',
                                   id=prefix))
+
         if warnings:
             product.update_field_dict(keys)
             product.update_field_dict(field_data)

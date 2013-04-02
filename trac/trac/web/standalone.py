@@ -120,7 +120,6 @@ class TracHTTPRequestHandler(WSGIRequestHandler):
 class TracHTTP11RequestHandler(TracHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-
 def main():
     from optparse import OptionParser, OptionValueError
     parser = OptionParser(usage='usage: %prog [options] [projenv] ...',

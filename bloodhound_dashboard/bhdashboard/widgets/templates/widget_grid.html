@@ -92,13 +92,13 @@
                       <!--! for the ticket listing -->
                       <py:when test="col in ('ticket', 'id')">
                         <td class="ticket" py:attrs="td_attrs">
-                          <a title="View ${row.resource.realm}" href="${url_of(row.resource)}">#$cell.value</a>
+                          <a title="View ${row.resource.realm}" href="$row.href">#$cell.value</a>
                         </td>
                       </py:when>
   
                       <py:when test="col == 'summary' and row.id">
                         <td class="$col" py:attrs="td_attrs">
-                          <a title="View ${row.resource.realm}" href="${url_of(row.resource)}">$cell.value</a>
+                          <a title="View ${row.resource.realm}" href="${row.href if row.href else url_of(row.resource)}">$cell.value</a>
                         </td>
                       </py:when>
   

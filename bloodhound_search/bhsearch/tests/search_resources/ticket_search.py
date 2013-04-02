@@ -24,6 +24,7 @@ from bhsearch.whoosh_backend import WhooshBackend
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 from trac.ticket.model import Component
+from trac.test import Mock
 
 class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
@@ -84,6 +85,24 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
         results = self.search_api.query("*")
         self.print_result(results)
         self.assertEqual(CHANGED_SUMMARY, results.docs[0]["summary"])
+
+    def test_fills_product_field_if_product_is_set(self):
+        self.env.product = Mock(prefix="p")
+
+        self.insert_ticket("T1")
+
+        results = self.search_api.query("*")
+        self.assertEqual(results.docs[0]["product"], 'p')
+
+    def test_can_work_if_env_does_not_have_product(self):
+        if 'product' in self.env:
+            del self.env["product"]
+
+        self.insert_ticket("T1")
+
+        results = self.search_api.query("*")
+        self.assertEqual(results.hits, 1)
+        self.assertNotIn("product", results.docs[0])
 
     def _insert_component(self, name):
         component = Component(self.env)

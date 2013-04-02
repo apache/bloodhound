@@ -48,7 +48,7 @@
   </py:def>
   <py:def function="admin_function(fix_legacy)">
     <div id="content" class="admin row">
-      <h1 class="span12">Administration</h1>
+      <h1 class="span12">Administration${' - ' + admin_current_product[1] if admin_current_product else None}</h1>
 
       <div id="tabs" class="span3 hidden-phone">
         ${admin_nav_list(False)}

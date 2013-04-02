@@ -91,7 +91,6 @@ class BloodhoundAdmin(Component):
         """Move all wiki pages starting with Trac prefix to unbranded user
         guide pages.
         """
-
         wiki_admin = WikiAdmin(self.env)
         pages = wiki_admin.get_wiki_list()
         for old_name in pages:
@@ -118,9 +117,6 @@ class BloodhoundAdmin(Component):
                     comment = 'Bloodhound guide update'
                     redirection.save('bloodhound', comment, '0.0.0.0')
         self._do_wiki_rename_links('TracGuideToc', 'UserGuideToc')
-        
-        pages =  pkg_resources.resource_filename('bhdashboard', 'default-pages')
-        wiki_admin.load_pages(pages, create_only=['WikiStart', 'InterMapTxt'])
 
     def _do_wiki_rename_links(self, old_name, new_name):
         import re

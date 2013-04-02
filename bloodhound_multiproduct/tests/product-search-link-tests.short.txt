@@ -1,0 +1,26 @@
+============================================================
+
+        Product search links
+
+============================== %(tc_title_prefix)s - search: link resolver
+%(link_prefix)ssearch:foo
+%(link_prefix_quote)ssearch:foo bar"
+------------------------------
+<p>
+<a class="search" href="%(path_prefix)s/search?q=foo">%(link_prefix_escaped)ssearch:foo</a>
+<a class="search" href="%(path_prefix)s/search?q=foo+bar">%(link_prefix_quote_escaped)ssearch:foo bar&#34;</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - search: link resolver with query arguments
+%(link_prefix)ssearch:foo?wiki=on
+%(link_prefix)ssearch:?q=foo&wiki=on
+%(link_prefix_quote)ssearch:foo bar?wiki=on"
+%(link_prefix_quote)ssearch:?q=foo bar&wiki=on"
+------------------------------
+<p>
+<a class="search" href="%(path_prefix)s/search?q=foo&amp;wiki=on">%(link_prefix_escaped)ssearch:foo?wiki=on</a>
+<a class="search" href="%(path_prefix)s/search?q=foo&amp;wiki=on">%(link_prefix_escaped)ssearch:?q=foo&amp;wiki=on</a>
+<a class="search" href="%(path_prefix)s/search?q=foo+bar&amp;wiki=on">%(link_prefix_quote_escaped)ssearch:foo bar?wiki=on&#34;</a>
+<a class="search" href="%(path_prefix)s/search?q=foo+bar&amp;wiki=on">%(link_prefix_quote_escaped)ssearch:?q=foo bar&amp;wiki=on&#34;</a>
+</p>
+------------------------------

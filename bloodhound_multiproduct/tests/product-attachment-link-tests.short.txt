@@ -1,0 +1,52 @@
+============================================================
+
+        Product attachment links
+
+============================== %(tc_title_prefix)s - attachment: link resolver (deprecated)
+%(link_prefix)sattachment:wiki:WikiStart:file.txt (deprecated)
+%(link_prefix)sattachment:ticket:123:file.txt (deprecated)
+------------------------------
+<p>
+<a class="attachment" href="%(path_prefix)s/attachment/wiki/WikiStart/file.txt" title="Attachment 'file.txt' in WikiStart">%(link_prefix_escaped)sattachment:wiki:WikiStart:file.txt</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/wiki/WikiStart/file.txt" title="Download"></a> (deprecated)
+<a class="attachment" href="%(path_prefix)s/attachment/ticket/123/file.txt" title="Attachment 'file.txt' in Ticket #123">%(link_prefix_escaped)sattachment:ticket:123:file.txt</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/ticket/123/file.txt" title="Download"></a> (deprecated)
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - attachment: "foreign" links
+%(link_prefix)sattachment:file.txt:wiki:WikiStart
+%(link_prefix)sattachment:file.txt:ticket:123
+%(link_prefix)sattachment:foo.txt:wiki:SomePage/SubPage
+------------------------------
+<p>
+<a class="attachment" href="%(path_prefix)s/attachment/wiki/WikiStart/file.txt" title="Attachment 'file.txt' in WikiStart">%(link_prefix_escaped)sattachment:file.txt:wiki:WikiStart</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/wiki/WikiStart/file.txt" title="Download"></a>
+<a class="attachment" href="%(path_prefix)s/attachment/ticket/123/file.txt" title="Attachment 'file.txt' in Ticket #123">%(link_prefix_escaped)sattachment:file.txt:ticket:123</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/ticket/123/file.txt" title="Download"></a>
+<a class="attachment" href="%(path_prefix)s/attachment/wiki/SomePage/SubPage/foo.txt" title="Attachment 'foo.txt' in SomePage/SubPage">%(link_prefix_escaped)sattachment:foo.txt:wiki:SomePage/SubPage</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/wiki/SomePage/SubPage/foo.txt" title="Download"></a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - attachment: "local" links
+%(link_prefix)sattachment:file.txt
+------------------------------
+<p>
+<a class="attachment" href="%(path_prefix)s/attachment/wiki/WikiStart/file.txt" title="Attachment 'file.txt' in WikiStart">%(link_prefix_escaped)sattachment:file.txt</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/wiki/WikiStart/file.txt" title="Download"></a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - attachment: "missing" links
+%(link_prefix)sattachment:foo.txt
+------------------------------
+<p>
+<a class="missing attachment">%(link_prefix_escaped)sattachment:foo.txt</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - attachment: "raw" links
+%(link_prefix)sraw-attachment:file.txt
+------------------------------
+<p>
+<a class="attachment" href="%(path_prefix)s/raw-attachment/wiki/WikiStart/file.txt" title="%(link_title_prefix)sAttachment 'file.txt' in WikiStart">%(link_prefix_escaped)sraw-attachment:file.txt</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - attachment: raw format as explicit argument
+%(link_prefix)sattachment:file.txt?format=raw
+------------------------------
+<p>
+<a class="attachment" href="%(path_prefix)s/attachment/wiki/WikiStart/file.txt?format=raw" title="Attachment 'file.txt' in WikiStart">%(link_prefix_escaped)sattachment:file.txt?format=raw</a><a class="trac-rawlink" href="%(path_prefix)s/raw-attachment/wiki/WikiStart/file.txt?format=raw" title="Download"></a>
+</p>
+------------------------------

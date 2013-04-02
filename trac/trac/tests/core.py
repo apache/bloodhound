@@ -300,6 +300,71 @@ class ComponentTestCase(unittest.TestCase):
         self.assertEquals('x', tests.next().test())
         self.assertRaises(StopIteration, tests.next)
 
+    def test_component_manager_component_isolation(self):
+        """
+        Verify that a component manager that is also a component will only
+        be listed in extension points for components instantiated in
+        its scope.
+
+        See bh:comment:5:ticket:438 and #11121
+        """
+        from trac.core import ComponentManager
+        class ManagerComponent(ComponentManager, Component):
+            tests = ExtensionPoint(ITest)
+            def __init__(self, foo, bar):
+                ComponentManager.__init__(self)
+                self.foo, self.bar = foo, bar
+
+        class YetAnotherManagerComponent(ComponentManager, Component):
+            implements(ITest)
+            def __init__(self, foo, bar):
+                ComponentManager.__init__(self)
+                self.foo, self.bar = foo, bar
+
+            # ITest methods
+            def test(self):
+                return self.foo + self.bar
+
+        class ComponentA(Component):
+            tests = ExtensionPoint(ITest)
+
+        class Extender(Component):
+            implements(ITest)
+            def test(self):
+                return 'x'
+
+        mgr = ManagerComponent('Test', 42)
+        yamc = YetAnotherManagerComponent('y', 'z')
+
+        assert yamc[ManagerComponent] is None 
+        assert mgr[YetAnotherManagerComponent] is None 
+        assert yamc[ComponentManager] is None 
+        assert self.compmgr[YetAnotherManagerComponent] is None 
+        assert mgr[ComponentManager] is None 
+        assert self.compmgr[ManagerComponent] is None 
+
+        self.assertTrue(any(c.__class__ is YetAnotherManagerComponent
+                            for c in ComponentA(yamc).tests))
+        self.assertFalse(any(c.__class__ is YetAnotherManagerComponent
+                             for c in ComponentA(self.compmgr).tests))
+        self.assertFalse(any(c.__class__ is YetAnotherManagerComponent
+                             for c in ComponentA(mgr).tests))
+        self.assertFalse(any(c.__class__ is ManagerComponent
+                             for c in ComponentA(yamc).tests))
+        self.assertFalse(any(c.__class__ is YetAnotherManagerComponent
+                             for c in mgr.tests))
+
+        results = [test.test() for test in ComponentA(yamc).tests]
+        self.assertEquals(['x', 'yz'], sorted(results))
+
+        results = [test.test() for test in ComponentA(self.compmgr).tests]
+        self.assertEquals(['x'], sorted(results))
+
+        results = [test.test() for test in ComponentA(mgr).tests]
+        self.assertEquals(['x'], sorted(results))
+        results = [test.test() for test in mgr.tests]
+        self.assertEquals(['x'], sorted(results))
+
     def test_instantiation_doesnt_enable(self):
         """
         Make sure that a component disabled by the ComponentManager is not
@@ -314,7 +379,6 @@ class ComponentTestCase(unittest.TestCase):
         mgr = DisablingComponentManager()
         instance = ComponentA(mgr)
         self.assertEqual(None, mgr[ComponentA])
-
 
 def suite():
     return unittest.makeSuite(ComponentTestCase, 'test')

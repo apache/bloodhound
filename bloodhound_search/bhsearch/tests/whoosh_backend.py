@@ -52,11 +52,11 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(2, result.hits)
         docs = result.docs
         self.assertEqual(
-            {'id': '1', 'type': 'ticket', 'unique_id': 'ticket:1',
+            {'id': u'1', 'type': u'ticket', 'unique_id': u'empty:ticket:1',
              'score': u'1'},
             docs[0])
         self.assertEqual(
-            {'id': '2', 'type': 'ticket', 'unique_id': 'ticket:2',
+            {'id': u'2', 'type': u'ticket', 'unique_id': u'empty:ticket:2',
              'score': u'2'},
             docs[1])
 
@@ -66,7 +66,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.print_result(result)
         docs = result.docs
         self.assertEqual(
-            {'id': '1', 'type': 'ticket', 'unique_id': 'ticket:1',
+            {'id': u'1', 'type': u'ticket', 'unique_id': u'empty:ticket:1',
                 "score": 1.0},
             docs[0])
 
@@ -79,7 +79,6 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(
             {'id': '1', 'type': 'ticket'},
             docs[0])
-
 
     def test_can_survive_after_restart(self):
         self.whoosh_backend.add_doc(dict(id="1", type="ticket"))

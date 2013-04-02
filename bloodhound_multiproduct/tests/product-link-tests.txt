@@ -1,0 +1,167 @@
+============================================================
+
+        Product TracLinks
+
+============================== Escaping product links, short form
+!product:PREFIX
+Thing ![product:_1 number 1], CS![product:PREFIX1], ![product:PREFIX]
+------------------------------
+<p>
+product:PREFIX
+Thing [product:_1 number 1], CS[product:PREFIX1], [product:PREFIX]
+</p>
+------------------------------
+============================== Product links, alternative short form
+<product:tp1>
+
+Product<product:Foo Bar>
+------------------------------
+<p>
+&lt;<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>&gt;
+</p>
+<p>
+Product&lt;<a class="product" href="/products/Foo%20Bar" title="Whitespaces">product:Foo Bar</a>&gt;
+</p>
+------------------------------
+============================== Escaping product links, alternative short form
+!<product:PREFIX>
+------------------------------
+<p>
+&lt;product:PREFIX&gt;
+</p>
+------------------------------
+============================== Product links, long form with label
+[product:tp1 test product one]
+------------------------------
+<p>
+<a class="product" href="/products/tp1" title="test product 1">test product one</a>
+</p>
+------------------------------
+============================== Product link missing prefix
+product:
+------------------------------
+<p>
+product:
+</p>
+------------------------------
+============================== Product link SHREF_TARGET_LAST
+Add-on to product:tp1:
+Some change.
+product:tp1
+This ticket is the first one
+product:tp1>
+product:tp1&
+see product:xü.
+------------------------------
+<p>
+Add-on to <a class="product" href="/products/tp1" title="test product 1">product:tp1</a>:
+Some change.
+<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>
+This ticket is the first one
+<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>&gt;
+<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>&amp;
+see <a class="product" href="/products/x%C3%BC" title="Non-ASCII chars">product:xü</a>.
+</p>
+------------------------------
+Add-on to <a class="product" href="/products/tp1" title="test product 1">product:tp1</a>:
+Some change.
+<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>
+This ticket is the first one
+<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>&gt;
+<a class="product" href="/products/tp1" title="test product 1">product:tp1</a>&amp;
+see <a class="product" href="/products/x%C3%BC" title="Non-ASCII chars">product:xü</a>.
+============================== Product link SHREF_TARGET_FIRST
+<bug>http://localhost/bugzilla/show_bug.cgi?id=1284</bug> 804
+__Summary:__
+see product:Überflüssigkeit
+------------------------------
+<p>
+&lt;bug&gt;<a class="ext-link" href="http://localhost/bugzilla/show_bug.cgi?id=1284"><span class="icon"></span>http://localhost/bugzilla/show_bug.cgi?id=1284</a>&lt;/bug&gt; 804
+<span class="underline">Summary:</span>
+see <a class="product" href="/products/%C3%9Cberfl%C3%BCssigkeit" title="Non-ASCII chars (long)">product:Überflüssigkeit</a>
+</p>
+------------------------------
+============================== Product link, long form with quoting
+[product:MainProduct Foo]
+
+product:"Foo Bar"
+
+[product:"Foo Bar" Foo Bar]
+
+[product:Argv "*argv[] versus **argv"]
+
+[product:test "test.txt", line 123]
+
+[product:pl/de %de]
+------------------------------
+<p>
+<a class="missing product" href="/products?action=new&amp;prefix=MainProduct" rel="nofollow">Foo</a>
+</p>
+<p>
+<a class="product" href="/products/Foo%20Bar" title="Whitespaces">product:"Foo Bar"</a>
+</p>
+<p>
+<a class="product" href="/products/Foo%20Bar" title="Whitespaces">Foo Bar</a>
+</p>
+<p>
+<a class="missing product" href="/products?action=new&amp;prefix=Argv" rel="nofollow">*argv[] versus **argv</a>
+</p>
+<p>
+<a class="missing product" href="/products?action=new&amp;prefix=test" rel="nofollow">"test.txt", line 123</a>
+</p>
+<p>
+<a class="product" href="/products/pl%2Fde" title="Path separator">%de</a>
+</p>
+------------------------------
+============================== Product link, URL extras
+product:"Foo Bar#baz" product:"Foo Bar"#baz
+
+[product:"Foo Bar#baz" Foo Bar] [product:"Foo Bar"#baz Foo Bar]
+
+product:"Foo Bar?action=edit#baz" product:"Foo Bar?action=edit"#baz product:"Foo Bar"?action=edit#baz
+
+[product:"Foo Bar?action=edit#baz" Foo Bar] [product:"Foo Bar?action=edit"#baz Foo Bar] [product:"Foo Bar"?action=edit#baz Foo Bar]
+------------------------------
+<p>
+<a class="product" href="/products/Foo%20Bar#baz" title="Whitespaces">product:"Foo Bar#baz"</a> <a class="product" href="/products/Foo%20Bar" title="Whitespaces">product:"Foo Bar"</a>#baz
+</p>
+<p>
+<a class="product" href="/products/Foo%20Bar#baz" title="Whitespaces">Foo Bar</a> <a class="missing product" href="/products?action=new&amp;prefix=%22Foo" rel="nofollow">Bar"#baz Foo Bar</a>
+</p>
+<p>
+<a class="product" href="/products/Foo%20Bar?action=edit#baz" title="Whitespaces">product:"Foo Bar?action=edit#baz"</a> <a class="product" href="/products/Foo%20Bar?action=edit" title="Whitespaces">product:"Foo Bar?action=edit"</a>#baz <a class="product" href="/products/Foo%20Bar" title="Whitespaces">product:"Foo Bar"</a>?action=edit#baz
+</p>
+<p>
+<a class="product" href="/products/Foo%20Bar?action=edit#baz" title="Whitespaces">Foo Bar</a> <a class="missing product" href="/products?action=new&amp;prefix=%22Foo" rel="nofollow">Bar?action=edit"#baz Foo Bar</a> <a class="missing product" href="/products?action=new&amp;prefix=%22Foo" rel="nofollow">Bar"?action=edit#baz Foo Bar</a>
+</p>
+------------------------------
+============================== Product links in markup
+'''product:1''', ''product:1'', ~~product:1~~, __product:1__
+------------------------------
+<p>
+<strong><a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:1</a></strong>, <em><a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:1</a></em>, <del><a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:1</a></del>, <span class="underline"><a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:1</a></span>
+</p>
+------------------------------
+============================== Product links missing, quoting of target 
+product:1
+product:12
+product:123
+product:'1'
+product:'12'
+product:'123'
+product:"1"
+product:"12"
+product:"123"
+------------------------------
+<p>
+<a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:1</a>
+<a class="missing product" href="/products?action=new&amp;prefix=12" rel="nofollow">product:12</a>
+<a class="missing product" href="/products?action=new&amp;prefix=123" rel="nofollow">product:123</a>
+<a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:'1'</a>
+<a class="missing product" href="/products?action=new&amp;prefix=12" rel="nofollow">product:'12'</a>
+<a class="missing product" href="/products?action=new&amp;prefix=123" rel="nofollow">product:'123'</a>
+<a class="missing product" href="/products?action=new&amp;prefix=1" rel="nofollow">product:"1"</a>
+<a class="missing product" href="/products?action=new&amp;prefix=12" rel="nofollow">product:"12"</a>
+<a class="missing product" href="/products?action=new&amp;prefix=123" rel="nofollow">product:"123"</a>
+</p>
+------------------------------

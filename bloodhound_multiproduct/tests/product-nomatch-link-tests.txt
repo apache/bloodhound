@@ -1,0 +1,48 @@
+============================================================
+
+        JIRA compact syntax with leading digit
+
+============================== leading digit - JIRA syntax link resolver
+0abc-1
+0abc-12
+0abc-abc
+------------------------------
+<p>
+0abc-1
+0abc-12
+0abc-abc
+</p>
+------------------------------
+============================== leading digit - JIRA syntax link resolver + arguments
+0abc-1?format=csv
+0abc-1#comment:3
+------------------------------
+<p>
+0abc-1?format=csv
+0abc-1#comment:3
+</p>
+------------------------------
+============================== leading digit - JIRA syntax link shorthand form
+0abc-1, 0abc-2
+0abc-12, 0abc-abc
+------------------------------
+<p>
+0abc-1, 0abc-2
+0abc-12, 0abc-abc
+</p>
+------------------------------
+============================== leading digit - JIRA syntax escaping the above
+!0abc-1
+------------------------------
+<p>
+!0abc-1
+</p>
+------------------------------
+!0abc-1
+============================== leading digit - JIRA syntax with unicode digits
+0abc-⁴²
+------------------------------
+<p>
+0abc-⁴²
+</p>
+------------------------------

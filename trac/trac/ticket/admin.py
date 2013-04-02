@@ -45,8 +45,13 @@ class TicketAdminPanel(Component):
 
     def get_admin_panels(self, req):
         if 'TICKET_ADMIN' in req.perm:
-            yield ('ticket', _('Ticket System'), self._type,
-                   gettext(self._label[1]))
+            # in global scope show only products
+            # in local scope everything but products
+            parent = getattr(self.env, 'parent', None)
+            if (parent is None and self._type == 'products') or \
+               (parent and self._type != 'products'):
+                yield ('ticket', _('Ticket System'), self._type,
+                        gettext(self._label[1]))
 
     def render_admin_panel(self, req, cat, page, version):
         req.perm.require('TICKET_ADMIN')

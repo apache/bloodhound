@@ -24,10 +24,12 @@ from bhsearch.api import (IIndexParticipant, BloodhoundSearchApi, IndexFields,
     ISearchParticipant)
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
 from bhsearch.search_resources.ticket_search import TicketIndexer
+from bhsearch.utils import get_product
 from trac.ticket import Milestone
 from trac.config import ListOption, Option
 from trac.core import implements
 from trac.resource import IResourceChangeListener
+from genshi.builder import tag
 
 MILESTONE_TYPE = u"milestone"
 
@@ -65,7 +67,8 @@ class MilestoneIndexer(BaseIndexer):
         # pylint: disable=unused-argument
         try:
             search_api = BloodhoundSearchApi(self.env)
-            search_api.delete_doc(MILESTONE_TYPE, resource.name)
+            search_api.delete_doc(
+                get_product(self.env).prefix, MILESTONE_TYPE, resource.name)
         except Exception, e:
             if self.silence_on_error:
                 self.log.error("Error occurs during milestone indexing. \
@@ -113,6 +116,7 @@ class MilestoneIndexer(BaseIndexer):
             IndexFields.ID: milestone.name,
             IndexFields.TYPE: MILESTONE_TYPE,
             IndexFields.STATUS: status,
+            IndexFields.PRODUCT: get_product(self.env).prefix,
         }
 
         for field, index_field in self.optional_fields.iteritems():
@@ -161,4 +165,6 @@ class MilestoneSearchParticipant(BaseSearchParticipant):
 
     def format_search_results(self, res):
         #TODO: add better milestone rendering
-        return u'Milestone: %s' % res['id']
+
+        id = res['hilited_id'] or res['id']
+        return tag(u'[', res['product'], u'] Milestone:', id)

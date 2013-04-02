@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import sys
+import sys, copy
 
 from genshi.builder import tag
 from genshi.core import TEXT
@@ -29,7 +29,7 @@ from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
 from trac.resource import Resource
 from trac.ticket.api import TicketSystem
-from trac.ticket.model import Ticket
+from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
@@ -50,6 +50,10 @@ from pkg_resources import get_distribution
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
+from multiproduct.model import Product
+from multiproduct.env import ProductEnvironment
+from multiproduct.web_ui import PRODUCT_RE
+
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
 except ImportError:
@@ -67,16 +71,21 @@ class BloodhoundTheme(ThemeBase):
     )
     BLOODHOUND_TEMPLATE_MAP = {
         # Admin
-        'admin_basics.html' : ('bh_admin_basics.html', None),
-        'admin_components.html' : ('bh_admin_components.html', None),
-        'admin_enums.html' : ('bh_admin_enums.html', None),
-        'admin_logging.html' : ('bh_admin_logging.html', None),
-        'admin_milestones.html' : ('bh_admin_milestones.html', None),
-        'admin_perms.html' : ('bh_admin_perms.html', None),
-        'admin_plugins.html' : ('bh_admin_plugins.html', None),
-        'admin_repositories.html' : ('bh_admin_repositories.html', None),
-        'admin_versions.html' : ('bh_admin_versions.html', None),
-        'admin_products.html' : ('bh_admin_products.html', None),
+        'admin_basics.html' : ('bh_admin_basics.html', '_modify_admin_breadcrumb'),
+        'admin_components.html' : ('bh_admin_components.html', '_modify_admin_breadcrumb'),
+        'admin_enums.html' : ('bh_admin_enums.html', '_modify_admin_breadcrumb'),
+        'admin_logging.html' : ('bh_admin_logging.html', '_modify_admin_breadcrumb'),
+        'admin_milestones.html' : ('bh_admin_milestones.html', '_modify_admin_breadcrumb'),
+        'admin_perms.html' : ('bh_admin_perms.html', '_modify_admin_breadcrumb'),
+        'admin_plugins.html' : ('bh_admin_plugins.html', '_modify_admin_breadcrumb'),
+        'admin_repositories.html' : ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
+        'admin_versions.html' : ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
+        'admin_products.html' : ('bh_admin_products.html', '_modify_admin_breadcrumb'),
+        # no template substitutions below - use the default template,
+        # but call the modifier nonetheless
+        'admin_accountsconfig.html' : ('admin_accountsconfig.html', '_modify_admin_breadcrumb'),
+        'admin_users.html' : ('admin_users.html', '_modify_admin_breadcrumb'),
+        'repository_links.html' : ('repository_links.html', '_modify_admin_breadcrumb'),
 
         # Preferences
         'prefs.html' : ('bh_prefs.html', None),
@@ -99,14 +108,15 @@ class BloodhoundTheme(ThemeBase):
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
 
         # Ticket
-        'milestone_edit.html' : ('bh_milestone_edit.html', None),
-        'milestone_delete.html' : ('bh_milestone_delete.html', None),
-        'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_css'),
-        'query.html' : ('bh_query.html', None),
-        'report_delete.html' : ('bh_report_delete.html', None),
-        'report_edit.html' : ('bh_report_edit.html', None), 
-        'report_list.html' : ('bh_report_list.html', None),
-        'report_view.html' : ('bh_report_view.html', None),
+        'milestone_edit.html' : ('bh_milestone_edit.html', '_modify_roadmap_page'),
+        'milestone_delete.html' : ('bh_milestone_delete.html', '_modify_roadmap_page'),
+        'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),
+        'roadmap.html' : ('roadmap.html', '_modify_roadmap_page'),
+        'query.html' : ('bh_query.html', '_add_products_general_breadcrumb'),
+        'report_delete.html' : ('bh_report_delete.html', '_add_products_general_breadcrumb'),
+        'report_edit.html' : ('bh_report_edit.html', '_add_products_general_breadcrumb'), 
+        'report_list.html' : ('bh_report_list.html', '_add_products_general_breadcrumb'),
+        'report_view.html' : ('bh_report_view.html', '_add_products_general_breadcrumb'),
         'ticket.html' : ('bh_ticket.html', '_modify_ticket'),
         'ticket_preview.html' : ('bh_ticket_preview.html', None),
         'ticket_delete.html' : ('bh_ticket_delete.html', None),
@@ -121,7 +131,7 @@ class BloodhoundTheme(ThemeBase):
         'dir_entries.html' : ('bh_dir_entries.html', None),
 
         # Multi Product
-        'product_view.html' : ('bh_product_view.html', None),
+        'product_view.html' : ('bh_product_view.html', '_add_products_general_breadcrumb'),
 
         # General purpose
         'about.html' : ('bh_about.html', None),
@@ -251,6 +261,9 @@ class BloodhoundTheme(ThemeBase):
 
         req.chrome['labels'] = self._get_whitelabelling()
 
+        if data is not None:
+            data['product_list'] = self._get_product_list(req)
+
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
         if self.env.project_icon == 'common/trac.ico':
@@ -308,10 +321,10 @@ class BloodhoundTheme(ThemeBase):
         if is_active:
             # Insert query string in search box (see bloodhound_theme.html)
             req.search_query = data.get('query')
-            # Breadcrumbs nav
-            data['resourcepath_template'] = 'bh_path_search.html'
             # Context nav
             prevnext_nav(req, _('Previous'), _('Next'))
+        # Breadcrumbs nav
+        data['resourcepath_template'] = 'bh_path_search.html'
 
     def _modify_wiki_page_path(self, req, template, data, content_type, is_active):
         """Override wiki breadcrumbs nav items
@@ -319,16 +332,32 @@ class BloodhoundTheme(ThemeBase):
         if is_active:
             data['resourcepath_template'] = 'bh_path_wikipage.html'
 
-    def _modify_roadmap_css(self, req, template, data, content_type, is_active):
-        """Insert roadmap.css
+    def _modify_roadmap_page(self, req, template, data, content_type, is_active):
+        """Insert roadmap.css + products breadcrumb
         """
         add_stylesheet(req, 'dashboard/css/roadmap.css')
+        self._add_products_general_breadcrumb(req, template, data,
+            content_type, is_active)
+        data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
+        req.chrome['ctxtnav'] = []
 
     def _modify_ticket(self, req, template, data, content_type, is_active):
         """Ticket modifications
         """
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
+
+    def _get_product_list(self, req, href_fcn=None):
+        """Returns a list of products as (prefix, name, url) tuples
+        """
+        if href_fcn is None:
+            href_fcn = req.href.products
+        product_list = []
+        for product in Product.select(self.env):
+            if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
+                product_list.append((product.prefix, product.name,
+                    href_fcn(product.prefix)))
+        return product_list
 
     def _modify_resource_breadcrumb(self, req, template, data, content_type,
                                     is_active):
@@ -342,6 +371,27 @@ class BloodhoundTheme(ThemeBase):
                 res = Resource(resname, data['ticket'][resname])
                 data['path_show_' + resname] = permname in req.perm(res)
 
+            # add milestone list + current milestone to the breadcrumb
+            data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
+            mname = data['ticket']['milestone']
+            if mname:
+                data['milestone'] = Milestone(self.env, mname)
+
+    def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
+        # override 'normal' product list with the admin one
+        glsettings = (None, _('(Global settings)'), req.href.admin())
+        data['admin_product_list'] = [ glsettings, ] + \
+            self._get_product_list(req,
+                lambda x: req.href.products(x, 'admin'))
+
+        if isinstance(req.perm.env, ProductEnvironment):
+            product = req.perm.env.product
+            data['admin_current_product'] = (product.prefix, product.name,
+                req.href.products(product.prefix, 'admin'))
+        else:
+            data['admin_current_product'] = glsettings
+        data['resourcepath_template'] = 'bh_path_general.html'
+
     def _modify_browser(self, req, template, data, content_type, is_active):
         """Locate path to file in breadcrumbs area rather than title.
         Add browser-specific CSS.
@@ -351,6 +401,11 @@ class BloodhoundTheme(ThemeBase):
                 path_depth_limit=2
             ))
         add_stylesheet(req, 'theme/css/browser.css')
+
+
+    def _add_products_general_breadcrumb(self, req, template, data,
+                                         content_type, is_active):
+        data['resourcepath_template'] = 'bh_path_general.html'
 
     # INavigationContributor methods
 
@@ -369,7 +424,7 @@ class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
     qct_fields = ListOption('ticket', 'quick_create_fields', 
-                            'product,version,type',
+                            'version,type',
         doc="""Multiple selection fields displayed in create ticket menu""")
 
     # IRequestFilter(Interface):
@@ -397,6 +452,11 @@ class QuickCreateTicketDialog(Component):
             all_fields = dict([f['name'], f] \
                               for f in tm._prepare_fields(fakereq, ticket) \
                               if f['type'] == 'select')
+
+            product_field = all_fields['product'];
+            if product_field and self.env.product:
+                product_field['value'] = self.env.product.prefix
+
             data['qct'] = {'fields': [all_fields[k] for k in self.qct_fields
                                       if k in all_fields]}
         return template, data, content_type
@@ -406,7 +466,8 @@ class QuickCreateTicketDialog(Component):
     def match_request(self, req):
         """Handle requests sent to /qct
         """
-        return req.path_info == '/qct'
+        m = PRODUCT_RE.match(req.path_info)
+        return m and m.group('pathinfo').strip('/') == 'qct'
 
     def process_request(self, req):
         """Forward new ticket request to `trac.ticket.web_ui.TicketModule`

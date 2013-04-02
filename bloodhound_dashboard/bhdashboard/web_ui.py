@@ -28,7 +28,7 @@ __metaclass__ = type
 
 from itertools import izip
 import pkg_resources
-import re
+import re, copy
 from uuid import uuid4
 
 from genshi.builder import tag
@@ -47,6 +47,7 @@ from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
 
 from bhdashboard.api import DashboardSystem, InvalidIdentifier
 from bhdashboard import _json
+from multiproduct.env import ProductEnvironment
 
 class DashboardModule(Component):
     """Web frontend for dashboard infrastructure.
@@ -71,6 +72,10 @@ class DashboardModule(Component):
         """
         if data is not None :
             data['bhdb'] = DashboardChrome(self.env)
+            if isinstance(req.perm.env, ProductEnvironment) \
+                and not 'resourcepath_template' in data \
+                and 'product_list' in data:
+                data['resourcepath_template'] = 'bh_path_general.html'
         for item in req.chrome['nav'].get('mainnav', []):
             self.log.debug('%s' % (item,))
             if item['name'] == 'tickets':
@@ -89,6 +94,7 @@ class DashboardModule(Component):
         return bool(re.match(r'^/dashboard(/.)?', req.path_info))
 
     def process_request(self, req):
+        req.perm.require('PRODUCT_VIEW')
         """Initially this will render static widgets. With time it will be 
         more and more dynamic and flexible.
         """
@@ -98,7 +104,10 @@ class DashboardModule(Component):
             add_ctxtnav(req, _('Reports'), req.href.report())
         context = Context.from_request(req)
         template, layout_data = self.expand_layout_data(context, 
-            'bootstrap_grid', self.DASHBOARD_SCHEMA)
+            'bootstrap_grid',
+            self.DASHBOARD_SCHEMA if isinstance(self.env, ProductEnvironment)
+                else self.DASHBOARD_GLOBAL_SCHEMA
+            )
         widgets = self.expand_widget_data(context, layout_data) 
         return template, {
                     'context' : Context.from_request(req),
@@ -149,8 +158,8 @@ class DashboardModule(Component):
                                 {
                                     '_class' : 'span8',
                                     'widgets' : ['my tickets', 'active tickets',
-                                                 'versions', 'milestones',
-                                                 'components']
+                                                 'products', 'versions',
+                                                 'milestones', 'components']
                                 },
                                 {
                                     '_class' : 'span4',
@@ -218,8 +227,24 @@ class DashboardModule(Component):
                     'activity': {
                             'args' : ['Timeline', None, {'args' : {}}]
                         },
+                    'products': {
+                            'args' : ['Product', None, {'args': { 'max': 3 }}]
+                        },
                }
         }
+
+    # global dashboard queries: add milestone column, group by product
+    DASHBOARD_GLOBAL_SCHEMA = copy.deepcopy(DASHBOARD_SCHEMA)
+    DASHBOARD_GLOBAL_SCHEMA['widgets']['active tickets']['args'][2]['args']['query'] = (
+        'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
+        'col=priority&order=priority&col=milestone'
+    )
+    DASHBOARD_GLOBAL_SCHEMA['widgets']['my tickets']['args'][2]['args']['query'] = (
+        'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
+        'col=priority&order=priority&col=milestone&owner=$USER&'
+    )
+    # TODO: Remove versions, milestones and components from global dashboard.
+    # They will be displayed in the product widgets
 
     # Public API
     def expand_layout_data(self, context, layout_name, schema, embed=False):

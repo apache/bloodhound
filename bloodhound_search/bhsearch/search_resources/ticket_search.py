@@ -23,6 +23,7 @@ from bhsearch import BHSEARCH_CONFIG_SECTION
 from bhsearch.api import (ISearchParticipant, BloodhoundSearchApi,
     IIndexParticipant, IndexFields)
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
+from bhsearch.utils import get_product
 from genshi.builder import tag
 from trac.ticket.api import TicketSystem
 from trac.ticket import Ticket
@@ -112,7 +113,7 @@ class TicketIndexer(BaseIndexer):
         """Called when a ticket is deleted."""
         try:
             search_api = BloodhoundSearchApi(self.env)
-            search_api.delete_doc(TICKET_TYPE, ticket.id)
+            search_api.delete_doc(ticket.product, TICKET_TYPE, ticket.id)
         except Exception, e:
             if self.silence_on_error:
                 self.log.error("Error occurs during deleting ticket. \
@@ -143,8 +144,7 @@ class TicketIndexer(BaseIndexer):
         for row in self.env.db_query(sql, args):
             yield int(row[0])
 
-    def _index_ticket(
-            self, ticket, search_api = None, operation_context = None):
+    def _index_ticket(self, ticket, search_api=None, operation_context=None):
         try:
             if not search_api:
                 search_api = BloodhoundSearchApi(self.env)
@@ -164,7 +164,10 @@ class TicketIndexer(BaseIndexer):
             IndexFields.ID: str(ticket.id),
             IndexFields.TYPE: TICKET_TYPE,
             IndexFields.TIME: ticket.time_changed,
-            }
+            IndexFields.PRODUCT: get_product(self.env).prefix,
+        }
+        # TODO: Add support for moving tickets between products.
+
 
         for field, index_field in self.optional_fields.iteritems():
             if field in ticket.values:
@@ -241,5 +244,5 @@ class TicketSearchParticipant(BaseSearchParticipant):
         id = res['hilited_id'] or res['id']
         id = tag.span('#', id, class_=css_class)
         summary = res['hilited_summary'] or res['summary']
-        return tag(id, ': ', summary, ' (%s)' % stat)
+        return tag('[', res['product'], '] ', id, ': ', summary, ' (%s)' % stat)
 

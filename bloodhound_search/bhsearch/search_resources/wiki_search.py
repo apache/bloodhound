@@ -23,9 +23,11 @@ from bhsearch import BHSEARCH_CONFIG_SECTION
 from bhsearch.api import (ISearchParticipant, BloodhoundSearchApi,
     IIndexParticipant, IndexFields)
 from bhsearch.search_resources.base import BaseIndexer, BaseSearchParticipant
+from bhsearch.utils import get_product
 from trac.core import implements
 from trac.config import ListOption, Option
 from trac.wiki import IWikiChangeListener, WikiSystem, WikiPage
+from genshi.builder import tag
 
 WIKI_TYPE = u"wiki"
 
@@ -47,7 +49,8 @@ class WikiIndexer(BaseIndexer):
         """Called when a ticket is deleted."""
         try:
             search_api = BloodhoundSearchApi(self.env)
-            search_api.delete_doc(WIKI_TYPE, page.name)
+            search_api.delete_doc(
+                get_product(self.env).prefix, WIKI_TYPE, page.name)
         except Exception, e:
             if self.silence_on_error.lower() == "true":
                 self.log.error("Error occurs during wiki indexing. \
@@ -100,6 +103,7 @@ class WikiIndexer(BaseIndexer):
             IndexFields.TIME: page.time,
             IndexFields.AUTHOR: page.author,
             IndexFields.CONTENT: self.wiki_formatter.format(page.text),
+            IndexFields.PRODUCT: get_product(self.env).prefix,
         }
         return doc
 
@@ -148,7 +152,7 @@ class WikiSearchParticipant(BaseSearchParticipant):
 
     def format_search_results(self, res):
         title = res['hilited_id'] or res['id']
-        return title
+        return tag('[', res['product'], '] ', title)
 
 
 

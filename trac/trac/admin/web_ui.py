@@ -49,6 +49,11 @@ try:
 except ImportError:
     IAdminPageProvider = None
 
+try:
+    from acct_mgr.admin import AccountManagerAdminPanel
+except:
+    AccountManagerAdminPanel = None
+
 
 class AdminModule(Component):
     """Web administration interface provider and panel manager."""
@@ -166,10 +171,17 @@ class AdminModule(Component):
         providers = {}
 
         for provider in self.panel_providers:
-            p = list(provider.get_admin_panels(req) or [])
-            for panel in p:
-                providers[(panel[0], panel[2])] = provider
-            panels += p
+            add_provider = True
+            if AccountManagerAdminPanel is not None and \
+               isinstance(provider, AccountManagerAdminPanel) and \
+               getattr(self.env, 'parent', None):
+                add_provider = False
+
+            if add_provider:
+                p = list(provider.get_admin_panels(req) or [])
+                for panel in p:
+                    providers[(panel[0], panel[2])] = provider
+                panels += p
 
         # Add panels contributed by legacy WebAdmin plugins
         if IAdminPageProvider:
@@ -264,10 +276,12 @@ class LoggingAdminPanel(Component):
     # IAdminPanelProvider methods
 
     def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
+        if 'TRAC_ADMIN' in req.perm and not getattr(self.env, 'parent', None):
             yield ('general', _('General'), 'logging', _('Logging'))
 
     def render_admin_panel(self, req, cat, page, path_info):
+        if getattr(self.env, 'parent', None):
+            raise PermissionError()
         log_type = self.env.log_type
         log_level = self.env.log_level
         log_file = self.env.log_file
@@ -439,10 +453,12 @@ class PluginAdminPanel(Component):
     # IAdminPanelProvider methods
 
     def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
+        if 'TRAC_ADMIN' in req.perm and not getattr(self.env, 'parent', None):
             yield ('general', _('General'), 'plugin', _('Plugins'))
 
     def render_admin_panel(self, req, cat, page, path_info):
+        if getattr(self.env, 'parent', None):
+            raise PermissionError()
         req.perm.require('TRAC_ADMIN')
 
         if req.method == 'POST':

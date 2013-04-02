@@ -76,7 +76,9 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'theme': {'theme': 'bloodhound',},
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
                                              'tickets', 'newticket', 'timeline',
-                                             'roadmap', 'search', 'admin']),},
+                                             'roadmap', 'search', 'admin']),
+                        'environment_factory': '',
+                        'request_factory': '',},
                'project': {'footer': ('Get involved with '
                                       '<a href="%(site)s">Apache Bloodhound</a>'
                                       % {'site': BH_PROJECT_SITE,}),},
@@ -215,7 +217,19 @@ class BloodhoundSetup(object):
             print ("Warning: Environment already exists at %s." % new_env)
             self.writeconfig(tracini, [{'inherit': {'file': baseini},},])
 
-        self.writeconfig(baseini, [BASE_CONFIG, accounts_config])
+        base_config = dict(BASE_CONFIG)
+        environment_factory_path = os.path.abspath(
+                                      os.path.normpath(
+                                          os.path.join(options['sourcedir'],
+                                                               'bloodhound_multiproduct/multiproduct/hooks.py')))
+        request_factory_path = os.path.abspath(
+                                   os.path.normpath(
+                                       os.path.join(options['sourcedir'],
+                                                            'bloodhound_multiproduct/multiproduct/hooks.py')))
+        base_config['trac']['environment_factory'] = environment_factory_path
+        base_config['trac']['request_factory'] = request_factory_path
+
+        self.writeconfig(baseini, [base_config, accounts_config])
 
         if os.path.exists(digestfile):
             backupfile(digestfile)
@@ -240,8 +254,17 @@ class BloodhoundSetup(object):
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
         
-        print "Running wiki bh upgrades"
+        print "Running wiki Bloodhound upgrades"
         bloodhound.onecmd('wiki bh-upgrade')
+
+        print "Loading default product wiki"
+        bloodhound.onecmd('product admin @ wiki load %s' % " ".join(pages))
+
+        print "Running default product wiki upgrades"
+        bloodhound.onecmd('product admin @ wiki upgrade')
+
+        print "Running default product wiki Bloodhound upgrades"
+        bloodhound.onecmd('product admin @ wiki bh-upgrade')
 
         print """
 You can now start Bloodhound by running:
@@ -300,6 +323,9 @@ def handle_options():
     # Base Trac Options
     parser.add_option('--project', dest='project',
                       help='Set the top project name', default='main')
+    parser.add_option('--source_directory', dest='sourcedir',
+                      help='Specify root source code directory',
+                      default=os.path.normpath(os.path.join(os.getcwd(), '../'))),
     parser.add_option('--environments_directory', dest='envsdir',
                       help='Set the directory to contain environments',
                       default=os.path.join('bloodhound', 'environments'))

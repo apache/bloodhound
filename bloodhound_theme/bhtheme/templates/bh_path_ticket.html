@@ -22,23 +22,10 @@
      xmlns:i18n="http://genshi.edgewall.org/i18n"
      xmlns:xi="http://www.w3.org/2001/XInclude"
     py:strip="">
-  <li py:if="bhdb">
-    <a title="View the dashboard" href="${href.dashboard()}">Dashboard</a>
+
+  <xi:include href="bh_path_general.html" />
+  <li>
     <span class="divider">/</span>
+    <span>Ticket #${ticket.id}</span>
   </li>
-  <li py:if="ticket.product" py:with="prodlink = path_show_product and href.products(ticket.product) or href.query(product=ticket['product'], active='!closed')">
-    <a title="Active tickets for product ${ticket.product}"
-        href="${prodlink}">
-      ${ticket.product}
-    </a>
-    <span class="divider">/</span>
-  </li>
-  <li py:if="ticket.milestone" py:with="mslink = path_show_milestone and href.milestone(ticket.milestone) or href.query(milestone=ticket['milestone'], active='!closed')">
-    <a title="Active tickets in milestone ${ticket.milestone}"
-        href="${mslink}">
-      ${ticket.milestone}
-    </a>
-    <span class="divider">/</span>
-  </li>
-  <li><span>Ticket #${ticket.id}</span></li>
 </div>

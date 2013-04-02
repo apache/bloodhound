@@ -41,6 +41,9 @@ from bhdashboard.util import WidgetBase, InvalidIdentifier, \
                               merge_links, pretty_wrapper, trac_version, \
                               trac_tags
 
+from multiproduct.env import ProductEnvironment
+from multiproduct.ticket.query import ProductQueryModule
+
 class TicketQueryWidget(WidgetBase):
     """Display tickets matching a TracQuery using a grid
     """
@@ -91,7 +94,9 @@ class TicketQueryWidget(WidgetBase):
             more_link_href = req.href('query', args)
             args.update({'page' : page, 'max': maxrows})
 
-            qrymdl = self.env[QueryModule]
+            qrymdl = self.env[QueryModule
+                if isinstance(self.env, ProductEnvironment)
+                else ProductQueryModule]
             if qrymdl is None :
                 raise TracError('Query module not available (disabled?)')
             data = qrymdl.process_request(fakereq)[1]
@@ -121,7 +126,8 @@ class TicketQueryWidget(WidgetBase):
                                         } \
                                     for hidx, h in enumerate(headers)]],
                                 'id' : t['id'],
-                                'resource' : Resource('ticket', t['id'])
+                                'resource' : Resource('ticket', t['id']),
+                                'href': t['href']
                             } for t in tickets]) \
                                 for group_value, tickets in data['groups'] ]))
             return 'widget_grid.html', \

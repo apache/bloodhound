@@ -17,6 +17,7 @@
 
 Pygments
 pytz
+sqlparse
 Babel
 Genshi
 -e ../trac

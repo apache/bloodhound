@@ -23,6 +23,8 @@ from trac.config import ExtensionOption
 from trac.core import (Interface, Component, ExtensionPoint, TracError,
     implements)
 from trac.env import IEnvironmentSetupParticipant
+from multiproduct.api import ISupportMultiProductEnvironment
+from multiproduct.core import MultiProductExtensionPoint
 
 ASC = "asc"
 DESC = "desc"
@@ -35,6 +37,7 @@ class IndexFields(object):
     AUTHOR = 'author'
     CONTENT = 'content'
     STATUS = 'status'
+    PRODUCT = 'product'
 
 class QueryResult(object):
     def __init__(self):
@@ -94,7 +97,7 @@ class ISearchBackend(Interface):
         Called when new document instance must be added
         """
 
-    def delete_doc(doc_type, doc_id, operation_context):
+    def delete_doc(product, doc_type, doc_id, operation_context):
         """
         Delete document from index
         """
@@ -226,7 +229,7 @@ class BloodhoundSearchApi(Component):
     """Implements core indexing functionality, provides methods for
     searching, adding and deleting documents from index.
     """
-    implements(IEnvironmentSetupParticipant)
+    implements(IEnvironmentSetupParticipant, ISupportMultiProductEnvironment)
 
     backend = ExtensionOption('bhsearch', 'search_backend',
         ISearchBackend, 'WhooshBackend',
@@ -242,7 +245,7 @@ class BloodhoundSearchApi(Component):
     result_post_processors = ExtensionPoint(IResultPostprocessor)
     query_processors = ExtensionPoint(IQueryPreprocessor)
 
-    index_participants = ExtensionPoint(IIndexParticipant)
+    index_participants = MultiProductExtensionPoint(IIndexParticipant)
 
     def query(
             self,
@@ -335,6 +338,7 @@ class BloodhoundSearchApi(Component):
 
     def _change_doc_id(self, doc, old_id, operation_context):
         self.backend.delete_doc(
+            doc[IndexFields.PRODUCT],
             doc[IndexFields.TYPE],
             old_id,
             operation_context
@@ -354,13 +358,10 @@ class BloodhoundSearchApi(Component):
             preprocessor.pre_process(doc)
         self.backend.add_doc(doc, operation_context)
 
-
-    def delete_doc(self, doc_type, doc_id):
-        """Add a document from underlying search backend.
-
-        The doc must be dictionary with obligatory "type" field
+    def delete_doc(self, product, doc_type, doc_id):
+        """Delete the document from underlying search backend.
         """
-        self.backend.delete_doc(doc_type, doc_id)
+        self.backend.delete_doc(product, doc_type, doc_id)
 
     # IEnvironmentSetupParticipant methods
 

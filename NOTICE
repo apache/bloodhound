@@ -24,3 +24,7 @@ jQuery Timepicker Addon - licensed under MIT License
 This product includes software (jQuery Timepicker Addon)
 developed by Trent Richardson
 (http://trentrichardson.com/examples/timepicker/)
+
+LRU and LFU cache decorators - licensed under the PSF License
+This product includes code (LRU and LFU cache decorators) developed by
+Raymond Hettinger (http://code.activestate.com/recipes/498245-lru-and-lfu-cache-decorators/)
