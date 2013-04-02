@@ -181,7 +181,10 @@ class Environment(trac.env.Environment):
                                 self.log.info("%s.%s needs upgrade in environment %s...",
                                               participant.__module__, participant.__class__.__name__,
                                               env)
-                                upgraders.append((env, participant))
+                                if isinstance(participant, MultiProductSystem):
+                                    upgraders = [(env, participant), ] + upgraders
+                                else:
+                                    upgraders.append((env, participant))
             return upgraders
 
         def upgraders_for_product_envs():
