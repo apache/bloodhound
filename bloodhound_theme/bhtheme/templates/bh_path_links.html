@@ -60,8 +60,8 @@
     py:with="last = idx == len(path_hidden) - 1"><a 
       class="pathentry" href="${part.href}"
       title="${_('View %(name)s', name=part.name)}">${part.name}<span 
-      py:if="not last" class="pathentry sep">/</span></a></li></ul></li><span 
-    class="pathentry sep divider">/</span></py:if><py:for 
+      py:if="not last" class="pathentry sep">/</span></a></li></ul><span 
+    class="pathentry sep divider">/</span></li></py:if><py:for 
     each="idx, part in enumerate(path_visible)"><py:with 
     vars="last = idx == len(path_visible) - 1;
     ">${part_ui(part, last)}</py:with></py:for></py:with></py:if>
