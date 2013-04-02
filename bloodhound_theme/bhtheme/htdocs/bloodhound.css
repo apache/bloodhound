@@ -1130,6 +1130,15 @@ table.wiki th {
 
 /* @end */
 
+#trac-add-comment textarea#comment{
+ border-radius: 8px 8px 8px 8px;
+ box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+ padding: 2px 4px 2px 4px;
+ margin: 10px 0px 10px 10px;
+ min-height: 20px;
+}
+
+
 #changelog div.comment-box{
  border: 2px solid #999999;
  border-radius: 8px 8px 8px 8px;
@@ -1137,4 +1146,23 @@ table.wiki th {
  padding: 2px 4px 2px 4px;
  margin: 10px 0px 10px 10px;
  min-height: 20px;
+}
+.ticket form#prefs input[type="radio"]{
+ display: none;
+}
+
+.ticket form#prefs input[type="radio"] + label span {
+ display: inline-block;
+ cursor:pointer;
+}
+.ticket form#prefs input[type="radio"]:checked + label span {
+ display: inline-block;
+ cursor: pointer;
+}
+input[type="radio"]:checked + label span {
+ font-weight: bold;
+ cursor: pointer;
+}
+input[type="radio"]:not(:checked) + label span {
+ text-decoration:underline;
 }

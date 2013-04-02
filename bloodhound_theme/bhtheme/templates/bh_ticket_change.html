@@ -49,7 +49,7 @@ Arguments:
   <py:def function="commentref(prefix, cnum, cls=None)">
     <a href="#comment:$cnum" title="$prefix$cnum" class="$cls" style="margin-left:5px;">&#x260D;</a>
   </py:def>
-  <div class="row visible-desktop-hover" py:if="change.comment">
+  <div class="visible-desktop-hover" py:if="change.comment">
     <div py:if="cnum" class="comment-box" id="${'comment:' + str(cnum) if cnum else ''}">
       <div>
         <h4 class="change">
