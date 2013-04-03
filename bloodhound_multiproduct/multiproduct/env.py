@@ -95,8 +95,19 @@ class Environment(trac.env.Environment):
             self.verify()
             self.setup_config()
 
-        self._global_setup_participants = set.intersection(set(self.setup_participants),
-                                                           set(self.multi_product_support_components))
+        self._global_setup_participants = list(set.intersection(set(self.setup_participants),
+                                                                set(self.multi_product_support_components)))
+        # make sure MultiProductSystem is always the first in the global setup
+        # participant list
+        for idx, participant in zip(range(0, len(self._global_setup_participants)),
+                                    self._global_setup_participants):
+            if isinstance(participant, MultiProductSystem):
+                if not idx:
+                    break
+                self._global_setup_participants.insert(0,
+                                                       self._global_setup_participants.pop(idx))
+                break
+
         self._product_setup_participants = [participant for participant in self.setup_participants
                                                 if not participant in self._global_setup_participants]
 
@@ -181,10 +192,7 @@ class Environment(trac.env.Environment):
                                 self.log.info("%s.%s needs upgrade in environment %s...",
                                               participant.__module__, participant.__class__.__name__,
                                               env)
-                                if isinstance(participant, MultiProductSystem):
-                                    upgraders = [(env, participant), ] + upgraders
-                                else:
-                                    upgraders.append((env, participant))
+                                upgraders.append((env, participant))
             return upgraders
 
         def upgraders_for_product_envs():
