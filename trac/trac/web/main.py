@@ -466,7 +466,11 @@ def dispatch_request(environ, start_response):
         env_error = e
 
     from trac.hooks import request_factory
-    factory = request_factory(global_env)
+    factory = None
+    try:
+        factory = request_factory(global_env)
+    except AttributeError:
+        pass
     req = factory().create_request(env, environ, start_response) if factory \
             else RequestWithSession(environ, start_response)
     translation.make_activable(lambda: req.locale, env.path if env else None)
