@@ -44,7 +44,6 @@ class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepos
         """Retrieve list of repositories specified in the repository
         table for current product environment
         """
-        from multiproduct.env import ProductEnvironment
         if isinstance(self.env, ProductEnvironment):
             repos = {}
             for id, name, value in self.env.db_direct_query(
@@ -68,24 +67,44 @@ class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepos
         else:
             return super(DbRepositoryProvider, self).get_repositories()
 
+    def _get_repository_links(self, repoid):
+        with self.env.db_direct_query as db:
+            rows = db("""SELECT value FROM repository WHERE id=%s
+                         AND name='product'""" % (repoid,))
+            if rows:
+                return rows[0][0].split(',')
+        return None
+
     def link_product(self, reponame):
         if not isinstance(self.env, ProductEnvironment):
             return
         rm = RepositoryManager(self.env.parent)
         repoid = rm.get_repository_id(reponame)
+        links = self._get_repository_links(repoid)
         with self.env.db_direct_transaction as db:
-            db("""INSERT INTO repository (id, name, value)
-                    VALUES(%s, 'product', '%s')""" %
-                    (repoid, self.env.product.prefix))
+            if links:
+                links.append(self.env.product.prefix)
+                db("""UPDATE repository SET value=%s WHERE id=%s
+                      AND name='product'""", (','.join(links), repoid))
+            else:
+                db("""INSERT INTO repository (id, name, value)
+                        VALUES(%s, 'product', '%s')""" %
+                        (repoid, self.env.product.prefix))
 
     def unlink_product(self, reponame):
         if not isinstance(self.env, ProductEnvironment):
             return
         rm = RepositoryManager(self.env.parent)
         repoid = rm.get_repository_id(reponame)
+        links = self._get_repository_links(repoid)
+        links.remove(self.env.product.prefix)
         with self.env.db_direct_transaction as db:
-            db("""DELETE FROM repository WHERE id=%s AND name='product'
-                    AND value='%s'""" % (repoid, self.env.product.prefix))
+            if len(links) > 0:
+                db("""UPDATE repository SET value=%s WHERE id=%s
+                      AND name='product'""", (','.join(links), repoid))
+            else:
+                db("""DELETE FROM repository WHERE id=%s AND name='product'
+                        AND value='%s'""" % (repoid, self.env.product.prefix))
 
 trac.versioncontrol.api.DbRepositoryProvider = DbRepositoryProvider
 trac.versioncontrol.DbRepositoryProvider = DbRepositoryProvider
