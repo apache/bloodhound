@@ -243,8 +243,8 @@ class DashboardModule(Component):
         'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
         'col=priority&order=priority&col=milestone&owner=$USER&'
     )
-    # TODO: Remove versions, milestones and components from global dashboard.
-    # They will be displayed in the product widgets
+    for widget in ('milestones', 'versions', 'components'):
+        DASHBOARD_GLOBAL_SCHEMA['div'][0]['div'][0]['widgets'].remove(widget)
 
     # Public API
     def expand_layout_data(self, context, layout_name, schema, embed=False):
