@@ -40,11 +40,10 @@ class MultiproductPermissionPolicy(Component):
         from multiproduct.env import ProductEnvironment
 
         if isinstance(self.env, ProductEnvironment):
-            if action == 'TRAC_ADMIN':
-                # Always lookup TRAC_ADMIN permission in global scope
-                permsys = PermissionSystem(self.env.parent)
-                return bool(permsys.check_permission(action, username, 
-                                                resource, perm))
+            permsys = PermissionSystem(self.env.parent)
+            if permsys.check_permission('TRAC_ADMIN', username):
+                return action in PermissionSystem(self.env).get_actions() \
+                        or None     # FIXME: maybe False is better
             elif username == self.env.product.owner:
                 # Product owner granted with PRODUCT_ADMIN permission ootb
                 permsys = PermissionSystem(self.env)

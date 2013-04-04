@@ -29,6 +29,7 @@ from trac.tests.perm import DefaultPermissionStoreTestCase,\
         PermissionPolicyTestCase, TestPermissionPolicy, TestPermissionRequestor
 
 from multiproduct.env import ProductEnvironment
+from multiproduct.model import Product
 from multiproduct.perm import MultiproductPermissionPolicy, sudo
 from tests.env import MultiproductTestCase
 
@@ -295,6 +296,34 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
         self.global_perm_admin._do_add('testuser', 'TRAC_ADMIN')
         self.assertTrue(self.perm.has_permission('TRAC_ADMIN'))
 
+    def test_product_trac_admin_actions(self):
+        """Allow all actions in product scope for TRAC_ADMIN
+        """
+        self.global_perm_admin._do_add('testuser', 'TRAC_ADMIN')
+
+        all_actions = self.permsys.get_actions()
+        self.assertEquals(['TEST_CREATE', 'EMAIL_VIEW', 'TRAC_ADMIN',
+                           'TEST_DELETE', 'TEST_MODIFY', 'PRODUCT_ADMIN',
+                           'TEST_ADMIN'], all_actions)
+        self.assertEquals({}, self.permsys.get_user_permissions('testuser'))
+        for action in all_actions:
+            self.assertTrue(self.perm.has_permission(action),
+                            'Check for permission action %s' % (action,))
+        self.assertFalse(self.perm.has_permission('UNKNOWN_PERM'))
+
+        # Clear permissions cache and retry 
+        self.perm._cache.clear()
+        self.global_perm_admin._do_remove('testuser', 'TRAC_ADMIN')
+
+        all_actions = self.permsys.get_actions()
+        self.assertEquals(['TEST_CREATE', 'EMAIL_VIEW', 'TRAC_ADMIN',
+                           'TEST_DELETE', 'TEST_MODIFY', 'PRODUCT_ADMIN',
+                           'TEST_ADMIN'], all_actions)
+        self.assertEquals({}, self.permsys.get_user_permissions('testuser'))
+        for action in all_actions:
+            self.assertFalse(self.perm.has_permission(action),
+                            'Check for permission action %s' % (action,))
+
     def test_product_trac_admin_fail_local(self):
         """TRAC_ADMIN granted in product env will be ignored
         """
@@ -333,6 +362,44 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
 
         self.assertTrue(self.perm.has_permission('PRODUCT_ADMIN'))
         self.assertFalse(self.perm.has_permission('TRAC_ADMIN'))
+
+    def test_new_product_perm(self):
+        """Only product owner and TRAC_ADMIN will access new product
+        """
+        newproduct = Product(self.global_env)
+        newproduct.prefix = 'NEW'
+        newproduct.name = 'New product'
+        newproduct.owner = 'owneruser'
+        newproduct.insert()
+
+        env = ProductEnvironment(self.global_env, newproduct)
+        self.global_perm_admin._do_add('adminuser', 'TRAC_ADMIN')
+        admin_perm = perm.PermissionCache(env, 'adminuser')
+        owner_perm = perm.PermissionCache(env, 'owneruser')
+        user_perm = perm.PermissionCache(env, 'testuser')
+        global_permsys = perm.PermissionSystem(self.global_env)
+        permsys = perm.PermissionSystem(env)
+
+        self.assertEquals({'EMAIL_VIEW': True, 'TEST_ADMIN': True,
+                           'TEST_CREATE': True, 'TEST_DELETE': True,
+                           'TEST_MODIFY': True, 'TRAC_ADMIN' : True},
+                          global_permsys.get_user_permissions('adminuser'))
+        self.assertEquals({}, global_permsys.get_user_permissions('owneruser'))
+        self.assertEquals({}, global_permsys.get_user_permissions('testuser'))
+        self.assertEquals({}, permsys.get_user_permissions('adminuser'))
+        self.assertEquals({}, permsys.get_user_permissions('owneruser'))
+        self.assertEquals({}, permsys.get_user_permissions('testuser'))
+
+        all_actions = self.permsys.get_actions()
+        all_actions.remove('TRAC_ADMIN')
+        for action in all_actions:
+            self.assertTrue(admin_perm.has_permission(action))
+            self.assertTrue(owner_perm.has_permission(action))
+            self.assertFalse(user_perm.has_permission(action))
+
+        self.assertTrue(admin_perm.has_permission('TRAC_ADMIN'))
+        self.assertFalse(owner_perm.has_permission('TRAC_ADMIN'))
+        self.assertFalse(user_perm.has_permission('TRAC_ADMIN'))
 
 
 def test_suite():
