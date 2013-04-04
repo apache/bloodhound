@@ -295,8 +295,10 @@ class MultiProductSystem(Component):
                 for table in TICKET_TABLES:
                     if table == 'attachment':
                         db("""UPDATE attachment
-                              SET product=(SELECT ticket.product FROM ticket WHERE ticket.id=attachment.id)
-                              WHERE type='ticket'""")
+                              SET product=(SELECT ticket.product FROM ticket
+                                           WHERE ticket.id=%s)
+                              WHERE type='ticket'
+                           """ %(db.cast('attachment.id', 'integer'),))
                     else:
                         db("""UPDATE %s
                               SET product=(SELECT ticket.product FROM ticket WHERE ticket.id=%s.ticket)""" %
@@ -332,7 +334,8 @@ class MultiProductSystem(Component):
                 self.log.info("Migrating wikis to global context")
                 db("""INSERT INTO %s (%s, product) SELECT %s, '' FROM %s""" %
                       (table, cols, cols, temp_table_name))
-                for wiki_name, wiki_version, wiki_product in db("SELECT name, version, product FROM '%s'" % table):
+                for wiki_name, wiki_version, wiki_product in db("""
+                        SELECT name, version, product FROM "%s" """ % table):
                     if wiki_name in self.system_wiki_list:
                         for product in all_products:
                             db("""INSERT INTO %s (%s, product)

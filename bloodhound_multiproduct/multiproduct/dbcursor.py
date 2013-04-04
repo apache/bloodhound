@@ -256,7 +256,7 @@ class BloodhoundProductSQLTranslate(object):
         return ' AS %s' % alias
 
     def _translated_table_view_sql(self, name, alias=None):
-        sql = '(SELECT * FROM %s WHERE %s="%s")' % (name, self._product_column, self._product_prefix)
+        sql = "(SELECT * FROM %s WHERE %s='%s')" % (name, self._product_column, self._product_prefix)
         if alias:
             sql += self._select_alias_sql(alias)
         return sql
