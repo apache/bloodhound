@@ -116,7 +116,7 @@
                 <div class="btn-group">
                   <py:def function="field_select(field, value)">
                     <select id="field-${field.name}" name="field_${field.name}"
-                        class="input-medium" data-empty="true" data-field="${field.name}">
+                        class="input-block-level" data-empty="true" data-field="${field.name}">
                       <option py:if="field.optional"></option>
                       <option py:for="option in field.options"
                               selected="${value == option or None}"
@@ -132,42 +132,21 @@
                       </optgroup>
                     </select>
                   </py:def>
-                  <py:def function="qct_box()">
-                  <div>
-                    <label for="field-summary">Summary</label>
-                    <input type="text" id="field-summary"
-                        name="field_summary" placeholder="Ticket summary" />
-                  </div>
-                  <div>
-                    <label for="field-description">Description</label>
-                    <textarea id="field-description" name="field_description"
-                        rows="3" cols="28"
-                        placeholder="Ticket description"></textarea>
-                  </div>
-                  <div class="form-horizontal">
-                    <py:for each="field in qct.fields">
-                      <label class="control-label" for="field-${field.name}">${field.label}</label>
-                      <div class="controls">
-                        ${field_select(field, None)}
-                      </div>
-                    </py:for>
-                  </div>
-                </py:def>
+
                 <py:choose test="">
                   <py:when test="qct">
                       <a href="#" class="btn btn-primary dropdown-toggle"
                           id="qct-newticket" data-animation="true" data-html="true" 
                           data-trigger="manual" data-toggle="dropdown">
                         <span class="visible-phone"><i class="icon-plus-sign icon-white"></i></span>
-                        <span class="hidden-phone">Create Ticket</span>
+                        <span class="hidden-phone">Create Ticket&nbsp;<span class="caret"></span></span>
                       </a>
                       <div id="qct-box" class="dropdown-menu" style="width: 300px;"
                           py:choose="">
                         <div class="popover-title">
                           <h3>
                             Create Ticket
-                            <a style="top: -33px; right: -25px; position: relative;" 
-                                class="pull-right" href="${href.newticket()}">
+                            <a class="pull-right linkfull" href="${href.newticket()}">
                               <small>Full dialogue &raquo;</small>
                             </a>
                           </h3>
@@ -175,12 +154,31 @@
                         <div class="popover-content">
                           <py:when test="'TICKET_CREATE' in perm">
                             <form id="qct-form" name="qct" method="post">
-                              <div id="qct-fieldset">
-                                ${qct_box()}
+                              <div class="control-group">
+                                <label for="field-summary">Summary</label>
+                                <input type="text" id="field-summary" class="input-block-level"
+                                    name="field_summary" placeholder="Ticket summary" />
+                              </div>
+
+                              <div class="control-group">
+                                <label for="field-description">Description</label>
+                                <textarea id="field-description" class="input-block-level"
+                                    name="field_description" rows="3" cols="28"
+                                    placeholder="Ticket description"></textarea>
+                              </div>
+
+                              <div class="control-group">
+                                <py:for each="field in qct.fields">
+                                  <label for="field-${field.name}">${field.label}</label>
+                                  ${field_select(field, None)}
+                                </py:for>
                               </div>
                             </form>
-                            <button id="qct-create" class="btn" data-target="${href()}">Create</button>
-                            <a id="qct-cancel">Cancel</a>
+
+                            <div class="controls pull-right">
+                              <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
+                              <button id="qct-cancel" class="btn">Cancel</button>
+                            </div>
                           </py:when>
                           <div py:otherwise="" class="alert alert-info">
                             <p>

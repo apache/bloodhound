@@ -57,7 +57,7 @@ $( function () {
 
     // Clear input controls inside quick create box
     function qct_clearui() {
-      $('#qct-fieldset input, #qct-fieldset select, #qct-fieldset textarea').val('');
+      $('#qct-form input, #qct-form select, #qct-form textarea').val('');
     }
 
     // We want to submit via #qct-create

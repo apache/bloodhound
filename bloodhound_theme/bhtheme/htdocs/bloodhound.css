@@ -293,43 +293,15 @@ pre {
 
 /* @end */
 
-/* @group Quick Ticket fieldset */
+/* @group Quick Create Ticket popup */
 
-#qct-fieldset {
- position: relative;
+#qct-box .linkfull {
+  position: relative;
+  bottom: 20px;
 }
 
-#qct-fieldset .form-horizontal {
- position: relative;
- left: -65px;
-}
-
-#qct-fieldset .controls {
+#qct-box .controls {
  margin-bottom: 5px;
-}
-
-#qct-fieldset #field-summary {
- width: 100%;
-}
-
-#qct-fieldset #field-description {
- width: 100%;
-}
-
-#qct-box #qct-cancel {
- display: inline;
- color: #08C;
- margin-top: 5px;
- padding: 5px 15px;
-}
-
-#qct-create {
- margin-left: 100px;
-}
-
-#qct-cancel {
- position: relative;
- top: 5px;
 }
 
 #qct-box p {
@@ -342,6 +314,8 @@ pre {
 #qct-newticket + .popover .popover-content span {
  padding: 3px;
 }
+
+/* @end */
 
 /* @group Generic rules */
 
