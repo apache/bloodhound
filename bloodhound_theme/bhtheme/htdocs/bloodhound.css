@@ -437,6 +437,10 @@ span[contenteditable="true"]:focus {
  color: #090;
 }
 
+.comment blockquote p {
+   font-size: 13px;
+ }
+
 /* @end */
 
 /* @group Search */
@@ -591,6 +595,38 @@ input[type="submit"].btn.btn-micro {
   text-decoration: none;
 }
 
+.icon, a.trac-rawlink, a.trac-ziplink {
+  background-image: url("../dashboard/img/glyphicons-halflings.png");
+  background-repeat: no-repeat;
+  *margin-right: .3em;
+  padding-left: 15px;
+  vertical-align: text-top;
+}
+a.ext-link .icon {
+  background-position: -336px -144px;
+}
+a.mail-link .icon {
+  background-position: -72px 0;
+}
+a.trac-rawlink, a.trac-ziplink {
+  background-position: -96px -24px;
+}
+a.missing:link, a.missing:visited, a.missing, span.missing,
+a.forbidden, span.forbidden { 
+  color: #998;
+}
+
+a.missing:link:hover, a.missing:visited:hover,
+a.missing:hover, span.missing:hover, a.forbidden:hover, span.forbidden:hover {
+  color: black;
+  background-color: #EEE;
+}
+
+a.closed:link, a.closed:visited, span.closed {
+  text-decoration: line-through;
+}
+
+
 @media (max-width: 979px) {
  .hidden-desktop {
   display: inherit !important;
@@ -601,12 +637,12 @@ input[type="submit"].btn.btn-micro {
  .facets {
   width: 220px;
  }
+ .span9.search_results {
+  width: 920px;
+ }
 }
 
 @media (min-width: 1200px) {
- .span9.search_results {
-    width: 920px;
-  }
 }
 
 @media (min-width: 979px) and (max-width: 1199px) {
