@@ -86,7 +86,7 @@ class ProductQuery(Query):
             self.num_items = 0
             sql, args = self.get_sql(req, cached_ids, authname, tzinfo, locale)
             if sql.startswith('SELECT ') and not sql.startswith('SELECT DISTINCT '):
-                sql = 'SELECT DISTINCT * FROM (' + sql + ')'
+                sql = 'SELECT DISTINCT * FROM (' + sql + ') AS subquery'
             self.num_items = self._count(sql, args)
 
             if self.num_items <= self.max:
