@@ -107,6 +107,10 @@ class ProductAdminPanel(TicketAdminPanel):
                 # Add Product
                 if req.args.get('add') and req.args.get('prefix'):
                     req.perm.require('PRODUCT_CREATE')
+                    if not owner:
+                        add_warning(req, _('All fields are required!'))
+                        req.redirect(req.href.admin(cat, page))
+
                     try:
                         prod = Product(self.env, keys)
                     except ResourceNotFound:

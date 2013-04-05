@@ -174,7 +174,7 @@ class ProductModule(Component):
         action = req.args.get('action', 'view')
         
         products = [p for p in Product.select(self.env)
-                    if 'PRODUCT_VIEW' in req.perm(p.resource)]
+                    if 'PRODUCT_VIEW' in req.product_perm(p.prefix)]
         
         if pid is not None:
             add_link(req, 'up', req.href.products(), _('Products'))
@@ -228,7 +228,7 @@ class ProductModule(Component):
         prefix = req.args.get('prefix')
         description = req.args.get('description','')
         
-        owner = req.args.get('owner')
+        owner = req.args.get('owner') or req.authname
         keys = {'prefix':prefix}
         field_data = {'name':name,
                       'description':description,

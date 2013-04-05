@@ -30,32 +30,28 @@
   </head>
 
   <body>
-    <div id="content" class="products">
-      <h1>Products</h1>
+    <div id="content" class="products row">
+      <h1 class="span8">Products</h1>
 
-      <div class="products">
+      <div class="span8">
         <div py:for="product in products" class="product">
 
           <div class="info trac-progress">
-            <h2><a href="${href.products(product.prefix)}">
-              Product: <em>${product.name}</em>
-            </a></h2>
+            <h3><a href="${href.products(product.prefix)}"><em>${product.name}</em></a></h3>
           </div>
 
           <div class="description" xml:space="preserve">
             ${wiki_to_html(context.child(product.resource), product.description)}
           </div>
-
         </div>
       </div>
 
-      <div py:if="'PRODUCT_CREATE' in perm" class="buttons">
-       <form method="get" action="${href.products()}"><div>
-        <input type="hidden" name="action" value="new" />
-        <input type="submit" value="${_('Add new product')}" />
-       </div></form>
+      <div py:if="'PRODUCT_CREATE' in perm" class="btn-group span8">
+        <form method="get" action="${href.products()}">
+          <input type="hidden" name="action" value="new" />
+          <input class="btn" type="submit" value="${_('Add new product')}" />
+        </form>
       </div>
-
     </div>
   </body>
 </html>
