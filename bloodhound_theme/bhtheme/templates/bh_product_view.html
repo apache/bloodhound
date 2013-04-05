@@ -78,6 +78,13 @@
     <bh:widget urn="TicketQuery">
       <bh:args>
         <bh:arg name="max">10</bh:arg>
+        <bh:arg name="query">product=${product.prefix}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1&amp;owner=$USER</bh:arg>
+        <bh:arg name="title">My Tickets</bh:arg>
+      </bh:args>
+    </bh:widget>
+    <bh:widget urn="TicketQuery">
+      <bh:args>
+        <bh:arg name="max">10</bh:arg>
         <bh:arg name="query">product=${product.prefix}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
         <bh:arg name="title">Active Tickets</bh:arg>
       </bh:args>
