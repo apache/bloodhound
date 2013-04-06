@@ -1093,7 +1093,7 @@ class BaseResourceChangeListenerTestCase(unittest.TestCase):
     def test_change_listener_created(self):
         self._create_resource(self.DUMMY_RESOURCE_NAME)
         self.assertEqual('created', self.listener.action)
-        self.assertIsInstance(self.listener.resource, self.resource_type)
+        self.assertTrue(isinstance(self.listener.resource, self.resource_type))
         self.assertEqual(
             self.DUMMY_RESOURCE_NAME,
             self.resource_name)
@@ -1102,7 +1102,7 @@ class BaseResourceChangeListenerTestCase(unittest.TestCase):
         resource = self._create_resource(self.DUMMY_RESOURCE_NAME)
         self._rename_resource(resource, "UpdatedName")
         self.assertEqual('changed', self.listener.action)
-        self.assertIsInstance(self.listener.resource, self.resource_type)
+        self.assertTrue(isinstance(self.listener.resource, self.resource_type))
         self.assertEqual("UpdatedName", self.resource_name)
         self.assertEqual(
             self.DUMMY_RESOURCE_NAME,
@@ -1112,7 +1112,7 @@ class BaseResourceChangeListenerTestCase(unittest.TestCase):
         resource = self._create_resource(self.DUMMY_RESOURCE_NAME)
         resource.delete()
         self.assertEqual('deleted', self.listener.action)
-        self.assertIsInstance(self.listener.resource, self.resource_type)
+        self.assertTrue(isinstance(self.listener.resource, self.resource_type))
         self.assertEqual(self.DUMMY_RESOURCE_NAME, self.resource_name)
 
     def _create_resource(self, name):

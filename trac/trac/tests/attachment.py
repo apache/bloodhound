@@ -239,7 +239,7 @@ class AttachmentResourceChangeListenerTestCase(unittest.TestCase):
     def test_change_listener_created(self):
         attachment = self._create_attachment()
         self.assertEqual('created', self.listener.action)
-        self.assertIsInstance(self.listener.resource, Attachment)
+        self.assertTrue(isinstance(self.listener.resource, Attachment))
         self.assertEqual(attachment.filename, self.filename)
         self.assertEqual(attachment.parent_realm, self.parent_realm)
         self.assertEqual(attachment.parent_id, self.parent_id)
@@ -249,7 +249,7 @@ class AttachmentResourceChangeListenerTestCase(unittest.TestCase):
         attachment.reparent(self.DUMMY_PARENT_REALM, "SomePage")
 
         self.assertEqual('changed', self.listener.action)
-        self.assertIsInstance(self.listener.resource, Attachment)
+        self.assertTrue(isinstance(self.listener.resource, Attachment))
         self.assertEqual(attachment.filename, self.filename)
         self.assertEqual(attachment.parent_realm, self.parent_realm)
         self.assertEqual("SomePage", self.parent_id)
@@ -261,7 +261,7 @@ class AttachmentResourceChangeListenerTestCase(unittest.TestCase):
         attachment = self._create_attachment()
         attachment.delete()
         self.assertEqual('deleted', self.listener.action)
-        self.assertIsInstance(self.listener.resource, Attachment)
+        self.assertTrue(isinstance(self.listener.resource, Attachment))
         self.assertEqual(attachment.filename, self.filename)
 
     def _create_attachment(self):
