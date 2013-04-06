@@ -199,18 +199,18 @@ class MilestoneSearchParticipantTestCase(BaseBloodhoundSearchTest):
 
     def test_can_get_default_grid_fields(self):
         grid_fields = self.milestone_search.get_default_view_fields("grid")
-        print grid_fields
+        self.env.log.debug("grid_fields: %s", grid_fields)
         self.assertGreater(len(grid_fields), 0)
 
     def test_can_get_default_facets(self):
         default_facets = self.milestone_search.get_default_facets()
-        print default_facets
+        self.env.log.debug("default_facets: %s", default_facets)
         self.assertIsNotNone(default_facets)
 
     def test_can_get_is_grid_view_defaults(self):
         default_grid_fields = self.milestone_search.get_default_view_fields(
             "grid")
-        print default_grid_fields
+        self.env.log.debug("default_grid_fields: %s", default_grid_fields)
         self.assertIsNotNone(default_grid_fields)
 
 def suite():

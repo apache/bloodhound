@@ -102,7 +102,8 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         #assert
         self.assertEqual(1, len(result_items))
         result_datetime = result_items[0]["date"]
-        print "Ticket time: %s, Returned time: %s" % (
+        self.env.log.debug(
+            "Ticket time: %s, Returned time: %s",
             ticket_time,
             result_datetime)
         self.assertEqual(format_datetime(ticket_time), result_items[0]["date"])
@@ -288,7 +289,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         facet_counts = data["facet_counts"]
 
         milestone_facet_count = facet_counts["milestone"]
-        print unquote(milestone_facet_count[None]["href"])
+        self.env.log.debug(unquote(milestone_facet_count[None]["href"]))
 
     def test_can_handle_multiple_same(self):
         #arrange
@@ -304,7 +305,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
         component_facet_count = facet_counts["component"]
         c1_href = component_facet_count["c1"]["href"]
-        print unquote(c1_href)
+        self.env.log.debug(unquote(c1_href))
         self.assertEquals(
             1,
             self._count_parameter_in_url(c1_href, "fq", 'component:"c1"'))
@@ -625,7 +626,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
         for row in data["results"].items:
             title = row["title"]
-            print id, title
             self.assertIn(id, str(title))
 
     def test_that_id_is_highlighted_in_title(self):
@@ -635,7 +635,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         row = data["results"].items[0]
         title = row["title"]
-        print id, title
         self.assertIn('<em>%s</em>' % id, str(title))
 
     def test_that_content_summary_is_trimmed(self):
@@ -878,7 +877,6 @@ class RequestParametersTest(unittest.TestCase):
         href = RequestParameters(self.req).create_href(
             sort=SortInstruction("field1", ASC))
         href = unquote(href)
-        print href
         self.assertIn("sort=field1+asc", href)
 
     def test_can_create_href_with_multiple_sort(self):
@@ -888,7 +886,6 @@ class RequestParametersTest(unittest.TestCase):
                 SortInstruction("field2", DESC),
             ])
         href = unquote(href)
-        print href
         self.assertIn("sort=field1+asc,+field2+desc", href)
 
     def _evaluate_sort(self, sort_condition):

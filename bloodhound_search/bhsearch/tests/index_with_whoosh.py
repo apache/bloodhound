@@ -47,9 +47,7 @@ class IndexWhooshTestCase(BaseBloodhoundSearchTest):
 
     def test_that_ticket_indexed_when_inserted_in_db(self):
         ticket = self.create_dummy_ticket()
-        ticket_id = ticket.insert()
-        print "Created ticket #%s" % ticket_id
-
+        ticket.insert()
         results = self.search_api.query("*:*")
         self.print_result(results)
         self.assertEqual(1, results.hits)

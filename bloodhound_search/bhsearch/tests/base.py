@@ -24,7 +24,6 @@ Test utils methods
 import unittest
 import tempfile
 import shutil
-from pprint import pprint
 
 from bhsearch.web_ui import BloodhoundSearchModule
 from trac.ticket import Ticket, Milestone
@@ -57,8 +56,7 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         self.env.reset_db()
 
     def print_result(self, result):
-        print "Received result:"
-        pprint(result.__dict__)
+        self.env.log.debug("Received result: %s", result.__dict__)
 
     def create_dummy_ticket(self, summary = None):
         if not summary:
@@ -118,11 +116,9 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         # pylint: disable=unused-variable
         url, data, x = BloodhoundSearchModule(self.env).process_request(
             self.req)
-        print "Received url: %s data:" % url
-        pprint(data)
+        self.env.log.debug("Received url: %s data: %s", url, data)
         if data.has_key("results"):
-            print "results :"
-            pprint(data["results"].__dict__)
+            self.env.log.debug("results: %s", data["results"].__dict__)
         return data
 
 

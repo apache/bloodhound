@@ -85,11 +85,10 @@ class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
 
     def _call_format(self, wiki_content):
         result = self.text_formatter.format(wiki_content)
-        print "Input text:"
-        print wiki_content
-        print "-------------------------"
-        print "Formatted text:"
-        print result
+        self.env.log.debug(
+            "Input text:\n%s\nFormatted text:\n%s",
+            wiki_content,
+            result)
         return result
 
     @unittest.skip("Use for debug purposes only")

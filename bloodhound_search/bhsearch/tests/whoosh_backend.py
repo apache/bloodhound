@@ -470,8 +470,6 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
                 maptype=sorting.Count,
             )
             facets = self._load_facets(r)
-            print len(r) == 2
-        print facets
         self.assertEquals(
             {'status': {None: 1, 'New': 1}, 'type': {'type1': 1, 'type2': 1}},
             facets)
@@ -646,7 +644,6 @@ class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
             query_parameters)
 
         result_filter = query_parameters["filter"]
-        print result_filter
         self.assertEquals('(type:ticket AND milestone:empty)',
             str(result_filter))
 
@@ -658,8 +655,8 @@ class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
             query_parameters)
 
         result_filter = query_parameters["filter"]
-        print result_filter
-        self.assertEquals('(type:ticket AND milestone:aaa)', str(result_filter))
+        self.assertEquals('(type:ticket AND milestone:aaa)',
+            str(result_filter))
 
 def suite():
     test_suite = unittest.TestSuite()
