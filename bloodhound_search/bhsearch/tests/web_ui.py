@@ -112,15 +112,17 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         ticket = self.insert_ticket("bla")
         ticket_time = ticket.time_changed
         #act
-        self.req.tz = FixedOffset(60, 'GMT +1:00')
+        tzinfo = FixedOffset(60, 'GMT +1:00')
+        self.req.tz = tzinfo
         self.req.args[RequestParameters.QUERY] = "*:*"
         data = self.process_request()
         result_items = data["results"].items
         #asset
         self.assertEqual(1, len(result_items))
-        expected_datetime = format_datetime(ticket_time)
+        expected_datetime = format_datetime(ticket_time, tzinfo=tzinfo)
         result_datetime = result_items[0]["date"]
-        print "Ticket time: %s, Formatted time: %s ,Returned time: %s" % (
+        self.env.log.debug(
+            "Ticket time: %s, Formatted time: %s ,Returned time: %s",
             ticket_time, expected_datetime,result_datetime)
         self.assertEqual(expected_datetime, result_datetime)
 
