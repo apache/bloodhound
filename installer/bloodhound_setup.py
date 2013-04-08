@@ -231,9 +231,7 @@ class BloodhoundSetup(object):
         bloodhound.onecmd('upgrade')
         pages = []
         pages.append(pkg_resources.resource_filename('bhdashboard',
-                                                 'default-pages'))
-        pages.append(pkg_resources.resource_filename('bhsearch',
-                                                 'default-pages'))
+                                                     'default-pages'))
         bloodhound.onecmd('wiki load %s' % " ".join(pages))
 
         print "Running wiki upgrades"
