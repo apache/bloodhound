@@ -68,7 +68,7 @@ data = {
                      time,
                      description,
                      author
-        FROM (SELECT * FROM attachment WHERE product="PRODUCT") AS attachment
+        FROM (SELECT * FROM attachment WHERE product='PRODUCT') AS attachment
         WHERE time > %s
           AND time < %s
           AND TYPE = %s"""
@@ -84,7 +84,7 @@ data = {
                due,
                completed,
                description
-        FROM (SELECT * FROM milestone WHERE product="PRODUCT") AS milestone
+        FROM (SELECT * FROM milestone WHERE product='PRODUCT') AS milestone
         WHERE name=%s"""
         ),
         (
@@ -94,7 +94,7 @@ data = {
         GROUP BY COALESCE(component, '')""",
 """SELECT COALESCE(component, ''),
                count(COALESCE(component, ''))
-        FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket
+        FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
         GROUP BY COALESCE(component, '')"""
         ),
         (
@@ -105,7 +105,7 @@ data = {
           AND time<=%s""",
 """SELECT id, time, reporter, TYPE, summary,
                                          description
-        FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket
+        FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
         WHERE time>=%s
           AND time<=%s"""
         ),
@@ -131,8 +131,8 @@ data = {
                tc.field,
                tc.oldvalue,
                tc.newvalue
-        FROM (SELECT * FROM ticket_change WHERE product="PRODUCT") AS tc
-        INNER JOIN (SELECT * FROM ticket WHERE product="PRODUCT") AS t ON t.id = tc.ticket
+        FROM (SELECT * FROM ticket_change WHERE product='PRODUCT') AS tc
+        INNER JOIN (SELECT * FROM ticket WHERE product='PRODUCT') AS t ON t.id = tc.ticket
         AND tc.time>=1351375199999999
         AND tc.time<=1354057199999999
         ORDER BY tc.time"""
@@ -173,10 +173,10 @@ data = {
                   t.time AS time,
                   t.changetime AS changetime,
                   priority.value AS priority_value
-           FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-           LEFT OUTER JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS priority ON (priority.type='priority'
+           FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+           LEFT OUTER JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS priority ON (priority.type='priority'
                                                 AND priority.name=priority)
-           LEFT OUTER JOIN (SELECT * FROM milestone WHERE product="PRODUCT") AS milestone ON (milestone.name=milestone)
+           LEFT OUTER JOIN (SELECT * FROM milestone WHERE product='PRODUCT') AS milestone ON (milestone.name=milestone)
            WHERE ((COALESCE(t.status,'')!=%s)
                   AND (COALESCE(t.OWNER,'')=%s))
            ORDER BY COALESCE(t.milestone,'')='',
@@ -220,10 +220,10 @@ data = {
                t.time AS time,
                t.changetime AS changetime,
                priority.value AS priority_value
-        FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-        LEFT OUTER JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS priority ON (priority.type='priority'
+        FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+        LEFT OUTER JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS priority ON (priority.type='priority'
                                              AND priority.name=priority)
-        LEFT OUTER JOIN (SELECT * FROM milestone WHERE product="PRODUCT") AS milestone ON (milestone.name=milestone)
+        LEFT OUTER JOIN (SELECT * FROM milestone WHERE product='PRODUCT') AS milestone ON (milestone.name=milestone)
         WHERE ((COALESCE(t.status,'')!=%s)
                AND (COALESCE(t.OWNER,'')=%s))
         ORDER BY COALESCE(t.milestone,'')='',
@@ -257,8 +257,8 @@ data = {
                                                                                                                      changetime AS _changetime,
                                                                                                                                     description AS _description,
                                                                                                                                                     reporter AS _reporter
-           FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-           LEFT JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS p  ON p.name = t.priority
+           FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+           LEFT JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS p  ON p.name = t.priority
            AND p.TYPE = 'priority'
            WHERE status <> 'closed'
            ORDER BY CAST(p.value AS integer),
@@ -300,8 +300,8 @@ data = {
                   t.changetime AS changetime,
                   t.owner AS OWNER,
                   priority.value AS priority_value
-           FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-           LEFT OUTER JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS priority ON (priority.TYPE='priority'
+           FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+           LEFT OUTER JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS priority ON (priority.TYPE='priority'
                                                 AND priority.name=priority)
            WHERE ((COALESCE(t.status,'')!=%s)
                   AND (COALESCE(t.OWNER,'')=%s))
@@ -340,8 +340,8 @@ data = {
                t.changetime AS changetime,
                t.owner AS OWNER,
                priority.value AS priority_value
-        FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-        LEFT OUTER JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS priority ON (priority.TYPE='priority'
+        FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+        LEFT OUTER JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS priority ON (priority.TYPE='priority'
                                              AND priority.name=priority)
         WHERE ((COALESCE(t.status,'')!=%s)
                AND (COALESCE(t.OWNER,'')=%s))
@@ -371,8 +371,8 @@ data = {
                                                                                                                      changetime AS _changetime,
                                                                                                                                     description AS _description,
                                                                                                                                                     reporter AS _reporter
-           FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-           LEFT JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS p  ON p.name = t.priority
+           FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+           LEFT JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS p  ON p.name = t.priority
            AND p.TYPE = 'priority'
            WHERE status <> 'closed'
            ORDER BY CAST(p.value AS integer),
@@ -397,8 +397,8 @@ data = {
                                                                                                                   changetime AS _changetime,
                                                                                                                   description AS _description,
                                                                                                                   reporter AS _reporter
-        FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-        LEFT JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS p ON p.name = t.priority
+        FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+        LEFT JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS p ON p.name = t.priority
         AND p.TYPE = 'priority'
         WHERE status <> 'closed'
         ORDER BY CAST(p.value AS integer),
@@ -458,16 +458,16 @@ data = {
                   priority.value AS priority_value
            FROM
              (SELECT *
-              FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket
+              FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
               WHERE product="default") AS t
            LEFT OUTER JOIN
              (SELECT *
-              FROM (SELECT * FROM enum WHERE product="PRODUCT") AS enum
+              FROM (SELECT * FROM enum WHERE product='PRODUCT') AS enum
               WHERE product="default") AS priority ON (priority.type='priority'
                                                        AND priority.name=priority)
            LEFT OUTER JOIN
              (SELECT *
-              FROM (SELECT * FROM version WHERE product="PRODUCT") AS version
+              FROM (SELECT * FROM version WHERE product='PRODUCT') AS version
               WHERE product="default") AS version ON (version.name=version)
            WHERE ((COALESCE(t.product,'')='default'))
            ORDER BY COALESCE(t.version,'')='',
@@ -484,8 +484,8 @@ data = {
         WHERE w1.version = w2.ver AND w1.name = w2.name
         AND (w1.name LIKE %s ESCAPE '/' OR w1.author LIKE %s ESCAPE '/' OR w1.text LIKE %s ESCAPE '/')""",
 """SELECT w1.name, w1.time, w1.author, w1.text
-        FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS w1,(SELECT name, max(version) AS ver
-        FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS wiki GROUP BY name)  AS w2
+        FROM (SELECT * FROM wiki WHERE product='PRODUCT') AS w1,(SELECT name, max(version) AS ver
+        FROM (SELECT * FROM wiki WHERE product='PRODUCT') AS wiki GROUP BY name)  AS w2
         WHERE w1.version = w2.ver AND w1.name = w2.name
         AND (w1.name LIKE %s ESCAPE '/' OR w1.author LIKE %s ESCAPE '/' OR w1.text LIKE %s ESCAPE '/')"""
         ),
@@ -574,9 +574,9 @@ data = {
                t.type AS type, priority, t.time AS created,
                t.changetime AS _changetime, description AS _description,
                reporter AS _reporter
-          FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS t
-          LEFT JOIN (SELECT * FROM enum WHERE product="PRODUCT") AS p  ON p.name = t.priority AND p.type = 'priority'
-          LEFT JOIN (SELECT * FROM ticket_change WHERE product="PRODUCT") AS tc  ON tc.ticket = t.id AND tc.author = %s
+          FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+          LEFT JOIN (SELECT * FROM enum WHERE product='PRODUCT') AS p  ON p.name = t.priority AND p.type = 'priority'
+          LEFT JOIN (SELECT * FROM ticket_change WHERE product='PRODUCT') AS tc  ON tc.ticket = t.id AND tc.author = %s
                                         AND tc.field = 'comment'
           WHERE t.status <> 'closed'
                 AND (owner = %s OR reporter = %s OR author = %s)
@@ -608,7 +608,7 @@ data = {
     AND (bt.tkt_order IS NULL OR bt.tkt_order > -1)
     GROUP BY bklg_id, status""",
 """SELECT bt.bklg_id, t.status, count(*) as total
-    FROM (SELECT * FROM PRODUCT_backlog_ticket) AS bt, (SELECT * FROM ticket WHERE product="PRODUCT") AS t
+    FROM (SELECT * FROM PRODUCT_backlog_ticket) AS bt, (SELECT * FROM ticket WHERE product='PRODUCT') AS t
     WHERE t.id = bt.tkt_id
     AND (bt.tkt_order IS NULL OR bt.tkt_order > -1)
     GROUP BY bklg_id, status"""
@@ -631,8 +631,8 @@ data = {
             SELECT ticket from ticket_custom WHERE name='totalhours'
           )""",
 """INSERT INTO ticket_custom (ticket, name, value, product)
-              SELECT id, 'totalhours', '0', 'PRODUCT' FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
-                SELECT ticket from (SELECT * FROM ticket_custom WHERE product="PRODUCT") AS ticket_custom WHERE name='totalhours'
+              SELECT id, 'totalhours', '0', 'PRODUCT' FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket WHERE id NOT IN (
+                SELECT ticket from (SELECT * FROM ticket_custom WHERE product='PRODUCT') AS ticket_custom WHERE name='totalhours'
               )"""
         ),
         (
@@ -640,8 +640,8 @@ data = {
                     SELECT id, 'totalhours', '0' FROM ticket WHERE id NOT IN (
                     SELECT ticket from ticket_custom WHERE name='totalhours')""",
 """INSERT INTO ticket_custom (ticket, name, value, product)
-                        SELECT id, 'totalhours', '0', 'PRODUCT' FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id NOT IN (
-                        SELECT ticket from (SELECT * FROM ticket_custom WHERE product="PRODUCT") AS ticket_custom WHERE name='totalhours')"""
+                        SELECT id, 'totalhours', '0', 'PRODUCT' FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket WHERE id NOT IN (
+                        SELECT ticket from (SELECT * FROM ticket_custom WHERE product='PRODUCT') AS ticket_custom WHERE name='totalhours')"""
         ),
         (
 """INSERT INTO session (sid, last_visit, authenticated)
@@ -671,7 +671,7 @@ data = {
                                      '127.0.0.1', %s FROM wiki WHERE name=%s""",
 """INSERT INTO wiki(version, name, time, author, ipnr, text, product)
                               SELECT 1 + COALESCE(max(version), 0), %s, %s, 'trac',
-                                     '127.0.0.1', %s, 'PRODUCT' FROM (SELECT * FROM wiki WHERE product="PRODUCT") AS wiki WHERE name=%s"""
+                                     '127.0.0.1', %s, 'PRODUCT' FROM (SELECT * FROM wiki WHERE product='PRODUCT') AS wiki WHERE name=%s"""
         ),
         (
 """INSERT INTO permission VALUES ('dev','WIKI_VIEW')""",
@@ -707,10 +707,10 @@ data = {
                           ORDER BY time DESC LIMIT 1)
                           WHERE id=%s""",
 """UPDATE ticket SET changetime=(
-                          SELECT time FROM (SELECT * FROM ticket_change WHERE product="PRODUCT") AS ticket_change WHERE ticket=%s
+                          SELECT time FROM (SELECT * FROM ticket_change WHERE product='PRODUCT') AS ticket_change WHERE ticket=%s
                           UNION
                           SELECT time FROM (
-                              SELECT time FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket WHERE id=%s LIMIT 1) AS t
+                              SELECT time FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket WHERE id=%s LIMIT 1) AS t
                           ORDER BY time DESC LIMIT 1)
                           WHERE product='PRODUCT' AND id=%s"""
         ),
@@ -849,7 +849,7 @@ data = {
 """UPDATE PRODUCT_backlog_ticket SET tkt_order = -1
                       WHERE bklg_id = %s
                       AND tkt_id IN
-                      (SELECT id FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket
+                      (SELECT id FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
                        WHERE status = 'closed')"""
         ),
         (
@@ -859,7 +859,7 @@ data = {
                           WHERE status = 'closed')""",
 """UPDATE PRODUCT_backlog_ticket SET tkt_order = -1
                          WHERE bklg_id = %s
-                         AND tkt_id IN (SELECT id FROM (SELECT * FROM ticket WHERE product="PRODUCT") AS ticket
+                         AND tkt_id IN (SELECT id FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
                           WHERE status = 'closed')"""
         ),
         (
