@@ -29,7 +29,8 @@ from trac.web.href import Href
 from trac.perm import PermissionCache
 from trac.core import TracError
 
-PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)')
+PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)|^/products')
+REDIRECT_DEFAULT_RE = re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|ticket|qct|timeline|(raw-|zip-)?attachment|diff|batchmodify|search)(?P<pathinfo>.*)')
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
@@ -40,14 +41,32 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
         m = PRODUCT_RE.match(path_info)
         if m:
             pid = m.group('pid')
-        if pid:
+
+        def create_product_env(product_prefix, script_name, path_info):
             if not global_env._abs_href:
                 # make sure global environment absolute href is set before
                 # instantiating product environment. This would normally
                 # happen from within trac.web.main.dispatch_request
                 req = RequestWithSession(environ, None)
                 global_env._abs_href = req.abs_href
-            env = multiproduct.env.ProductEnvironment(global_env, pid)
+            env = multiproduct.env.ProductEnvironment(global_env,
+                                                      product_prefix)
+            # shift WSGI environment to the left
+            environ['SCRIPT_NAME'] = script_name
+            environ['PATH_INFO'] = path_info
+            return env
+
+        if pid:
+            env = create_product_env(pid,
+                                     environ['SCRIPT_NAME'] + '/products/' + pid,
+                                     m.group('pathinfo') or '')
+        else:
+            redirect = REDIRECT_DEFAULT_RE.match(path_info)
+            if redirect:
+                from multiproduct.api import DEFAULT_PRODUCT
+                env = create_product_env(DEFAULT_PRODUCT,
+                                         environ['SCRIPT_NAME'],
+                                         environ['PATH_INFO'])
         return env
 
 class ProductizedHref(Href):
@@ -59,7 +78,6 @@ class ProductizedHref(Href):
                           'verify_email',
                           'reset_password',
                           'register',
-                          'dashboard',
                           ]
     STATIC_PREFIXES = ['js/',
                        'css/',
@@ -82,8 +100,8 @@ class ProductRequestWithSession(RequestWithSession):
         super(ProductRequestWithSession, self).__init__(environ, start_response)
         self.base_url = env.base_url
         if isinstance(env, multiproduct.env.ProductEnvironment):
-            self.href = ProductizedHref(self.href, env.href.base)
-            self.abs_href = ProductizedHref(self.abs_href, env.abs_href.base)
+            self.href = ProductizedHref(env.parent.href, env.href.base)
+            self.abs_href = ProductizedHref(env.parent.abs_href, env.abs_href.base)
 
     def product_perm(self, product, resource=None):
         """Helper for per product permissions"""

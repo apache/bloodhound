@@ -467,7 +467,8 @@ class QuickCreateTicketDialog(Component):
         """Handle requests sent to /qct
         """
         m = PRODUCT_RE.match(req.path_info)
-        return m and m.group('pathinfo').strip('/') == 'qct'
+        return req.path_info == '/qct' or \
+               (m and m.group('pathinfo').strip('/') == 'qct')
 
     def process_request(self, req):
         """Forward new ticket request to `trac.ticket.web_ui.TicketModule`
