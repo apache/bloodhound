@@ -24,7 +24,15 @@
   <div py:if="product_list" class="row" id="products">
     <div py:for="p in product_list" class="span4">
       <div class="well product-well">
-        <h4>&#9734; <a href="${req.href.products(p.prefix)}">$p.name ($p.prefix)</a></h4>
+        <h4>
+          &#9734; <a href="${req.href.products(p.prefix)}">$p.name ($p.prefix)</a>
+          <py:if test="p.owner_link">
+            <br />
+            <small>owned by
+              <a href="$p.owner_link">${authorinfo(p._data['owner']) if p._data['owner'] else _('(nobody)')}</a>
+            </small>
+          </py:if>
+        </h4>
 
         <h5>Milestones</h5>
         <py:choose test="">

@@ -126,6 +126,10 @@ class ProductWidget(WidgetBase):
                     ):
                         setattr(p, resource['name'] + 's',
                             self._get_product_info(p, resource, max_))
+                    p.owner_link = Query.from_string(self.env, 'status!=closed&'
+                        'col=id&col=summary&col=owner&col=status&col=priority&'
+                        'order=priority&group=product&owner=%s'
+                        % (p._data['owner'] or '', )).get_href(req.href)
                     data.setdefault('product_list', []).append(p)
             title = _('Products')
 
