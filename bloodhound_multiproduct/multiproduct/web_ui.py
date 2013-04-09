@@ -82,7 +82,7 @@ class ProductModule(Component):
         except ResourceNotFound:
             product = Product(self.env)
         
-        data = {'product': product, 
+        data = {'product': product,
                 'context': web_context(req, product.resource)}
         
         if req.method == 'POST':
@@ -99,7 +99,7 @@ class ProductModule(Component):
         
         if pid is None:
             data = {'products': products,
-                    'context': web_context(req, Resource('products', None))}
+                    'context': web_context(req, Resource('product', None))}
             return 'product_list.html', data, None
         
         return 'product_view.html', data, None

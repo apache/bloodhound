@@ -29,7 +29,7 @@ from trac.web.href import Href
 from trac.perm import PermissionCache
 from trac.core import TracError
 
-PRODUCT_RE = re.compile(r'^/products/(?P<pid>[^/]*)(?P<pathinfo>.*)|^/products')
+PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
 REDIRECT_DEFAULT_RE = re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|ticket|qct|timeline|(raw-|zip-)?attachment|diff|batchmodify|search)(?P<pathinfo>.*)')
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
