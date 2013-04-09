@@ -422,8 +422,8 @@ class ProductRepositoryAdminPanel(ReplacementComponent, trac.versioncontrol.admi
         # construct a list of all repositores not linked to this product
         rm = RepositoryManager(self.env.parent)
         all_repos = rm.get_all_repositories()
-        unlinked_repositories = { k: all_repos[k] for k in sorted(
-            set(all_repos) - set(all_product_repos)) }
+        unlinked_repositories = dict([(k, all_repos[k]) for k in
+            sorted(set(all_repos) - set(all_product_repos))])
 
         data = {'types': types, 'default_type': rm_product.repository_type,
                 'repositories': repositories,
