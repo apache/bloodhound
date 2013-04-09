@@ -473,7 +473,8 @@ class BloodhoundProductSQLTranslate(object):
         table_name_callback = handle_insert_table if insert_table else None
         from_token = self._token_next_match(parent, start_token, Tokens.Keyword, 'FROM')
         if not from_token:
-            raise Exception("Expected FROM in SELECT")
+            # FROM not always required, example would be SELECT CURRVAL('"ticket_id_seq"')
+            return current_token
         current_token = self._select_from(parent,
                                           from_token, self._from_end_words,
                                           table_name_callback=table_name_callback)
