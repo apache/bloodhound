@@ -1,3 +1,11 @@
+0.5.3
+ 
+ * Removed reference to BloodhoundSearch docs in setup script, which was causing installion to fail.
+ * Updated installation document so that site-packages are inherited in the virutalenv.
+
+ * Not fixed for this release:
+   * No major outstanding issues
+
 0.5.2
 
  * Updated this file with 0.5.1 changes.
