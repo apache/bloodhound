@@ -34,6 +34,7 @@ from multiproduct.api import DEFAULT_PRODUCT
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.web_ui import ProductModule
+from multiproduct.hooks import ProductRequestWithSession
 
 from tests.env import MultiproductTestCase
 
@@ -85,7 +86,7 @@ class RequestHandlerTestCase(MultiproductTestCase):
             else:
                 return lambda body: None
 
-        req = Request(environ, start_response)
+        req = ProductRequestWithSession(env, environ, start_response)
         return req
 
     def _dispatch(self, req, env):
