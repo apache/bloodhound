@@ -21,8 +21,8 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <!-- TODO: Add description icon plus tooltip -->
-  <!-- div py:if="description" id="description" xml:space="preserve">
+  <!--! TODO: Add description icon plus tooltip -->
+  <!--! div py:if="description" id="description" xml:space="preserve">
     ${wiki_to_html(context, description)}
   </div -->
   <py:choose test="">
@@ -144,7 +144,7 @@
         </py:for>
       </tbody>
     </table>
-    <div class="alert alert-info" py:otherwise="" style="margin-top: 2em;">
+    <div class="alert alert-info" py:otherwise="">
       <span class="label label-info">Info</span> Items list is empty
     </div>
   </py:choose>
