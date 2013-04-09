@@ -78,6 +78,7 @@ class WhooshBackend(Component):
                       analyzer=analysis.SimpleAnalyzer()),
         message=TEXT(stored=True,
                      analyzer=analysis.SimpleAnalyzer()),
+        security=ID(),
     )
 
     max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,
@@ -200,6 +201,7 @@ class WhooshBackend(Component):
         using filter parameter. Remove the workaround when the fixed version
         of Whoosh is applied.
         """
+        # pylint: disable=too-many-locals
         with self.index.searcher() as searcher:
             highlight_fields = self._prepare_highlight_fields(highlight,
                                                               highlight_fields)
@@ -489,7 +491,7 @@ class WhooshEmptyFacetErrorWorkaround(Component):
                     del doc[field]
 
     #IQueryPreprocessor methods
-    def query_pre_process(self, query_parameters):
+    def query_pre_process(self, query_parameters, context=None):
         """
         Go through filter queries and replace "NOT (field_name:*)" query with
         "field_name:NULL_MARKER" query.
@@ -497,6 +499,7 @@ class WhooshEmptyFacetErrorWorkaround(Component):
         This is really quick fix to make prototype working with hope that
         the next Whoosh version will be released soon.
         """
+        # pylint: disable=unused-argument
         if "filter" in query_parameters and query_parameters["filter"]:
             self._find_and_fix_condition(query_parameters["filter"])
         if "query" in query_parameters and query_parameters["query"]:

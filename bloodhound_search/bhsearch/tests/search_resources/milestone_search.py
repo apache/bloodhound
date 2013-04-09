@@ -26,7 +26,6 @@ from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
 
 from trac.ticket import Milestone
-from trac.test import Mock
 
 
 class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
@@ -174,9 +173,8 @@ class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(RETARGET_MILESTONE, results.docs[1]["milestone"])
 
     def test_fills_product_field_if_product_is_set(self):
-        self.env.product = Mock(prefix="p")
-
-        self.insert_milestone("T1")
+        with self.product('p'):
+            self.insert_milestone("T1")
 
         results = self.search_api.query("*")
         self.assertEqual(results.docs[0]["product"], 'p')

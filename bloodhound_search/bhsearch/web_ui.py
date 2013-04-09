@@ -72,6 +72,7 @@ class RequestParameters(object):
     PRODUCT_ID = "productid"
 
     def __init__(self, req, href=None):
+        # pylint: disable=too-many-branches
         self.req = req
         self.href = href or req.href
 

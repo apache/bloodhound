@@ -134,6 +134,7 @@ ENTRY_POINTS = {
         'bhsearch.search_resources.milestone_search = \
             bhsearch.search_resources.milestone_search',
         'bhsearch.query_parser = bhsearch.query_parser',
+        'bhsearch.security = bhsearch.security',
         'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
     ],
     }

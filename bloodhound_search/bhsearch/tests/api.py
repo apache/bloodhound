@@ -20,8 +20,6 @@
 import unittest
 import shutil
 
-from trac.test import Mock
-
 from bhsearch.api import BloodhoundSearchApi, ASC, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.base import BaseBloodhoundSearchTest
@@ -31,7 +29,7 @@ from bhsearch.whoosh_backend import WhooshBackend
 
 class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
-        super(ApiQueryWithWhooshTestCase, self).setUp()
+        super(ApiQueryWithWhooshTestCase, self).setUp(create_req=True)
         WhooshBackend(self.env).recreate_index()
         self.search_api = BloodhoundSearchApi(self.env)
         self.ticket_participant = TicketSearchParticipant(self.env)
@@ -125,15 +123,14 @@ class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(2, results.hits)
 
     def test_can_index_wiki_with_same_id_from_different_products(self):
-        self.env.product = Mock(prefix='p1')
-        self.insert_wiki('title', 'content')
-        self.env.product = Mock(prefix='p2')
-        self.insert_wiki('title', 'content 2')
+        with self.product('p1'):
+            self.insert_wiki('title', 'content')
+        with self.product('p2'):
+            self.insert_wiki('title', 'content 2')
 
         results = self.search_api.query("type:wiki")
 
         self.assertEqual(results.hits, 2)
-
 
 #TODO: check this later
 #    @unittest.skip("Check with Whoosh community")
@@ -148,6 +145,7 @@ class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
 #        self.assertEqual(2, results.hits)
 #        docs = results.docs
 #        self.assertEqual("summary1", docs[0]["summary"])
+
 
 def suite():
     return unittest.makeSuite(ApiQueryWithWhooshTestCase, 'test')

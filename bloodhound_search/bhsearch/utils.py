@@ -19,11 +19,15 @@
 #  under the License.
 
 
+def using_multiproduct(env):
+    return hasattr(env, 'parent')
+
+
 def get_global_env(env):
-    if hasattr(env, 'parent') and env.parent is not None:
-        return env.parent
-    else:
+    if not using_multiproduct(env) or env.parent is None:
         return env
+    else:
+        return env.parent
 
 
 class GlobalProduct(object):
@@ -33,7 +37,16 @@ GlobalProduct = GlobalProduct()
 
 
 def get_product(env):
-    if getattr(env, 'product', None) is not None:
-        return env.product
-    else:
+    if not using_multiproduct(env) or env.parent is None:
         return GlobalProduct
+    else:
+        return env.product
+
+
+def instance_for_every_env(env, cls):
+    if not using_multiproduct(env):
+        return [cls(env)]
+    else:
+        global_env = get_global_env(env)
+        return [cls(global_env)] + \
+               [cls(env) for env in global_env.all_product_envs()]

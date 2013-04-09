@@ -21,6 +21,7 @@
 r"""
 Test utils methods
 """
+import contextlib
 import unittest
 import tempfile
 import shutil
@@ -35,10 +36,16 @@ BASE_PATH = "/main/"
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
 
-    def setUp(self, enabled = None, create_req = False):
+    def setUp(self, enabled=None, create_req=False, enable_security=False,
+              mock_multiproduct=True):
         if not enabled:
             enabled = ['trac.*', 'bhsearch.*']
-        self.env = EnvironmentStub(enable=enabled)
+        if not enable_security:
+            disabled = ['bhsearch.security.SecurityPreprocessor']
+        else:
+            disabled = []
+
+        self.env = EnvironmentStub(enable=enabled, disable=disabled)
         self.env.path = tempfile.mkdtemp('bhsearch-tempenv')
         self.env.config.set('bhsearch', 'silence_on_error', "False")
         if create_req:
@@ -49,7 +56,11 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
                 base_path=BASE_PATH,
                 path_info='/bhsearch',
                 args=arg_list_to_args([]),
+                authname='x',
             )
+            self.context = Mock(req=self.req)
+        if mock_multiproduct:
+            self.env.all_product_envs = lambda: []
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -121,6 +132,10 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
             self.env.log.debug("results: %s", data["results"].__dict__)
         return data
 
-
-
-
+    @contextlib.contextmanager
+    def product(self, prefix=''):
+        old_product, old_parent = self.env.product, self.env.parent
+        self.env.parent = self.env
+        self.env.product = Mock(prefix=prefix)
+        yield
+        self.env.product, self.env.parent = old_product, old_parent

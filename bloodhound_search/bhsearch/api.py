@@ -19,7 +19,7 @@
 #  under the License.
 
 r"""Core Bloodhound Search components."""
-from trac.config import ExtensionOption
+from trac.config import ExtensionOption, OrderedExtensionsOption
 from trac.core import (Interface, Component, ExtensionPoint, TracError,
     implements)
 from trac.env import IEnvironmentSetupParticipant
@@ -38,6 +38,7 @@ class IndexFields(object):
     CONTENT = 'content'
     STATUS = 'status'
     PRODUCT = 'product'
+    SECURITY = 'security'
 
 class QueryResult(object):
     def __init__(self):
@@ -168,8 +169,11 @@ class ISearchParticipant(Interface):
         """Called when we want to build the list of components with search.
         Passes the request object to do permission checking."""
 
-    def get_type():
+    def get_participant_type():
         """Return type of search participant"""
+
+    def get_required_permission(self):
+        """Return permission required to view components in search results"""
 
     def get_title():
         """Return resource title."""
@@ -214,7 +218,7 @@ class IQueryPreprocessor(Interface):
     """Extension point for Bloodhound Search query pre processing.
     """
 
-    def query_pre_process(query_parameters):
+    def query_pre_process(query_parameters, context):
         """Process query parameters"""
 
 
@@ -241,7 +245,10 @@ class BloodhoundSearchApi(Component):
         'Name of the component implementing Bloodhound Search query \
         parser.')
 
-    index_pre_processors = ExtensionPoint(IDocIndexPreprocessor)
+    index_pre_processors = OrderedExtensionsOption(
+        'bhsearch', 'index_preprocessors', IDocIndexPreprocessor,
+        ['SecurityPreprocessor'],
+    )
     result_post_processors = ExtensionPoint(IResultPostprocessor)
     query_processors = ExtensionPoint(IQueryPreprocessor)
 
@@ -278,6 +285,7 @@ class BloodhoundSearchApi(Component):
 
         :return: result QueryResult
         """
+        # pylint: disable=too-many-locals
         self.env.log.debug("Receive query request: %s", locals())
 
         parsed_query = self.parser.parse(query, context)
@@ -299,7 +307,7 @@ class BloodhoundSearchApi(Component):
             highlight_fields = highlight_fields,
         )
         for query_processor in self.query_processors:
-            query_processor.query_pre_process(query_parameters)
+            query_processor.query_pre_process(query_parameters, context)
 
         query_result = self.backend.query(**query_parameters)
 

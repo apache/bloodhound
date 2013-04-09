@@ -38,7 +38,6 @@ class BaseIndexer(Component):
         interface: ISearchWikiSyntaxFormatter.')
 
 
-
 class BaseSearchParticipant(Component):
     default_view = None
     default_grid_fields = None
@@ -62,6 +61,9 @@ class BaseSearchParticipant(Component):
 
     def get_participant_type(self):
         return self.participant_type
+
+    def get_required_permission(self):
+        return self.required_permission
 
 class SimpleSearchWikiSyntaxFormatter(Component):
     """

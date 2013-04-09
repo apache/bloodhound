@@ -136,8 +136,8 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertEqual("/main/ticket/1", docs[0]["href"])
 
     def test_product_ticket_href(self):
-        self.env.product = Mock(prefix='xxx')
-        self._insert_tickets(1)
+        with self.product('xxx'):
+            self._insert_tickets(1)
         self.req.args[RequestParameters.QUERY] = "*:*"
         data = self.process_request()
         docs = data["results"].items

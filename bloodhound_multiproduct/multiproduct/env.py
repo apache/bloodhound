@@ -314,9 +314,6 @@ class EnvironmentStub(trac.test.EnvironmentStub):
         # FIXME: Shall we ?
         #env.config.save()
 
-    def all_product_envs(self):
-        return []
-
     def reset_db(self, default_data=None):
         multiproduct_schema = self._multiproduct_schema_enabled
         self._multiproduct_schema_enabled = False

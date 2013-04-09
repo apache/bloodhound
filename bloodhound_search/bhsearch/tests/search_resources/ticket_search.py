@@ -24,7 +24,6 @@ from bhsearch.whoosh_backend import WhooshBackend
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
 from trac.ticket.model import Component
-from trac.test import Mock
 
 class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):
@@ -87,9 +86,8 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(CHANGED_SUMMARY, results.docs[0]["summary"])
 
     def test_fills_product_field_if_product_is_set(self):
-        self.env.product = Mock(prefix="p")
-
-        self.insert_ticket("T1")
+        with self.product('p'):
+            self.insert_ticket("T1")
 
         results = self.search_api.query("*")
         self.assertEqual(results.docs[0]["product"], 'p')
