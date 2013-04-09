@@ -73,15 +73,16 @@ class ProductWidget(WidgetBase):
                 else Query.from_string(penv, 'order=priority&%s=%s' %
                     (resource['name'], q.name)).get_href(href)
             q.ticket_count = penv.db_query(
-                'SELECT COUNT(*) FROM ticket WHERE %s="%s" '
-                'AND status <> "closed"' % (resource['name'], q.name))[0][0]
+                """SELECT COUNT(*) FROM ticket WHERE ticket.%s='%s'
+                   AND ticket.status <> 'closed'""" % (resource['name'], q.name))[0][0]
+
             results.append(q)
 
         # add a '(No <milestone/component/version>)' entry if there are
         # tickets without an assigned resource in the product
         ticket_count = penv.db_query(
-            'SELECT COUNT(*) FROM ticket WHERE %s="" '
-            'AND status <> "closed"' % (resource['name'],))[0][0]
+            """SELECT COUNT(*) FROM ticket WHERE %s=''
+               AND status <> 'closed'""" % (resource['name'],))[0][0]
         if ticket_count != 0:
             q = resource['type'](penv)
             q.name = '(No %s)' % (resource['name'],)
