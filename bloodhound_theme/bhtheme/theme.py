@@ -280,10 +280,10 @@ class BloodhoundTheme(ThemeBase):
             if self.disable_all_trac_css:
                 stylesheets = links.get('stylesheet',[])
                 if stylesheets:
-                    path = req.base_path + '/chrome/common/css/'
+                    path = '/chrome/common/css/'
                     _iter = ([ss, ss.get('href', '')] for ss in stylesheets)
                     links['stylesheet'] = [ss for ss, href in _iter 
-                            if not href.startswith(path) or
+                            if not path in href or
                             href.rsplit('/', 1)[-1] in self.BLOODHOUND_KEEP_CSS]
             template, modifier = self.BLOODHOUND_TEMPLATE_MAP.get(
                     template, (template, None))
