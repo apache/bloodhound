@@ -44,6 +44,84 @@ class ResourceTestCase(unittest.TestCase):
         r2.parent = r2.parent(version=42)
         self.assertNotEqual(r1, r2)
 
+
+class NeighborhoodTestCase(unittest.TestCase):
+
+    def test_equals(self):
+        # Plain equalities
+        self.assertEqual(resource.Neighborhood(), resource.Neighborhood())
+        self.assertEqual(resource.Neighborhood(None), resource.Neighborhood())
+        self.assertEqual(resource.Neighborhood('realm'), 
+                         resource.Neighborhood('realm'))
+        self.assertEqual(resource.Neighborhood('realm', 'id'),
+                         resource.Neighborhood('realm', 'id'))
+        # Inequalities
+        self.assertNotEqual(resource.Neighborhood('realm', 'id'),
+                            resource.Neighborhood('realm', 'id1'))
+        self.assertNotEqual(resource.Neighborhood('realm1', 'id'),
+                            resource.Neighborhood('realm', 'id'))
+
+    def test_resources_equals(self):
+        nbh = resource.Neighborhood('realm', 'id')
+        nbh1 = resource.Neighborhood('realm', 'id1')
+        # Plain equalities
+        self.assertEqual(nbh(resource.Resource()), nbh(resource.Resource()))
+        self.assertEqual(nbh(resource.Resource(None)), nbh(resource.Resource()))
+        self.assertEqual(nbh(resource.Resource('wiki')), 
+                         nbh(resource.Resource('wiki')))
+        self.assertEqual(nbh(resource.Resource('wiki', 'WikiStart')),
+                         nbh(resource.Resource('wiki', 'WikiStart')))
+        self.assertEqual(nbh(resource.Resource('wiki', 'WikiStart', 42)),
+                         nbh(resource.Resource('wiki', 'WikiStart', 42)))
+        # Inequalities
+        self.assertNotEqual(nbh(resource.Resource('wiki', 'WikiStart', 42)),
+                            nbh(resource.Resource('wiki', 'WikiStart', 43)))
+        self.assertNotEqual(nbh(resource.Resource('wiki', 'WikiStart', 0)),
+                            nbh(resource.Resource('wiki', 'WikiStart', None)))
+        self.assertNotEqual(nbh1(resource.Resource()), 
+                            nbh(resource.Resource()))
+        self.assertNotEqual(nbh1(resource.Resource(None)), 
+                            nbh(resource.Resource()))
+        self.assertNotEqual(nbh1(resource.Resource('wiki')), 
+                            nbh(resource.Resource('wiki')))
+        self.assertNotEqual(nbh1(resource.Resource('wiki', 'WikiStart')),
+                            nbh(resource.Resource('wiki', 'WikiStart')))
+        self.assertNotEqual(nbh1(resource.Resource('wiki', 'WikiStart', 42)),
+                            nbh(resource.Resource('wiki', 'WikiStart', 42)))
+        # Resource hierarchy
+        r1 = nbh(resource.Resource('attachment', 'file.txt'))
+        r1.parent = nbh(resource.Resource('wiki', 'WikiStart'))
+        r2 = nbh(resource.Resource('attachment', 'file.txt'))
+        r2.parent = nbh(resource.Resource('wiki', 'WikiStart'))
+        self.assertEqual(r1, r2)
+        r2.parent = r2.parent(version=42)
+        self.assertNotEqual(r1, r2)
+
+    def test_hierarchy_clone(self):
+        def enum_parents(r):
+            while r is not None:
+                yield r
+                r = r.parent
+
+        nbh = resource.Neighborhood('realm', 'id')
+        nbh1 = resource.Neighborhood('realm', 'id1')
+
+        src = resource.Resource('attachment', 'file.txt')
+        src.parent = resource.Resource('wiki', 'WikiStart')
+        src.parent.parent = resource.Resource('x', 'y')
+
+        self.assertTrue(all(r.neighborhood is nbh 
+                            for r in enum_parents(nbh(src))))
+        self.assertTrue(all(r.neighborhood is None 
+                            for r in enum_parents(src)))
+
+        src = nbh1(src)
+        self.assertTrue(all(r.neighborhood is nbh 
+                            for r in enum_parents(nbh(src))))
+        self.assertTrue(all(r.neighborhood is nbh1 
+                            for r in enum_parents(src)))
+
+
 class TestResourceChangeListener(Component):
     implements(IResourceChangeListener)
 
@@ -88,6 +166,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(doctest.DocTestSuite(resource))
     suite.addTest(unittest.makeSuite(ResourceTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(NeighborhoodTestCase, 'test'))
     return suite
 
 if __name__ == '__main__':

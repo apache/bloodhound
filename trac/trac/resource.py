@@ -81,6 +81,169 @@ class IResourceManager(Interface):
         """
 
 
+class IExternalResourceConnector(Interface):
+
+    def get_supported_neighborhoods():
+        """Return supported manager neighborhoods.
+
+        :rtype: `basestring` generator
+        """
+
+    def load_manager(neighborhood):
+        """Load the component manager identified by a given neighborhood.
+
+        :param neighborhood: manager identifier (i.e. `Neighborhood`)
+        :rtype: `trac.core.ComponentManager`
+        """
+
+    def manager_exists(neighborhood):
+        """Check whether the component manager identified by 
+        the given `neighborhood` exists physically.
+
+        :param neighborhood: manager identifier (i.e. `Neighborhood`)
+        :rtype: bool
+
+        Attempting to retrieve the manager object for a non-existing
+        neighborhood should raise a `ResourceNotFound` exception.
+        """
+
+
+class Neighborhood(object):
+    """Neighborhoods are the topmost level in the resources hierarchy. 
+    They represent resources managed by a component manager, thereby
+    identifying the later. As such, resource neighborhoods serve to
+    the purpose of specifying absolute references to resources hosted beyond
+    the boundaries of a given component manager. As a side effect they are
+    the key used to load component managers at run time.
+    """
+
+    __slots__ = ('_realm', '_id')
+
+    def __repr__(self):
+        return '<Neighborhood %s:%s>' % (self._realm, self._id)
+
+    def __eq__(self, other):
+        return isinstance(other, Neighborhood) and \
+               self._realm == other._realm and \
+               self._id == other._id
+
+    def __hash__(self):
+        """Hash this resource descriptor, including its hierarchy."""
+        return hash((self._realm, self._id))
+
+    @property
+    def id(self):
+        return None
+
+    @id.setter
+    def id(self, value):
+        pass
+
+    realm = parent = neighborhood = version = id
+
+    # -- methods for creating other Resource identifiers
+
+    def __new__(cls, neighborhood_or_realm=None, id=False):
+        """Create a new Neighborhood object from a specification.
+
+        :param neighborhood_or_realm: this can be either:
+           - a `Neighborhood`, which is then used as a base for making a copy
+           - a `basestring`, used to specify a `realm`
+        :param id: the neighborhood identifier
+        :param version: the version or `None` for indicating the latest version
+
+        >>> main = Neighborhood('nbh', 'id')
+        >>> repr(main)
+        '<Neighborhood nbh:id>'
+
+        >>> Neighborhood(main) is main
+        True
+
+        >>> repr(Neighborhood(None))
+        'None'
+        """
+        realm = neighborhood_or_realm
+        if isinstance(neighborhood_or_realm, Neighborhood):
+            if id is False:
+                return neighborhood_or_realm
+            else: # copy and override
+                realm = neighborhood_or_realm._realm
+        elif id is False:
+            id = None
+        if (realm, id) == (None, None):
+            return None
+        else:
+            neighborhood = super(Neighborhood, cls).__new__(cls)
+            neighborhood._realm = realm
+            neighborhood._id = id
+            return neighborhood
+
+    def __call__(self, realm=False, id=False, version=False, parent=False):
+        """Create a new Resource using the current resource as a template.
+
+        Optional keyword arguments can be given to override `id` and
+        `version`.
+
+        >>> nbh = Neighborhood('nbh', 'id')
+        >>> repr(nbh)
+        '<Neighborhood nbh:id>'
+
+        >>> main = nbh('wiki', 'WikiStart')
+        >>> repr(main)
+        "<Resource u'wiki:WikiStart' in Neighborhood nbh:id>"
+
+        >>> Resource(main) is main
+        True
+
+        >>> main3 = Resource(main, version=3)
+        >>> repr(main3)
+        "<Resource u'wiki:WikiStart@3' in Neighborhood nbh:id>"
+
+        >>> main0 = main3(version=0)
+        >>> repr(main0)
+        "<Resource u'wiki:WikiStart@0' in Neighborhood nbh:id>"
+
+        In a copy, if `id` is overriden, then the original `version` value
+        will not be reused.
+
+        >>> repr(Resource(main3, id="WikiEnd"))
+        "<Resource u'wiki:WikiEnd' in Neighborhood nbh:id>"
+
+        >>> repr(nbh(None))
+        '<Neighborhood nbh:id>'
+        """
+        if (realm, id, version, parent) in ((False, False, False, False),
+                                            (None, False, False, False)):
+            return self
+        else:
+            resource = Resource(realm, id, version, parent)
+            if resource.neighborhood is not self:
+                resource = self._update_parents(resource)
+            return resource
+
+    def _update_parents(self, resource):
+        newresource = Resource(resource.realm, resource.id, resource.version, self)
+        current = newresource
+        parent = resource.parent
+        while parent is not None:
+            current.parent = Resource(parent.realm, parent.id, parent.version, self)
+            current = current.parent
+            parent = parent.parent
+        return newresource
+
+    # -- methods for retrieving children Resource identifiers
+
+    def child(self, realm, id=False, version=False):
+        """Retrieve a child resource for a secondary `realm`.
+
+        Same as `__call__`, except that this one sets the parent to `self`.
+
+        >>> repr(Neighborhood('realm', 'id').child('attachment', 'file.txt'))
+        "<Resource u'attachment:file.txt' in Neighborhood realm:id>"
+        """
+        return self(realm, id, version)
+
+
 class Resource(object):
     """Resource identifier.
 
@@ -102,7 +265,7 @@ class Resource(object):
     the real work to the Resource's manager.
     """
 
-    __slots__ = ('realm', 'id', 'version', 'parent')
+    __slots__ = ('realm', 'id', 'version', 'parent', 'neighborhood')
 
     def __repr__(self):
         path = []
@@ -115,13 +278,21 @@ class Resource(object):
                 name += '@' + unicode(r.version)
             path.append(name or '')
             r = r.parent
-        return '<Resource %r>' % (', '.join(reversed(path)))
+        path = reversed(path)
+        if self.neighborhood is None:
+            return '<Resource %r>' % (', '.join(path))
+        else:
+            return '<Resource %r in Neighborhood %s:%s>' % (', '.join(path), 
+                                                    self.neighborhood._realm,
+                                                    self.neighborhood._id)
 
     def __eq__(self, other):
-        return self.realm == other.realm and \
+        return isinstance(other, Resource) and \
+               self.realm == other.realm and \
                self.id == other.id and \
                self.version == other.version and \
-               self.parent == other.parent
+               self.parent == other.parent and \
+               self.neighborhood == other.neighborhood
 
     def __hash__(self):
         """Hash this resource descriptor, including its hierarchy."""
@@ -130,6 +301,11 @@ class Resource(object):
         while current:
             path += (self.realm, self.id, self.version)
             current = current.parent
+        if self.neighborhood is not None:
+            # FIXME: Collisions !!!
+            path = (self.neighborhood._realm, self.neighborhood._id) + path
+        else:
+            path = (None, None) + path
         return hash(path)
 
     # -- methods for creating other Resource identifiers
@@ -169,6 +345,11 @@ class Resource(object):
         "<Resource ''>"
         """
         realm = resource_or_realm
+        if isinstance(parent, Neighborhood):
+            neighborhood = parent
+            parent = False
+        else:
+            neighborhood = None
         if isinstance(resource_or_realm, Resource):
             if id is False and version is False and parent is False:
                 return resource_or_realm
@@ -183,6 +364,7 @@ class Resource(object):
                     version = None
             if parent is False:
                 parent = resource_or_realm.parent
+            neighborhood = neighborhood or resource_or_realm.neighborhood
         else:
             if id is False:
                 id = None
@@ -190,11 +372,13 @@ class Resource(object):
                 version = None
             if parent is False:
                 parent = None
+            neighborhood = neighborhood or getattr(parent, 'neighborhood', None)
         resource = super(Resource, cls).__new__(cls)
         resource.realm = realm
         resource.id = id
         resource.version = version
         resource.parent = parent
+        resource.neighborhood = neighborhood
         return resource
 
     def __call__(self, realm=False, id=False, version=False, parent=False):
@@ -257,12 +441,14 @@ class ResourceSystem(Component):
     corresponding manager `Component`.
     """
 
+    resource_connectors = ExtensionPoint(IExternalResourceConnector)
     resource_managers = ExtensionPoint(IResourceManager)
     change_listeners = ExtensionPoint(IResourceChangeListener)
 
 
     def __init__(self):
         self._resource_managers_map = None
+        self._resource_connector_map = None
 
     # Public methods
 
@@ -288,6 +474,73 @@ class ResourceSystem(Component):
             for realm in manager.get_resource_realms() or []:
                 realms.append(realm)
         return realms
+
+    def get_resource_connector(self, realm):
+        """Return the component responsible for loading component managers
+         given the neighborhood `realm`
+
+        :param realm: the realm name
+        :return: a `ComponentManager` implementing `IExternalResourceConnector`
+                 or `None`
+        """
+        # build a dict of neighborhood realm keys to target implementations
+        if not self._resource_connector_map:
+            map = {}
+            for connector in self.resource_connectors:
+                for conn_realm in connector.get_supported_neighborhoods() or []:
+                    map[conn_realm] = connector
+            self._resource_connector_map = map
+        return self._resource_connector_map.get(realm)
+
+    def get_known_neighborhoods(self):
+        """Return a list of all the realm names of neighborhoods."""
+        realms = []
+        for connector in self.resource_connectors:
+            for realm in manager.get_supported_neighborhoods() or []:
+                realms.append(realm)
+        return realms
+
+    def load_component_manager(self, neighborhood, default=None):
+        """Load the component manager identified by a given instance of
+        `Neighborhood` class.
+
+        :throws ResourceNotFound: if there is no connector for neighborhood
+        """
+        if neighborhood is None or neighborhood._realm is None:
+            if default is not None:
+                return default
+            else:
+                raise ResourceNotFound('Unexpected neighborhood %s' % 
+                                       (neighborhood,))
+        c = self.get_resource_connector(neighborhood._realm)
+        if c is None:
+            raise ResourceNotFound('Missing connector for neighborhood %s' % 
+                                   (neighborhood,))
+        return c.load_manager(neighborhood)
+
+    # FIXME: Generic ComponentCls.for_neighborhood (like C# extension methods?)
+    @classmethod
+    def for_neighborhood(cls, compmgr, neighborhood, componentclass=None):
+        """Instantiate a fiven component class in the context specified by
+        target neighborhood.
+        
+        :param compmgr: Source component manager.
+        :param neighborhood: Target neighborhood
+        :param componentclass: A subclass of `trac.core.Component`.
+        :throws ResourceNotFound: if there is no connector for neighborhood
+        
+        Note: This is a class method . The class used to invoke 
+        this method will be instantiated by default if `componentclass`
+        is set to `None`. 
+        """
+        assert componentclass is None or (issubclass(componentclass, Component)\
+                                          and not issubclass(componentclass, 
+                                                             ComponentManager))
+        rsys = ResourceSystem(compmgr)
+        target = rsys.load_component_manager(neighborhood, compmgr)
+        return rsys if target is compmgr else (componentclass or cls)(target)
+
+    # -- Utilities to trigger resources event notifications
 
     def resource_created(self, resource, context=None):
         for listener in self.change_listeners:
@@ -322,7 +575,7 @@ def get_resource_url(env, resource, href, **kwargs):
     :param resource: the `Resource` object specifying the Trac resource
     :param href: an `Href` object used for building the URL
 
-    Additional keyword arguments are translated as query paramaters in the URL.
+    Additional keyword arguments are translated as query parameters in the URL.
 
     >>> from trac.test import EnvironmentStub
     >>> from trac.web.href import Href
@@ -345,9 +598,17 @@ def get_resource_url(env, resource, href, **kwargs):
     '/trac.cgi/generic/Main?action=diff&version=5'
 
     """
-    manager = ResourceSystem(env).get_resource_manager(resource.realm)
-    if manager and hasattr(manager, 'get_resource_url'):
-        return manager.get_resource_url(resource, href, **kwargs)
+    try:
+        rsys = ResourceSystem.for_neighborhood(env, resource.neighborhood)
+    except ResourceNotFound:
+        pass
+    else:
+        if rsys.env is not env:
+            # Use absolute href for external resources
+            href = rsys.env.abs_href
+        manager = rsys.get_resource_manager(resource.realm)
+        if manager and hasattr(manager, 'get_resource_url'):
+            return manager.get_resource_url(resource, href, **kwargs)
     args = {'version': resource.version}
     args.update(kwargs)
     return href(resource.realm, resource.id, **args)
@@ -381,13 +642,19 @@ def get_resource_description(env, resource, format='default', **kwargs):
     u'generic:Main at version 3'
 
     """
-    manager = ResourceSystem(env).get_resource_manager(resource.realm)
-    if manager and hasattr(manager, 'get_resource_description'):
-        return manager.get_resource_description(resource, format, **kwargs)
+    try:
+        rsys = ResourceSystem.for_neighborhood(env, resource.neighborhood)
+    except ResourceNotFound:
+        pass
+    else:
+        manager = rsys.get_resource_manager(resource.realm)
+        if manager and hasattr(manager, 'get_resource_description'):
+            return manager.get_resource_description(resource, format, **kwargs)
     name = u'%s:%s' % (resource.realm, resource.id)
     if format == 'summary':
         name = _('%(name)s at version %(version)s',
-                 name=name, version=resource.version)
+                 name=name, version=resource.version) + \
+               '' if resource.neighborhood is None else _(' (external)') 
     return name
 
 def get_resource_name(env, resource):
@@ -502,6 +769,10 @@ def resource_exists(env, resource):
         >>> resource_exists(env, Resource('dummy-realm'))
         False
     """
+    try:
+        rsys = ResourceSystem.for_neighborhood(env, resource.neighborhood)
+    except ResourceNotFound:
+        return False
     manager = ResourceSystem(env).get_resource_manager(resource.realm)
     if manager and hasattr(manager, 'resource_exists'):
         return manager.resource_exists(resource)
