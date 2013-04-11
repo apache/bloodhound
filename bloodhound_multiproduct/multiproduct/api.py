@@ -516,12 +516,12 @@ class MultiProductSystem(Component):
         elif neighborhood._realm == 'product':
             prefix = neighborhood._id
         else:
-            raise ResourceNotFound(_('Unsupported neighborhood %(realm)s', 
+            raise ResourceNotFound(_(u'Unsupported neighborhood %(realm)s', 
                                      realm=neighborhood._realm))
         try:
             return lookup_product_env(self.env, prefix)
         except LookupError:
-            raise ResourceNotFound(_('Unknown product prefix %(prefix)s', 
+            raise ResourceNotFound(_(u'Unknown product prefix %(prefix)s', 
                                      prefix=prefix))
 
     def manager_exists(self, neighborhood):

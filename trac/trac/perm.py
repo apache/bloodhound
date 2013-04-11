@@ -26,7 +26,8 @@ from trac.admin import AdminCommandError, IAdminCommandProvider, get_dir_list
 from trac.cache import cached
 from trac.config import ExtensionOption, OrderedExtensionsOption
 from trac.core import *
-from trac.resource import Resource, get_resource_name
+from trac.resource import get_resource_name, manager_for_neighborhood, \
+                          Neighborhood, Resource
 from trac.util import file_or_std
 from trac.util.text import path_to_unicode, print_table, printout, \
                            stream_encoding, to_unicode, wrap
@@ -281,6 +282,7 @@ class DefaultPermissionPolicy(Component):
     # IPermissionPolicy methods
 
     def check_permission(self, action, username, resource, perm):
+        # TODO: Precondition resource.neighborhood is None
         now = time()
 
         if now - self.last_reap > self.CACHE_REAP_TIME:
@@ -455,8 +457,19 @@ class PermissionSystem(Component):
         is allowed."""
         if username is None:
             username = 'anonymous'
-        if resource and resource.realm is None:
-            resource = None
+        if resource:
+            if resource.realm is None:
+                resource = None
+            elif resource.neighborhood is not None:
+                try:
+                    compmgr = manager_for_neighborhood(self.env, 
+                                                       resource.neighborhood)
+                except ResourceNotFound:
+                    #FIXME: raise ?
+                    return False
+                else:
+                    return PermissionSystem(compmgr).check_permission(
+                            action, username, resource, perm)
         for policy in self.policies:
             decision = policy.check_permission(action, username, resource,
                                                perm)
@@ -521,6 +534,9 @@ class PermissionCache(object):
 
     def __init__(self, env, username=None, resource=None, cache=None,
                  groups=None):
+        if resource and resource.neighborhood is not None:
+            env = manager_for_neighborhood(env, resource.neighborhood)
+            resource = Neighborhood(None, None).child(resource)
         self.env = env
         self.username = username or 'anonymous'
         self._resource = resource
@@ -563,11 +579,17 @@ class PermissionCache(object):
             if resource == cache_resource:
                 return cache_decision
         perm = self
+        permsys = PermissionSystem(self.env)
         if resource is not self._resource:
-            perm = PermissionCache(self.env, self.username, resource,
-                                   self._cache)
-        decision = PermissionSystem(self.env). \
-                   check_permission(action, perm.username, resource, perm)
+            if resource.neighborhood is not None:
+                perm = PermissionCache(self.env, self.username, resource, {})
+                permsys = PermissionSystem(manager_for_neighborhood(
+                        self.env, resource.neighborhood))
+            else:
+                perm = PermissionCache(self.env, self.username, resource,
+                                       self._cache)
+        decision = permsys.check_permission(action, perm.username, resource,
+                                            perm)
         self._cache[key] = (decision, resource)
         return decision
 

@@ -23,11 +23,13 @@ import unittest
 
 from trac.admin.api import AdminCommandError
 from trac import perm
+from trac.resource import Neighborhood
 from trac.test import Mock
 from trac.tests.perm import DefaultPermissionStoreTestCase,\
         PermissionSystemTestCase, PermissionCacheTestCase,\
         PermissionPolicyTestCase, TestPermissionPolicy, TestPermissionRequestor
 
+from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.perm import MultiproductPermissionPolicy, sudo
@@ -138,6 +140,35 @@ class ProductPermissionCacheTestCase(PermissionCacheTestCase,
     @env.setter
     def env(self, value):
         pass
+
+
+class ProductNeighborhoodPermissionCacheTestCase(ProductPermissionCacheTestCase,
+                                      MultiproductTestCase):
+    @property
+    def env(self):
+        env = getattr(self, '_env', None)
+        if env is None:
+            self.global_env = self._setup_test_env(enable=[
+                    perm.DefaultPermissionStore,
+                    perm.DefaultPermissionPolicy,
+                    MultiProductSystem,
+                    TestPermissionRequestor])
+            self._upgrade_mp(self.global_env)
+            self._setup_test_log(self.global_env)
+            self._load_product_from_data(self.global_env, self.default_product)
+            self._env = env = ProductEnvironment(
+                    self.global_env, self.default_product)
+        return env
+
+    @env.setter
+    def env(self, value):
+        pass
+
+    def setUp(self):
+        ProductPermissionCacheTestCase.setUp(self)
+        nbh = Neighborhood('product', self.default_product)
+        resource = nbh.child(None, None)
+        self.perm = perm.PermissionCache(self.global_env, 'testuser', resource)
 
 
 class SudoTestCase(ProductPermissionCacheTestCase):
@@ -408,6 +439,8 @@ def test_suite():
                                      'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionSystemTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionCacheTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ProductNeighborhoodPermissionCacheTestCase,
+                                     'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionPolicyTestCase, 'test'))
 
     suite.addTest(unittest.makeSuite(SudoTestCase, 'test'))
