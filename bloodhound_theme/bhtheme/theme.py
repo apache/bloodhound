@@ -354,7 +354,7 @@ class BloodhoundTheme(ThemeBase):
             href_fcn = req.href.products
         product_list = []
         for product in Product.select(self.env):
-            if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', prefix).
+            if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', product.prefix).
                                           child(product.resource)):
                 product_list.append((product.prefix, product.name,
                     href_fcn(product.prefix)))
