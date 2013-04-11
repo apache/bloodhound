@@ -383,10 +383,11 @@ class BloodhoundProductSQLTranslate(object):
                     raise Exception("Invalid FROM table name")
                 name, alias = l[0], None
                 alias = l[1] if len(l) > 1 else name
-                token = nametokens[0]
-                for t in nametokens[1:]:
-                    self._token_delete(parent, t)
-                inject_table_view(token, name, alias)
+                if not name in self._skip_tables:
+                    token = nametokens[0]
+                    for t in nametokens[1:]:
+                        self._token_delete(parent, t)
+                    inject_table_view(token, name, alias)
             return list()
 
         current_token = self._token_next(parent, start_token)
