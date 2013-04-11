@@ -283,7 +283,7 @@ class MultiProductSystem(Component):
                 #   - update product column to match ticket's product
                 self.log.info("Migrating tickets w/o product to default product")
                 db("""UPDATE ticket SET product='%s'
-                      WHERE product=''""" % DEFAULT_PRODUCT)
+                      WHERE (product IS NULL OR product='')""" % DEFAULT_PRODUCT)
 
                 self.log.info("Migrating ticket tables to a new schema")
                 for table in TICKET_TABLES:
@@ -298,7 +298,7 @@ class MultiProductSystem(Component):
                         db("""UPDATE attachment
                               SET product=(SELECT ticket.product FROM ticket
                                            WHERE ticket.id=%s)
-                              WHERE type='ticket'
+                              WHERE attachment.type='ticket'
                            """ %(db.cast('attachment.id', 'integer'),))
                     else:
                         db("""UPDATE %s
@@ -336,7 +336,7 @@ class MultiProductSystem(Component):
                 db("""INSERT INTO %s (%s, product) SELECT %s, '' FROM %s""" %
                       (table, cols, cols, temp_table_name))
                 for wiki_name, wiki_version, wiki_product in db("""
-                        SELECT name, version, product FROM "%s" """ % table):
+                        SELECT name, version, product FROM %s""" % table):
                     if wiki_name in self.system_wiki_list:
                         for product in all_products:
                             db("""INSERT INTO %s (%s, product)
@@ -354,8 +354,9 @@ class MultiProductSystem(Component):
                 drop_temp_table(temp_table_name)
 
                 db("""UPDATE attachment
-                      SET product=(SELECT wiki.product FROM wiki WHERE wiki.name=attachment.id)
-                      WHERE type='wiki'""")
+                      SET product=(SELECT wiki.product FROM wiki
+                                   WHERE wiki.name=attachment.id)
+                      WHERE attachment.type='wiki'""")
 
                 # soft link existing repositories to default product
                 repositories_linked = []
