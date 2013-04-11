@@ -884,6 +884,7 @@ class Chrome(Component):
         d.update({
             'context': web_context(req) if req else None,
             'Resource': Resource,
+            'Neighborhood': Neighborhood,
             'url_of': get_rel_url,
             'abs_url_of': get_abs_url,
             'name_of': partial(get_resource_name, self.env),
