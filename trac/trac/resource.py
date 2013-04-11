@@ -119,8 +119,15 @@ class Neighborhood(object):
 
     __slots__ = ('_realm', '_id')
 
+    @property
+    def is_null(self):
+        return (self._realm, self._id) == (None, None)
+
     def __repr__(self):
-        return '<Neighborhood %s:%s>' % (self._realm, self._id)
+        if self.is_null:
+            return '<Neighborhood (null)>'
+        else:
+            return '<Neighborhood %s:%s>' % (self._realm, self._id)
 
     def __eq__(self, other):
         return isinstance(other, Neighborhood) and \
@@ -160,7 +167,7 @@ class Neighborhood(object):
         True
 
         >>> repr(Neighborhood(None))
-        'None'
+        '<Neighborhood (null)>'
         """
         realm = neighborhood_or_realm
         if isinstance(neighborhood_or_realm, Neighborhood):
@@ -170,13 +177,10 @@ class Neighborhood(object):
                 realm = neighborhood_or_realm._realm
         elif id is False:
             id = None
-        if (realm, id) == (None, None):
-            return None
-        else:
-            neighborhood = super(Neighborhood, cls).__new__(cls)
-            neighborhood._realm = realm
-            neighborhood._id = id
-            return neighborhood
+        neighborhood = super(Neighborhood, cls).__new__(cls)
+        neighborhood._realm = realm
+        neighborhood._id = id
+        return neighborhood
 
     def __call__(self, realm=False, id=False, version=False, parent=False):
         """Create a new Resource using the current resource as a template.
@@ -211,6 +215,20 @@ class Neighborhood(object):
 
         >>> repr(nbh(None))
         '<Neighborhood nbh:id>'
+
+        Null neighborhood will be used to put absolute resource
+        references ban into relative form (i.e. `resource.neiighborhood = None`)
+
+        >>> nullnbh = Neighborhood(None, None)
+        >>> repr(nullnbh)
+        '<Neighborhood (null)>'
+
+        >>> repr(nullnbh(main))
+        "<Resource u'wiki:WikiStart'>"
+        >>> repr(nullnbh(main3))
+        "<Resource u'wiki:WikiStart@3'>"
+        >>> repr(nullnbh(main0))
+        "<Resource u'wiki:WikiStart@0'>"
         """
         if (realm, id, version, parent) in ((False, False, False, False),
                                             (None, False, False, False)):
@@ -222,6 +240,8 @@ class Neighborhood(object):
             return resource
 
     def _update_parents(self, resource):
+        if self.is_null and resource.neighborhood is None:
+            return resource
         newresource = Resource(resource.realm, resource.id, resource.version, self)
         current = newresource
         parent = resource.parent
@@ -378,6 +398,8 @@ class Resource(object):
         resource.id = id
         resource.version = version
         resource.parent = parent
+        if neighborhood and neighborhood.is_null:
+            neighborhood = None
         resource.neighborhood = neighborhood
         return resource
 
