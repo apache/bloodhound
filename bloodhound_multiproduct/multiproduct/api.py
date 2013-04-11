@@ -28,9 +28,10 @@ from pkg_resources import resource_filename
 from trac.config import Option, PathOption
 from trac.core import Component, TracError, implements, Interface
 from trac.db import Table, Column, DatabaseManager, Index
-from trac.env import IEnvironmentSetupParticipant
+from trac.env import IEnvironmentSetupParticipant, Environment
 from trac.perm import IPermissionRequestor, PermissionCache
-from trac.resource import IResourceManager
+from trac.resource import IExternalResourceConnector, IResourceChangeListener,\
+                          IResourceManager, ResourceNotFound
 from trac.ticket.api import ITicketFieldProvider
 from trac.util.text import to_unicode, unquote_label, unicode_unquote
 from trac.util.translation import _, N_
@@ -38,8 +39,8 @@ from trac.web.chrome import ITemplateProvider
 from trac.web.main import FakePerm, FakeSession
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.parser import WikiParser
-from trac.resource import IResourceChangeListener
 
+from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER
 
@@ -70,10 +71,10 @@ class ISupportMultiProductEnvironment(Interface):
 class MultiProductSystem(Component):
     """Creates the database tables and template directories"""
 
-    implements(IEnvironmentSetupParticipant, ITemplateProvider,
-               IPermissionRequestor, ITicketFieldProvider, IResourceManager,
-               ISupportMultiProductEnvironment, IWikiSyntaxProvider,
-               IResourceChangeListener)
+    implements(IEnvironmentSetupParticipant, IExternalResourceConnector,
+               IPermissionRequestor, IResourceChangeListener, IResourceManager,
+               ISupportMultiProductEnvironment, ITemplateProvider, 
+               ITicketFieldProvider, IWikiSyntaxProvider)
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
@@ -497,6 +498,44 @@ class MultiProductSystem(Component):
         """
         products = Product.select(self.env, where={'name' : resource.id})
         return bool(products)
+
+    # IExternalResourceConnector methods
+    def get_supported_neighborhoods(self):
+        """Neighborhoods for `product` and `global` environments.
+        """
+        yield 'product'
+        yield 'global'
+
+    def load_manager(self, neighborhood):
+        """Load global environment or product environment given its prefix
+        """
+        if neighborhood._realm == 'global':
+            # FIXME: ResourceNotFound if neighborhood ID != None ?
+            prefix = GLOBAL_PRODUCT
+        elif neighborhood._realm == 'product':
+            prefix = neighborhood._id
+        else:
+            raise ResourceNotFound(_('Unsupported neighborhood %(realm)s', 
+                                     realm=neighborhood._realm))
+        try:
+            return lookup_product_env(self.env, prefix)
+        except LookupError:
+            raise ResourceNotFound(_('Unknown product prefix %(prefix)s', 
+                                     prefix=prefix))
+
+    def manager_exists(self, neighborhood):
+        """Check whether the target environment exists physically.
+        """
+        if neighborhood._realm == 'global':
+            # Global environment
+            return isinstance(self.env, (Environment, ProductEnvironment))
+        elif neighborhood._realm == 'product':
+            prefix = neighborhood._id
+            if not prefix:
+                # Global environment
+                return True
+            return Product(lookup_product_env(self.env, GLOBAL_PRODUCT), 
+                           {'prefix' : prefix})._exists
 
     # IWikiSyntaxProvider methods
 

@@ -933,9 +933,11 @@ class MilestoneModule(Component):
 
     def get_resource_description(self, resource, format=None, context=None,
                                  **kwargs):
+        nbhprefix = ResourceSystem(self.env).neighborhood_prefix(
+                resource.neighborhood)
         desc = resource.id
         if format != 'compact':
-            desc =  _('Milestone %(name)s', name=resource.id)
+            desc =  nbhprefix + _('Milestone %(name)s', name=resource.id)
         if context:
             return self._render_link(context, resource.id, desc)
         else:

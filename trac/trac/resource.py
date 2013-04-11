@@ -540,6 +540,11 @@ class ResourceSystem(Component):
         target = rsys.load_component_manager(neighborhood, compmgr)
         return rsys if target is compmgr else (componentclass or cls)(target)
 
+    def neighborhood_prefix(self, neighborhood):
+        return '' if neighborhood is None \
+                  else '[%s:%s] ' % (neighborhood._realm,
+                                     neighborhood._id or '') 
+
     # -- Utilities to trigger resources event notifications
 
     def resource_created(self, resource, context=None):
@@ -650,11 +655,12 @@ def get_resource_description(env, resource, format='default', **kwargs):
         manager = rsys.get_resource_manager(resource.realm)
         if manager and hasattr(manager, 'get_resource_description'):
             return manager.get_resource_description(resource, format, **kwargs)
-    name = u'%s:%s' % (resource.realm, resource.id)
+    nbhprefix = rsys.neighborhood_prefix(resource.neighborhood) 
+
+    name = u'%s%s:%s' % (nbhprefix, resource.realm, resource.id)
     if format == 'summary':
         name = _('%(name)s at version %(version)s',
-                 name=name, version=resource.version) + \
-               '' if resource.neighborhood is None else _(' (external)') 
+                 name=name, version=resource.version)
     return name
 
 def get_resource_name(env, resource):

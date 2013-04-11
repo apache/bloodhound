@@ -24,7 +24,7 @@ from trac.cache import cached
 from trac.config import *
 from trac.core import *
 from trac.perm import IPermissionRequestor, PermissionCache, PermissionSystem
-from trac.resource import IResourceManager
+from trac.resource import IResourceManager, ResourceSystem
 from trac.util import Ranges, as_int
 from trac.util.text import shorten_line
 from trac.util.translation import _, N_, gettext
@@ -557,15 +557,17 @@ class TicketSystem(Component):
 
     def get_resource_description(self, resource, format=None, context=None,
                                  **kwargs):
+        nbhprefix = ResourceSystem(self.env).neighborhood_prefix(
+                resource.neighborhood)
         if format == 'compact':
-            return '#%s' % resource.id
+            return '%s#%s' % (nbhprefix, resource.id)
         elif format == 'summary':
             from trac.ticket.model import Ticket
             ticket = Ticket(self.env, resource.id)
             args = [ticket[f] for f in ('summary', 'status', 'resolution',
                                         'type')]
             return self.format_summary(*args)
-        return _("Ticket #%(shortname)s", shortname=resource.id)
+        return nbhprefix + _("Ticket #%(shortname)s", shortname=resource.id)
 
     def format_summary(self, summary, status=None, resolution=None, type=None):
         summary = shorten_line(summary)

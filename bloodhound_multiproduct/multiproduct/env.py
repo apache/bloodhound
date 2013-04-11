@@ -875,6 +875,7 @@ class ProductEnvironment(Component, ComponentManager):
         else:
             global_env = env
 
+        # FIXME: Update if multiproduct.dbcursor.GLOBAL_PRODUCT != ''
         if not prefix and not name:
             return global_env
         elif isinstance(env, ProductEnvironment) and \

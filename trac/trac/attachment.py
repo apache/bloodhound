@@ -666,17 +666,22 @@ class AttachmentModule(Component):
     def get_resource_description(self, resource, format=None, **kwargs):
         if not resource.parent:
             return _("Unparented attachment %(id)s", id=resource.id)
+        nbhprefix = ResourceSystem(self.env).neighborhood_prefix(
+                resource.neighborhood)
         if format == 'compact':
-            return '%s (%s)' % (resource.id,
+            return '%s%s (%s)' % (nbhprefix, resource.id,
                     get_resource_name(self.env, resource.parent))
         elif format == 'summary':
             return Attachment(self.env, resource).description
         if resource.id:
-            return _("Attachment '%(id)s' in %(parent)s", id=resource.id,
+            desc = _("Attachment '%(id)s' in %(parent)s", id=resource.id,
                      parent=get_resource_name(self.env, resource.parent))
         else:
-            return _("Attachments of %(parent)s",
+            desc = _("Attachments of %(parent)s",
                      parent=get_resource_name(self.env, resource.parent))
+        if resource.neighborhood is not None:
+            desc = nbhprefix + desc
+        return desc
 
     def resource_exists(self, resource):
         try:
