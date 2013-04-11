@@ -26,6 +26,7 @@ Widgets displaying product information (multiproduct).
 
 import itertools
 
+from trac.resource import Neighborhood
 from trac.util.translation import _
 from trac.ticket.model import Milestone, Component, Version
 from trac.ticket.query import Query
@@ -118,7 +119,7 @@ class ProductWidget(WidgetBase):
 
         if not isinstance(req.perm.env, ProductEnvironment):
             for p in Product.select(self.env):
-                if 'PRODUCT_VIEW' in req.product_perm(p.prefix):
+                if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', p.prefix)):
                     for resource in (
                         { 'type': Milestone, 'name': 'milestone', 'hrefurl': True },
                         { 'type': Component, 'name': 'component' },

@@ -103,17 +103,6 @@ class ProductRequestWithSession(RequestWithSession):
             self.href = ProductizedHref(env.parent.href, env.href.base)
             self.abs_href = ProductizedHref(env.parent.abs_href, env.abs_href.base)
 
-    def product_perm(self, product, resource=None):
-        """Helper for per product permissions"""
-        from multiproduct.env import Environment, ProductEnvironment
-        if isinstance(self.perm.env, Environment):
-            return PermissionCache(ProductEnvironment(self.perm.env, product),
-                                   username=self.authname, resource=resource)
-        elif isinstance(self.perm.env, ProductEnvironment):
-            return PermissionCache(ProductEnvironment(self.perm.env.parent, product),
-                                   username=self.authname, resource=resource)
-        else:
-            raise TracError("Internal error, product permissions evaluated on invalid environment.")
 
 class ProductRequestFactory(RequestFactoryBase):
     def create_request(self, env, environ, start_response):

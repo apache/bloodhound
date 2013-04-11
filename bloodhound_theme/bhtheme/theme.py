@@ -27,7 +27,7 @@ from trac.config import Option, BoolOption
 from trac.core import *
 from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
-from trac.resource import Resource
+from trac.resource import Neighborhood, Resource
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
@@ -354,7 +354,8 @@ class BloodhoundTheme(ThemeBase):
             href_fcn = req.href.products
         product_list = []
         for product in Product.select(self.env):
-            if 'PRODUCT_VIEW' in req.product_perm(product.prefix, product.resource):
+            if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', prefix).
+                                          child(product.resource)):
                 product_list.append((product.prefix, product.name,
                     href_fcn(product.prefix)))
         return product_list

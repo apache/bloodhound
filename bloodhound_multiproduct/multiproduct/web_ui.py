@@ -26,7 +26,7 @@ from genshi.builder import tag
 from genshi.core import Attrs, QName
 
 from trac.core import Component, implements, TracError
-from trac.resource import Resource, ResourceNotFound
+from trac.resource import Neighborhood, Resource, ResourceNotFound
 from trac.util.translation import _
 from trac.web.api import IRequestHandler, HTTPNotFound
 from trac.web.chrome import (add_link, add_notice, add_warning, prevnext_nav,
@@ -72,7 +72,8 @@ class ProductModule(Component):
         action = req.args.get('action', 'view')
         
         products = [p for p in Product.select(self.env)
-                    if 'PRODUCT_VIEW' in req.product_perm(p.prefix)]
+                    if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
+                                                               p.prefix))]
         
         if pid is not None:
             add_link(req, 'up', req.href.products(), _('Products'))
