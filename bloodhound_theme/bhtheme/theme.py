@@ -52,7 +52,7 @@ from wsgiref.util import setup_testing_defaults
 
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
-from multiproduct.web_ui import PRODUCT_RE
+from multiproduct.web_ui import PRODUCT_RE, ProductModule
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
@@ -262,7 +262,8 @@ class BloodhoundTheme(ThemeBase):
         req.chrome['labels'] = self._get_whitelabelling()
 
         if data is not None:
-            data['product_list'] = self._get_product_list(req)
+            data['product_list'] = \
+                ProductModule.get_product_list(self.env, req)
 
         links = req.chrome.get('links',{})
         # replace favicon if appropriate
@@ -347,19 +348,6 @@ class BloodhoundTheme(ThemeBase):
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
-    def _get_product_list(self, req, href_fcn=None):
-        """Returns a list of products as (prefix, name, url) tuples
-        """
-        if href_fcn is None:
-            href_fcn = req.href.products
-        product_list = []
-        for product in Product.select(self.env):
-            if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', product.prefix).
-                                          child(product.resource)):
-                product_list.append((product.prefix, product.name,
-                    href_fcn(product.prefix)))
-        return product_list
-
     def _modify_resource_breadcrumb(self, req, template, data, content_type,
                                     is_active):
         """Provides logic for breadcrumb resource permissions
@@ -381,9 +369,9 @@ class BloodhoundTheme(ThemeBase):
     def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
         # override 'normal' product list with the admin one
         glsettings = (None, _('(Global settings)'), req.href.admin())
+        admin_url = lambda x: req.href.products(x, 'admin')
         data['admin_product_list'] = [ glsettings, ] + \
-            self._get_product_list(req,
-                lambda x: req.href.products(x, 'admin'))
+            ProductModule.get_product_list(self.env, req, admin_url)
 
         if isinstance(req.perm.env, ProductEnvironment):
             product = req.perm.env.product

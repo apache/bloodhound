@@ -188,3 +188,17 @@ class ProductModule(Component):
         if product and env.is_component_enabled(ProductModule):
             return req.href('products', product, itempath)
         return req.href(itempath)
+
+    @classmethod
+    def get_product_list(cls, env, req, href_fcn=None):
+        """Returns a list of products as (prefix, name, url) tuples
+        """
+        if href_fcn is None:
+            href_fcn = req.href.products
+        product_list = []
+        for product in Product.select(env):
+            if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', product.prefix).
+                                          child(product.resource)):
+                product_list.append((product.prefix, product.name,
+                    href_fcn(product.prefix)))
+        return product_list
