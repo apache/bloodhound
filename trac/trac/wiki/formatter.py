@@ -707,7 +707,7 @@ class Formatter(object):
         local_url = self.env.project_url or \
                     (self.req or self.env).abs_href.base
         if not url.startswith(local_url):
-            return tag.a(tag.span(u'\u200b', class_="icon"), text,
+            return tag.a(text, tag.span(u'\u200b', class_="icon"),
                          class_="ext-link", href=url, title=title or None)
         else:
             return tag.a(text, href=url, title=title or None)

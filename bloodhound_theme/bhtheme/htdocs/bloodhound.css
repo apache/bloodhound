@@ -178,21 +178,10 @@ div.reports form {
  font-weight: normal;
 }
 
-.activityfeed img {
- display: none;
-}
-
-.activityfeed dt {
- font-weight: normal;
-}
-
-.activityfeed dd {
- color: grey;
-}
-
-.activityfeed * tt {
- word-wrap: break-word;
- word-break: break-all;
+.activityfeed {
+  background-image: url("/main/chrome/theme/img/change_history_arrow_line.png");
+  background-repeat: repeat-y;
+  background-position: 20px 0px;
 }
 
 #mobile-activity {
@@ -990,11 +979,6 @@ tt {
  margin-top: 10px;
 }
 
-.comment {
- margin-bottom: 10px;
- padding-left: 10px;
-}
-
 .comment-meta {
  overflow: hidden;
 }
@@ -1150,13 +1134,23 @@ table.wiki th {
 
 
 #changelog div.comment-box{
- border: 2px solid #999999;
- border-radius: 8px 8px 8px 8px;
+ border: 1px solid #ccc;
+ border-radius: 6px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
- padding: 2px 4px 2px 4px;
+ padding: 13px;
  margin: 10px 0px 10px 10px;
+ background-color: rgb(253, 252, 250);
  min-height: 20px;
+
+#changelog div.comment-box h4 {
+  margin-top: 0px;
 }
+
+#changelog ul {
+  list-style-image: url('../common/collapsed.png');
+  padding: 0px 0px 0px 11px;
+}
+
 .ticket form#prefs input[type="radio"]{
  display: none;
 }

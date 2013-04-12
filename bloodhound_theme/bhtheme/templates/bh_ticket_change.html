@@ -52,7 +52,10 @@ Arguments:
   <div class="visible-desktop-hover" py:if="change.comment">
     <div py:if="cnum" class="comment-box" id="${'comment:' + str(cnum) if cnum else ''}">
       <div>
-        <h4 class="change">
+        <h4 class="change" style="display: inline-block;">        
+          ${authorinfo(change.author)}
+          <span py:if="preview or show_editor" class="trac-loading"/>
+        </h4>
         <div class="pull-right">
           <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>
         </div>
@@ -77,10 +80,6 @@ Arguments:
             </div>
           </form>
         </div>
-        
-          ${authorinfo(change.author)}
-          <span py:if="preview or show_editor" class="trac-loading"/>
-        </h4>
         <form py:if="show_editor" id="trac-comment-editor" method="post"
               action="${href.ticket(ticket.id) + '#comment:%d' % cnum}">
           <div>
@@ -174,7 +173,7 @@ Arguments:
     </h4>
   </div >
   </py:if>
-  <ul py:if="change.fields" class="changes ">
+  <ul py:if="change.fields" class="changes">
     <li py:for="field_name, field in sorted(change.fields.iteritems(), key=lambda item: item[1].label.lower())"
         class="trac-field-${field_name}${'trac-conflict' if preview and field_name in conflicts else None} visible-desktop-hover">
       <strong class="trac-field-${field_name}">${field.label}</strong>

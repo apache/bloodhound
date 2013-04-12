@@ -35,7 +35,7 @@
       <td class="size">
         <span title="${_('%(size)s bytes', size=entry.content_length)}">${pretty_size(entry.content_length)}</span>
         <a py:if="entry.raw_href" href="$entry.raw_href" class="${'trac-ziplink' if isdir else 'trac-rawlink'}"                       
-           title="${_('Download as Zip archive') if isdir else _('Download')}">&#8203;<i class="icon-download-alt"></i></a>
+           title="${_('Download as Zip archive') if isdir else _('Download')}">&#8203;</a>
       </td>
       <td class="rev">
         <a title="View Revision Log" href="${href.log(reponame, entry.path, rev=rev)}">${display_rev(entry.created_rev)}</a>
