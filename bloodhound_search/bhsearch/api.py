@@ -39,6 +39,7 @@ class IndexFields(object):
     STATUS = 'status'
     PRODUCT = 'product'
     SECURITY = 'security'
+    NAME = 'name'
 
 class QueryResult(object):
     def __init__(self):

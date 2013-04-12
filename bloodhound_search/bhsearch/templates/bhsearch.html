@@ -68,7 +68,7 @@
             <py:if test="facet_counts">
               <!--Render facet counts-->
               <ul id="facet_counts">
-                <li py:for="field, per_value_counts in facet_counts.iteritems()">
+                <li py:for="field, per_value_counts in facet_counts">
                   <h4 style="display: inline;">${field}</h4>
                   <ul id="facet_counts_value">
                     <li py:for="value, item in per_value_counts.iteritems()">
@@ -130,7 +130,8 @@
                         <py:for each="idx, header in enumerate(headers)" py:choose="">
                           <py:with vars="name = header.name; value = result[name]; hilited_value=result['hilited_' + name]; title = _('View ')+ result['type']">
                             <td py:when="name == 'id'" class="id"><a href="$result.href" title="${title}"
-                                class="${classes(closed=result.status == 'closed')}">#${result.hilited_id or result.id}</a></td>
+                                class="${classes(closed=result.status == 'closed')}">${
+                                '#' if result.type == 'ticket' else ''}${result.hilited_id or result.id}</a></td>
                             <td py:otherwise="" class="$name" py:choose="">
                               <a py:when="name == 'summary'" href="$result.href" title="title">${hilited_value or value}</a>
                               <py:when test="isinstance(value, datetime)">${pretty_dateinfo(value, dateonly=True)}</py:when>

@@ -80,6 +80,7 @@ class DefaultQueryParser(Component):
     #This is prototype implementation ,the fields boost must be tuned later
     field_boosts = dict(
         id = 6,
+        name = 6,
         type = 2,
         summary = 5,
         author = 3,
@@ -89,6 +90,7 @@ class DefaultQueryParser(Component):
         status = 2,
         content = 1,
         changes = 1,
+        message = 1,
     )
 
     meta_keyword_parsers = ExtensionPoint(IMetaKeywordParser)

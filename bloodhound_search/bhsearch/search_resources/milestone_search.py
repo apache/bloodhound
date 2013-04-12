@@ -114,6 +114,7 @@ class MilestoneIndexer(BaseIndexer):
             status = 'open'
         doc = {
             IndexFields.ID: milestone.name,
+            IndexFields.NAME: milestone.name,
             IndexFields.TYPE: MILESTONE_TYPE,
             IndexFields.STATUS: status,
             IndexFields.PRODUCT: get_product(self.env).prefix,
@@ -136,7 +137,9 @@ class MilestoneSearchParticipant(BaseSearchParticipant):
     participant_type = MILESTONE_TYPE
     required_permission = 'MILESTONE_VIEW'
 
-    default_facets = []
+    default_facets = [
+        IndexFields.PRODUCT,
+    ]
     default_grid_fields = [
         MilestoneFields.ID, MilestoneFields.DUE, MilestoneFields.COMPLETED]
     prefix = MILESTONE_TYPE
@@ -166,5 +169,5 @@ class MilestoneSearchParticipant(BaseSearchParticipant):
     def format_search_results(self, res):
         #TODO: add better milestone rendering
 
-        id = res['hilited_id'] or res['id']
-        return tag(u'[', res['product'], u'] Milestone:', id)
+        name = res['hilited_name'] or res['name']
+        return tag(u'[', res['product'], u'] Milestone:', name)

@@ -42,9 +42,11 @@ from trac.web.chrome import (INavigationContributor, ITemplateProvider,
                              web_context)
 from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
                           DESC, IndexFields, SortInstruction)
-from bhsearch.utils import get_global_env
+from bhsearch.utils import get_global_env, using_multiproduct
 from trac.wiki.formatter import extract_link
 from multiproduct.env import ProductEnvironment
+from multiproduct.model import Product
+from multiproduct.web_ui import ProductModule
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
 DEFAULT_RESULTS_PER_PAGE = 10
@@ -68,7 +70,7 @@ class RequestParameters(object):
     VIEW = "view"
     SORT = "sort"
     DEBUG = "debug"
-    PRODUCT_PREFIX = "product_prefix"
+    PRODUCT = "product_prefix"
     PRODUCT_ID = "productid"
 
     def __init__(self, req, href=None):
@@ -98,11 +100,7 @@ class RequestParameters(object):
         self.page = int(req.args.getfirst(self.PAGE, '1'))
         self.type = req.args.getfirst(self.TYPE)
 
-        if self.PRODUCT_ID in req.args:
-            # Accessed using product url
-            self.product = req.args.getfirst(self.PRODUCT_ID)
-        else:
-            self.product = req.args.getfirst(self.PRODUCT_PREFIX)
+        self.product = req.args.getfirst(self.PRODUCT)
         self.debug = int(req.args.getfirst(self.DEBUG, '0'))
 
         self.params = {
@@ -121,8 +119,8 @@ class RequestParameters(object):
             self.params[self.PAGE] = self.page
         if self.type:
             self.params[self.TYPE] = self.type
-        if self.product:
-            self.params[self.PRODUCT_PREFIX] = self.product
+        if self.product is not None:
+            self.params[self.PRODUCT] = self.product
         if self.filter_queries:
             self.params[RequestParameters.FILTER_QUERY] = self.filter_queries
         if self.sort_string:
@@ -167,8 +165,10 @@ class RequestParameters(object):
             view=None,
             skip_view=False,
             sort=None,
-            skip_sort = False,
-            skip_query = False
+            skip_sort=False,
+            skip_query=False,
+            product=None,
+            skip_product=False,
     ):
         params = copy.deepcopy(self.params)
 
@@ -203,6 +203,11 @@ class RequestParameters(object):
 
         if skip_query:
             self._delete_if_exists(params, self.QUERY)
+
+        if skip_product:
+            self._delete_if_exists(params, self.PRODUCT)
+        elif product is not None:
+            params[self.PRODUCT] = product
 
         return self.href.bhsearch(**params)
 
@@ -253,7 +258,7 @@ class BloodhoundSearchModule(Component):
     default_facets = ListOption(
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_facets',
-        default=",".join([IndexFields.TYPE, IndexFields.PRODUCT]),
+        default=",".join([IndexFields.PRODUCT, IndexFields.TYPE]),
         doc="""Default facets applied to search view of all resources""")
 
     default_view = Option(
@@ -268,10 +273,24 @@ class BloodhoundSearchModule(Component):
         default=",".join(default_grid_fields),
         doc="""Default fields for grid view for specific resource""")
 
-    default_search = BoolOption('bhsearch', 'is_default', False)
+    default_search = BoolOption(
+        BHSEARCH_CONFIG_SECTION,
+        'is_default',
+        default=False,
+        doc="""Searching from quicksearch uses bhsearch.""")
 
-    redirect_enabled = BoolOption('bhsearch', 'enable_redirect',
-                                  False)
+    redirect_enabled = BoolOption(
+        BHSEARCH_CONFIG_SECTION,
+        'enable_redirect',
+        default=False,
+        doc="""Redirect links pointing to trac search to bhsearch""")
+
+    global_quicksearch = BoolOption(
+        BHSEARCH_CONFIG_SECTION,
+        'global_quicksearch',
+        default=True,
+        doc="""Quicksearch searches all products, even when used
+            in product env.""")
 
     # INavigationContributor methods
     def get_active_navigation_item(self, req):
@@ -305,7 +324,8 @@ class BloodhoundSearchModule(Component):
             self.search_participants,
             self.default_view,
             self.all_grid_fields,
-            self.default_facets
+            self.default_facets,
+            self.global_quicksearch,
         )
 
         if request_context.requires_redirect:
@@ -369,6 +389,7 @@ class BloodhoundSearchModule(Component):
 
 class RequestContext(object):
     DATA_ACTIVE_FILTER_QUERIES = 'active_filter_queries'
+    DATA_ACTIVE_PRODUCT = 'active_product'
     DATA_ACTIVE_QUERY = 'active_query'
     DATA_BREADCRUMBS_TEMPLATE = 'resourcepath_template'
     DATA_HEADERS = "headers"
@@ -379,6 +400,7 @@ class RequestContext(object):
     DATA_DEBUG = 'debug'
     DATA_PAGE_HREF = 'page_href'
     DATA_RESULTS = 'results'
+    DATA_PRODUCT_LIST = 'search_product_list'
     DATA_QUERY = 'query'
     DATA_QUICK_JUMP = "quickjump"
     DATA_SEARCH_EXTRAS = 'extra_search_fields'
@@ -401,9 +423,12 @@ class RequestContext(object):
             default_view,
             all_grid_fields,
             default_facets,
+            global_quicksearch,
             ):
         self.env = env
         self.req = req
+        self.requires_redirect = False
+        self._handle_multiproduct_parameters(req, global_quicksearch)
         self.parameters = RequestParameters(
             req,
             href=get_global_env(self.env).href
@@ -436,8 +461,9 @@ class RequestContext(object):
             self.active_type = None
             self.active_participant = None
 
+        self.active_product = self.parameters.product
+
         self._prepare_active_type()
-        self._prepare_breadcrumb_items()
         self._prepare_hidden_search_fields()
         self._prepare_quick_jump()
 
@@ -449,6 +475,16 @@ class RequestContext(object):
         self.fields = self._prepare_fields_and_view()
         self.query_filter = self._prepare_query_filter()
         self.facets = self._prepare_facets()
+
+    def _handle_multiproduct_parameters(self, req, global_quicksearch):
+        if not using_multiproduct(self.env):
+            return
+
+        if self.env.parent is not None:
+            if not global_quicksearch:
+                req.args[RequestParameters.PRODUCT] = \
+                    self.env.product.prefix
+            self.requires_redirect = True
 
     def _get_allowed_participants(self, req):
         allowed_participants = {}
@@ -466,44 +502,6 @@ class RequestContext(object):
             raise TracError(_("Unsupported resource type: '%(name)s'",
                             name=active_type))
 
-    def _prepare_breadcrumb_items(self):
-        current_filters = self.parameters.filter_queries
-
-        def remove_filter_from_list(filter_to_remove):
-            new_filters = list(current_filters)
-            new_filters.remove(filter_to_remove)
-            return new_filters
-
-        if self.active_type:
-            type_query = self._create_term_expression('type', self.active_type)
-            type_filters = [dict(
-                href=self.parameters.create_href(skip_type=True,
-                                                 force_filters=[]),
-                label=unicode(self.active_type).capitalize(),
-                query=type_query,
-            )]
-        else:
-            type_filters = []
-
-        active_filter_queries = [
-            dict(
-                href=self.parameters.create_href(
-                    force_filters=remove_filter_from_list(filter_query)
-                ),
-                label=filter_query,
-                query=filter_query,
-            ) for filter_query in self.parameters.filter_queries
-        ]
-        active_query = dict(
-            href=self.parameters.create_href(skip_query=True),
-            label=u'"%s"' % self.parameters.query,
-            query=self.parameters.query
-        )
-
-        self.data[self.DATA_ACTIVE_FILTER_QUERIES] = \
-            type_filters + active_filter_queries
-        self.data[self.DATA_ACTIVE_QUERY] = active_query
-
     def _prepare_hidden_search_fields(self):
         if self.active_type:
             self.data[self.DATA_SEARCH_EXTRAS].append(
@@ -512,7 +510,7 @@ class RequestContext(object):
 
         if self.parameters.product:
             self.data[self.DATA_SEARCH_EXTRAS].append(
-                (RequestParameters.PRODUCT_PREFIX, self.parameters.product)
+                (RequestParameters.PRODUCT, self.parameters.product)
             )
 
         if self.parameters.view:
@@ -647,6 +645,10 @@ class RequestContext(object):
             query_filters.append(
                 self._create_term_expression(
                     IndexFields.TYPE, self.active_type))
+        if self.active_product is not None:
+            query_filters.append(self._create_term_expression(
+                IndexFields.PRODUCT, self.active_product or None)
+            )
         return query_filters
 
     def _create_term_expression(self, field, field_value):
@@ -683,8 +685,6 @@ class RequestContext(object):
                     'type:(%s)' % ' OR '.join(legacy_type_filters)
                 )
             self.requires_redirect = True
-        else:
-            self.requires_redirect = False
 
     def _process_doc(self, doc):
         ui_doc = dict(doc)
@@ -694,7 +694,6 @@ class RequestContext(object):
             ui_doc["href"] = product_href(doc['type'], doc['id'])
         else:
             ui_doc["href"] = self.req.href(doc['type'], doc['id'])
-        #todo: perform content adaptation here
 
         if doc['content']:
             ui_doc['content'] = shorten_result(doc['content'])
@@ -750,7 +749,7 @@ class RequestContext(object):
                                   query_result.highlighting)
         self._prepare_results(docs, query_result.hits)
         self._prepare_result_facet_counts(query_result.facets)
-        self._prepare_breadcrumbs_template()
+        self._prepare_breadcrumbs()
         self.data[self.DATA_DEBUG] = query_result.debug
         if self.parameters.debug:
             self.data[self.DATA_DEBUG]['enabled'] = True
@@ -775,9 +774,13 @@ class RequestContext(object):
         }
 
         """
-        facet_counts = dict()
+        facet_counts = []
         if result_facets:
-            for field, facets_dict in result_facets.iteritems():
+            for field in self.facets:
+                if field == IndexFields.PRODUCT and \
+                        not using_multiproduct(self.env):
+                    continue
+                facets_dict = result_facets.get(field, {})
                 per_field_dict = dict()
                 for field_value, count in facets_dict.iteritems():
                     if field == IndexFields.TYPE:
@@ -785,6 +788,11 @@ class RequestContext(object):
                             skip_page=True,
                             force_filters=[],
                             type=field_value)
+                    elif field == IndexFields.PRODUCT:
+                        href = self.parameters.create_href(
+                            skip_page=True,
+                            product=field_value or u'',
+                        )
                     else:
                         href = self.parameters.create_href(
                             skip_page=True,
@@ -796,7 +804,7 @@ class RequestContext(object):
                         count=count,
                         href=href
                     )
-                facet_counts[_(field)] = per_field_dict
+                facet_counts.append((_(field), per_field_dict))
 
         self.data[self.DATA_FACET_COUNTS] = facet_counts
 
@@ -817,5 +825,69 @@ class RequestContext(object):
     def _create_genshi_fragment(self, html_fragment):
         return tag(HTML(html_fragment))
 
+    def _prepare_breadcrumbs(self):
+        self._prepare_breadcrumbs_template()
+        self._prepare_product_breadcrumb()
+        self._prepare_query_filter_breadcrumbs()
+
     def _prepare_breadcrumbs_template(self):
         self.data[self.DATA_BREADCRUMBS_TEMPLATE] = 'bhsearch_breadcrumbs.html'
+
+    def _prepare_product_breadcrumb(self):
+        if not using_multiproduct(self.env):
+            return
+        product_search = lambda x: self.parameters.create_href(product=x)
+        all_products_search = self.parameters.create_href(skip_product=True)
+
+        global_product = [(u'', _(u'Global product'), product_search(u''))]
+        products = \
+            ProductModule.get_product_list(self.env, self.req, product_search)
+        all_products = [(None, _(u'All products'), all_products_search)]
+
+        search_product_list = global_product + products + all_products
+
+        for prefix, name, url in search_product_list:
+            if prefix == self.active_product:
+                self.data[self.DATA_ACTIVE_PRODUCT] = name
+                break
+        else:
+            self.data[self.DATA_ACTIVE_PRODUCT] = self.active_product
+        self.data[self.DATA_PRODUCT_LIST] = search_product_list
+
+    def _prepare_query_filter_breadcrumbs(self):
+        current_filters = self.parameters.filter_queries
+
+        def remove_filter_from_list(filter_to_remove):
+            new_filters = list(current_filters)
+            new_filters.remove(filter_to_remove)
+            return new_filters
+
+        if self.active_type:
+            type_query = self._create_term_expression('type', self.active_type)
+            type_filters = [dict(
+                href=self.parameters.create_href(skip_type=True,
+                                                 force_filters=[]),
+                label=unicode(self.active_type).capitalize(),
+                query=type_query,
+            )]
+        else:
+            type_filters = []
+
+        active_filter_queries = [
+            dict(
+                href=self.parameters.create_href(
+                    force_filters=remove_filter_from_list(filter_query)
+                ),
+                label=filter_query,
+                query=filter_query,
+            ) for filter_query in self.parameters.filter_queries
+        ]
+        active_query = dict(
+            href=self.parameters.create_href(skip_query=True),
+            label=u'"%s"' % self.parameters.query,
+            query=self.parameters.query
+        )
+
+        self.data[self.DATA_ACTIVE_FILTER_QUERIES] = \
+            type_filters + active_filter_queries
+        self.data[self.DATA_ACTIVE_QUERY] = active_query

@@ -197,7 +197,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        self.assertEquals(2, len(data["facet_counts"]))
+        self.assertEquals(1, len(data["facet_counts"]))
 
     def test_can_return_facets_counts_for_tickets(self):
         #arrange
@@ -208,7 +208,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts = data["facet_counts"]
+        facet_counts = dict(data["facet_counts"])
         status_counts = facet_counts["status"]
         self.assertEquals(1, status_counts["new"]["count"])
         self.assertEquals(1, status_counts["closed"]["count"])
@@ -222,7 +222,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts = data["facet_counts"]
+        facet_counts = dict(data["facet_counts"])
         status_counts = facet_counts["status"]
         self.assertEquals(1, status_counts["new"]["count"])
         self.assertIn("fq=status%3A%22new%22", status_counts["new"]["href"])
@@ -236,7 +236,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        facet_counts = data["facet_counts"]
+        facet_counts = dict(data["facet_counts"])
         status_counts = facet_counts["status"]
         empty_status_count = status_counts[None]
         self.assertEquals(2, empty_status_count["count"])
@@ -253,7 +253,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         facet_counts = data["facet_counts"]
-        self.assertEquals({}, facet_counts)
+        self.assertEquals([], facet_counts)
 
     def test_can_accept_multiple_filter_query_parameters(self):
         #arrange
@@ -286,7 +286,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.FILTER_QUERY] = ['component:"c1"']
         data = self.process_request()
         #assert
-        facet_counts = data["facet_counts"]
+        facet_counts = dict(data["facet_counts"])
 
         milestone_facet_count = facet_counts["milestone"]
         self.env.log.debug(unquote(milestone_facet_count[None]["href"]))
@@ -301,7 +301,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.FILTER_QUERY] = ['component:"c1"']
         data = self.process_request()
         #assert
-        facet_counts = data["facet_counts"]
+        facet_counts = dict(data["facet_counts"])
 
         component_facet_count = facet_counts["component"]
         c1_href = component_facet_count["c1"]["href"]
@@ -376,7 +376,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.req.args[RequestParameters.QUERY] = "*"
         data = self.process_request()
         #assert
-        ticket_facet_href = data["facet_counts"]["type"]["ticket"]["href"]
+        ticket_facet_href = dict(data["facet_counts"])["type"]["ticket"]["href"]
         ticket_facet_href = unquote(ticket_facet_href)
         self.assertIn("type=ticket", ticket_facet_href)
         self.assertNotIn("fq=", ticket_facet_href)
@@ -580,7 +580,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         term = "search_term"
         self.insert_wiki(term, term)
 
-        self.req.args[RequestParameters.QUERY] = "id:%s" % term
+        self.req.args[RequestParameters.QUERY] = "name:%s" % term
         data = self.process_request()
 
         title = str(data["results"].items[0]["title"])
@@ -795,11 +795,22 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertNotIn("&q=", unquote(active_query["href"]))
         self.assertIn("fq=", unquote(active_query["href"]))
 
-    def test_redirects_if_product_url_is_used_to_access_search(self):
-        self.req.path_info = '/products/xxx/bhsearch'
-        self.req.args['productid'] = 'xxx'
+    def test_redirects_if_product_env_is_used_to_access_search(self):
+        self.env.config.set('bhsearch', 'global_quicksearch', "True")
 
-        self.assertRaises(RequestDone, self.process_request)
+        with self.product('xxx'):
+            self.assertRaises(RequestDone, self.process_request)
+
+        self.assertIn('/bhsearch', self.redirect_url)
+        self.assertNotIn('/products', self.redirect_url)
+        self.assertNotIn('product_prefix=xxx', self.redirect_url)
+        self.assertTrue(self.redirect_permanent)
+
+    def test_adds_product_filter_when_global_quicksearch_is_disabled(self):
+        self.env.config.set('bhsearch', 'global_quicksearch', "false")
+
+        with self.product('xxx'):
+            self.assertRaises(RequestDone, self.process_request)
 
         self.assertIn('/bhsearch', self.redirect_url)
         self.assertNotIn('/products', self.redirect_url)

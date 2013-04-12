@@ -192,6 +192,7 @@ class TicketSearchParticipant(BaseSearchParticipant):
     required_permission = 'TICKET_VIEW'
 
     default_facets = [
+        IndexFields.PRODUCT,
         TicketFields.STATUS,
         TicketFields.MILESTONE,
         TicketFields.COMPONENT,

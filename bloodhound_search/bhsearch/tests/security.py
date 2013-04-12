@@ -26,7 +26,8 @@ import contextlib
 import unittest
 from sqlite3 import OperationalError
 
-from trac.perm import PermissionSystem, DefaultPermissionPolicy
+from trac.perm import (PermissionSystem, DefaultPermissionPolicy,\
+    PermissionCache)
 
 from multiproduct.api import MultiProductSystem, ProductEnvironment
 
@@ -46,10 +47,10 @@ class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
             enabled=['trac.*', 'trac.wiki.*', 'bhsearch.*', 'multiproduct.*'],
             create_req=True,
             enable_security=True,
-            mock_multiproduct=False,
         )
-        self.global_env = self.env
+        self.env.parent = None
         self.product_envs = []
+        self.req.perm = PermissionCache(self.env, 'x')
 
         self._setup_multiproduct()
         self._disable_trac_caches()
@@ -141,13 +142,36 @@ class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
         )
         self.assertEqual(results.hits, 2)
 
+    def test_product_dropdown_with_no_permission(self):
+        self._add_permission('x', 'SEARCH_VIEW')
+        data = self.process_request()
+
+        product_list = data['search_product_list']
+        self.assertEqual(len(product_list), 2)
+
+    def test_product_dropdown_with_trac_admin_permission(self):
+        self._add_permission('x', 'SEARCH_VIEW')
+        self._add_permission('x', 'TRAC_ADMIN')
+        data = self.process_request()
+
+        product_list = data['search_product_list']
+        self.assertEqual(len(product_list), 5)
+
+    def test_product_dropdown_with_product_view_permissions(self):
+        self._add_permission('x', 'SEARCH_VIEW')
+        self._add_permission('x', 'PRODUCT_VIEW', '@')
+        data = self.process_request()
+
+        product_list = data['search_product_list']
+        self.assertEqual(len(product_list), 3)
+
     def _setup_multiproduct(self):
         try:
-            MultiProductSystem(self.global_env)\
+            MultiProductSystem(self.env)\
                 .upgrade_environment(self.env.db_transaction)
         except OperationalError:
-            # table remains but database version is deleted
-            pass
+            # table remains but content is deleted
+            self._add_products('@')
         self.env.enable_multiproduct_schema()
 
     def _disable_trac_caches(self):
@@ -159,28 +183,29 @@ class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
 
     def _add_products(self, *products, **kwargs):
         owner = kwargs.pop('owner', '')
-        with self.global_env.db_direct_transaction as db:
+        with self.env.db_direct_transaction as db:
             for product in products:
                 db("INSERT INTO bloodhound_product (prefix, owner) "
                    " VALUES ('%s', '%s')" % (product, owner))
-                product = ProductEnvironment(self.global_env, product)
+                product = ProductEnvironment(self.env, product)
                 self.product_envs.append(product)
 
     @contextlib.contextmanager
     def product(self, prefix=''):
-        self.env = ProductEnvironment(self.global_env, prefix)
+        global_env = self.env
+        self.env = ProductEnvironment(global_env, prefix)
         yield
-        self.env = self.global_env
+        self.env = global_env
 
     def _add_permission(self, username='', permission='', product=''):
-        with self.global_env.db_direct_transaction as db:
+        with self.env.db_direct_transaction as db:
             db("INSERT INTO permission (username, action, product)"
                "VALUES ('%s', '%s', '%s')" %
                (username, permission, product))
         self._clear_permission_caches()
 
     def _clear_permission_caches(self):
-        for env in [self.global_env] + self.product_envs:
+        for env in [self.env] + self.product_envs:
             del PermissionSystem(env).store._all_permissions
 
 

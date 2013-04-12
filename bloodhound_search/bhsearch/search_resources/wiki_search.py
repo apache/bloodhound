@@ -31,6 +31,7 @@ from genshi.builder import tag
 
 WIKI_TYPE = u"wiki"
 
+
 class WikiIndexer(BaseIndexer):
     implements(IWikiChangeListener, IIndexParticipant)
 
@@ -97,8 +98,13 @@ class WikiIndexer(BaseIndexer):
         page = trac_doc
         #This is very naive prototype implementation
         #TODO: a lot of improvements must be added here!!!
+        searchable_name = page.name + ' ' + \
+            WikiSystem(self.env).format_page_name(page.name, split=True)
+
         doc = {
             IndexFields.ID: page.name,
+            IndexFields.NAME: searchable_name,
+            '_stored_' + IndexFields.NAME: page.name,
             IndexFields.TYPE: WIKI_TYPE,
             IndexFields.TIME: page.time,
             IndexFields.AUTHOR: page.author,
@@ -119,7 +125,9 @@ class WikiSearchParticipant(BaseSearchParticipant):
     participant_type = WIKI_TYPE
     required_permission = 'WIKI_VIEW'
 
-    default_facets = []
+    default_facets = [
+        IndexFields.PRODUCT,
+    ]
     default_grid_fields = [
         IndexFields.ID,
         IndexFields.TIME,
@@ -151,8 +159,5 @@ class WikiSearchParticipant(BaseSearchParticipant):
         return "Wiki"
 
     def format_search_results(self, res):
-        title = res['hilited_id'] or res['id']
+        title = res['hilited_name'] or res['name']
         return tag('[', res['product'], '] ', title)
-
-
-

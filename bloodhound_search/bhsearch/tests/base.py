@@ -36,8 +36,7 @@ BASE_PATH = "/main/"
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
 
-    def setUp(self, enabled=None, create_req=False, enable_security=False,
-              mock_multiproduct=True):
+    def setUp(self, enabled=None, create_req=False, enable_security=False):
         if not enabled:
             enabled = ['trac.*', 'bhsearch.*']
         if not enable_security:
@@ -59,8 +58,10 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
                 authname='x',
             )
             self.context = Mock(req=self.req)
-        if mock_multiproduct:
-            self.env.all_product_envs = lambda: []
+
+        # Test without multiproduct.
+        if hasattr(self.env, 'parent'):
+            del self.env.parent
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -134,8 +135,22 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
 
     @contextlib.contextmanager
     def product(self, prefix=''):
-        old_product, old_parent = self.env.product, self.env.parent
+        has_parent = hasattr(self.env, 'parent')
+        has_product = hasattr(self.env, 'product')
+        if has_parent:
+            old_parent = self.env.parent
+        if has_product:
+            old_product = self.env.product
+
         self.env.parent = self.env
         self.env.product = Mock(prefix=prefix)
         yield
-        self.env.product, self.env.parent = old_product, old_parent
+
+        if has_parent:
+            self.env.parent = old_parent
+        else:
+            del self.env.parent
+        if has_product:
+            self.env.product = old_product
+        else:
+            del self.env.product

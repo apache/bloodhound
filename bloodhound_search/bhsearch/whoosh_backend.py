@@ -79,6 +79,8 @@ class WhooshBackend(Component):
         message=TEXT(stored=True,
                      analyzer=analysis.SimpleAnalyzer()),
         security=ID(),
+        name=TEXT(stored=True,
+                  analyzer=analysis.SimpleAnalyzer())
     )
 
     max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,
@@ -501,9 +503,15 @@ class WhooshEmptyFacetErrorWorkaround(Component):
         """
         # pylint: disable=unused-argument
         if "filter" in query_parameters and query_parameters["filter"]:
-            self._find_and_fix_condition(query_parameters["filter"])
+            term_to_replace = \
+                self._find_and_fix_condition(query_parameters["filter"])
+            if term_to_replace:
+                query_parameters["filter"] = term_to_replace
         if "query" in query_parameters and query_parameters["query"]:
-            self._find_and_fix_condition(query_parameters["query"])
+            term_to_replace = \
+                self._find_and_fix_condition(query_parameters["query"])
+            if term_to_replace:
+                query_parameters["query"] = term_to_replace
 
     def _find_and_fix_condition(self, filter_condition):
         if isinstance(filter_condition, whoosh.query.CompoundQuery):

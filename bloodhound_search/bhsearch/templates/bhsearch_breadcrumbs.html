@@ -23,9 +23,32 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-<a py:if="active_filter_queries or query" href="${href.bhsearch()}">Search</a>
+<a py:if="active_product or active_filter_queries or query" href="${href.bhsearch()}">Search</a>
+<py:if test='active_product'>
+    <div class="btn-group">
+        <button class="btn btn-mini">
+            <a title="Selected product"
+               href="#">${active_product}</a>
+        </button>
+        <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li py:for="prefix,name,url in search_product_list[:-1]">
+                <a title="Product $name ($prefix)" href="$url">$name
+                    ($prefix)</a>
+            </li>
+            <li class="divider"></li>
+            <li py:with="prefix,name,url=search_product_list[-1]">
+                <a title="$name" href="$url">$name</a>
+            </li>
+        </ul>
+    </div>
+</py:if>
+
+
 <py:for each="active_filter in active_filter_queries">
-    &gt; <a href="${active_filter.href}">${active_filter.label}</a>
+    &gt; <a class="search_filter" href="${active_filter.href}">${active_filter.label}</a>
 </py:for>
 <py:if test="query">
     &gt; <a href="${active_query.href}">${active_query.label}</a>

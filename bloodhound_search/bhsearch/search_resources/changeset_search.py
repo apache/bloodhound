@@ -98,6 +98,7 @@ class ChangesetSearchParticipant(BaseSearchParticipant):
     required_permission = 'CHANGESET_VIEW'
 
     default_facets = [
+        IndexFields.PRODUCT,
         ChangesetFields.REPOSITORY,
         ChangesetFields.AUTHOR,
     ]
