@@ -12,3 +12,5 @@ installer/README.rst
 trac/
 bloodhound_relations/bhrelations/trac/
 bloodhound_relations/bhrelations/default-pages/
+bloodhound_multiproduct/tests/admin/*.txt
+bloodhound_multiproduct/tests/*.txt
