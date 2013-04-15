@@ -89,7 +89,7 @@ finally:
         chglog.close()
 
 DIST_NM = 'BloodhoundRelationsPlugin'
-PKG_INFO = {'bhrelations' : ('bhrelations',                     # Package dir
+PKG_INFO = {'bhrelations': ('bhrelations',                     # Package dir
                             # Package data
                             ['../CHANGES', '../TODO', '../COPYRIGHT',
                               '../NOTICE', '../README', '../TESTING_README',
@@ -97,10 +97,12 @@ PKG_INFO = {'bhrelations' : ('bhrelations',                     # Package dir
                               'htdocs/img/*.*', 'htdocs/js/*.js',
                               'templates/*', 'default-pages/*'],
                           ),
-            'bhrelations.tests' : ('bhrelations/tests',     # Package dir
-                            # Package data
-                            ['data/*.*'],
-                          ),
+            'bhrelations.tests': (
+                'bhrelations/tests', ['data/*.*']),
+            'bhrelations.trac.ticket': (
+                'bhrelations/trac/ticket', []),
+            'bhrelations.trac.ticket.tests' : (
+                'bhrelations/trac/ticket/tests', []),
             }
 
 ENTRY_POINTS = {
