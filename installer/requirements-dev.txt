@@ -17,7 +17,7 @@
 
 Pygments
 pytz
-sqlparse
+sqlparse==0.1.7
 Babel
 Genshi
 -e ../trac
