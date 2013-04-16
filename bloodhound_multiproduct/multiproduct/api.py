@@ -32,10 +32,10 @@ from trac.env import IEnvironmentSetupParticipant, Environment
 from trac.perm import IPermissionRequestor, PermissionCache
 from trac.resource import IExternalResourceConnector, IResourceChangeListener,\
                           IResourceManager, ResourceNotFound
-from trac.ticket.api import ITicketFieldProvider
+from trac.ticket.api import ITicketFieldProvider, ITicketManipulator
 from trac.util.text import to_unicode, unquote_label, unicode_unquote
 from trac.util.translation import _, N_
-from trac.web.chrome import ITemplateProvider
+from trac.web.chrome import ITemplateProvider, add_warning
 from trac.web.main import FakePerm, FakeSession
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.parser import WikiParser
@@ -74,7 +74,7 @@ class MultiProductSystem(Component):
     implements(IEnvironmentSetupParticipant, IExternalResourceConnector,
                IPermissionRequestor, IResourceChangeListener, IResourceManager,
                ISupportMultiProductEnvironment, ITemplateProvider, 
-               ITicketFieldProvider, IWikiSyntaxProvider)
+               ITicketFieldProvider, IWikiSyntaxProvider, ITicketManipulator)
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
@@ -568,6 +568,22 @@ class MultiProductSystem(Component):
     def get_link_resolvers(self):
         yield ('global', self._format_link)
         yield ('product', self._format_link)
+
+    # ITicketManipulator methods
+    def validate_ticket(self, req, ticket):
+        # check whether the owner exists in db, add a warning if not
+        if ticket['owner'] != self.env.config.get('ticket', 'default_owner'):
+            owner = self.env.db_direct_query(
+                "SELECT sid FROM session WHERE sid=%s",
+                (ticket['owner'], ))
+            if not owner:
+                # Note: add_warning() is used intead of returning a list of
+                # error tuples, since the latter results in trac rendering
+                # errors (ticket's change.date is not populated)
+                add_warning(req, _('The user "%s" does not exist.' %
+                    ticket['owner']))
+        return []
+
 
     # Internal methods
 
