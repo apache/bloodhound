@@ -572,7 +572,8 @@ class MultiProductSystem(Component):
     # ITicketManipulator methods
     def validate_ticket(self, req, ticket):
         # check whether the owner exists in db, add a warning if not
-        if ticket['owner'] != self.env.config.get('ticket', 'default_owner'):
+        if req.args.get('action') == 'reassign' and \
+           ticket['owner'] != self.env.config.get('ticket', 'default_owner'):
             owner = self.env.db_direct_query(
                 "SELECT sid FROM session WHERE sid=%s",
                 (ticket['owner'], ))
