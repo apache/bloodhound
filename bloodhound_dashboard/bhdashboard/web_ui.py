@@ -55,7 +55,7 @@ class DashboardModule(Component):
     implements(IRequestHandler, IRequestFilter, INavigationContributor, \
                 ITemplateProvider)
 
-    mainnav_label = Option('dashboard', 'mainnav', 'Tickets', \
+    mainnav_label = Option('mainnav', 'tickets.label', 'Tickets', \
                             """Dashboard label in mainnav""")
     default_widget_height = IntOption('widgets', 'default_height', 320, \
                             """Default widget height in pixels""")
