@@ -18,4 +18,14 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+"""
+    This module enables running of original ticket-links unit-test in
+    bhrelations environment.
+"""
+from trac_ticket_links.ticket.tests.links import TicketTestCase
 
+class BloodhoundRelationsTicketTestCase(TicketTestCase):
+
+    def setUp(self):
+        super(BloodhoundRelationsTicketTestCase, self).setUp()
+#        self.env.enable.append = 'trac_ticket_links.*'

@@ -12,20 +12,20 @@
 # history and logs, available at http://trac.edgewall.org/log/.
 #
 # Author: Joachim Hoessler <hoessler@gmail.com>
-
 from trac.resource import ResourceNotFound
-from trac.ticket.api import (ITicketLinkController, ITicketManipulator,
-                             TicketSystem)
+from trac.ticket.api import (ITicketManipulator)
 from trac.ticket.model import Ticket
+from trac.config import ListOption
 from copy import copy
 from trac.core import Component, implements
-from trac.util import unique
+from bhrelations.ticket_links_other import (ITicketLinkController, unique,
+                                            TicketLinksSystem)
 
 class LinksProvider(Component):
     """Link controller that provides links as specified in the [ticket-links]
     section in the trac.ini configuration file.
     """
-    
+
     implements(ITicketLinkController, ITicketManipulator)
     
     PARENT_END = 'parent'
@@ -48,7 +48,7 @@ class LinksProvider(Component):
         if end in self._copy_fields:
             return self._copy_fields[end]
         else:
-            return TicketSystem(self.env).default_copy_fields
+            return TicketLinksSystem(self.env).default_copy_fields
     
     def get_validator(self, end):
         return self._validators.get(end)
@@ -58,7 +58,7 @@ class LinksProvider(Component):
         
     def validate_ticket(self, req, ticket):
         action = req.args.get('action')
-        ticket_system = TicketSystem(self.env)
+        ticket_system = TicketLinksSystem(self.env)
         
         for end in ticket_system.link_ends_map:
             check = self.validate_links_exist(ticket, end)
@@ -89,7 +89,7 @@ class LinksProvider(Component):
                     yield None, msg
     
     def validate_links_exist(self, ticket, end):
-        ticket_system = TicketSystem(self.env)
+        ticket_system = TicketLinksSystem(self.env)
         links = ticket_system.parse_links(ticket[end])
         bad_links = []
         for link in links:
@@ -113,7 +113,7 @@ class LinksProvider(Component):
         if cycle_validation: 
             return cycle_validation
         
-        ticket_system = TicketSystem(self.env)
+        ticket_system = TicketLinksSystem(self.env)
         links = ticket_system.parse_links(ticket[end])
         
         multiple_parents = (end == self.PARENT_END and len(links) > 1)
@@ -172,7 +172,7 @@ class LinksProvider(Component):
         return links, labels, validators, blockers, copy_fields
     
     def find_blockers(self, ticket, field, blockers):
-        ticket_system = TicketSystem(self.env)
+        ticket_system = TicketLinksSystem(self.env)
         links = ticket_system.parse_links(ticket[field])
         for link in links:
             linked_ticket = Ticket(self.env, link)
@@ -189,7 +189,7 @@ class LinksProvider(Component):
 
         path.append(ticket.id)
 
-        ticket_system = TicketSystem(self.env)
+        ticket_system = TicketLinksSystem(self.env)
         links = ticket_system.parse_links(ticket[field])
         for link in links:
             linked_ticket= Ticket(self.env, link)

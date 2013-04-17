@@ -1,6 +1,7 @@
+from bhrelations.ticket_links_other import TicketLinksSystem, TicketLinksModel
 from trac.ticket.model import Ticket
 from trac.test import EnvironmentStub, Mock
-from trac.ticket.links import LinksProvider
+from trac_ticket_links.ticket.links import LinksProvider
 from trac.ticket.api import TicketSystem
 from trac.ticket.query import Query
 from trac.util.datefmt import utc
@@ -9,10 +10,13 @@ import unittest
 
 class TicketTestCase(unittest.TestCase):
     def setUp(self):
-        self.env = EnvironmentStub(default_data=True)
+        self.env = EnvironmentStub(
+            default_data=True,
+            enable=['trac_ticket_links.*', 'bhrelations.*']
+        )
         self.env.config.set('ticket-links', 'dependency', 'dependson,dependent')
         self.env.config.set('ticket-links', 'dependency.validator', 'no_cycle')
-        self.env.config.set('ticket-links', 'parent_children', 
+        self.env.config.set('ticket-links', 'parent_children',
                                                             'parent,children')
         self.env.config.set('ticket-links', 'parent_children.validator',
                                                             'parent_child')
@@ -23,6 +27,8 @@ class TicketTestCase(unittest.TestCase):
         self.env.config.set('ticket-links', 'oneway', 'refersto')
         self.req = Mock(href=self.env.href, authname='anonymous', tz=utc,
                         args=dict(action='dummy'))
+        self.ticket_links_system = TicketLinksSystem(self.env)
+        self.ticket_links_model = TicketLinksModel(self.env)
 
     def _insert_ticket(self, summary, **kw):
         """Helper for inserting a ticket into the database"""
@@ -58,14 +64,14 @@ class TicketTestCase(unittest.TestCase):
         self.assertTrue(links_provider.is_blocker('children'))
         
     def test_link_ends_map(self):
-        ticket_system = TicketSystem(self.env)
+        ticket_system = self.ticket_links_system
         self.assertEquals(ticket_system.link_ends_map,
                           {'dependson': 'dependent', 'dependent': 'dependson',
                            'parent': 'children', 'children': 'parent',
                            'refersto': None})
     
     def test_parse_links(self):
-        ticket_system = TicketSystem(self.env)
+        ticket_system = self.ticket_links_system
         self.assertEquals([1, 2, 42], ticket_system.parse_links('1 2 42'))
         self.assertEquals([1, 2, 42], ticket_system.parse_links('#1 #2 #42'))
         self.assertEquals([1, 2, 42], ticket_system.parse_links('1, 2, 42'))
@@ -104,7 +110,9 @@ class TicketTestCase(unittest.TestCase):
         ticket = self._create_a_ticket()
         ticket.insert()
         ticket = Ticket(self.env)
-        ticket.populate_from(1, link_field_name='children')
+#        ticket.populate_from(1, link_field_name='children')
+        self.ticket_links_model.populate_from(
+            ticket, 1, link_field_name='children')
         self.assertEqual('Foo', ticket['summary'])
         self.assertEqual('#1', ticket['children'])
         
