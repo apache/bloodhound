@@ -220,5 +220,7 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
         return factory().create_request(env, environ, start_response) if factory \
                 else RequestWithSession(environ, start_response)
 
+default_bootstrap_handler = DefaultBootstrapHandler()
+
 # Recursive imports
 from trac.web.main import send_project_index, get_environments

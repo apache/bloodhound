@@ -342,11 +342,13 @@ class RequestDispatcher(Component):
 
 _slashes_re = re.compile(r'/+')
 
-def dispatch_request(environ, start_response):
+def dispatch_request(environ, start_response, bootstrap=None):
     """Main entry point for the Trac web interface.
 
     :param environ: the WSGI environment dict
     :param start_response: the WSGI callback for starting the response
+    :param bootstrap: handler responsible for environment lookup and
+                      instantiating request objects
     """
 
     # SCRIPT_URL is an Apache var containing the URL before URL rewriting
@@ -375,13 +377,26 @@ def dispatch_request(environ, start_response):
     environ.setdefault('trac.locale', '')
     environ.setdefault('trac.base_url',
                        os.getenv('TRAC_BASE_URL'))
-
+    environ.setdefault('trac.bootstrap_handler',
+                       os.getenv('TRAC_BOOTSTRAP_HANDLER'))
 
     locale.setlocale(locale.LC_ALL, environ['trac.locale'])
 
-    # FIXME: Load custom bootstrap handler
-    from trac.hooks import DefaultBootstrapHandler
-    bootstrap = DefaultBootstrapHandler()
+    if bootstrap is None:
+        bootstrap_ep = environ['trac.bootstrap_handler']
+        if bootstrap_ep:
+            from pkg_resources import EntryPoint
+            try:
+                ep = EntryPoint.parse('x = ' + bootstrap_ep)
+                bootstrap = ep.load(require=False)
+            except Exception, e:
+                log = environ.get('wsgi.errors')
+                if log:
+                    log.write("[FAIL] [Trac] entry point '%s'. Reason %s" %
+                              (bootstrap_ep, repr(exception_to_unicode(e))))
+    if bootstrap is None:
+        from trac.hooks import default_bootstrap_handler
+        bootstrap = default_bootstrap_handler
 
     # Determine the environment
     
