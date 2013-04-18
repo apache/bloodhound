@@ -187,6 +187,16 @@ class ITicketFieldProvider(Interface):
         specified as optional.
         """
 
+    def get_raw_fields():
+        """Returns a list of fields, each represents ticket field
+        dictionary. For example:
+            * name: field name
+            * type: field type
+            * label: the label to display, preferably wrapped with N_()
+            * format: field format
+            * other appropriate field properties
+        """
+
 class TicketSystem(Component):
     implements(IPermissionRequestor, IWikiSyntaxProvider, IResourceManager,
                ITicketFieldProvider)
@@ -386,11 +396,32 @@ class TicketSystem(Component):
             field['custom'] = True
             fields.append(field)
 
+        #TODO: this is Bloodhound specific patch to the Trac. Contact Trac
+        # community about possibility to apply the change to the Trac codebase
+        self._add_raw_fields_from_field_providers(fields)
+
         return fields
 
     reserved_field_names = ['report', 'order', 'desc', 'group', 'groupdesc',
                             'col', 'row', 'format', 'max', 'page', 'verbose',
                             'comment', 'or']
+
+    def _add_raw_fields_from_field_providers(self, fields):
+        for field_provider in self.ticket_field_providers:
+            if hasattr(field_provider, 'get_raw_fields'):
+                raw_fields = field_provider.get_raw_fields()
+                if raw_fields:
+                    for raw_field in raw_fields:
+                        self._add_raw_field(
+                            raw_field, fields)
+
+    def _add_raw_field(self, raw_field, fields):
+        if raw_field["name"] in [f['name'] for f in fields]:
+            self.log.warning(
+                'Duplicate field name "%s" (ignoring)', raw_field["name"])
+        else:
+            fields.append(raw_field)
+
 
     def get_custom_fields(self):
         return copy.deepcopy(self.custom_fields)
