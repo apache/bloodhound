@@ -379,100 +379,49 @@ def dispatch_request(environ, start_response):
 
     locale.setlocale(locale.LC_ALL, environ['trac.locale'])
 
+    # FIXME: Load custom bootstrap handler
+    from trac.hooks import DefaultBootstrapHandler
+    bootstrap = DefaultBootstrapHandler()
+
     # Determine the environment
-    env_path = environ.get('trac.env_path')
-    if not env_path:
-        env_parent_dir = environ.get('trac.env_parent_dir')
-        env_paths = environ.get('trac.env_paths')
-        if env_parent_dir or env_paths:
-            # The first component of the path is the base name of the
-            # environment
-            path_info = environ.get('PATH_INFO', '').lstrip('/').split('/')
-            env_name = path_info.pop(0)
-
-            if not env_name:
-                # No specific environment requested, so render an environment
-                # index page
-                send_project_index(environ, start_response, env_parent_dir,
-                                   env_paths)
-                return []
-
-            errmsg = None
-
-            # To make the matching patterns of request handlers work, we append
-            # the environment name to the `SCRIPT_NAME` variable, and keep only
-            # the remaining path in the `PATH_INFO` variable.
-            script_name = environ.get('SCRIPT_NAME', '')
-            try:
-                script_name = unicode(script_name, 'utf-8')
-                # (as Href expects unicode parameters)
-                environ['SCRIPT_NAME'] = Href(script_name)(env_name)
-                environ['PATH_INFO'] = '/' + '/'.join(path_info)
-
-                if env_parent_dir:
-                    env_path = os.path.join(env_parent_dir, env_name)
-                else:
-                    env_path = get_environments(environ).get(env_name)
-
-                if not env_path or not os.path.isdir(env_path):
-                    errmsg = 'Environment not found'
-            except UnicodeDecodeError:
-                errmsg = 'Invalid URL encoding (was %r)' % script_name
-
-            if errmsg:
-                start_response('404 Not Found',
-                               [('Content-Type', 'text/plain'),
-                                ('Content-Length', str(len(errmsg)))])
-                return [errmsg]
-
-    if not env_path:
-        raise EnvironmentError('The environment options "TRAC_ENV" or '
-                               '"TRAC_ENV_PARENT_DIR" or the mod_python '
-                               'options "TracEnv" or "TracEnvParentDir" are '
-                               'missing. Trac requires one of these options '
-                               'to locate the Trac environment(s).')
-    run_once = environ['wsgi.run_once']
-
+    
     env = env_error = None
-    global_env = None
     try:
-        from trac.hooks import environment_factory
-        global_env = open_environment(env_path, use_cache=not run_once)
-        factory = environment_factory(global_env)
-        factory_env = factory().open_environment(environ, env_path, global_env, use_cache=not run_once) if factory \
-                        else None
-        env = factory_env if factory_env else global_env
-        if env.base_url_for_redirect:
-            environ['trac.base_url'] = env.base_url
-
-        # Web front-end type and version information
-        if not hasattr(env, 'webfrontend'):
-            mod_wsgi_version = environ.get('mod_wsgi.version')
-            if mod_wsgi_version:
-                mod_wsgi_version = (
-                        "%s (WSGIProcessGroup %s WSGIApplicationGroup %s)" %
-                        ('.'.join([str(x) for x in mod_wsgi_version]),
-                         environ.get('mod_wsgi.process_group'),
-                         environ.get('mod_wsgi.application_group') or
-                         '%{GLOBAL}'))
-                environ.update({
-                    'trac.web.frontend': 'mod_wsgi',
-                    'trac.web.version': mod_wsgi_version})
-            env.webfrontend = environ.get('trac.web.frontend')
-            if env.webfrontend:
-                env.systeminfo.append((env.webfrontend,
-                                       environ['trac.web.version']))
+        env = bootstrap.open_environment(environ, start_response)
+    except RequestDone:
+        return []
+    except EnvironmentError:
+        raise
     except Exception, e:
         env_error = e
+    else:
+        try:
+            if env.base_url_for_redirect:
+                environ['trac.base_url'] = env.base_url
+    
+            # Web front-end type and version information
+            if not hasattr(env, 'webfrontend'):
+                mod_wsgi_version = environ.get('mod_wsgi.version')
+                if mod_wsgi_version:
+                    mod_wsgi_version = (
+                            "%s (WSGIProcessGroup %s WSGIApplicationGroup %s)" %
+                            ('.'.join([str(x) for x in mod_wsgi_version]),
+                             environ.get('mod_wsgi.process_group'),
+                             environ.get('mod_wsgi.application_group') or
+                             '%{GLOBAL}'))
+                    environ.update({
+                        'trac.web.frontend': 'mod_wsgi',
+                        'trac.web.version': mod_wsgi_version})
+                env.webfrontend = environ.get('trac.web.frontend')
+                if env.webfrontend:
+                    env.systeminfo.append((env.webfrontend,
+                                           environ['trac.web.version']))
+        except Exception, e:
+            env_error = e
 
-    from trac.hooks import request_factory
-    factory = None
-    try:
-        factory = request_factory(global_env)
-    except AttributeError:
-        pass
-    req = factory().create_request(env, environ, start_response) if factory \
-            else RequestWithSession(environ, start_response)
+    run_once = environ['wsgi.run_once']
+
+    req = bootstrap.create_request(env, environ, start_response)
     translation.make_activable(lambda: req.locale, env.path if env else None)
     try:
         return _dispatch_request(req, env, env_error)
