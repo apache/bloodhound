@@ -26,8 +26,8 @@ import contextlib
 import unittest
 from sqlite3 import OperationalError
 
-from trac.perm import (PermissionSystem, DefaultPermissionPolicy,\
-    PermissionCache)
+from trac.perm import (PermissionSystem, DefaultPermissionPolicy,
+                       PermissionCache)
 
 from multiproduct.api import MultiProductSystem, ProductEnvironment
 

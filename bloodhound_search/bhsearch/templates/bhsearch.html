@@ -84,6 +84,9 @@
 
             <div class="${'span12' if not facet_counts else 'span9'}${
                         ' search_results'}">
+            <div class='query_suggestion' py:if='query_suggestion'>
+                Did you mean <a href="${query_suggestion.href}">${query_suggestion.query}</a>?
+            </div>
             <h2>
               Results <small>(${results.displayed_items()})</small>
             </h2>
@@ -175,6 +178,10 @@
           py:if="query and not (results or quickjump)">
         <p id="notfound" class="alert">
           No matches found.
+          <py:if test='query_suggestion'>
+          Did you mean
+          <a href="${query_suggestion.href}">${query_suggestion.query}</a>?
+          </py:if>
         </p>
       </div>
 

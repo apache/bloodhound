@@ -19,7 +19,7 @@
 #  under the License.
 import unittest
 from bhsearch.tests import (whoosh_backend, index_with_whoosh, web_ui,
-                            api, query_parser, security)
+                            api, query_parser, query_suggestion, security)
 from bhsearch.tests.search_resources import (ticket_search, wiki_search,
                                              milestone_search, base,
                                              changeset_search)
@@ -32,6 +32,7 @@ def suite():
     test_suite.addTest(web_ui.suite())
     test_suite.addTest(api.suite())
     test_suite.addTest(query_parser.suite())
+    test_suite.addTest(query_suggestion.suite())
     test_suite.addTest(security.suite())
     test_suite.addTest(ticket_search.suite())
     test_suite.addTest(wiki_search.suite())

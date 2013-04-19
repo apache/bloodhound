@@ -50,6 +50,7 @@ class QueryResult(object):
         self.docs = []
         self.highlighting = []
         self.facets = None
+        self.query_suggestion = None
         self.debug = {}
 
 class SortInstruction(object):
@@ -298,6 +299,7 @@ class BloodhoundSearchApi(Component):
 
         query_parameters = dict(
             query = parsed_query,
+            query_string = query,
             sort = sort,
             fields = fields,
             filter = parsed_filters,

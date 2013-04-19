@@ -45,7 +45,6 @@ from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
 from bhsearch.utils import get_global_env, using_multiproduct
 from trac.wiki.formatter import extract_link
 from multiproduct.env import ProductEnvironment
-from multiproduct.model import Product
 from multiproduct.web_ui import ProductModule
 
 SEARCH_PERMISSION = 'SEARCH_VIEW'
@@ -166,10 +165,12 @@ class RequestParameters(object):
             skip_view=False,
             sort=None,
             skip_sort=False,
+            query=None,
             skip_query=False,
             product=None,
             skip_product=False,
     ):
+        # pylint: disable=too-many-locals,too-many-branches
         params = copy.deepcopy(self.params)
 
         if skip_sort:
@@ -203,6 +204,8 @@ class RequestParameters(object):
 
         if skip_query:
             self._delete_if_exists(params, self.QUERY)
+        elif query is not None:
+            params[self.QUERY] = query
 
         if skip_product:
             self._delete_if_exists(params, self.PRODUCT)
@@ -292,6 +295,13 @@ class BloodhoundSearchModule(Component):
         doc="""Quicksearch searches all products, even when used
             in product env.""")
 
+    query_suggestions_enabled = BoolOption(
+        BHSEARCH_CONFIG_SECTION,
+        'query_suggestions',
+        default=True,
+        doc="""Display query suggestions."""
+    )
+
     # INavigationContributor methods
     def get_active_navigation_item(self, req):
         # pylint: disable=unused-argument
@@ -326,6 +336,7 @@ class BloodhoundSearchModule(Component):
             self.all_grid_fields,
             self.default_facets,
             self.global_quicksearch,
+            self.query_suggestions_enabled,
         )
 
         if request_context.requires_redirect:
@@ -403,6 +414,7 @@ class RequestContext(object):
     DATA_PRODUCT_LIST = 'search_product_list'
     DATA_QUERY = 'query'
     DATA_QUICK_JUMP = "quickjump"
+    DATA_QUERY_SUGGESTION = 'query_suggestion'
     DATA_SEARCH_EXTRAS = 'extra_search_fields'
 
     #bhsearch may support more pluggable views later
@@ -424,6 +436,7 @@ class RequestContext(object):
             all_grid_fields,
             default_facets,
             global_quicksearch,
+            query_suggestions,
             ):
         self.env = env
         self.req = req
@@ -444,6 +457,7 @@ class RequestContext(object):
         self.view = None
         self.page = self.parameters.page
         self.pagelen = self.parameters.pagelen
+        self.query_suggestions = query_suggestions
 
         if self.parameters.sort:
             self.sort = self.parameters.sort
@@ -750,6 +764,7 @@ class RequestContext(object):
         self._prepare_results(docs, query_result.hits)
         self._prepare_result_facet_counts(query_result.facets)
         self._prepare_breadcrumbs()
+        self._prepare_query_suggestion(query_result.query_suggestion)
         self.data[self.DATA_DEBUG] = query_result.debug
         if self.parameters.debug:
             self.data[self.DATA_DEBUG]['enabled'] = True
@@ -846,6 +861,7 @@ class RequestContext(object):
 
         search_product_list = global_product + products + all_products
 
+        # pylint: disable=unused-variable
         for prefix, name, url in search_product_list:
             if prefix == self.active_product:
                 self.data[self.DATA_ACTIVE_PRODUCT] = name
@@ -891,3 +907,12 @@ class RequestContext(object):
         self.data[self.DATA_ACTIVE_FILTER_QUERIES] = \
             type_filters + active_filter_queries
         self.data[self.DATA_ACTIVE_QUERY] = active_query
+
+    def _prepare_query_suggestion(self, suggestion):
+        if self.query_suggestions and suggestion is not None:
+            self.data[self.DATA_QUERY_SUGGESTION] = dict(
+                query=suggestion,
+                href=self.parameters.create_href(query=suggestion)
+            )
+        else:
+            self.data[self.DATA_QUERY_SUGGESTION] = None

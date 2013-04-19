@@ -80,7 +80,9 @@ class WhooshBackend(Component):
                      analyzer=analysis.SimpleAnalyzer()),
         security=ID(),
         name=TEXT(stored=True,
-                  analyzer=analysis.SimpleAnalyzer())
+                  analyzer=analysis.SimpleAnalyzer()),
+        query_suggestion_basket=TEXT(analyzer=analysis.SimpleAnalyzer(),
+                                     spelling=True),
     )
 
     max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,
@@ -182,6 +184,7 @@ class WhooshBackend(Component):
 
     def query(self,
               query,
+              query_string=None,
               sort = None,
               fields = None,
               filter = None,
@@ -237,6 +240,9 @@ class WhooshBackend(Component):
                                             fields,
                                             highlight_fields,
                                             query_parameters)
+            if query_string is not None:
+                c = searcher.correct_query(query, query_string)
+                results.query_suggestion = c.string
             try:
                 actual_query = unicode(query.simplify(searcher))
                 results.debug['actual_query'] = actual_query
