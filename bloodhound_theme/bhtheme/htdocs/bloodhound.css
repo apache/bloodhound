@@ -336,7 +336,7 @@ h1, h2, h3, h4 {
 }
 
 /* copied from bootstrap for appropriate focus/unfocused state for contenteditable*/
-span[contenteditable="true"] {
+[contenteditable="true"] {
  border-radius: 4px 4px 4px 4px;
  background-color: #ffffff;
  border: 1px solid #cccccc;
@@ -349,7 +349,7 @@ span[contenteditable="true"] {
          transition: border linear 0.2s, box-shadow linear 0.2s;
 }
 
-span[contenteditable="true"]:focus {
+[contenteditable="true"]:focus {
  border-color: rgba(82, 168, 236, 0.8);
  outline: 0;
  outline: thin dotted  \9;
@@ -1128,7 +1128,6 @@ table.wiki th {
  border-radius: 8px 8px 8px 8px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
  padding: 2px 4px 2px 4px;
- margin: 10px 0px 10px 10px;
  min-height: 20px;
 }
 
@@ -1138,9 +1137,20 @@ table.wiki th {
  border-radius: 6px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
  padding: 13px;
- margin: 10px 0px 10px 10px;
+ margin: 10px 0px 10px 0px;
  background-color: rgb(253, 252, 250);
  min-height: 20px;
+}
+
+#trac-add-comment fieldset{
+ width: 100%;
+}
+textarea#comment, #trac-add-comment fieldset{
+ -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+ width: 100%;
+}
 
 #changelog div.comment-box h4 {
   margin-top: 0px;
