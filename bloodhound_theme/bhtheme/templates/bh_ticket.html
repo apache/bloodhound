@@ -67,27 +67,25 @@
         $('#edit-cancel').click(revert_ticket);
 
         var modify_elem = $('#modify');
-        <py:if test="ticket.exists">
-          modify_elem.parent().hide();
-          $('#propertyform .buttons [name="preview"]').hide();
-          $('#comment').change(function (e) {
-            $('#hidden-comment').val($('#comment').val());
-          });
-          $('#propertyform .buttons [name="submit"]').click(function (e) {
-            if ($('button#edit-submit').length) {
-              // if available trigger the edit state's update button
-              $('button#edit-submit').click();
-              e.preventDefault();
-            }
-            // otherwise the default submit comment only happens
-          });
-        </py:if>
-  
+        modify_elem.parent().hide();
+        $('#propertyform .buttons [name="preview"]').hide();
+        $('#comment').change(function (e) {
+          $('#hidden-comment').val($('#comment').val());
+        });
+        $('#propertyform .buttons [name="submit"]').click(function (e) {
+          if ($('button#edit-submit').length) {
+            // if available trigger the edit state's update button
+            $('button#edit-submit').click();
+            e.preventDefault();
+          }
+          // otherwise the default submit comment only happens
+        });
+
         function modify_ticket() {
           if ($('#vc-summary').is('.edit-active'))
             // Already in editable state
             return;
-          $('h2#vc-summary span').attr('contenteditable', 'true');
+          $('#vc-summary').attr('contenteditable', 'true');
           $('[data-edit="inplace"]').each(function() {
               var fc = $(this).addClass('edit-active');
               var fieldnm = fc.attr('id').substr(3);
@@ -130,9 +128,9 @@
         }
 
         function add_update_hidden_summary_fn() {
-          $('h2#vc-summary span').blur(function () {
+          $('#vc-summary').blur(function () {
             if ($('#vc-summary.edit-active').length == 1) {
-              $('#dummy-vc-summary input#field-summary').val($('#vc-summary span').text());
+              $('#dummy-vc-summary input#field-summary').val($('#vc-summary').text());
             }
           });
         }
@@ -146,7 +144,7 @@
           $('#dummy-vc-summary div').remove();
           add_update_hidden_summary_fn();
           $('#inplace-edit').show();
-          $('h2#vc-summary span').attr('contenteditable', 'false');
+          $('#vc-summary').attr('contenteditable', 'false');
           $('#edit-state-buttons').hide();
           $('#vc-status a').show();
           $('#edit-workflow-buttons').hide();
@@ -214,7 +212,7 @@
           })
         $("div.description").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
         $(".foldable").enableFolding(false, true);
-      <py:when test="ticket.exists">/*<![CDATA[*/
+        /*<![CDATA[*/
         $("#modify").parent().toggleClass("collapsed");
         $(".trac-topnav a").click(function() { $("#modify").parent().removeClass("collapsed"); });
 
@@ -273,15 +271,11 @@
         $("#attachments").toggleClass("collapsed");
         $("#trac-add-comment").scrollToTop();
         </py:if>
-      </py:when>
-      <py:otherwise>
-        $("#propertyform").autoSubmit({preview: '1'}, function(data, reply) {
-          $('#ticket').replaceWith(reply);
-        }, "#ticket .trac-loading");
-        <py:if test="not preview_mode">
-        $("#field-summary").focus();
+        <py:if test="not ticket.exists">
+        modify_ticket();
+        $('#vc-status').parent().hide();
+        $('#vc-product').parent().hide();
         </py:if>
-      </py:otherwise>
       });
     </script>
   </head>
@@ -292,11 +286,11 @@
     </py:def>
 
     <py:def function="render_ticket_summary(t, showid)">
-      <h2 class="ticket-summary searchable clip-affix" py:choose="" data-edit="${'inplace' if can_modify or can_create else None}" id="vc-summary">
-        <py:when test="t.exists"><py:if test="showid">
-        <span class="visible-phone">#$t.id - </span></py:if>  &#9734; <span contenteditable="false">$t.summary</span></py:when>
-        <py:otherwise>Create Ticket</py:otherwise>
-      </h2>
+      <py:if test="showid"> <h2><span class="visible-phone">${'#' + t.id if t.exists else 'NEW'} - </span></h2></py:if>
+      <h2 class="ticket-summary searchable clip-affix" contenteditable="false"
+        py:with="summary = t.summary if t.summary else 'Changeme'"
+        data-edit="${'inplace' if can_modify or can_create else None}"
+        id="vc-summary">$summary</h2>
     </py:def>
     
     <py:def function="render_ticket_summary_details(t)">
@@ -319,27 +313,25 @@
           <span py:if="not t.exists" class="label label-warning">(ticket not yet created)</span>
         </span>
       </h5>
-      <py:if test="t.exists">
-        <span id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar">
-          <button id="inplace-edit" class="btn">
-            <i class="icon-edit"></i>
-            <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
+      <span id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
+        <button id="inplace-edit" class="btn">
+          <i class="icon-edit"></i>
+          <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
+        </button>
+        <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
+          <button id="edit-submit" class="btn" type="submit"
+              value="Submit changes" name="submit">
+            Submit changes
           </button>
-          <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
-            <button id="edit-submit" class="btn" type="submit"
-                value="Submit changes" name="submit">
-              Submit changes
-            </button>
-            <button id="edit-cancel" class="btn-link" title="Discard changes">
-              Cancel
-            </button>
-          </span>
+          <button id="edit-cancel" class="btn-link" title="Discard changes">
+            Cancel
+          </button>
         </span>
-      </py:if>
+      </span>
     </py:def>
 
     <div class="ticket">
-      <div class="trac-topnav span2" py:if="ticket.exists and has_property_editor">
+      <div class="trac-topnav span2" py:if="has_property_editor">
         <a href="#propertyform" title="Go to the ticket editor">Modify</a> &darr;
       </div>
       <br/>
@@ -374,7 +366,6 @@
             <div id="belowStatus">
 
               <!--! ticket details -->
-              <py:if test="ticket.exists">
                 <!--! main ticket info -->
                 <div class="properties">
                   <div class="row">
@@ -396,11 +387,10 @@
 
                 <div>
                   <xi:include href="bh_ticket_box.html"
-                      py:with="preview_mode = change_preview.fields ; 
+                      py:with="preview_mode = change_preview.fields if change_preview else False;
                           colcount = 4 if bhdb else 6"/>
                 </div>
                 <div id="dummy-vc-summary" style="display: none"/>
-              </py:if>
 
             </div>
           </div>
@@ -413,10 +403,6 @@
         </div>
 
         <div class="$colspan">
-          <div py:if="not ticket.exists">
-            <xi:include href="bh_ticket_box.html" py:with="preview_mode = True"/>
-          </div>
-
           <div id="help" class="help-block" i18n:msg="">
             <span class="label label-info">Note:</span> See
             <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
@@ -426,8 +412,11 @@
         </div>
         </div>
         
-        <div py:if="ticket.exists" class="$cols_activity activityfeed">
-          <form id="prefs" method="get" action="${href.prefs()}">
+        <div class="$cols_activity">
+          
+        </div>
+        <div class="$cols_activity activityfeed">
+          <form py:if="ticket.exists" id="prefs" method="get" action="${href.prefs()}">
             <div id="trac-comments-order" style="display: inline" class="pull-right">
               <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
               <label for="trac-comments-newest">
@@ -452,9 +441,7 @@
             </div>
           </form>
           
-          <div class="row">
-            <div class="$cols_activity">
-            <form py:if="has_property_editor" method="post" id="propertyform"
+          <form py:if="has_property_editor" method="post" id="propertyform"
                     action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists
                               else href.newticket() + '#ticket'}">
               <div py:if="ticket.exists and can_append">
@@ -474,7 +461,7 @@
                   </div>
                   <!--! Comment field -->
                   <fieldset class="iefix">
-                    <textarea id="comment" name="comment" class="trac-resizable $cols_activity" rows="5">${comment}</textarea>
+                    <textarea id="comment" name="comment" class="trac-resizable" rows="5">${comment}</textarea>
                     <py:if test="ticket.exists">
                       <input type="submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
                     </py:if>
@@ -503,7 +490,7 @@
                       <tr py:if="can_modify or can_create">
                         <td colspan="2">
                           <label for="field-product-name">Product:</label>
-                           <input type="text" disabled="disabled" class="${'span2' if ticket.exists else 'span7'}"
+                           <input type="text" disabled="disabled" class="span2"
                             id="field-product-name" name="field_product_name"
                             value="$req.perm.env.product.name ($req.perm.env.product.prefix)" />
                           <input type="hidden" id="field-product" name="field_product" value="$req.perm.env.product.prefix" />
@@ -513,14 +500,14 @@
                       <tr py:if="can_modify or can_create">
                         <td colspan="2">
                           <label for="field-summary">Summary:</label>
-                          <input class="${'span4' if ticket.exists else 'span7'}" type="text" id="field-summary" name="field_summary" value="$ticket.summary" />
+                          <input class="span4" type="text" id="field-summary" name="field_summary" value="$ticket.summary" />
                         </td>
                       </tr>
   
                       <tr py:if="only_for_admin">
                         <td colspan="2">
                           <label for="field-reporter">Reporter:</label>
-                          <input class="${'span2' if ticket.exists else 'span7'}" type="text" id="field-reporter" name="field_reporter" value="${ticket.reporter}" />
+                          <input class="span2" type="text" id="field-reporter" name="field_reporter" value="${ticket.reporter}" />
                         </td>
                       </tr>
   
@@ -548,7 +535,7 @@
                                     i18n:msg="field">${field.edit_label or field.label or field.name}:</label>
                             <py:choose test="field.type" py:if="field">
                               <select py:when="'select'" id="field-${field.name}" name="field_${field.name}"
-                                  class="${'span2' if ticket.exists else 'span3'}">
+                                  class="span2">
                                 <option py:if="field.optional"></option>
                                 <option py:for="option in field.options"
                                         selected="${value == option or None}"
@@ -618,7 +605,7 @@
                 </div>
               </div>
   
-              <div class="$colspan">
+              <div class="$cols_activity" >
                 <!--! Preview of ticket changes -->
                 <div py:if="ticket.exists and can_append" id="ticketchange" class="ticketdraft"
                       style="${'display: none' if not (change_preview.fields or change_preview.comment)
@@ -627,7 +614,7 @@
                 </div>
               </div>
   
-              <div class="$colspan">
+              <div class="$cols_activity">
                 <!--! Author or Reporter -->
                 <div py:if="authname == 'anonymous'" class="field">
                   <fieldset py:choose="">
@@ -674,8 +661,6 @@
                 </div>
               </div>
             </form>
-            </div>
-            </div>
           <div id="changelog">
             <!--! add comment + modify ticket -->
             <py:for each="change in changes">
@@ -685,7 +670,7 @@
               </div>
             </py:for>
           </div>
-      </div>
+        </div>
       </div>
     </div>
 
