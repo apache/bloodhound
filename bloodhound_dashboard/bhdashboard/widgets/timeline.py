@@ -236,12 +236,12 @@ class FilteredTimeline:
     process_request = TimelineModule.__dict__['process_request']
     _provider_failure = TimelineModule.__dict__['_provider_failure']
     _event_data = TimelineModule.__dict__['_event_data']
-    max_daysback = TimelineModule.max_daysback
+    _max_daysback = TimelineModule.max_daysback
 
     @property
     def max_daysback(self):
         return (-1 if self.context.resource.realm == 'ticket'
-                   else self.max_daysback)
+                   else self._max_daysback)
 
     @property
     def event_providers(self):
