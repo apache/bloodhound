@@ -558,7 +558,9 @@ class RequestContext(object):
                 description = link.attrib.get('title', '')
         if quickjump_href:
             # Only automatically redirect to local quickjump links
-            if not quickjump_href.startswith(req.base_path or '/'):
+            base_path = req.base_path.replace('@', '%40')
+            redirect_href = quickjump_href.replace('@', '%40')
+            if not redirect_href.startswith(base_path or '/'):
                 noquickjump = True
             if noquickjump:
                 return {'href': quickjump_href, 'name': tag.EM(name),
