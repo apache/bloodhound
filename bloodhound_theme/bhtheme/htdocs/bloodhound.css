@@ -184,6 +184,14 @@ div.reports form {
   background-position: 20px 0px;
 }
 
+.timeline .activityfeed {
+  background-image: none;
+}
+
+.activityfeed .help-block {
+  margin-left: 30px;
+}
+
 #mobile-activity {
  margin-top: 50px;
 }
