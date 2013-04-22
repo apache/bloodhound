@@ -72,10 +72,7 @@ class ProductTicketModule(TicketModule):
 
     def get_navigation_items(self, req):
         """Overriding TicketModules New Ticket nav item"""
-        if 'TICKET_CREATE' in req.perm:
-            href = ProductModule.get_product_path(self.env, req, 'newticket')
-            yield ('mainnav', 'newticket', 
-                   tag.a(_("New Ticket"), href=href, accesskey=7))
+        return
     
     # ISearchSource methods
     #def get_search_filters(self, req):
