@@ -173,12 +173,14 @@ Arguments:
     </h4>
   </div >
   </py:if>
-  <ul py:if="change.fields" class="changes">
+  <ul py:if="change.fields" class="changes ${'creation-event' if not change.cnum else ''}">
     <li py:for="field_name, field in sorted(change.fields.iteritems(), key=lambda item: item[1].label.lower())"
         class="trac-field-${field_name}${'trac-conflict' if preview and field_name in conflicts else None} visible-desktop-hover">
       <strong class="trac-field-${field_name}">${field.label}</strong>
       <span>
         <py:choose>
+          <py:when test="field_name == 'reported'">
+          </py:when>
           <py:when test="field_name == 'attachment'"><i18n:msg params="name">
             <a href="${href.attachment('ticket', ticket.id, field.new)}"><em>${field.new
               }</em></a><a href="${href('raw-attachment', 'ticket', ticket.id, field.new)}"
@@ -196,7 +198,7 @@ Arguments:
             <em>${field.old}</em> deleted
           </i18n:msg></py:otherwise>
         </py:choose>
-        <span class="hidden-desktop">
+        <span class="${'hidden-desktop' if change.cnum else ''}">
         - by ${authorinfo(change.author)}, ${pretty_dateinfo(change.date)}
         </span>
         <span py:if="field_name == 'attachment' and change.comment" class="attachment-desc searchable" xml:space="preserve">
