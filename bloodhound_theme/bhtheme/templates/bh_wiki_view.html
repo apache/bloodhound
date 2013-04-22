@@ -147,9 +147,9 @@
               <input type="hidden" name="version" value="$page.version" />
               <div id="delete" class="btn-group">
                 <py:if test="page.version == latest_version">
-                  <button class="btn" type="submit" name="delete_version">${_('Delete this version')}</button>
+                  <button class="btn btn-link" type="submit" name="delete_version">${_('Delete this version')}</button>
                 </py:if>
-                <button class="btn" type="submit" name="delete_page_button">${_('Delete page')}</button>
+                <button class="btn btn-link" type="submit" name="delete_page_button">${_('Delete page')}</button>
               </div>
             </form>
           </div>
