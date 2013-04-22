@@ -71,6 +71,7 @@
                   </py:when>
                   <py:otherwise>
                     <a href="${req.href.login()}">${_("Login")}</a>
+                    <py:if test="'register' in meta_items">or ${meta_items.register.label}</py:if>
                   </py:otherwise>
                 </span>
                 <span py:if="'logout' in meta_items" id="nav_logout">
@@ -215,7 +216,7 @@
                   class="nav nav-tabs pull-right"
                   id="mainnav"
                   py:with="mainnav_show = ('wiki', 'tickets', 'browser');
-                           metanav_hide = ('login', 'logout', 'prefs', 'help', 'about')">
+                           metanav_hide = ('login', 'logout', 'prefs', 'help', 'about', 'register')">
                 <!--! TODO: Parameterize visible mainnav items in trac.ini -->
                 <li py:if="chrome.nav.mainnav"
                     py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
