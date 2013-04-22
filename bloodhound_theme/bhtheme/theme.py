@@ -348,16 +348,20 @@ class BloodhoundTheme(ThemeBase):
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
-        #add a creation event to the changelog
-        data['changes'] = [{'comment': '',
-                            'author': data['author_id'],
-                            'fields': {u'reported': {'label': u'Reported',},
-                                       },
-                            'permanent': 1,
-                            'cnum': 0,
-                            'date': data['start_time'],
-                            },
-                           ] + data['changes']
+        #add a creation event to the changelog if the ticket exists
+        if data['ticket'].exists:
+            data['changes'] = [{'comment': '',
+                                'author': data['author_id'],
+                                'fields': {u'reported': {'label': u'Reported',},
+                                           },
+                                'permanent': 1,
+                                'cnum': 0,
+                                'date': data['start_time'],
+                                },
+                               ] + data['changes']
+        #and set default order
+        if not req.session.get('ticket_comments_order'):
+            req.session['ticket_comments_order'] = 'newest'
 
     def _modify_resource_breadcrumb(self, req, template, data, content_type,
                                     is_active):
