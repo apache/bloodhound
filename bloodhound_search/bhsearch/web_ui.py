@@ -236,7 +236,7 @@ class RequestParameters(object):
 
 class BloodhoundSearchModule(Component):
     """Main search page"""
-    implements(INavigationContributor, IPermissionRequestor, IRequestHandler,
+    implements(IPermissionRequestor, IRequestHandler,
         ITemplateProvider, IRequestFilter
         #           IWikiSyntaxProvider #todo: implement later
     )
@@ -301,17 +301,6 @@ class BloodhoundSearchModule(Component):
         default=True,
         doc="""Display query suggestions."""
     )
-
-    # INavigationContributor methods
-    def get_active_navigation_item(self, req):
-        # pylint: disable=unused-argument
-        return 'bhsearch'
-
-    def get_navigation_items(self, req):
-        if SEARCH_PERMISSION in req.perm:
-            yield ('mainnav', 'bhsearch',
-                   tag.a(_('Bloodhound Search'), href=self.env.href.bhsearch())
-                )
 
     # IPermissionRequestor methods
     def get_permission_actions(self):
