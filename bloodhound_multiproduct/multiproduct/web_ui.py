@@ -39,15 +39,7 @@ from multiproduct.hooks import PRODUCT_RE
 class ProductModule(Component):
     """Base Product behaviour"""
 
-    implements(IRequestHandler, INavigationContributor)
-
-    def get_active_navigation_item(self, req):
-        return 'products'
-    
-    def get_navigation_items(self, req):
-        if 'PRODUCT_VIEW' in req.perm:
-            yield ('mainnav', 'products',
-                   tag.a(_('Products'), href=req.href.products(), accesskey=3))
+    implements(IRequestHandler)
 
     # IRequestHandler methods
     def match_request(self, req):
