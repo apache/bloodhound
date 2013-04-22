@@ -292,13 +292,9 @@ pre {
 
 /* @group Quick Create Ticket popup */
 
-#qct-box .linkfull {
-  position: relative;
-  bottom: 20px;
-}
-
-#qct-box .controls {
- margin-bottom: 5px;
+#qct-box {
+  width: 300px;
+  padding: 0px 0px 5px 0px;
 }
 
 #qct-box p {

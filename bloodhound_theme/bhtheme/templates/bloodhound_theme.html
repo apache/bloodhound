@@ -144,15 +144,10 @@
                         <span class="visible-phone"><i class="icon-plus-sign icon-white"></i></span>
                         <span class="hidden-phone">Create Ticket&nbsp;<span class="caret"></span></span>
                       </a>
-                      <div id="qct-box" class="dropdown-menu" style="width: 300px;"
+                      <div id="qct-box" class="dropdown-menu"
                           py:choose="">
                         <div class="popover-title">
-                          <h3>
-                            Create Ticket
-                            <a class="pull-right linkfull" href="${href.newticket()}">
-                              <small>Full dialogue &raquo;</small>
-                            </a>
-                          </h3>
+                          <h3>New Ticket</h3>
                         </div>
                         <div class="popover-content">
                           <py:when test="'TICKET_CREATE' in perm">
@@ -178,8 +173,9 @@
                               </div>
                             </form>
 
-                            <div class="controls pull-right">
+                            <div class="controls">
                               <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
+                              <a id="qct-cancel" class="btn btn-link" href="${href.newticket()}">More fields</a>
                               <button id="qct-cancel" class="btn btn-link">Cancel</button>
                             </div>
                           </py:when>
