@@ -223,7 +223,7 @@
                 <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}"
                     py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide] +
                                [i for i in chrome.nav.mainnav if i.name not in mainnav_show])">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">More<b class="caret"></b></a>
                   <ul class="dropdown-menu">
                     <li py:if="chrome.nav.mainnav"
                         py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name not in mainnav_show)"
