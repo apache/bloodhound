@@ -67,18 +67,16 @@
               <div class="metanav pull-right">
                 <span id="nav_login" py:choose="">
                   <py:when test="req.authname and req.authname != 'anonymous'">
-                    <i class="icon-user"/>${req.authname}
+                    <a href="${href.prefs()}"><i class="icon-user"/> ${req.authname}</a>
                   </py:when>
                   <py:otherwise>
                     <a href="${req.href.login()}">${_("Login")}</a>
                     <py:if test="'register' in meta_items">or ${meta_items.register.label}</py:if>
+                    <span py:if="'prefs' in meta_items">${meta_items.prefs.label}</span>
                   </py:otherwise>
                 </span>
                 <span py:if="'logout' in meta_items" id="nav_logout">
                   ${meta_items.logout.label}
-                </span>
-                <span py:if="'prefs' in meta_items">
-                  ${meta_items.prefs.label}
                 </span>
                 <span py:if="'help' in meta_items">
                   ${meta_items.help.label}
