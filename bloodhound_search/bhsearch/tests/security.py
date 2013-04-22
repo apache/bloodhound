@@ -165,6 +165,51 @@ class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
         product_list = data['search_product_list']
         self.assertEqual(len(product_list), 3)
 
+    def test_check_permission_is_called_with_advanced_security(self):
+        self.env.config.set('bhsearch', 'advanced_security', "True")
+        self.insert_ticket('ticket 1')
+        with self.product('p1'):
+            self.insert_wiki('page 1', 'content')
+            self.insert_ticket('ticket 2')
+        with self.product('p2'):
+            self.insert_wiki('page 2', 'content 2')
+            self.insert_ticket('ticket 3')
+        self._add_permission('x', 'TRAC_ADMIN')
+
+        calls = []
+
+        def check_permission(self, doc, context):
+            # pylint: disable=unused-argument
+            calls.append((doc, context))
+            return True
+
+        security.SecurityPreprocessor.check_permission = check_permission
+
+        results = self.search_api.query(
+            "*",
+            context=self.context
+        )
+
+        self.assertEqual(results.hits, 5)
+        self.assertEqual(len(calls), 5)
+
+    def test_advanced_security_overrides_normal_permissions(self):
+        self.env.config.set('bhsearch', 'advanced_security', "True")
+        self.insert_ticket('ticket 1')
+        with self.product('p1'):
+            self.insert_ticket('ticket 2')
+        self._add_permission('x', 'TRAC_ADMIN')
+
+        security.SecurityPreprocessor.check_permission = \
+            lambda x, doc, z: doc['product'] == 'p1'
+
+        results = self.search_api.query(
+            "*",
+            context=self.context
+        )
+
+        self.assertEqual(results.hits, 1)
+
     def _setup_multiproduct(self):
         try:
             MultiProductSystem(self.env)\

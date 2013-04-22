@@ -19,11 +19,13 @@
 #  under the License.
 
 r"""Whoosh specific backend for Bloodhound Search plugin."""
+from bhsearch import BHSEARCH_CONFIG_SECTION
 from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE, \
     IDocIndexPreprocessor, IResultPostprocessor, IndexFields, \
     IQueryPreprocessor
 import os
 from bhsearch.search_resources.ticket_search import TicketFields
+from bhsearch.security import SecurityPreprocessor
 from bhsearch.utils import get_global_env
 from trac.core import Component, implements, TracError
 from trac.config import Option, IntOption
@@ -33,10 +35,16 @@ from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
 from whoosh import index, analysis
 import whoosh
 import whoosh.highlight
+from whoosh.collectors import FilterCollector
 from whoosh.writing import AsyncWriter
 from datetime import datetime
 
+from bhsearch.whoosh_fixes import fixes_for
+for fix in fixes_for(whoosh.__version__):
+    apply(fix)
+
 UNIQUE_ID = "unique_id"
+
 
 class WhooshBackend(Component):
     """
@@ -44,9 +52,32 @@ class WhooshBackend(Component):
     """
     implements(ISearchBackend)
 
-    index_dir_setting = Option('bhsearch', 'whoosh_index_dir', 'whoosh_index',
-        """Relative path is resolved relatively to the
+    index_dir_setting = Option(
+        BHSEARCH_CONFIG_SECTION,
+        'whoosh_index_dir',
+        default='whoosh_index',
+        doc="""Relative path is resolved relatively to the
         directory of the environment.""")
+
+    advanced_security = Option(
+        BHSEARCH_CONFIG_SECTION,
+        'advanced_security',
+        default=False,
+        doc="Check view permission for each document when retrieving results."
+    )
+
+    max_fragment_size = IntOption(
+        BHSEARCH_CONFIG_SECTION,
+        'max_fragment_size',
+        default=240,
+        doc="The maximum number of characters allowed in a fragment.")
+
+    fragment_surround = IntOption(
+        BHSEARCH_CONFIG_SECTION,
+        'fragment_surround',
+        default=60,
+        doc="""The number of extra characters of context to add both before
+        the first matched term and after the last matched term.""")
 
     #This is schema prototype. It will be changed later
     #TODO: add other fields support, add dynamic field support.
@@ -84,15 +115,6 @@ class WhooshBackend(Component):
         query_suggestion_basket=TEXT(analyzer=analysis.SimpleAnalyzer(),
                                      spelling=True),
     )
-
-    max_fragment_size = IntOption('bhsearch', 'max_fragment_size', 240,
-                               'The maximum number of characters allowed in a '
-                               'fragment.')
-
-    fragment_surround = IntOption('bhsearch', 'fragment_surround', 60,
-                               'The number of extra characters of context '
-                               'to add both before the first matched term '
-                               'and after the last matched term.')
 
     def __init__(self):
         self.index_dir = self.index_dir_setting
@@ -192,22 +214,12 @@ class WhooshBackend(Component):
               pagenum = 1,
               pagelen = 20,
               highlight = False,
-              highlight_fields = None):
-        """
-        Perform query.
-
-        Temporary fixes:
-        Whoosh 2.4 raises an error when simultaneously using filters and facets
-        in search:
-            AttributeError: 'FacetCollector' object has no attribute 'offset'
-        The problem should be fixed in the next release. For more info read
-        https://bitbucket.org/mchaput/whoosh/issue/274
-        A workaround is introduced to join query and filter in query and not
-        using filter parameter. Remove the workaround when the fixed version
-        of Whoosh is applied.
-        """
+              highlight_fields = None,
+              context=None):
         # pylint: disable=too-many-locals
         with self.index.searcher() as searcher:
+            self._apply_advanced_security(searcher, context)
+
             highlight_fields = self._prepare_highlight_fields(highlight,
                                                               highlight_fields)
 
@@ -218,11 +230,6 @@ class WhooshBackend(Component):
             #groupedby = self._prepare_groupedby(facets)
             groupedby = facets
 
-            #workaround of Whoosh bug, read method __doc__
-            query = self._workaround_join_query_and_filter(
-                query,
-                filter)
-
             query_parameters = dict(
                 query = query,
                 pagenum = pagenum,
@@ -230,8 +237,7 @@ class WhooshBackend(Component):
                 sortedby = sortedby,
                 groupedby = groupedby,
                 maptype=whoosh.sorting.Count,
-                #workaround of Whoosh bug, read method __doc__
-                #filter = filter,
+                filter = filter,
             )
             self.env.log.debug("Whoosh query to execute: %s",
                 query_parameters)
@@ -252,13 +258,28 @@ class WhooshBackend(Component):
                 pass
         return results
 
-    def _workaround_join_query_and_filter(
-            self,
-            query_expression,
-            query_filter):
-        if not query_filter:
-            return query_expression
-        return whoosh.query.And((query_expression, query_filter))
+    def _apply_advanced_security(self, searcher, context=None):
+        if not self.advanced_security:
+            return
+
+        old_collector = searcher.collector
+        security_processor = SecurityPreprocessor(self.env)
+
+        def check_permission(doc):
+            return security_processor.check_permission(doc, context)
+
+        def collector(*args, **kwargs):
+            c = old_collector(*args, **kwargs)
+            if isinstance(c, FilterCollector):
+                c = AdvancedFilterCollector(
+                    c.child, c.allow, c.restrict, check_permission
+                )
+            else:
+                c = AdvancedFilterCollector(
+                    c, None, None, check_permission
+                )
+            return c
+        searcher.collector = collector
 
     def _create_unique_id(self, product, doc_type, doc_id):
         product, doc_type, doc_id = \
@@ -532,3 +553,44 @@ class WhooshEmptyFacetErrorWorkaround(Component):
                not_query.fieldname in self.should_not_be_empty_fields:
                 return whoosh.query.Term(not_query.fieldname, self.NULL_MARKER)
         return None
+
+
+class AdvancedFilterCollector(FilterCollector):
+    """An advanced filter collector, accepting a callback function that
+    will be called for each document to determine whether it should be
+    filtered out or not.
+
+    Please note that it can be slow. Very slow.
+    """
+
+    def __init__(self, child, allow, restrict, filter_func=None):
+        FilterCollector.__init__(self, child, allow, restrict)
+        self.filter_func = filter_func
+
+    def collect_matches(self):
+        child = self.child
+        _allow = self._allow
+        _restrict = self._restrict
+
+        if _allow is not None or _restrict is not None:
+            filtered_count = self.filtered_count
+            for sub_docnum in child.matches():
+                global_docnum = self.offset + sub_docnum
+                if ((_allow is not None and global_docnum not in _allow)
+                    or (_restrict is not None and global_docnum in _restrict)):
+                    filtered_count += 1
+                    continue
+
+                if self.filter_func:
+                    doc = self.subsearcher.stored_fields(sub_docnum)
+                    if not self.filter_func(doc):
+                        filtered_count += 1
+                        continue
+
+                child.collect(sub_docnum)
+            # pylint: disable=attribute-defined-outside-init
+            self.filtered_count = filtered_count
+        else:
+            # If there was no allow or restrict set, don't do anything special,
+            # just forward the call to the child collector
+            child.collect_matches()

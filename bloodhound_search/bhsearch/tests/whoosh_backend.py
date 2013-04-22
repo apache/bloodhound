@@ -474,38 +474,6 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
             {'status': {None: 1, 'New': 1}, 'type': {'type1': 1, 'type2': 1}},
             facets)
 
-    def test_can_use_query_and_groupedby_empty_field(self):
-        """
-        Whoosh 2.4 raises an error when simultaneously using filters and facets
-        in search:
-            AttributeError: 'FacetCollector' object has no attribute 'offset'
-
-        The problem should be fixed in the next release. For more info read
-        https://bitbucket.org/mchaput/whoosh/issue/274
-
-        For the time of being, whoosh-backend have to introduce workaround in
-        order to fix the problem. This unit-test is just a reminder to remove
-        workaround when the fixed version of Whoosh is applied.
-        """
-        schema = Schema(
-                unique_id=ID(stored=True, unique=True),
-                type=ID(stored=True),
-                )
-
-        ix = index.create_in(self.index_dir, schema=schema)
-        with ix.writer() as w:
-            w.add_document(unique_id=u"1", type=u"type1")
-            w.add_document(unique_id=u"2", type=u"type2")
-
-        with ix.searcher() as s:
-            with self.assertRaises(AttributeError):
-                s.search(
-                    query.Every(),
-                    groupedby=("type"),
-                    maptype=sorting.Count,
-                    filter=query.Term("type", "type1")
-                )
-
     def test_out_of_range_on_empty_facets(self):
         """
         Whoosh raises exception IndexError: list index out of range
@@ -612,6 +580,24 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
                              u'((content:with OR id:with) AND '
                              u'(content:stop OR id:stop))')
             self.assertEqual(len(s.search(q)), 1)
+
+    def test_can_filter_to_no_results(self):
+        schema = Schema(
+            id=ID(stored=True),
+            filter=TEXT(stored=True),
+        )
+
+        ix = index.create_in(self.index_dir, schema=schema)
+        with ix.writer() as w:
+            w.add_document(id=u"1", filter=u"f1")
+            w.add_document(id=u"2", filter=u"f2")
+
+        with ix.searcher() as s:
+            r = s.search(
+                query.Every(),
+                filter=QueryParser('', schema).parse(u"filter:other")
+            )
+        self.assertEquals(len(r), 0)
 
 
 class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):

@@ -37,7 +37,7 @@ from trac.util.datefmt import format_datetime, user_time
 from trac.web import IRequestHandler, IRequestFilter
 from trac.util.translation import _
 from trac.util.html import find_element
-from trac.web.chrome import (INavigationContributor, ITemplateProvider,
+from trac.web.chrome import (ITemplateProvider,
                              add_link, add_stylesheet, prevnext_nav,
                              web_context)
 from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,

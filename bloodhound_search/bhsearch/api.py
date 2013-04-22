@@ -134,7 +134,8 @@ class ISearchBackend(Interface):
             pagenum = 1,
             pagelen = 20,
             highlight=False,
-            highlight_fields=None):
+            highlight_fields=None,
+            context=None):
         """
         Perform query implementation
 

@@ -25,6 +25,7 @@ from whoosh import query
 from bhsearch.api import (IDocIndexPreprocessor, IndexFields,
                           IQueryPreprocessor, ISearchParticipant)
 from bhsearch.utils import get_product, instance_for_every_env
+from multiproduct.env import ProductEnvironment
 
 
 class SecurityPreprocessor(Component):
@@ -78,3 +79,13 @@ class SecurityPreprocessor(Component):
                         '%s/%s' % (prefix, action) if prefix else action
                     )
         return permissions
+
+    def check_permission(self, doc, context):
+        product, doctype, id = doc['product'], doc['type'], doc['id']
+        username = context.req.authname
+        env = self.env
+        if product:
+            env = ProductEnvironment(self.env, product)
+        perm = PermissionSystem(env)
+        action = self._required_permissions[doctype]
+        return perm.check_permission(action, username, id)
