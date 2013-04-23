@@ -42,6 +42,7 @@ from multiproduct.model import Product
 
 import trac.env
 
+
 class ComponentEnvironmentContext(object):
     def __init__(self, env, component):
         self._env = env
@@ -52,6 +53,7 @@ class ComponentEnvironmentContext(object):
         return self
     def __exit__(self, type, value, traceback):
         self._old_env.component_activated(self._component)
+
 
 class Environment(trac.env.Environment):
     """Bloodhound environment manager
@@ -71,6 +73,39 @@ class Environment(trac.env.Environment):
     """
 
     multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
+
+    @property
+    def global_setup_participants(self):
+        """If multi product schema is enabled, return only setup participants
+        that implement ISupportMultiProduct. Otherwise, all setup participants
+        are considered global.
+        """
+        if self._multiproduct_schema_enabled:
+            all_participants = self.setup_participants
+            multiproduct_aware = set(self.multi_product_support_components)
+            priority = lambda x: 0 if isinstance(x, MultiProductSystem) else 10
+
+            return sorted(
+                (c for c in all_participants if c in multiproduct_aware),
+                key=priority
+            )
+        else:
+            return self.setup_participants
+
+    @property
+    def product_setup_participants(self):
+        """If multi product schema is enabled, return setup participants that
+        need to be instantiated for each product env. Otherwise, return an
+        empty list.
+        """
+        if self._multiproduct_schema_enabled:
+            all_participants = self.setup_participants
+            multiproduct_aware = set(self.multi_product_support_components)
+            return [
+                c for c in all_participants if c not in multiproduct_aware
+            ]
+        else:
+            return []
 
     def __init__(self, path, create=False, options=[]):
         # global environment w/o parent, set these two before super.__init__
@@ -95,29 +130,10 @@ class Environment(trac.env.Environment):
             self.verify()
             self.setup_config()
 
-        self._global_setup_participants = list(set.intersection(set(self.setup_participants),
-                                                                set(self.multi_product_support_components)))
-        # make sure MultiProductSystem is always the first in the global setup
-        # participant list
-        for idx, participant in zip(range(0, len(self._global_setup_participants)),
-                                    self._global_setup_participants):
-            if isinstance(participant, MultiProductSystem):
-                if not idx:
-                    break
-                self._global_setup_participants.insert(0,
-                                                       self._global_setup_participants.pop(idx))
-                break
-
-        self._product_setup_participants = [participant for participant in self.setup_participants
-                                                if not participant in self._global_setup_participants]
-
         # invoke `IEnvironmentSetupParticipant.environment_created` for all
         # global setup participants
         if create:
-            # when creating environment, run global setup participants if schema has been upgraded
-            # to multi-product. If not, run setup participants ...
-            for participant in self._global_setup_participants if self._multiproduct_schema_enabled \
-                                                                   else self.setup_participants:
+            for participant in self.global_setup_participants:
                 with ComponentEnvironmentContext(self, participant):
                     participant.environment_created()
 
@@ -144,28 +160,24 @@ class Environment(trac.env.Environment):
 
     def needs_upgrade(self):
         """Return whether the environment needs to be upgraded."""
-        def needs_upgrade_in_env_list(env_list, participants):
-            for env in env_list:
-                for participant in participants:
-                    # make sure to skip anything but global environment for multi
-                    # product aware components
-                    if participant in self._global_setup_participants and \
-                       not env == self:
-                        continue
-                    with ComponentEnvironmentContext(env, participant):
-                        with env.db_query as db:
-                            if participant.environment_needs_upgrade(db):
-                                self.log.warn("component %s.%s requires environment upgrade in environment %s...",
-                                              participant.__module__, participant.__class__.__name__,
-                                              env)
-                                return True
-        if needs_upgrade_in_env_list([self], self._global_setup_participants):
+        def needs_upgrade_in_env(participant, env):
+            with ComponentEnvironmentContext(env, participant):
+                with env.db_query as db:
+                    if participant.environment_needs_upgrade(db):
+                        self.log.warn("component %s.%s requires environment upgrade in environment %s...",
+                                      participant.__module__, participant.__class__.__name__,
+                                      env)
+                        return True
+        if any(needs_upgrade_in_env(participant, self)
+               for participant in self.global_setup_participants):
             return True
+
         # until schema is multi product aware, product environments can't (and shouldn't) be
         # instantiated
         if self._multiproduct_schema_enabled:
-            product_envs = [self] + self.all_product_envs()
-            if needs_upgrade_in_env_list(product_envs, self._product_setup_participants):
+            if any(needs_upgrade_in_env(participant, env)
+                   for env in [self] + self.all_product_envs()
+                   for participant in self.product_setup_participants):
                 return True
         return False
 
@@ -176,36 +188,32 @@ class Environment(trac.env.Environment):
         :param backup_dest: name of the backup file
         :return: whether the upgrade was performed
         """
-        def upgraders_for_env_list(env_list, participants):
-            upgraders = []
-            if not participants:
-                return upgraders
-            for env in env_list:
-                for participant in participants:
-                    # skip global participants in non-global environments
-                    if participant in self._global_setup_participants and \
-                        not env == self:
-                        continue
-                    with ComponentEnvironmentContext(env, participant):
-                        with env.db_query as db:
-                            if participant.environment_needs_upgrade(db):
-                                self.log.info("%s.%s needs upgrade in environment %s...",
-                                              participant.__module__, participant.__class__.__name__,
-                                              env)
-                                upgraders.append((env, participant))
-            return upgraders
+        def upgrader_for_env(participant, env):
+            with ComponentEnvironmentContext(env, participant):
+                with env.db_query as db:
+                    if participant.environment_needs_upgrade(db):
+                        self.log.info(
+                            "%s.%s needs upgrade in environment %s...",
+                            participant.__module__,
+                            participant.__class__.__name__,
+                            env)
+                        return env, participant
 
         def upgraders_for_product_envs():
-            product_envs = [self] + self.all_product_envs()
-            return upgraders_for_env_list(product_envs, self._product_setup_participants)
+            upgraders = (upgrader_for_env(participant, env)
+                         for participant in self.product_setup_participants
+                         for env in [self] + self.all_product_envs())
+            return [u for u in upgraders if u]
 
-        # first enumerate components that are multi product aware and require upgrade
-        # in global environment
-        global_upgraders = upgraders_for_env_list([self], self._global_setup_participants)
+        # first enumerate components that are multi product aware and
+        # require upgrade in global environment
+        global_upgraders = [upgrader_for_env(participant, self)
+                            for participant in self.global_setup_participants]
+        global_upgraders = [u for u in global_upgraders if u]
         product_upgraders = None
-        if not global_upgraders:
-            # if no upgrades required in global environment, enumerate required upgrades
-            # for product environments
+        if not global_upgraders and self._multiproduct_schema_enabled:
+            # if no upgrades required in global environment, enumerate
+            # required upgrades for product environments
             product_upgraders = upgraders_for_product_envs()
 
         if not global_upgraders + (product_upgraders or []):
@@ -220,7 +228,8 @@ class Environment(trac.env.Environment):
         def execute_upgrades(upgraders_list):
             for env, participant in upgraders_list:
                 self.log.info("%s.%s upgrading in environment %s...",
-                              participant.__module__, participant.__class__.__name__,
+                              participant.__module__,
+                              participant.__class__.__name__,
                               env)
                 with ComponentEnvironmentContext(env, participant):
                     with env.db_transaction as db:
@@ -229,9 +238,8 @@ class Environment(trac.env.Environment):
                 DatabaseManager(env).shutdown()
 
         # execute global upgrades first, product environment upgrades next
-        if global_upgraders:
-            execute_upgrades(global_upgraders)
-        if product_upgraders == None:
+        execute_upgrades(global_upgraders)
+        if product_upgraders is None and self._multiproduct_schema_enabled:
             product_upgraders = upgraders_for_product_envs()
         if product_upgraders:
             execute_upgrades(product_upgraders)
@@ -262,8 +270,8 @@ import trac.test
 class EnvironmentStub(trac.test.EnvironmentStub):
     """Bloodhound test environment stub
 
-    This class replaces trac.test.EnvironmentStub and extends it with parent and product
-    properties (same case as with the Environment).
+    This class replaces trac.test.EnvironmentStub and extends it with parent
+    and product properties (same case as with the Environment).
     """
     def __init__(self, default_data=False, enable=None, disable=None,
                  path=None, destroying=False):
@@ -376,6 +384,13 @@ class ProductEnvironment(Component, ComponentManager):
 
     setup_participants = ExtensionPoint(trac.env.IEnvironmentSetupParticipant)
     multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
+
+    @property
+    def product_setup_participants(self):
+            return [
+                component for component in self.setup_participants
+                if component not in self.multi_product_support_components
+            ]
 
     components_section = ConfigSection('components',
         """This section is used to enable or disable components
@@ -518,15 +533,10 @@ class ProductEnvironment(Component, ComponentManager):
 
         self.setup_config()
 
-        self._global_setup_participants = set.intersection(set(self.setup_participants),
-                                                           set(self.multi_product_support_components))
-        self._product_setup_participants = [participant for participant in self.setup_participants
-                                                            if not participant in self._global_setup_participants]
-
         # when creating product environment, invoke `IEnvironmentSetupParticipant.environment_created`
         # for all setup participants that don't support multi product environments
         if create:
-            for participant in self._product_setup_participants:
+            for participant in self.product_setup_participants:
                 with ComponentEnvironmentContext(self, participant):
                     participant.environment_created()
 
