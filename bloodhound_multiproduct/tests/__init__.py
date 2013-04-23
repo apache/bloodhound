@@ -52,7 +52,7 @@ class TestLoader(unittest.TestLoader):
             mdlnm, loader, isdir = pending.popleft()
             try:
                 mdl = self._get_module_from_name(mdlnm)
-            except ImportError:
+            except (ImportError, ValueError):
                 # Skip packages not having __init__.py
                 continue
             loader = getattr(mdl, self.testLoaderAttribute, None) or loader
@@ -74,6 +74,7 @@ class TestLoader(unittest.TestLoader):
     def _get_module_from_name(self, name):
         __import__(name)
         return sys.modules[name]
+
 
 def test_suite():
     return TestLoader().discover_package('tests', pattern='*.py')
