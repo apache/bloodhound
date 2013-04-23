@@ -502,7 +502,7 @@ data = {
                            summary, description, keywords, product)
           SELECT id, 'defect', time, changetime, component, severity, priority, owner,
                  reporter, cc, version, milestone, status, resolution, summary,
-                 description, keywords, 'PRODUCT' FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
+                 description, keywords, 'PRODUCT' FROM (SELECT * FROM "PRODUCT_ticket_old") AS ticket_old
           WHERE COALESCE(severity,'') <> 'enhancement'"""
         ),
         (
@@ -518,7 +518,7 @@ data = {
                                summary, description, keywords, product)
               SELECT id, 'enhancement', time, changetime, component, 'normal', priority,
                      owner, reporter, cc, version, milestone, status, resolution, summary,
-                     description, keywords, 'PRODUCT' FROM (SELECT * FROM PRODUCT_ticket_old) AS ticket_old
+                     description, keywords, 'PRODUCT' FROM (SELECT * FROM "PRODUCT_ticket_old") AS ticket_old
               WHERE severity = 'enhancement'"""
         ),
         (
@@ -596,7 +596,7 @@ data = {
     GROUP BY bklg_id
 """,
 """SELECT bklg_id, count(*) as total
-    FROM (SELECT * FROM PRODUCT_backlog_ticket) AS backlog_ticket
+    FROM (SELECT * FROM "PRODUCT_backlog_ticket") AS backlog_ticket
     WHERE tkt_order IS NULL OR tkt_order > -1
     GROUP BY bklg_id
 """
@@ -608,7 +608,7 @@ data = {
     AND (bt.tkt_order IS NULL OR bt.tkt_order > -1)
     GROUP BY bklg_id, status""",
 """SELECT bt.bklg_id, t.status, count(*) as total
-    FROM (SELECT * FROM PRODUCT_backlog_ticket) AS bt, (SELECT * FROM ticket WHERE product='PRODUCT') AS t
+    FROM (SELECT * FROM "PRODUCT_backlog_ticket") AS bt, (SELECT * FROM ticket WHERE product='PRODUCT') AS t
     WHERE t.id = bt.tkt_id
     AND (bt.tkt_order IS NULL OR bt.tkt_order > -1)
     GROUP BY bklg_id, status"""
@@ -651,7 +651,7 @@ data = {
                 WHERE s.sid IS NOT NULL""",
 """INSERT INTO session (sid, last_visit, authenticated)
                 SELECT distinct s.sid,COALESCE(%s,0),s.authenticated
-                FROM (SELECT * FROM PRODUCT_session_old) AS s LEFT JOIN (SELECT * FROM PRODUCT_session_old) AS s2
+                FROM (SELECT * FROM "PRODUCT_session_old") AS s LEFT JOIN (SELECT * FROM "PRODUCT_session_old") AS s2
                 ON (s.sid=s2.sid AND s2.var_name='last_visit')
                 WHERE s.sid IS NOT NULL"""
         ),
@@ -662,7 +662,7 @@ data = {
         WHERE s.var_name <> 'last_visit' AND s.sid IS NOT NULL""",
 """INSERT INTO session_attribute (sid, authenticated, name, value)
         SELECT s.sid, s.authenticated, s.var_name, s.var_value
-        FROM (SELECT * FROM PRODUCT_session_old) AS s
+        FROM (SELECT * FROM "PRODUCT_session_old") AS s
         WHERE s.var_name <> 'last_visit' AND s.sid IS NOT NULL"""
         ),
         (
@@ -688,7 +688,7 @@ data = {
 """INSERT INTO node_change (rev,path,kind,change,base_path,base_rev)
             SELECT rev,path,kind,change,base_path,base_rev FROM node_change_old""",
 """INSERT INTO node_change (rev,path,kind,change,base_path,base_rev)
-            SELECT rev,path,kind,change,base_path,base_rev FROM (SELECT * FROM PRODUCT_node_change_old) AS node_change_old"""
+            SELECT rev,path,kind,change,base_path,base_rev FROM (SELECT * FROM "PRODUCT_node_change_old") AS node_change_old"""
         ),
     ],
 
@@ -820,7 +820,7 @@ data = {
                      WHERE distributor=%s
                        AND sid=%s
                        AND authenticated=%s""",
-"""UPDATE PRODUCT_subscription
+"""UPDATE "PRODUCT_subscription"
                        SET format=%s
                      WHERE distributor=%s
                        AND sid=%s
@@ -831,14 +831,14 @@ data = {
                        SET changetime=CURRENT_TIMESTAMP,
                            priority=%s
                      WHERE id=%s""",
-"""UPDATE PRODUCT_subscription
+"""UPDATE "PRODUCT_subscription"
                        SET changetime=CURRENT_TIMESTAMP,
                            priority=%s
                      WHERE id=%s"""
         ),
         (
 """UPDATE backlog_ticket SET tkt_order = NULL WHERE tkt_id = %s""",
-"""UPDATE PRODUCT_backlog_ticket SET tkt_order = NULL WHERE tkt_id = %s"""
+"""UPDATE "PRODUCT_backlog_ticket" SET tkt_order = NULL WHERE tkt_id = %s"""
         ),
         (
 """UPDATE backlog_ticket SET tkt_order = -1
@@ -846,7 +846,7 @@ data = {
                       AND tkt_id IN
                       (SELECT id FROM ticket
                        WHERE status = 'closed')""",
-"""UPDATE PRODUCT_backlog_ticket SET tkt_order = -1
+"""UPDATE "PRODUCT_backlog_ticket" SET tkt_order = -1
                       WHERE bklg_id = %s
                       AND tkt_id IN
                       (SELECT id FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
@@ -857,7 +857,7 @@ data = {
                          WHERE bklg_id = %s
                          AND tkt_id IN (SELECT id FROM ticket
                           WHERE status = 'closed')""",
-"""UPDATE PRODUCT_backlog_ticket SET tkt_order = -1
+"""UPDATE "PRODUCT_backlog_ticket" SET tkt_order = -1
                          WHERE bklg_id = %s
                          AND tkt_id IN (SELECT id FROM (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket
                           WHERE status = 'closed')"""
@@ -865,14 +865,14 @@ data = {
         (
 """UPDATE estimate SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s
         WHERE id=%s""",
-"""UPDATE PRODUCT_estimate SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s
+"""UPDATE "PRODUCT_estimate" SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s
         WHERE id=%s"""
         ),
         (
 """UPDATE estimate_line_item SET estimate_id=%s ,
           description=%s, low=%s, high=%s
         WHERE id=%s""",
-"""UPDATE PRODUCT_estimate_line_item SET estimate_id=%s ,
+"""UPDATE "PRODUCT_estimate_line_item" SET estimate_id=%s ,
           description=%s, low=%s, high=%s
         WHERE id=%s"""
         ),
@@ -880,7 +880,7 @@ data = {
 """UPDATE estimate SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s,
            diffcomment=%s, saveepoch=%s
         WHERE id=%s""",
-"""UPDATE PRODUCT_estimate SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s,
+"""UPDATE "PRODUCT_estimate" SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s,
            diffcomment=%s, saveepoch=%s
         WHERE id=%s"""
         ),
@@ -888,7 +888,7 @@ data = {
 """UPDATE estimate_line_item SET estimate_id=%s ,
           description=%s, low=%s, high=%s
         WHERE id=%s""",
-"""UPDATE PRODUCT_estimate_line_item SET estimate_id=%s ,
+"""UPDATE "PRODUCT_estimate_line_item" SET estimate_id=%s ,
           description=%s, low=%s, high=%s
         WHERE id=%s"""
         ),
@@ -896,7 +896,7 @@ data = {
 """UPDATE estimate SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s,
            diffcomment=%s, saveepoch=%s
         WHERE id=%s""",
-"""UPDATE PRODUCT_estimate SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s,
+"""UPDATE "PRODUCT_estimate" SET rate=%s, variability=%s, communication=%s, tickets=%s, comment=%s,
            diffcomment=%s, saveepoch=%s
         WHERE id=%s"""
         ),
@@ -913,7 +913,7 @@ data = {
         tickets VARCHAR(512),
         comment VARCHAR(8000)
     )""",
-"""CREATE TABLE PRODUCT_estimate(
+"""CREATE TABLE "PRODUCT_estimate"(
             id integer PRIMARY KEY,
         rate DECIMAL,
         variability DECIMAL,
@@ -930,7 +930,7 @@ data = {
                                                    low DECIMAL,
                                                        high DECIMAL
     )""",
-"""CREATE TABLE PRODUCT_estimate_line_item(
+"""CREATE TABLE "PRODUCT_estimate_line_item"(
         id integer PRIMARY KEY,
                            estimate_id integer,
                                        description VARCHAR(2048),
@@ -943,7 +943,7 @@ data = {
                                                           " tkt_id INTEGER NOT NULL,"
                                                           " tkt_order REAL,"
                                                           " PRIMARY KEY(bklg_id, tkt_id))""",
-"""CREATE TABLE PRODUCT_backlog_ticket (bklg_id INTEGER NOT NULL,"
+"""CREATE TABLE "PRODUCT_backlog_ticket" (bklg_id INTEGER NOT NULL,"
                                                           " tkt_id INTEGER NOT NULL,"
                                                           " tkt_order REAL,"
                                                           " PRIMARY KEY(bklg_id, tkt_id))"""
@@ -954,11 +954,11 @@ data = {
     'custom_alter_table' : [
         (
 """ALTER TABLE estimate ADD COLUMN diffcomment text""",
-"""ALTER TABLE PRODUCT_estimate ADD COLUMN diffcomment text"""
+"""ALTER TABLE "PRODUCT_estimate" ADD COLUMN diffcomment text"""
         ),
         (
 """ALTER TABLE estimate ADD COLUMN saveepoch int""",
-"""ALTER TABLE PRODUCT_estimate ADD COLUMN saveepoch int"""
+"""ALTER TABLE "PRODUCT_estimate" ADD COLUMN saveepoch int"""
         ),
     ],
 }
