@@ -1156,6 +1156,11 @@ textarea#comment, #trac-add-comment fieldset{
  width: 100%;
 }
 
+*[placeholder-content]:not([placeholder-hide]):not(:focus):before {
+ color: #a3a3a3;
+ content: attr(placeholder-content);
+}
+
 #changelog div.comment-box h4 {
   margin-top: 0px;
 }

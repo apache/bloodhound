@@ -276,6 +276,21 @@
         $('#vc-status').parent().hide();
         $('#vc-product').parent().hide();
         </py:if>
+        $('[placeholder-content]').blur(function () {
+          if ($(this).text().trim()) { $(this).attr('placeholder-hide', 'true'); }
+          else { $(this).removeAttr('placeholder-hide'); }
+        });
+        /*<![CDATA[*/
+        var init_comment_height = $('#comment').height();
+        $("#comment").focus(function() {
+          if ($(this).height() < 50) {
+            $(this).animate({ height: 100 }, 500);
+          }}).blur(function() { 
+          if ($(this).height() <= 100 && $(this).val().length == 0 ) {
+            $(this).animate({ height: init_comment_height }, 500);
+          }
+          });
+        /*]]>*/
       });
     </script>
   </head>
@@ -288,9 +303,10 @@
     <py:def function="render_ticket_summary(t, showid)">
       <py:if test="showid"> <h2><span class="visible-phone">${'#' + t.id if t.exists else 'NEW'} - </span></h2></py:if>
       <h2 class="ticket-summary searchable clip-affix" contenteditable="false"
-        py:with="summary = t.summary if t.summary else 'Changeme'"
         data-edit="${'inplace' if can_modify or can_create else None}"
-        id="vc-summary">$summary</h2>
+        id="vc-summary" placeholder-content="${'Enter ticket summary' if not t.summary else ''}">
+        <py:if test="t.summary">$t.summary</py:if><br />
+        </h2>
     </py:def>
     
     <py:def function="render_ticket_summary_details(t)">
@@ -461,7 +477,8 @@
                   </div>
                   <!--! Comment field -->
                   <fieldset class="iefix">
-                    <textarea id="comment" name="comment" class="trac-resizable" rows="5">${comment}</textarea>
+                    <textarea id="comment" name="comment" class="trac-resizable" rows="1"
+                        placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
                     <py:if test="ticket.exists">
                       <input type="submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
                     </py:if>
