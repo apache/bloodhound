@@ -121,16 +121,16 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         with self.env.db_direct_transaction as db:
             for i in range(5):
                 db("INSERT INTO dummy_table (v1) VALUES ('%d')" % i)
-            rows = db("SELECT * FROM dummy_table")
-            self.assertEqual(len(rows), 5)
+            self.assertEqual(
+                len(db("SELECT * FROM dummy_table")), 5)
 
         self._enable_multiproduct()
         self.env.upgrade()
         with self.env.db_direct_transaction as db:
-            rows = db('SELECT * FROM "dummy_table"')
-            self.assertEqual(len(rows), 5)
-            rows = db('SELECT * FROM "@_dummy_table"')
-            self.assertEqual(len(rows), 0)
+            self.assertEqual(
+                len(db('SELECT * FROM "dummy_table"')), 5)
+            self.assertEqual(
+                len(db('SELECT * FROM "@_dummy_table"')), 0)
 
     def test_creating_new_product_calls_environment_created(self):
         self._enable_component(DummyPlugin)
@@ -142,6 +142,81 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         ProductEnvironment(self.env, prod, create=True)
         with self.env.db_direct_transaction as db:
             db('SELECT * FROM "p1_dummy_table"')
+
+    def test_upgrade_moves_tickets_to_default_product(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO ticket (id) VALUES (1)""")
+            db("""INSERT INTO attachment (type, id)
+                         VALUES ('ticket', '1')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.env.db_direct_transaction as db:
+            self.assertEqual(
+                len(db("""SELECT * FROM ticket WHERE product='@'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                          WHERE product='@'
+                            AND type='ticket'""")), 1)
+
+    def test_upgrade_moves_wikis_to_default_product(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO wiki (name, version) VALUES ('MyPage', 1)""")
+            db("""INSERT INTO attachment (type, id)
+                         VALUES ('wiki', 'MyPage')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.env.db_direct_transaction as db:
+            self.assertEqual(
+                len(db("""SELECT * FROM wiki WHERE product='@'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                           WHERE product='@'
+                             AND type='wiki'""")), 1)
+
+    def test_upgrade_duplicates_system_wikis_to_products(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
+            db("""INSERT INTO attachment (type, id)
+                         VALUES ('wiki', 'WikiStart')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.env.db_direct_transaction as db:
+            self.assertEqual(
+                len(db("""SELECT * FROM wiki WHERE product='@'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                           WHERE product='@'
+                             AND type='wiki'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM wiki WHERE product=''""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                           WHERE product=''
+                             AND type='wiki'""")), 1)
+
+    def test_can_upgrade_database_with_orphaned_attachments(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO attachment (id, type)
+                       VALUES ('5', 'ticket')""")
+            db("""INSERT INTO attachment (id, type)
+                       VALUES ('MyWiki', 'wiki')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+    def test_can_upgrade_database_with_text_attachment_ids(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO attachment (id, type)
+                       VALUES ('abc', 'ticket')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
 
     def _enable_multiproduct(self):
         self.env.config.set('components', 'multiproduct.*', 'enabled')

@@ -295,11 +295,18 @@ class MultiProductSystem(Component):
 
                 for table in TICKET_TABLES:
                     if table == 'attachment':
-                        db("""UPDATE attachment
-                              SET product=(SELECT ticket.product FROM ticket
-                                           WHERE ticket.id=%s)
-                              WHERE attachment.type='ticket'
-                           """ %(db.cast('attachment.id', 'integer'),))
+                        db("""
+                            UPDATE attachment
+                               SET product=(SELECT ticket.product
+                                              FROM ticket
+                                             WHERE %(ticket_id)s=attachment.id
+                                             LIMIT 1)
+                             WHERE attachment.type='ticket'
+                               AND EXISTS(SELECT ticket.product
+                                            FROM ticket
+                                           WHERE %(ticket_id)s=attachment.id)
+                           """ % dict(
+                            ticket_id=db.cast('attachment.id', 'text')))
                     else:
                         db("""UPDATE %s
                               SET product=(SELECT ticket.product FROM ticket WHERE ticket.id=%s.ticket)""" %
@@ -334,9 +341,14 @@ class MultiProductSystem(Component):
                 temp_table_name, cols = create_temp_table(table)
                 self.log.info("Migrating wikis to global context")
                 db("""INSERT INTO %s (%s, product) SELECT %s, '' FROM %s""" %
-                      (table, cols, cols, temp_table_name))
+                   (table, cols, cols, temp_table_name))
+                db("""UPDATE attachment
+                         SET product=''
+                       WHERE attachment.type='wiki'""")
+
                 for wiki_name, wiki_version, wiki_product in db("""
                         SELECT name, version, product FROM %s""" % table):
+                    attachment_cols = ','.join(table_columns['attachment'])
                     if wiki_name in self.system_wiki_list:
                         for product in all_products:
                             db("""INSERT INTO %s (%s, product)
@@ -344,6 +356,20 @@ class MultiProductSystem(Component):
                                   WHERE name='%s' AND version=%s AND product='%s'""" %
                                   (table, cols, cols, product.prefix, table,
                                    wiki_name, wiki_version, wiki_product))
+                            db("""INSERT INTO attachment (%(cols)s, product)
+                                  SELECT %(cols)s, '%(new_product)s'
+                                    FROM attachment a
+                                   WHERE type='wiki'
+                                     AND id='%(wiki_name)s'
+                                     AND product='%(old_product)s'
+                                     AND NOT EXISTS(SELECT * FROM attachment
+                                                     WHERE type='wiki'
+                                                       AND id='%(wiki_name)s'
+                                                       AND product='%(new_product)s')
+                               """ % dict(cols=attachment_cols,
+                                          wiki_name=wiki_name,
+                                          old_product=wiki_product,
+                                          new_product=product.prefix))
                     else:
                         self.log.info("Moving wiki page '%s' to default product", wiki_name)
                         db("""UPDATE wiki
@@ -351,12 +377,13 @@ class MultiProductSystem(Component):
                               WHERE name='%s' AND version=%s AND product='%s'""" %
                               (DEFAULT_PRODUCT,
                                wiki_name, wiki_version, wiki_product))
+                        db("""UPDATE attachment
+                                 SET product='%s'
+                               WHERE type='wiki'
+                                 AND id='%s'
+                                 AND product='%s'
+                           """ % (DEFAULT_PRODUCT, wiki_name, wiki_product))
                 drop_temp_table(temp_table_name)
-
-                db("""UPDATE attachment
-                      SET product=(SELECT wiki.product FROM wiki
-                                   WHERE wiki.name=attachment.id)
-                      WHERE attachment.type='wiki'""")
 
                 # soft link existing repositories to default product
                 repositories_linked = []
