@@ -20,11 +20,13 @@
 
 import copy
 import os
+import shutil
 
 from genshi.builder import tag, Element
 from genshi.core import escape, Markup, unescape
 
 from pkg_resources import resource_filename
+from trac.attachment import Attachment
 from trac.config import Option, PathOption
 from trac.core import Component, TracError, implements, Interface
 from trac.db import Table, Column, DatabaseManager, Index
@@ -284,6 +286,14 @@ class MultiProductSystem(Component):
                 self.log.info("Migrating tickets w/o product to default product")
                 db("""UPDATE ticket SET product='%s'
                       WHERE (product IS NULL OR product='')""" % DEFAULT_PRODUCT)
+                self._migrate_attachments(
+                    db("""SELECT a.type, a.id, a.filename
+                            FROM attachment a
+                      INNER JOIN ticket t ON a.id = %(t.id)s
+                           WHERE a.type='ticket'
+                       """ % {'t.id':  db.cast('t.id', 'text')}),
+                    to_product=DEFAULT_PRODUCT
+                )
 
                 self.log.info("Migrating ticket tables to a new schema")
                 for table in TICKET_TABLES:
@@ -370,19 +380,39 @@ class MultiProductSystem(Component):
                                           wiki_name=wiki_name,
                                           old_product=wiki_product,
                                           new_product=product.prefix))
+                            self._migrate_attachments(
+                                db("""SELECT type, id, filename
+                                        FROM attachment
+                                       WHERE type='wiki'
+                                         AND id='%s'
+                                         AND product='%s'
+                                   """ % (wiki_name, DEFAULT_PRODUCT)),
+                                    to_product=DEFAULT_PRODUCT,
+                                    copy=True
+                            )
                     else:
                         self.log.info("Moving wiki page '%s' to default product", wiki_name)
                         db("""UPDATE wiki
                               SET product='%s'
-                              WHERE name='%s' AND version=%s AND product='%s'""" %
-                              (DEFAULT_PRODUCT,
-                               wiki_name, wiki_version, wiki_product))
+                              WHERE name='%s' AND version=%s AND product='%s'
+                           """ % (DEFAULT_PRODUCT,
+                                  wiki_name, wiki_version, wiki_product))
                         db("""UPDATE attachment
                                  SET product='%s'
                                WHERE type='wiki'
                                  AND id='%s'
                                  AND product='%s'
                            """ % (DEFAULT_PRODUCT, wiki_name, wiki_product))
+                        self._migrate_attachments(
+                            db("""SELECT type, id, filename
+                                    FROM attachment
+                                   WHERE type='wiki'
+                                     AND id='%s'
+                                     AND product='%s'
+                               """ % (wiki_name, DEFAULT_PRODUCT)),
+                            to_product=DEFAULT_PRODUCT,
+                        )
+
                 drop_temp_table(temp_table_name)
 
                 # soft link existing repositories to default product
@@ -434,6 +464,39 @@ class MultiProductSystem(Component):
 
             self.env.enable_multiproduct_schema(True)
 
+    def _migrate_attachments(self, attachments, to_product=None, copy=False):
+        for type, id, filename in attachments:
+            old_path = Attachment._get_path(self.env.path, type, id, filename)
+            new_path = self.env.path
+            if to_product:
+                new_path = os.path.join(new_path, 'products', to_product)
+            new_path = Attachment._get_path(new_path, type, id, filename)
+            dirname = os.path.dirname(new_path)
+            if not os.path.exists(old_path):
+                self.log.warning(
+                    "Missing attachment files for %s:%s/%s",
+                    type, id, filename)
+                continue
+            if os.path.exists(new_path):
+                # TODO: Do we want to overwrite?
+                continue
+            try:
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname)
+                if copy:
+                    if hasattr(os, 'link'):
+                        # TODO: It this safe?
+                        os.link(old_path, new_path)
+                    else:
+                        shutil.copy(old_path, new_path)
+                else:
+                    os.rename(old_path, new_path)
+            except OSError as err:
+                self.log.warning(
+                    "Could not move attachment %s from %s %s to"
+                    "product @ (%s)",
+                    filename, type, id, str(err)
+                )
 
     # IResourceChangeListener methods
     def match_resource(self, resource):

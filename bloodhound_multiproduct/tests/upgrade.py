@@ -19,14 +19,19 @@
 
 from sqlite3 import OperationalError
 from contextlib import contextmanager
+import os
 import tempfile
 import unittest
+import uuid
 
+from trac.attachment import Attachment, AttachmentAdmin
 from trac.core import Component, implements
 from trac.db import DatabaseManager
 from trac.db.schema import Table, Column
 from trac.env import IEnvironmentSetupParticipant
 from trac.test import Environment
+from trac.ticket import Ticket
+from trac.wiki import WikiPage
 
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
@@ -218,6 +223,41 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         self._enable_multiproduct()
         self.env.upgrade()
 
+    def test_upgrading_database_moves_attachment_to_correct_product(self):
+        ticket = self.insert_ticket('ticket')
+        wiki = self.insert_wiki('MyWiki')
+        attachment = self._create_file_with_content('Hello World!')
+        self.add_attachment(ticket.resource, attachment)
+        self.add_attachment(wiki.resource, attachment)
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('@'):
+            attachments = list(
+                Attachment.select(self.env, 'ticket', ticket.id))
+            attachments.extend(
+                Attachment.select(self.env, 'wiki', wiki.name))
+        self.assertEqual(len(attachments), 2)
+        for attachment in attachments:
+            self.assertEqual(attachment.open().read(), 'Hello World!')
+
+    def test_upgrading_database_copies_attachments_for_system_wikis(self):
+        wiki = self.insert_wiki('WikiStart', 'content')
+        self.add_attachment(wiki.resource,
+                            self._create_file_with_content('Hello World!'))
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('@'):
+            attachments = list(
+                Attachment.select(self.env, 'wiki', 'WikiStart'))
+        attachments.extend(Attachment.select(self.env, 'wiki', 'WikiStart'))
+        self.assertEqual(len(attachments), 2)
+        for attachment in attachments:
+            self.assertEqual(attachment.open().read(), 'Hello World!')
+
     def _enable_multiproduct(self):
         self.env.config.set('components', 'multiproduct.*', 'enabled')
         self.env.config.save()
@@ -238,6 +278,13 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         for cls in self.enabled_components:
             self.env.compmgr.enabled[cls] = True
 
+    def _create_file_with_content(self, content):
+        filename = str(uuid.uuid4())[:6]
+        path = os.path.join(self.env_path, filename)
+        with open(path, 'wb') as f:
+            f.write(content)
+        return path
+
     @contextmanager
     def assertFailsWithMissingTable(self):
         with self.assertRaises(OperationalError) as cm:
@@ -249,6 +296,43 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         with self.assertRaises(OperationalError) as cm:
             yield
         self.assertIn('no such column', str(cm.exception))
+
+    def create_ticket(self, summary, **kw):
+        ticket = Ticket(self.env)
+        ticket["summary"] = summary
+        for k, v in kw.items():
+            ticket[k] = v
+        return ticket
+
+    def insert_ticket(self, summary, **kw):
+        """Helper for inserting a ticket into the database"""
+        ticket = self.create_ticket(summary, **kw)
+        ticket.insert()
+        return ticket
+
+    def create_wiki(self, name, text,  **kw):
+        page = WikiPage(self.env, name)
+        page.text = text
+        for k, v in kw.items():
+            page[k] = v
+        return page
+
+    def insert_wiki(self, name, text = None, **kw):
+        text = text or "Dummy text"
+        page = self.create_wiki(name, text, **kw)
+        page.save("dummy author", "dummy comment", "::1")
+        return page
+
+    def add_attachment(self, resource, path):
+        resource = '%s:%s' % (resource.realm, resource.id)
+        AttachmentAdmin(self.env)._do_add(resource, path)
+
+    @contextmanager
+    def product(self, prefix):
+        old_env = self.env
+        self.env = ProductEnvironment(self.env, prefix)
+        yield
+        self.env = old_env
 
 
 class DummyPlugin(Component):
