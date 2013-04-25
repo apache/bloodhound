@@ -67,7 +67,7 @@ class ProductModule(Component):
                     if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
                                                                p.prefix))]
         
-        if pid is not None:
+        if pid:
             add_link(req, 'up', req.href.products(), _('Products'))
         
         try:
@@ -90,7 +90,7 @@ class ProductModule(Component):
         elif action == 'delete':
             raise TracError(_('Product removal is not allowed!'))
         
-        if pid is None:
+        if not pid:
             data = {'products': products,
                     'context': web_context(req, Resource('product', None))}
             return 'product_list.html', data, None
