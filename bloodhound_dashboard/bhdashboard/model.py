@@ -158,21 +158,32 @@ class ModelBase(object):
             raise TracError('%(object_name)s %(keys)s already exists %(values)s' %
                             sdata)
             
+        auto_inc =  self._meta.get('auto_inc_fields', [])
         for key in self._meta['key_fields']:
-            if self._data[key] is None:
+            if self._data[key] is None and key not in auto_inc:
                 sdata = {'key':key}
                 sdata.update(self._meta)
                 raise TracError('%(key)s required for %(object_name)s' %
                                 sdata)
-        fields = self._meta['key_fields']+self._meta['non_key_fields']
+
+        auto_inc =  self._meta.get('auto_inc_fields', [])
+        non_auto_increment_key_fields = [
+            field for field in self._meta['key_fields']
+            if field not in auto_inc]
+        fields = non_auto_increment_key_fields + self._meta['non_key_fields']
         sdata = {'fields':','.join(fields),
                  'values':','.join(['%s'] * len(fields))}
         sdata.update(self._meta)
-        
+
         sql = """INSERT INTO %(table_name)s (%(fields)s)
                  VALUES (%(values)s)""" % sdata
         with self._env.db_transaction as db:
-            db(sql, [self._data[f] for f in fields])
+            cursor = db.cursor()
+            cursor.execute(sql, [self._data[f] for f in fields])
+            for auto_in_field in auto_inc:
+                self._data[auto_in_field] = db.get_last_id(
+                    cursor, sdata["table_name"], auto_in_field)
+
             self._exists = True
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
@@ -216,10 +227,13 @@ class ModelBase(object):
 
         ResourceSystem(self._env).resource_changed(self, old_values)
 
-    
     @classmethod
-    def select(cls, env, db=None, where=None, limit=None):
-        """Query the database to get a set of records back"""
+    def select(cls, env, db=None, where=None, limit=None, order_by=None):
+        """
+        Query the database to get a set of records back
+        * order_by: is list of fields with optional sort direction
+            ("asc" or "desc") e.g. ["field1", "field2 desc"]
+        """
         rows = []
         fields = cls._meta['key_fields']+cls._meta['non_key_fields']
         
@@ -229,11 +243,13 @@ class ModelBase(object):
         wherestr, values = dict_to_kv_str(where)
         if wherestr:
             wherestr = ' WHERE ' + wherestr
+        final_sql = sql + wherestr
         if limit is not None:
-            limitstr = ' LIMIT ' + str(int(limit))
-        else:
-            limitstr = ''
-        for row in env.db_query(sql + wherestr + limitstr, values):
+            final_sql += ' LIMIT ' + str(int(limit))
+        final_sql
+        if order_by:
+            final_sql += "\nORDER BY " + ', '.join(order_by)
+        for row in env.db_query(final_sql, values):
             # we won't know which class we need until called
             model = cls.__new__(cls)
             data = dict([(fields[i], row[i]) for i in range(len(fields))])
