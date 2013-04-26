@@ -20,6 +20,7 @@
 from sqlite3 import OperationalError
 from contextlib import contextmanager
 import os
+import shutil
 import tempfile
 import unittest
 import uuid
@@ -51,23 +52,25 @@ TABLES_WITH_PRODUCT_FIELD = (
 
 
 class EnvironmentUpgradeTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self, options=()):
         self.env_path = tempfile.mkdtemp('multiproduct-tempenv')
-        self.env = Environment(self.env_path, create=True)
+        self.env = Environment(self.env_path, create=True, options=options)
         DummyPlugin.version = 1
+
+    def tearDown(self):
+        shutil.rmtree(self.env_path)
 
     def test_can_upgrade_environment_with_multi_product_disabled(self):
         self.env.upgrade()
 
         # Multiproduct was not enabled so multiproduct tables should not exist
-        with self.env.db_direct_transaction as db:
-            for table in BLOODHOUND_TABLES:
-                with self.assertFailsWithMissingTable():
-                    db("SELECT * FROM %s" % table)
+        for table in BLOODHOUND_TABLES:
+            with self.assertFailsWithMissingTable():
+                self.env.db_direct_query("SELECT * FROM %s" % table)
 
-            for table in TABLES_WITH_PRODUCT_FIELD:
-                with self.assertFailsWithMissingColumn():
-                    db("SELECT product FROM %s" % table)
+        for table in TABLES_WITH_PRODUCT_FIELD:
+            with self.assertFailsWithMissingColumn():
+                self.env.db_direct_query("SELECT product FROM %s" % table)
 
     def test_upgrade_creates_multi_product_tables_and_adds_product_column(self):
         self._enable_multiproduct()
@@ -91,8 +94,8 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         self._add_custom_field('custom_field')
         with self.env.db_direct_transaction as db:
             db("""INSERT INTO ticket (id) VALUES (1)""")
-            db("""INSERT INTO attachment (type, id)
-                       VALUES ('ticket', '1')""")
+            db("""INSERT INTO attachment (type, id, filename)
+                       VALUES ('ticket', '1', '')""")
             db("""INSERT INTO ticket_custom (ticket, name, value)
                        VALUES (1, 'custom_field', '42')""")
             db("""INSERT INTO ticket_change (ticket, time, field)
@@ -114,8 +117,8 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
     def test_upgrade_moves_custom_wikis_to_default_product(self):
         with self.env.db_direct_transaction as db:
             db("""INSERT INTO wiki (name, version) VALUES ('MyPage', 1)""")
-            db("""INSERT INTO attachment (type, id)
-                         VALUES ('wiki', 'MyPage')""")
+            db("""INSERT INTO attachment (type, id, filename)
+                         VALUES ('wiki', 'MyPage', '')""")
 
         self._enable_multiproduct()
         self.env.upgrade()
@@ -131,8 +134,8 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
     def test_upgrade_duplicates_system_wikis_to_products(self):
         with self.env.db_direct_transaction as db:
             db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
-            db("""INSERT INTO attachment (type, id)
-                         VALUES ('wiki', 'WikiStart')""")
+            db("""INSERT INTO attachment (type, id, filename)
+                         VALUES ('wiki', 'WikiStart', '')""")
 
         self._enable_multiproduct()
         self.env.upgrade()
@@ -227,18 +230,18 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
 
     def test_can_upgrade_database_with_ticket_attachment_with_text_ids(self):
         with self.env.db_direct_transaction as db:
-            db("""INSERT INTO attachment (id, type)
-                       VALUES ('abc', 'ticket')""")
+            db("""INSERT INTO attachment (id, type, filename)
+                       VALUES ('abc', 'ticket', '')""")
 
         self._enable_multiproduct()
         self.env.upgrade()
 
     def test_can_upgrade_database_with_orphaned_attachments(self):
         with self.env.db_direct_transaction as db:
-            db("""INSERT INTO attachment (id, type)
-                       VALUES ('5', 'ticket')""")
-            db("""INSERT INTO attachment (id, type)
-                       VALUES ('MyWiki', 'wiki')""")
+            db("""INSERT INTO attachment (id, type, filename)
+                       VALUES ('5', 'ticket', '')""")
+            db("""INSERT INTO attachment (id, type, filename)
+                       VALUES ('MyWiki', 'wiki', '')""")
 
         self._enable_multiproduct()
         self.env.upgrade()
