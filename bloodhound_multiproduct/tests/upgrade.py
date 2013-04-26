@@ -33,6 +33,7 @@ from trac.test import Environment
 from trac.ticket import Ticket
 from trac.wiki import WikiPage
 
+from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 
@@ -43,13 +44,9 @@ BLOODHOUND_TABLES = (
 )
 
 TABLES_WITH_PRODUCT_FIELD = (
-    'component',
-    'milestone',
-    'version',
-    'enum',
-    'permission',
-    'wiki',
-    'report',
+    'ticket', 'ticket_change', 'ticket_custom', 'attachment', 'component',
+    'milestone', 'wiki', 'report',
+    'version', 'enum', 'permission', 'system',
 )
 
 
@@ -57,12 +54,12 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
     def setUp(self):
         self.env_path = tempfile.mkdtemp('multiproduct-tempenv')
         self.env = Environment(self.env_path, create=True)
-        self.enabled_components = []
         DummyPlugin.version = 1
 
-    def test_upgrade_environment(self):
+    def test_can_upgrade_environment_with_multi_product_disabled(self):
         self.env.upgrade()
 
+        # Multiproduct was not enabled so multiproduct tables should not exist
         with self.env.db_direct_transaction as db:
             for table in BLOODHOUND_TABLES:
                 with self.assertFailsWithMissingTable():
@@ -72,7 +69,7 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
                 with self.assertFailsWithMissingColumn():
                     db("SELECT product FROM %s" % table)
 
-    def test_upgrade_environment_to_multiproduct(self):
+    def test_upgrade_creates_multi_product_tables_and_adds_product_column(self):
         self._enable_multiproduct()
         self.env.upgrade()
 
@@ -82,6 +79,210 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
 
             for table in TABLES_WITH_PRODUCT_FIELD:
                 db("SELECT product FROM %s" % table)
+
+    def test_upgrade_creates_default_product(self):
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        products = Product.select(self.env)
+        self.assertEqual(len(products), 1)
+
+    def test_upgrade_moves_tickets_and_related_objects_to_default_prod(self):
+        self._add_custom_field('custom_field')
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO ticket (id) VALUES (1)""")
+            db("""INSERT INTO attachment (type, id)
+                       VALUES ('ticket', '1')""")
+            db("""INSERT INTO ticket_custom (ticket, name, value)
+                       VALUES (1, 'custom_field', '42')""")
+            db("""INSERT INTO ticket_change (ticket, time, field)
+                       VALUES (1, 42, 'summary')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('@'):
+            ticket = Ticket(self.env, 1)
+            attachments = list(Attachment.select(self.env,
+                                                 ticket.resource.realm,
+                                                 ticket.resource.id))
+            self.assertEqual(len(attachments), 1)
+            self.assertEqual(ticket['custom_field'], '42')
+            changes = ticket.get_changelog()
+            self.assertEqual(len(changes), 3)
+
+    def test_upgrade_moves_custom_wikis_to_default_product(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO wiki (name, version) VALUES ('MyPage', 1)""")
+            db("""INSERT INTO attachment (type, id)
+                         VALUES ('wiki', 'MyPage')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.env.db_direct_transaction as db:
+            self.assertEqual(
+                len(db("""SELECT * FROM wiki WHERE product='@'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                           WHERE product='@'
+                             AND type='wiki'""")), 1)
+
+    def test_upgrade_duplicates_system_wikis_to_products(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
+            db("""INSERT INTO attachment (type, id)
+                         VALUES ('wiki', 'WikiStart')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.env.db_direct_transaction as db:
+            self.assertEqual(
+                len(db("""SELECT * FROM wiki WHERE product='@'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                           WHERE product='@'
+                             AND type='wiki'""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM wiki WHERE product=''""")), 1)
+            self.assertEqual(
+                len(db("""SELECT * FROM attachment
+                           WHERE product=''
+                             AND type='wiki'""")), 1)
+
+    def test_upgrade_copies_content_of_system_tables_to_all_products(self):
+        mp = MultiProductSystem(self.env)
+        with self.env.db_direct_transaction as db:
+            mp._add_column_product_to_ticket(db)
+            mp._create_multiproduct_tables(db)
+            mp._update_db_version(db, 1)
+            for i in range(1, 6):
+                db("""INSERT INTO bloodhound_product (prefix, name)
+                           VALUES ('p%d', 'Product 1')""" % i)
+            for table in ('component', 'milestone', 'enum', 'version',
+                          'permission', 'report'):
+                db("""DELETE FROM %s""" % table)
+            db("""INSERT INTO component (name) VALUES ('foobar')""")
+            db("""INSERT INTO milestone (name) VALUES ('foobar')""")
+            db("""INSERT INTO version (name) VALUES ('foobar')""")
+            db("""INSERT INTO enum (type, name) VALUES ('a', 'b')""")
+            db("""INSERT INTO permission VALUES ('x', 'TICKET_VIEW')""")
+            db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
+            db("""INSERT INTO report (title) VALUES ('x')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.env.db_direct_transaction as db:
+            for table in ('component', 'milestone', 'version', 'enum',
+                          'report'):
+                rows = db("SELECT * FROM %s" % table)
+                self.assertEqual(
+                    len(rows), 6,
+                    "Wrong number of lines in %s (%d instead of %d)\n%s"
+                    % (table, len(rows), 6, rows))
+            for table in ('wiki', 'permission'):
+                # Permissions and wikis also hold rows for global product.
+                rows = db("SELECT * FROM %s" % table)
+                self.assertEqual(
+                    len(rows), 7,
+                    "Wrong number of lines in %s (%d instead of %d)\n%s"
+                    % (table, len(rows), 7, rows))
+
+    def test_upgrading_database_moves_attachment_to_correct_product(self):
+        ticket = self.insert_ticket('ticket')
+        wiki = self.insert_wiki('MyWiki')
+        attachment = self._create_file_with_content('Hello World!')
+        self.add_attachment(ticket.resource, attachment)
+        self.add_attachment(wiki.resource, attachment)
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('@'):
+            attachments = list(
+                Attachment.select(self.env, 'ticket', ticket.id))
+            attachments.extend(
+                Attachment.select(self.env, 'wiki', wiki.name))
+        self.assertEqual(len(attachments), 2)
+        for attachment in attachments:
+            self.assertEqual(attachment.open().read(), 'Hello World!')
+
+    def test_upgrading_database_copies_attachments_for_system_wikis(self):
+        wiki = self.insert_wiki('WikiStart', 'content')
+        self.add_attachment(wiki.resource,
+                            self._create_file_with_content('Hello World!'))
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('@'):
+            attachments = list(
+                Attachment.select(self.env, 'wiki', 'WikiStart'))
+        attachments.extend(Attachment.select(self.env, 'wiki', 'WikiStart'))
+        self.assertEqual(len(attachments), 2)
+        for attachment in attachments:
+            self.assertEqual(attachment.open().read(), 'Hello World!')
+
+    def test_can_upgrade_database_with_ticket_attachment_with_text_ids(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO attachment (id, type)
+                       VALUES ('abc', 'ticket')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+    def test_can_upgrade_database_with_orphaned_attachments(self):
+        with self.env.db_direct_transaction as db:
+            db("""INSERT INTO attachment (id, type)
+                       VALUES ('5', 'ticket')""")
+            db("""INSERT INTO attachment (id, type)
+                       VALUES ('MyWiki', 'wiki')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+    def test_can_upgrade_multi_product_from_v1(self):
+        mp = MultiProductSystem(self.env)
+        with self.env.db_direct_transaction as db:
+            mp._add_column_product_to_ticket(db)
+            mp._create_multiproduct_tables(db)
+            mp._update_db_version(db, 1)
+
+            db("""INSERT INTO bloodhound_product (prefix, name)
+                       VALUES ('p1', 'Product 1')""")
+            db("""INSERT INTO ticket (id, product)
+                       VALUES (1, 'Product 1')""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('p1'):
+            Ticket(self.env, 1)
+
+    def test_can_upgrade_multi_product_from_v2(self):
+        mp = MultiProductSystem(self.env)
+        with self.env.db_direct_transaction as db:
+            mp._add_column_product_to_ticket(db)
+            mp._create_multiproduct_tables(db)
+            mp._replace_product_on_ticket_with_product_prefix(db)
+            mp._update_db_version(db, 2)
+
+            db("""INSERT INTO bloodhound_product (prefix, name)
+                       VALUES ('p1', 'Product 1')""")
+            db("""INSERT INTO ticket (id, product)
+                       VALUES (1, 'p1')""")
+            db("""INSERT INTO ticket (id)
+                       VALUES (2)""")
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('p1'):
+            Ticket(self.env, 1)
+        with self.product('@'):
+            Ticket(self.env, 2)
 
     def test_upgrade_plugin(self):
         self._enable_component(DummyPlugin)
@@ -148,135 +349,23 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         with self.env.db_direct_transaction as db:
             db('SELECT * FROM "p1_dummy_table"')
 
-    def test_upgrade_moves_tickets_to_default_product(self):
-        with self.env.db_direct_transaction as db:
-            db("""INSERT INTO ticket (id) VALUES (1)""")
-            db("""INSERT INTO attachment (type, id)
-                         VALUES ('ticket', '1')""")
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-        with self.env.db_direct_transaction as db:
-            self.assertEqual(
-                len(db("""SELECT * FROM ticket WHERE product='@'""")), 1)
-            self.assertEqual(
-                len(db("""SELECT * FROM attachment
-                          WHERE product='@'
-                            AND type='ticket'""")), 1)
-
-    def test_upgrade_moves_wikis_to_default_product(self):
-        with self.env.db_direct_transaction as db:
-            db("""INSERT INTO wiki (name, version) VALUES ('MyPage', 1)""")
-            db("""INSERT INTO attachment (type, id)
-                         VALUES ('wiki', 'MyPage')""")
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-        with self.env.db_direct_transaction as db:
-            self.assertEqual(
-                len(db("""SELECT * FROM wiki WHERE product='@'""")), 1)
-            self.assertEqual(
-                len(db("""SELECT * FROM attachment
-                           WHERE product='@'
-                             AND type='wiki'""")), 1)
-
-    def test_upgrade_duplicates_system_wikis_to_products(self):
-        with self.env.db_direct_transaction as db:
-            db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
-            db("""INSERT INTO attachment (type, id)
-                         VALUES ('wiki', 'WikiStart')""")
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-        with self.env.db_direct_transaction as db:
-            self.assertEqual(
-                len(db("""SELECT * FROM wiki WHERE product='@'""")), 1)
-            self.assertEqual(
-                len(db("""SELECT * FROM attachment
-                           WHERE product='@'
-                             AND type='wiki'""")), 1)
-            self.assertEqual(
-                len(db("""SELECT * FROM wiki WHERE product=''""")), 1)
-            self.assertEqual(
-                len(db("""SELECT * FROM attachment
-                           WHERE product=''
-                             AND type='wiki'""")), 1)
-
-    def test_can_upgrade_database_with_orphaned_attachments(self):
-        with self.env.db_direct_transaction as db:
-            db("""INSERT INTO attachment (id, type)
-                       VALUES ('5', 'ticket')""")
-            db("""INSERT INTO attachment (id, type)
-                       VALUES ('MyWiki', 'wiki')""")
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-    def test_can_upgrade_database_with_text_attachment_ids(self):
-        with self.env.db_direct_transaction as db:
-            db("""INSERT INTO attachment (id, type)
-                       VALUES ('abc', 'ticket')""")
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-    def test_upgrading_database_moves_attachment_to_correct_product(self):
-        ticket = self.insert_ticket('ticket')
-        wiki = self.insert_wiki('MyWiki')
-        attachment = self._create_file_with_content('Hello World!')
-        self.add_attachment(ticket.resource, attachment)
-        self.add_attachment(wiki.resource, attachment)
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-        with self.product('@'):
-            attachments = list(
-                Attachment.select(self.env, 'ticket', ticket.id))
-            attachments.extend(
-                Attachment.select(self.env, 'wiki', wiki.name))
-        self.assertEqual(len(attachments), 2)
-        for attachment in attachments:
-            self.assertEqual(attachment.open().read(), 'Hello World!')
-
-    def test_upgrading_database_copies_attachments_for_system_wikis(self):
-        wiki = self.insert_wiki('WikiStart', 'content')
-        self.add_attachment(wiki.resource,
-                            self._create_file_with_content('Hello World!'))
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-        with self.product('@'):
-            attachments = list(
-                Attachment.select(self.env, 'wiki', 'WikiStart'))
-        attachments.extend(Attachment.select(self.env, 'wiki', 'WikiStart'))
-        self.assertEqual(len(attachments), 2)
-        for attachment in attachments:
-            self.assertEqual(attachment.open().read(), 'Hello World!')
-
     def _enable_multiproduct(self):
-        self.env.config.set('components', 'multiproduct.*', 'enabled')
-        self.env.config.save()
-        self._reload_environment()
-        self._reenable_components()
+        self._update_config('components', 'multiproduct.*', 'enabled')
+
+    def _add_custom_field(self, field_name):
+        self._update_config('ticket-custom', field_name, 'text')
 
     def _enable_component(self, cls):
-        self.env.config.set('components',
-                            '%s.%s' % (cls.__module__, cls.__name__),
-                            'enabled')
-        self.enabled_components.append(cls)
-        self.env.compmgr.enabled[cls] = True
+        self._update_config(
+            'components',
+            '%s.%s' % (cls.__module__, cls.__name__),
+            'enabled'
+        )
 
-    def _reload_environment(self):
+    def _update_config(self, section, key, value):
+        self.env.config.set(section, key, value)
+        self.env.config.save()
         self.env = Environment(self.env_path)
-
-    def _reenable_components(self):
-        for cls in self.enabled_components:
-            self.env.compmgr.enabled[cls] = True
 
     def _create_file_with_content(self, content):
         filename = str(uuid.uuid4())[:6]
