@@ -17,15 +17,12 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+from bhrelations.model import Relation
 
-"""
-    This module enables running of original ticket-links unit-test in
-    bhrelations environment.
-"""
-from trac_ticket_links.ticket.tests.links import TicketTestCase
+DB_SYSTEM_KEY = 'bhrelations'
+DB_VERSION = 1
 
-class BloodhoundRelationsTicketTestCase(TicketTestCase):
+SCHEMA = [mcls._get_schema() for mcls in (Relation, )]
 
-    def setUp(self):
-        super(BloodhoundRelationsTicketTestCase, self).setUp()
-#        self.env.enable.append = 'trac_ticket_links.*'
+migrations = [
+]

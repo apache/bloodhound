@@ -29,7 +29,3 @@ If you have any issues, please create a [/newticket?keywords=bep-0006 new ticket
 == The Trac ticket-links branch
 Bloodhound Relations plugin contains the code from the Trac ticket-links branch, which
 is licensed under the same license as Trac (http://trac.edgewall.org/wiki/TracLicense).
-The plugin trac_ticket_links directory represents an updated copy of the combined vendor branch
-located on https://svn.apache.org/repos/asf/bloodhound/vendor/trac-ticket-links.
-The combined vendor branch represents a source tree merged from the several original
-vendor branches. For more information on the original vendor branches, see //svn.apache.org/repos/asf/bloodhound/vendor/README

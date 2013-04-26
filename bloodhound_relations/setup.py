@@ -99,10 +99,6 @@ PKG_INFO = {'bhrelations': ('bhrelations',                     # Package dir
                           ),
             'bhrelations.tests': (
                 'bhrelations/tests', ['data/*.*']),
-            'bhrelations.trac.ticket': (
-                'bhrelations/trac/ticket', []),
-            'bhrelations.trac.ticket.tests' : (
-                'bhrelations/trac/ticket/tests', []),
             }
 
 ENTRY_POINTS = {
