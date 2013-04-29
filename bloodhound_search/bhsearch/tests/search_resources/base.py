@@ -18,7 +18,12 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import unittest
+import sys
+if sys.version < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from bhsearch.search_resources.base import SimpleSearchWikiSyntaxFormatter
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from trac.web import Href

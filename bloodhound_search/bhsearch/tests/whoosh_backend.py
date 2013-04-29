@@ -19,9 +19,14 @@
 #  under the License.
 from datetime import datetime
 import os
-import unittest
-import tempfile
 import shutil
+import sys
+import tempfile
+if sys.version < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from bhsearch.api import ASC, DESC, SCORE, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests.base import BaseBloodhoundSearchTest

@@ -17,7 +17,12 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
+import sys
+if sys.version < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from bhsearch.tests import (whoosh_backend, index_with_whoosh, web_ui,
                             api, query_parser, query_suggestion, security)
 from bhsearch.tests.search_resources import (ticket_search, wiki_search,

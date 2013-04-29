@@ -22,9 +22,14 @@ r"""
 Test utils methods
 """
 import contextlib
-import unittest
-import tempfile
 import shutil
+import sys
+import tempfile
+if sys.version < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 
 from bhsearch.web_ui import BloodhoundSearchModule
 from trac.ticket import Ticket, Milestone
