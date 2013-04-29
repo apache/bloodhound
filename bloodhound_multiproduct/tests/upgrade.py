@@ -135,7 +135,7 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
                            WHERE product='@'
                              AND type='wiki'""")), 1)
 
-    def test_upgrade_duplicates_system_wikis_to_products(self):
+    def test_upgrade_moves_system_wikis_to_products(self):
         with self.env.db_direct_transaction as db:
             db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
             db("""INSERT INTO attachment (type, id, filename)
@@ -152,11 +152,11 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
                            WHERE product='@'
                              AND type='wiki'""")), 1)
             self.assertEqual(
-                len(db("""SELECT * FROM wiki WHERE product=''""")), 1)
+                len(db("""SELECT * FROM wiki WHERE product=''""")), 0)
             self.assertEqual(
                 len(db("""SELECT * FROM attachment
                            WHERE product=''
-                             AND type='wiki'""")), 1)
+                             AND type='wiki'""")), 0)
 
     def test_upgrade_copies_content_of_system_tables_to_all_products(self):
         mp = MultiProductSystem(self.env)
@@ -175,7 +175,6 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
             db("""INSERT INTO version (name) VALUES ('foobar')""")
             db("""INSERT INTO enum (type, name) VALUES ('a', 'b')""")
             db("""INSERT INTO permission VALUES ('x', 'TICKET_VIEW')""")
-            db("""INSERT INTO wiki (name, version) VALUES ('WikiStart', 1)""")
             db("""INSERT INTO report (title) VALUES ('x')""")
 
         self._enable_multiproduct()
@@ -189,8 +188,8 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
                     len(rows), 6,
                     "Wrong number of lines in %s (%d instead of %d)\n%s"
                     % (table, len(rows), 6, rows))
-            for table in ('wiki', 'permission'):
-                # Permissions and wikis also hold rows for global product.
+            for table in ('permission',):
+                # Permissions also hold rows for global product.
                 rows = db("SELECT * FROM %s" % table)
                 self.assertEqual(
                     len(rows), 7,
@@ -212,22 +211,6 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
                 Attachment.select(self.env, 'ticket', ticket.id))
             attachments.extend(
                 Attachment.select(self.env, 'wiki', wiki.name))
-        self.assertEqual(len(attachments), 2)
-        for attachment in attachments:
-            self.assertEqual(attachment.open().read(), 'Hello World!')
-
-    def test_upgrading_database_copies_attachments_for_system_wikis(self):
-        wiki = self.insert_wiki('WikiStart', 'content')
-        self.add_attachment(wiki.resource,
-                            self._create_file_with_content('Hello World!'))
-
-        self._enable_multiproduct()
-        self.env.upgrade()
-
-        with self.product('@'):
-            attachments = list(
-                Attachment.select(self.env, 'wiki', 'WikiStart'))
-        attachments.extend(Attachment.select(self.env, 'wiki', 'WikiStart'))
         self.assertEqual(len(attachments), 2)
         for attachment in attachments:
             self.assertEqual(attachment.open().read(), 'Hello World!')

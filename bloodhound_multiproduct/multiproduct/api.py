@@ -225,7 +225,7 @@ class MultiProductSystem(Component):
 
                 self._insert_default_product(db)
                 self._upgrade_tickets(db, TICKET_TABLES, create_temp_table)
-                self._upgrade_wikis(db, create_temp_table, table_columns)
+                self._upgrade_wikis(db, create_temp_table)
                 self._upgrade_system_tables(db, create_temp_table)
                 self._soft_link_repositories_to_default_product(db)
                 self._upgrade_table_system(SYSTEM_TABLES, create_temp_table, db)
@@ -380,76 +380,31 @@ class MultiProductSystem(Component):
                    (table, cols, cols, '', temp_table_name))
             self._drop_temp_table(db, temp_table_name)
 
-    def _upgrade_wikis(self, db, create_temp_table,
-                       table_columns):
+    def _upgrade_wikis(self, db, create_temp_table):
         # migrate wiki table
         # - populate system wikis to all products + global scope
         # - update wiki attachment product to match wiki product
         table = 'wiki'
         temp_table_name, cols = create_temp_table(table)
-        self.log.info("Migrating wikis to global context")
-        db("""INSERT INTO %s (%s, product) SELECT %s, '' FROM %s""" %
-           (table, cols, cols, temp_table_name))
+        self.log.info("Migrating wikis to default product")
+        db("""INSERT INTO %(table)s (%(cols)s, product)
+                   SELECT %(cols)s, '%(default_product)s' FROM %(temp_table)s
+           """ % dict(table=table,
+                      temp_table=temp_table_name,
+                      cols=cols,
+                      default_product=DEFAULT_PRODUCT,))
         db("""UPDATE attachment
-                 SET product=''
-               WHERE attachment.type='wiki'""")
-        for wiki_name, wiki_version, wiki_product in db("""
-                        SELECT name, version, product FROM %s""" % table):
-            attachment_cols = ','.join(table_columns['attachment'])
-            if wiki_name in self.system_wiki_list:
-                for product in Product.select(self.env):
-                    db("""INSERT INTO %s (%s, product)
-                                  SELECT %s, '%s' FROM %s
-                                  WHERE name='%s' AND version=%s AND product='%s'""" %
-                       (table, cols, cols, product.prefix, table,
-                        wiki_name, wiki_version, wiki_product))
-                    db("""INSERT INTO attachment (%(cols)s, product)
-                                  SELECT %(cols)s, '%(new_product)s'
-                                    FROM attachment a
-                                   WHERE type='wiki'
-                                     AND id='%(wiki_name)s'
-                                     AND product='%(old_product)s'
-                                     AND NOT EXISTS(SELECT * FROM attachment
-                                                     WHERE type='wiki'
-                                                       AND id='%(wiki_name)s'
-                                                       AND product='%(new_product)s')
-                               """ % dict(cols=attachment_cols,
-                                          wiki_name=wiki_name,
-                                          old_product=wiki_product,
-                                          new_product=product.prefix))
-                    self._migrate_attachments(
-                        db("""SELECT type, id, filename
-                                        FROM attachment
-                                       WHERE type='wiki'
-                                         AND id='%s'
-                                         AND product='%s'
-                                   """ % (wiki_name, DEFAULT_PRODUCT)),
-                        to_product=DEFAULT_PRODUCT,
-                        copy=True
-                    )
-            else:
-                self.log.info("Moving wiki page '%s' to default product",
-                              wiki_name)
-                db("""UPDATE wiki
-                              SET product='%s'
-                              WHERE name='%s' AND version=%s AND product='%s'
-                           """ % (DEFAULT_PRODUCT,
-                                  wiki_name, wiki_version, wiki_product))
-                db("""UPDATE attachment
-                                 SET product='%s'
-                               WHERE type='wiki'
-                                 AND id='%s'
-                                 AND product='%s'
-                           """ % (DEFAULT_PRODUCT, wiki_name, wiki_product))
-                self._migrate_attachments(
-                    db("""SELECT type, id, filename
-                                    FROM attachment
-                                   WHERE type='wiki'
-                                     AND id='%s'
-                                     AND product='%s'
-                               """ % (wiki_name, DEFAULT_PRODUCT)),
-                    to_product=DEFAULT_PRODUCT,
-                )
+                 SET product='%s'
+               WHERE attachment.type='wiki'
+           """ % DEFAULT_PRODUCT)
+        self._migrate_attachments(
+            db("""SELECT type, id, filename
+                    FROM attachment
+                   WHERE type='wiki'
+                     AND product='%s'
+               """ % (DEFAULT_PRODUCT)),
+            to_product=DEFAULT_PRODUCT,
+        )
         self._drop_temp_table(db, temp_table_name)
 
     def _migrate_attachments(self, attachments, to_product=None, copy=False):
