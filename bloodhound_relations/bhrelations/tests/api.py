@@ -18,7 +18,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from _sqlite3 import OperationalError, IntegrityError
-from bhrelations.api import EnvironmentSetup, RelationsSystem
+from bhrelations.api import EnvironmentSetup, RelationsSystem, ValidationError
 from trac.ticket.model import Ticket
 from trac.test import EnvironmentStub, Mock
 from trac.core import TracError
@@ -82,7 +82,8 @@ class ApiTestCase(unittest.TestCase):
         dependent = self._insert_and_load_ticket("A2")
         #act
         relations_system = self.relations_system
-        relations_system.add_relation(
+        self._debug_select()
+        relations_system.add(
             ticket, dependent, "dependent")
         #assert
         relations = relations_system.get_relations(ticket)
@@ -99,7 +100,7 @@ class ApiTestCase(unittest.TestCase):
         referred = self._insert_and_load_ticket("A2")
         #act
         relations_system = self.relations_system
-        relations_system.add_relation(ticket, referred, "refersto")
+        relations_system.add(ticket, referred, "refersto")
         #assert
         relations = relations_system.get_relations(ticket)
         self.assertEqual("refersto", relations[0]["type"])
@@ -115,9 +116,9 @@ class ApiTestCase(unittest.TestCase):
         dependent2 = self._insert_and_load_ticket("A3")
         #act
         relations_system = self.relations_system
-        relations_system.add_relation(
+        relations_system.add(
             ticket, dependent1, "dependent")
-        relations_system.add_relation(
+        relations_system.add(
             ticket, dependent2, "dependent")
         #assert
         relations = relations_system.get_relations(ticket)
@@ -129,12 +130,12 @@ class ApiTestCase(unittest.TestCase):
         dependent1 = self._insert_and_load_ticket("A2")
         #act
         relations_system = self.relations_system
-        relations_system.add_relation(
+        relations_system.add(
             ticket, dependent1, "dependent")
         self.assertRaisesRegexp(
             TracError,
             "already exists",
-            relations_system.add_relation,
+            relations_system.add,
             ticket, dependent1, "dependent")
 
     def test_will_not_create_more_than_one_identical_relations_db_level(self):
@@ -151,7 +152,7 @@ class ApiTestCase(unittest.TestCase):
         referred_ticket = self._insert_and_load_ticket("A2")
         #act
         relations_system = self.relations_system
-        relations_system.add_relation(
+        relations_system.add(
             ticket, referred_ticket, "refersto")
         #assert
         relations = relations_system.get_relations(ticket)
@@ -166,13 +167,13 @@ class ApiTestCase(unittest.TestCase):
         ticket = self._insert_and_load_ticket("A1")
         dependent_ticket = self._insert_and_load_ticket("A2")
         relations_system = self.relations_system
-        relations_system.add_relation(
+        relations_system.add(
             ticket, dependent_ticket, "dependson")
         relations = relations_system.get_relations(ticket)
         self.assertEqual(1, len(relations))
         #act
         relation_to_delete = relations[0]
-        relations_system.delete_relation_by_id(relation_to_delete["relation_id"])
+        relations_system.delete(relation_to_delete["relation_id"])
         #assert
         relations = relations_system.get_relations(ticket)
         self.assertEqual(0, len(relations))
@@ -183,13 +184,13 @@ class ApiTestCase(unittest.TestCase):
         referred = self._insert_and_load_ticket("A2")
         #act
         relations_system = self.relations_system
-        relations_system.add_relation(ticket, referred, "refersto")
+        relations_system.add(ticket, referred, "refersto")
 
 
         ticket = self._insert_and_load_ticket("A1")
         dependent_ticket = self._insert_and_load_ticket("A2")
         relations_system = self.relations_system
-        relations_system.add_relation(
+        relations_system.add(
             ticket, dependent_ticket, "dependson")
         relations = relations_system.get_relations(ticket)
 
@@ -199,12 +200,42 @@ class ApiTestCase(unittest.TestCase):
         #act
         # self._debug_select()
         relation_to_delete = relations[0]
-        relations_system.delete_relation_by_id(relation_to_delete["relation_id"])
+        relations_system.delete(relation_to_delete["relation_id"])
         #assert
         relations = relations_system.get_relations(ticket)
         self.assertEqual(0, len(relations))
         reverted_relations = relations_system.get_relations(dependent_ticket)
         self.assertEqual(0, len(reverted_relations))
+
+    def test_can_not_add_cycled_immediate_relations(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(ticket1, ticket2, "dependson")
+        self.assertRaises(
+            ValidationError,
+            relations_system.add,
+            ticket2,
+            ticket1,
+            "dependson")
+
+    def test_can_not_add_cycled_relations(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        ticket3 = self._insert_and_load_ticket("A3")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(ticket1, ticket2, "dependson")
+        relations_system.add(ticket2, ticket3, "dependson")
+        self.assertRaises(
+            ValidationError,
+            relations_system.add,
+            ticket3,
+            ticket1,
+            "dependson")
 
     # def _find_relation(self, relations, destination, relation_type):
     #     destination_id = self.relations_system.get_resource_id(destination)
@@ -216,9 +247,11 @@ class ApiTestCase(unittest.TestCase):
     #                     " relation_type: %s" % (destination_id, relation_type))
 
     def _debug_select(self):
-        # sql = "SELECT source, destination, type FROM bloodhound_relations"
-        print " id, source, destination, type"
-        sql = "SELECT id, source, destination, type FROM bloodhound_relations"
+        """
+        used for debug purposes
+        """
+        print " source, destination, type"
+        sql = "SELECT source, destination, type FROM bloodhound_relations"
         with self.env.db_query as db:
             # for row in db(sql, ("source", "destination", "type")):
             for row in db(sql):

@@ -25,7 +25,7 @@ class Relation(ModelBase):
     """The Relation table"""
     _meta = {'table_name':'bloodhound_relations',
             'object_name':'Relation',
-            'key_fields':['source', 'destination', 'type'],
+            'key_fields':['source', 'type', 'destination'],
             'non_key_fields':['comment'],
             'no_change_fields':['source', 'destination', 'type'],
             'unique_fields':[],
