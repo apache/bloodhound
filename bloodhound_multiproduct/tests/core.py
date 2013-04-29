@@ -15,7 +15,11 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import unittest
+import sys
+if sys.version < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 from trac.core import Interface, implements, Component
 

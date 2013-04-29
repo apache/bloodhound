@@ -21,9 +21,13 @@ from sqlite3 import OperationalError
 from contextlib import contextmanager
 import os
 import shutil
+import sys
 import tempfile
-import unittest
 import uuid
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 from trac.attachment import Attachment, AttachmentAdmin
 from trac.core import Component, implements

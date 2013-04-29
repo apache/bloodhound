@@ -35,6 +35,10 @@ from multiproduct.model import Product
 from multiproduct.perm import MultiproductPermissionPolicy, sudo
 from tests.env import MultiproductTestCase
 
+# DefaultPermission policy has its own cache that causes
+# test_product_trac_admin_actions to fail sometimes.
+perm.DefaultPermissionPolicy.CACHE_EXPIRY = 0
+
 
 class ProductDefaultPermissionStoreTestCase(DefaultPermissionStoreTestCase, 
         MultiproductTestCase):
