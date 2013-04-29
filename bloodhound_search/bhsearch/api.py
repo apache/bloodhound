@@ -332,9 +332,22 @@ class BloodhoundSearchApi(Component):
             doc = None
             try:
                 for participant in self.index_participants:
+                    self.log.info(
+                        "Reindexing resources provided by %s in product %s" %
+                        (participant.__class__.__name__,
+                         getattr(participant.env.product, 'name', "''"))
+                    )
                     docs = participant.get_entries_for_index()
                     for doc in docs:
+                        self.log.debug(
+                            "Indexing document %s:%s/%s" % (
+                                doc['product'],
+                                doc['type'],
+                                doc['id'],
+                            )
+                        )
                         self.add_doc(doc, operation_context)
+                self.log.info("Reindexing complete.")
             except Exception, ex:
                 self.log.error(ex)
                 if doc:

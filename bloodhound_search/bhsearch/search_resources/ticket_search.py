@@ -160,8 +160,12 @@ class TicketIndexer(BaseIndexer):
     #IIndexParticipant members
     def build_doc(self, trac_doc):
         ticket = trac_doc
+        searchable_name = '#%(ticket.id)s %(ticket.id)s' %\
+                          {'ticket.id': ticket.id}
         doc = {
             IndexFields.ID: str(ticket.id),
+            IndexFields.NAME: searchable_name,
+            '_stored_' + IndexFields.NAME: str(ticket.id),
             IndexFields.TYPE: TICKET_TYPE,
             IndexFields.TIME: ticket.time_changed,
             IndexFields.PRODUCT: get_product(self.env).prefix,
