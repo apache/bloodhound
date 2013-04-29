@@ -18,7 +18,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from _sqlite3 import OperationalError, IntegrityError
-from bhrelations.api import EnvironmentSetup, RelationsSystem, ValidationError
+from bhrelations.api import EnvironmentSetup, RelationsSystem, CycleValidationError, ParentValidationError, TicketRelationsSpecifics
 from trac.ticket.model import Ticket
 from trac.test import EnvironmentStub, Mock
 from trac.core import TracError
@@ -88,11 +88,11 @@ class ApiTestCase(unittest.TestCase):
         #assert
         relations = relations_system.get_relations(ticket)
         self.assertEqual("dependent", relations[0]["type"])
-        self.assertEqual(dependent.id, relations[0]["destination"].id)
+        self.assertEqual(unicode(dependent.id), relations[0]["destination"].id)
 
         relations = relations_system.get_relations(dependent)
         self.assertEqual("dependson", relations[0]["type"])
-        self.assertEqual(ticket.id, relations[0]["destination"].id)
+        self.assertEqual(unicode(ticket.id), relations[0]["destination"].id)
 
     def test_can_add_single_way_relations(self):
         #arrange
@@ -104,7 +104,7 @@ class ApiTestCase(unittest.TestCase):
         #assert
         relations = relations_system.get_relations(ticket)
         self.assertEqual("refersto", relations[0]["type"])
-        self.assertEqual(referred.id, relations[0]["destination"].id)
+        self.assertEqual(unicode(referred.id), relations[0]["destination"].id)
 
         relations = relations_system.get_relations(referred)
         self.assertEqual(0, len(relations))
@@ -157,7 +157,8 @@ class ApiTestCase(unittest.TestCase):
         #assert
         relations = relations_system.get_relations(ticket)
         self.assertEqual("refersto", relations[0]["type"])
-        self.assertEqual(referred_ticket.id, relations[0]["destination"].id)
+        self.assertEqual(unicode(referred_ticket.id),
+                         relations[0]["destination"].id)
 
         relations = relations_system.get_relations(referred_ticket)
         self.assertEqual(0, len(relations))
@@ -214,12 +215,37 @@ class ApiTestCase(unittest.TestCase):
         #act
         relations_system = self.relations_system
         relations_system.add(ticket1, ticket2, "dependson")
+
+        try:
+            relations_system.add(ticket2, ticket1, "dependson")
+            self.assertFalse(True, "Should throw an exception")
+        except CycleValidationError, ex:
+            self.assertEqual(":ticket:1", ex.failed_ids[0])
+
+
+    def test_can_add_more_dependsons(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        ticket3 = self._insert_and_load_ticket("A3")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(ticket1, ticket2, "dependson")
+        relations_system.add(ticket1, ticket3, "dependson")
+
+    def test_can_not_add_cycled_in_different_direction(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(ticket1, ticket2, "dependson")
         self.assertRaises(
-            ValidationError,
+            CycleValidationError,
             relations_system.add,
-            ticket2,
             ticket1,
-            "dependson")
+            ticket2,
+            "dependent")
 
     def test_can_not_add_cycled_relations(self):
         #arrange
@@ -230,22 +256,72 @@ class ApiTestCase(unittest.TestCase):
         relations_system = self.relations_system
         relations_system.add(ticket1, ticket2, "dependson")
         relations_system.add(ticket2, ticket3, "dependson")
-        self.assertRaises(
-            ValidationError,
+        self.assertRaisesRegexp(
+            CycleValidationError,
+            "Cycle in Dependson: #1 -> #2 -> #3",
             relations_system.add,
             ticket3,
             ticket1,
             "dependson")
 
-    # def _find_relation(self, relations, destination, relation_type):
-    #     destination_id = self.relations_system.get_resource_id(destination)
-    #     for relation in relations:
-    #         if relation["destination_id"] == destination_id and \
-    #             relation["type"] == relation_type:
-    #             return relation
-    #     raise Exception("Relation was not found for destination_id: %s,"+
-    #                     " relation_type: %s" % (destination_id, relation_type))
+    def test_can_not_add_more_than_one_parents(self):
+        #arrange
+        child = self._insert_and_load_ticket("A1")
+        parent1 = self._insert_and_load_ticket("A2")
+        parent2 = self._insert_and_load_ticket("A3")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(child, parent1, "parent")
+        self.assertRaises(
+            ParentValidationError,
+            relations_system.add,
+            child,
+            parent2,
+            "parent")
 
+    def test_can_not_add_more_than_one_parents_via_children(self):
+        #arrange
+        child = self._insert_and_load_ticket("A1")
+        parent1 = self._insert_and_load_ticket("A2")
+        parent2 = self._insert_and_load_ticket("A3")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(parent1, child, "children")
+        self.assertRaises(
+            ParentValidationError,
+            relations_system.add,
+            parent2,
+            child,
+            "children")
+
+    def test_ticket_can_be_resolved(self):
+        #arrange
+        child = self._insert_and_load_ticket("A1")
+        parent1 = self._insert_and_load_ticket("A2")
+        parent2 = self._insert_and_load_ticket("A3")
+        #act
+        relations_system = self.relations_system
+        relations_system.add(parent1, child, "children")
+        self.assertRaises(
+            ParentValidationError,
+            relations_system.add,
+            parent2,
+            child,
+            "children")
+
+    def test_blocked_ticket_cannot_be_resolved(self):
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        self.relations_system.add(ticket1, ticket2, "dependent")
+
+        self.req.args=dict(action='resolve')
+        ticket_relations = TicketRelationsSpecifics(self.env)
+        warnings = ticket_relations.validate_ticket(self.req, ticket1)
+        self.assertEqual(1, len(list(warnings)))
+
+    #todo: add tests that relation were deleted when ticket was deleted
+
+    #todo: add multi-product test
     def _debug_select(self):
         """
         used for debug purposes

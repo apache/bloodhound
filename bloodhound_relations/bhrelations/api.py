@@ -25,12 +25,16 @@ from trac.core import Component, implements, TracError
 from trac.env import IEnvironmentSetupParticipant
 from trac.db import DatabaseManager
 from trac.resource import (manager_for_neighborhood, ResourceSystem, Resource,
-                           get_resource_shortname)
-from trac.ticket import Ticket
+                           get_resource_shortname, get_resource_description,
+                           get_resource_summary, get_relative_resource, Neighborhood)
+from trac.ticket import Ticket, ITicketManipulator
 
 PLUGIN_NAME = 'Bloodhound Relations Plugin'
 
-class ValidationError(TracError):
+class CycleValidationError(TracError):
+    pass
+
+class ParentValidationError(TracError):
     pass
 
 class EnvironmentSetup(Component):
@@ -97,9 +101,8 @@ class EnvironmentSetup(Component):
 
 class RelationsSystem(Component):
     PARENT_RELATION_TYPE = 'parent'
+    CHILDREN_RELATION_TYPE = 'children'
     RELATIONS_CONFIG_NAME = 'bhrelations_links'
-    RESOURCE_ID_DELIMITER = u":"
-    RELATION_ID_DELIMITER = u","
 
     def __init__(self):
         self._links, self._labels, \
@@ -122,9 +125,10 @@ class RelationsSystem(Component):
             relation_type,
             comment = None,
             ):
-        source = self.get_resource_id_from_instance(source_resource_instance)
-        destination = self.get_resource_id_from_instance(
-            destination_resource_instance)
+        source = ResourceIdSerializer.get_resource_id_from_instance(
+            self.env, source_resource_instance)
+        destination = ResourceIdSerializer.get_resource_id_from_instance(
+            self.env, destination_resource_instance)
         relation = Relation(self.env)
         relation.source = source
         relation.destination = destination
@@ -133,28 +137,23 @@ class RelationsSystem(Component):
         self.add_relation(relation)
 
     def add_relation(self, relation):
-        self.validate(relation)
         #TBD: add changes in source and destination ticket history
+        self.validate(relation)
         with self.env.db_transaction:
             relation.insert()
             other_end = self.link_ends_map[relation.type]
             if other_end:
                 reverted_relation = relation.clone_reverted(other_end)
+                # self.validate(relation)
                 reverted_relation.insert()
 
     def delete(
             self,
             relation_id,
         ):
-        source, destination, relation_type = self._parse_relation_id(
-            relation_id)
-        #TODO: some optimization can be introduced here to not load relations
+        #TODO: some optimization can be made here by not loading relations
         #before actual DELETE SQL
-        relation = Relation(self.env, keys=dict(
-            source=source,
-            destination=destination,
-            type=relation_type
-            ))
+        relation = Relation.load_by_relation_id(self.env, relation_id)
         self._delete_relation(relation)
 
     def _delete_relation(self, relation):
@@ -180,22 +179,24 @@ class RelationsSystem(Component):
 
     def get_relations(self, resource_instance):
         relation_list = []
-        for relation in self._select_relations_for_resource(resource_instance):
+        for relation in self._select_relations_for_resource_instance(
+                resource_instance):
             relation_list.append(dict(
-                relation_id = self._create_relation_id(relation),
+                relation_id = relation.get_relation_id(),
                 destination_id = relation.destination,
-                destination=self._create_resource_instance_by_full_id(
+                destination=ResourceIdSerializer.get_resource_by_id(
                     relation.destination),
                 type = relation.type,
                 comment = relation.comment
             ))
         return relation_list
 
-    def _select_relations_for_resource(self, resource, resource_type=None):
-        source = self.get_resource_id_from_instance(resource)
-        return self._select_relations_by_source(source, resource_type)
+    def _select_relations_for_resource_instance(self, resource):
+        resource_full_id = ResourceIdSerializer.get_resource_id_from_instance(
+            self.env, resource)
+        return self._select_relations(resource_full_id)
 
-    def _select_relations_by_source(
+    def _select_relations(
             self, source, resource_type=None):
         #todo: add optional paging for possible umbrella tickets with
         #a lot of child tickets
@@ -210,17 +211,6 @@ class RelationsSystem(Component):
             where=where,
             order_by=order_by
             )
-
-    def _create_relation_id(self, relation):
-        return self.RELATION_ID_DELIMITER.join((
-            relation.source,
-            relation.destination,
-            relation.type))
-
-    def _parse_relation_id(self, relation_id):
-        source, destination, relation_type = relation_id.split(
-            self.RELATION_ID_DELIMITER)
-        return source, destination, relation_type
 
     # Copied from trac/ticket/links.py, ticket-links-trunk branch
     def _get_links_config(self):
@@ -269,80 +259,10 @@ class RelationsSystem(Component):
 
         return links, labels, validators, blockers, copy_fields
 
-    def get_resource_id_from_instance(self, resource_instance):
-        resource = resource_instance.resource
-        rsys = ResourceSystem(manager_for_neighborhood(
-            self.env, resource.neighborhood))
-        nbhprefix = rsys.neighborhood_prefix(resource.neighborhood)
-        resource_full_id = self.RESOURCE_ID_DELIMITER.join(
-            (nbhprefix, resource.realm, unicode(resource.id))
-        )
-        return resource_full_id
-
-    def _create_resource_instance_by_full_id(self, resource_full_id):
-        """
-        * resource_full_id: fully qualified resource id in format
-        "product:ticket:123". In case of global environment it is ":ticket:123"
-        """
-        nbhprefix, realm, resource_id = self.split_full_id(resource_full_id)
-        return self._create_resource_by_ids(nbhprefix, realm, resource_id)
-
-    def _get_resource_by_id(self, resource_full_id):
-        """
-        * resource_full_id: fully qualified resource id in format
-        "product:ticket:123". In case of global environment it is ":ticket:123"
-        """
-        nbhprefix, realm, resource_id = self.split_full_id(resource_full_id)
-        env = self._get_env_by_prefix(nbhprefix)
-        return Resource(env, realm, resource_id)
-
-
-    def _create_resource_by_ids(self, nbhprefix, realm, resource_id):
-        env = self._get_env_by_prefix(nbhprefix)
-        #todo: implement more generic resource factory mechanism
-        if realm == "ticket":
-            return Ticket(env, resource_id)
-        else:
-            raise TracError("Resource type %s is not supported by " +
-                            "Bloodhound Relations" % realm)
-
-    def _get_env_by_prefix(self, nbhprefix):
-        if nbhprefix:
-            env = ProductEnvironment(nbhprefix)
-        elif hasattr(self.env, "parent") and self.env.parent:
-            env = self.env.parent
-        else:
-            env = self.env
-        return env
-
-
     def validate(self, relation):
         validator = self._get_validator(relation.type)
-        result = validator(relation)
-        if result is not None:
-            raise ValidationError(result)
-
-    # Copied from trac/utils.py, ticket-links-trunk branch
-    def unique(self, seq):
-        """Yield unique elements from sequence of hashables, preserving order.
-        (New in 0.13)
-        """
-        seen = set()
-        return (x for x in seq if x not in seen and not seen.add(x))
-
-    def can_be_resolved(self, resource):
-        #todo: implement the method
-        # blockers = []
-        for relation in self._select_relations_for_resource(resource):
-            if self.is_blocker(relation.type):
-                blockers = self.find_blockers(relation)
-                if blockers:
-                    blockers_str = ', '.join('#%s' % x
-                                             for x in self.unique(blockers))
-                    msg = ("Cannot resolve this ticket because it is "
-                           "blocked by '%s' tickets [%s]"
-                           % (end,  blockers_str))
-                    yield None, msg
+        if validator:
+            validator(relation)
 
     def is_blocker(self, relation_type):
         return self._blockers[relation_type]
@@ -352,11 +272,10 @@ class RelationsSystem(Component):
         validator_name = self._validators.get(relation_type)
         if validator_name == 'no_cycle':
             validator = self._validate_no_cycle
-        elif validator_name == 'parent_child' and \
-                        relation_type == self.PARENT_RELATION_TYPE:
+        elif validator_name == 'parent_child':
             validator = self._validate_parent
         else:
-            validator = self._validate_any
+            validator = None
         return validator
 
     def _validate_no_cycle(self, relation):
@@ -364,36 +283,40 @@ class RelationsSystem(Component):
         if cycle != None:
             cycle_str = [self._get_resource_name_from_id(resource_id)
                          for resource_id in cycle]
-            return 'Cycle in ''%s'': %s' % (
+            error =  'Cycle in ''%s'': %s' % (
                 self.render_relation_type(relation.type),
                 ' -> '.join(cycle_str))
+            error =  CycleValidationError(error)
+            error.failed_ids = cycle
+            raise error
 
     def _validate_parent(self, relation):
-        cycle_validation = self._validate_no_cycle(relation)
-        if cycle_validation:
-            return cycle_validation
+        self._validate_no_cycle(relation)
 
         if relation.type == self.PARENT_RELATION_TYPE:
-            parent_relations = self._select_relations_by_source(
-                relation.source, relation.type)
-            if len(parent_relations):
-                source_resource_name = self._get_resource_name_from_id(
-                    relation.source)
-                parent_ids_ins_string = ", ".join(
-                    [self._get_resource_name_from_id(relation.destination)
-                     for relation in parent_relations]
-                )
-                return "Multiple links in '%s': #%s -> [%s]" % (
-                    self.render_relation_type(relation.type),
-                    source_resource_name,
-                    parent_ids_ins_string)
+            source = relation.source
+        elif relation.type == self.CHILDREN_RELATION_TYPE:
+            source = relation.destination
+        else:
+            return None
 
-    def _get_resource_name_from_id(self, resource_id):
-        resource = self._get_resource_by_id(resource_id)
-        return get_resource_shortname(self.env, resource)
-
-    def _validate_any(self, relation):
-        return None
+        parent_relations = self._select_relations(
+            source, self.PARENT_RELATION_TYPE)
+        if len(parent_relations):
+            source_resource_name = self._get_resource_name_from_id(
+                relation.source)
+            parent_ids_ins_string = ", ".join(
+                [self._get_resource_name_from_id(relation.destination)
+                 for relation in parent_relations]
+            )
+            error = "Multiple links in '%s': %s -> [%s]" % (
+                self.render_relation_type(relation.type),
+                source_resource_name,
+                parent_ids_ins_string)
+            ex = ParentValidationError(error)
+            ex.failed_ids = [relation.destination
+                             for relation in parent_relations]
+            raise ex
 
     def _find_cycle(self, source_to_check, relation, path):
         #todo: optimize this
@@ -417,32 +340,120 @@ class RelationsSystem(Component):
     def render_relation_type(self, end):
         return self._labels[end]
 
-    def find_blockers(self, relation, blockers):
+    def find_blockers(self, resource_instance, is_blocker_method):
+        all_blockers = []
+        for relation in self._select_relations_for_resource_instance(
+                resource_instance):
+            if self.is_blocker(relation.type):
+                blockers = self._recursive_find_blockers(relation, is_blocker_method)
+                if blockers:
+                    all_blockers.extend(blockers)
+        return all_blockers
+
+    def _recursive_find_blockers(self, relation, blockers, is_blocker_method):
         #todo: optimize performance by possibility to select more
         # source ids at once
-        for linked_relation in self._select_relations_by_source(
+        for linked_relation in self._select_relations(
                 relation.destination):
-            resource_instance = self._create_resource_instance_by_full_id(
+            resource = ResourceIdSerializer.get_resource_by_id(
                 linked_relation.destination)
-            if self._is_resource_blocked(resource_instance):
+            resource_instance = is_blocker_method(resource)
+            if resource_instance is not None:
                 blockers.append(resource_instance)
             else:
-                self.find_blockers(linked_relation, blockers)
+                self._recursive_find_blockers(linked_relation, blockers)
         return blockers
 
-    def split_full_id(self, resource_full_id):
-        return resource_full_id.split(self.RESOURCE_ID_DELIMITER)
+    def _get_resource_name_from_id(self, resource_id):
+        resource = ResourceIdSerializer.get_resource_by_id(resource_id)
+        return get_resource_shortname(self.env, resource)
 
-    def _is_resource_blocked(self, resource_instance):
-        #todo: implement more generic blocker validation
-        realm = resource_instance.resource.realm
-        if realm == "ticket":
-            ticket = resource_instance
-            return ticket['status'] != 'closed'
+
+
+class ResourceIdSerializer(object):
+    RESOURCE_ID_DELIMITER = u":"
+
+    @classmethod
+    def get_resource_by_id(cls, resource_full_id):
+        """
+        * resource_full_id: fully qualified resource id in format
+        "product:ticket:123". In case of global environment it is ":ticket:123"
+        """
+        nbhprefix, realm, resource_id = cls._split_full_id(resource_full_id)
+        if nbhprefix:
+            neighborhood = Neighborhood('product', nbhprefix)
+            return neighborhood.child(realm, id=resource_id)
         else:
-            raise TracError("Block validation for type %s is not supported" +
-                        " by Bloodhound Relations" % realm)
+            return Resource(realm, id=resource_id)
+
+    @classmethod
+    def _split_full_id(cls, resource_full_id):
+        return resource_full_id.split(cls.RESOURCE_ID_DELIMITER)
 
 
+    @classmethod
+    def get_resource_id_from_instance(cls, env, resource_instance):
+        """
+        * resource_instance: can be instance of a ticket, wiki page etc.
+        """
+        resource = resource_instance.resource
+        rsys = ResourceSystem(manager_for_neighborhood(
+            env, resource.neighborhood))
+        nbhprefix = rsys.neighborhood_prefix(resource.neighborhood)
+        resource_full_id = cls.RESOURCE_ID_DELIMITER.join(
+            (nbhprefix, resource.realm, unicode(resource.id))
+        )
+        return resource_full_id
 
+
+class TicketRelationsSpecifics(Component):
+    implements(ITicketManipulator)
+
+    def prepare_ticket(self, req, ticket, fields, actions):
+        pass
+
+    def validate_ticket(self, req, ticket):
+        action = req.args.get('action')
+        if action == 'resolve':
+            blockers = RelationsSystem(self.env).find_blockers(
+                ticket,self.is_blocker)
+            if blockers:
+                blockers_str = ', '.join(
+                    get_resource_shortname(blocker_ticket.resource)
+                    for blocker_ticket in unique(blockers))
+                msg = ("Cannot resolve this ticket because it is "
+                       "blocked by tickets [%s]"
+                       % blockers_str)
+                yield None, msg
+
+    def is_blocker(self, resource):
+        ticket = self._create_ticket_by_full_id(resource)
+        if ticket['status'] != 'closed':
+            return ticket
+        return None
+
+    def _create_ticket_by_full_id(self, resource):
+        env = self._get_env_by_prefix(resource.nbhprefix)
+        if resource.realm == "ticket":
+            return Ticket(env, resource.id)
+        else:
+            raise TracError("Resource type %s is not supported by " +
+                            "Bloodhound Relations" % resource.realm)
+
+    def _get_env_by_prefix(self, nbhprefix):
+        if nbhprefix:
+            env = ProductEnvironment(nbhprefix)
+        elif hasattr(self.env, "parent") and self.env.parent:
+            env = self.env.parent
+        else:
+            env = self.env
+        return env
+
+# Copied from trac/utils.py, ticket-links-trunk branch
+def unique(self, seq):
+    """Yield unique elements from sequence of hashables, preserving order.
+    (New in 0.13)
+    """
+    seen = set()
+    return (x for x in seq if x not in seen and not seen.add(x))
 

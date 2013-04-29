@@ -32,7 +32,7 @@ SKIP_TABLES = ['auth_cookie',
                'cache',
                'repository', 'revision', 'node_change',
                'bloodhound_product', 'bloodhound_productresourcemap', 'bloodhound_productconfig',
-               'sqlite_master'
+               'sqlite_master', 'bloodhound_relations'
                ]
 TRANSLATE_TABLES = ['system',
                     'ticket', 'ticket_change', 'ticket_custom',

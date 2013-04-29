@@ -23,6 +23,8 @@ from trac.resource import Resource
 
 class Relation(ModelBase):
     """The Relation table"""
+    RELATION_ID_DELIMITER = u","
+
     _meta = {'table_name':'bloodhound_relations',
             'object_name':'Relation',
             'key_fields':['source', 'type', 'destination'],
@@ -54,3 +56,24 @@ class Relation(ModelBase):
         relation.type = type
         return relation
 
+    def get_relation_id(self):
+        return self.RELATION_ID_DELIMITER.join((
+            self.source,
+            self.destination,
+            self.type))
+
+    @classmethod
+    def _parse_relation_id(cls, relation_id):
+        source, destination, relation_type = relation_id.split(
+            cls.RELATION_ID_DELIMITER)
+        return source, destination, relation_type
+
+    @classmethod
+    def load_by_relation_id(cls, env, relation_id):
+        source, destination, relation_type = cls._parse_relation_id(
+            relation_id)
+        return Relation(env, keys=dict(
+            source=source,
+            destination=destination,
+            type=relation_type
+            ))
