@@ -21,8 +21,7 @@ from trac.core import TracError
 from trac.resource import ResourceNotFound, ResourceSystem
 from trac.ticket.api import TicketSystem
 
-
-def dict_to_kv_str(data=None, sep=' AND '):
+def dict_to_kv_str(env, data=None, sep=' AND '):
     """Converts a dictionary into a string and a list suitable for using as part
     of an SQL where clause like:
         ('key0=%s AND key1=%s', ['value0','value1'])
@@ -30,14 +29,16 @@ def dict_to_kv_str(data=None, sep=' AND '):
     """
     if data is None:
         return ('', [])
-    return (sep.join(['%s=%%s' % k for k in data.keys()]), data.values())
+    qfn = env.get_read_db().quote
+    return (sep.join('%s=%%s' % qfn(k) for k in data.keys()),
+            data.values())
 
-def fields_to_kv_str(fields, data, sep=' AND '):
+def fields_to_kv_str(env, fields, data, sep=' AND '):
     """Converts a list of fields and a dictionary containing those fields into a
     string and a list suitable for using as part of an SQL where clause like:
         ('key0=%s,key1=%s', ['value0','value1'])
     """
-    return dict_to_kv_str(dict([(f, data[f]) for f in fields]), sep)
+    return dict_to_kv_str(env, dict((f, data[f]) for f in fields),sep)
 
 class ModelBase(object):
     """Base class for the models to factor out common features
@@ -120,7 +121,7 @@ class ModelBase(object):
     def _get_row(self, keys):
         """queries the database and stores the result in the model"""
         row = None
-        where, values = fields_to_kv_str(self._key_fields, keys)
+        where, values = fields_to_kv_str(self._env, self._key_fields, keys)
         fields = ','.join(self._all_fields)
         sdata = {'fields':fields,
                  'where':where}
@@ -141,7 +142,8 @@ class ModelBase(object):
         """Deletes the matching record from the database"""
         if not self._exists:
             raise TracError('%(object_name)s does not exist' % self._meta)
-        where, values = fields_to_kv_str(self._key_fields, self._data)
+        where, values = fields_to_kv_str(self._env, self._key_fields,
+                                         self._data)
         sdata = {'where': where}
         sdata.update(self._meta)
         sql = """DELETE FROM %(table_name)s
@@ -219,10 +221,11 @@ class ModelBase(object):
                 if len(self.select(self._env, where = {key:self._data[key]})):
                     raise TracError('%s already exists' % key)
 
-        setsql, setvalues = fields_to_kv_str(
-            self._non_key_fields, self._data, sep=',')
-        where, values = fields_to_kv_str(self._key_fields, self._data)
-        
+        setsql, setvalues = fields_to_kv_str(self._env, self._non_key_fields,
+                                             self._data, sep=',')
+        where, values = fields_to_kv_str(self._env, self._key_fields,
+                                         self._data)
+
         sdata = {'where': where,
                  'values': setsql}
         sdata.update(self._meta)
@@ -248,11 +251,12 @@ class ModelBase(object):
         """
         rows = []
         fields = cls._get_all_field_names()
-        
-        sdata = {'fields':','.join(fields),}
+
+        sdata = {'fields': ','.join(env.get_read_db().quote(f)
+                                    for f in fields),}
         sdata.update(cls._meta)
         sql = r'SELECT %(fields)s FROM %(table_name)s' % sdata
-        wherestr, values = dict_to_kv_str(where)
+        wherestr, values = dict_to_kv_str(env, where)
         if wherestr:
             wherestr = ' WHERE ' + wherestr
         final_sql = sql + wherestr
@@ -291,7 +295,7 @@ class ModelBase(object):
             #field_spec can be field name string or dictionary with detailed
             #column specification
             if isinstance(field_spec, dict):
-               column_spec = field_spec
+                column_spec = field_spec
             else:
                 column_spec = dict(
                     name = field_spec,
@@ -305,7 +309,6 @@ class ModelBase(object):
                 in cls._get_all_field_columns()
                 if field_spec.get("auto_increment")]
 
-
     @classmethod
     def _get_schema(cls):
         """Generate schema from the class meta data"""
@@ -318,4 +321,3 @@ class ModelBase(object):
                    for column_spec in cls._get_all_field_columns()]
         return Table(cls._meta['table_name'], key=set(cls._meta['key_fields'] +
                             cls._meta['unique_fields'])) [fields]
-
