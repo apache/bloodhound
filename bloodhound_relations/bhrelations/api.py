@@ -64,7 +64,7 @@ class EnvironmentSetup(Component):
         with self.env.db_direct_transaction as db:
             if db_installed_version < 1:
                 self._initialize_db(db)
-                self._update_db_version(db, 1)
+                self._update_db_version(db, db_default.DB_VERSION)
             #add upgrade logic later if needed
 
     def _get_version(self):

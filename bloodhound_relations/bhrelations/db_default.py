@@ -20,7 +20,7 @@
 from bhrelations.model import Relation
 
 DB_SYSTEM_KEY = 'bhrelations'
-DB_VERSION = 1
+DB_VERSION = 2
 
 SCHEMA = [mcls._get_schema() for mcls in (Relation, )]
 
