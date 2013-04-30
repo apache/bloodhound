@@ -24,16 +24,14 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Widgets displaying ticket relations.
 """
 
-from trac.resource import get_resource_url
 from trac.util.translation import _
 from trac.ticket.model import Ticket
 
 from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
-
-from bhrelations.api import RelationsSystem
-
+from bhrelations.web_ui import RelationManagementModule
 
 __metaclass__ = type
+
 
 class TicketRelationsWidget(WidgetBase):
     """Display ticket relations.
@@ -59,24 +57,17 @@ class TicketRelationsWidget(WidgetBase):
     def render_widget(self, name, context, options):
         """Gather list of relations and render data in compact view
         """
-        data = {}
         req = context.req
-        title = None
+        title = _('Related tickets')
         params = ('tid', 'max')
         tid, max_ = self.bind_params(name, options, *params)
 
         ticket = Ticket(self.env, tid)
-        relations = RelationsSystem(self.env).get_relations(ticket)
-        grouped_relations = {}
-        if relations:
-            title = _('Related tickets')
-            for r in relations:
-                r['desthref'] = get_resource_url(self.env, r['destination'],
-                    context.href)
-                grouped_relations.setdefault(r['type'], []).append(r)
-
-        data['relations'] = grouped_relations
-
+        data = {
+            'ticket': ticket,
+            'relations': \
+                RelationManagementModule(self.env).get_ticket_relations(ticket),
+        }
         return 'widget_relations.html', \
             { 'title': title, 'data': data, }, context
 

@@ -22,11 +22,24 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <py:for each="relgroup,items in relations.iteritems()">
-    <h4>$relgroup</h4>
-    <div py:for="item in items">
-      <a href="${item['desthref']}">#${item['destination'].id}</a> - $item.comment
-    </div>
-  </py:for>
+  <py:choose test="">
+    <py:when test="relations">
+      <py:for each="relgroup,items in relations.iteritems()">
+        <h4>$relgroup</h4>
+        <div py:for="item in items">
+          <a href="${item['desthref']}">#${item['destination'].id}</a> - $item.comment
+        </div>
+      </py:for>
+    </py:when>
+    <py:otherwise>
+      <div class="alert alert-info">
+        No defined relations for this ticket.
+      </div>
+    </py:otherwise>
+  </py:choose>
+
+  <div class="btn-group">
+    <a class="btn" href="${href.ticket(ticket.id, 'relations')}">Manage relations</a>
+  </div>
 </div>
 

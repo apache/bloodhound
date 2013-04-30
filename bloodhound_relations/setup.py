@@ -104,6 +104,7 @@ PKG_INFO = {'bhrelations': ('bhrelations',                     # Package dir
 ENTRY_POINTS = {
     'trac.plugins': [
         'bhrelations.api = bhrelations.api',
+        'bhrelations.web_ui = bhrelations.web_ui',
     ],
     }
 setup(

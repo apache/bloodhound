@@ -108,6 +108,7 @@ class BloodhoundTheme(ThemeBase):
         'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
 
         # Ticket
+        'manage.html' : ('manage.html', '_add_products_general_breadcrumb'),
         'milestone_edit.html' : ('bh_milestone_edit.html', '_modify_roadmap_page'),
         'milestone_delete.html' : ('bh_milestone_delete.html', '_modify_roadmap_page'),
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),
