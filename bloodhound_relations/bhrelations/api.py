@@ -347,28 +347,35 @@ class RelationsSystem(Component):
         return self._labels[end]
 
     def find_blockers(self, resource_instance, is_blocker_method):
+        # tbd: do we blocker finding to be recursive
         all_blockers = []
         for relation in self._select_relations_for_resource_instance(
                 resource_instance):
             if self.is_blocker(relation.type):
-                blockers = self._recursive_find_blockers(relation, is_blocker_method)
-                if blockers:
-                    all_blockers.extend(blockers)
+                resource = ResourceIdSerializer.get_resource_by_id(
+                    relation.destination)
+                resource_instance = is_blocker_method(resource)
+                if resource_instance is not None:
+                    all_blockers.append(resource_instance)
+                # blockers = self._recursive_find_blockers(
+                #     relation, is_blocker_method)
+                # if blockers:
+                #     all_blockers.extend(blockers)
         return all_blockers
 
-    def _recursive_find_blockers(self, relation, blockers, is_blocker_method):
-        #todo: optimize performance by possibility to select more
-        # source ids at once
-        for linked_relation in self._select_relations(
-                relation.destination):
-            resource = ResourceIdSerializer.get_resource_by_id(
-                linked_relation.destination)
-            resource_instance = is_blocker_method(resource)
-            if resource_instance is not None:
-                blockers.append(resource_instance)
-            else:
-                self._recursive_find_blockers(linked_relation, blockers)
-        return blockers
+    # def _recursive_find_blockers(self, relation, blockers, is_blocker_method):
+    #     #todo: optimize performance by possibility to select more
+    #     # source ids at once
+    #     for linked_relation in self._select_relations(
+    #             relation.destination):
+    #         resource = ResourceIdSerializer.get_resource_by_id(
+    #             linked_relation.destination)
+    #         resource_instance = is_blocker_method(resource)
+    #         if resource_instance is not None:
+    #             blockers.append(resource_instance)
+    #         else:
+    #             self._recursive_find_blockers(linked_relation, blockers)
+    #     return blockers
 
     def _get_resource_name_from_id(self, resource_id):
         resource = ResourceIdSerializer.get_resource_by_id(resource_id)
@@ -422,10 +429,10 @@ class TicketRelationsSpecifics(Component):
         action = req.args.get('action')
         if action == 'resolve':
             blockers = RelationsSystem(self.env).find_blockers(
-                ticket,self.is_blocker)
+                ticket, self.is_blocker)
             if blockers:
                 blockers_str = ', '.join(
-                    get_resource_shortname(blocker_ticket.resource)
+                    get_resource_shortname(self.env, blocker_ticket.resource)
                     for blocker_ticket in unique(blockers))
                 msg = ("Cannot resolve this ticket because it is "
                        "blocked by tickets [%s]"
@@ -439,16 +446,16 @@ class TicketRelationsSpecifics(Component):
         return None
 
     def _create_ticket_by_full_id(self, resource):
-        env = self._get_env_by_prefix(resource.nbhprefix)
+        env = self._get_env_for_resource(resource)
         if resource.realm == "ticket":
             return Ticket(env, resource.id)
         else:
             raise TracError("Resource type %s is not supported by " +
                             "Bloodhound Relations" % resource.realm)
 
-    def _get_env_by_prefix(self, nbhprefix):
-        if nbhprefix:
-            env = ProductEnvironment(nbhprefix)
+    def _get_env_for_resource(self, resource):
+        if hasattr(resource, "nbhprefix") and resource.nbhprefix:
+            env = ProductEnvironment(resource.nbhprefix)
         elif hasattr(self.env, "parent") and self.env.parent:
             env = self.env.parent
         else:
@@ -456,7 +463,7 @@ class TicketRelationsSpecifics(Component):
         return env
 
 # Copied from trac/utils.py, ticket-links-trunk branch
-def unique(self, seq):
+def unique(seq):
     """Yield unique elements from sequence of hashables, preserving order.
     (New in 0.13)
     """

@@ -41,10 +41,10 @@ class ApiTestCase(unittest.TestCase):
         config_name = RelationsSystem.RELATIONS_CONFIG_NAME
         self.env.config.set(config_name, 'dependency', 'dependson,dependent')
         self.env.config.set(config_name, 'dependency.validator', 'no_cycle')
+        self.env.config.set(config_name, 'dependent.blocks', 'true')
         self.env.config.set(config_name, 'parent_children','parent,children')
         self.env.config.set(config_name, 'parent_children.validator',
                                                             'parent_child')
-        self.env.config.set(config_name, 'children.blocks', 'true')
         self.env.config.set(config_name, 'children.label', 'Overridden')
         self.env.config.set(config_name, 'parent.copy_fields',
                                                             'summary, foo')
@@ -321,20 +321,34 @@ class ApiTestCase(unittest.TestCase):
         #assert
         self.assertEqual(time, relations[0]["when"])
 
-    def test_blocked_ticket_cannot_be_resolved(self):
+    def test_cannot_resolve_ticket_when_blocker_is_unresolved(self):
+        #arrange
         ticket1 = self._insert_and_load_ticket("A1")
         ticket2 = self._insert_and_load_ticket("A2")
         self.relations_system.add(ticket1, ticket2, "dependent")
-
-        self.req.args=dict(action='resolve')
-        ticket_relations = TicketRelationsSpecifics(self.env)
-        warnings = ticket_relations.validate_ticket(self.req, ticket1)
+        #act
+        self.req.args["action"] = 'resolve'
+        warnings = TicketRelationsSpecifics(self.env).validate_ticket(
+            self.req, ticket1)
+        #asset
         self.assertEqual(1, len(list(warnings)))
-        #todo: fix the implementation to pass the test
 
-    #todo: add tests that relation were deleted when ticket was deleted
+    def test_can_resolve_ticket_when_blocker_is_resolved(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2", status="closed")
+        self.relations_system.add(ticket1, ticket2, "dependent")
+        #act
+        self.req.args["action"] = 'resolve'
+        warnings = TicketRelationsSpecifics(self.env).validate_ticket(
+            self.req, ticket1)
+        #assert
+        self.assertEqual(0, len(list(warnings)))
 
-    #todo: add multi-product test
+    #todo: add tests that relations are deleted when ticket was deleted
+
+    #todo: add multi-product ticket relations test
+
     def _debug_select(self):
         """
         used for debug purposes
