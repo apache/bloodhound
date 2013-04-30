@@ -84,7 +84,8 @@ class ProductizedHref(Href):
                        'img/',
                        ]
     def __init__(self, global_href, base):
-        super(ProductizedHref, self).__init__(base)
+        self.super = super(ProductizedHref, self)
+        self.super.__init__(base)
         self._global_href = global_href
 
     def __call__(self, *args, **kwargs):
@@ -93,7 +94,7 @@ class ProductizedHref(Href):
                (len(args) == 1 and args[0] == 'admin') or \
                filter(lambda x: args[0].startswith(x), self.STATIC_PREFIXES):
                 return self._global_href(*args, **kwargs)
-        return super(ProductizedHref, self).__call__(*args, **kwargs)
+        return self.super.__call__(*args, **kwargs)
 
 class ProductRequestWithSession(RequestWithSession):
     def __init__(self, env, environ, start_response):
