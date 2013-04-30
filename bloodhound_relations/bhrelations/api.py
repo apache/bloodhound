@@ -124,6 +124,8 @@ class RelationsSystem(Component):
             destination_resource_instance,
             relation_type,
             comment = None,
+            author = None,
+            when = None,
             ):
         source = ResourceIdSerializer.get_resource_id_from_instance(
             self.env, source_resource_instance)
@@ -134,6 +136,8 @@ class RelationsSystem(Component):
         relation.destination = destination
         relation.type = relation_type
         relation.comment = comment
+        relation.author = author
+        relation.when = when
         self.add_relation(relation)
 
     def add_relation(self, relation):
@@ -187,7 +191,9 @@ class RelationsSystem(Component):
                 destination=ResourceIdSerializer.get_resource_by_id(
                     relation.destination),
                 type = relation.type,
-                comment = relation.comment
+                comment = relation.comment,
+                when = relation.when,
+                author = relation.author,
             ))
         return relation_list
 

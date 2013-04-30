@@ -17,6 +17,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+from datetime import datetime
 from _sqlite3 import OperationalError, IntegrityError
 from bhrelations.api import EnvironmentSetup, RelationsSystem, CycleValidationError, ParentValidationError, TicketRelationsSpecifics
 from trac.ticket.model import Ticket
@@ -309,6 +310,17 @@ class ApiTestCase(unittest.TestCase):
             child,
             "children")
 
+    def test_can_save_and_load_relation_time(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        #act
+        time = datetime.now(utc)
+        self.relations_system.add(ticket1, ticket2, "dependent", when=time)
+        relations = self.relations_system.get_relations(ticket1)
+        #assert
+        self.assertEqual(time, relations[0]["when"])
+
     def test_blocked_ticket_cannot_be_resolved(self):
         ticket1 = self._insert_and_load_ticket("A1")
         ticket2 = self._insert_and_load_ticket("A2")
@@ -318,6 +330,7 @@ class ApiTestCase(unittest.TestCase):
         ticket_relations = TicketRelationsSpecifics(self.env)
         warnings = ticket_relations.validate_ticket(self.req, ticket1)
         self.assertEqual(1, len(list(warnings)))
+        #todo: fix the implementation to pass the test
 
     #todo: add tests that relation were deleted when ticket was deleted
 

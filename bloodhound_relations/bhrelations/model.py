@@ -19,6 +19,7 @@
 #  under the License.
 from bhdashboard.model import ModelBase
 from trac.resource import Resource
+from trac.util.datefmt import to_utimestamp, from_utimestamp
 
 
 class Relation(ModelBase):
@@ -28,32 +29,39 @@ class Relation(ModelBase):
     _meta = {'table_name':'bloodhound_relations',
             'object_name':'Relation',
             'key_fields':['source', 'type', 'destination'],
-            'non_key_fields':['comment'],
+            'non_key_fields':[
+                'comment',
+                'author',
+                {'name': 'time','type': 'int64'},
+                ],
             'no_change_fields':['source', 'destination', 'type'],
             'unique_fields':[],
-            # 'auto_inc_fields': ['id'],
             }
-
-    # _meta = {'table_name':'bloodhound_relations',
-    #         'object_name':'Relation',
-    #         'key_fields':['id'],
-    #         'non_key_fields':['source', 'destination', 'type', 'comment'],
-    #         'no_change_fields':['source', 'destination', 'type'],
-    #         'unique_fields':['source', 'destination', 'type'],
-    #         'auto_inc_fields': ['id'],
-    #         }
 
     @property
     def resource(self):
         """Allow Relation to be treated as a Resource"""
         return Resource('relation', self.prefix)
 
+    @property
+    def when(self):
+        when_ts = self._data.get("time")
+        if when_ts is not None:
+            return from_utimestamp(when_ts)
+        return None
+
+    @when.setter
+    def when(self, value):
+        when_ts = to_utimestamp(value)
+        self._data["time"] = when_ts
+
     def clone_reverted(self, type):
+        data = self._data.copy()
+        data["type"] = type
+        data["source"] = self.destination
+        data["destination"] = self.source
         relation = Relation(self._env)
-        relation.source = self.destination
-        relation.destination = self.source
-        relation.comment = self.comment
-        relation.type = type
+        relation._data = data
         return relation
 
     def get_relation_id(self):
