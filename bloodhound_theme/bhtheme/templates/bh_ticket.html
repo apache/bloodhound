@@ -408,6 +408,14 @@
                 </div>
                 <div id="dummy-vc-summary" style="display: none"/>
 
+                <div py:if="ticket.exists" class="relations">
+                  <bh:widget urn="TicketRelations">
+                    <bh:args>
+                      <bh:arg name="tid">$ticket.id</bh:arg>
+                      <bh:arg name="max">20</bh:arg>
+                    </bh:args>
+                  </bh:widget>
+                </div>
             </div>
           </div>
         </form>

@@ -288,6 +288,11 @@ pre {
  width: 100%;
 }
 
+.relations {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
 /* @end */
 
 /* @group Quick Create Ticket popup */
