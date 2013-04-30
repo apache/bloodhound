@@ -46,9 +46,20 @@ class ModelBase(object):
     _meta = {'table_name':'mytable',
              'object_name':'WhatIWillCallMyselfInMessages',
              'key_fields':['id','id2'],
-             'non_key_fields':['thing','anotherthing'],
+             'non_key_fields':[
+                'thing',
+                {
+                    name:"field_name_x",
+                    type='int64',
+                    size=None,
+                    key_size=None,
+                    auto_increment=False
+                }],
              'auto_inc_fields': ['id',],
              }
+    key_fields and non_key_fields parameters may contain field name only (for
+    text columns) or dict with detailed column specification. In case of
+    detailed column specification 'name' parameter is obligatory).
     """
     
     def __init__(self, env, keys=None):
@@ -61,13 +72,18 @@ class ModelBase(object):
         self._data = {}
         self._exists = False
         self._env = env
-        self._all_fields = self._meta['key_fields'] + \
-                           self._meta['non_key_fields']
+        self._key_fields = self._get_field_names(self._meta['key_fields'])
+        self._non_key_fields = self._get_field_names(
+            self._meta['non_key_fields'])
+        self._all_fields = self._key_fields + self._non_key_fields
+        self._unique_fields = self._meta['unique_fields']
+        self._auto_inc_fields = self._get_auto_inc_field_names()
+
         if keys is not None:
             self._get_row(keys)
         else:
             self._update_from_row(None)
-    
+
     def update_field_dict(self, field_dict):
         """Updates the object's copy of the db fields (no db transaction)"""
         self._data.update(field_dict)
@@ -93,7 +109,7 @@ class ModelBase(object):
     
     def _update_from_row(self, row = None):
         """uses a provided database row to update the model"""
-        fields = self._meta['key_fields']+self._meta['non_key_fields']
+        fields = self._all_fields
         self._exists = row is not None
         if row is None:
             row = [None]*len(fields)
@@ -104,8 +120,8 @@ class ModelBase(object):
     def _get_row(self, keys):
         """queries the database and stores the result in the model"""
         row = None
-        where, values = fields_to_kv_str(self._meta['key_fields'], keys)
-        fields = ','.join(self._meta['key_fields']+self._meta['non_key_fields'])
+        where, values = fields_to_kv_str(self._key_fields, keys)
+        fields = ','.join(self._all_fields)
         sdata = {'fields':fields,
                  'where':where}
         sdata.update(self._meta)
@@ -125,7 +141,7 @@ class ModelBase(object):
         """Deletes the matching record from the database"""
         if not self._exists:
             raise TracError('%(object_name)s does not exist' % self._meta)
-        where, values = fields_to_kv_str(self._meta['key_fields'], self._data)
+        where, values = fields_to_kv_str(self._key_fields, self._data)
         sdata = {'where': where}
         sdata.update(self._meta)
         sql = """DELETE FROM %(table_name)s
@@ -144,33 +160,29 @@ class ModelBase(object):
         sdata = None
         if self._exists or len(self.select(self._env, where =
                                 dict([(k,self._data[k])
-                                      for k in self._meta['key_fields']]))):
+                                      for k in self._key_fields]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
-                                     for k in self._meta['key_fields']])}
-        elif self._meta['unique_fields'] and len(self.select(self._env, where =
+                                     for k in self._key_fields])}
+        elif self._unique_fields and len(self.select(self._env, where =
                                 dict([(k,self._data[k])
-                                      for k in self._meta['unique_fields']]))):
+                                      for k in self._unique_fields]))):
             sdata = {'keys':','.join(["%s='%s'" % (k, self._data[k])
-                                     for k in self._meta['unique_fields']])}
+                                     for k in self._unique_fields])}
         if sdata:
             sdata.update(self._meta)
             sdata['values'] = self._data
             raise TracError('%(object_name)s %(keys)s already exists %(values)s' %
                             sdata)
             
-        auto_inc =  self._meta.get('auto_inc_fields', [])
-        for key in self._meta['key_fields']:
-            if self._data[key] is None and key not in auto_inc:
+        for key in self._key_fields:
+            if self._data[key] is None and key not in self._auto_inc_fields:
                 sdata = {'key':key}
                 sdata.update(self._meta)
                 raise TracError('%(key)s required for %(object_name)s' %
                                 sdata)
 
-        auto_inc =  self._meta.get('auto_inc_fields', [])
-        non_auto_increment_key_fields = [
-            field for field in self._meta['key_fields']
-            if field not in auto_inc]
-        fields = non_auto_increment_key_fields + self._meta['non_key_fields']
+        fields = [field for field in self._all_fields
+                  if field not in self._auto_inc_fields]
         sdata = {'fields':','.join(fields),
                  'values':','.join(['%s'] * len(fields))}
         sdata.update(self._meta)
@@ -180,7 +192,7 @@ class ModelBase(object):
         with self._env.db_transaction as db:
             cursor = db.cursor()
             cursor.execute(sql, [self._data[f] for f in fields])
-            for auto_in_field in auto_inc:
+            for auto_in_field in self._auto_inc_fields:
                 self._data[auto_in_field] = db.get_last_id(
                     cursor, sdata["table_name"], auto_in_field)
 
@@ -202,14 +214,14 @@ class ModelBase(object):
         for key in self._meta['no_change_fields']:
             if self._data[key] != self._old_data[key]:
                 raise TracError('%s cannot be changed' % key)
-        for key in self._meta['key_fields'] + self._meta['unique_fields']:
+        for key in self._key_fields + self._unique_fields:
             if self._data[key] != self._old_data[key]:
                 if len(self.select(self._env, where = {key:self._data[key]})):
                     raise TracError('%s already exists' % key)
-        
-        setsql, setvalues = fields_to_kv_str(self._meta['non_key_fields'],
-                                             self._data, sep=',')
-        where, values = fields_to_kv_str(self._meta['key_fields'], self._data)
+
+        setsql, setvalues = fields_to_kv_str(
+            self._non_key_fields, self._data, sep=',')
+        where, values = fields_to_kv_str(self._key_fields, self._data)
         
         sdata = {'where': where,
                  'values': setsql}
@@ -235,7 +247,7 @@ class ModelBase(object):
             ("asc" or "desc") e.g. ["field1", "field2 desc"]
         """
         rows = []
-        fields = cls._meta['key_fields']+cls._meta['non_key_fields']
+        fields = cls._get_all_field_names()
         
         sdata = {'fields':','.join(fields),}
         sdata.update(cls._meta)
@@ -256,17 +268,54 @@ class ModelBase(object):
             model.__init__(env, data)
             rows.append(model)
         return rows
-    
+
     @classmethod
-    def _get_fields(cls):
-        return cls._meta['key_fields']+cls._meta['non_key_fields']
-    
+    def _get_all_field_names(cls):
+        return cls._get_field_names(
+            cls._meta['key_fields']+cls._meta['non_key_fields'])
+
+    @classmethod
+    def _get_field_names(cls, field_specs):
+        def get_field_name(field_spec):
+            if isinstance(field_spec, dict):
+                return field_spec["name"]
+            return field_spec
+        return [get_field_name(field_spec) for field_spec in field_specs]
+
+    @classmethod
+    def _get_all_field_columns(cls):
+        auto_inc =  cls._meta.get('auto_inc_fields', [])
+        columns = []
+        all_fields_spec = cls._meta['key_fields'] + cls._meta['non_key_fields']
+        for field_spec in all_fields_spec:
+            #field_spec can be field name string or dictionary with detailed
+            #column specification
+            if isinstance(field_spec, dict):
+               column_spec = field_spec
+            else:
+                column_spec = dict(
+                    name = field_spec,
+                    auto_increment=field_spec in auto_inc)
+            columns.append(column_spec)
+        return columns
+
+    @classmethod
+    def _get_auto_inc_field_names(cls):
+        return [field_spec["name"] for field_spec
+                in cls._get_all_field_columns()
+                if field_spec.get("auto_increment")]
+
+
     @classmethod
     def _get_schema(cls):
         """Generate schema from the class meta data"""
-        auto_inc =  cls._meta.get('auto_inc_fields', [])
-        fields =  [Column(f, auto_increment=f in auto_inc)
-                   for f in cls._get_fields()]
+        fields =  [Column(
+                    column_spec["name"],
+                    type=column_spec.get("type", "text"),
+                    size=column_spec.get("size"),
+                    key_size=column_spec.get("key_size"),
+                    auto_increment=column_spec.get("auto_increment", False))
+                   for column_spec in cls._get_all_field_columns()]
         return Table(cls._meta['table_name'], key=set(cls._meta['key_fields'] +
                             cls._meta['unique_fields'])) [fields]
 
