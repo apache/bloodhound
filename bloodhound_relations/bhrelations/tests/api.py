@@ -19,12 +19,15 @@
 #  under the License.
 from datetime import datetime
 from _sqlite3 import OperationalError, IntegrityError
-from bhrelations.api import EnvironmentSetup, RelationsSystem, CycleValidationError, ParentValidationError, TicketRelationsSpecifics
+from bhrelations.api import (EnvironmentSetup, RelationsSystem,
+                             CycleValidationError, ParentValidationError,
+                             TicketRelationsSpecifics)
+from multiproduct.env import ProductEnvironment
+from tests.env import MultiproductTestCase
 from trac.ticket.model import Ticket
 from trac.test import EnvironmentStub, Mock
 from trac.core import TracError
 from trac.util.datefmt import utc
-import unittest
 
 try:
     from babel import Locale
@@ -32,23 +35,30 @@ try:
 except ImportError:
     locale_en = None
 
-class ApiTestCase(unittest.TestCase):
+class ApiTestCase(MultiproductTestCase):
     def setUp(self):
-        self.env = EnvironmentStub(
+        env = EnvironmentStub(
             default_data=True,
-            enable=['trac.*', 'bhrelations.*']
+            enable=['trac.*', 'multiproduct.*', 'bhrelations.*']
         )
         config_name = RelationsSystem.RELATIONS_CONFIG_NAME
-        self.env.config.set(config_name, 'dependency', 'dependson,dependent')
-        self.env.config.set(config_name, 'dependency.validator', 'no_cycle')
-        self.env.config.set(config_name, 'dependent.blocks', 'true')
-        self.env.config.set(config_name, 'parent_children','parent,children')
-        self.env.config.set(config_name, 'parent_children.validator',
+        env.config.set(config_name, 'dependency', 'dependson,dependent')
+        env.config.set(config_name, 'dependency.validator', 'no_cycle')
+        env.config.set(config_name, 'dependent.blocks', 'true')
+        env.config.set(config_name, 'parent_children','parent,children')
+        env.config.set(config_name, 'parent_children.validator',
                                                             'parent_child')
-        self.env.config.set(config_name, 'children.label', 'Overridden')
-        self.env.config.set(config_name, 'parent.copy_fields',
+        env.config.set(config_name, 'children.label', 'Overridden')
+        env.config.set(config_name, 'parent.copy_fields',
                                                             'summary, foo')
-        self.env.config.set(config_name, 'oneway', 'refersto')
+        env.config.set(config_name, 'oneway', 'refersto')
+
+        self.global_env = env
+        self._upgrade_mp(self.global_env)
+        self._setup_test_log(self.global_env)
+        self._load_product_from_data(self.global_env, self.default_product)
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+
         self.req = Mock(href=self.env.href, authname='anonymous', tz=utc,
                         args=dict(action='dummy'),
                         locale=locale_en, lc_time=locale_en)
@@ -56,8 +66,7 @@ class ApiTestCase(unittest.TestCase):
         self._upgrade_env()
 
     def tearDown(self):
-        # shutil.rmtree(self.env.path)
-        self.env.reset_db()
+        self.global_env.reset_db()
 
     def _upgrade_env(self):
         environment_setup = EnvironmentSetup(self.env)
@@ -67,15 +76,20 @@ class ApiTestCase(unittest.TestCase):
             # table remains but database version is deleted
             pass
 
-    def _insert_ticket(self, summary, **kw):
+    #classmethod
+    def _insert_ticket(cls, env, summary, **kw):
         """Helper for inserting a ticket into the database"""
-        ticket = Ticket(self.env)
+        ticket = Ticket(env)
+        ticket["Summary"] = summary
         for k,v in kw.items():
             ticket[k] = v
         return ticket.insert()
 
     def _insert_and_load_ticket(self, summary, **kw):
-        return Ticket(self.env, self._insert_ticket(summary, **kw))
+        return Ticket(self.env, self._insert_ticket(self.env, summary, **kw))
+
+    def _insert_and_load_ticket_with_env(self, env, summary, **kw):
+        return Ticket(env, self._insert_ticket(env, summary, **kw))
 
     def test_can_add_two_ways_relations(self):
         #arrange
@@ -221,7 +235,7 @@ class ApiTestCase(unittest.TestCase):
             relations_system.add(ticket2, ticket1, "dependson")
             self.assertFalse(True, "Should throw an exception")
         except CycleValidationError, ex:
-            self.assertEqual(":ticket:1", ex.failed_ids[0])
+            self.assertEqual("tp1:ticket:1", ex.failed_ids[0])
 
 
     def test_can_add_more_dependsons(self):
@@ -257,9 +271,8 @@ class ApiTestCase(unittest.TestCase):
         relations_system = self.relations_system
         relations_system.add(ticket1, ticket2, "dependson")
         relations_system.add(ticket2, ticket3, "dependson")
-        self.assertRaisesRegexp(
+        self.assertRaises(
             CycleValidationError,
-            "Cycle in Dependson: #1 -> #2 -> #3",
             relations_system.add,
             ticket3,
             ticket1,
@@ -362,6 +375,21 @@ class ApiTestCase(unittest.TestCase):
         ticket1 = self._insert_and_load_ticket("A1")
         #act
         ticket1.delete()
+
+    def test_can_add_multi_product_relations(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        ticket2 = self._insert_and_load_ticket_with_env(p2_env, "A2")
+        relations_system = self.relations_system
+        #act
+        relations_system.add(ticket1, ticket2, "dependent")
+        #assert
+        self.assertEqual(1, len(relations_system.get_relations(ticket1)))
+        self.assertEqual(1, len(relations_system.get_relations(ticket2)))
 
     #todo: add multi-product ticket relations test
 

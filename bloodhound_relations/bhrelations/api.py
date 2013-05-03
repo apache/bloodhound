@@ -414,9 +414,14 @@ class ResourceIdSerializer(object):
         * resource_instance: can be instance of a ticket, wiki page etc.
         """
         resource = resource_instance.resource
-        rsys = ResourceSystem(manager_for_neighborhood(
-            env, resource.neighborhood))
-        nbhprefix = rsys.neighborhood_prefix(resource.neighborhood)
+        # nbhprefix = ResourceSystem(env).neighborhood_prefix(
+        #     resource.neighborhood)
+
+        #TODO: temporary workaround for the ticket specific behavior
+        #change it to generic resource behaviour
+        ticket = resource_instance
+        nbhprefix = ticket["product"]
+
         resource_full_id = cls.RESOURCE_ID_DELIMITER.join(
             (nbhprefix, resource.realm, unicode(resource.id))
         )
@@ -471,10 +476,9 @@ class TicketRelationsSpecifics(Component):
                             "Bloodhound Relations" % resource.realm)
 
     def _get_env_for_resource(self, resource):
-        if hasattr(resource, "nbhprefix") and resource.nbhprefix:
-            env = ProductEnvironment(resource.nbhprefix)
-        elif hasattr(self.env, "parent") and self.env.parent:
-            env = self.env.parent
+        if hasattr(resource, "neighborhood"):
+            env =  ResourceSystem(self.env).load_component_manager(
+                resource.neighborhood)
         else:
             env = self.env
         return env
