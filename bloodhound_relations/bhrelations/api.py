@@ -25,9 +25,8 @@ from trac.core import Component, implements, TracError
 from trac.env import IEnvironmentSetupParticipant
 from trac.db import DatabaseManager
 from trac.resource import (manager_for_neighborhood, ResourceSystem, Resource,
-                           get_resource_shortname, get_resource_description,
-                           get_resource_summary, get_relative_resource, Neighborhood)
-from trac.ticket import Ticket, ITicketManipulator
+                           get_resource_shortname, Neighborhood)
+from trac.ticket import Ticket, ITicketManipulator, ITicketChangeListener
 
 PLUGIN_NAME = 'Bloodhound Relations Plugin'
 
@@ -155,12 +154,9 @@ class RelationsSystem(Component):
             self,
             relation_id,
         ):
-        #TODO: some optimization can be made here by not loading relations
+        #TODO: some optimization may be added here by not loading relations
         #before actual DELETE SQL
         relation = Relation.load_by_relation_id(self.env, relation_id)
-        self._delete_relation(relation)
-
-    def _delete_relation(self, relation):
         source = relation.source
         destination = relation.destination
         relation_type = relation.type
@@ -174,6 +170,14 @@ class RelationsSystem(Component):
                     type=other_end,
                 ))
                 reverted_relation.delete()
+
+    def delete_resource_relations(self, resource_instance):
+        sql = "DELETE FROM " + Relation.get_table_name() + \
+              " WHERE source=%s OR destination=%s"
+        full_resource_id = ResourceIdSerializer.get_resource_id_from_instance(
+            self.env, resource_instance)
+        with self.env.db_transaction as db:
+            db(sql, (full_resource_id, full_resource_id))
 
     def _debug_select(self):
         """The method is used for debug purposes"""
@@ -420,7 +424,20 @@ class ResourceIdSerializer(object):
 
 
 class TicketRelationsSpecifics(Component):
-    implements(ITicketManipulator)
+    implements(ITicketManipulator, ITicketChangeListener)
+
+    #ITicketChangeListener methods
+
+    def ticket_created(self, ticket):
+        pass
+
+    def ticket_changed(self, ticket, comment, author, old_values):
+        pass
+
+    def ticket_deleted(self, ticket):
+        RelationsSystem(self.env).delete_resource_relations(ticket)
+
+    #ITicketMnimpulator methods
 
     def prepare_ticket(self, req, ticket, fields, actions):
         pass

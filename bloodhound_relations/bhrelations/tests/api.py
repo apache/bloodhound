@@ -345,7 +345,23 @@ class ApiTestCase(unittest.TestCase):
         #assert
         self.assertEqual(0, len(list(warnings)))
 
-    #todo: add tests that relations are deleted when ticket was deleted
+    def test_that_relations_are_deleted_when_ticket_is_deleted(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        relations_system = self.relations_system
+        relations_system.add(ticket1, ticket2, "dependent")
+        self.assertEqual(1, len(relations_system.get_relations(ticket2)))
+        #act
+        ticket1.delete()
+        #assert
+        self.assertEqual(0, len(relations_system.get_relations(ticket2)))
+
+    def test_that_no_error_when_deleting_ticket_without_relations(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        #act
+        ticket1.delete()
 
     #todo: add multi-product ticket relations test
 

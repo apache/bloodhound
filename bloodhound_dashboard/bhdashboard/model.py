@@ -106,7 +106,10 @@ class ModelBase(object):
             self._data[name] = value
         else:
             dict.__setattr__(self, name, value)
-            
+
+    @classmethod
+    def get_table_name(cls):
+        return cls._meta["table_name"]
     
     def _update_from_row(self, row = None):
         """uses a provided database row to update the model"""
