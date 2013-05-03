@@ -37,14 +37,15 @@ from trac.wiki.model import WikiPage
 from bhdashboard import wiki
 
 try:
-    from multiproduct.model import Product, ProductResourceMap
+    from multiproduct.model import Product, ProductResourceMap, ProductSetting
 except ImportError:
     Product = None
     ProductResourceMap = None
 
 schema = tracschema[:]
 if Product is not None:
-    schema.extend([Product._get_schema(), ProductResourceMap._get_schema()])
+    schema.extend([Product._get_schema(), ProductResourceMap._get_schema(),
+                   ProductSetting._get_schema()])
 
 structure = dict([(table.name, [col.name for col in table.columns])
                   for table in schema])
@@ -134,7 +135,8 @@ class BloodhoundAdmin(Component):
 
     def _get_tdump(self, db, table, fields):
         """Dumps all the data from a table for a known set of fields"""
-        return db("SELECT %s from %s" %(', '.join(fields), table))
+        return db("SELECT %s from %s" %(','.join([db.quote(f) for f in fields]),
+                                        db.quote(table)))
 
     def _dump_as_fixture(self, *args):
         """Dumps database to a json fixture"""
@@ -167,7 +169,7 @@ class BloodhoundAdmin(Component):
         """Extract fixture data from a file like object, expecting json"""
         # Only delete if we think it unlikely that there is data to lose
         with self.env.db_query as db:
-            if db('SELECT * FROM ticket'):
+            if db('SELECT * FROM ' + db.quote('ticket')):
                 printout(_("This command is only intended to run on fresh "
                            "environments as it will overwrite the database.\n"
                            "If it is safe to lose bloodhound data, delete the "
@@ -177,10 +179,13 @@ class BloodhoundAdmin(Component):
         data = json.load(fp)
         with self.env.db_transaction as db:
             for tab, cols, vals in data:
-                db("DELETE FROM %s" %(tab))
+                db("DELETE FROM " + db.quote(tab))
             for tab, cols, vals in data:
                 printout("Populating %s table" % tab)
-                db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (tab,
-                        ','.join(cols), ','.join(['%s' for c in cols])), vals)
+                db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (
+                                        db.quote(tab),
+                                        ','.join([db.quote(c) for c in cols]),
+                                        ','.join(['%s']*len(cols))),
+                               vals)
                 printout("%d records added" % len(vals))
                 
