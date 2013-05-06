@@ -20,6 +20,7 @@
 from copy import copy
 from bhrelations import db_default
 from bhrelations.model import Relation
+from multiproduct.api import ISupportMultiProductEnvironment
 from multiproduct.env import ProductEnvironment
 from trac.core import Component, implements, TracError
 from trac.env import IEnvironmentSetupParticipant
@@ -37,7 +38,7 @@ class ParentValidationError(TracError):
     pass
 
 class EnvironmentSetup(Component):
-    implements(IEnvironmentSetupParticipant)
+    implements(IEnvironmentSetupParticipant, ISupportMultiProductEnvironment)
 
     def environment_created(self):
         self.found_db_version = 0
@@ -45,7 +46,7 @@ class EnvironmentSetup(Component):
 
     def environment_needs_upgrade(self, db):
         """Detects if the installed db version matches the running system"""
-        db_installed_version = self._get_version()
+        db_installed_version = self._get_version(db)
 
         db_version = db_default.DB_VERSION
         if db_installed_version > db_version:
@@ -59,22 +60,21 @@ class EnvironmentSetup(Component):
     def upgrade_environment(self, db):
         self.log.debug("upgrading existing environment for %s plugin." %
                        PLUGIN_NAME)
-        db_installed_version = self._get_version()
-        with self.env.db_direct_transaction as db:
-            if db_installed_version < 1:
-                self._initialize_db(db)
-                self._update_db_version(db, db_default.DB_VERSION)
-            #add upgrade logic later if needed
+        db_installed_version = self._get_version(db)
+        if db_installed_version < 1:
+            self._initialize_db(db)
+            self._update_db_version(db, db_default.DB_VERSION)
+        #add upgrade logic later if needed
 
-    def _get_version(self):
+    def _get_version(self, db):
         """Finds the current version of the bloodhound database schema"""
-        rows = self.env.db_direct_query("""
+        rows = db("""
             SELECT value FROM system WHERE name = %s
             """, (db_default.DB_SYSTEM_KEY,))
         return int(rows[0][0]) if rows else -1
 
     def _update_db_version(self, db, version):
-        old_version = self._get_version()
+        old_version = self._get_version(db)
         if old_version != -1:
             self.log.info(
                 "Updating %s database schema from version %d to %d",
@@ -87,7 +87,7 @@ class EnvironmentSetup(Component):
                 PLUGIN_NAME, version)
             db("""
                 INSERT INTO system (name, value) VALUES ('%s','%s')
-                """  % (db_default.DB_SYSTEM_KEY, version))
+                """ % (db_default.DB_SYSTEM_KEY, version))
         return version
 
     def _initialize_db(self, db):
@@ -117,8 +117,7 @@ class RelationsSystem(Component):
     def get_ends(self):
         return self._links
 
-    def add(
-            self,
+    def add(self,
             source_resource_instance,
             destination_resource_instance,
             relation_type,
@@ -442,7 +441,7 @@ class TicketRelationsSpecifics(Component):
     def ticket_deleted(self, ticket):
         RelationsSystem(self.env).delete_resource_relations(ticket)
 
-    #ITicketMnimpulator methods
+    #ITicketManipulator methods
 
     def prepare_ticket(self, req, ticket, fields, actions):
         pass
