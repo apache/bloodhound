@@ -101,13 +101,13 @@ Installation and Initial Configuration
 Environment setup is achieved with the following commands on linux::
 
   $ cd bloodhound/installer
-  $ virtualenv bloodhound
+  $ virtualenv --system-site-packages bloodhound
   $ source ./bloodhound/bin/activate
 
 or on windows::
 
   $ cd bloodhound\installer
-  $ virtualenv bloodhound
+  $ virtualenv --system-site-packages bloodhound
   $ bloodhound\bin\activate.bat
 
 From now on, all shell commands should be run within the activated virtualenv
