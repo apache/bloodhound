@@ -105,8 +105,9 @@ ENTRY_POINTS = {
     'trac.plugins': [
         'bhrelations.api = bhrelations.api',
         'bhrelations.web_ui = bhrelations.web_ui',
+        'bhrelations.widgets.ticketrelations = bhrelations.widgets.relations',
     ],
-    }
+}
 setup(
     name=DIST_NM,
     version=latest,
