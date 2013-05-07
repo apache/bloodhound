@@ -233,10 +233,10 @@ class ApiTestCase(MultiproductTestCase):
 
         try:
             relations_system.add(ticket2, ticket1, "dependson")
-            self.assertFalse(True, "Should throw an exception")
+            self.fail("Should throw an exception")
         except CycleValidationError, ex:
-            self.assertEqual("tp1:ticket:1", ex.failed_ids[0])
-
+            self.assertSequenceEqual(
+                ["tp1:ticket:1", "tp1:ticket:2"], ex.failed_ids)
 
     def test_can_add_more_dependsons(self):
         #arrange

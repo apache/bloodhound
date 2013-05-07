@@ -288,15 +288,20 @@ class RelationsSystem(Component):
         return validator
 
     def _validate_no_cycle(self, relation):
-        cycle = self._find_cycle(relation.source, relation, [])
-        if cycle != None:
+        """If a path exists from relation's destination to its source,
+         adding the relation will create a cycle.
+         """
+        path = self._find_path(relation.destination,
+                               relation.source,
+                               relation.type)
+        if path:
             cycle_str = [self._get_resource_name_from_id(resource_id)
-                         for resource_id in cycle]
-            error =  'Cycle in ''%s'': %s' % (
+                         for resource_id in path]
+            error = 'Cycle in ''%s'': %s' % (
                 self.render_relation_type(relation.type),
                 ' -> '.join(cycle_str))
-            error =  CycleValidationError(error)
-            error.failed_ids = cycle
+            error = CycleValidationError(error)
+            error.failed_ids = path
             raise error
 
     def _validate_parent(self, relation):
@@ -311,7 +316,7 @@ class RelationsSystem(Component):
 
         parent_relations = self._select_relations(
             source, self.PARENT_RELATION_TYPE)
-        if len(parent_relations):
+        if len(parent_relations) > 0:
             source_resource_name = self._get_resource_name_from_id(
                 relation.source)
             parent_ids_ins_string = ", ".join(
@@ -327,24 +332,28 @@ class RelationsSystem(Component):
                              for relation in parent_relations]
             raise ex
 
-    def _find_cycle(self, source_to_check, relation, path):
-        #todo: optimize this
-        destination = relation.destination
-        if source_to_check == destination:
-            path.append(destination)
-            return path
-        path.append(destination)
-        relations = Relation.select(
-            self.env,
-            where=dict(source=destination, type=relation.type),
-            order_by=["destination"]
-            )
-        for linked_relation in relations:
-            cycle = self._find_cycle(
-                source_to_check, linked_relation, copy(path))
-            if cycle is not None:
-                return cycle
-        return None
+    def _find_path(self, source, destination, relation_type):
+        known_nodes = set()
+        new_nodes = set([source])
+        paths = {(source, source): [source]}
+
+        while new_nodes:
+            known_nodes = set.union(known_nodes, new_nodes)
+            with self.env.db_query as db:
+                relations = dict(db("""
+                    SELECT source, destination
+                      FROM bloodhound_relations
+                     WHERE type = '%(relation_type)s'
+                       AND source IN (%(new_nodes)s)
+                """ % dict(
+                    relation_type=relation_type,
+                    new_nodes=', '.join("'%s'" % n for n in new_nodes))
+                ))
+            new_nodes = set(relations.values()) - known_nodes
+            for s, d in relations.items():
+                paths[(source, d)] = paths[(source, s)] + [d]
+            if destination in new_nodes:
+                return paths[(source, destination)]
 
     def render_relation_type(self, end):
         return self._labels[end]

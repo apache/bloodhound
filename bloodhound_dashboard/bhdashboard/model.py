@@ -265,7 +265,6 @@ class ModelBase(object):
         final_sql = sql + wherestr
         if limit is not None:
             final_sql += ' LIMIT ' + str(int(limit))
-        final_sql
         if order_by:
             final_sql += "\nORDER BY " + ', '.join(order_by)
         for row in env.db_query(final_sql, values):
