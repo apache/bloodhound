@@ -312,6 +312,7 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
             db("""SELECT * FROM "@_dummy_table" """)
 
     def test_upgrading_existing_plugin_leaves_data_in_global_env(self):
+        DummyPlugin.version = 2
         self._enable_component(DummyPlugin)
         self.env.upgrade()
         with self.env.db_direct_transaction as db:
@@ -427,38 +428,51 @@ class DummyPlugin(Component):
 
     def upgrade_environment(self, db):
         old_version = current_version = self.get_version(db)
+        db_connector, dummy = DatabaseManager(self.env)._get_connector()
 
-        if current_version < 1 <= self.version:
-            db_connector, dummy = DatabaseManager(self.env)._get_connector()
-            for statement in db_connector.to_sql(DUMMY_TABLE):
-                db(statement)
-            current_version = 1
         while current_version < self.version:
+            if current_version > 0:
+                db("CREATE TEMPORARY TABLE dummy_table_old AS "
+                               "SELECT * FROM dummy_table")
+                db("DROP TABLE dummy_table")
+
+            table = self.construct_dummy_table(current_version+1)
+            for statement in db_connector.to_sql(table):
+                db(statement)
+
+            if current_version > 0:
+                cols = ['id'] + ['v%i' % (i+1)
+                                 for i in range(current_version+1)]
+                db("""INSERT INTO dummy_table (%s)
+                                  SELECT %s, '' FROM dummy_table_old
+                   """ % (', '.join(cols), ', '.join(cols[:-1])))
+                db("DROP TABLE dummy_table_old")
+
             current_version += 1
-            db("ALTER TABLE dummy_table "
-               "ADD COLUMN v%d text" % current_version)
+
         if current_version != old_version:
             self.update_version(db, current_version)
+
+    def construct_dummy_table(self, n_custom_fields=1):
+        fields = [Column('id')] + [
+            Column('v%d' % (i+1)) for i in range(n_custom_fields)
+        ]
+        return Table('dummy_table')[fields]
 
     def get_version(self, db):
         rows = db("SELECT value FROM system WHERE name = %s",
                   (self.__class__.__name__,))
-        return int(rows[0][0]) if rows else -1
+        return int(rows[0][0]) if rows else 0
 
     def update_version(self, db, version):
         old_version = self.get_version(db)
-        if old_version != -1:
+        if old_version:
             db("UPDATE system SET value=%s WHERE name=%s",
                (version, self.__class__.__name__,))
         else:
             db("INSERT INTO system (name, value) VALUES ('%s','%s')"
                % (self.__class__.__name__, version))
         return version
-
-DUMMY_TABLE = Table('dummy_table')[(
-    Column('id'),
-    Column('v1'),
-)]
 
 
 def test_suite():

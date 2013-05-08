@@ -700,7 +700,16 @@ class BloodhoundProductSQLTranslate(object):
             table_name = self._get_entity_name_from_token(parent, token)
             if not table_name:
                 raise Exception("Invalid CREATE TABLE statement, expected table name")
+
+            as_token = self._token_next_match(parent, token,
+                                              Tokens.Keyword, 'AS')
             self._replace_table_entity_name(parent, token, table_name)
+
+            if as_token:
+                select_token = self._token_next_match(parent, as_token,
+                                                      Tokens.DML, 'SELECT')
+                if select_token:
+                    return self._select(parent, select_token)
         elif token.match(Tokens.Keyword, ['UNIQUE', 'INDEX']):
             if token.match(Tokens.Keyword, 'UNIQUE'):
                 token = self._token_next(parent, token)
