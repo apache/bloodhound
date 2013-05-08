@@ -948,6 +948,16 @@ data = {
                                                           " tkt_order REAL,"
                                                           " PRIMARY KEY(bklg_id, tkt_id))"""
         ),
+        (
+"""CREATE TEMPORARY TABLE backlog_ticket (bklg_id INTEGER NOT NULL,"
+                                         " tkt_id INTEGER NOT NULL,"
+                                         " tkt_order REAL,"
+                                         " PRIMARY KEY(bklg_id, tkt_id))""",
+"""CREATE TEMPORARY TABLE "PRODUCT_backlog_ticket" (bklg_id INTEGER NOT NULL,"
+                                         " tkt_id INTEGER NOT NULL,"
+                                                  " tkt_order REAL,"
+                                     " PRIMARY KEY(bklg_id, tkt_id))"""
+        ),
     ],
 
     # custom ALTER TABLE

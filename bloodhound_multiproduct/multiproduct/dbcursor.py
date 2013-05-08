@@ -690,6 +690,8 @@ class BloodhoundProductSQLTranslate(object):
 
     def _create(self, parent, start_token):
         token = self._token_next(parent, start_token)
+        if token.match(Tokens.Keyword, 'TEMPORARY'):
+            token = self._token_next(parent, token)
         if token.match(Tokens.Keyword, 'TABLE'):
             token = self._token_next(parent, token)
             while token.match(Tokens.Keyword, ['IF', 'NOT', 'EXIST']) or \
