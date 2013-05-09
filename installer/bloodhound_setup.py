@@ -179,7 +179,7 @@ class BloodhoundSetup(object):
         new_env =  os.path.join(environments_path, options['project'])
         tracini = os.path.abspath(os.path.join(new_env, 'conf', 'trac.ini'))
         baseini = os.path.abspath(os.path.join(new_env, 'conf', 'base.ini'))
-        options['inherit'] = baseini
+        options['inherit'] = '"' + baseini + '"'
 
         options['db'] = self._generate_db_str(options)
         if 'repo_type' not in options or options['repo_type'] is None:
