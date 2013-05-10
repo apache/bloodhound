@@ -64,7 +64,7 @@ class RelationManagementModule(Component):
     # ITemplateProvider methods
     def get_htdocs_dirs(self):
         resource_filename = pkg_resources.resource_filename
-        return [resource_filename('bhrelations', 'htdocs'), ]
+        return [('relations', resource_filename('bhrelations', 'htdocs')), ]
 
     def get_templates_dirs(self):
         resource_filename = pkg_resources.resource_filename
