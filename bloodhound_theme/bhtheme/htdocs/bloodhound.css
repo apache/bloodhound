@@ -179,7 +179,7 @@ div.reports form {
 }
 
 .activityfeed {
-  background-image: url("/main/chrome/theme/img/change_history_arrow_line.png");
+  background-image: url("img/change_history_arrow_line.png");
   background-repeat: repeat-y;
   background-position: 20px 0px;
 }
@@ -1170,7 +1170,7 @@ textarea#comment, #trac-add-comment fieldset{
   margin-top: 0px;
 }
 
-#changelog ul {
+#changelog ul.changes {
   list-style-image: url('../common/collapsed.png');
   padding: 0px 0px 0px 11px;
 }
