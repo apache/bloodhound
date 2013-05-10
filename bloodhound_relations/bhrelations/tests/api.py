@@ -19,9 +19,11 @@
 #  under the License.
 from datetime import datetime
 from _sqlite3 import OperationalError, IntegrityError
+import unittest
 from bhrelations.api import (EnvironmentSetup, RelationsSystem,
                              CycleValidationError, ParentValidationError,
                              TicketRelationsSpecifics)
+from bhrelations.tests.mocks import TestRelationChangingListener
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 from trac.ticket.model import Ticket
@@ -31,11 +33,13 @@ from trac.util.datefmt import utc
 
 try:
     from babel import Locale
+
     locale_en = Locale.parse('en_US')
 except ImportError:
     locale_en = None
 
-class ApiTestCase(MultiproductTestCase):
+
+class BaseApiApiTestCase(MultiproductTestCase):
     def setUp(self):
         env = EnvironmentStub(
             default_data=True,
@@ -45,12 +49,12 @@ class ApiTestCase(MultiproductTestCase):
         env.config.set(config_name, 'dependency', 'dependson,dependent')
         env.config.set(config_name, 'dependency.validator', 'no_cycle')
         env.config.set(config_name, 'dependent.blocks', 'true')
-        env.config.set(config_name, 'parent_children','parent,children')
+        env.config.set(config_name, 'parent_children', 'parent,children')
         env.config.set(config_name, 'parent_children.validator',
-                                                            'parent_child')
+                       'parent_child')
         env.config.set(config_name, 'children.label', 'Overridden')
         env.config.set(config_name, 'parent.copy_fields',
-                                                            'summary, foo')
+                       'summary, foo')
         env.config.set(config_name, 'oneway', 'refersto')
 
         self.global_env = env
@@ -76,12 +80,12 @@ class ApiTestCase(MultiproductTestCase):
             # table remains but database version is deleted
             pass
 
-    #classmethod
+    @classmethod
     def _insert_ticket(cls, env, summary, **kw):
         """Helper for inserting a ticket into the database"""
         ticket = Ticket(env)
         ticket["Summary"] = summary
-        for k,v in kw.items():
+        for k, v in kw.items():
             ticket[k] = v
         return ticket.insert()
 
@@ -91,6 +95,8 @@ class ApiTestCase(MultiproductTestCase):
     def _insert_and_load_ticket_with_env(self, env, summary, **kw):
         return Ticket(env, self._insert_ticket(env, summary, **kw))
 
+
+class ApiTestCase(BaseApiApiTestCase):
     def test_can_add_two_ways_relations(self):
         #arrange
         ticket = self._insert_and_load_ticket("A1")
@@ -202,7 +208,6 @@ class ApiTestCase(MultiproductTestCase):
         relations_system = self.relations_system
         relations_system.add(ticket, referred, "refersto")
 
-
         ticket = self._insert_and_load_ticket("A1")
         dependent_ticket = self._insert_and_load_ticket("A2")
         relations_system = self.relations_system
@@ -238,7 +243,7 @@ class ApiTestCase(MultiproductTestCase):
             self.assertSequenceEqual(
                 ["tp1:ticket:1", "tp1:ticket:2"], ex.failed_ids)
 
-    def test_can_add_more_dependsons(self):
+    def test_can_add_more_depends_ons(self):
         #arrange
         ticket1 = self._insert_and_load_ticket("A1")
         ticket2 = self._insert_and_load_ticket("A2")
@@ -391,8 +396,6 @@ class ApiTestCase(MultiproductTestCase):
         self.assertEqual(1, len(relations_system.get_relations(ticket1)))
         self.assertEqual(1, len(relations_system.get_relations(ticket2)))
 
-    #todo: add multi-product ticket relations test
-
     def _debug_select(self):
         """
         used for debug purposes
@@ -403,3 +406,107 @@ class ApiTestCase(MultiproductTestCase):
             # for row in db(sql, ("source", "destination", "type")):
             for row in db(sql):
                 print row
+
+
+class RelationChangingListenerTestCase(BaseApiApiTestCase):
+    def test_can_sent_adding_event(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        relations_system = self.relations_system
+        test_changing_listener = self.env[TestRelationChangingListener]
+        #act
+        relations_system.add(ticket1, ticket2, "dependent")
+        #assert
+        self.assertEqual("adding_relation", test_changing_listener.action)
+        relation = test_changing_listener.relation
+        self.assertEqual("dependent", relation.type)
+
+    def test_can_sent_deleting_event(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        relations_system = self.relations_system
+        test_changing_listener = self.env[TestRelationChangingListener]
+        relations_system.add(ticket1, ticket2, "dependent")
+        #act
+        relations = relations_system.get_relations(ticket1)
+        relation_to_delete = relations[0]
+        relations_system.delete(relation_to_delete["relation_id"])
+        #assert
+        self.assertEqual("deleting_relation", test_changing_listener.action)
+        relation = test_changing_listener.relation
+        self.assertEqual("dependent", relation.type)
+
+
+class TicketChangeRecordUpdaterTestCase(BaseApiApiTestCase):
+    def test_can_update_ticket_history_on_relation_add_on(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        relations_system = self.relations_system
+        #act
+        relations_system.add(ticket1, ticket2, "dependent")
+        #assert
+        change_log1 = Ticket(self.env, ticket1.id).get_changelog()
+        self.assertEquals(1, len(change_log1))
+
+        change_log2 = Ticket(self.env, ticket2.id).get_changelog()
+        self.assertEquals(1, len(change_log2))
+
+    def test_can_update_ticket_history_on_relation_deletion(self):
+        #arrange
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        relations_system = self.relations_system
+        relations_system.add(ticket1, ticket2, "dependent")
+        relations = relations_system.get_relations(ticket1)
+        #act
+        relation_to_delete = relations[0]
+        relations_system.delete(relation_to_delete["relation_id"])
+        #assert
+        change_log1 = Ticket(self.env, ticket1.id).get_changelog()
+        self.assertEquals(2, len(change_log1))
+
+        change_log2 = Ticket(self.env, ticket2.id).get_changelog()
+        self.assertEquals(2, len(change_log2))
+
+    def _debug_select(self, ticket_id=None):
+        """
+        used for debug purposes
+        """
+        # print " source, destination, type"
+        sql = "SELECT * FROM ticket_change"
+        print "db_direct_transaction result:"
+        with self.env.db_direct_transaction as db:
+            # for row in db(sql, ("source", "destination", "type")):
+            for row in db(sql):
+                print row
+
+        sql = "SELECT * FROM ticket_change"
+        print "db_transaction result:"
+        with self.env.db_transaction as db:
+            for row in db(sql):
+                print row
+
+        if ticket_id:
+            sql = """SELECT time, author, field, oldvalue, newvalue
+                    FROM ticket_change WHERE ticket=%s"""
+            print "db_transaction select by ticket_id result:"
+            with self.env.db_transaction:
+                for row in self.env.db_query(sql, (ticket_id, )):
+                    print row
+
+
+def suite():
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(ApiTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(
+        RelationChangingListenerTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(
+        TicketChangeRecordUpdaterTestCase, 'test'))
+    return test_suite
+
+
+if __name__ == '__main__':
+    unittest.main()

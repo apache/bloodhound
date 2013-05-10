@@ -17,13 +17,18 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-from bhrelations.model import Relation
+from bhrelations.api import IRelationChangingListener
+from trac.core import Component, implements
 
-DB_SYSTEM_KEY = 'bhrelations'
-DB_VERSION = 2
 
-# pylint: disable=protected-access
-SCHEMA = [mcls._get_schema() for mcls in (Relation, )]
+class TestRelationChangingListener(Component):
+    implements(IRelationChangingListener)
 
-migrations = [
-]
+    def adding_relation(self, relation):
+        self.action = "adding_relation"
+        self.relation = relation
+
+    def deleting_relation(self, relation, when):
+        self.action = "deleting_relation"
+        self.relation = relation
+        self.when = when

@@ -61,6 +61,14 @@ class Relation(ModelBase):
         data["source"] = self.destination
         data["destination"] = self.source
         relation = Relation(self._env)
+        # pylint: disable=protected-access
+        relation._data = data
+        return relation
+
+    def clone(self):
+        data = self._data.copy()
+        relation = Relation(self._env)
+        # pylint: disable=protected-access
         relation._data = data
         return relation
 
