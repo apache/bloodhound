@@ -28,5 +28,5 @@ TracThemeEngine
 -e ../bloodhound_theme
 TracPermRedirect
 -e ../bloodhound_search
-#-e ../bloodhound_relations
+-e ../bloodhound_relations
 
