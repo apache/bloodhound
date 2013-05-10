@@ -36,24 +36,17 @@ Arguments:
      xmlns:i18n="http://genshi.edgewall.org/i18n"
      id="ticket" class="${'ticketdraft' if preview_mode else None}">
 
+
   <py:def function="render_fields_row(fields_row, fontsize, is_inline)">
     <py:for each="idx, field in enumerate(fields_row)">
       <py:if test="field is not None">
-        <div class="span4">
-          <div class="row">
-            <div class="span2">
-              <h5 id="${'h_' + field.name if field else None}">
-                <py:if test="field">
-                  <span class="hidden-phone pull-right">
-                    <i18n:msg params="field">${field.label or field.name}:</i18n:msg>
-                  </span>
-                  <span class="visible-phone">
-                    <i18n:msg params="field">${field.label or field.name}:</i18n:msg>
-                  </span>
-                </py:if>
-              </h5>
-            </div>
-            <div class="span2" data-edit="${'inplace' if (field and field.name not in ('status', 'product')) else None}" id="${'vc-' + field.name if field else None}">
+          <tr>
+            <td id="${'h_' + field.name if field else None}">
+              <py:if test="field">
+                  <i18n:msg params="field">${field.label or field.name}:</i18n:msg>
+              </py:if>
+            </td>
+            <td data-edit="${'inplace' if (field and field.name not in ('status', 'product')) else None}" id="${'vc-' + field.name if field else None}">
               <py:if test="field">
                 <py:choose test="">
                   <py:when test="'rendered' in field">${field.rendered}</py:when>
@@ -72,12 +65,28 @@ Arguments:
                   </ul>
                 </div>
               </py:if>
-            </div>
-          </div>
-        </div>
+            </td>
+          </tr>
       </py:if>
     </py:for>
   </py:def>
+  <tr>
+    <td id="h_reporter">
+        Reporter:
+    </td>
+    <td id="vc-reporter" data-edit="${'inplace' if only_for_admin else None}">
+      ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
+    </td>
+  </tr>
+  <!--! use a placeholder if it's a new ticket -->
+   <py:for each="field in fields">
+      <py:if test="field.name == 'keywords'">
+        <tr title="Keywords" class="keywords">
+          <td>Keywords:</td>
+          <td><span data-edit="${'inplace' if can_modify or can_edit or can_create else None}" id="vc-keywords">${field.rendered}</span></td>
+        </tr>
+      </py:if>
+    </py:for>
 
 
   <!--!
@@ -103,27 +112,10 @@ Arguments:
 
     <div class="clearboth"></div>
 
-    <!--! use a placeholder if it's a new ticket -->
-    <py:for each="field in fields">
-      <py:if test="field.name == 'keywords'">
-        <div title="Keywords" class="keywords">
-          <i class="icon-tags"></i>
-          <span data-edit="${'inplace' if can_modify or can_edit or can_create else None}" id="vc-keywords">${field.rendered}</span>
-        </div>
-      </py:if>
-    </py:for>
-
-
     <div class="description">
-      <h5 id="comment:description">
+      <h3 id="comment:description">
         Description
-        <span py:if="description_change" class="lastmod pull-right"
-            title="$description_change.date">
-          <i18n:msg params="author">(last modified by ${authorinfo(description_change.author)})</i18n:msg>
-          (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
-        </span>
-      </h5>
-
+      </h3>
         <!--! Quote the description (only for existing tickets) -->
         <div class="pull-right">
           <form py:if="ticket.exists and ticket.description and can_append"
@@ -138,8 +130,12 @@ Arguments:
           <py:if test="ticket.description">
             ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
           </py:if>
-      </div>
+        </div>
       <br py:if="not ticket.description" style="clear: both" />
+      <span py:if="description_change" class="lastmod" title="$description_change.date">
+        <i18n:msg params="author">Last modified by ${authorinfo(description_change.author)}</i18n:msg>
+        (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
+      </span>
     </div>
 
     <div class="properties">

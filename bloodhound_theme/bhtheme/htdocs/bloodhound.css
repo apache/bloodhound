@@ -1133,6 +1133,29 @@ table.wiki th {
 
 /* @end */
 
+.lastmod {
+  font-size: 90%;
+  color: rgb(80, 80, 80);
+  font-style: italic;
+}
+
+.description {
+  margin-bottom: 20px;
+}
+
+.attachments .attachment-info {
+  font-weight: normal;
+}
+
+.ticket-properties td{
+  border: none;
+}
+
+.ticket-properties td:first-child{
+  text-align: right;
+  font-weight: bold;
+}
+
 #trac-add-comment textarea#comment{
  border-radius: 8px 8px 8px 8px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;

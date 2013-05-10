@@ -384,27 +384,11 @@
               <!--! ticket details -->
                 <!--! main ticket info -->
                 <div class="properties">
-                  <div class="row">
-                    <div class="span4">
-                      <div class="row">
-                        <div class="span2">
-                          <h5 id="h_reporter">
-                            <span class="hidden-phone pull-right">Reporter:</span>
-                            <span class="visible-phone">Reporter:</span>
-                          </h5>
-                        </div>
-                        <div class="span2" id="vc-reporter" data-edit="${'inplace' if only_for_admin else None}">
-                          ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
+                  <table class="ticket-properties">
                   <xi:include href="bh_ticket_box.html"
                       py:with="preview_mode = change_preview.fields if change_preview else False;
                           colcount = 4 if bhdb else 6"/>
+                  </table>
                 </div>
                 <div id="dummy-vc-summary" style="display: none"/>
 

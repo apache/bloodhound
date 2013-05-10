@@ -112,13 +112,13 @@ Arguments:
           </div>
         </py:choose>
         <div py:if="not show_editor and len(change.comment_history) > 1" py:choose=""
-             class="trac-lastedit ${'trac-shade' if comment_version != max_version else None} alert alert-success">
+             class="trac-lastedit ${'trac-shade' if comment_version != max_version else None} lastmod">
           <i18n:msg params="version, date, author" py:when="comment_version != max_version">
               Version ${comment_version}, edited ${pretty_dateinfo(change.comment_history[comment_version].date)}
               by ${authorinfo(change.comment_history[comment_version].author)}
           </i18n:msg>
           <i18n:msg params="date, author" py:otherwise="">
-              Last edited ${pretty_dateinfo(change.comment_history[comment_version].date)}
+              Last modified ${pretty_dateinfo(change.comment_history[comment_version].date)}
               by ${authorinfo(change.comment_history[comment_version].author)}
           </i18n:msg>
           <py:if test="comment_version > 0">
