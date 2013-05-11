@@ -28,4 +28,4 @@ TracThemeEngine
 ../bloodhound_theme
 TracPermRedirect
 ../bloodhound_search
-
+-e ../bloodhound_relations
