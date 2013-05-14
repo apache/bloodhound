@@ -30,10 +30,12 @@ import pkg_resources
 from trac.core import Component, implements, TracError
 from trac.resource import get_resource_url
 from trac.ticket.model import Ticket
+from trac.util.translation import _
 from trac.web import IRequestHandler
 from trac.web.chrome import ITemplateProvider
 
-from bhrelations.api import RelationsSystem
+from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
+    TicketRelationsSpecifics
 
 
 class RelationManagementModule(Component):
@@ -51,10 +53,14 @@ class RelationManagementModule(Component):
     def process_request(self, req):
         tid = req.args.get('id')
         if not tid:
-            raise TracError('No ticket id provided.')
+            raise TracError(_('No ticket id provided.'))
+
+        try:
+            ticket = Ticket(self.env, tid)
+        except ValueError:
+            raise TracError(_('Invalid ticket id.'))
 
         req.perm.require('TICKET_VIEW')
-        ticket = Ticket(self.env, tid)
         relsys = RelationsSystem(self.env)
 
         if req.method == 'POST':
@@ -70,7 +76,10 @@ class RelationManagementModule(Component):
                 reltype = req.args.get('reltype')
                 comment = req.args.get('comment')
                 if dest_tid and reltype:
-                    dest_ticket = Ticket(self.env, dest_tid)
+                    try:
+                        dest_ticket = self.find_ticket(dest_tid)
+                    except ValueError:
+                        raise TracError(_('Invalid ticket id.'))
                     relsys.add(ticket, dest_ticket, reltype, comment,
                         req.authname)
             else:
@@ -100,7 +109,18 @@ class RelationManagementModule(Component):
         for r in relsys.get_relations(ticket):
             r['desthref'] = get_resource_url(self.env, r['destination'],
                 self.env.href)
-            r['label'] = relsys.render_relation_type(r['type'])
             grouped_relations.setdefault(reltypes[r['type']], []).append(r)
         return grouped_relations
+
+    def find_ticket(self, tid):
+        try:
+            ticket = Ticket(self.env, tid)
+        except ValueError:
+            trs = TicketRelationsSpecifics(self.env)
+            try:
+                resource = ResourceIdSerializer.get_resource_by_id(tid)
+                ticket = trs._create_ticket_by_full_id(resource)
+            except:
+                raise ValueError
+        return ticket
 

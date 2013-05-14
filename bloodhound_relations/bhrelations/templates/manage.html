@@ -88,7 +88,7 @@
                 <py:for each="relgroup,items in relations.iteritems()">
                   <tr py:for="item in items">
                     <td class="sel"><input type="checkbox" name="sel" value="${item.relation_id}" /></td>
-                    <td class="type">${item['label']}</td>
+                    <td class="type">$relgroup</td>
                     <td class="ticket">
                       <a href="${item['desthref']}">#${item['destination'].id}</a>
                     </td>
