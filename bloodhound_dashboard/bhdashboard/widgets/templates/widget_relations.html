@@ -26,10 +26,13 @@
     <py:when test="relations">
       <py:for each="relgroup,items in relations.iteritems()">
         <h4>$relgroup</h4>
-        <div py:for="item in items">
-          <a href="${item['desthref']}">#${item['destination'].id}</a> - $item.comment
+        <div class="relgroup">
+          <div py:for="item in items" class="relation">
+            <a href="${item['desthref']}">#${item['destination'].id}</a> - $item.comment
+          </div>
         </div>
       </py:for>
+      <br />
     </py:when>
     <py:otherwise>
       <div class="alert alert-info">
@@ -39,7 +42,7 @@
   </py:choose>
 
   <div class="btn-group">
-    <a class="btn" href="${href.ticket(ticket.id, 'relations')}">Manage relations</a>
+    <a class="btn" href="${href.ticket(ticket.id, 'relations')}"><i class="icon-retweet"></i> Manage relations</a>
   </div>
 </div>
 
