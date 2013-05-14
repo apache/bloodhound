@@ -26,6 +26,8 @@ Widgets displaying product information (multiproduct).
 
 import itertools
 
+from genshi.builder import tag
+
 from trac.resource import Neighborhood
 from trac.util.translation import _
 from trac.ticket.model import Milestone, Component, Version
@@ -135,7 +137,14 @@ class ProductWidget(WidgetBase):
             title = _('Products')
 
         return 'widget_product.html', \
-            { 'title': title, 'data': data, }, context
+            {
+                'title': title,
+                'data': data,
+                'ctxtnav' : [
+                    tag.a(_('More'), 
+                    href = context.req.href('products'))],
+            }, \
+            context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 
