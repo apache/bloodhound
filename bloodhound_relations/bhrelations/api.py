@@ -18,6 +18,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from datetime import datetime
+from pkg_resources import resource_filename
 from bhrelations import db_default
 from bhrelations.model import Relation
 from multiproduct.api import ISupportMultiProductEnvironment
@@ -29,6 +30,7 @@ from trac.resource import (ResourceSystem, Resource,
                            get_resource_shortname, Neighborhood)
 from trac.ticket import Ticket, ITicketManipulator, ITicketChangeListener
 from trac.util.datefmt import utc, to_utimestamp
+from trac.web.chrome import ITemplateProvider
 
 PLUGIN_NAME = 'Bloodhound Relations Plugin'
 
@@ -83,7 +85,8 @@ class IRelationChangingListener(Interface):
 
 
 class EnvironmentSetup(Component):
-    implements(IEnvironmentSetupParticipant, ISupportMultiProductEnvironment)
+    implements(IEnvironmentSetupParticipant, ISupportMultiProductEnvironment,
+               ITemplateProvider)
 
     def environment_created(self):
         self.upgrade_environment(self.env.db_transaction)
@@ -141,6 +144,11 @@ class EnvironmentSetup(Component):
         for table in db_default.SCHEMA:
             for statement in db_connector.to_sql(table):
                 db(statement)
+
+    # ITemplateProviderMethods
+    def get_templates_dirs(self):
+        """provide the plugin templates"""
+        return [resource_filename(__name__, 'templates')]
 
 
 class RelationsSystem(Component):
@@ -204,6 +212,9 @@ class RelationsSystem(Component):
             for listener in self.changing_listeners:
                 listener.adding_relation(relation)
 
+            from bhrelations.notification import RelationNotifyEmail
+            RelationNotifyEmail(self.env).notify(relation)
+
     def delete(self, relation_id, when=None):
         if when is None:
             when = datetime.now(utc)
@@ -225,6 +236,9 @@ class RelationsSystem(Component):
 
             for listener in self.changing_listeners:
                 listener.deleting_relation(cloned_relation, when)
+
+            from bhrelations.notification import RelationNotifyEmail
+            RelationNotifyEmail(self.env).notify(cloned_relation, deleted=when)
 
     def delete_resource_relations(self, resource_instance):
         sql = "DELETE FROM " + Relation.get_table_name() + \

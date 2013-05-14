@@ -1,0 +1,8 @@
+{% choose created %}\
+    {% when True %}\${_('Relation %(type)s %(source)s -> %(destination)s created.', type=relation.type, source=relation.source, destination=relation.destination)}{% end %}\
+    {% otherwise %}${_('Relation %(type)s %(source)s -> %(destination)s deleted.', type=relation.type, source=relation.source, destination=relation.destination)}{% end %}\
+{% end %}
+
+--
+$project.name <${project.url or abs_href()}>
+$project.descr
