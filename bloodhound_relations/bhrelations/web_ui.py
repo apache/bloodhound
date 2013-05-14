@@ -96,10 +96,11 @@ class RelationManagementModule(Component):
     def get_ticket_relations(self, ticket):
         grouped_relations = {}
         relsys = RelationsSystem(self.env)
+        reltypes = relsys.get_relation_types()
         for r in relsys.get_relations(ticket):
             r['desthref'] = get_resource_url(self.env, r['destination'],
                 self.env.href)
             r['label'] = relsys.render_relation_type(r['type'])
-            grouped_relations.setdefault(r['type'], []).append(r)
+            grouped_relations.setdefault(reltypes[r['type']], []).append(r)
         return grouped_relations
 
