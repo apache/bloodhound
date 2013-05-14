@@ -37,22 +37,79 @@
 
     <div class="row">
       <div class="span8">
-        <div class="well">
-          <h4>Add relation</h4>
-        </div>
-      </div>
-    </div>
+        <form id="addrelation" class="well form-horizontal" method="post" action="">
+          <fieldset>
+            <legend>Add relation:</legend>
+          </fieldset>
 
-    <!--temporary solution-->
-    <div>
-      <!--todo: change it to appropriate markup-->
+          <div class="control-group">
+            <label class="control-label" for="dest_tid">Related ticket:</label>
+            <div class="controls">
+              <input type="text" id="dest_tid" class="span4" name="dest_tid" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="reltype">Relation type:</label>
+            <div class="controls">
+              <select class="span4" id="reltype" name="reltype">
+                <option py:for="reltype,label in reltypes.iteritems()" value="$reltype">$label</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="comment">Comment:</label>
+            <div class="controls">
+              <textarea name="comment" rows="3" class="span4" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="controls">
+              <input type="submit" class="btn" name="add" value="${_('Add')}" />
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div class="row">
       <div class="span8">
-        <div class="well">
-          <h4>Remove relations</h4>
-        </div>
+        <py:choose>
+          <form py:when="relations" id="rmrelations" class="form-horizontal" method="post" action="">
+            <table class="table table-striped table-condensed table-bordered">
+              <thead>
+                <tr><th class="sel"><i class="icon-check"></i></th>
+                  <th>Type</th><th>Ticket</th><th>Author</th><th>Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <py:for each="relgroup,items in relations.iteritems()">
+                  <tr py:for="item in items">
+                    <td class="sel"><input type="checkbox" name="sel" value="${item.relation_id}" /></td>
+                    <td class="type">${item['label']}</td>
+                    <td class="ticket">
+                      <a href="${item['desthref']}">#${item['destination'].id}</a>
+                    </td>
+                    <td class="author">
+                      <a href="#">${item['author']}</a>
+                    </td>
+                    <td class="comment">${item['comment']}</td>
+                  </tr>
+                </py:for>
+              </tbody>
+            </table>
+
+            <div class="control-group">
+              <input type="submit" class="btn" name="remove" value="${_('Remove selected relations')}" />
+            </div>
+          </form>
+
+          <div py:otherwise="" class="alert alert-info">
+            No defined relations for this ticket.
+          </div>
+        </py:choose>
       </div>
     </div>
   </body>

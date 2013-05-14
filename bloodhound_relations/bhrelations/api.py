@@ -415,6 +415,9 @@ class RelationsSystem(Component):
     def render_relation_type(self, end):
         return self._labels[end]
 
+    def get_relation_types(self):
+        return self._labels
+
     def find_blockers(self, resource_instance, is_blocker_method):
         # tbd: do we blocker finding to be recursive
         all_blockers = []

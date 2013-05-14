@@ -55,8 +55,30 @@ class RelationManagementModule(Component):
 
         req.perm.require('TICKET_VIEW')
         ticket = Ticket(self.env, tid)
+        relsys = RelationsSystem(self.env)
+
+        if req.method == 'POST':
+            if req.args.has_key('remove'):
+                rellist = req.args.get('sel')
+                if rellist:
+                    if isinstance(rellist, basestring):
+                        rellist = [rellist, ]
+                    for rel in rellist:
+                        relsys.delete(rel)
+            elif req.args.has_key('add'):
+                dest_tid = req.args.get('dest_tid')
+                reltype = req.args.get('reltype')
+                comment = req.args.get('comment')
+                if dest_tid and reltype:
+                    dest_ticket = Ticket(self.env, dest_tid)
+                    relsys.add(ticket, dest_ticket, reltype, comment,
+                        req.authname)
+            else:
+                raise TracError(_('Invalid operation.'))
+
         data = {
             'ticket': ticket,
+            'reltypes': relsys.get_relation_types(),
             'relations': self.get_ticket_relations(ticket),
         }
         return 'manage.html', data, None
@@ -73,9 +95,11 @@ class RelationManagementModule(Component):
     # utility functions
     def get_ticket_relations(self, ticket):
         grouped_relations = {}
-        for r in RelationsSystem(self.env).get_relations(ticket):
+        relsys = RelationsSystem(self.env)
+        for r in relsys.get_relations(ticket):
             r['desthref'] = get_resource_url(self.env, r['destination'],
                 self.env.href)
+            r['label'] = relsys.render_relation_type(r['type'])
             grouped_relations.setdefault(r['type'], []).append(r)
         return grouped_relations
 

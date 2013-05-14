@@ -297,6 +297,8 @@ class BloodhoundTheme(ThemeBase):
         if is_active_theme and data is not None:
             data['responsive_layout'] = self.env.config.getbool(
                     'bloodhound', 'responsive_layout', 'true')
+            data['bhrelations'] = self.env.config.getbool('components',
+                'bhrelations.*', 'false')
 
         return template, data, content_type
 
