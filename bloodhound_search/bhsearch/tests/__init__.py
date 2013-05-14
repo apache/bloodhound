@@ -18,7 +18,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import sys
-if sys.version < (2, 7):
+if sys.version_info[:2] < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
@@ -48,3 +48,5 @@ def suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')
+else:
+    test_suite = suite()
