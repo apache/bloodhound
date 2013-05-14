@@ -106,9 +106,11 @@ class RelationManagementModule(Component):
         grouped_relations = {}
         relsys = RelationsSystem(self.env)
         reltypes = relsys.get_relation_types()
+        trs = TicketRelationsSpecifics(self.env)
         for r in relsys.get_relations(ticket):
             r['desthref'] = get_resource_url(self.env, r['destination'],
                 self.env.href)
+            r['destticket'] = trs._create_ticket_by_full_id(r['destination'])
             grouped_relations.setdefault(reltypes[r['type']], []).append(r)
         return grouped_relations
 
