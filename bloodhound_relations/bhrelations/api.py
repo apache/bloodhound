@@ -150,6 +150,9 @@ class EnvironmentSetup(Component):
         """provide the plugin templates"""
         return [resource_filename(__name__, 'templates')]
 
+    def get_htdocs_dirs(self):
+        return None
+
 
 class RelationsSystem(Component):
     PARENT_RELATION_TYPE = 'parent'

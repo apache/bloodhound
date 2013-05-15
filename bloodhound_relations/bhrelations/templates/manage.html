@@ -78,29 +78,27 @@
       <div class="span8">
         <py:choose>
           <form py:when="relations" id="rmrelations" class="form-horizontal" method="post" action="">
-            <table class="table table-striped table-condensed table-bordered">
+            <table class="table table-condensed table-bordered">
               <thead>
                 <tr>
                   <th class="sel"><i class="icon-check"></i></th>
                   <th>Type</th><th>Product</th><th>Ticket</th><th>Comment</th><th>Author</th><th>Changed</th>
                 </tr>
               </thead>
-              <tbody>
-                <py:for each="relgroup,items in relations.iteritems()">
-                  <tr py:for="item in items">
-                    <td class="sel"><input type="checkbox" name="sel" value="${item.relation_id}" /></td>
-                    <td>${relgroup if items.index(item) == 0 else None}</td>
-                    <td>
-                      <a href="${href.products(item['destticket'].env.product.prefix)}">
-                        ${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})
-                      </a>
-                    </td>
-                    <td><a href="${item['desthref']}">#${item['destticket'].id}</a> - ${item['destticket'].summary}</td>
-                    <td>$item.comment</td>
-                    <td>$item.author</td>
-                    <td>${pretty_dateinfo(item.when)}</td>
-                  </tr>
-                </py:for>
+              <tbody py:for="relgroup,items in relations.iteritems()">
+                <tr py:for="item in items">
+                  <td class="sel"><input type="checkbox" name="sel" value="${item.relation_id}" /></td>
+                  <td>${relgroup if items.index(item) == 0 else None}</td>
+                  <td>
+                    <a href="${href.products(item['destticket'].env.product.prefix)}">
+                      ${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})
+                    </a>
+                  </td>
+                  <td><a href="${item['desthref']}">#${item['destticket'].id}</a> - ${item['destticket'].summary}</td>
+                  <td>$item.comment</td>
+                  <td>$item.author</td>
+                  <td>${pretty_dateinfo(item.when)}</td>
+                </tr>
               </tbody>
             </table>
 
