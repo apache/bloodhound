@@ -89,13 +89,17 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                           'footer_left_postfix': '',
                           'footer_right': ''},
                'bhsearch': {'is_default': 'true', 'enable_redirect': 'true'},
-               'bhrealations': {
+               'bhrelations_links': {
+                    'children.label': 'Child',
                     'dependency': 'dependson,dependent',
                     'dependency.validator': 'no_cycle',
                     'dependent.blocks': 'true',
                     'dependson.label': 'Depends on',
                     'dependent.label': 'Dependent',
                     'oneway': 'refersto',
+                    'parent_children': 'parent,children',
+                    'parent_children.validator': 'parent_child',
+                    'refersto.label': 'Refers to',
                },
 
                }

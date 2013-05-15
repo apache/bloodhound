@@ -343,6 +343,8 @@ class RelationsSystem(Component):
         return links, labels, validators, blockers, copy_fields
 
     def validate(self, relation):
+        self._validate_self_reference(relation)
+
         validator = self._get_validator(relation.type)
         if validator:
             validator(relation)
@@ -360,6 +362,13 @@ class RelationsSystem(Component):
         else:
             validator = None
         return validator
+
+    def _validate_self_reference(self, relation):
+        if relation.source == relation.destination:
+            error = CycleValidationError(
+                'Ticket cannot be self-referenced in a relation.')
+            error.failed_ids = [relation.source]
+            raise error
 
     def _validate_no_cycle(self, relation):
         """If a path exists from relation's destination to its source,
