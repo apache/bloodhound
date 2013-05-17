@@ -28,7 +28,7 @@ import re
 import pkg_resources
 
 from trac.core import Component, implements, TracError
-from trac.resource import get_resource_url
+from trac.resource import get_resource_url, ResourceNotFound
 from trac.ticket.model import Ticket
 from trac.util.translation import _
 from trac.web import IRequestHandler
@@ -37,6 +37,8 @@ from trac.web.chrome import ITemplateProvider
 from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
     TicketRelationsSpecifics
 
+from multiproduct.model import Product
+from multiproduct.env import ProductEnvironment
 
 class RelationManagementModule(Component):
     implements(IRequestHandler, ITemplateProvider)
@@ -114,10 +116,28 @@ class RelationManagementModule(Component):
             grouped_relations.setdefault(reltypes[r['type']], []).append(r)
         return grouped_relations
 
-    def find_ticket(self, tid):
-        try:
-            ticket = Ticket(self.env, tid)
-        except ValueError:
+    def find_ticket(self, ticket_spec):
+        ticket = None
+        m = re.match(r'#?(?P<tid>\d+)', ticket_spec)
+        if m:
+            tid = m.group('tid')
+            try:
+                ticket = Ticket(self.env, tid)
+            except ResourceNotFound:
+                # ticket not found in current product, try all other products
+                for p in Product.select(self.env):
+                    if p.prefix != self.env.product.prefix:
+                        # TODO: check for PRODUCT_VIEW permissions
+                        penv = ProductEnvironment(self.env.parent, p.prefix)
+                        try:
+                            ticket = Ticket(penv, tid)
+                        except ResourceNotFound:
+                            pass
+                        else:
+                            break
+
+        # ticket still not found, use fallback for <prefix>:ticket:<id> syntax
+        if ticket is None:
             trs = TicketRelationsSpecifics(self.env)
             try:
                 resource = ResourceIdSerializer.get_resource_by_id(tid)
