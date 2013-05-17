@@ -89,6 +89,10 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                           'footer_left_postfix': '',
                           'footer_right': ''},
                'bhsearch': {'is_default': 'true', 'enable_redirect': 'true'},
+               'bhrelations': {
+                   'global_validators':
+                       'NoSelfReferenceValidator,ExclusiveValidator',
+               },
                'bhrelations_links': {
                     'children.label': 'Child',
                     'dependency': 'dependson,dependent',
@@ -98,8 +102,9 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                     'dependent.label': 'Dependent',
                     'oneway': 'refersto',
                     'parent_children': 'parent,children',
+                    'parent.exclusive': 'true',
                     'parent_children.validators':
-                        'OneToMany,SingleProduct,NoCycles,Exclusive',
+                        'OneToMany,SingleProduct,NoCycles',
                     'refersto.label': 'Refers to',
                },
 

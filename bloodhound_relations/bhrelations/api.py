@@ -162,15 +162,20 @@ class RelationsSystem(Component):
     global_validators = OrderedExtensionsOption(
         'bhrelations', 'global_validators',
         interface=IRelationValidator,
-        default=['NoSelfReferenceValidator'],
         include_missing=False,
         doc="""Validators used to validate all relations,
         regardless of their type."""
     )
 
     def __init__(self):
-        self._links, self._labels, self._validators, self._blockers, \
-            self._copy_fields = self._get_links_config()
+        links, labels, validators, blockers, copy_fields, exclusive = \
+            self._parse_config()
+        self._links = links
+        self._labels = labels
+        self._validators = validators
+        self._blockers = blockers
+        self._copy_fields = copy_fields
+        self._exclusive = exclusive
 
         self.link_ends_map = {}
         for end1, end2 in self.get_ends():
@@ -300,53 +305,41 @@ class RelationsSystem(Component):
             order_by=order_by
         )
 
-    # Copied from trac/ticket/links.py, ticket-links-trunk branch
-    def _get_links_config(self):
+    def _parse_config(self):
         links = []
         labels = {}
         validators = {}
         blockers = {}
         copy_fields = {}
+        exclusive = set()
 
         config = self.config[self.RELATIONS_CONFIG_NAME]
         for name in [option for option, _ in config.options()
                      if '.' not in option]:
-            ends = [e.strip() for e in config.get(name).split(',')]
-            if not ends:
+            reltypes = config.getlist(name)
+            if not reltypes:
                 continue
-            end1 = ends[0]
-            end2 = None
-            if len(ends) > 1:
-                end2 = ends[1]
-            links.append((end1, end2))
-
-            label1 = config.get(end1 + '.label') or end1.capitalize()
-            labels[end1] = label1
-            if end2:
-                label2 = config.get(end2 + '.label') or end2.capitalize()
-                labels[end2] = label2
+            if len(reltypes) == 1:
+                reltypes += [None]
+            links.append(tuple(reltypes))
 
             custom_validators = self._parse_validators(config, name)
-            if custom_validators:
-                validators[end1] = custom_validators
-                if end2:
-                    validators[end2] = custom_validators
+            for rel in filter(None, reltypes):
+                labels[rel] = \
+                    config.get(rel + '.label') or rel.capitalize()
+                blockers[rel] = \
+                    config.getbool(rel + '.blocks', default=False)
+                if config.getbool(rel + '.exclusive'):
+                    exclusive.add(rel)
+                validators[rel] = custom_validators
 
-            blockers[end1] = config.getbool(end1 + '.blocks', default=False)
-            if end2:
-                blockers[end2] = config.getbool(end2 + '.blocks',
-                                                default=False)
-
-            # <end>.copy_fields may be absent or intentionally set empty.
-            # config.getlist() will return [] in either case, so check that
-            # the key is present before assigning the value
-            for end in [end1, end2]:
-                if end:
-                    cf_key = '%s.copy_fields' % end
-                    if cf_key in config:
-                        copy_fields[end] = config.getlist(cf_key)
-
-        return links, labels, validators, blockers, copy_fields
+                # <end>.copy_fields may be absent or intentionally set empty.
+                # config.getlist() will return [] in either case, so check that
+                # the key is present before assigning the value
+                cf_key = '%s.copy_fields' % rel
+                if cf_key in config:
+                    copy_fields[rel] = config.getlist(cf_key)
+        return links, labels, validators, blockers, copy_fields, exclusive
 
     def _parse_validators(self, section, name):
         custom_validators = set(

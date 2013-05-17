@@ -38,14 +38,59 @@ class Validator(Component):
         resource = ResourceIdSerializer.get_resource_by_id(resource_id)
         return get_resource_shortname(self.env, resource)
 
+    def _find_path(self, source, destination, relation_type):
+        known_nodes, paths = self._bfs(source, destination, relation_type)
+        return paths.get((source, destination), None)
+
+    def _descendants(self, source, relation_type):
+        known_nodes, paths = self._bfs(source, None, relation_type)
+        return known_nodes - set([source])
+
+    def _ancestors(self, source, relation_type):
+        known_nodes, paths = self._bfs(source, None, relation_type,
+                                       reverse=True)
+        return known_nodes - set([source])
+
+    def _bfs(self, source, destination, relation_type, reverse=False):
+        known_nodes = set([source])
+        new_nodes = set([source])
+        paths = {(source, source): [source]}
+
+        while new_nodes:
+            if reverse:
+                relation = 'source, destination'
+                origin = 'source'
+            else:
+                relation = 'destination, source'
+                origin = 'destination'
+            query = """
+                SELECT %(relation)s
+                  FROM bloodhound_relations
+                 WHERE type = '%(relation_type)s'
+                   AND %(origin)s IN (%(new_nodes)s)
+            """ % dict(
+                relation=relation,
+                relation_type=relation_type,
+                new_nodes=', '.join("'%s'" % n for n in new_nodes),
+                origin=origin)
+            new_nodes = set()
+            for s, d in self.env.db_query(query):
+                if d not in known_nodes:
+                    new_nodes.add(d)
+                paths[(source, d)] = paths[(source, s)] + [d]
+            known_nodes = set.union(known_nodes, new_nodes)
+            if destination in new_nodes:
+                break
+        return known_nodes, paths
+
 
 class NoCyclesValidator(Validator):
     def validate(self, relation):
         """If a path exists from relation's destination to its source,
          adding the relation will create a cycle.
          """
-        path = self._find_path(relation.destination,
-                               relation.source,
+        path = self._find_path(relation.source,
+                               relation.destination,
                                relation.type)
         if path:
             cycle_str = map(self.get_resource_name, path)
@@ -56,48 +101,54 @@ class NoCyclesValidator(Validator):
             error.failed_ids = path
             raise error
 
-    def _find_path(self, source, destination, relation_type):
-        known_nodes = set()
-        new_nodes = set([source])
-        paths = {(source, source): [source]}
-
-        while new_nodes:
-            known_nodes = set.union(known_nodes, new_nodes)
-            with self.env.db_query as db:
-                relations = dict(db("""
-                    SELECT source, destination
-                      FROM bloodhound_relations
-                     WHERE type = '%(relation_type)s'
-                       AND source IN (%(new_nodes)s)
-                """ % dict(
-                    relation_type=relation_type,
-                    new_nodes=', '.join("'%s'" % n for n in new_nodes))
-                ))
-            new_nodes = set(relations.values()) - known_nodes
-            for s, d in relations.items():
-                paths[(source, d)] = paths[(source, s)] + [d]
-            if destination in new_nodes:
-                return paths[(source, destination)]
-
 
 class ExclusiveValidator(Validator):
     def validate(self, relation):
+        """If a path of exclusive type exists between source and destination,
+        adding a relation is not allowed.
+        """
         rls = RelationsSystem(self.env)
-        incompatible_relations = [
-            rel for rel in rls._select_relations(relation.source)
-            if rel.destination == relation.destination
-        ] + [
-            rel for rel in rls._select_relations(relation.destination)
-            if rel.destination == relation.source
-        ]
-        if incompatible_relations:
-            raise ValidationError(
-                "Relation %s is incompatible with the "
-                "following existing relations: %s" % (
-                    self.render_relation_type(relation.type),
-                    ','.join(map(str, incompatible_relations))
+        source, destination = relation.source, relation.destination
+
+        for exclusive_type in rls._exclusive:
+            path = (self._find_path(source, destination, exclusive_type)
+                    or self._find_path(destination, source, exclusive_type))
+            if path:
+                raise ValidationError(
+                    "Cannot add relation %s, source and destination "
+                    "are connected with %s relation." % (
+                        self.render_relation_type(relation.type),
+                        self.render_relation_type(exclusive_type),
+                    )
                 )
-            )
+        if relation.type in rls._exclusive:
+            d_ancestors = self._ancestors(destination, exclusive_type)
+            d_ancestors.add(destination)
+            s_descendants = self._descendants(source, exclusive_type)
+            s_descendants.add(source)
+            query = """
+                SELECT source, destination, type
+                  FROM bloodhound_relations
+                 WHERE (source in (%(s_ancestors)s)
+                        AND destination in (%(d_descendants)s))
+                    OR
+                       (source in (%(d_descendants)s)
+                        AND destination in (%(s_ancestors)s))
+            """ % dict(
+                s_ancestors=', '.join("'%s'" % n for n in d_ancestors),
+                d_descendants=', '.join("'%s'" % n for n in s_descendants))
+            conflicting_relations = list(self.env.db_query(query))
+            if conflicting_relations:
+                raise ValidationError(
+                    "Connecting %s and %s with relation %s "
+                    "would make the following relations invalid:\n"
+                    "%s" % (
+                        source,
+                        destination,
+                        self.render_relation_type(relation.type),
+                        '\n'.join(map(str, conflicting_relations))
+                    )
+                )
 
 
 class SingleProductValidator(Validator):
@@ -131,7 +182,7 @@ class OneToManyValidator(Validator):
         if existing_relations:
             raise ValidationError(
                 "%s can only have one %s" % (
-                    relation.destination,
+                    relation.source,
                     self.render_relation_type(relation.type)
                 ))
 
