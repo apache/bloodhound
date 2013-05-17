@@ -548,6 +548,8 @@ class TicketChangeRecordUpdater(Component):
         else:
             old_value = None
             new_value = related_resource_name
+        description = 'Relation "%s"' % (
+            relation_system.render_relation_type(relation.type),)
 
         db("""INSERT INTO ticket_change
             (ticket, time, author, field, oldvalue, newvalue, product)
@@ -555,7 +557,7 @@ class TicketChangeRecordUpdater(Component):
            (ticket_id,
             when_ts,
             relation.author,
-            relation.type,
+            description,
             old_value,
             new_value,
             product))
