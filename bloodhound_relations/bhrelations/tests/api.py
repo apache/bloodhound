@@ -21,9 +21,9 @@ from datetime import datetime
 from _sqlite3 import OperationalError, IntegrityError
 import unittest
 from bhrelations.api import (EnvironmentSetup, RelationsSystem,
-                             CycleValidationError, ParentValidationError,
                              TicketRelationsSpecifics)
 from bhrelations.tests.mocks import TestRelationChangingListener
+from bhrelations.validation import ValidationError
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 from trac.ticket.model import Ticket
@@ -47,14 +47,16 @@ class BaseApiApiTestCase(MultiproductTestCase):
         )
         config_name = RelationsSystem.RELATIONS_CONFIG_NAME
         env.config.set(config_name, 'dependency', 'dependson,dependent')
-        env.config.set(config_name, 'dependency.validator', 'no_cycle')
+        env.config.set(config_name, 'dependency.validators',
+                       'NoCycles,SingleProduct')
         env.config.set(config_name, 'dependent.blocks', 'true')
         env.config.set(config_name, 'parent_children', 'parent,children')
-        env.config.set(config_name, 'parent_children.validator',
-                       'parent_child')
+        env.config.set(config_name, 'parent_children.validators',
+                       'OneToMany,SingleProduct,NoCycles,Exclusive')
         env.config.set(config_name, 'children.label', 'Overridden')
         env.config.set(config_name, 'parent.copy_fields',
                        'summary, foo')
+        env.config.set(config_name, 'multiproduct_relation', 'mprel,mpbackrel')
         env.config.set(config_name, 'oneway', 'refersto')
 
         self.global_env = env
@@ -103,7 +105,6 @@ class ApiTestCase(BaseApiApiTestCase):
         dependent = self._insert_and_load_ticket("A2")
         #act
         relations_system = self.relations_system
-        self._debug_select()
         relations_system.add(
             ticket, dependent, "dependent")
         #assert
@@ -239,7 +240,7 @@ class ApiTestCase(BaseApiApiTestCase):
         try:
             relations_system.add(ticket2, ticket1, "dependson")
             self.fail("Should throw an exception")
-        except CycleValidationError, ex:
+        except ValidationError as ex:
             self.assertSequenceEqual(
                 ["tp1:ticket:1", "tp1:ticket:2"], ex.failed_ids)
 
@@ -261,7 +262,7 @@ class ApiTestCase(BaseApiApiTestCase):
         relations_system = self.relations_system
         relations_system.add(ticket1, ticket2, "dependson")
         self.assertRaises(
-            CycleValidationError,
+            ValidationError,
             relations_system.add,
             ticket1,
             ticket2,
@@ -277,7 +278,7 @@ class ApiTestCase(BaseApiApiTestCase):
         relations_system.add(ticket1, ticket2, "dependson")
         relations_system.add(ticket2, ticket3, "dependson")
         self.assertRaises(
-            CycleValidationError,
+            ValidationError,
             relations_system.add,
             ticket3,
             ticket1,
@@ -292,7 +293,7 @@ class ApiTestCase(BaseApiApiTestCase):
         relations_system = self.relations_system
         relations_system.add(child, parent1, "parent")
         self.assertRaises(
-            ParentValidationError,
+            ValidationError,
             relations_system.add,
             child,
             parent2,
@@ -307,7 +308,7 @@ class ApiTestCase(BaseApiApiTestCase):
         relations_system = self.relations_system
         relations_system.add(parent1, child, "children")
         self.assertRaises(
-            ParentValidationError,
+            ValidationError,
             relations_system.add,
             parent2,
             child,
@@ -322,7 +323,7 @@ class ApiTestCase(BaseApiApiTestCase):
         relations_system = self.relations_system
         relations_system.add(parent1, child, "children")
         self.assertRaises(
-            ParentValidationError,
+            ValidationError,
             relations_system.add,
             parent2,
             child,
@@ -391,7 +392,7 @@ class ApiTestCase(BaseApiApiTestCase):
         ticket2 = self._insert_and_load_ticket_with_env(p2_env, "A2")
         relations_system = self.relations_system
         #act
-        relations_system.add(ticket1, ticket2, "dependent")
+        relations_system.add(ticket1, ticket2, "mprel")
         #assert
         self.assertEqual(1, len(relations_system.get_relations(ticket1)))
         self.assertEqual(1, len(relations_system.get_relations(ticket2)))
@@ -406,6 +407,60 @@ class ApiTestCase(BaseApiApiTestCase):
             # for row in db(sql, ("source", "destination", "type")):
             for row in db(sql):
                 print row
+
+    def test_parent_relation_is_incompatible_with_two_way_relations(self):
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        self.relations_system.add(ticket1, ticket2, "dependent")
+
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            ticket1,
+            ticket2,
+            "parent")
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            ticket1,
+            ticket2,
+            "children")
+
+    def test_parent_relation_is_incompatible_with_one_way_relations(self):
+        ticket1 = self._insert_and_load_ticket("A1")
+        ticket2 = self._insert_and_load_ticket("A2")
+        self.relations_system.add(ticket1, ticket2, "refersto")
+
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            ticket1,
+            ticket2,
+            "parent")
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            ticket1,
+            ticket2,
+            "children")
+
+    def test_parent_must_be_in_same_product(self):
+        ticket1 = self._insert_and_load_ticket("A1")
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        ticket2 = self._insert_and_load_ticket_with_env(p2_env, "A2")
+
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            ticket1, ticket2, "parent"
+        )
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            ticket1, ticket2, "children"
+        )
 
 
 class RelationChangingListenerTestCase(BaseApiApiTestCase):

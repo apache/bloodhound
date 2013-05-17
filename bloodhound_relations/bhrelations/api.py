@@ -22,6 +22,7 @@ from pkg_resources import resource_filename
 from bhrelations import db_default
 from bhrelations.model import Relation
 from multiproduct.api import ISupportMultiProductEnvironment
+from trac.config import OrderedExtensionsOption
 from trac.core import (Component, implements, TracError, Interface,
                        ExtensionPoint)
 from trac.env import IEnvironmentSetupParticipant
@@ -33,21 +34,6 @@ from trac.util.datefmt import utc, to_utimestamp
 from trac.web.chrome import ITemplateProvider
 
 PLUGIN_NAME = 'Bloodhound Relations Plugin'
-
-
-class BaseValidationError(TracError):
-    def __init__(self, message, title=None, show_traceback=False):
-        super(BaseValidationError, self).__init__(
-            message, title, show_traceback)
-        self.failed_ids = []
-
-
-class CycleValidationError(BaseValidationError):
-    pass
-
-
-class ParentValidationError(BaseValidationError):
-    pass
 
 
 #TODO: consider making the interface part of future
@@ -81,6 +67,18 @@ class IRelationChangingListener(Interface):
     def deleting_relation(relation, when):
         """
         Called when a relation was added but transaction was not committed.
+        """
+
+
+class IRelationValidator(Interface):
+    """
+    Extension point interface for relation validators.
+    """
+
+    def validate(relation):
+        """
+        Validate the relation. If relation is not valid, raise appropriate
+        exception.
         """
 
 
@@ -160,6 +158,15 @@ class RelationsSystem(Component):
     RELATIONS_CONFIG_NAME = 'bhrelations_links'
 
     changing_listeners = ExtensionPoint(IRelationChangingListener)
+    all_validators = ExtensionPoint(IRelationValidator)
+    global_validators = OrderedExtensionsOption(
+        'bhrelations', 'global_validators',
+        interface=IRelationValidator,
+        default=['NoSelfReferenceValidator'],
+        include_missing=False,
+        doc="""Validators used to validate all relations,
+        regardless of their type."""
+    )
 
     def __init__(self):
         self._links, self._labels, self._validators, self._blockers, \
@@ -204,7 +211,6 @@ class RelationsSystem(Component):
             return relation.clone_reverted(other_end)
 
     def add_relation(self, relation):
-        #TBD: add changes in source and destination ticket history
         self.validate(relation)
         with self.env.db_transaction:
             relation.insert()
@@ -320,11 +326,11 @@ class RelationsSystem(Component):
                 label2 = config.get(end2 + '.label') or end2.capitalize()
                 labels[end2] = label2
 
-            validator = config.get(name + '.validator')
-            if validator:
-                validators[end1] = validator
+            custom_validators = self._parse_validators(config, name)
+            if custom_validators:
+                validators[end1] = custom_validators
                 if end2:
-                    validators[end2] = validator
+                    validators[end2] = custom_validators
 
             blockers[end1] = config.getbool(end1 + '.blocks', default=False)
             if end2:
@@ -342,101 +348,34 @@ class RelationsSystem(Component):
 
         return links, labels, validators, blockers, copy_fields
 
-    def validate(self, relation):
-        self._validate_self_reference(relation)
+    def _parse_validators(self, section, name):
+        custom_validators = set(
+            '%sValidator' % validator for validator in
+            set(section.getlist(name + '.validators', [], ',', True)))
+        validators = []
+        if custom_validators:
+            for impl in self.all_validators:
+                if impl.__class__.__name__ in custom_validators:
+                    validators.append(impl)
+        return validators
 
-        validator = self._get_validator(relation.type)
-        if validator:
-            validator(relation)
+    def validate(self, relation):
+        """
+        Validate the relation using the configured validators. Validation is
+        always run on the relation with master type.
+        """
+        backrel = self.get_reverted_relation(relation)
+        if backrel and (backrel.type, relation.type) in self._links:
+            relation = backrel
+
+        for validator in self.global_validators:
+            validator.validate(relation)
+
+        for validator in self._validators.get(relation.type, ()):
+            validator.validate(relation)
 
     def is_blocker(self, relation_type):
         return self._blockers[relation_type]
-
-    def _get_validator(self, relation_type):
-        #todo: implement generic validator factory based on interfaces
-        validator_name = self._validators.get(relation_type)
-        if validator_name == 'no_cycle':
-            validator = self._validate_no_cycle
-        elif validator_name == 'parent_child':
-            validator = self._validate_parent
-        else:
-            validator = None
-        return validator
-
-    def _validate_self_reference(self, relation):
-        if relation.source == relation.destination:
-            error = CycleValidationError(
-                'Ticket cannot be self-referenced in a relation.')
-            error.failed_ids = [relation.source]
-            raise error
-
-    def _validate_no_cycle(self, relation):
-        """If a path exists from relation's destination to its source,
-         adding the relation will create a cycle.
-         """
-        path = self._find_path(relation.destination,
-                               relation.source,
-                               relation.type)
-        if path:
-            cycle_str = [self.get_resource_name_from_id(resource_id)
-                         for resource_id in path]
-            error = 'Cycle in ''%s'': %s' % (
-                self.render_relation_type(relation.type),
-                ' -> '.join(cycle_str))
-            error = CycleValidationError(error)
-            error.failed_ids = path
-            raise error
-
-    def _validate_parent(self, relation):
-        self._validate_no_cycle(relation)
-
-        if relation.type == self.PARENT_RELATION_TYPE:
-            source = relation.source
-        elif relation.type == self.CHILDREN_RELATION_TYPE:
-            source = relation.destination
-        else:
-            return None
-
-        parent_relations = self._select_relations(
-            source, self.PARENT_RELATION_TYPE)
-        if len(parent_relations) > 0:
-            source_resource_name = self.get_resource_name_from_id(
-                relation.source)
-            parent_ids_ins_string = ", ".join(
-                [self.get_resource_name_from_id(relation.destination)
-                 for relation in parent_relations]
-            )
-            error = "Multiple links in '%s': %s -> [%s]" % (
-                self.render_relation_type(relation.type),
-                source_resource_name,
-                parent_ids_ins_string)
-            ex = ParentValidationError(error)
-            ex.failed_ids = [relation.destination
-                             for relation in parent_relations]
-            raise ex
-
-    def _find_path(self, source, destination, relation_type):
-        known_nodes = set()
-        new_nodes = {source}
-        paths = {(source, source): [source]}
-
-        while new_nodes:
-            known_nodes = set.union(known_nodes, new_nodes)
-            with self.env.db_query as db:
-                relations = dict(db("""
-                    SELECT source, destination
-                      FROM bloodhound_relations
-                     WHERE type = '%(relation_type)s'
-                       AND source IN (%(new_nodes)s)
-                """ % dict(
-                    relation_type=relation_type,
-                    new_nodes=', '.join("'%s'" % n for n in new_nodes))
-                ))
-            new_nodes = set(relations.values()) - known_nodes
-            for s, d in relations.items():
-                paths[(source, d)] = paths[(source, s)] + [d]
-            if destination in new_nodes:
-                return paths[(source, destination)]
 
     def render_relation_type(self, end):
         return self._labels[end]
@@ -461,7 +400,7 @@ class RelationsSystem(Component):
                     #     all_blockers.extend(blockers)
         return all_blockers
 
-    def get_resource_name_from_id(self, resource_id):
+    def get_resource_name(self, resource_id):
         resource = ResourceIdSerializer.get_resource_by_id(resource_id)
         return get_resource_shortname(self.env, resource)
 
@@ -608,7 +547,7 @@ class TicketChangeRecordUpdater(Component):
         if ticket_id is None:
             return
 
-        related_resource_name = relation_system.get_resource_name_from_id(
+        related_resource_name = relation_system.get_resource_name(
             relation.destination)
         if is_delete:
             old_value = related_resource_name

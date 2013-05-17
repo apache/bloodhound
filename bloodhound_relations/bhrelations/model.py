@@ -93,3 +93,6 @@ class Relation(ModelBase):
             destination=destination,
             type=relation_type
             ))
+
+    def __str__(self):
+        return '%s %s %s' % (self.source, self.type, self.destination)

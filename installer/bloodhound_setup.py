@@ -92,13 +92,14 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'bhrelations_links': {
                     'children.label': 'Child',
                     'dependency': 'dependson,dependent',
-                    'dependency.validator': 'no_cycle',
+                    'dependency.validators': 'NoCycles,SingleProduct',
                     'dependent.blocks': 'true',
                     'dependson.label': 'Depends on',
                     'dependent.label': 'Dependent',
                     'oneway': 'refersto',
                     'parent_children': 'parent,children',
-                    'parent_children.validator': 'parent_child',
+                    'parent_children.validators':
+                        'OneToMany,SingleProduct,NoCycles,Exclusive',
                     'refersto.label': 'Refers to',
                },
 
