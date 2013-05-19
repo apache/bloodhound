@@ -24,29 +24,26 @@
     py:strip="">
 
   <py:for each="item in items">
-    <h3 py:attrs="{ 'id' : item.get('id')}">${item.title}</h3>
+    <h3 py:attrs="{'id': item.get('id')}" class="hblock">${item.title}</h3>
     ${wiki_to_html(context, item.desc)}
     <py:if test="item.sections">
       <py:for each="section in item.sections">
-        <h6>${section.title}</h6>
-        <py:for each="subitem in section.entries">
-          <div class="row">
-            <div class="span2">
-              <span class="label label-inverse">${subitem.caption}</span>
-            </div>
-            <div class="offset2">
-              ${wiki_to_html(context, subitem.summary)}
-            </div>
-          </div>
-          <dl class="dl-horizontal" py:if="subitem.details">
-            <py:for each="row in subitem.details">
-              <py:if test="row[1]">
-                <dt style="line-height: 21px"><span class="label">${row[0]}</span></dt>
-                <dd style="line-height: 21px">${row[1]}</dd>
-              </py:if>
-            </py:for>
-          </dl>
-        </py:for>
+        <div><span class="label label-inverse">${section.title}</span></div>
+        <dl class="dl-horizontal">
+          <py:for each="subitem in section.entries">
+            <dt>${subitem.caption}</dt>
+            <dd>${wiki_to_html(context, subitem.summary)}
+              <p py:if="subitem.details">
+                <py:for each="i, row in enumerate(subitem.details)">
+                  <py:if test="row[1]">
+                    <span class="text-success">${row[0]}</span> :
+                    <span class="muted">${row[1]}</span>
+                  </py:if>
+                </py:for>
+              </p>
+            </dd>
+          </py:for>
+        </dl>
       </py:for>
     </py:if>
   </py:for>

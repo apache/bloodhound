@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+from inspect import isclass
 
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -37,6 +38,7 @@ from trac.resource import get_resource_url, Resource, resource_exists
 from trac.util.compat import set
 from trac.util.datefmt import parse_date
 from trac.util.translation import _
+from trac.web.chrome import add_stylesheet
 
 #--------------------------------------
 # Core classes and interfaces
@@ -151,6 +153,7 @@ class DashboardSystem(Component):
         """Render widget considering given options.
         """
         if name == 'WidgetDoc':
+            add_stylesheet(context.req, 'dashboard/css/docs.css')
             widget_name, = self.bind_params(options,
                     self.get_widget_params(name), 'urn')
             if widget_name is not None:
@@ -198,7 +201,8 @@ class DashboardSystem(Component):
     def widget_metadata(self, nm, provider=None):
         """Retrieve widget metadata.
 
-        :param nm:        Widget name
+        :param nm:        Wid
+        get name
         :param provider:  Widget provider. If omitted it will be resolved.
         """
         if provider is None:
@@ -213,9 +217,20 @@ class DashboardSystem(Component):
         """Transform widget metadata into a format suitable to render
         documentation.
         """
+        def plabel(p):
+            v = p.get('type', str)
+            module = getattr(v, '__module__', None)
+            if module in (None, '__builtin__'):
+                return getattr(v, '__name__', None) or v
+            else:
+                # FIXME: Improve e.g. for enum fields
+                if not isclass(v):
+                    v = v.__class__
+                return tag.span(v.__name__, title='in ' + module)
+
         return {
                 'id' : "%s-widget" % (spec['urn'],),
-                'title' : tag.code(spec['urn']),
+                'title' : spec['urn'],
                 'desc' : '\n'.join(l.strip() 
                                    for l in spec['desc'].splitlines()),
                 'sections' : [
@@ -228,7 +243,7 @@ class DashboardSystem(Component):
                                                 l.strip() for l in \
                                                 p.get('desc').splitlines()),
                                         'details' : [
-                                                ('Type', p.get('type', str)),
+                                                ('Type', plabel(p)),
                                                 ('Required', p.get('required',
                                                                    False)),
                                                 ('Default', p.get('default')),
@@ -238,6 +253,7 @@ class DashboardSystem(Component):
                         }
                     ]
             }
+
 
     def bind_params(self, options, spec, *params):
         """Extract values for widget arguments from `options` and ensure 
