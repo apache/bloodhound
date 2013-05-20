@@ -517,6 +517,19 @@ class ApiTestCase(BaseApiApiTestCase):
         except ValidationError:
             self.fail("Could not add valid relation.")
 
+    def test_cannot_close_ticket_with_open_children(self):
+        t1 = self._insert_and_load_ticket("1", status='closed')
+        t2 = self._insert_and_load_ticket("2", status='closed')
+        t3 = self._insert_and_load_ticket("3")
+        self.relations_system.add(t2, t1, "parent")
+        self.relations_system.add(t3, t1, "parent")
+
+        self.req.args["action"] = 'resolve'
+        warnings = TicketRelationsSpecifics(self.env).validate_ticket(
+            self.req, t1)
+        #assert
+        self.assertEqual(1, len(list(warnings)))
+
 
 class RelationChangingListenerTestCase(BaseApiApiTestCase):
     def test_can_sent_adding_event(self):

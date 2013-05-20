@@ -17,8 +17,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-
-from trac.test import Mock
+import unittest
 
 from bhrelations.validation import Validator
 from bhrelations.tests.api import BaseApiApiTestCase
@@ -92,4 +91,10 @@ class GraphFunctionsTestCase(BaseApiApiTestCase):
         )
 
 
+def suite():
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(GraphFunctionsTestCase, 'test'))
+    return test_suite
 
+if __name__ == '__main__':
+    unittest.main()

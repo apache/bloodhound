@@ -460,7 +460,8 @@ class TicketRelationsSpecifics(Component):
     def validate_ticket(self, req, ticket):
         action = req.args.get('action')
         if action == 'resolve':
-            blockers = RelationsSystem(self.env).find_blockers(
+            rls = RelationsSystem(self.env)
+            blockers = rls.find_blockers(
                 ticket, self.is_blocker)
             if blockers:
                 blockers_str = ', '.join(
@@ -470,6 +471,14 @@ class TicketRelationsSpecifics(Component):
                        "blocked by tickets [%s]"
                        % blockers_str)
                 yield None, msg
+
+            for relation in [r for r in rls.get_relations(ticket)
+                             if r['type'] == rls.CHILDREN_RELATION_TYPE]:
+                ticket = self._create_ticket_by_full_id(relation['destination'])
+                if ticket['status'] != 'closed':
+                    msg = ("Cannot resolve this ticket because it has open"
+                           "child tickets.")
+                    yield None, msg
 
     def is_blocker(self, resource):
         ticket = self._create_ticket_by_full_id(resource)
