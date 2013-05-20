@@ -136,9 +136,9 @@ class DashboardSystem(Component):
         """
         try:
             return {
-                    'WidgetDoc' : {
-                        'urn' : {
-                                'desc' : """Widget name. If missing then """
+                    'WidgetDoc': {
+                        'urn': {
+                                'desc': """Widget name. If missing then """
                                         """documentation for all widgets """
                                         """will be displayed."""
                                 }
@@ -162,11 +162,11 @@ class DashboardSystem(Component):
                             self.resolve_widget(widget_name))]
                 except LookupError:
                     return 'widget_alert.html', {
-                            'title' : _('Widget documentation'),
-                            'data' : {
-                                    'msglabel' : 'Alert',
-                                    'msgbody' : 'Unknown identifier',
-                                    'msgdetails' : [
+                            'title': _('Widget documentation'),
+                            'data': {
+                                    'msglabel': 'Alert',
+                                    'msgbody': 'Unknown identifier',
+                                    'msgdetails': [
                                             ('Widget name', widget_name)
                                         ]
                                   }
@@ -181,11 +181,11 @@ class DashboardSystem(Component):
                     not (context.resource and \
                     docs_resource == context.resource)
             return 'widget_doc.html', {
-                        'title' : _('Widget documentation'),
-                        'data' : {
-                                'items' : metadata
+                        'title': _('Widget documentation'),
+                        'data': {
+                                'items': metadata
                             },
-                        'ctxtnav' : [tag.a(tag.i(class_='icon-info-sign'),
+                        'ctxtnav': [tag.a(tag.i(class_='icon-info-sign'),
                                     ' ', _('Help'),
                                     href=get_resource_url(
                                             self.env, docs_resource,
@@ -208,9 +208,9 @@ class DashboardSystem(Component):
         if provider is None:
             provider = self.resolve_widget(nm)
         return {
-                'urn' : nm,
-                'desc' : provider.get_widget_description(nm),
-                'params' : provider.get_widget_params(nm),
+                'urn': nm,
+                'desc': provider.get_widget_description(nm),
+                'params': provider.get_widget_params(nm),
             }
 
     def _prepare_doc_metadata(self, spec):
@@ -229,20 +229,20 @@ class DashboardSystem(Component):
                 return tag.span(v.__name__, title='in ' + module)
 
         return {
-                'id' : "%s-widget" % (spec['urn'],),
-                'title' : spec['urn'],
-                'desc' : '\n'.join(l.strip() 
+                'id': "%s-widget" % (spec['urn'],),
+                'title': spec['urn'],
+                'desc': '\n'.join(l.strip()
                                    for l in spec['desc'].splitlines()),
-                'sections' : [
+                'sections': [
                         {
-                            'title' : _('Parameters'),
-                            'entries' : [
+                            'title': _('Parameters'),
+                            'entries': [
                                     {
-                                        'caption' : pnm,
-                                        'summary' : '\n'.join(
+                                        'caption': pnm,
+                                        'summary': '\n'.join(
                                                 l.strip() for l in \
                                                 p.get('desc').splitlines()),
-                                        'details' : [
+                                        'details': [
                                                 ('Type', plabel(p)),
                                                 ('Required', p.get('required',
                                                                    False)),
@@ -272,7 +272,7 @@ class DashboardSystem(Component):
                 if param_spec.get('required'):
                     raise InvalidWidgetArgument(p,
                             "Required parameter expected")
-                elif param_spec.get('default') is not None :
+                elif param_spec.get('default') is not None:
                     return param_spec['default']
                 else:
                     return None
@@ -422,7 +422,7 @@ class JsonField:
                 from simplejson import loads
             else:
                 from json import loads
-        except ImportError :
+        except ImportError:
             raise TracError('Unable to load library to parse JSON string')
         else:
             return loads(value)
