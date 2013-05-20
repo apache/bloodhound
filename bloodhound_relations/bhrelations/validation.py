@@ -22,7 +22,7 @@ from trac.core import Component, implements, TracError
 from trac.resource import get_resource_shortname
 
 from bhrelations.api import IRelationValidator, RelationsSystem, \
-    ResourceIdSerializer
+    ResourceIdSerializer, TicketRelationsSpecifics
 
 
 class Validator(Component):
@@ -185,6 +185,21 @@ class OneToManyValidator(Validator):
                     relation.source,
                     self.render_relation_type(relation.type)
                 ))
+
+
+class ReferencesOlderValidator(Validator):
+    def validate(self, relation):
+        source, destination = map(ResourceIdSerializer.get_resource_by_id,
+                                  [relation.source, relation.destination])
+        if source.realm == 'ticket' and destination.realm == 'ticket':
+            source, destination = map(
+                TicketRelationsSpecifics(self.env)._create_ticket_by_full_id,
+                [source, destination])
+            if destination['time'] > source['time']:
+                raise ValidationError(
+                    "Relation %s must reference an older resource." %
+                    self.render_relation_type(relation.type)
+                )
 
 
 class ValidationError(TracError):

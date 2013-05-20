@@ -106,6 +106,10 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                     'parent_children.validators':
                         'OneToMany,SingleProduct,NoCycles',
                     'refersto.label': 'Refers to',
+                    'duplicate': 'duplicateof,duplicatedby',
+                    'duplicate.validators': 'ReferencesOlder',
+                    'duplicateof.label': 'Duplicate of',
+                    'duplicatedby.label': 'Duplicated by',
                },
 
                }

@@ -61,6 +61,10 @@ class BaseApiApiTestCase(MultiproductTestCase):
         env.config.set(config_name, 'parent.exclusive', 'true')
         env.config.set(config_name, 'multiproduct_relation', 'mprel,mpbackrel')
         env.config.set(config_name, 'oneway', 'refersto')
+        env.config.set(config_name, 'duplicate', 'duplicateof,duplicatedby')
+        env.config.set(config_name, 'duplicate.validators', 'ReferencesOlder')
+        env.config.set(config_name, 'duplicateof.label', 'Duplicate of')
+        env.config.set(config_name, 'duplicatedby.label', 'Duplicated by')
 
         self.global_env = env
         self._upgrade_mp(self.global_env)
@@ -529,6 +533,19 @@ class ApiTestCase(BaseApiApiTestCase):
             self.req, t1)
         #assert
         self.assertEqual(1, len(list(warnings)))
+
+    def test_duplicate_can_only_reference_older_ticket(self):
+        t1 = self._insert_and_load_ticket("1")
+        t2 = self._insert_and_load_ticket("2")
+
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add,
+            t1,
+            t2,
+            "duplicateof",
+        )
+        self.relations_system.add(t2, t1, "duplicateof")
 
 
 class RelationChangingListenerTestCase(BaseApiApiTestCase):
