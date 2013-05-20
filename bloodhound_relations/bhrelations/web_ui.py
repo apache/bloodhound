@@ -28,14 +28,15 @@ import re
 import pkg_resources
 
 from trac.core import Component, implements, TracError
-from trac.resource import get_resource_url, ResourceNotFound
+from trac.resource import get_resource_url, ResourceNotFound, Resource
 from trac.ticket.model import Ticket
 from trac.util.translation import _
 from trac.web import IRequestHandler
-from trac.web.chrome import ITemplateProvider
+from trac.web.chrome import ITemplateProvider, add_warning
 
 from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
     TicketRelationsSpecifics
+from bhrelations.model import Relation
 
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
@@ -66,13 +67,16 @@ class RelationManagementModule(Component):
         relsys = RelationsSystem(self.env)
 
         if req.method == 'POST':
+            # for modifying the relations TICKET_MODIFY is required for
+            # both the source and the destination tickets
+            req.perm.require('TICKET_MODIFY')
+
             if req.args.has_key('remove'):
                 rellist = req.args.get('sel')
                 if rellist:
                     if isinstance(rellist, basestring):
                         rellist = [rellist, ]
-                    for rel in rellist:
-                        relsys.delete(rel)
+                    self.remove_relations(req, rellist)
             elif req.args.has_key('add'):
                 dest_tid = req.args.get('dest_tid')
                 reltype = req.args.get('reltype')
@@ -82,6 +86,8 @@ class RelationManagementModule(Component):
                         dest_ticket = self.find_ticket(dest_tid)
                     except ValueError:
                         raise TracError(_('Invalid ticket id.'))
+
+                    req.perm.require('TICKET_MODIFY', Resource(dest_ticket.id))
                     relsys.add(ticket, dest_ticket, reltype, comment,
                         req.authname)
             else:
@@ -145,4 +151,16 @@ class RelationManagementModule(Component):
             except:
                 raise ValueError
         return ticket
+
+    def remove_relations(self, req, rellist):
+        relsys = RelationsSystem(self.env)
+        for relid in rellist:
+            relation = Relation.load_by_relation_id(self.env, relid)
+            resource = ResourceIdSerializer.get_resource_by_id(
+                relation.destination)
+            if 'TICKET_MODIFY' in req.perm(resource):
+                relsys.delete(relid)
+            else:
+                add_warning(req,
+                    _('Not enough permissions to remove relation "%s"' % relid))
 
