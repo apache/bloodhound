@@ -91,13 +91,14 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'bhsearch': {'is_default': 'true', 'enable_redirect': 'true'},
                'bhrelations': {
                    'global_validators':
-                       'NoSelfReferenceValidator,ExclusiveValidator',
+                       'NoSelfReferenceValidator,ExclusiveValidator,'
+                       'BlockerValidator',
                },
                'bhrelations_links': {
                     'children.label': 'Child',
                     'dependency': 'dependson,dependent',
                     'dependency.validators': 'NoCycles,SingleProduct',
-                    'dependent.blocks': 'true',
+                    'dependson.blocks': 'true',
                     'dependson.label': 'Depends on',
                     'dependent.label': 'Dependent',
                     'oneway': 'refersto',

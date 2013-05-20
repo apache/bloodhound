@@ -63,14 +63,16 @@ class Validator(Component):
             else:
                 relation = 'destination, source'
                 origin = 'destination'
+            relation_types = \
+                ','.join("'%s'" % r for r in relation_type.split(','))
             query = """
                 SELECT %(relation)s
                   FROM bloodhound_relations
-                 WHERE type = '%(relation_type)s'
+                 WHERE type IN (%(relation_type)s)
                    AND %(origin)s IN (%(new_nodes)s)
             """ % dict(
                 relation=relation,
-                relation_type=relation_type,
+                relation_type=relation_types,
                 new_nodes=', '.join("'%s'" % n for n in new_nodes),
                 origin=origin)
             new_nodes = set()
@@ -200,6 +202,33 @@ class ReferencesOlderValidator(Validator):
                     "Relation %s must reference an older resource." %
                     self.render_relation_type(relation.type)
                 )
+
+
+class BlockerValidator(Validator):
+    def validate(self, relation):
+        """If a path exists from relation's destination to its source,
+         adding the relation will create a cycle.
+         """
+        rls = RelationsSystem(self.env)
+        if not rls.is_blocker(relation.type):
+            relation = rls.get_reverted_relation(relation)
+        if not relation or not rls.is_blocker(relation.type):
+            return
+
+        blockers = ','.join(b for b, is_blocker in rls._blockers.items()
+                            if is_blocker)
+
+        path = self._find_path(relation.source,
+                               relation.destination,
+                               blockers)
+        if path:
+            cycle_str = map(self.get_resource_name, path)
+            error = 'Cycle in ''%s'': %s' % (
+                self.render_relation_type(relation.type),
+                ' -> '.join(cycle_str))
+            error = ValidationError(error)
+            error.failed_ids = path
+            raise error
 
 
 class ValidationError(TracError):

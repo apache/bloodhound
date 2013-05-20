@@ -46,12 +46,13 @@ class BaseApiApiTestCase(MultiproductTestCase):
             enable=['trac.*', 'multiproduct.*', 'bhrelations.*']
         )
         env.config.set('bhrelations', 'global_validators',
-                       'NoSelfReferenceValidator,ExclusiveValidator')
+                       'NoSelfReferenceValidator,ExclusiveValidator,'
+                       'BlockerValidator')
         config_name = RelationsSystem.RELATIONS_CONFIG_NAME
         env.config.set(config_name, 'dependency', 'dependson,dependent')
         env.config.set(config_name, 'dependency.validators',
                        'NoCycles,SingleProduct')
-        env.config.set(config_name, 'dependent.blocks', 'true')
+        env.config.set(config_name, 'dependson.blocks', 'true')
         env.config.set(config_name, 'parent_children', 'parent,children')
         env.config.set(config_name, 'parent_children.validators',
                        'OneToMany,SingleProduct,NoCycles')
@@ -65,6 +66,8 @@ class BaseApiApiTestCase(MultiproductTestCase):
         env.config.set(config_name, 'duplicate.validators', 'ReferencesOlder')
         env.config.set(config_name, 'duplicateof.label', 'Duplicate of')
         env.config.set(config_name, 'duplicatedby.label', 'Duplicated by')
+        env.config.set(config_name, 'blocker', 'blockedby,blocks')
+        env.config.set(config_name, 'blockedby.blocks', 'true')
 
         self.global_env = env
         self._upgrade_mp(self.global_env)
@@ -351,7 +354,7 @@ class ApiTestCase(BaseApiApiTestCase):
         #arrange
         ticket1 = self._insert_and_load_ticket("A1")
         ticket2 = self._insert_and_load_ticket("A2")
-        self.relations_system.add(ticket1, ticket2, "dependent")
+        self.relations_system.add(ticket1, ticket2, "dependson")
         #act
         self.req.args["action"] = 'resolve'
         warnings = TicketRelationsSpecifics(self.env).validate_ticket(
@@ -363,7 +366,7 @@ class ApiTestCase(BaseApiApiTestCase):
         #arrange
         ticket1 = self._insert_and_load_ticket("A1")
         ticket2 = self._insert_and_load_ticket("A2", status="closed")
-        self.relations_system.add(ticket1, ticket2, "dependent")
+        self.relations_system.add(ticket1, ticket2, "dependson")
         #act
         self.req.args["action"] = 'resolve'
         warnings = TicketRelationsSpecifics(self.env).validate_ticket(
@@ -546,6 +549,30 @@ class ApiTestCase(BaseApiApiTestCase):
             "duplicateof",
         )
         self.relations_system.add(t2, t1, "duplicateof")
+
+    def test_detects_blocker_cycles(self):
+        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, range(5))
+        self.relations_system.add(t1, t2, "blocks")
+        self.relations_system.add(t3, t2, "dependson")
+        self.relations_system.add(t4, t3, "blockedby")
+        self.relations_system.add(t4, t5, "dependent")
+
+        self.assertRaises(ValidationError,
+                          self.relations_system.add, t2, t1, "blocks")
+        self.assertRaises(ValidationError,
+                          self.relations_system.add, t3, t1, "dependent")
+        self.assertRaises(ValidationError,
+                          self.relations_system.add, t1, t2, "blockedby")
+        self.assertRaises(ValidationError,
+                          self.relations_system.add, t1, t5, "dependson")
+
+        self.relations_system.add(t1, t2, "dependent")
+        self.relations_system.add(t2, t3, "blocks")
+        self.relations_system.add(t4, t3, "dependson")
+        self.relations_system.add(t5, t4, "blockedby")
+
+        self.relations_system.add(t1, t2, "refersto")
+        self.relations_system.add(t2, t1, "refersto")
 
 
 class RelationChangingListenerTestCase(BaseApiApiTestCase):
