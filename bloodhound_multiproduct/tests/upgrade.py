@@ -340,6 +340,17 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         with self.env.db_direct_transaction as db:
             db('SELECT * FROM "p1_dummy_table"')
 
+    def test_migrating_to_multiproduct_with_custom_default_prefix(self):
+        ticket = self.insert_ticket('ticket')
+
+        self.env.config.set('multiproduct', 'default_product_prefix', 'xxx')
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        products = Product.select(self.env)
+        self.assertEqual(len(products), 1)
+        self.assertEqual(products[0].prefix, 'xxx')
+
     def _enable_multiproduct(self):
         self._update_config('components', 'multiproduct.*', 'enabled')
 

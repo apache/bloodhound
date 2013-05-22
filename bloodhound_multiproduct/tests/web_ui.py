@@ -30,7 +30,7 @@ from trac.web.api import HTTPInternalError, HTTPNotFound, IRequestFilter, \
 from trac.web.href import Href
 from trac.web.main import RequestDispatcher
 
-from multiproduct.api import DEFAULT_PRODUCT
+from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.web_ui import ProductModule
@@ -174,10 +174,12 @@ class ProductModuleTestCase(RequestHandlerTestCase):
         req.authname = 'testuser'
         req.environ['PATH_INFO'] = '/products'
 
+        mps = MultiProductSystem(self.global_env)
         def assert_product_list(req, template, data, content_type):
             self.assertEquals('product_list.html', template)
             self.assertIs(None, content_type)
-            self.assertEquals([DEFAULT_PRODUCT, self.default_product], 
+            self.assertEquals([mps.default_product_prefix,
+                               self.default_product],
                               [p.prefix for p in data.get('products')])
             self.assertTrue('context' in data)
             ctx = data['context']

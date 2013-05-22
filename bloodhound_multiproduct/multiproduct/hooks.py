@@ -63,8 +63,10 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
         else:
             redirect = REDIRECT_DEFAULT_RE.match(path_info)
             if redirect:
-                from multiproduct.api import DEFAULT_PRODUCT
-                env = create_product_env(DEFAULT_PRODUCT,
+                from multiproduct.api import MultiProductSystem
+                default_product_prefix = \
+                    MultiProductSystem(global_env).default_product_prefix
+                env = create_product_env(default_product_prefix,
                                          environ['SCRIPT_NAME'],
                                          environ['PATH_INFO'])
         return env

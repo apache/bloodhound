@@ -47,13 +47,11 @@ from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER
 
-__all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER', 'DEFAULT_PRODUCT']
+__all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER']
 
 DB_VERSION = 4
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
-
-DEFAULT_PRODUCT = '@'
 
 class ISupportMultiProductEnvironment(Interface):
     """Extension point interface for components that are aware of multi
@@ -78,6 +76,13 @@ class MultiProductSystem(Component):
                IPermissionRequestor, IResourceChangeListener, IResourceManager,
                ISupportMultiProductEnvironment, ITemplateProvider, 
                ITicketFieldProvider, IWikiSyntaxProvider, ITicketManipulator)
+
+    default_product_prefix = Option(
+        'multiproduct',
+        'default_product_prefix',
+        default='@',
+        doc="""Prefix used for default product when migrating single-product
+        installations to multi-product.""")
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
@@ -312,7 +317,7 @@ class MultiProductSystem(Component):
         self.log.info("Creating default product")
         db("""INSERT INTO bloodhound_product (prefix, name, description, owner)
               VALUES ('%s', '%s', '%s', '')
-           """ % (DEFAULT_PRODUCT, 'Default', 'Default product'))
+           """ % (self.default_product_prefix, 'Default', 'Default product'))
 
     def _upgrade_tickets(self, db, TICKET_TABLES, create_temp_table):
         # migrate tickets that don't have product assigned to default product
@@ -323,14 +328,14 @@ class MultiProductSystem(Component):
         self.log.info("Migrating tickets w/o product to default product")
         db("""UPDATE ticket SET product='%s'
                       WHERE (product IS NULL OR product='')
-           """ % DEFAULT_PRODUCT)
+           """ % self.default_product_prefix)
         self._migrate_attachments(
             db("""SELECT a.type, a.id, a.filename
                             FROM attachment a
                       INNER JOIN ticket t ON a.id = %(t.id)s
                            WHERE a.type='ticket'
                        """ % {'t.id': db.cast('t.id', 'text')}),
-            to_product=DEFAULT_PRODUCT
+            to_product=self.default_product_prefix
         )
         self.log.info("Migrating ticket tables to a new schema")
         for table in TICKET_TABLES:
@@ -392,18 +397,18 @@ class MultiProductSystem(Component):
            """ % dict(table=table,
                       temp_table=temp_table_name,
                       cols=cols,
-                      default_product=DEFAULT_PRODUCT,))
+                      default_product=self.default_product_prefix,))
         db("""UPDATE attachment
                  SET product='%s'
                WHERE attachment.type='wiki'
-           """ % DEFAULT_PRODUCT)
+           """ % self.default_product_prefix)
         self._migrate_attachments(
             db("""SELECT type, id, filename
                     FROM attachment
                    WHERE type='wiki'
                      AND product='%s'
-               """ % (DEFAULT_PRODUCT)),
-            to_product=DEFAULT_PRODUCT,
+               """ % (self.default_product_prefix)),
+            to_product=self.default_product_prefix,
         )
         self._drop_temp_table(db, temp_table_name)
 
@@ -450,7 +455,7 @@ class MultiProductSystem(Component):
                 continue
             db("""INSERT INTO repository (id, name, value)
                           VALUES (%s, 'product', '%s')""" %
-               (id, DEFAULT_PRODUCT))
+               (id, self.default_product_prefix))
             repositories_linked.append(id)
             self.log.info("Repository '%s' (%s) soft linked to default product",
                           name, id)

@@ -215,6 +215,12 @@ class BloodhoundSetup(object):
                   "repository-type and the repository-path options."
             return False
 
+        custom_prefix = 'default_product_prefix'
+        if custom_prefix in options and options[custom_prefix]:
+            default_product_prefix = options[custom_prefix]
+        else:
+            default_product_prefix = '@'
+
         digestfile = os.path.abspath(os.path.join(new_env,
                                                   options['digestfile']))
         realm =  options['realm']
@@ -253,6 +259,10 @@ class BloodhoundSetup(object):
                                                             'bloodhound_multiproduct/multiproduct/hooks.py')))
         base_config['trac']['environment_factory'] = environment_factory_path
         base_config['trac']['request_factory'] = request_factory_path
+        if default_product_prefix != '@':
+            base_config['multiproduct'] = dict(
+                default_product_prefix=default_product_prefix
+            )
 
         self.writeconfig(baseini, [base_config, accounts_config])
 
@@ -283,13 +293,17 @@ class BloodhoundSetup(object):
         bloodhound.onecmd('wiki bh-upgrade')
 
         print "Loading default product wiki"
-        bloodhound.onecmd('product admin @ wiki load %s' % " ".join(pages))
+        bloodhound.onecmd('product admin %s wiki load %s' %
+                          (default_product_prefix,
+                           " ".join(pages)))
 
         print "Running default product wiki upgrades"
-        bloodhound.onecmd('product admin @ wiki upgrade')
+        bloodhound.onecmd('product admin %s wiki upgrade' %
+                          default_product_prefix)
 
         print "Running default product wiki Bloodhound upgrades"
-        bloodhound.onecmd('product admin @ wiki bh-upgrade')
+        bloodhound.onecmd('product admin %s wiki bh-upgrade' %
+                          default_product_prefix)
 
         print """
 You can now start Bloodhound by running:
@@ -392,6 +406,11 @@ def handle_options():
                       help='specify the repository type - ')
     parser.add_option('--repository-path', dest='repo_path',
                       help='specify the repository type')
+
+    # Multiproduct options
+    parser.add_option('--default-product-prefix', dest='default_product_prefix',
+                      help='Specify prefix for default product (defaults to @')
+
     (options, args) = parser.parse_args()
     if args:
         print "Unprocessed options/arguments: ", args
