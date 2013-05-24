@@ -45,7 +45,8 @@ class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
         self.env = self._setup_test_env()
 
         # Dummy config file, a sibling of trac.ini
-        self.filename = os.path.join(self.env.path, 'conf', 'product.ini')
+        tmpdir = os.path.realpath(self.env.path)
+        self.filename = os.path.join(tmpdir, 'conf', 'product.ini')
         # Ensure conf sub-folder is created
         os.mkdir(os.path.dirname(self.filename))
 
