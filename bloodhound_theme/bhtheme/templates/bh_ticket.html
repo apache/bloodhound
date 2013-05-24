@@ -301,12 +301,10 @@
     </py:def>
 
     <py:def function="render_ticket_summary(t, showid)">
-      <py:if test="showid"> <h2><span class="visible-phone">${'#' + t.id if t.exists else 'NEW'} - </span></h2></py:if>
+      <py:if test="showid"><h2><span class="visible-phone">${'#' + t.id if t.exists else 'NEW'} - </span></h2></py:if>
       <h2 class="ticket-summary searchable clip-affix" contenteditable="false"
-        data-edit="${'inplace' if can_modify or can_create else None}"
-        id="vc-summary" placeholder-content="${'Enter ticket summary' if not t.summary else ''}">
-        <py:if test="t.summary">$t.summary</py:if><br />
-        </h2>
+        data-edit="${'inplace' if can_modify or can_create else None}" id="vc-summary"
+        placeholder-content="${'Enter ticket summary' if not t.summary else ''}">${t.summary if t.summary else None}</h2>
     </py:def>
     
     <py:def function="render_ticket_summary_details(t)">
@@ -332,7 +330,7 @@
       <span id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
         <button id="inplace-edit" class="btn">
           <i class="icon-edit"></i>
-          <span class="hidden-phone hidden-tablet">${_('Modify Ticket')}</span>
+          <span>${_('Modify Ticket')}</span>
         </button>
         <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
           <button id="edit-submit" class="btn" type="submit"
@@ -369,14 +367,12 @@
           </py:if>
           <input id="hidden-comment" type="hidden" name="comment" value="" />
 
-
-
-              <div class="$colspan">
-                <!--! ticket properties -->
-                <div class="properties">
-                  ${render_ticket_summary_details(ticket)}
-                </div>
-              </div>
+          <div class="$colspan">
+            <!--! ticket properties -->
+            <div class="properties">
+              ${render_ticket_summary_details(ticket)}
+            </div>
+          </div>
 
           <div id="content" class="$colspan">
             <div id="belowStatus">
@@ -384,12 +380,11 @@
               <!--! ticket details -->
                 <!--! main ticket info -->
                 <div class="properties">
-                  <table class="ticket-properties">
                   <xi:include href="bh_ticket_box.html"
                       py:with="preview_mode = change_preview.fields if change_preview else False;
                           colcount = 4 if bhdb else 6"/>
-                  </table>
                 </div>
+
                 <div id="dummy-vc-summary" style="display: none"/>
 
                 <div py:if="bhrelations and ticket.exists" class="relations">
@@ -499,7 +494,7 @@
                       <tr py:if="can_modify or can_create">
                         <td colspan="2">
                           <label for="field-product-name">Product:</label>
-                           <input type="text" disabled="disabled" class="span2"
+                          <input type="text" disabled="disabled"
                             id="field-product-name" name="field_product_name"
                             value="$req.perm.env.product.name ($req.perm.env.product.prefix)" />
                           <input type="hidden" id="field-product" name="field_product" value="$req.perm.env.product.prefix" />
@@ -516,7 +511,7 @@
                       <tr py:if="only_for_admin">
                         <td colspan="2">
                           <label for="field-reporter">Reporter:</label>
-                          <input class="span2" type="text" id="field-reporter" name="field_reporter" value="${ticket.reporter}" />
+                          <input type="text" id="field-reporter" name="field_reporter" value="${ticket.reporter}" />
                         </td>
                       </tr>
   
@@ -543,8 +538,7 @@
                             <label for="field-${field.name}" py:if="field" id="${'editor-' + field.name}"
                                     i18n:msg="field">${field.edit_label or field.label or field.name}:</label>
                             <py:choose test="field.type" py:if="field">
-                              <select py:when="'select'" id="field-${field.name}" name="field_${field.name}"
-                                  class="span2">
+                              <select py:when="'select'" id="field-${field.name}" name="field_${field.name}">
                                 <option py:if="field.optional"></option>
                                 <option py:for="option in field.options"
                                         selected="${value == option or None}"

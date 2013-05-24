@@ -1135,7 +1135,7 @@ table.wiki th {
 
 .lastmod {
   font-size: 90%;
-  color: rgb(80, 80, 80);
+  color: rgb(120, 120, 120);
   font-style: italic;
 }
 
@@ -1147,13 +1147,18 @@ table.wiki th {
   font-weight: normal;
 }
 
-.ticket-properties td{
+.ticket-properties td {
   border: none;
+  padding-left: 0;
+}
+
+.ticket-properties input, .ticket-properties select {
+  margin-bottom: 0;
 }
 
 .ticket-properties td:first-child{
-  text-align: right;
-  font-weight: bold;
+  color: rgb(120, 120, 120);
+  width: 35%;
 }
 
 #trac-add-comment textarea#comment{
