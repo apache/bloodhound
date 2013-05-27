@@ -51,13 +51,13 @@
 </p>
 ------------------------------
 ============================== %(tc_title_prefix)s - JIRA syntax with unicode digits
-%(setup_product)s-⁴²
-%(link_prefix)sT-²⁰⁴¹
-%(link_prefix)strac-²⁰⁴¹
+%(setup_product)s-４２
+%(link_prefix)sT-２０４１
+%(link_prefix)strac-２０４１
 ------------------------------
 <p>
-<a class="missing ticket">%(setup_product)s-⁴²</a>
-<a class="missing product">T-²⁰⁴¹</a>
-<a class="missing product">trac-²⁰⁴¹</a>
+<a class="missing ticket">%(setup_product)s-４２</a>
+<a class="missing product">T-２０４１</a>
+<a class="missing product">trac-２０４１</a>
 </p>
 ------------------------------
