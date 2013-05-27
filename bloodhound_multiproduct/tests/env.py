@@ -35,7 +35,7 @@ else:
     from unittest.case import _AssertRaisesContext
 
 from trac.config import Option
-from trac.core import Component
+from trac.core import Component, ComponentMeta
 from trac.env import Environment
 from trac.test import EnvironmentStub, MockPerm
 from trac.tests.env import EnvironmentTestCase
@@ -471,6 +471,10 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
          # Test the rules against Trac component class
         _test_component_enabled(TicketModule)
+
+        # ComponentMeta._components is shared between multiple tests.
+        # Unregister class C as its fake module might break something else.
+        ComponentMeta._components.remove(C)
 
     def test_path(self):
         """Testing env.path"""
