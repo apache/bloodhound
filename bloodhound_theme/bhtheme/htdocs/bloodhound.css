@@ -238,10 +238,6 @@ pre {
 
 /* @group Ticket page modifications */
 
-.bh-ticket-buttons {
- padding-left: 5px;
-}
-
 .clearboth {
  clear: both;
 }
@@ -286,6 +282,10 @@ pre {
 
 #trac-comment-editor textarea {
  width: 100%;
+}
+
+.comment-box #trac-comment-editor textarea {
+ width: 97%;
 }
 
 .relations {
@@ -437,15 +437,17 @@ h1, h2, h3, h4 {
 
 .comment blockquote p {
    font-size: 13px;
- }
+}
+
+.comment p {
+  margin: 5px inherit;
+  color: rgb(80, 80, 80);
+}
+
 
 /* @end */
 
 /* @group Search */
-
-.comment blockquote p {
- font-size: 13px;
-}
 
 .search_results dt {
  font-weight: inherit;
@@ -1137,6 +1139,7 @@ table.wiki th {
   font-size: 90%;
   color: rgb(120, 120, 120);
   font-style: italic;
+  margin-bottom: 5px;
 }
 
 .description {
@@ -1169,14 +1172,20 @@ table.wiki th {
 }
 
 
-#changelog div.comment-box{
- border: 1px solid #ccc;
- border-radius: 6px;
- box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
- padding: 13px;
- margin: 10px 0px 10px 0px;
- background-color: rgb(253, 252, 250);
- min-height: 20px;
+#changelog div.comment-box {
+  background-color: rgb(253, 252, 250);
+  margin-left: 30px;
+  margin-bottom: 10px;
+  display: block;
+  visibility: visible;
+  position: relative;
+  z-index: 0;
+  max-width: inherit;
+}
+
+#changelog hr {
+  margin: 10px auto 5px 0;
+  width: 75%;
 }
 
 #trac-add-comment fieldset{
@@ -1194,13 +1203,13 @@ textarea#comment, #trac-add-comment fieldset{
  content: attr(placeholder-content);
 }
 
-#changelog div.comment-box h4 {
-  margin-top: 0px;
-}
-
 #changelog ul.changes {
-  list-style-image: url('../common/collapsed.png');
-  padding: 0px 0px 0px 11px;
+  list-style-type: none;
+  margin-left: 0;
+  margin-bottom: 5px;
+  padding-right: 14px;
+  background-color: #f5fafd;
+  color: inherit;
 }
 
 .ticket form#prefs input[type="radio"]{
