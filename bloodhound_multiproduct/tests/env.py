@@ -47,22 +47,6 @@ from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 
-# unittests in python2.7 run in the same process and share the same connection
-# pool. This basically means that all tests share the same in-memory database,
-# and calling reset_db in teardown methods destroys data prepared in __init__
-# of other tests. Trac tests do not do prepare data in __init__, but when run
-# with a product env, which stores config values to database, this behavior
-# causes multiple tests to fail.
-#
-# We workaround this issue by monkey patching trac's ConnectionPool. We force
-# it to establish a separate connection for each DatabaseManager.
-from trac.db.pool import ConnectionPool, ConnectionPoolBackend
-def ConnectionPool_get_cnx(self, timeout=None):
-    if not hasattr(self, '_backend'):
-        self._backend = ConnectionPoolBackend(1)
-    return self._backend.get_cnx(self._connector, self._kwargs, timeout)
-ConnectionPool.get_cnx = ConnectionPool_get_cnx
-
 
 class ProductEnvironmentStub(ProductEnvironment):
     r"""A product environment slightly tweaked for testing purposes

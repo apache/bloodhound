@@ -22,6 +22,9 @@ import os.path
 import re
 import unittest
 
+from trac.test import Mock, MockPerm, locale_en
+from trac.util.datefmt import utc
+from trac.web.href import Href
 from trac.web.main import FakeSession
 from trac.wiki.tests import formatter
 
@@ -29,42 +32,15 @@ from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from tests.env import MultiproductTestCase
 
-class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
 
+
+
+class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
     maxDiff = None
 
-    @property
-    def env(self):
-        env = getattr(self, '_env', None)
-        if env is None:
-            all_test_components = [
-                    formatter.HelloWorldMacro, formatter.DivHelloWorldMacro, 
-                    formatter.TableHelloWorldMacro, formatter.DivCodeMacro, 
-                    formatter.DivCodeElementMacro, formatter.DivCodeStreamMacro,
-                    formatter.NoneMacro, formatter.WikiProcessorSampleMacro, 
-                    formatter.SampleResolver]
-            self.global_env = self._setup_test_env(
-                    enable=['trac.*', 'multiproduct.*'] + all_test_components
-                )
-            self._upgrade_mp(self.global_env)
-            self._load_product_from_data(self.global_env, self.default_product)
-            prefix = self.default_product
-            if self.mpctx:
-                prefix = self.mpctx.get('setup_product', prefix)
-                if prefix and prefix != self.default_product:
-                    self._load_product_from_data(self.global_env, prefix)
-            if prefix:
-                self._env = env = ProductEnvironment(
-                        self.global_env, prefix or self.default_product)
-            else:
-                self._env = env = self.global_env
-        return env
-
-    @env.setter
-    def env(self, value):
-        pass
-
     def setUp(self):
+        self._prepare_env()
+
         self._setup_test_log(self.global_env)
         formatter.WikiTestCase.setUp(self)
         if self.context.req:
@@ -79,13 +55,60 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
 
             prefix = self.mpctx.get('main_product', NotImplemented)
             if prefix is None:
-                self._env = self.global_env
+                self.env = self.global_env
             elif prefix is not NotImplemented \
                     and (self.env is self.global_env or 
                          prefix != self.env.product.prefix):
-                self._env = ProductEnvironment(self.global_env, prefix)
+                self.env = ProductEnvironment(self.global_env, prefix)
             # Enable multi-product components
-            self._env.config.set('components', 'multiproduct.*', 'enabled')
+            self.env.config.set('components', 'multiproduct.*', 'enabled')
+
+    def _prepare_env(self):
+        all_test_components = [
+                    formatter.HelloWorldMacro, formatter.DivHelloWorldMacro,
+                    formatter.TableHelloWorldMacro, formatter.DivCodeMacro,
+                    formatter.DivCodeElementMacro, formatter.DivCodeStreamMacro,
+                    formatter.NoneMacro, formatter.WikiProcessorSampleMacro,
+                    formatter.SampleResolver]
+        self.global_env = self._setup_test_env(
+            enable=['trac.*', 'multiproduct.*'] + all_test_components
+        )
+
+        self._upgrade_mp(self.global_env)
+        self._load_product_from_data(self.global_env, self.default_product)
+        prefix = self.default_product
+        if self.mpctx:
+            prefix = self.mpctx.get('setup_product', prefix)
+            if prefix and prefix != self.default_product:
+                self._load_product_from_data(self.global_env, prefix)
+        if prefix:
+            self.env = ProductEnvironment(self.global_env,
+                                          prefix or self.default_product)
+        else:
+            self.env = self.global_env
+
+        self.env.path = ''
+        config = self.env.config
+        # -- intertrac support
+        config.set('intertrac', 'trac.title', "Trac's Trac")
+        config.set('intertrac', 'trac.url',
+                   "http://trac.edgewall.org")
+        config.set('intertrac', 't', 'trac')
+        config.set('intertrac', 'th.title', "Trac Hacks")
+        config.set('intertrac', 'th.url',
+                   "http://trac-hacks.org")
+        config.set('intertrac', 'th.compat', 'false')
+        # -- safe schemes
+        config.set('wiki', 'safe_schemes',
+                   'file,ftp,http,https,svn,svn+ssh,'
+                   'rfc-2396.compatible,rfc-2396+under_score')
+
+        req = Mock(href=Href('/'), abs_href=Href('http://www.example.com/'),
+                   authname='anonymous', perm=MockPerm(), tz=utc, args={},
+                   locale=locale_en, lc_time=locale_en)
+
+        self.env.href = req.href
+        self.env.abs_href = req.abs_href
 
     def tearDown(self):
         self.global_env.reset_db()
