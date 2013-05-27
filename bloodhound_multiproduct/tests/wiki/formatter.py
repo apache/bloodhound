@@ -33,8 +33,6 @@ from multiproduct.model import Product
 from tests.env import MultiproductTestCase
 
 
-
-
 class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
     maxDiff = None
 
