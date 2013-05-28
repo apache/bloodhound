@@ -60,7 +60,7 @@ Arguments:
     <div py:if="change.comment" class="arrow"></div>
     <div class="popover-title">
       <i class="icon-user"></i> <i>${authorinfo(change.author)}</i>
-      <span class="pull-right small" py:if="'date' in change"><small>${pretty_dateinfo(change.date)}</small></span>
+      <span class="pull-right" py:if="'date' in change"><small>${pretty_dateinfo(change.date)}</small></span>
     </div>
     <div class="popover-content">
       <ul py:if="change.fields" class="alert alert-info changes${' creation-event' if not change.cnum else ''}">

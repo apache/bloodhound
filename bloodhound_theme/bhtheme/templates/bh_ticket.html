@@ -461,7 +461,7 @@
         
         <div class="${cols_activity + ' activityfeed' if ticket.exists else None}">
           <form py:if="ticket.exists" id="prefs" method="get" action="${href.prefs()}">
-            <div id="trac-comments-order" style="display: inline" class="pull-right">
+            <div id="trac-comments-order" class="pull-right">
               <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
               <label for="trac-comments-newest">
                 <span>Newest first</span>
@@ -469,18 +469,6 @@
               <input type="radio" id="trac-comments-oldest" name="trac-comments-order" value="oldest" checked="checked" />
               <label for="trac-comments-oldest">
                 <span>Oldest first</span>
-              </label>
-              <span id="trac-threaded-toggle" style="display: none">
-                <input type="radio" id="trac-comments-threaded" name="trac-comments-order" value="threaded" />
-                <label for="trac-comments-threaded">
-                  <span>Threaded</span>
-                </label>
-              </span>
-            </div>
-            <div style="display: none">
-              <input id="trac-comments-only-toggle" type="checkbox" />
-              <label for="trac-comments-only-toggle">
-                <span class="label">Comments only</span>
               </label>
             </div>
           </form>
@@ -504,17 +492,24 @@
                   and any <em class="trac-conflict">conflicts</em> shown in the preview below.
                   You can nevertheless proceed and submit your changes if you wish so.
                 </div>
+
                 <!--! Comment field -->
                 <fieldset class="iefix">
-                  <textarea id="comment" name="comment" class="trac-resizable" rows="2"
-                      placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
-                  <input type="submit" id="comment-submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
-                  <label for="comment" class="help-block" i18n:msg="">
-                    <span class="label label-info">Tip</span>
-                    You may use
-                    <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
-                    here.
-                  </label>
+                  <div class="comment-box popover fade in right">
+                    <div class="arrow"></div>
+                    <div class="popover-title"><i class="icon-comment"></i> Add quick comment</div>
+                    <div class="popover-content">
+                      <textarea id="comment" name="comment" class="trac-resizable" rows="2"
+                          placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
+                      <input type="submit" id="comment-submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
+                      <label for="comment" class="help-block" i18n:msg="">
+                        <span class="label label-info">Tip</span>
+                        You may use
+                        <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+                        here.
+                      </label>
+                    </div>
+                  </div>
                 </fieldset>
               </div>
             </div>

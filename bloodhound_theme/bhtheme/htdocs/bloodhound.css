@@ -181,15 +181,11 @@ div.reports form {
 .activityfeed {
   background-image: url("img/change_history_arrow_line.png");
   background-repeat: repeat-y;
-  background-position: 20px 0px;
+  background-position: 10px 0px;
 }
 
 .timeline .activityfeed {
   background-image: none;
-}
-
-.activityfeed .help-block {
-  margin-left: 30px;
 }
 
 #mobile-activity {
@@ -1172,15 +1168,24 @@ table.wiki th {
 }
 
 
-#changelog div.comment-box {
+#changelog div.comment-box,
+#trac-add-comment div.comment-box {
   background-color: rgb(253, 252, 250);
-  margin-left: 30px;
+  margin-left: 20px;
   margin-bottom: 10px;
   display: block;
   visibility: visible;
   position: relative;
   z-index: 0;
   max-width: inherit;
+}
+
+#trac-add-comment div.comment-box {
+  margin-bottom: 30px;
+}
+
+#trac-add-comment div.comment-box .popover-title {
+  background-color: rgb(244,250,253);
 }
 
 #changelog hr {
