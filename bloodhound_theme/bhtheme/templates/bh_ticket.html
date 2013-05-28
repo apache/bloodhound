@@ -65,6 +65,7 @@
         // Install in place editing
         install_workflow();
         $('#edit-cancel').click(revert_ticket);
+        $('#edit-cancel-below').click(revert_ticket);
 
         var modify_elem = $('#modify');
         modify_elem.parent().hide();
@@ -119,12 +120,22 @@
           //$('#inplace-propertyform').autoSubmit({preview : 1}, 
           //    full_preview, '#overview .trac-loading')
           $('#inplace-propertyform').submit(function() {
-              $('#hidden-comment').val($('#comment').val());
+              $('#hidden-comment').val($('#edit-comment').val());
             })
           $('#inplace-edit').hide();
           $('#edit-state-buttons').show();
+          $('#edit-state-buttons-below').show();
           $('#vc-status a').hide();
           $('#edit-workflow-buttons').show();
+          $('#edit-comment').show();
+
+          $('.activityfeed').css('opacity', '0.3');
+          $('.relations').css('opacity', '0.3');
+          $('#attachments').css('opacity', '0.3');
+          $('#comment').attr('disabled', 'disabled');
+          $('#comment-submit').attr('disabled', 'disabled');
+          $('#manage-relations').attr('disabled', 'disabled');
+          $('#attachfilebutton').attr('disabled', 'disabled');
         }
 
         function add_update_hidden_summary_fn() {
@@ -146,8 +157,19 @@
           $('#inplace-edit').show();
           $('#vc-summary').attr('contenteditable', 'false');
           $('#edit-state-buttons').hide();
+          $('#edit-state-buttons-below').hide();
           $('#vc-status a').show();
           $('#edit-workflow-buttons').hide();
+          $('#edit-comment').hide();
+
+          $('#comment').removeAttr('disabled');
+          $('#comment-submit').removeAttr('disabled');
+          $('#manage-relations').removeAttr('disabled');
+          $('#attachfilebutton').removeAttr('disabled');
+          $('.activityfeed').css('opacity', '');
+          $('.relations').css('opacity', '');
+          $('#attachments').css('opacity', '');
+
           e.preventDefault();
         }
 
@@ -383,14 +405,21 @@
 
                 <div id="dummy-vc-summary" style="display: none"></div>
 
-                <div py:if="bhrelations and ticket.exists" class="relations">
-                  <bh:widget urn="TicketRelations">
-                    <bh:args>
-                      <bh:arg name="tid">$ticket.id</bh:arg>
-                      <bh:arg name="max">20</bh:arg>
-                    </bh:args>
-                  </bh:widget>
-                </div>
+                <py:if test="ticket.exists">
+                  <textarea id="edit-comment" class="trac-resizable span7 hide" name="edit-comment"
+                      rows="4" placeholder="Enter new comment" onfocus="this.placeholder = ''"
+                      onblur="this.placeholder = 'Enter new comment'"></textarea>
+
+                  <div id="edit-state-buttons-below" class="btn-toolbar hide">
+                    <button id="edit-submit-below" class="btn" type="submit"
+                        value="Submit changes" name="submit">
+                      Submit changes
+                    </button>
+                    <button id="edit-cancel-below" class="btn-link" title="Discard changes">
+                      Cancel
+                    </button>
+                  </div>
+                </py:if>
 
                 <py:if test="not ticket.exists">
                   <!--! Attachment on creation checkbox -->
@@ -408,6 +437,15 @@
               </div>
             </div>
           </form>
+
+          <div py:if="bhrelations and ticket.exists" class="relations">
+            <bh:widget urn="TicketRelations">
+              <bh:args>
+                <bh:arg name="tid">$ticket.id</bh:arg>
+                <bh:arg name="max">20</bh:arg>
+              </bh:args>
+            </bh:widget>
+          </div>
 
           <!--! do not show attachments for old versions of this ticket or for new tickets -->
           <div py:if="not version and version != 0 and ticket.exists">
@@ -470,7 +508,7 @@
                 <fieldset class="iefix">
                   <textarea id="comment" name="comment" class="trac-resizable" rows="2"
                       placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
-                  <input type="submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
+                  <input type="submit" id="comment-submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
                   <label for="comment" class="help-block" i18n:msg="">
                     <span class="label label-info">Tip</span>
                     You may use

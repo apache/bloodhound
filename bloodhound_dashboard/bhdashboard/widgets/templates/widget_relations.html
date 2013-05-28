@@ -55,7 +55,9 @@
   </py:choose>
 
   <div class="btn-group">
-    <a class="btn" href="${href.ticket(ticket.id, 'relations')}"><i class="icon-retweet"></i> Manage relations</a>
+    <form method="get" action="${href.ticket(ticket.id, 'relations')}">
+      <button type="submit" class="btn" id="manage-relations"><i class="icon-retweet"></i> Manage relations</button>
+    </form>
   </div>
 </div>
 

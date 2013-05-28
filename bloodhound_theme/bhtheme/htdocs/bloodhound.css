@@ -273,6 +273,10 @@ pre {
  margin-top: 0px;
 }
 
+#edit-comment {
+  margin-top: 30px;
+}
+
 .trac-loading {
  background: url(../common/loading.gif) 0 50% no-repeat;
  margin: 0 1em;
