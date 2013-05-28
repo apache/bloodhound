@@ -358,63 +358,70 @@
 
       <div class="row">
         <div class="$colspan">
-          <div class="row">
-            <form py:strip="not has_property_editor" method="post" id="inplace-propertyform"
-                action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists else href.newticket() + '#ticket'}">
-              <py:if test="has_property_editor">
-                <input type="hidden" name="start_time" value="${to_utimestamp(start_time)}" />
-                <input type="hidden" name="view_time" value="${to_utimestamp(ticket['changetime'])}" />
-              </py:if>
-              <input id="hidden-comment" type="hidden" name="comment" value="" />
-      
-              <div class="$colspan">
-                <!--! ticket properties -->
+          <form py:strip="not has_property_editor" method="post" id="inplace-propertyform"
+              action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists else href.newticket() + '#ticket'}">
+            <py:if test="has_property_editor">
+              <input type="hidden" name="start_time" value="${to_utimestamp(start_time)}" />
+              <input type="hidden" name="view_time" value="${to_utimestamp(ticket['changetime'])}" />
+            </py:if>
+            <input id="hidden-comment" type="hidden" name="comment" value="" />
+    
+            <!--! ticket properties -->
+            <div class="properties">
+              ${render_ticket_summary_details(ticket)}
+            </div>
+
+            <div id="content">
+              <div id="belowStatus">
+                <!--! ticket details -->
+                <!--! main ticket info -->
                 <div class="properties">
-                  ${render_ticket_summary_details(ticket)}
+                  <xi:include href="bh_ticket_box.html"
+                      py:with="preview_mode = change_preview.fields if change_preview else False;
+                          colcount = 4 if bhdb else 6"/>
                 </div>
-              </div>
 
-              <div id="content" class="$colspan">
-                <div id="belowStatus">
+                <div id="dummy-vc-summary" style="display: none"></div>
 
-                  <!--! ticket details -->
-                    <!--! main ticket info -->
-                    <div class="properties">
-                      <xi:include href="bh_ticket_box.html"
-                          py:with="preview_mode = change_preview.fields if change_preview else False;
-                              colcount = 4 if bhdb else 6"/>
-                    </div>
-
-                    <div id="dummy-vc-summary" style="display: none"></div>
-
-                    <div py:if="bhrelations and ticket.exists" class="relations">
-                      <bh:widget urn="TicketRelations">
-                        <bh:args>
-                          <bh:arg name="tid">$ticket.id</bh:arg>
-                          <bh:arg name="max">20</bh:arg>
-                        </bh:args>
-                      </bh:widget>
-                    </div>
+                <div py:if="bhrelations and ticket.exists" class="relations">
+                  <bh:widget urn="TicketRelations">
+                    <bh:args>
+                      <bh:arg name="tid">$ticket.id</bh:arg>
+                      <bh:arg name="max">20</bh:arg>
+                    </bh:args>
+                  </bh:widget>
                 </div>
-              </div>
-            </form>
 
-            <!--! do not show attachments for old versions of this ticket or for new tickets -->
-            <div class="$colspan" py:if="not version and version != 0 and ticket.exists">
-              <xi:include href="bh_list_of_attachments.html"
-                          py:with="alist = attachments; foldable = True"/>
-            </div>
+                <py:if test="not ticket.exists">
+                  <!--! Attachment on creation checkbox -->
+                  <p py:if="'ATTACHMENT_CREATE' in perm(ticket.resource.child('attachment'))">
+                    <label>
+                      <input type="checkbox" name="attachment" checked="${'attachment' in req.args or None}" />
+                      I have files to attach to this ticket
+                    </label>
+                  </p>
 
-            <div class="$colspan">
-              <div id="help" class="help-block" i18n:msg="">
-                <span class="label label-info">Note:</span> See
-                <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
+                  <div class="buttons">
+                    <input type="submit" class="btn" name="submit" value="${_('Create ticket')}" />
+                  </div>
+                </py:if>
               </div>
             </div>
+          </form>
+
+          <!--! do not show attachments for old versions of this ticket or for new tickets -->
+          <div py:if="not version and version != 0 and ticket.exists">
+            <xi:include href="bh_list_of_attachments.html"
+                        py:with="alist = attachments; foldable = True"/>
+          </div>
+
+          <div id="help" class="help-block" i18n:msg="">
+            <span class="label label-info">Note:</span> See
+            <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
           </div>
         </div>
         
-        <div class="$cols_activity activityfeed">
+        <div class="${cols_activity + ' activityfeed' if ticket.exists else None}">
           <form py:if="ticket.exists" id="prefs" method="get" action="${href.prefs()}">
             <div id="trac-comments-order" style="display: inline" class="pull-right">
               <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
@@ -443,6 +450,7 @@
           <form py:if="has_property_editor" method="post" id="propertyform"
                     action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists
                               else href.newticket() + '#ticket'}">
+
             <div py:if="ticket.exists and can_append">
               <!--! Add comment -->
               <div id="trac-add-comment" class="field">
@@ -462,9 +470,7 @@
                 <fieldset class="iefix">
                   <textarea id="comment" name="comment" class="trac-resizable" rows="2"
                       placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
-                  <py:if test="ticket.exists">
-                    <input type="submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
-                  </py:if>
+                  <input type="submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
                   <label for="comment" class="help-block" i18n:msg="">
                     <span class="label label-info">Tip</span>
                     You may use
@@ -634,28 +640,16 @@
                 </fieldset>
               </div>
 
-              <!--! Attachment on creation checkbox -->
-              <p py:if="not ticket.exists and 'ATTACHMENT_CREATE' in perm(ticket.resource.child('attachment'))">
-                <label>
-                  <input type="checkbox" name="attachment" checked="${'attachment' in req.args or None}" />
-                  I have files to attach to this ticket
-                </label>
-              </p>
-
-              <div py:if="ticket.exists" class="trac-nav">
-                <a href="#attachments" title="Go to the list of attachments">Attachments</a> &uarr;
-              </div>
-              <div class="buttons">
-                <py:if test="ticket.exists">
+              <py:if test="ticket.exists">
+                <div class="trac-nav">
+                  <a href="#attachments" title="Go to the list of attachments">Attachments</a> &uarr;
+                </div>
+                <div class="buttons">
                   <input type="hidden" name="start_time" value="${to_utimestamp(start_time)}" />
                   <input type="hidden" name="view_time" value="${to_utimestamp(ticket['changetime'])}" />
                   <input type="hidden" name="replyto" value="${replyto}" />
-                </py:if>
-                <py:if test="not ticket.exists">
-                  <input type="submit" class="btn" name="preview" value="${_('Preview')}" accesskey="r" />&nbsp;
-                  <input type="submit" class="btn" name="submit" value="${_('Submit') if ticket.exists else _('Create ticket')}" />
-                </py:if>
-              </div>
+                </div>
+              </py:if>
             </div>
           </form>
 
