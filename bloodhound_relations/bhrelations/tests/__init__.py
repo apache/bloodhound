@@ -25,11 +25,15 @@
 #     import unittest
 import unittest
 
-from bhrelations.tests import api
+from bhrelations.tests import api, notification, search, validation
 
 def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(api.suite())
+    test_suite.addTest(notification.suite())
+    test_suite.addTest(search.suite())
+    test_suite.addTest(validation.suite())
+
     return test_suite
 
 if __name__ == '__main__':

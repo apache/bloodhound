@@ -114,7 +114,7 @@ class WhooshBackend(Component):
                   analyzer=analysis.SimpleAnalyzer()),
         query_suggestion_basket=TEXT(analyzer=analysis.SimpleAnalyzer(),
                                      spelling=True),
-        relations=TEXT(analyzer=analysis.SimpleAnalyzer()),
+        relations=KEYWORD(lowercase=True, commas=True),
     )
 
     def __init__(self):

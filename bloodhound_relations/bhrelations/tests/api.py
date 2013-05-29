@@ -40,10 +40,11 @@ except ImportError:
 
 
 class BaseApiApiTestCase(MultiproductTestCase):
-    def setUp(self):
+    def setUp(self, enabled=()):
         env = EnvironmentStub(
             default_data=True,
-            enable=['trac.*', 'multiproduct.*', 'bhrelations.*']
+            enable=(['trac.*', 'multiproduct.*', 'bhrelations.*'] +
+                    list(enabled))
         )
         env.config.set('bhrelations', 'global_validators',
                        'NoSelfReferenceValidator,ExclusiveValidator,'
