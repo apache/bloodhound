@@ -1155,7 +1155,6 @@ table.wiki th {
 #changelog div.comment-box,
 #trac-add-comment div.comment-box {
   background-color: rgb(253, 252, 250);
-  margin-left: 20px;
   margin-bottom: 5px;
   display: block;
   visibility: visible;

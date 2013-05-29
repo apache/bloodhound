@@ -56,7 +56,7 @@ Arguments:
   </py:def>
 
 
-  <div class="comment-box popover fade in${' right' if change.comment else None}" id="${'comment:' + str(cnum) if cnum else ''}">
+  <div class="comment-box popover fade in" id="${'comment:' + str(cnum) if cnum else ''}">
     <div class="popover-title">
       <i class="icon-user"></i> <i>${authorinfo(change.author)}</i>
       <span class="pull-right" py:if="'date' in change"><small>${pretty_dateinfo(change.date)}</small></span>
