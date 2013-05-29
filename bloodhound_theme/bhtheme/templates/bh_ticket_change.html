@@ -57,16 +57,15 @@ Arguments:
 
 
   <div class="comment-box popover fade in${' right' if change.comment else None}" id="${'comment:' + str(cnum) if cnum else ''}">
-    <div py:if="change.comment" class="arrow"></div>
     <div class="popover-title">
       <i class="icon-user"></i> <i>${authorinfo(change.author)}</i>
       <span class="pull-right" py:if="'date' in change"><small>${pretty_dateinfo(change.date)}</small></span>
     </div>
     <div class="popover-content">
-      <ul py:if="change.fields" class="alert alert-info changes${' creation-event' if not change.cnum else ''}">
+      <ul py:if="change.fields" class="changes${' creation-event' if not change.cnum else ''}">
         <li py:for="field_name, field in sorted(change.fields.iteritems(), key=lambda item: item[1].label.lower())"
             class="trac-field-${field_name}${'trac-conflict' if preview and field_name in conflicts else None} visible-desktop-hover">
-          <strong class="trac-field-${field_name}">${field.label}</strong>
+          <i class="icon-pencil"></i> <strong class="trac-field-${field_name}">${field.label}</strong>
           <span>
             <py:choose>
               <py:when test="field_name == 'reported'">
@@ -103,13 +102,14 @@ Arguments:
             ${wikiout(context, text)}
           </div>
           <div py:when="show_history" class="comment searchable" xml:space="preserve">
-            ${wikiout(context, change.comment_history[int(cversion)].comment)}
+            <i class="icon-comment"></i> ${wikiout(context, change.comment_history[int(cversion)].comment)}
+            <hr />
           </div>
           <div py:when="change.comment" class="comment searchable" xml:space="preserve">
-            ${wikiout(context, change.comment)}
+            <i class="icon-comment"></i> ${wikiout(context, change.comment)}
+            <hr />
           </div>
         </py:choose>
-        <hr />
         <div py:if="not show_editor and len(change.comment_history) > 1" py:choose=""
               class="trac-lastedit ${'trac-shade' if comment_version != max_version else None} lastmod">
           <i18n:msg params="version, date, author" py:when="comment_version != max_version">
@@ -163,17 +163,16 @@ Arguments:
           </div>
           <div class="btn-toolbar buttons">
             <div class="btn-group">
-              <input class="btn" type="submit" name="preview_comment" value="${_('Preview')}"
+              <input class="btn btn-small" type="submit" name="preview_comment" value="${_('Preview')}"
                       title="${_('Preview changes to comment %(cnum)s', cnum=cnum)}"/>
-              <input class="btn" type="submit" name="edit_comment" value="${_('Submit changes')}"
+              <input class="btn btn-small" type="submit" name="edit_comment" value="${_('Submit changes')}"
                       title="${_('Submit changes to comment %(cnum)s', cnum=cnum)}"/>
             </div>
-            <input class="btn-link" type="submit" name="cancel_comment" value="${_('Cancel')}"
+            <input class="btn-link btn-small" type="submit" name="cancel_comment" value="${_('Cancel')}"
                     title="Cancel comment edit"/>
           </div>
         </form>
       </py:if>
-
     </div>
   </div>
 </html>
