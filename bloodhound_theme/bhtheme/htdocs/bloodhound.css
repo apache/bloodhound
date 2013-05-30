@@ -681,7 +681,8 @@ a.closed:link, a.closed:visited, span.closed {
   width: 100%;
   position: relative;
   left: 0px;
-  padding-left: 29px;
+  padding-left: 14px;
+  padding-right: 14px;
  }
 
  #belowStatus {

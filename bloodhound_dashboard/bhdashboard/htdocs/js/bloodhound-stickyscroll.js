@@ -29,14 +29,14 @@ $(document).ready(function stickyStatus() {
 
     if(windowHeight >= 768) {
       headerBottom = headerTop + $("header .nonsticky-header").height();
-      $("div#breadcrumb-row div").attr('id','oldstickyStatus');
-      $("div#breadcrumb-row div").removeClass("sticky");
+      $("div#breadcrumb-row > div").attr('id','oldstickyStatus');
+      $("div#breadcrumb-row > div").removeClass("sticky");
       $('header .sticky-header').attr('id','stickyStatus');
     }
     else {
       $('header .sticky-header').attr('id','oldstickyStatus');
       $("header .sticky-header").removeClass("sticky");
-      $("div#breadcrumb-row div").attr('id','stickyStatus');
+      $("div#breadcrumb-row > div").attr('id','stickyStatus');
     }
     var stickyHeight = $("#stickyStatus").outerHeight();
     if (docViewTop > headerBottom) {
