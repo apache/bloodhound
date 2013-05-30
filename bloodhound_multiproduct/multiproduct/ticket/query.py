@@ -68,8 +68,9 @@ class ProductQuery(Query):
         return self.cols
 
     def _get_ticket_href(self, prefix, tid):
-        product_env = ProductEnvironment(self.env, prefix)
-        return product_env.href.ticket(tid)
+        env = lookup_product_env(self.env, prefix)
+        href = resolve_product_href(env, self.env)
+        return href.ticket(tid)
 
     def execute(self, req=None, db=None, cached_ids=None, authname=None,
                 tzinfo=None, href=None, locale=None):
