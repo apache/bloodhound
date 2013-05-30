@@ -26,7 +26,7 @@
 
   <!--! Helper functions (py:def) -->
 
-  <div py:def="widget_container(w)" role="application">
+  <div py:def="widget_container(w)" role="application" py:if="w.visible">
     <py:if test="w.title">
       <h3 style="display: inline;">${w.title}</h3>
       <py:if test="w.ctxtnav">
@@ -110,8 +110,12 @@
   <py:match path="bh:widget">
     <py:choose test="">
       <py:when test="bhdb"
-          py:with="wnm = unicode(select('@urn')); args = select('bh:args/bh:arg') or {}; altlinks = unicode(select('@altlinks')) != 'false'; ctxtnav = unicode(select('@ctxtnav')) != 'false';">
-        ${widget_container(bhdb.expand_widget(context, dict(args=[wnm, None, {'args': args}], altlinks=altlinks, ctxtnav=ctxtnav)))}
+               py:with="wnm = unicode(select('@urn'));
+                        args = select('bh:args/bh:arg') or {};
+                        altlinks = unicode(select('@altlinks')).lower() != 'false';
+                        ctxtnav = unicode(select('@ctxtnav')).lower() != 'false';
+                        hide_disabled = unicode(select('@hide_disabled')).lower() == 'true';">
+        ${widget_container(bhdb.expand_widget(context, dict(args=[wnm, None, {'args': args}], altlinks=altlinks, ctxtnav=ctxtnav, hide_disabled=hide_disabled)))}
       </py:when>
       <py:otherwise>
         ${bhnotfound()}

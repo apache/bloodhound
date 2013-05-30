@@ -312,7 +312,9 @@ class DashboardModule(Component):
                          'ctxtnav': w.get('ctxtnav', True) and
                                     data.get('ctxtnav') or None,
                          'altlinks': w.get('altlinks', True) and
-                                     data.get('altlinks') or None}
+                                     data.get('altlinks') or None,
+                         'visible': w['c'] is not None or
+                                    not w.get('hide_disabled', False)}
                      ] for k, w, (template, data, wctx) in data_strm)
 
     def alert_disabled(self):
