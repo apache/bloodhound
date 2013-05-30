@@ -26,9 +26,9 @@ Implementing dashboard user interface.
 
 __metaclass__ = type
 
-from itertools import izip
+import copy
 import pkg_resources
-import re, copy
+import re
 from uuid import uuid4
 
 from genshi.builder import tag
@@ -49,16 +49,17 @@ from bhdashboard.api import DashboardSystem, InvalidIdentifier
 from bhdashboard import _json
 from multiproduct.env import ProductEnvironment
 
+
 class DashboardModule(Component):
     """Web frontend for dashboard infrastructure.
     """
-    implements(IRequestHandler, IRequestFilter, INavigationContributor, \
-                ITemplateProvider)
+    implements(IRequestHandler, IRequestFilter, INavigationContributor,
+               ITemplateProvider)
 
-    mainnav_label = Option('mainnav', 'tickets.label', 'Tickets', \
-                            """Dashboard label in mainnav""")
-    default_widget_height = IntOption('widgets', 'default_height', 320, \
-                            """Default widget height in pixels""")
+    mainnav_label = Option('mainnav', 'tickets.label', 'Tickets',
+                           """Dashboard label in mainnav""")
+    default_widget_height = IntOption('widgets', 'default_height', 320,
+                                      """Default widget height in pixels""")
 
     # IRequestFilter methods
 
@@ -70,21 +71,21 @@ class DashboardModule(Component):
     def post_process_request(self, req, template, data, content_type):
         """Inject dashboard helpers in data.
         """
-        if data is not None :
+        if data is not None:
             data['bhdb'] = DashboardChrome(self.env)
             if isinstance(req.perm.env, ProductEnvironment) \
-                and not 'resourcepath_template' in data \
-                and 'product_list' in data:
+                    and not 'resourcepath_template' in data \
+                    and 'product_list' in data:
                 data['resourcepath_template'] = 'bh_path_general.html'
         for item in req.chrome['nav'].get('mainnav', []):
             self.log.debug('%s' % (item,))
             if item['name'] == 'tickets':
                 item['label'] = tag.a(_(self.mainnav_label),
-                        href=req.href.dashboard())
+                                      href=req.href.dashboard())
                 if item['active'] and \
                         not ReportModule(self.env).match_request(req):
                     add_ctxtnav(req, _('Reports'),
-                            href=req.href.report())
+                                href=req.href.report())
                 break
         return template, data, content_type
 
@@ -95,29 +96,26 @@ class DashboardModule(Component):
 
     def process_request(self, req):
         req.perm.require('PRODUCT_VIEW')
-        """Initially this will render static widgets. With time it will be 
-        more and more dynamic and flexible.
-        """
+        # Initially this will render static widgets. With time it will be
+        # more and more dynamic and flexible.
         if self.env[QueryModule] is not None:
             add_ctxtnav(req, _('Custom Query'), req.href.query())
         if self.env[ReportModule] is not None:
             add_ctxtnav(req, _('Reports'), req.href.report())
         context = Context.from_request(req)
-        template, layout_data = self.expand_layout_data(context, 
+        template, layout_data = self.expand_layout_data(context,
             'bootstrap_grid',
             self.DASHBOARD_SCHEMA if isinstance(self.env, ProductEnvironment)
-                else self.DASHBOARD_GLOBAL_SCHEMA
-            )
+            else self.DASHBOARD_GLOBAL_SCHEMA
+        )
         widgets = self.expand_widget_data(context, layout_data) 
         return template, {
-                    'context' : Context.from_request(req),
-                    'layout' : layout_data,
-                    'widgets' : widgets,
-                    'title' : _(self.mainnav_label),
-                    'default' : {
-                            'height' : self.default_widget_height or None
-                        }
-                }, None
+            'context': Context.from_request(req),
+            'layout': layout_data,
+            'widgets': widgets,
+            'title': _(self.mainnav_label),
+            'default': {'height': self.default_widget_height or None}
+        }, None
 
     # INavigationContributor methods
     def get_active_navigation_item(self, req):
@@ -135,11 +133,9 @@ class DashboardModule(Component):
         """List `htdocs` dirs for dashboard and widgets.
         """
         resource_filename = pkg_resources.resource_filename
-        return [
-                 ('dashboard', resource_filename('bhdashboard', 'htdocs')),
-                 #('widgets', resource_filename('bhdashboard.widgets', 'htdocs'))
-                 ('layouts', resource_filename('bhdashboard.layouts', 'htdocs'))
-                 ]
+        return [('dashboard', resource_filename('bhdashboard', 'htdocs')),
+                #('widgets', resource_filename('bhdashboard.widgets', 'htdocs'))
+                ('layouts', resource_filename('bhdashboard.layouts', 'htdocs'))]
 
     def get_templates_dirs(self):
         """List `templates` folders for dashboard and widgets.
@@ -151,44 +147,44 @@ class DashboardModule(Component):
 
     # Temp vars
     DASHBOARD_SCHEMA = {
-            'div' : [
+            'div': [
                     {
-                        '_class' : 'row',
-                        'div' : [
+                        '_class': 'row',
+                        'div': [
                                 {
-                                    '_class' : 'span8',
-                                    'widgets' : ['my tickets', 'active tickets',
-                                                 'products', 'versions',
-                                                 'milestones', 'components']
+                                    '_class': 'span8',
+                                    'widgets': ['my tickets', 'active tickets',
+                                                'products', 'versions',
+                                                'milestones', 'components']
                                 },
                                 {
-                                    '_class' : 'span4',
-                                    'widgets' : ['activity']
+                                    '_class': 'span4',
+                                    'widgets': ['activity']
                                 }
                             ]
                     }
                 ],
-            'widgets' : {
+            'widgets': {
                     'components': {
-                            'args' : [
+                            'args': [
                                 'TicketFieldValues',
                                 None,
-                                {'args' : {
-                                    'field' : 'component',
-                                    'title' : 'Components',
-                                    'verbose' : True}}]
+                                {'args': {
+                                    'field': 'component',
+                                    'title': 'Components',
+                                    'verbose': True}}]
                         },
                     'milestones': {
-                            'args' : [
+                            'args': [
                                 'TicketFieldValues',
                                 None,
-                                {'args' : {
-                                    'field' : 'milestone',
-                                    'title' : 'Milestones',
-                                    'verbose' : True}}]
+                                {'args': {
+                                    'field': 'milestone',
+                                    'title': 'Milestones',
+                                    'verbose': True}}]
                         },
                     'versions': {
-                            'args' : [
+                            'args': [
                                 'TicketFieldValues',
                                 None,
                                 {'args' : {
@@ -197,38 +193,38 @@ class DashboardModule(Component):
                                     'verbose' : True}}]
                         },
                     'active tickets': {
-                            'args' : [
+                            'args': [
                                 'TicketQuery',
                                 None,
-                                {'args' : {
+                                {'args': {
                                     'max' : 10,
-                                    'query' : 'status=!closed&group=milestone'\
-                                        '&col=id&col=summary&col=owner' \
-                                        '&col=status&col=priority&' \
+                                    'query': 'status=!closed&group=milestone'
+                                        '&col=id&col=summary&col=owner'
+                                        '&col=status&col=priority&'
                                         'order=priority',
-                                    'title' : 'Active Tickets'}}],
-                            'altlinks' : False
+                                    'title': 'Active Tickets'}}],
+                            'altlinks': False
                         },
                     'my tickets': {
-                            'args' : [
+                            'args': [
                                 'TicketQuery',
                                 None,
-                                {'args' : {
-                                    'max' : 10,
-                                    'query' : 'status=!closed&group=milestone'\
-                                        '&col=id&col=summary&col=owner' \
-                                        '&col=status&col=priority&' \
-                                        'order=priority&' \
-                                        'owner=$USER',
-                                    'title' : 'My Tickets'}
+                                {'args': {
+                                 'max': 10,
+                                 'query': 'status=!closed&group=milestone'
+                                          '&col=id&col=summary&col=owner'
+                                          '&col=status&col=priority&'
+                                          'order=priority&'
+                                          'owner=$USER',
+                                    'title': 'My Tickets'}
                                 }],
-                            'altlinks' : False
+                            'altlinks': False
                         },
                     'activity': {
-                            'args' : ['Timeline', None, {'args' : {}}]
+                            'args': ['Timeline', None, {'args': {}}]
                         },
                     'products': {
-                            'args' : ['Product', None, {'args': { 'max': 3 }}]
+                            'args': ['Product', None, {'args': {'max': 3}}]
                         },
                }
         }
@@ -255,47 +251,49 @@ class DashboardModule(Component):
         layout = DashboardSystem(self.env).resolve_layout(layout_name)
 
         template = layout.expand_layout(layout_name, context, {
-                'schema' : schema,
-                'embed' : embed
-            })['template']
+            'schema': schema,
+            'embed': embed
+        })['template']
         return template, schema
 
     def _render_widget(self, wp, name, ctx, options):
         """Render widget without failing.
         """
-        try :
-            if wp is None :
+        try:
+            if wp is None:
                 raise InvalidIdentifier("Unknown widget ID")
             return wp.render_widget(name, ctx, options)
         except Exception, exc:
             log_entry = str(uuid4())
             exccls = exc.__class__
-            self.log.exception("- %s - Error rendering widget %s with options %s",
-                    log_entry, name, options)
+            self.log.exception(
+                "- %s - Error rendering widget %s with options %s",
+                log_entry, name, options)
             data = {
-                    'msgtype' : 'error',
-                    'msglabel' : 'Error',
-                    'msgbody' : _('Exception raised while rendering widget. '
-                        'Contact your administrator for further details.'),
-                    'msgdetails' : [
-                            ('Widget name', name),
-                            ('Exception type', tag.code(exccls.__name__)),
-                            ('Log entry ID', log_entry),
-                        ],
-                }
-            return 'widget_alert.html', \
-                    { 'title' : _('Widget error'), 'data' : data}, \
-                    ctx
+                'msgtype': 'error',
+                'msglabel': 'Error',
+                'msgbody': _('Exception raised while rendering widget. '
+                             'Contact your administrator for further details.'),
+                'msgdetails': [
+                    ('Widget name', name),
+                    ('Exception type', tag.code(exccls.__name__)),
+                    ('Log entry ID', log_entry),
+                ],
+            }
+            return 'widget_alert.html', {
+                'title': _('Widget error'),
+                'data': data
+            }, ctx
 
     def expand_widget_data(self, context, schema):
         """Expand raw widget data and format it for use in template
         """
         # TODO: Implement dynamic dashboard specification
         widgets_spec = schema.get('widgets', {})
-        widgets_index = dict([wnm, wp] \
-                for wp in DashboardSystem(self.env).widget_providers \
-                for wnm in wp.get_widgets()
-            )
+        widgets_index = dict([wnm, wp]
+            for wp in DashboardSystem(self.env).widget_providers
+            for wnm in wp.get_widgets()
+        )
         self.log.debug("Bloodhound: Widget index %s" % (widgets_index,))
         for w in widgets_spec.itervalues():
             w['c'] = widgets_index.get(w['args'][0])
@@ -303,13 +301,16 @@ class DashboardModule(Component):
         self.log.debug("Bloodhound: Widget specs %s" % (widgets_spec,))
         chrome = Chrome(self.env)
         render = chrome.render_template
-        data_strm = ( (k, w, self._render_widget(w['c'], *w['args'])) \
-                for k,w in widgets_spec.iteritems())
-        return dict([k, {'title' : data['title'], 
-                'content' : render(wctx.req, template, data['data'], fragment=True),
-                'ctxtnav' : w.get('ctxtnav', True) and data.get('ctxtnav') or None, 
-                'altlinks' : w.get('altlinks', True) and data.get('altlinks') or None}] \
-                for k, w, (template, data, wctx) in data_strm)
+        data_strm = ((k, w, self._render_widget(w['c'], *w['args']))
+                     for k, w in widgets_spec.iteritems())
+        return dict([k, {'title': data['title'],
+                         'content': render(wctx.req, template, data['data'],
+                                           fragment=True),
+                         'ctxtnav': w.get('ctxtnav', True) and
+                                    data.get('ctxtnav') or None,
+                         'altlinks': w.get('altlinks', True) and
+                                     data.get('altlinks') or None}
+                     ] for k, w, (template, data, wctx) in data_strm)
 
     def alert_disabled(self):
         return tag.div(tag.span('Error', class_='label label-important'),
@@ -323,6 +324,7 @@ class DashboardModule(Component):
 #------------------------------------------------------
 
 XMLNS_DASHBOARD_UI = 'http://issues.apache.org/bloodhound/wiki/Ui/Dashboard'
+
 
 class DashboardChrome:
     """Helper functions providing access to dashboard infrastructure 
@@ -353,14 +355,14 @@ class DashboardChrome:
         else:
             widgets = {}
         schema['widgets'] = widgets
-        template, layout_data = dbmod.expand_layout_data(
-                context, layout, schema, True)
+        template, layout_data = dbmod.expand_layout_data(context, layout,
+                                                         schema, True)
         widgets = dbmod.expand_widget_data(context, layout_data)
-        return Chrome(self.env).render_template(context.req, template, 
-                dict(context=context, layout=layout_data, 
-                        widgets=widgets, title='',
-                        default={'height':dbmod.default_widget_height or None}),
-                fragment=True)
+        return Chrome(self.env).render_template(
+            context.req, template,
+            dict(context=context, layout=layout_data, widgets=widgets, title='',
+                 default={'height': dbmod.default_widget_height or None}),
+            fragment=True)
 
     def expand_widget(self, context, widget):
         """Render single widget
@@ -375,14 +377,12 @@ class DashboardChrome:
             options['args'] = _json.loads(argsdef)
         elif isinstance(argsdef, Stream):
             options['args'] = parse_args_tag(argsdef)
-        return dbmod.expand_widget_data(
-                    context,
-                    {'widgets' : { 0 : widget }}
-                )[0]
+        return dbmod.expand_widget_data(context, {'widgets': {0: widget}})[0]
 
 #------------------------------------------------------
 #    Stream processors
 #------------------------------------------------------
+
 
 def parse_args_tag(stream):
     """Parse Genshi Markup for widget arguments
@@ -396,11 +396,11 @@ def parse_args_tag(stream):
             qname, attrs = data
             if qname.namespace == XMLNS_DASHBOARD_UI \
                     and qname.localname == 'arg':
-                if inside :
+                if inside:
                     raise RuntimeError('Nested bh:arg tag')
                 else:
                     argnm = attrs.get('name')
-                    argvalue  = ''
+                    argvalue = ''
                     inside = True
         elif kind == Stream.TEXT:
             argvalue += data
@@ -410,4 +410,3 @@ def parse_args_tag(stream):
                 args[argnm] = argvalue
                 inside = False
     return args
-
