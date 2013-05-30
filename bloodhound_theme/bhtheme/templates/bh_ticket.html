@@ -456,6 +456,20 @@
         </div>
         
         <div class="${cols_activity + ' activityfeed' if ticket.exists else None}">
+          <form py:if="ticket.exists" id="prefs" method="get" action="${href.prefs()}">
+            <div id="trac-comments-order" class="pull-right">
+              <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
+              <label for="trac-comments-newest">
+                <span>Newest first</span>
+              </label>
+              <input type="radio" id="trac-comments-oldest" name="trac-comments-order" value="oldest" checked="checked" />
+              <label for="trac-comments-oldest">
+                <span>Oldest first</span>
+              </label>
+            </div>
+            <div class="clearboth"></div>
+          </form>
+
           <form py:if="has_property_editor" method="post" id="propertyform"
                     action="${href.ticket(ticket.id) + '#trac-add-comment' if ticket.exists
                               else href.newticket() + '#ticket'}">
@@ -478,22 +492,15 @@
 
                 <!--! Comment field -->
                 <fieldset class="iefix">
-                  <div class="comment-box popover fade in" id="newcomment">
-                    <div class="popover-title"><i class="icon-comment"></i> Add quick comment</div>
-                    <div class="popover-content">
-                      <textarea id="comment" name="comment" class="trac-resizable" rows="2"
-                          placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
-                      <input type="submit" id="comment-submit" class="btn btn-small pull-right" name="submit" value="${_('Submit')}" />
-                      <label for="comment" class="help-block" i18n:msg="">
-                        <span class="label label-info">Tip</span>
-                        <small>
-                        You may use
-                        <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
-                        here.
-                        </small>
-                      </label>
-                    </div>
-                  </div>
+                  <textarea id="comment" name="comment" class="trac-resizable" rows="2"
+                      placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
+                  <input type="submit" id="comment-submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
+                  <label for="comment" class="help-block" i18n:msg="">
+                    <span class="label label-info">Tip</span>
+                    You may use
+                    <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+                    here.
+                  </label>
                 </fieldset>
               </div>
             </div>
@@ -668,20 +675,6 @@
                 </div>
               </py:if>
             </div>
-          </form>
-
-          <form py:if="ticket.exists" id="prefs" method="get" action="${href.prefs()}">
-            <div id="trac-comments-order" class="pull-right">
-              <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
-              <label for="trac-comments-newest">
-                <span>Newest first</span>
-              </label>
-              <input type="radio" id="trac-comments-oldest" name="trac-comments-order" value="oldest" checked="checked" />
-              <label for="trac-comments-oldest">
-                <span>Oldest first</span>
-              </label>
-            </div>
-            <div class="clearboth"></div>
           </form>
 
           <div id="changelog">

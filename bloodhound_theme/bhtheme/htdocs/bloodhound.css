@@ -178,6 +178,20 @@ div.reports form {
  font-weight: normal;
 }
 
+.activityfeed {
+  background-image: url("img/change_history_arrow_line.png");
+  background-repeat: repeat-y;
+  background-position: 20px 0px;
+}
+
+.timeline .activityfeed {
+  background-image: none;
+}
+
+.activityfeed .help-block {
+  margin-left: 30px;
+}
+
 #mobile-activity {
  margin-top: 50px;
 }
@@ -223,6 +237,10 @@ pre {
 /* @end */
 
 /* @group Ticket page modifications */
+
+.bh-ticket-buttons {
+ padding-left: 5px;
+}
 
 .clearboth {
  clear: both;
@@ -272,10 +290,6 @@ pre {
 
 #trac-comment-editor textarea {
  width: 100%;
-}
-
-.comment-box #trac-comment-editor textarea {
- width: 97%;
 }
 
 .relations {
@@ -1152,35 +1166,14 @@ table.wiki th {
 }
 
 
-#changelog div.comment-box,
-#trac-add-comment div.comment-box {
-  background-color: rgb(253, 252, 250);
-  margin-bottom: 5px;
-  display: block;
-  visibility: visible;
-  position: relative;
-  z-index: 0;
-  max-width: inherit;
-  box-shadow: none;
-}
-
-#trac-add-comment div.comment-box {
-  background-color: rgb(220,239,248);
-}
-
-div.comment-box .popover-title {
-  background-color: inherit;
-  border: none;
-  padding-bottom: 2px;
-}
-
-div.comment-box .comment p {
-  display: inline;
-}
-
-#changelog hr {
-  margin: 5px auto 5px 0;
-  width: 75%;
+#changelog div.comment-box{
+ border: 1px solid #ccc;
+ border-radius: 6px;
+ box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+ padding: 13px;
+ margin: 10px 0px 10px 0px;
+ background-color: rgb(253, 252, 250);
+ min-height: 20px;
 }
 
 #trac-add-comment fieldset{
@@ -1198,20 +1191,13 @@ textarea#comment, #trac-add-comment fieldset{
  content: attr(placeholder-content);
 }
 
+#changelog div.comment-box h4 {
+  margin-top: 0px;
+}
+
 #changelog ul.changes {
-  list-style-type: none;
-  margin-left: 0;
-  margin-bottom: 5px;
-  padding-right: 14px;
-}
-
-.popover-content i[class^="icon-"],
-.popover-content i[class*=" icon-"] {
-  opacity: 0.6;
-}
-
-.activityfeed #prefs {
-  margin-bottom: 5px;
+  list-style-image: url('../common/collapsed.png');
+  padding: 0px 0px 0px 11px;
 }
 
 .ticket form#prefs input[type="radio"]{
