@@ -436,7 +436,8 @@ def dispatch_request(environ, start_response, bootstrap=None):
 
     run_once = environ['wsgi.run_once']
 
-    req = bootstrap.create_request(env, environ, start_response)
+    req = bootstrap.create_request(env, environ, start_response) \
+            if env is not None else Request(environ, start_response)
     translation.make_activable(lambda: req.locale, env.path if env else None)
     try:
         return _dispatch_request(req, env, env_error)
