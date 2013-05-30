@@ -197,6 +197,8 @@ class RelationsSystem(Component):
             self.env, source_resource_instance)
         destination = ResourceIdSerializer.get_resource_id_from_instance(
             self.env, destination_resource_instance)
+        if relation_type not in self.link_ends_map:
+            raise UnknownRelationType(relation_type)
         if when is None:
             when = datetime.now(utc)
         relation = Relation(self.env)
@@ -579,3 +581,6 @@ def unique(seq):
     seen = set()
     return (x for x in seq if x not in seen and not seen.add(x))
 
+
+class UnknownRelationType(ValueError):
+    pass

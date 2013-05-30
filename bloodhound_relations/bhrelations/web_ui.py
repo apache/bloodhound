@@ -35,8 +35,9 @@ from trac.web import IRequestHandler
 from trac.web.chrome import ITemplateProvider, add_warning
 
 from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
-    TicketRelationsSpecifics
+    TicketRelationsSpecifics, UnknownRelationType
 from bhrelations.model import Relation
+from bhrelations.validation import ValidationError
 
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
@@ -66,38 +67,51 @@ class RelationManagementModule(Component):
         req.perm.require('TICKET_VIEW')
         relsys = RelationsSystem(self.env)
 
+        data = {
+            'relation': {},
+        }
         if req.method == 'POST':
             # for modifying the relations TICKET_MODIFY is required for
             # both the source and the destination tickets
             req.perm.require('TICKET_MODIFY')
 
-            if req.args.has_key('remove'):
+            if 'remove' in req.args:
                 rellist = req.args.get('sel')
                 if rellist:
                     if isinstance(rellist, basestring):
                         rellist = [rellist, ]
                     self.remove_relations(req, rellist)
-            elif req.args.has_key('add'):
-                dest_tid = req.args.get('dest_tid')
-                reltype = req.args.get('reltype')
-                comment = req.args.get('comment')
-                if dest_tid and reltype:
-                    try:
-                        dest_ticket = self.find_ticket(dest_tid)
-                    except ValueError:
-                        raise TracError(_('Invalid ticket id.'))
+            elif 'add' in req.args:
+                relation = dict(
+                    destination=req.args.get('dest_tid', ''),
+                    type=req.args.get('reltype', ''),
+                    comment=req.args.get('comment', ''),
+                )
+                try:
+                    dest_ticket = self.find_ticket(relation['destination'])
+                    req.perm.require('TICKET_MODIFY',
+                                     Resource(dest_ticket.id))
+                    relsys.add(ticket, dest_ticket,
+                               relation['type'],
+                               relation['comment'],
+                               req.authname)
+                except NoSuchTicketError:
+                    data['error'] = _('Invalid ticket id.')
+                except UnknownRelationType:
+                    data['error'] = _('Unknown relation type.')
+                except ValidationError as ex:
+                    data['error'] = ex.message
+                if 'error' in data:
+                    data['relation'] = relation
 
-                    req.perm.require('TICKET_MODIFY', Resource(dest_ticket.id))
-                    relsys.add(ticket, dest_ticket, reltype, comment,
-                        req.authname)
             else:
                 raise TracError(_('Invalid operation.'))
 
-        data = {
+        data.update({
             'ticket': ticket,
             'reltypes': relsys.get_relation_types(),
             'relations': self.get_ticket_relations(ticket),
-        }
+        })
         return 'manage.html', data, None
 
     # ITemplateProvider methods
@@ -149,7 +163,7 @@ class RelationManagementModule(Component):
                 resource = ResourceIdSerializer.get_resource_by_id(tid)
                 ticket = trs._create_ticket_by_full_id(resource)
             except:
-                raise ValueError
+                raise NoSuchTicketError
         return ticket
 
     def remove_relations(self, req, rellist):
@@ -164,3 +178,6 @@ class RelationManagementModule(Component):
                 add_warning(req,
                     _('Not enough permissions to remove relation "%s"' % relid))
 
+
+class NoSuchTicketError(ValueError):
+    pass

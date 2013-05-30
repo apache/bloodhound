@@ -27,7 +27,7 @@ from bhrelations.validation import ValidationError
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 from trac.ticket.model import Ticket
-from trac.test import EnvironmentStub, Mock
+from trac.test import EnvironmentStub, Mock, MockPerm
 from trac.core import TracError
 from trac.util.datefmt import utc
 
@@ -79,6 +79,7 @@ class BaseApiApiTestCase(MultiproductTestCase):
         self.req = Mock(href=self.env.href, authname='anonymous', tz=utc,
                         args=dict(action='dummy'),
                         locale=locale_en, lc_time=locale_en)
+        self.req.perm = MockPerm()
         self.relations_system = RelationsSystem(self.env)
         self._upgrade_env()
 
