@@ -407,10 +407,10 @@ class RequestContext(object):
     DATA_SEARCH_EXTRAS = 'extra_search_fields'
 
     #bhsearch may support more pluggable views later
-    VIEWS_SUPPORTED = {
-        None: "Free text",
-        DATA_VIEW_GRID: "Grid"
-    }
+    VIEWS_SUPPORTED = (
+        (None, "Free text"),
+        (DATA_VIEW_GRID, "Grid"),
+    )
 
     VIEWS_WITH_KNOWN_FIELDS = [DATA_VIEW_GRID]
     OBLIGATORY_FIELDS_TO_SELECT = [IndexFields.ID, IndexFields.TYPE]
@@ -592,12 +592,12 @@ class RequestContext(object):
         active_view = self.parameters.view
 
         all_views = []
-        for view, label in self.VIEWS_SUPPORTED.iteritems():
+        for view, label in self.VIEWS_SUPPORTED:
             all_views.append(dict(
                 label=_(label),
                 href=self.parameters.create_href(
                     view=view, skip_view=(view is None)),
-                is_active = (view == active_view)
+                is_active=(view == active_view)
             ))
         self.data[self.DATA_ALL_VIEWS] = all_views
 
