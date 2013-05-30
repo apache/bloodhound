@@ -103,21 +103,21 @@
                       </py:when>
   
                       <!--! generic fields -->
-                      <py:when test="col == 'time'">
-                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_time(int(cell.value)) or '--'}
+                      <py:when test="col == 'time'" py:with="value = int(cell.value) if isinstance(cell.value, str) else cell.value">
+                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_time(value) or '--'}
                         </td>
                       </py:when>
-  
-                      <py:when test="col in ('date', 'created', 'modified')">
-                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_date(int(cell.value)) or '--'}
+
+                      <py:when test="col in ('date', 'created', 'modified')" py:with="value = int(cell.value) if isinstance(cell.value, str) else cell.value">
+                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_date(value) or '--'}
                         </td>
                       </py:when>
-  
-                      <py:when test="col == 'datetime'">
-                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_datetime(int(cell.value)) or '--'}
+
+                      <py:when test="col == 'datetime'" py:with="value = int(cell.value) if isinstance(cell.value, str) else cell.value">
+                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_datetime(value) or '--'}
                         </td>
                       </py:when>
-  
+
                       <py:when test="col == 'description'">
                         <td class="$col" py:attrs="td_attrs" xml:space="preserve">
                           ${wiki_to_html(context(row.resource), cell.value)}
