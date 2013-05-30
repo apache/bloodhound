@@ -259,9 +259,12 @@ class DashboardModule(Component):
     def _render_widget(self, wp, name, ctx, options):
         """Render widget without failing.
         """
+        if wp is None:
+            data = {'msglabel': 'Warning',
+                    'msgbody': _('Unknown widget %(name)s', name=name)}
+            return 'widget_alert.html', {'title': '', 'data': data}, ctx
+
         try:
-            if wp is None:
-                raise InvalidIdentifier("Unknown widget ID")
             return wp.render_widget(name, ctx, options)
         except Exception, exc:
             log_entry = str(uuid4())
