@@ -32,6 +32,10 @@ body {
  border-bottom-right-radius: 7px;
 }
 
+#logo {
+  margin-bottom: 10px;
+}
+
 #searchbox {
  margin-top: 0;
  margin-bottom: 0;
@@ -659,6 +663,13 @@ a.closed:link, a.closed:visited, span.closed {
   float: left;
  }
 
+ #logo {
+  width: 33%;
+ }
+ #usermenu {
+  width: 67%;
+ }
+
  #searchbox {
   float: left;
   margin-right: 10px;
@@ -718,9 +729,17 @@ a.closed:link, a.closed:visited, span.closed {
  }
 
  header, #belowStatus, #mobile-activity,
- #stickyStatus, #footer-container {
+ #footer-container {
   padding-left: 7px;
   padding-right: 7px;
+ }
+
+ #usermenu {
+  padding-left: 25px;
+ }
+
+ #mainnav {
+  float: left;
  }
 
  .ownership {

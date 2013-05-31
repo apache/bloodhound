@@ -54,12 +54,10 @@
         <div class="row nonsticky-header">
           <!--! logo -->
           <div id="logo" class="span4">
-            <p>
-              <a href="${chrome.logo.link or href()}">
-                <img src="${chrome.logo.src or href.chrome('theme/img/bh_logo.png')}"
-                     alt="Bloodhound Logo" />
-              </a>
-            </p>
+            <a href="${chrome.logo.link or href()}">
+              <img src="${chrome.logo.src or href.chrome('theme/img/bh_logo.png')}"
+                    alt="Bloodhound Logo" />
+            </a>
           </div>
           <!--! top menu (login, logout...) -->
           <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav);
