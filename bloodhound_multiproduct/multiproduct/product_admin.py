@@ -20,6 +20,7 @@
 
 from trac.admin.api import IAdminCommandProvider, AdminCommandError,\
     AdminCommandManager
+from trac.admin.console import TracAdmin, TRAC_VERSION
 from trac.admin.web_ui import AdminModule
 from trac.core import *
 from trac.config import *
@@ -27,8 +28,8 @@ from trac.perm import PermissionSystem
 from trac.resource import ResourceNotFound
 from trac.ticket.admin import TicketAdminPanel, _save_config
 from trac.util import lazy
-from trac.util.text import print_table, to_unicode
-from trac.util.translation import _, N_, gettext
+from trac.util.text import print_table, to_unicode, printerr, printout
+from trac.util.translation import _, N_, gettext, ngettext
 from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome, add_notice, add_warning
 
@@ -296,11 +297,34 @@ class ProductAdminModule(Component):
 
     def _do_product_admin(self, prefix, *args):
         mgr = self.product_admincmd_mgr(prefix)
-        if args and args[0] in ('deploy', 'help', 'hotcopy', 'initenv', 
-                                'upgrade'):
+        if args and args[0] in ('deploy', 'hotcopy', 'initenv', 'upgrade'):
             raise AdminCommandError('%s command not supported for products' %
                                     (args[0],))
-        mgr.execute_command(*args)
+        if args and args[0] == 'help':
+            help_args = args[1:]
+            if help_args:
+                doc = mgr.get_command_help(list(help_args))
+                if doc:
+                    TracAdmin.print_doc(doc)
+                else:
+                    printerr(_("No documentation found for '%(cmd)s'."
+                               " Use 'help' to see the list of commands.",
+                               cmd=' '.join(help_args)))
+                    cmds = mgr.get_similar_commands(help_args[0])
+                    if cmds:
+                        printout('')
+                        printout(ngettext("Did you mean this?",
+                                          "Did you mean one of these?",
+                                          len(cmds)))
+                        for cmd in cmds:
+                            printout('    ' + cmd)
+            else:
+                printout(_("trac-admin - The Trac Administration Console "
+                           "%(version)s", version=TRAC_VERSION))
+                env = mgr.env
+                TracAdmin.print_doc(TracAdmin.all_docs(env), short=True)
+        else:
+            mgr.execute_command(*args)
 
     # IRequestFilter methods
     def pre_process_request(self, req, handler):
