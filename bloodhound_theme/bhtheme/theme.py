@@ -109,7 +109,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Ticket
         'diff_view.html' : ('bh_diff_view.html', None),
-        'manage.html' : ('manage.html', '_add_products_general_breadcrumb'),
+        'manage.html' : ('manage.html', '_modify_resource_breadcrumb'),
         'milestone_edit.html' : ('bh_milestone_edit.html', '_modify_roadmap_page'),
         'milestone_delete.html' : ('bh_milestone_delete.html', '_modify_roadmap_page'),
         'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),

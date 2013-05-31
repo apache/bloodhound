@@ -90,7 +90,7 @@
               <thead>
                 <tr>
                   <th class="sel"><i class="icon-check"></i></th>
-                  <th>Type</th><th>Product</th><th>Ticket</th><th>Comment</th><th>Author</th><th>Changed</th>
+                  <th>Type</th><th>Product</th><th>Ticket</th><th>Comment</th><th>Author</th><th class="hidden-phone">Changed</th>
                 </tr>
               </thead>
               <tbody py:for="relgroup,items in relations.iteritems()">
@@ -99,13 +99,14 @@
                   <td>${relgroup if items.index(item) == 0 else None}</td>
                   <td>
                     <a href="${href.products(item['destticket'].env.product.prefix)}">
-                      ${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})
+                      <span class="hidden-phone">${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})</span>
+                      <span class="visible-phone">${item['destticket'].env.product.prefix}</span>
                     </a>
                   </td>
                   <td><a href="${item['desthref']}">#${item['destticket'].id}</a> - ${item['destticket'].summary}</td>
                   <td>$item.comment</td>
                   <td>$item.author</td>
-                  <td>${pretty_dateinfo(item.when)}</td>
+                  <td class="hidden-phone">${pretty_dateinfo(item.when)}</td>
                 </tr>
               </tbody>
             </table>
