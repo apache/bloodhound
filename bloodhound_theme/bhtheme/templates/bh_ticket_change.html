@@ -61,7 +61,7 @@ Arguments:
         </div>
         <div py:if="show_buttons" class="pull-right bh-ticket-buttons hidden-desktop trac-ticket-buttons">
           <py:if test="'date' in change">
-              ${pretty_dateinfo(change.date)}
+            ${pretty_dateinfo(change.date)}
           </py:if>
           <form py:if="'cnum' in change and can_edit_comment" method="get"
               style="display:inline" action="#comment:${cnum}">
@@ -137,43 +137,8 @@ Arguments:
       </div>
     </div>
   </div>
-  <py:if test="not change.comment">
-  <div py:if="show_buttons" class="pull-right bh-ticket-buttons hidden-desktop trac-ticket-buttons">
-    <py:if test="'date' in change">
-        ${pretty_dateinfo(change.date)}
-    </py:if>
-    <h4 class="change">
-    <div class="pull-right">
-      <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>
-    </div>
-    <div py:if="show_buttons" class="pull-right bh-ticket-buttons hidden-desktop trac-ticket-buttons">
-      <py:if test="'date' in change">
-          ${pretty_dateinfo(change.date)}
-      </py:if>
-      <form py:if="'cnum' in change and can_edit_comment" method="get"
-          style="display:inline" action="#comment:${cnum}">
-        <div class="inlinebuttons">
-          <input type="hidden" name="cnum_edit" value="${cnum}"/>
-          <input type="submit" value="${_('Edit')}" class="btn-link"
-              title="${_('Edit comment %(cnum)s', cnum=cnum)}"/>
-        </div>
-      </form>
-      <form py:if="'cnum' in change and can_append" id="reply-to-comment-${cnum}"
-            method="get" action="#comment" style="display: inline">
-        <div class="inlinebuttons">
-          <input type="hidden" name="replyto" value="${cnum}"/>
-          <input type="submit" value="${_('Reply')}" class="btn-link"
-              title="${_('Reply to comment %(cnum)s', cnum=cnum)}"/>
-        </div>
-      </form>
-    </div>
-    
-      ${authorinfo(change.author)}
-      <span py:if="preview or show_editor" class="trac-loading"/>
-    </h4>
-  </div >
-  </py:if>
-  <ul py:if="change.fields" class="changes ${'creation-event' if not change.cnum else ''}">
+
+  <ul py:if="change.fields" class="changes${' creation-event' if not change.cnum else ''}">
     <li py:for="field_name, field in sorted(change.fields.iteritems(), key=lambda item: item[1].label.lower())"
         class="trac-field-${field_name}${'trac-conflict' if preview and field_name in conflicts else None} visible-desktop-hover">
       <strong class="trac-field-${field_name}">${field.label}</strong>
