@@ -29,8 +29,8 @@
     <span class="label ${labels[msgtype or None]}" py:if="msglabel">
       $msglabel
     </span>
-    &nbsp;$msgbody
     <button type="button" class="close" data-dismiss="alert">&times;</button>
+    &nbsp;$msgbody
   </p>
   <py:if test="msgdetails">
     <dl class="dl-horizontal">
