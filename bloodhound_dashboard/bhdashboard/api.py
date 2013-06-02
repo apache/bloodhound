@@ -229,7 +229,6 @@ class DashboardSystem(Component):
                 return tag.span(v.__name__, title='in ' + module)
 
         return {
-                'id': "%s-widget" % (spec['urn'],),
                 'title': spec['urn'],
                 'desc': '\n'.join(l.strip()
                                    for l in spec['desc'].splitlines()),

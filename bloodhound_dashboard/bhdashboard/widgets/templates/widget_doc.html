@@ -24,7 +24,7 @@
     py:strip="">
 
   <py:for each="item in items">
-    <h3 py:attrs="{'id': item.get('id')}" class="doc-widget-title">${item.title}</h3>
+    <h3 id="${item.title.lower() + '-widget'}" class="doc-widget-title">${item.title}</h3>
     <div class="doc-widget-message">
       ${wiki_to_html(context, item.desc)}
       <py:if test="item.sections">
