@@ -141,7 +141,16 @@ class TimelineWidget(WidgetBase):
         try:
             timemdl = self.env[TimelineModule]
             if timemdl is None :
-                raise TracError('Timeline module not available (disabled?)')
+                return 'widget_alert.html', {
+                    'title':  _("Activity"),
+                    'data': {
+                        'msglabel': "Warning",
+                        'msgbody': _("TimelineWidget is disabled because the "
+                                     "Timeline component is not available. "
+                                     "Is the component disabled?"),
+                        'dismiss': False,
+                    }
+                }, context
 
             params = ('from', 'daysback', 'doneby', 'precision', 'filters', \
                         'max', 'realm', 'id')
