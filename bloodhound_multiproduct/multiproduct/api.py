@@ -369,6 +369,9 @@ class MultiProductSystem(Component):
         # - populate system tables with global configuration for each product
         # - exception is permission table where permissions
         #   are also populated in global scope
+        #
+        # permission table specifics: 'anonymous' and 'authenticated' users
+        # should by default have a PRODUCT_VIEW permission for all products
         self.log.info("Migrating system tables to a new schema")
         for table in self.MIGRATE_TABLES:
             if table == 'wiki':
@@ -379,11 +382,24 @@ class MultiProductSystem(Component):
                               table, product.name, product.prefix)
                 db("""INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s""" %
                    (table, cols, cols, product.prefix, temp_table_name))
+                if table == 'permission':
+                    db.executemany(
+                        """INSERT INTO permission (username, action, product)
+                           VALUES (%s, %s, %s)""",
+                        [('anonymous', 'PRODUCT_VIEW', product.prefix),
+                         ('authenticated', 'PRODUCT_VIEW', product.prefix)])
+
             if table == 'permission':
                 self.log.info("Populating table '%s' for global scope", table)
                 db("""INSERT INTO %s (%s, product) SELECT %s,'%s' FROM %s""" %
                    (table, cols, cols, '', temp_table_name))
             self._drop_temp_table(db, temp_table_name)
+        db.executemany(
+            """INSERT INTO permission (username, action, product)
+                VALUES (%s, %s, %s)""",
+            [('anonymous', 'PRODUCT_VIEW', ''),
+             ('authenticated', 'PRODUCT_VIEW', '')])
+
 
     def _upgrade_wikis(self, db, create_temp_table):
         # migrate wiki table
