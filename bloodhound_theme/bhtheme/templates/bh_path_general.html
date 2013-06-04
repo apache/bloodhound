@@ -54,7 +54,7 @@
       </li>
       <div class="btn-group" py:strip="single_product">
         <button class="btn btn-mini" py:strip="single_product">
-          <a title="Current product" href="${href.products(req.perm.env.product.prefix)}">${req.perm.env.product.name}</a>
+          <a title="Current product" href="${href.products(req.perm.env.product.prefix)}"><span class="hidden-phone">${req.perm.env.product.name}</span><span class="visible-phone">${req.perm.env.product.prefix}</span></a>
         </button>
         <py:if test="not single_product">
           <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">

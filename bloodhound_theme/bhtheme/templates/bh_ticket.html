@@ -64,8 +64,7 @@
         <py:if test="has_property_editor">
         // Install in place editing
         install_workflow();
-        $('#edit-cancel').click(revert_ticket);
-        $('#edit-cancel-below').click(revert_ticket);
+        $('#edit-cancel, #edit-cancel-below').click(revert_ticket);
 
         var modify_elem = $('#modify');
         modify_elem.parent().hide();
@@ -122,20 +121,14 @@
           $('#inplace-propertyform').submit(function() {
               $('#hidden-comment').val($('#edit-comment').val());
             })
-          $('#inplace-edit').hide();
-          $('#edit-state-buttons').show();
-          $('#edit-state-buttons-below').show();
-          $('#vc-status a').hide();
-          $('#edit-workflow-buttons').show();
-          $('#edit-comment').show();
 
-          $('.activityfeed').css('opacity', '0.3');
-          $('.relations').css('opacity', '0.3');
-          $('#attachments').css('opacity', '0.3');
-          $('#comment').attr('disabled', 'disabled');
-          $('#comment-submit').attr('disabled', 'disabled');
-          $('#manage-relations').attr('disabled', 'disabled');
-          $('#attachfilebutton').attr('disabled', 'disabled');
+          $('#inplace-edit, #vc-status a').hide();
+          $('#edit-state-buttons, #edit-state-buttons-below, #edit-workflow-buttons, #edit-comment').show();
+          $('.activityfeed, .relations, #attachments').css('opacity', '0.3');
+          // disable input controls on all other forms
+          $('form:not("#inplace-propertyform") :input').attr('disabled', 'disabled');
+
+          $('#qct-inline, #qct-inline-notice-success, #qct-inline-notice-error').hide({'duration': 400});
         }
 
         function add_update_hidden_summary_fn() {
@@ -154,21 +147,12 @@
           //remove summary field and re-add the summary blur function
           $('#dummy-vc-summary div').remove();
           add_update_hidden_summary_fn();
-          $('#inplace-edit').show();
           $('#vc-summary').attr('contenteditable', 'false');
-          $('#edit-state-buttons').hide();
-          $('#edit-state-buttons-below').hide();
-          $('#vc-status a').show();
-          $('#edit-workflow-buttons').hide();
-          $('#edit-comment').hide();
 
-          $('#comment').removeAttr('disabled');
-          $('#comment-submit').removeAttr('disabled');
-          $('#manage-relations').removeAttr('disabled');
-          $('#attachfilebutton').removeAttr('disabled');
-          $('.activityfeed').css('opacity', '');
-          $('.relations').css('opacity', '');
-          $('#attachments').css('opacity', '');
+          $('#inplace-edit, #vc-status a').show();
+          $('#edit-state-buttons, #edit-state-buttons-below, #edit-workflow-buttons, #edit-comment').hide();
+          $('form:not("#inplace-propertyform") :input').removeAttr('disabled');
+          $('.activityfeed, .relations, #attachments').css('opacity', '');
 
           e.preventDefault();
         }

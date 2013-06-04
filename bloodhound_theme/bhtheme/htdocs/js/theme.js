@@ -20,10 +20,49 @@
 $( function () {
     var qct_result = {};
     var qct_timeout = null;
+    var grayed_out_controls = '#content, [role*="application"], #vc-summary, #inplace-propertyform, #attachments, .activityfeed, #help';
+
 
     // Do not close dropdown menu if user interacts with form controls
     $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu select' +
         ', .dropdown-menu textarea').click(function (e) { e.stopPropagation(); });
+
+    function qct_inline_close()
+    {
+      $(grayed_out_controls).css('opacity', '');
+      $('form:not("#qct-inline-form") :input').removeAttr('disabled');
+      if ($('#qct-inline').is(':visible'))
+      {
+        $('#qct-inline').hide({'duration': 400});
+      }
+    }
+
+    // If the window is resized, close the inline form + re-enable
+    // all other forms to prevent undesirable behaviour. For example,
+    // resizing the window to a -desktop size when inline form is
+    // shown would result in the form disappearing (ok), but all other
+    // forms would still be disabled (not ok).
+    $(window).resize(function() {
+      qct_inline_close();
+    });
+
+    $('#qct-inline-newticket').click(function() {
+      $('#qct-inline-notice-success, #qct-inline-notice-error').hide();
+
+      if ($('#qct-inline').is(':visible'))
+      {
+        qct_inline_close();
+      }
+      else
+      {
+        $(grayed_out_controls).css('opacity', '0.3');
+        $('form:not("#qct-inline-form") :input').attr('disabled', 'disabled');
+        $('#qct-inline').show({'duration': 400});
+        $('#inline-field-summary').focus();
+      }
+    });
+    $('#qct-inline-cancel, #qct-inline-alert-cancel').click(qct_inline_close);
+
 
     // Install popover for create ticket shortcut
     // Important: Further options specified in markup
@@ -39,6 +78,7 @@ $( function () {
           },
         content : function () { return qct_info.msg; }
       });
+
     $('body').on('click.close', '#qct-alert-close', 
         function (e) { qct_alert_close() });
 
@@ -58,11 +98,16 @@ $( function () {
     // Clear input controls inside quick create box
     function qct_clearui() {
       $('#qct-form input, #qct-form select, #qct-form textarea').val('');
+      $('#qct-inline-form input, #qct-inline-form select, #qct-inline-form textarea').val('');
     }
 
     // We want to submit via #qct-create
     $('#qct-form').submit(function(e) {
       $('#qct-create').click();
+      e.preventDefault();
+    });
+    $('#qct-inline-form').submit(function(e) {
+      $('#qct-inline-create').click();
       e.preventDefault();
     });
 
@@ -103,8 +148,36 @@ $( function () {
                 });
           qct_clearui();
         }
-      )
+      );
 
+    $('#qct-inline-create').click(function() {
+      var base_url = $('#qct-inline-create').attr('data-target');
+      if (base_url === '/')
+        base_url = '';
+
+      $.post(base_url + '/qct', $('#qct-inline-form').serialize(), 
+        function(ticket_id) {
+          var href = base_url + '/ticket/' + ticket_id;
+          var msg = 'Ticket #' + ticket_id + ' has been created. ';
+          msg += '<a href="' + href + '">View / Edit</a>';
+          $('#qct-inline-notice-success span').html(msg);
+          $('#qct-inline-notice-success').show({'duration': 400});
+        })
+        .error(function(jqXHR, textStatus, errorMsg) {
+          var msg;
+          if (textStatus === 'timeout')
+            msg = 'Request timed out';
+          else if (textStatus === 'error')
+            msg = 'Could not create ticket. Error : ' + errorMsg;
+          else if (textStatus === 'abort')
+            msg = 'Aborted request';
+
+          $('#qct-inline-notice-error span').html(msg);
+          $('#qct-inline-notice-error').show({'duration': 400});
+        });
+      qct_clearui();
+      qct_inline_close();
+    });
   })
 
 // Event handlers for sticky panels , if any

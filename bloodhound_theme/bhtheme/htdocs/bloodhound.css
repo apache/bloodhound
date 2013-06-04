@@ -321,6 +321,21 @@ pre {
  padding: 3px;
 }
 
+#qct-inline {
+  position: relative;
+  max-width: inherit;
+  box-shadow: none;
+  z-index: 0;
+  margin-top: 20px;
+}
+#qct-inline h4 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+#qct-inline-alert-cancel {
+  display: inline;
+}
+
 /* @end */
 
 /* @group Generic rules */

@@ -523,10 +523,7 @@ class QuickCreateTicketDialog(Component):
         t['status'] = 'new'
         t['resolution'] = ''
         t.insert()
-        # Call ticket change listeners
-        ts = TicketSystem(self.env)
-        for listener in ts.change_listeners:
-            listener.ticket_created(t)
+
         if notify:
             try:
                 tn = TicketNotifyEmail(self.env)
