@@ -312,8 +312,7 @@ class ProductModuleTestCase(RequestHandlerTestCase):
         else:
             self.assertEquals('New description', product.description)
 
-        req_base_url = Href(req._reconstruct_url())
-        product_url = req_base_url.products(self.default_product)
+        product_url = Href(req.base_path).products(self.default_product)
         self.assertRedirect(req, product_url)
 
     def test_product_delete(self):
