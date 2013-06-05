@@ -81,7 +81,7 @@
           // otherwise the default submit comment only happens
         });
 
-        function modify_ticket() {
+        function modify_ticket(newticket) {
           if ($('#vc-summary').is('.edit-active'))
             // Already in editable state
             return;
@@ -124,11 +124,13 @@
 
           $('#inplace-edit, #vc-status a').hide();
           $('#edit-state-buttons, #edit-state-buttons-below, #edit-workflow-buttons, #edit-comment').show();
-          $('.activityfeed, .relations, #attachments').css('opacity', '0.3');
-          // disable input controls on all other forms
-          $('form:not("#inplace-propertyform") :input').attr('disabled', 'disabled');
-
-          $('#qct-inline, #qct-inline-notice-success, #qct-inline-notice-error').hide({'duration': 400});
+          if (!newticket)
+          {
+            // disable input controls on all other forms when in modify mode
+            $('.activityfeed, .relations, #attachments').css('opacity', '0.3');
+            $('form:not("#inplace-propertyform") :input').attr('disabled', 'disabled');
+            $('#qct-inline, #qct-inline-notice-success, #qct-inline-notice-error').hide({'duration': 400});
+          }
         }
 
         function add_update_hidden_summary_fn() {
@@ -207,7 +209,7 @@
         add_update_hidden_summary_fn();
 
         $('#inplace-edit-button button#inplace-edit').click(function (e) {
-          modify_ticket();
+          modify_ticket(false);
           e.preventDefault();
         });
         </py:if>
@@ -278,7 +280,7 @@
         $("#trac-add-comment").scrollToTop();
         </py:if>
         <py:if test="not ticket.exists">
-        modify_ticket();
+        modify_ticket(true);
         $('#vc-status').parent().hide();
         $('#vc-product').parent().hide();
         </py:if>
