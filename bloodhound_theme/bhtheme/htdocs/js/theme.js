@@ -42,9 +42,13 @@ $( function () {
     // resizing the window to a -desktop size when inline form is
     // shown would result in the form disappearing (ok), but all other
     // forms would still be disabled (not ok).
+    // NOTE - currently disabled due to certain phones resizing the
+    // window when the form controls are focused (e.g. input)
+/*
     $(window).resize(function() {
       qct_inline_close();
     });
+*/
 
     $('#qct-inline-newticket').click(function() {
       $('#qct-inline-notice-success, #qct-inline-notice-error').hide();
@@ -175,8 +179,10 @@ $( function () {
           $('#qct-inline-notice-error span').html(msg);
           $('#qct-inline-notice-error').show({'duration': 400});
         });
+
       qct_clearui();
       qct_inline_close();
+      $('body').animate({scrollTop: 0}, 250);
     });
   })
 

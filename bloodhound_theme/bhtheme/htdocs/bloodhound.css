@@ -332,6 +332,22 @@ pre {
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+
+/*
+  workaround for -hidden/-visible buttons in a btn-group, which don't
+  play nicely with btn-group's :first-child pseudo element
+  (the first button always gets picked, regardless of visibility)
+*/
+#qct-inline-newticket {
+  margin-left: 0;
+  -webkit-border-bottom-left-radius: 4px;
+          border-bottom-left-radius: 4px;
+  -webkit-border-top-left-radius: 4px;
+          border-top-left-radius: 4px;
+  -moz-border-radius-bottomleft: 4px;
+  -moz-border-radius-topleft: 4px;
+}
 #qct-inline-alert-cancel {
   display: inline;
 }

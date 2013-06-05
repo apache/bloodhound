@@ -98,7 +98,7 @@
                       action="${search_handler or href.search()}"
                       method="get">
                   <div class="input-append">
-                    <input type="text" class="span3" id="q" name="q"
+                    <input type="text" class="input-medium" id="q" name="q"
                         placeholder="Search all products. Try TracLinks."
                         value="${req.search_query}" />
                     <input py:for="name, value in extra_search_fields"
@@ -135,18 +135,17 @@
 
               <py:choose test="">
                 <py:when test="qct">
-                  <div class="btn-group visible-phone pull-right">
-                    <a href="#" class="btn btn-primary dropdown-toggle" id="qct-inline-newticket">
-                      <i class="icon-plus-sign icon-white"></i> <span class="caret"></span>
-                    </a>
-                  </div>
-
-                  <div class="btn-group hidden-phone">
-                    <a href="#" class="btn btn-primary dropdown-toggle"
+                  <div class="btn-group">
+                    <a href="#" class="btn btn-primary dropdown-toggle hidden-phone"
                         id="qct-newticket" data-animation="true" data-html="true" 
                         data-trigger="manual" data-toggle="dropdown">
                       <span>Create Ticket&nbsp;<span class="caret"></span></span>
                     </a>
+                    <a href="#" class="btn btn-primary dropdown-toggle visible-phone"
+                        id="qct-inline-newticket">
+                      <i class="icon-plus-sign icon-white"></i> <span class="caret"></span>
+                    </a>
+
                     <div id="qct-box" class="dropdown-menu" py:choose="">
                       <div class="popover-title">
                         <h3>New Ticket</h3>
