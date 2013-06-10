@@ -164,7 +164,7 @@ Arguments:
           </i18n:msg></py:otherwise>
         </py:choose>
         <span class="${'hidden-desktop' if change.cnum else ''}">
-        - by ${authorinfo(change.author)}, ${pretty_dateinfo(change.date)}
+        - by ${authorinfo(change.author)}<span py:if="'date' in change">, ${pretty_dateinfo(change.date)}</span>
         </span>
         <span py:if="field_name == 'attachment' and change.comment" class="attachment-desc searchable" xml:space="preserve">
           ${wiki_to_html(context, change.comment, escape_newlines=preserve_newlines)}
