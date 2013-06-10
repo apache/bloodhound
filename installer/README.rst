@@ -1,15 +1,15 @@
-=========================================
- General Installion of Apache Bloodhound
-=========================================
+==========================================
+ General Installation of Apache Bloodhound
+==========================================
 
 With the basic scripts in this directory you will eventually be able to install
 the Apache Bloodhound source with limited fuss.
 
-The following decribes how to install using the installer.py script with either
+The following describes how to install using the installer.py script with either
 SQLite or PostgreSQL databases.
 
 For simplicity, this document usually describes installation from the point of
-view of using ubuntu 11.10 and so commands will probably have to be adjusted
+view of using Ubuntu 11.10 and so commands will probably have to be adjusted
 to take your operating system version into account.
 
 General Prerequisites
@@ -23,7 +23,7 @@ The provided script requires at least:
  * virtualenv
 
 Most distributions of linux should have these in their repositories (pip and
-virutalenv are likely to be python-pip and python-virtualenv respectively.) 
+virtualenv are likely to be python-pip and python-virtualenv respectively.)
 If these are not readily available, the instructions for downloading and 
 installing for your system should be at:
 
@@ -76,7 +76,7 @@ that the created user is able to access the database. For example::
   $ createdb -U postgres -O bloodhound -E UTF-8 bloodhound
   $ logout
 
-and (on ubuntu 11.10)::
+and (on Ubuntu 11.10)::
 
   $ sudo vi /etc/postgresql/9.1/main/pg_hba.conf
 
@@ -177,16 +177,18 @@ creating the wsgi file::
   $ trac-admin ./bloodhound/environments/main/ deploy ./bloodhound/site
 
 You should also make sure that the appropriate modules are enabled for wsgi
-and htdigest authentication. On ubuntu this would be::
+and htdigest authentication. On Ubuntu this would be::
 
   $ sudo a2enmod wsgi
   $ sudo a2enmod auth_digest
 
-You will then need to create a site configuation for Apache. In ubuntu this can
+You will then need to create a site configuration for Apache. In Ubuntu this can
 be done like this::
+
   $ sudo vi /etc/apache2/sites-available/bloodhound
 
 Add to this something like::
+
   <VirtualHost *:8080>
     WSGIDaemonProcess bloodhound_tracker user=bloodhound python-path=/path/to/bloodhound/lib/python2.7/site-packages
     WSGIScriptAlias /bloodhound /path/to/bloodhound/site/cgi-bin/trac.wsgi
@@ -208,7 +210,7 @@ Add to this something like::
 The user referred to in the WSGIDaemonProcess should be the user that you wish
 bloodhound to be run as and so that user must have the appropriate set of
 permissions to access the Bloodhound installation. Running with any special
-system level priviledges should not be required and is not recommended.
+system level privileges should not be required and is not recommended.
 
 Then enable the new site, check the apache configuration and restart apache::
 
@@ -239,6 +241,7 @@ Overview of Manual Installation Instruction Assuming Ubuntu 11.10
 
 The following table describes steps to install bloodhound with (at least) the
 following assumptions:
+
  * Ubuntu 11.10
  * Python already installed
  * Required database installed (not the python bindings)
@@ -261,7 +264,7 @@ bloodhound/environments directory instead of bloodhound/environments/main.
 |  an environment     |                                                 | source bloodhound/bin/activate         |
 +---------------------+-------------------------------------------------+----------------------------------------+
 |                     | commands from now on should be run in the active env - the next step will require        |
-|                     |  running with sudo if you did not create and activate a virtualenv                      |
+|                     |  running with sudo if you did not create and activate a virtualenv                       |
 +---------------------+-------------------------------------------------+----------------------------------------+
 | install reqs        | pip install -r requirements-dev.txt             |                                        |
 +---------------------+-------------------------------------------------+----------------------------------------+
@@ -276,55 +279,54 @@ bloodhound/environments directory instead of bloodhound/environments/main.
 |  file (see below)   |                                                 |                                        |
 +---------------------+-------------------------------------------------+----------------------------------------+
 
-In base.ini save the following (replacing each /path/to with the real path) ::
+In base.ini save the following (replacing each /path/to with the real path)::
 
-[account-manager]
-account_changes_notify_addresses =
-authentication_url =
-db_htdigest_realm =
-force_passwd_change = true
-hash_method = HtDigestHashMethod
-htdigest_file = /path/to/bloodhound/environments/bloodhound.htdigest
-htdigest_realm = bloodhound
-htpasswd_file =
-htpasswd_hash_type = crypt
-password_file = /path/to/bloodhound/environments/bloodhound.htdigest
-password_store = HtDigestStore
-persistent_sessions = False
-refresh_passwd = False
-user_lock_max_time = 0
-verify_email = True
+ [account-manager]
+ account_changes_notify_addresses =
+ authentication_url =
+ db_htdigest_realm =
+ force_passwd_change = true
+ hash_method = HtDigestHashMethod
+ htdigest_file = /path/to/bloodhound/environments/bloodhound.htdigest
+ htdigest_realm = bloodhound
+ htpasswd_file =
+ htpasswd_hash_type = crypt
+ password_file = /path/to/bloodhound/environments/bloodhound.htdigest
+ password_store = HtDigestStore
+ persistent_sessions = False
+ refresh_passwd = False
+ user_lock_max_time = 0
+ verify_email = True
 
-[components]
-acct_mgr.admin.*= enabled
-acct_mgr.api.accountmanager = enabled
-acct_mgr.guard.accountguard = enabled
-acct_mgr.htfile.htdigeststore = enabled
-acct_mgr.web_ui.accountmodule = enabled
-acct_mgr.web_ui.loginmodule = enabled
-bhtheme.* = enabled
-bhdashboard.* = enabled
-multiproduct.* = enabled
-themeengine.* = enabled
-trac.ticket.report.reportmodule = disabled
-trac.ticket.web_ui.ticketmodule = disabled
-trac.web.auth.loginmodule = disabled
+ [components]
+ acct_mgr.admin.*= enabled
+ acct_mgr.api.accountmanager = enabled
+ acct_mgr.guard.accountguard = enabled
+ acct_mgr.htfile.htdigeststore = enabled
+ acct_mgr.web_ui.accountmodule = enabled
+ acct_mgr.web_ui.loginmodule = enabled
+ bhtheme.* = enabled
+ bhdashboard.* = enabled
+ multiproduct.* = enabled
+ themeengine.* = enabled
+ trac.ticket.report.reportmodule = disabled
+ trac.ticket.web_ui.ticketmodule = disabled
+ trac.web.auth.loginmodule = disabled
 
-[header_logo]
-src =
+ [header_logo]
+ src =
 
-[mainnav]
-browser.label = Source
-roadmap = disabled
-timeline = disabled
-tickets.label = Tickets
+ [mainnav]
+ browser.label = Source
+ roadmap = disabled
+ timeline = disabled
+ tickets.label = Tickets
 
-[theme]
-theme = bloodhound
+ [theme]
+ theme = bloodhound
 
-[trac]
-mainnav = dashboard,wiki,browser,tickets,newticket,timeline,roadmap,search,admin
-
+ [trac]
+ mainnav = dashboard,wiki,browser,tickets,newticket,timeline,roadmap,search,admin
 
 The double specification of htdigest_file and password_file is because of
 differences between versions of the account manager plugin.
@@ -332,21 +334,21 @@ differences between versions of the account manager plugin.
 Continue with the following table that shows the completion of the installation
 for a few databases types.
 
-+---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
-| Step Description    | Common Steps                                    | PostgreSQL Only                            | SQLite Only       |
-+=====================+=================================================+============================================+===================+
-| install python      |                                                 | sudo apt-get install python-psycopg2       |                   |
-|  database bindings  |                                                 |                                            |                   |
-+---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
-| set $DBSTING adding | export DBSTRING=[db specific string ->]         | postgres://user:pass@localhost:5432/dbname | sqlite:db/trac.db |
-|  db specific string |                                                 |                                            |                   |
-+---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
-| initialise          | trac-admin main initenv ProjectName $DBSTRING \ |                                            |                   |
-|                     |   --inherit=path/to/base.ini                    |                                            |                   |
-+---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
-| upgrade wiki        | trac-admin main wiki upgrade                    |                                            |                   |
-| set permissions     | trac-admin main permission add admin TRAC_ADMIN |                                            |                   |
-+---------------------+-------------------------------------------------+--------------------------------------------+-------------------+
++----------------------+-------------------------------------------------+--------------------------------------------+-------------------+
+| Step Description     | Common Steps                                    | PostgreSQL Only                            | SQLite Only       |
++======================+=================================================+============================================+===================+
+| install python       |                                                 | sudo apt-get install python-psycopg2       |                   |
+|  database bindings   |                                                 |                                            |                   |
++----------------------+-------------------------------------------------+--------------------------------------------+-------------------+
+| set $DBSTRING adding | export DBSTRING=[db specific string ->]         | postgres://user:pass@localhost:5432/dbname | sqlite:db/trac.db |
+|  db specific string  |                                                 |                                            |                   |
++----------------------+-------------------------------------------------+--------------------------------------------+-------------------+
+| initialise           | trac-admin main initenv ProjectName $DBSTRING \ |                                            |                   |
+|                      |   --inherit=path/to/base.ini                    |                                            |                   |
++----------------------+-------------------------------------------------+--------------------------------------------+-------------------+
+| upgrade wiki         | trac-admin main wiki upgrade                    |                                            |                   |
+| set permissions      | trac-admin main permission add admin TRAC_ADMIN |                                            |                   |
++----------------------+-------------------------------------------------+--------------------------------------------+-------------------+
 
 Now it should be possible to start bloodhound with::
 
@@ -356,9 +358,10 @@ and login from http://localhost:8000/main/login
 
 Also note that if you are starting from a new shell session, if you are using
 virtualenv you should::
+
   $ source path/to/bloodhound/bin/activate
 
 then::
-  $ tracd --port=8000 path/to/bloodhound/environments/main
 
+  $ tracd --port=8000 path/to/bloodhound/environments/main
 
