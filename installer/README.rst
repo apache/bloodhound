@@ -5,8 +5,8 @@
 With the basic scripts in this directory you will eventually be able to install
 the Apache Bloodhound source with limited fuss.
 
-The following describes how to install using the installer.py script with either
-SQLite or PostgreSQL databases.
+The following describes how to install using the bloodhound_setup.py script
+with either SQLite or PostgreSQL databases.
 
 For simplicity, this document usually describes installation from the point of
 view of using Ubuntu 11.10 and so commands will probably have to be adjusted
@@ -23,7 +23,7 @@ The provided script requires at least:
  * virtualenv
 
 Most distributions of linux should have these in their repositories (pip and
-virtualenv are likely to be python-pip and python-virtualenv respectively.)
+virtualenv are likely to be python-pip and python-virtualenv respectively).
 If these are not readily available, the instructions for downloading and 
 installing for your system should be at:
 
@@ -127,7 +127,7 @@ Next you should install the required python packages with::
   $ pip install -r requirements-dev.txt
 
 Bloodhound provides a script to create the database, set up an initial admin
-user and provide an initial configuration. If no op tions are provided, the 
+user and provide an initial configuration. If no options are provided, the
 installer will ask you some of the more important questions to help set up 
 Apache Bloodhound. As such you can just run::
 
@@ -168,13 +168,14 @@ If you have managed to prove that you can run the system with the standalone
 tracd, you should now also be able to run through a web server. Here we provide
 details about how to use the Apache webserver. It is currently recommended to
 use Apache with mod_wsgi to serve Bloodhound. The following instructions
-require apache to be installed along with the wsgi and auth_digest modules.
+require Apache HTTP Server to be installed along with the wsgi and auth_digest
+modules.
 
 It is possible to get the trac-admin command to reduce some of the work of
 creating the wsgi file::
 
   $ source ./bloodhound/bin/activate
-  $ trac-admin ./bloodhound/environments/main/ deploy ./bloodhound/site
+  $ trac-admin ./bloodhound/environments/main deploy ./bloodhound/site
 
 You should also make sure that the appropriate modules are enabled for wsgi
 and htdigest authentication. On Ubuntu this would be::
