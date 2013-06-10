@@ -93,7 +93,7 @@ Getting Apache Bloodhound
 
 Bloodhound can currently be checkout out from the apache subversion servers::
 
-  $ svn co https://svn.apache.org/repos/asf/incubator/bloodhound/trunk bloodhound
+  $ svn co https://svn.apache.org/repos/asf/bloodhound/trunk bloodhound
 
 Installation and Initial Configuration
 ======================================
