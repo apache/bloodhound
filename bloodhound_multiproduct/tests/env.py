@@ -532,10 +532,79 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             self.assertIs(env1, envgen3[prefix], 
                           "Identity check (by product model) '%s'" % (prefix,))
 
+class ProductEnvHrefTestCase(MultiproductTestCase):
+    """Assertions for resolution of product environment's base URL 
+    [https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003 BEP 3]
+    """
+
+    def product_base_url(url_template):
+        def decorator(f):
+            f.product_base_url = url_template
+            return f
+
+        return decorator
+
+    def setUp(self):
+        self._mp_setup()
+        self.env.path = '/path/to/env'
+        url_pattern = getattr(getattr(self, self._testMethodName).im_func,
+                              'product_base_url', '')
+        self.env.config.set('multiproduct', 'product_base_url', url_pattern)
+        self.product_env = ProductEnvironment(self.env, self.default_product)
+
+    def tearDown(self):
+        # Release reference to transient environment mock object
+        if self.env is not None:
+            try:
+                self.env.reset_db()
+            except OperationalError:
+                # "Database not found ...",
+                # "OperationalError: no such table: system" or the like
+                pass
+        self.env = None
+        self.product_env = None
+
+    @product_base_url('http://$(prefix)s.domain.tld/')
+    def test_href_subdomain(self):
+        """Test product sub domain base URL
+        """
+        self.assertEqual('http://tp1.domain.tld', self.product_env.abs_href())
+
+    @product_base_url('/path/to/bloodhound/$(prefix)s')
+    def test_href_sibling_paths(self):
+        """Test product base URL at sibling paths
+        """
+        self.assertEqual('http://example.org/trac.cgi/path/to/bloodhound/tp1', 
+                         self.product_env.abs_href())
+
+    @product_base_url('/$(envname)s/$(prefix)s')
+    def test_href_inherit_sibling_paths(self):
+        """Test product base URL at sibling paths inheriting configuration.
+        """
+        self.assertEqual('http://example.org/trac.cgi/env/tp1', 
+                         self.product_env.abs_href())
+
+    @product_base_url('/products/$(prefix)s')
+    def test_href_embed(self):
+        """Test default product base URL /products/prefix
+        """
+        self.assertEqual('http://example.org/trac.cgi/products/tp1', 
+                         self.product_env.abs_href())
+
+    @product_base_url('http://$(envname)s.tld/bh/$(prefix)s')
+    def test_href_complex(self):
+        """Test complex product base URL
+        """
+        self.assertEqual('http://env.tld/bh/tp1', self.product_env.abs_href())
+
+    product_base_url = staticmethod(product_base_url)
+
+
 def test_suite():
     return unittest.TestSuite([
             unittest.makeSuite(ProductEnvTestCase,'test'),
-            unittest.makeSuite(ProductEnvApiTestCase, 'test')
+            unittest.makeSuite(ProductEnvApiTestCase, 'test'),
+            unittest.makeSuite(ProductEnvHrefTestCase, 'test'),
         ])
 
 if __name__ == '__main__':

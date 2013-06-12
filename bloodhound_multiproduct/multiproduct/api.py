@@ -89,10 +89,10 @@ class MultiProductSystem(Component):
         e.g. the use cases listed in bh:wiki:/Proposals/BEP-0003#url-mapping .
         Both absolute as well as relative URLs are supported. The later 
         will be resolved with respect to the base URL of the parent global
-        environment. The pattern may contain references to $(prefix)s and 
-        $(name)s placeholders representing the product prefix and name
-        respectively . If nothing is set the following will be used 
-        `products/$(prefix)s`
+        environment. The pattern may contain references to $(envname)s,
+        $(prefix)s and $(name)s placeholders representing the environment name,
+        product prefix and product name respectively . If nothing is set the
+        following will be used `products/$(prefix)s`
 
         Note the usage of `$(...)s` instead of `%(...)s` as the later form 
         would be interpreted by the ConfigParser itself. """)

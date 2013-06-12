@@ -860,14 +860,22 @@ class ProductEnvironment(Component, ComponentManager):
                                   "configuration, generated links may be "
                                   "incorrect")
                     urlpattern = 'products/$(prefix)s'
+                envname = os.path.basename(self.parent.path)
                 prefix = unicode_quote(self.product.prefix, safe="")
                 name = unicode_quote(self.product.name, safe="")
                 url = urlpattern.replace('$(', '%(') \
+                     .replace('%(envname)s', envname) \
                      .replace('%(prefix)s', prefix) \
                      .replace('%(name)s', name)
-                parent_href = Href(self.parent.abs_href(), path_safe="/!~*'()%",
-                                   query_safe="!~*'()%")
-                self._abs_href = Href(parent_href(url))
+                if urlsplit(url).netloc:
+                    #  Absolute URLs
+                    self._abs_href = Href(url)
+                else:
+                    # Relative URLs
+                    parent_href = Href(self.parent.abs_href(),
+                                       path_safe="/!~*'()%",
+                                       query_safe="!~*'()%")
+                    self._abs_href = Href(parent_href(url))
             else:
                 self._abs_href = Href(self.base_url)
         return self._abs_href
