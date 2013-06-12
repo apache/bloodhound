@@ -131,6 +131,7 @@ setup(
                   for p in PKG_INFO.keys()],
     entry_points = ENTRY_POINTS,
     classifiers = cats,
-    long_description= DESC
+    long_description= DESC,
+    test_suite='bhrelations.tests.test_suite'
     )
 

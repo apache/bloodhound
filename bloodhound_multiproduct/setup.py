@@ -36,6 +36,6 @@ setup(
             'multiproduct.ticket.web_ui = multiproduct.ticket.web_ui',
             'multiproduct.web_ui = multiproduct.web_ui',
         ],},
-    test_suite = "tests",
+    test_suite='tests.test_suite',
 )
 
