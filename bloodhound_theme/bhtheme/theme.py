@@ -141,9 +141,11 @@ class BloodhoundTheme(ThemeBase):
         'timeline.html' : ('bh_timeline.html', None),
 
         # Account manager plugin
+        'account_details.html': ('bh_account_details.html', None),
+        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', None),
+        'admin_users.html': ('bh_admin_users.html', None),
         'login.html' : ('bh_login.html', None),
         'prefs_account.html' : ('bh_prefs_account.html', None),
-        'admin_accountsconfig.html' : ('bh_admin_accountsconfig.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
