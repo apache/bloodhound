@@ -72,8 +72,8 @@ class MultiproductTestCase(unittest.TestCase):
         """Add logging capabilities to assertRaises
         """
         def __init__(self, expected, test_case, expected_regexp=None):
-            _AssertRaisesContext.__init__(
-                    self, expected, test_case, expected_regexp)
+            _AssertRaisesContext.__init__(self, expected, test_case,
+                                          expected_regexp)
             self.test_case = test_case
 
         @staticmethod
@@ -89,8 +89,8 @@ class MultiproductTestCase(unittest.TestCase):
 
         def __exit__(self, exc_type, exc_value, tb):
             try:
-                return _AssertRaisesContext.__exit__(self, 
-                    exc_type, exc_value, tb)
+                return _AssertRaisesContext.__exit__(self, exc_type,
+                                                     exc_value, tb)
             except self.failureException, exc:
                 msg = self.test_case.exceptFailureMessage 
                 if msg is not None:
@@ -110,8 +110,8 @@ class MultiproductTestCase(unittest.TestCase):
         if callableObj is None:
             return self._AssertRaisesLoggingContext(excClass, self)
         else:
-            return unittest.TestCase.assertRaises(
-                    self, excClass, callableObj, *args, **kwargs)
+            return unittest.TestCase.assertRaises(self, excClass, callableObj,
+                                                  *args, **kwargs)
 
     # Product data
 
@@ -119,42 +119,42 @@ class MultiproductTestCase(unittest.TestCase):
     MAX_TEST_PRODUCT = 3
 
     PRODUCT_DATA = {
-                    'tp1' : {
-                             'prefix':'tp1',
-                             'name' : 'test product 1',
-                             'description' : 'desc for tp1',
-                             },
-                    'tp2' : {
-                             'prefix':'tp2',
-                             'name' : 'test product 2',
-                             'description' : 'desc for tp2',
-                             },
-                    u'xü' : {
-                             'prefix':u'xü',
-                             'name' : 'Non-ASCII chars',
-                             'description' : 'Unicode chars in name',
-                             },
-                    u'Überflüssigkeit' : {
-                             'prefix':u'Überflüssigkeit',
-                             'name' : 'Non-ASCII chars (long)',
-                             'description' : 'Long name with unicode chars',
-                             },
-                    'Foo Bar' : {
-                             'prefix':'Foo Bar',
-                             'name' : 'Whitespaces',
-                             'description' : 'Whitespace chars in name',
-                             },
-                    'Foo Bar#baz' : {
-                             'prefix':'Foo Bar#baz',
-                             'name' : 'Non-alphanumeric',
-                             'description' : 'Special chars in name',
-                             },
-                    'pl/de' : {
-                             'prefix':'pl/de',
-                             'name' : 'Path separator',
-                             'description' : 'URL path separator in name',
-                             },
-                    }
+        'tp1': {
+            'prefix': 'tp1',
+            'name': 'test product 1',
+            'description': 'desc for tp1',
+        },
+        'tp2': {
+            'prefix': 'tp2',
+            'name': 'test product 2',
+            'description': 'desc for tp2',
+        },
+        u'xü': {
+            'prefix': u'xü',
+            'name': 'Non-ASCII chars',
+            'description': 'Unicode chars in name',
+        },
+        u'Überflüssigkeit': {
+            'prefix': u'Überflüssigkeit',
+            'name': 'Non-ASCII chars (long)',
+            'description': 'Long name with unicode chars',
+        },
+        'Foo Bar': {
+            'prefix': 'Foo Bar',
+            'name': 'Whitespaces',
+            'description': 'Whitespace chars in name',
+        },
+        'Foo Bar#baz': {
+            'prefix': 'Foo Bar#baz',
+            'name': 'Non-alphanumeric',
+            'description': 'Special chars in name',
+        },
+        'pl/de': {
+            'prefix': 'pl/de',
+            'name': 'Path separator',
+            'description': 'URL path separator in name',
+        },
+    }
 
     # Test setup
 
@@ -191,8 +191,7 @@ class MultiproductTestCase(unittest.TestCase):
 
         config.save()
         env.setup_log()
-        env.log.info('%s test case: %s %s',
-                '-' * 10, self.id(), '-' * 10)
+        env.log.info('%s test case: %s %s', '-' * 10, self.id(), '-' * 10)
 
         # Clean-up logger instance and associated handler
         # Otherwise large test suites will only result in ERROR eventually
@@ -247,10 +246,9 @@ class MultiproductTestCase(unittest.TestCase):
         with env.db_transaction as db:
             for table, cols, vals in db_default.get_data(db):
                 if table != 'system':
-                    db.executemany('INSERT INTO %s (%s) VALUES (%s)' %
-                            (table, ','.join(cols), 
-                                    ','.join(['%s' for c in cols])),
-                            vals)
+                    db.executemany('INSERT INTO %s (%s) VALUES (%s)'
+                                   % (table, ','.join(cols),
+                                      ','.join(['%s' for c in cols])), vals)
         env.log.debug('Loaded default data')
 
     def _mp_setup(self, **kwargs):
@@ -260,6 +258,7 @@ class MultiproductTestCase(unittest.TestCase):
         self._upgrade_mp(self.env)
         self._setup_test_log(self.env)
         self._load_product_from_data(self.env, self.default_product)
+
 
 class ProductEnvTestCase(EnvironmentTestCase, MultiproductTestCase):
     r"""Test cases for Trac environments rewritten for product environments
@@ -277,10 +276,12 @@ class ProductEnvTestCase(EnvironmentTestCase, MultiproductTestCase):
             self._upgrade_mp(self.global_env)
             self._load_product_from_data(self.global_env, self.default_product)
             try:
-                self.env = ProductEnvironment(self.global_env, self.default_product)
-            except :
+                self.env = ProductEnvironment(self.global_env,
+                                              self.default_product)
+            except:
                 # All tests should fail if anything goes wrong
-                self.global_env.log.exception('Error creating product environment')
+                self.global_env.log.exception(
+                    'Error creating product environment')
                 self.env = None
         except:
             shutil.rmtree(self.env.path)
@@ -291,6 +292,7 @@ class ProductEnvTestCase(EnvironmentTestCase, MultiproductTestCase):
         self.env = self.global_env
 
         EnvironmentTestCase.tearDown(self)
+
 
 class ProductEnvApiTestCase(MultiproductTestCase):
     """Assertions for Apache(TM) Bloodhound product-specific extensions in
@@ -328,7 +330,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         def property_mock(attrnm, expected_self):
             def assertAttrFwd(instance):
                 self.assertIs(instance, expected_self, 
-                        "Mismatch in property '%s'" % (attrnm,))
+                              "Mismatch in property '%s'" % (attrnm,))
                 raise AttrSuccess
             return property(assertAttrFwd)
 
@@ -342,21 +344,22 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                 if isinstance(original, MethodType):
                     translation = getattr(self.product_env, attrnm)
                     self.assertIs(translation.im_self, self.env,
-                            "'%s' not bound to global env in product env" % 
-                                    (attrnm,))
+                                  "'%s' not bound to global env in product env"
+                                  % (attrnm,))
                     self.assertIs(translation.im_func, original.im_func,
-                            "'%s' function differs in product env" % (attrnm,))
+                                  "'%s' function differs in product env"
+                                  % (attrnm,))
                 elif isinstance(original, (property, Option)):
                     # Intercept property access e.g. properties, Option, ...
-                    setattr(self.env.__class__, attrnm, 
-                        property_mock(attrnm, self.env))
+                    setattr(self.env.__class__, attrnm,
+                            property_mock(attrnm, self.env))
 
                     self.exceptFailureMessage = 'Property %(attrnm)s'
                     with self.assertRaises(AttrSuccess) as cm_test_attr:
                         getattr(self.product_env, attrnm)
                 else:
-                    self.fail("Environment member %s has unexpected type" % 
-                            (repr(original),))
+                    self.fail("Environment member %s has unexpected type"
+                              % (repr(original),))
 
         finally:
             self.env.__class__ = EnvironmentStub
@@ -368,13 +371,15 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             if isinstance(original, MethodType):
                 translation = getattr(self.product_env, attrnm)
                 self.assertIs(translation.im_self, self.product_env,
-                        "'%s' not bound to product env" % (attrnm,))
+                              "'%s' not bound to product env" % (attrnm,))
                 self.assertIs(translation.im_func, original.im_func,
-                        "'%s' function differs in product env" % (attrnm,))
+                              "'%s' function differs in product env"
+                              % (attrnm,))
             elif isinstance(original, property):
                 translation = getattr(ProductEnvironment, attrnm)
                 self.assertIs(original, translation,
-                        "'%s' property differs in product env" % (attrnm,))
+                              "'%s' property differs in product env"
+                              % (attrnm,))
 
     def test_typecheck(self):
         """Testing env.__init__"""
@@ -384,8 +389,9 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
         msg = str(cm_test.exception)
         expected_msg = "Initializer must be called with " \
-                "trac.env.Environment instance as first argument " \
-                "(got multiproduct.env.ProductEnvironment instance instead)"
+                       "trac.env.Environment instance as first argument " \
+                       "(got multiproduct.env.ProductEnvironment instance " \
+                       "instead)"
         self.assertEqual(msg, expected_msg)
 
     def test_component_enable(self):
@@ -408,11 +414,11 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             disable_component_in_config(product_env, cls)
 
             expected_rules = {
-                    'multiproduct' : True,
-                    'trac' : True,
-                    'trac.db' : True,
-                    cname : False,
-                }
+                'multiproduct': True,
+                'trac': True,
+                'trac.db': True,
+                cname: False,
+            }
             self.assertEquals(expected_rules, global_env._component_rules)
             self.assertEquals(expected_rules, product_env._component_rules)
 
@@ -478,8 +484,9 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
     def test_path(self):
         """Testing env.path"""
-        self.assertEqual(self.product_env.path, 
-                os.path.join(self.env.path, 'products', self.default_product))
+        self.assertEqual(self.product_env.path,
+                         os.path.join(self.env.path, 'products',
+                                      self.default_product))
 
     def test_env_config_inheritance(self):
         """Testing env.config"""
@@ -505,9 +512,9 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                 self._load_product_from_data(self.env, prefix)
 
         envgen1 = dict([prefix, ProductEnvironment(self.env, prefix)] 
-                   for prefix in self.PRODUCT_DATA)
+                       for prefix in self.PRODUCT_DATA)
         envgen2 = dict([prefix, ProductEnvironment(self.env, prefix)] 
-                   for prefix in self.PRODUCT_DATA)
+                       for prefix in self.PRODUCT_DATA)
 
         for prefix, env1 in envgen1.iteritems():
             self.assertIs(env1, envgen2[prefix], 
@@ -524,13 +531,14 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             else:
                 return products[0]
 
-        envgen3 = dict([prefix, ProductEnvironment(self.env, 
-                                                   load_product(prefix))] 
-                   for prefix in self.PRODUCT_DATA)
+        envgen3 = dict([prefix, ProductEnvironment(self.env,
+                                                   load_product(prefix))]
+                       for prefix in self.PRODUCT_DATA)
 
         for prefix, env1 in envgen1.iteritems():
             self.assertIs(env1, envgen3[prefix], 
                           "Identity check (by product model) '%s'" % (prefix,))
+
 
 class ProductEnvHrefTestCase(MultiproductTestCase):
     """Assertions for resolution of product environment's base URL 
@@ -602,11 +610,10 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
 
 def test_suite():
     return unittest.TestSuite([
-            unittest.makeSuite(ProductEnvTestCase,'test'),
-            unittest.makeSuite(ProductEnvApiTestCase, 'test'),
-            unittest.makeSuite(ProductEnvHrefTestCase, 'test'),
-        ])
+        unittest.makeSuite(ProductEnvTestCase, 'test'),
+        unittest.makeSuite(ProductEnvApiTestCase, 'test'),
+        unittest.makeSuite(ProductEnvHrefTestCase, 'test'),
+    ])
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

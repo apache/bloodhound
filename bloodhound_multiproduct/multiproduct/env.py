@@ -864,9 +864,9 @@ class ProductEnvironment(Component, ComponentManager):
                 prefix = unicode_quote(self.product.prefix, safe="")
                 name = unicode_quote(self.product.name, safe="")
                 url = urlpattern.replace('$(', '%(') \
-                     .replace('%(envname)s', envname) \
-                     .replace('%(prefix)s', prefix) \
-                     .replace('%(name)s', name)
+                                .replace('%(envname)s', envname) \
+                                .replace('%(prefix)s', prefix) \
+                                .replace('%(name)s', name)
                 if urlsplit(url).netloc:
                     #  Absolute URLs
                     self._abs_href = Href(url)
@@ -939,4 +939,3 @@ resolve_product_href = ProductEnvironment.resolve_href
 # Override product-specific options
 from multiproduct.config import ProductPermissionPolicyOption
 PermissionSystem.policies.__class__ = ProductPermissionPolicyOption
-
