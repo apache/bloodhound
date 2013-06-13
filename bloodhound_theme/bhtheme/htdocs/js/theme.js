@@ -101,8 +101,8 @@ $( function () {
 
     // Clear input controls inside quick create box
     function qct_clearui() {
-      $('#qct-form input, #qct-form select, #qct-form textarea').val('');
-      $('#qct-inline-form input, #qct-inline-form select, #qct-inline-form textarea').val('');
+      $('#qct-form input[name!="__FORM_TOKEN"], #qct-form select, #qct-form textarea').val('');
+      $('#qct-inline-form input[name!="__FORM_TOKEN"], #qct-inline-form select, #qct-inline-form textarea').val('');
     }
 
     // We want to submit via #qct-create
