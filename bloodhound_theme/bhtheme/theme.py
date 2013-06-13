@@ -24,7 +24,7 @@ from genshi.filters.transform import Transformer
 from genshi.output import DocType
 
 from trac.config import Option, BoolOption
-from trac.core import *
+from trac.core import Component, TracError, implements
 from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
 from trac.resource import Neighborhood, Resource
@@ -47,8 +47,6 @@ from bhdashboard.web_ui import DashboardModule
 from bhdashboard import wiki
 
 from pkg_resources import get_distribution
-from urlparse import urlparse
-from wsgiref.util import setup_testing_defaults
 
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
@@ -58,6 +56,7 @@ try:
     from multiproduct.ticket.web_ui import ProductTicketModule
 except ImportError:
     ProductTicketModule = None
+
 
 class BloodhoundTheme(ThemeBase):
     """Look and feel of Bloodhound issue tracker.
@@ -71,81 +70,81 @@ class BloodhoundTheme(ThemeBase):
     )
     BLOODHOUND_TEMPLATE_MAP = {
         # Admin
-        'admin_basics.html' : ('bh_admin_basics.html', '_modify_admin_breadcrumb'),
-        'admin_components.html' : ('bh_admin_components.html', '_modify_admin_breadcrumb'),
-        'admin_enums.html' : ('bh_admin_enums.html', '_modify_admin_breadcrumb'),
-        'admin_logging.html' : ('bh_admin_logging.html', '_modify_admin_breadcrumb'),
-        'admin_milestones.html' : ('bh_admin_milestones.html', '_modify_admin_breadcrumb'),
-        'admin_perms.html' : ('bh_admin_perms.html', '_modify_admin_breadcrumb'),
-        'admin_plugins.html' : ('bh_admin_plugins.html', '_modify_admin_breadcrumb'),
-        'admin_repositories.html' : ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
-        'admin_versions.html' : ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
-        'admin_products.html' : ('bh_admin_products.html', '_modify_admin_breadcrumb'),
+        'admin_basics.html': ('bh_admin_basics.html', '_modify_admin_breadcrumb'),
+        'admin_components.html': ('bh_admin_components.html', '_modify_admin_breadcrumb'),
+        'admin_enums.html': ('bh_admin_enums.html', '_modify_admin_breadcrumb'),
+        'admin_logging.html': ('bh_admin_logging.html', '_modify_admin_breadcrumb'),
+        'admin_milestones.html': ('bh_admin_milestones.html', '_modify_admin_breadcrumb'),
+        'admin_perms.html': ('bh_admin_perms.html', '_modify_admin_breadcrumb'),
+        'admin_plugins.html': ('bh_admin_plugins.html', '_modify_admin_breadcrumb'),
+        'admin_repositories.html': ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
+        'admin_versions.html': ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
+        'admin_products.html': ('bh_admin_products.html', '_modify_admin_breadcrumb'),
         # no template substitutions below - use the default template,
         # but call the modifier nonetheless
-        'admin_accountsconfig.html' : ('admin_accountsconfig.html', '_modify_admin_breadcrumb'),
-        'admin_users.html' : ('admin_users.html', '_modify_admin_breadcrumb'),
-        'repository_links.html' : ('repository_links.html', '_modify_admin_breadcrumb'),
+        'admin_accountsconfig.html': ('admin_accountsconfig.html', '_modify_admin_breadcrumb'),
+        'admin_users.html': ('admin_users.html', '_modify_admin_breadcrumb'),
+        'repository_links.html': ('repository_links.html', '_modify_admin_breadcrumb'),
 
         # Preferences
-        'prefs.html' : ('bh_prefs.html', None),
-        'prefs_advanced.html' : ('bh_prefs_advanced.html', None),
-        'prefs_datetime.html' : ('bh_prefs_datetime.html', None),
-        'prefs_general.html' : ('bh_prefs_general.html', None),
-        'prefs_language.html' : ('bh_prefs_language.html', None),
-        'prefs_keybindings.html' : ('bh_prefs_keybindings.html', None),
-        'prefs_pygments.html' : ('bh_prefs_pygments.html', None),
-        'prefs_userinterface.html' : ('bh_prefs_userinterface.html', None),
+        'prefs.html': ('bh_prefs.html', None),
+        'prefs_advanced.html': ('bh_prefs_advanced.html', None),
+        'prefs_datetime.html': ('bh_prefs_datetime.html', None),
+        'prefs_general.html': ('bh_prefs_general.html', None),
+        'prefs_language.html': ('bh_prefs_language.html', None),
+        'prefs_keybindings.html': ('bh_prefs_keybindings.html', None),
+        'prefs_pygments.html': ('bh_prefs_pygments.html', None),
+        'prefs_userinterface.html': ('bh_prefs_userinterface.html', None),
 
         # Search
-        'search.html' : ('bh_search.html', '_modify_search_data'),
+        'search.html': ('bh_search.html', '_modify_search_data'),
 
         # Wiki
-        'wiki_delete.html' : ('bh_wiki_delete.html', None),
-        'wiki_diff.html' : ('bh_wiki_diff.html', None),
-        'wiki_edit.html' : ('bh_wiki_edit.html', None),
-        'wiki_rename.html' : ('bh_wiki_rename.html', None),
-        'wiki_view.html' : ('bh_wiki_view.html', '_modify_wiki_page_path'),
+        'wiki_delete.html': ('bh_wiki_delete.html', None),
+        'wiki_diff.html': ('bh_wiki_diff.html', None),
+        'wiki_edit.html': ('bh_wiki_edit.html', None),
+        'wiki_rename.html': ('bh_wiki_rename.html', None),
+        'wiki_view.html': ('bh_wiki_view.html', '_modify_wiki_page_path'),
 
         # Ticket
-        'diff_view.html' : ('bh_diff_view.html', None),
-        'manage.html' : ('manage.html', '_modify_resource_breadcrumb'),
-        'milestone_edit.html' : ('bh_milestone_edit.html', '_modify_roadmap_page'),
-        'milestone_delete.html' : ('bh_milestone_delete.html', '_modify_roadmap_page'),
-        'milestone_view.html' : ('bh_milestone_view.html', '_modify_roadmap_page'),
-        'roadmap.html' : ('roadmap.html', '_modify_roadmap_page'),
-        'query.html' : ('bh_query.html', '_add_products_general_breadcrumb'),
-        'report_delete.html' : ('bh_report_delete.html', '_add_products_general_breadcrumb'),
-        'report_edit.html' : ('bh_report_edit.html', '_add_products_general_breadcrumb'), 
-        'report_list.html' : ('bh_report_list.html', '_add_products_general_breadcrumb'),
-        'report_view.html' : ('bh_report_view.html', '_add_products_general_breadcrumb'),
-        'ticket.html' : ('bh_ticket.html', '_modify_ticket'),
-        'ticket_preview.html' : ('bh_ticket_preview.html', None),
-        'ticket_delete.html' : ('bh_ticket_delete.html', None),
+        'diff_view.html': ('bh_diff_view.html', None),
+        'manage.html': ('manage.html', '_modify_resource_breadcrumb'),
+        'milestone_edit.html': ('bh_milestone_edit.html', '_modify_roadmap_page'),
+        'milestone_delete.html': ('bh_milestone_delete.html', '_modify_roadmap_page'),
+        'milestone_view.html': ('bh_milestone_view.html', '_modify_roadmap_page'),
+        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
+        'query.html': ('bh_query.html', '_add_products_general_breadcrumb'),
+        'report_delete.html': ('bh_report_delete.html', '_add_products_general_breadcrumb'),
+        'report_edit.html': ('bh_report_edit.html', '_add_products_general_breadcrumb'),
+        'report_list.html': ('bh_report_list.html', '_add_products_general_breadcrumb'),
+        'report_view.html': ('bh_report_view.html', '_add_products_general_breadcrumb'),
+        'ticket.html': ('bh_ticket.html', '_modify_ticket'),
+        'ticket_preview.html': ('bh_ticket_preview.html', None),
+        'ticket_delete.html': ('bh_ticket_delete.html', None),
 
         # Attachment
-        'attachment.html' : ('bh_attachment.html', None),
-        'preview_file.html' : ('bh_preview_file.html', None),
+        'attachment.html': ('bh_attachment.html', None),
+        'preview_file.html': ('bh_preview_file.html', None),
 
         # Version control
-        'revisionlog.html' : ('bh_revisionlog.html', '_modify_browser'),
-        'browser.html' : ('bh_browser.html', '_modify_browser'),
-        'dir_entries.html' : ('bh_dir_entries.html', None),
+        'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
+        'browser.html': ('bh_browser.html', '_modify_browser'),
+        'dir_entries.html': ('bh_dir_entries.html', None),
 
         # Multi Product
-        'product_view.html' : ('bh_product_view.html', '_add_products_general_breadcrumb'),
+        'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
 
         # General purpose
-        'about.html' : ('bh_about.html', None),
-        'history_view.html' : ('bh_history_view.html', None),
-        'timeline.html' : ('bh_timeline.html', None),
+        'about.html': ('bh_about.html', None),
+        'history_view.html': ('bh_history_view.html', None),
+        'timeline.html': ('bh_timeline.html', None),
 
         # Account manager plugin
         'account_details.html': ('bh_account_details.html', None),
         'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', None),
         'admin_users.html': ('bh_admin_users.html', None),
-        'login.html' : ('bh_login.html', None),
-        'prefs_account.html' : ('bh_prefs_account.html', None),
+        'login.html': ('bh_login.html', None),
+        'prefs_account.html': ('bh_prefs_account.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
@@ -178,13 +177,14 @@ class BloodhoundTheme(ThemeBase):
 
     def _get_whitelabelling(self):
         """Gets the whitelabelling config values"""
-        return dict(
-            application_short = self.labels_application_short,
-            application_full = self.labels_application_full,
-            footer_left_prefix = self.labels_footer_left_prefix,
-            footer_left_postfix = self.labels_footer_left_postfix,
-            footer_right = self.labels_footer_right,
-            application_version = application_version)
+        return {
+            'application_short': self.labels_application_short,
+            'application_full': self.labels_application_full,
+            'footer_left_prefix': self.labels_footer_left_prefix,
+            'footer_left_postfix': self.labels_footer_left_postfix,
+            'footer_right': self.labels_footer_right,
+            'application_version': application_version
+        }
 
     # ITemplateStreamFilter methods
 
@@ -209,9 +209,9 @@ class BloodhoundTheme(ThemeBase):
             return attr_modifier
         
         # Insert default bootstrap CSS classes if necessary
-        for xpath, classes in self.BOOTSTRAP_CSS_DEFAULTS :
+        for xpath, classes in self.BOOTSTRAP_CSS_DEFAULTS:
             tx = tx.end().select(xpath) \
-                    .attr('class', add_classes(classes))
+                .attr('class', add_classes(classes))
          
         # Rename wiki guide links
         tx = tx.end() \
@@ -253,7 +253,8 @@ class BloodhoundTheme(ThemeBase):
         """Post process request filter.
         Removes all trac provided css if required"""
         
-        if template is None and data is None and sys.exc_info() == (None, None, None):
+        if template is None and data is None and \
+                sys.exc_info() == (None, None, None):
             return template, data, content_type
         
         def is_active_theme():
@@ -270,7 +271,7 @@ class BloodhoundTheme(ThemeBase):
             data['product_list'] = \
                 ProductModule.get_product_list(self.env, req)
 
-        links = req.chrome.get('links',{})
+        links = req.chrome.get('links', {})
         # replace favicon if appropriate
         if self.env.project_icon == 'common/trac.ico':
             bh_icon = 'theme/img/bh.ico'
@@ -284,24 +285,25 @@ class BloodhoundTheme(ThemeBase):
         is_active_theme = is_active_theme()
         if self.disable_all_trac_css and is_active_theme:
             if self.disable_all_trac_css:
-                stylesheets = links.get('stylesheet',[])
+                stylesheets = links.get('stylesheet', [])
                 if stylesheets:
                     path = '/chrome/common/css/'
                     _iter = ([ss, ss.get('href', '')] for ss in stylesheets)
-                    links['stylesheet'] = [ss for ss, href in _iter 
-                            if not path in href or
-                            href.rsplit('/', 1)[-1] in self.BLOODHOUND_KEEP_CSS]
-            template, modifier = self.BLOODHOUND_TEMPLATE_MAP.get(
-                    template, (template, None))
+                    links['stylesheet'] = \
+                        [ss for ss, href in _iter if not path in href or
+                         href.rsplit('/', 1)[-1] in self.BLOODHOUND_KEEP_CSS]
+            template, modifier = \
+                self.BLOODHOUND_TEMPLATE_MAP.get(template, (template, None))
             if modifier is not None:
                 modifier = getattr(self, modifier)
                 modifier(req, template, data, content_type, is_active_theme)
 
         if is_active_theme and data is not None:
-            data['responsive_layout'] = self.env.config.getbool(
-                    'bloodhound', 'responsive_layout', 'true')
-            data['bhrelations'] = self.env.config.getbool('components',
-                'bhrelations.*', 'false')
+            data['responsive_layout'] = \
+                self.env.config.getbool('bloodhound', 'responsive_layout',
+                                        'true')
+            data['bhrelations'] = \
+                self.env.config.getbool('components', 'bhrelations.*', 'false')
 
         return template, data, content_type
 
@@ -334,18 +336,20 @@ class BloodhoundTheme(ThemeBase):
         # Breadcrumbs nav
         data['resourcepath_template'] = 'bh_path_search.html'
 
-    def _modify_wiki_page_path(self, req, template, data, content_type, is_active):
+    def _modify_wiki_page_path(self, req, template, data, content_type,
+                               is_active):
         """Override wiki breadcrumbs nav items
         """
         if is_active:
             data['resourcepath_template'] = 'bh_path_wikipage.html'
 
-    def _modify_roadmap_page(self, req, template, data, content_type, is_active):
+    def _modify_roadmap_page(self, req, template, data, content_type,
+                             is_active):
         """Insert roadmap.css + products breadcrumb
         """
         add_stylesheet(req, 'dashboard/css/roadmap.css')
         self._add_products_general_breadcrumb(req, template, data,
-            content_type, is_active)
+                                              content_type, is_active)
         data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
         req.chrome['ctxtnav'] = []
 
@@ -359,7 +363,7 @@ class BloodhoundTheme(ThemeBase):
         if data['ticket'].exists:
             data['changes'] = [{'comment': '',
                                 'author': data['author_id'],
-                                'fields': {u'reported': {'label': u'Reported',},
+                                'fields': {u'reported': {'label': u'Reported'},
                                            },
                                 'permanent': 1,
                                 'cnum': 0,
@@ -383,7 +387,8 @@ class BloodhoundTheme(ThemeBase):
                 data['path_show_' + resname] = permname in req.perm(res)
 
             # add milestone list + current milestone to the breadcrumb
-            data['milestone_list'] = [m.name for m in Milestone.select(self.env)]
+            data['milestone_list'] = [m.name
+                                      for m in Milestone.select(self.env)]
             mname = data['ticket']['milestone']
             if mname:
                 data['milestone'] = Milestone(self.env, mname)
@@ -407,12 +412,11 @@ class BloodhoundTheme(ThemeBase):
         """Locate path to file in breadcrumbs area rather than title.
         Add browser-specific CSS.
         """
-        data.update(dict(
-                resourcepath_template='bh_path_links.html',
-                path_depth_limit=2
-            ))
+        data.update({
+            'resourcepath_template': 'bh_path_links.html',
+            'path_depth_limit': 2
+        })
         add_stylesheet(req, 'theme/css/browser.css')
-
 
     def _add_products_general_breadcrumb(self, req, template, data,
                                          content_type, is_active):
@@ -430,6 +434,7 @@ class BloodhoundTheme(ThemeBase):
                 yield ('mainnav', 'browser', 
                        tag.a(_('Browse Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
+
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
@@ -460,8 +465,8 @@ class QuickCreateTicketDialog(Component):
             fakereq = dummy_request(self.env)
             ticket = Ticket(self.env)
             tm._populate(fakereq, ticket, False)
-            all_fields = dict([f['name'], f] \
-                              for f in tm._prepare_fields(fakereq, ticket) \
+            all_fields = dict([f['name'], f]
+                              for f in tm._prepare_fields(fakereq, ticket)
                               if f['type'] == 'select')
 
             product_field = all_fields['product'];
@@ -479,7 +484,7 @@ class QuickCreateTicketDialog(Component):
         """
         m = PRODUCT_RE.match(req.path_info)
         return req.path_info == '/qct' or \
-               (m and m.group('pathinfo').strip('/') == 'qct')
+            (m and m.group('pathinfo').strip('/') == 'qct')
 
     def process_request(self, req):
         """Forward new ticket request to `trac.ticket.web_ui.TicketModule`
@@ -490,8 +495,8 @@ class QuickCreateTicketDialog(Component):
             req.perm.require('TICKET_CREATE')
             summary = req.args.pop('field_summary', '')
             desc = ""
-            attrs = dict([k[6:], v] for k,v in req.args.iteritems() \
-                                    if k.startswith('field_'))
+            attrs = dict([k[6:], v] for k, v in req.args.iteritems()
+                         if k.startswith('field_'))
             ticket_id = self.create(req, summary, desc, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
@@ -511,7 +516,7 @@ class QuickCreateTicketDialog(Component):
         return tm
 
     # Public API
-    def create(self, req, summary, description, attributes = {}, notify=False):
+    def create(self, req, summary, description, attributes={}, notify=False):
         """ Create a new ticket, returning the ticket ID. 
 
         PS: Borrowed from XmlRpcPlugin.
