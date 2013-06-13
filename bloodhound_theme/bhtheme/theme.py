@@ -175,6 +175,9 @@ class BloodhoundTheme(ThemeBase):
     implements(IRequestFilter, INavigationContributor, ITemplateProvider,
                ITemplateStreamFilter)
 
+    from trac.web import main
+    main.default_tracker = 'http://issues.apache.org/bloodhound'
+
     def _get_whitelabelling(self):
         """Gets the whitelabelling config values"""
         return {
