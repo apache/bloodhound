@@ -778,10 +778,10 @@ class BloodhoundProductSQLTranslate(object):
                 self._sqlparse_underline_hack(sql_statement)
             t = sql_statement.token_first()
             if t.match(Tokens.DML, dml_handlers.keys()):
-                dml_handlers[t.value](sql_statement, t)
+                dml_handlers[t.normalized](sql_statement, t)
                 sql = formatted_sql(sql_statement)
             elif t.match(Tokens.DDL, ddl_handlers.keys()):
-                ddl_handlers[t.value](sql_statement, t)
+                ddl_handlers[t.normalized](sql_statement, t)
                 sql = formatted_sql(sql_statement)
             else:
                 pass

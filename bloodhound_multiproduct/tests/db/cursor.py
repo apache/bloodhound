@@ -976,6 +976,19 @@ data = {
 """ALTER TABLE "PRODUCT_estimate" ADD COLUMN saveepoch int"""
         ),
     ],
+
+    #lowercase select (#548)
+    'lowercase_tokens': [
+        (
+"""select * from ticket""",
+"""select * from (SELECT * FROM ticket WHERE product='PRODUCT') AS ticket"""
+        ),
+        (
+"""create temporary table table_old as select * from table""",
+"""create temporary table "PRODUCT_table_old" as select * from (SELECT * FROM "PRODUCT_table") AS table""",
+        )
+    ]
+
 }
 
 class DbCursorTestCase(unittest.TestCase):
@@ -1028,6 +1041,9 @@ class DbCursorTestCase(unittest.TestCase):
 
     def test_custom_alter_table(self):
         self._run_test('custom_alter_table')
+
+    def test_lowercase_tokens(self):
+        self._run_test('lowercase_tokens')
 
 if __name__ == '__main__':
     unittest.main()
