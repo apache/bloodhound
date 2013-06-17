@@ -109,7 +109,7 @@ class WhooshBackend(Component):
                       analyzer=analysis.SimpleAnalyzer()),
         message=TEXT(stored=True,
                      analyzer=analysis.SimpleAnalyzer()),
-        security=ID(),
+        required_permission=ID(),
         name=TEXT(stored=True,
                   analyzer=analysis.SimpleAnalyzer()),
         query_suggestion_basket=TEXT(analyzer=analysis.SimpleAnalyzer(),
@@ -545,7 +545,7 @@ class WhooshEmptyFacetErrorWorkaround(Component):
         if isinstance(filter_condition, whoosh.query.CompoundQuery):
             sub_queries = list(filter_condition.subqueries)
             for i, subquery in enumerate(sub_queries):
-                term_to_replace =  self._find_and_fix_condition(subquery)
+                term_to_replace = self._find_and_fix_condition(subquery)
                 if term_to_replace:
                     filter_condition.subqueries[i] = term_to_replace
         elif isinstance(filter_condition, whoosh.query.Not):

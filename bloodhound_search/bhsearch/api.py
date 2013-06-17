@@ -38,7 +38,7 @@ class IndexFields(object):
     CONTENT = 'content'
     STATUS = 'status'
     PRODUCT = 'product'
-    SECURITY = 'security'
+    REQUIRED_PERMISSION = 'required_permission'
     NAME = 'name'
 
 class QueryResult(object):

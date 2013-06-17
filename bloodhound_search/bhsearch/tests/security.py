@@ -23,6 +23,7 @@ This module contains tests of search security using the actual permission
 system backend.
 """
 import contextlib
+import os
 import unittest
 from sqlite3 import OperationalError
 
@@ -40,11 +41,10 @@ from trac.wiki import web_ui
 from bhsearch import security
 
 
-
-class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
-    def setUp(self):
-        super(MultiProductSecurityTestSuite, self).setUp(
-            enabled=['trac.*', 'trac.wiki.*', 'bhsearch.*', 'multiproduct.*'],
+class SecurityTest(BaseBloodhoundSearchTest):
+    def setUp(self, enabled=[]):
+        super(SecurityTest, self).setUp(
+            enabled=enabled + ['trac.*', 'trac.wiki.*', 'bhsearch.*', 'multiproduct.*'],
             create_req=True,
             enable_security=True,
         )
@@ -59,6 +59,51 @@ class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
         self.search_api = BloodhoundSearchApi(self.env)
         self._add_products('p1', 'p2')
 
+    def _setup_multiproduct(self):
+        try:
+            MultiProductSystem(self.env)\
+                .upgrade_environment(self.env.db_transaction)
+        except OperationalError:
+            # table remains but content is deleted
+            self._add_products('@')
+        self.env.enable_multiproduct_schema()
+
+    def _disable_trac_caches(self):
+        DefaultPermissionPolicy.CACHE_EXPIRY = 0
+        self._clear_permission_caches()
+
+    def _create_whoosh_index(self):
+        WhooshBackend(self.env).recreate_index()
+
+    def _add_products(self, *products, **kwargs):
+        owner = kwargs.pop('owner', '')
+        with self.env.db_direct_transaction as db:
+            for product in products:
+                db("INSERT INTO bloodhound_product (prefix, owner) "
+                   " VALUES ('%s', '%s')" % (product, owner))
+                product = ProductEnvironment(self.env, product)
+                self.product_envs.append(product)
+
+    @contextlib.contextmanager
+    def product(self, prefix=''):
+        global_env = self.env
+        self.env = ProductEnvironment(global_env, prefix)
+        yield
+        self.env = global_env
+
+    def _add_permission(self, username='', permission='', product=''):
+        with self.env.db_direct_transaction as db:
+            db("INSERT INTO permission (username, action, product)"
+               "VALUES ('%s', '%s', '%s')" %
+               (username, permission, product))
+        self._clear_permission_caches()
+
+    def _clear_permission_caches(self):
+        for env in [self.env] + self.product_envs:
+            del PermissionSystem(env).store._all_permissions
+
+
+class MultiProductSecurityTestSuite(SecurityTest):
     def test_applies_security(self):
         self.insert_ticket('ticket 1')
 
@@ -210,48 +255,131 @@ class MultiProductSecurityTestSuite(BaseBloodhoundSearchTest):
 
         self.assertEqual(results.hits, 1)
 
-    def _setup_multiproduct(self):
-        try:
-            MultiProductSystem(self.env)\
-                .upgrade_environment(self.env.db_transaction)
-        except OperationalError:
-            # table remains but content is deleted
-            self._add_products('@')
-        self.env.enable_multiproduct_schema()
 
-    def _disable_trac_caches(self):
-        DefaultPermissionPolicy.CACHE_EXPIRY = 0
-        self._clear_permission_caches()
+class AuthzSecurityTestCase(SecurityTest):
+    def setUp(self, enabled=()):
+        SecurityTest.setUp(self, enabled=['tracopt.perm.authz_policy.*'])
+        self.authz_config = os.path.join(self.env.path, 'authz.conf')
+        self.env.config['authz_policy'].set('authz_file', self.authz_config)
+        self.env.config['trac'].set('permission_policies',
+                                    'AuthzPolicy,DefaultPermissionPolicy,'
+                                    'LegacyAttachmentPolicy')
 
-    def _create_whoosh_index(self):
-        WhooshBackend(self.env).recreate_index()
+        # Create some dummy objects
+        self.insert_ticket('ticket 1')
+        self.insert_wiki('page 1', 'content')
+        with self.product('p1'):
+            self.insert_ticket('ticket 2')
+            self.insert_wiki('page 1', 'content')
 
-    def _add_products(self, *products, **kwargs):
-        owner = kwargs.pop('owner', '')
-        with self.env.db_direct_transaction as db:
-            for product in products:
-                db("INSERT INTO bloodhound_product (prefix, owner) "
-                   " VALUES ('%s', '%s')" % (product, owner))
-                product = ProductEnvironment(self.env, product)
-                self.product_envs.append(product)
+    def test_authz_permissions(self):
+        self._add_permission('x', 'WIKI_VIEW')
+        self.write_authz_config('\n'.join([
+            '[*]',
+            '* = TICKET_VIEW, !WIKI_VIEW',
+        ]))
 
-    @contextlib.contextmanager
-    def product(self, prefix=''):
-        global_env = self.env
-        self.env = ProductEnvironment(global_env, prefix)
-        yield
-        self.env = global_env
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 2)
+        results = self.search_api.query("type:wiki", context=self.context)
+        self.assertEqual(results.hits, 0)
 
-    def _add_permission(self, username='', permission='', product=''):
-        with self.env.db_direct_transaction as db:
-            db("INSERT INTO permission (username, action, product)"
-               "VALUES ('%s', '%s', '%s')" %
-               (username, permission, product))
-        self._clear_permission_caches()
+    def test_granular_permissions(self):
+        self.write_authz_config("""
+            [ticket:1]
+            * = TICKET_VIEW
+        """)
 
-    def _clear_permission_caches(self):
-        for env in [self.env] + self.product_envs:
-            del PermissionSystem(env).store._all_permissions
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+        self.assertEqual(results.docs[0]['id'], u'1')
+
+    def test_deny_overrides_default_permissions(self):
+        self._add_permission('x', 'TICKET_VIEW')
+        self.write_authz_config("""
+            [*]
+            x = !TICKET_VIEW
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 0)
+
+    def test_includes_wildcard_rows_for_registred_users(self):
+        self.write_authz_config("""
+            [*]
+            * = TICKET_VIEW
+            [ticket:1]
+            * = !TICKET_VIEW
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+
+
+    def test_includes_wildcard_rows_for_anonymous_users(self):
+        self.req.authname='anonymous'
+        self.write_authz_config("""
+            [*]
+            * = TICKET_VIEW
+            [ticket:1]
+            * = !TICKET_VIEW
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+
+    def test_includes_authenticated_rows_for_registred_users(self):
+        self.write_authz_config("""
+            [*]
+            * = TICKET_VIEW
+            [ticket:1]
+            authenticated = !TICKET_VIEW
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+
+    def test_includes_named_rows_for_registred_users(self):
+        self.write_authz_config("""
+            [*]
+            * = TICKET_VIEW
+            [ticket:1]
+            x = !TICKET_VIEW
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+
+    def test_includes_named_rows_for_anonymous_users(self):
+        self.req.authname = 'anonymous'
+        self.write_authz_config("""
+            [*]
+            * = TICKET_VIEW
+            [ticket:1]
+            anonymous = !TICKET_VIEW
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+
+    def test_understands_groups(self):
+        self.write_authz_config("""
+            [groups]
+            admins = x
+
+            [*]
+            @admins = TICKET_VIEW
+
+            [ticket:1]
+            * = !TRAC_ADMIN
+        """)
+
+        results = self.search_api.query("type:ticket", context=self.context)
+        self.assertEqual(results.hits, 1)
+
+    def write_authz_config(self, content):
+        with open(self.authz_config, 'w') as authz_config:
+            authz_config.write(content)
 
 
 def suite():
