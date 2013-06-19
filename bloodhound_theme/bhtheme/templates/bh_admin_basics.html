@@ -61,6 +61,10 @@
               <option py:for="tzname in timezones" value="${tzname}"
                       selected="${tzname == default_timezone or None}">${tzname}</option>
             </select>
+            <span py:if="has_pytz is False" class="help-inline">
+              <span class="label label-info">Note</span>
+              Install <code>pytz</code> for a complete list of timezones.
+            </span>
           </div>
         </div>
         <div class="control-group">
