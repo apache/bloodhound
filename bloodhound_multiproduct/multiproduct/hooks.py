@@ -120,4 +120,5 @@ class ProductRequestWithSession(RequestWithSession):
 
 class ProductRequestFactory(RequestFactoryBase):
     def create_request(self, env, environ, start_response):
-        return ProductRequestWithSession(env, environ, start_response)
+        return ProductRequestWithSession(env, environ, start_response) \
+            if env else RequestWithSession(environ, start_response)

@@ -107,6 +107,12 @@ class BootstrapHandlerBase(object):
         || trac.locale ||  || Target locale ||
         || trac.base_url || TRAC_BASE_URL || Trac base URL hint ||
 
+        A new entry named 'trac.env_name' identifying environment SHOULD be
+        added (e.g. used by tracd to choose authentication realms). 
+        As a side-effect the WSGI environment dict (i.e. `environ`) may be
+        modified in many different ways to prepare it for subsequent
+        dispatching.
+
         This method may handle the request (e.g. render environment index page)
         in case environment lookup yields void results. In that case it MUST 
         invoke WSGI `write` callable returned by `start_response` and raise 
@@ -114,6 +120,7 @@ class BootstrapHandlerBase(object):
 
         :param environ: WSGI environment dict
         :param start_response: WSGI callback for starting the response
+        :return: environment object
         :throws RequestDone: if the request is fully processed while loading
                              target environment e.g. environment index page
         :throws EnvironmentError: if it is impossible to find a way to locate
@@ -125,6 +132,45 @@ class BootstrapHandlerBase(object):
         """
         raise NotImplementedError("Must override method 'open_environment'")
 
+    def default_probe_environment(self, environ):
+        """By default it will invoke `open_environment` and discard the
+        resulting environment object. This approach is generic but not
+        efficient. Should be overridden whenever possible. 
+        """
+        # If the expected configuration keys aren't found in the WSGI environment,
+        # try looking them up in the process environment variables
+        environ.setdefault('trac.env_path', os.getenv('TRAC_ENV'))
+        environ.setdefault('trac.env_parent_dir',
+                           os.getenv('TRAC_ENV_PARENT_DIR'))
+        environ.setdefault('trac.env_index_template',
+                           os.getenv('TRAC_ENV_INDEX_TEMPLATE'))
+        environ.setdefault('trac.template_vars',
+                           os.getenv('TRAC_TEMPLATE_VARS'))
+        environ.setdefault('trac.locale', '')
+        environ.setdefault('trac.base_url',
+                           os.getenv('TRAC_BASE_URL'))
+
+        try:
+            self.open_environment(environ, 
+                                  lambda status, headers: (lambda data: None))
+        except Exception:
+            # Handle all exceptions; else potential HTTP protocol violation
+            pass
+
+    def probe_environment(self, environ):
+        """This method is aimed at providing a lightweight version of
+        `open_environment` by solely applying upon `environ` the side effects 
+        needed to dispatch the request in environment context.
+
+        By default it will invoke `open_environment` and discard the
+        resulting environment object. Specialized versions will have the chance
+        to implement more efficient strategies in case environment
+        instantiation may be avoided. 
+
+        :return: None
+        """
+        self.default_probe_environment(environ)
+        
     def create_request(self, env, environ, start_response):
         """Instantiate request object used in subsequent request dispatching
         
@@ -148,7 +194,9 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
 
     def open_environment(self, environ, start_response):
         env_path = environ.get('trac.env_path')
-        if not env_path:
+        if env_path:
+            environ['trac.env_name'] = os.path.basename(env_path)
+        else:
             env_parent_dir = environ.get('trac.env_parent_dir')
             env_paths = environ.get('trac.env_paths')
             if env_parent_dir or env_paths:
@@ -163,7 +211,8 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
                     send_project_index(environ, start_response, env_parent_dir,
                                        env_paths)
                     raise RequestDone
-    
+
+                environ['trac.env_name'] = env_name
                 errmsg = None
     
                 # To make the matching patterns of request handlers work, we append
