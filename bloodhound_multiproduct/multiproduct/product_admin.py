@@ -295,9 +295,11 @@ class ProductAdminModule(Component):
             mgr = self.product_admincmd_mgr(args[0])
             return mgr.complete_command(args[1:])
 
+    GLOBAL_COMMANDS = ('deploy', 'help', 'hotcopy', 'initenv', 'upgrade')
+
     def _do_product_admin(self, prefix, *args):
         mgr = self.product_admincmd_mgr(prefix)
-        if args and args[0] in ('deploy', 'hotcopy', 'initenv', 'upgrade'):
+        if args and args[0] in self.GLOBAL_COMMANDS:
             raise AdminCommandError('%s command not supported for products' %
                                     (args[0],))
         if args and args[0] == 'help':
