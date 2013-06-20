@@ -392,7 +392,7 @@ def dispatch_request(environ, start_response, bootstrap=None):
             except Exception, e:
                 log = environ.get('wsgi.errors')
                 if log:
-                    log.write("[FAIL] [Trac] entry point '%s'. Reason %s" %
+                    log.write("[FAIL] [Trac] Entry point '%s'. Reason %s" %
                               (bootstrap_ep, repr(exception_to_unicode(e))))
     if bootstrap is None:
         from trac.hooks import default_bootstrap_handler
@@ -405,8 +405,11 @@ def dispatch_request(environ, start_response, bootstrap=None):
         env = bootstrap.open_environment(environ, start_response)
     except RequestDone:
         return []
-    except EnvironmentError:
-        raise
+    except EnvironmentError, e:
+        if e.__class__ is EnvironmentError:
+            raise
+        else:
+            env_error = e
     except Exception, e:
         env_error = e
     else:
@@ -436,8 +439,19 @@ def dispatch_request(environ, start_response, bootstrap=None):
 
     run_once = environ['wsgi.run_once']
 
-    req = bootstrap.create_request(env, environ, start_response) \
-            if env is not None else Request(environ, start_response)
+    req = None
+    if env_error is None:
+        try:
+            req = bootstrap.create_request(env, environ, start_response) \
+                if env is not None else Request(environ, start_response)
+        except Exception:
+            log = environ.get('wsgi.errors')
+            if log:
+                log.write("[FAIL] [Trac] Entry point '%s' "
+                          "Method 'create_request' Reason %s" %
+                          (bootstrap_ep, repr(exception_to_unicode(e))))
+    if req is None:
+        req = RequestWithSession(environ, start_response)
     translation.make_activable(lambda: req.locale, env.path if env else None)
     try:
         return _dispatch_request(req, env, env_error)

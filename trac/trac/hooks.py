@@ -215,7 +215,7 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
         factory = None
         try:
             factory = request_factory(self.global_env)
-        except AttributeError:
+        except Exception:
             pass
         return factory().create_request(env, environ, start_response) if factory \
                 else RequestWithSession(environ, start_response)
