@@ -50,11 +50,16 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                 # happen from within trac.web.main.dispatch_request
                 req = RequestWithSession(environ, None)
                 global_env._abs_href = req.abs_href
-            env = multiproduct.env.ProductEnvironment(global_env,
-                                                      product_prefix)
-            # shift WSGI environment to the left
-            environ['SCRIPT_NAME'] = script_name
-            environ['PATH_INFO'] = path_info
+            try:
+                env = multiproduct.env.ProductEnvironment(global_env,
+                                                          product_prefix)
+            except LookupError:
+                # bh:ticket:561 - Display product list and warning message
+                env = global_env
+            else:
+                # shift WSGI environment to the left
+                environ['SCRIPT_NAME'] = script_name
+                environ['PATH_INFO'] = path_info
             return env
 
         if pid:

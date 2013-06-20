@@ -49,33 +49,32 @@ class ProductModule(Component):
 
     def process_request(self, req):
         """process request handler"""
-        
+
         req.perm.require('PRODUCT_VIEW')
-
-        path_info = req.args.get('pathinfo')
-        if path_info and path_info != '/':
-            raise HTTPNotFound(_('Unable to render product page. Wrong setup?'))
-
         pid = req.args.get('productid', None)
         if pid:
             req.perm('product', pid).require('PRODUCT_VIEW')
-        action = req.args.get('action', 'view')
-        
-        products = [p for p in Product.select(self.env)
-                    if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
-                                                               p.prefix))]
-        
-        if pid:
-            add_link(req, 'up', req.href.products(), _('Products'))
-        
+
         try:
             product = Product(self.env, {'prefix': pid})
         except ResourceNotFound:
             product = Product(self.env)
-        
-        data = {'product': product,
-                'context': web_context(req, product.resource)}
-        
+
+        path_info = req.args.get('pathinfo')
+        if path_info and path_info != '/':
+            if not product._exists:
+                # bh:ticket:561 - Display product list and warning message
+                if pid:
+                    add_warning(req, _("Product %(pid)s not found", pid=pid))
+                return self._render_list(req)
+            else:
+                raise HTTPNotFound(
+                    _('Unable to render product page. Wrong setup?'))
+
+        if pid:
+            add_link(req, 'up', req.href.products(), _('Products'))
+
+        action = req.args.get('action', 'view')
         if req.method == 'POST':
             if 'cancel' in req.args:
                 req.redirect(req.href.products(product.prefix))
@@ -87,14 +86,27 @@ class ProductModule(Component):
             return self._render_editor(req, product)
         elif action == 'delete':
             raise TracError(_('Product removal is not allowed!'))
-        
-        if not pid:
-            data = {'products': products,
-                    'context': web_context(req, Resource('product', None))}
-            return 'product_list.html', data, None
-        
+
+        if not product._exists:
+            if pid:
+                # bh:ticket:561 - Display product list and warning message
+                add_warning(req, _("Product %(pid)s not found", pid=pid))
+            return self._render_list(req)
+
+        data = {'product': product,
+                'context': web_context(req, product.resource)}
         return 'product_view.html', data, None
-    
+
+    def _render_list(self, req):
+        """products list"""
+        print "Rendering list"
+        products = [p for p in Product.select(self.env)
+                    if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
+                                                               p.prefix))]
+        data = {'products': products,
+                'context': web_context(req, Resource('product', None))}
+        return 'product_list.html', data, None
+
     def _render_editor(self, req, product):
         """common processing for creating rendering the edit page"""
         if product._exists:
