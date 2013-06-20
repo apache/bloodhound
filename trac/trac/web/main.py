@@ -342,13 +342,12 @@ class RequestDispatcher(Component):
 
 _slashes_re = re.compile(r'/+')
 
-def dispatch_request(environ, start_response, bootstrap=None):
+
+def dispatch_request(environ, start_response):
     """Main entry point for the Trac web interface.
 
     :param environ: the WSGI environment dict
     :param start_response: the WSGI callback for starting the response
-    :param bootstrap: handler responsible for environment lookup and
-                      instantiating request objects
     """
 
     # SCRIPT_URL is an Apache var containing the URL before URL rewriting
@@ -382,21 +381,10 @@ def dispatch_request(environ, start_response, bootstrap=None):
 
     locale.setlocale(locale.LC_ALL, environ['trac.locale'])
 
-    if bootstrap is None:
-        bootstrap_ep = environ['trac.bootstrap_handler']
-        if bootstrap_ep:
-            from pkg_resources import EntryPoint
-            try:
-                ep = EntryPoint.parse('x = ' + bootstrap_ep)
-                bootstrap = ep.load(require=False)
-            except Exception, e:
-                log = environ.get('wsgi.errors')
-                if log:
-                    log.write("[FAIL] [Trac] Entry point '%s'. Reason %s" %
-                              (bootstrap_ep, repr(exception_to_unicode(e))))
-    if bootstrap is None:
-        from trac.hooks import default_bootstrap_handler
-        bootstrap = default_bootstrap_handler
+    # Load handler for environment lookup and instantiation of request objects
+    from trac.hooks import load_bootstrap_handler
+    bootstrap = load_bootstrap_handler(environ['trac.bootstrap_handler'],
+                                       environ.get('wsgi.errors'))
 
     # Determine the environment
     

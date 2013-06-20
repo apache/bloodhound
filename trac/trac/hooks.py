@@ -19,6 +19,8 @@ import os
 import imp
 import inspect
 
+import pkg_resources
+
 from trac.config import Configuration
 from trac.env import open_environment
 from trac.util.concurrency import threading
@@ -221,6 +223,26 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
                 else RequestWithSession(environ, start_response)
 
 default_bootstrap_handler = DefaultBootstrapHandler()
+
+def load_bootstrap_handler(bootstrap_ep, log=None):
+    """Load handler for environment lookup and instantiation of request objects
+
+    :param bootstrap_ep: entry point specification
+    :param log: file-like object used to report errors
+    """
+    bootstrap = None
+    if bootstrap_ep:
+        try:
+            ep = pkg_resources.EntryPoint.parse('x = ' + bootstrap_ep)
+            bootstrap = ep.load(require=False)
+        except Exception, e:
+            if log:
+                log.write("[FAIL] [Trac] entry point '%s'. Reason %s" %
+                          (bootstrap_ep, repr(exception_to_unicode(e))))
+    if bootstrap is None:
+        bootstrap = default_bootstrap_handler
+    return bootstrap
+
 
 # Recursive imports
 from trac.web.main import send_project_index, get_environments
