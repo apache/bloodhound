@@ -23,12 +23,10 @@ from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
 
-from trac.config import Option, BoolOption
+from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
-from trac.config import ListOption
 from trac.mimeview.api import get_mimetype
-from trac.resource import Neighborhood, Resource
-from trac.ticket.api import TicketSystem
+from trac.resource import Resource
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
@@ -36,7 +34,7 @@ from trac.util.compat import set
 from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
-from trac.web.chrome import (add_script, add_stylesheet, INavigationContributor,
+from trac.web.chrome import (add_stylesheet, INavigationContributor,
                              ITemplateProvider, prevnext_nav, Chrome)
 from trac.wiki.admin import WikiAdmin
 
@@ -46,9 +44,6 @@ from bhdashboard.util import dummy_request
 from bhdashboard.web_ui import DashboardModule
 from bhdashboard import wiki
 
-from pkg_resources import get_distribution
-
-from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
 
@@ -82,8 +77,8 @@ class BloodhoundTheme(ThemeBase):
         'admin_products.html': ('bh_admin_products.html', '_modify_admin_breadcrumb'),
         # no template substitutions below - use the default template,
         # but call the modifier nonetheless
-        'admin_accountsconfig.html': ('admin_accountsconfig.html', '_modify_admin_breadcrumb'),
-        'admin_users.html': ('admin_users.html', '_modify_admin_breadcrumb'),
+        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', '_modify_admin_breadcrumb'),
+        'admin_users.html': ('bh_admin_users.html', '_modify_admin_breadcrumb'),
         'repository_links.html': ('repository_links.html', '_modify_admin_breadcrumb'),
 
         # Preferences
@@ -141,15 +136,13 @@ class BloodhoundTheme(ThemeBase):
 
         # Account manager plugin
         'account_details.html': ('bh_account_details.html', None),
-        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', None),
-        'admin_users.html': ('bh_admin_users.html', None),
         'login.html': ('bh_login.html', None),
         'prefs_account.html': ('bh_prefs_account.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
-        ("body//table[not(contains(@class, 'table'))]", # TODO: Accurate ?
-                ['table', 'table-condensed']),
+        ("body//table[not(contains(@class, 'table'))]",  # TODO: Accurate ?
+         ['table', 'table-condensed']),
     )
     
     labels_application_short = Option('labels', 'application_short', 
@@ -405,8 +398,9 @@ class BloodhoundTheme(ThemeBase):
 
         if isinstance(req.perm.env, ProductEnvironment):
             product = req.perm.env.product
-            data['admin_current_product'] = (product.prefix, product.name,
-                req.href.products(product.prefix, 'admin'))
+            data['admin_current_product'] = \
+                (product.prefix, product.name,
+                 req.href.products(product.prefix, 'admin'))
         else:
             data['admin_current_product'] = glsettings
         data['resourcepath_template'] = 'bh_path_general.html'
@@ -559,4 +553,5 @@ class QuickCreateTicketDialog(Component):
                                    "of ticket #%s: %s" % (t.id, e))
         return t.id
 
+from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
