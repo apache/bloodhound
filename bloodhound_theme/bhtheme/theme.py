@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import sys, copy
+import sys
 
 from genshi.builder import tag
 from genshi.core import TEXT
@@ -400,7 +400,7 @@ class BloodhoundTheme(ThemeBase):
         # override 'normal' product list with the admin one
         glsettings = (None, _('(Global settings)'), req.href.admin())
         admin_url = lambda x: req.href.products(x, 'admin')
-        data['admin_product_list'] = [ glsettings, ] + \
+        data['admin_product_list'] = [glsettings] + \
             ProductModule.get_product_list(self.env, req, admin_url)
 
         if isinstance(req.perm.env, ProductEnvironment):
@@ -462,17 +462,18 @@ class QuickCreateTicketDialog(Component):
             # no ticket module so no create ticket button
             return template, data, content_type
 
-        if (template, data, content_type) != (None,) * 3: # TODO: Check !
+        if (template, data, content_type) != (None,) * 3:  # TODO: Check !
             if data is None:
                 data = {}
-            fakereq = dummy_request(self.env)
+            req = dummy_request(self.env)
             ticket = Ticket(self.env)
-            tm._populate(fakereq, ticket, False)
-            all_fields = dict([f['name'], f]
-                              for f in tm._prepare_fields(fakereq, ticket)
-                              if f['type'] == 'select')
+            tm._populate(req, ticket, False)
+            all_fields = {
+                f['name']: f for f in tm._prepare_fields(req, ticket)
+                if f['type'] == 'select'
+            }
 
-            product_field = all_fields['product'];
+            product_field = all_fields['product']
             if product_field and self.env.product:
                 product_field['value'] = self.env.product.prefix
 
