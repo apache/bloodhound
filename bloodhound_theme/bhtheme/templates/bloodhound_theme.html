@@ -114,19 +114,19 @@
               </div>
 
               <!--! create ticket button + dropdown -->
-              <py:def function="field_select(field, value)">
+              <py:def function="field_select(field)">
                 <select id="field-${field.name}" name="field_${field.name}"
                     class="input-block-level" data-empty="true" data-field="${field.name}">
                   <option py:if="field.optional"></option>
                   <option py:for="option in field.options"
-                          selected="${value == option or None}"
+                          selected="${field.value == option or None}"
                           value = "$option"
                           py:content="option"></option>
                   <optgroup py:for="optgroup in field.optgroups"
                             py:if="optgroup.options"
                             label="${optgroup.label}">
                     <option py:for="option in optgroup.options"
-                            selected="${value == option or None}"
+                            selected="${field.value == option or None}"
                             value = "$option"
                             py:content="option"></option>
                   </optgroup>
@@ -169,9 +169,13 @@
                             <div class="control-group">
                               <py:for each="field in qct.fields">
                                 <label for="field-${field.name}">${field.label}</label>
-                                ${field_select(field, None)}
+                                ${field_select(field)}
                               </py:for>
                             </div>
+
+                            <py:for each="field in qct.hidden_fields">
+                              <input type="hidden" name="field_${field.name}" value="${field.value}" />
+                            </py:for>
                           </form>
 
                           <div class="controls">
@@ -314,9 +318,13 @@
                     <div class="control-group">
                       <py:for each="field in qct.fields">
                         <label for="field-${field.name}">${field.label}</label>
-                        ${field_select(field, None)}
+                        ${field_select(field)}
                       </py:for>
                     </div>
+
+                    <py:for each="field in qct.hidden_fields">
+                     <input type="hidden" name="field_${field.name}" value="${field.value}" />
+                    </py:for>
                   </form>
 
                   <div class="controls">
