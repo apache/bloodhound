@@ -443,7 +443,7 @@ class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
     qct_fields = ListOption('ticket', 'quick_create_fields', 
-                            'version,type',
+                            'product, version, type',
         doc="""Multiple selection fields displayed in create ticket menu""")
 
     # IRequestFilter(Interface):
@@ -478,7 +478,15 @@ class QuickCreateTicketDialog(Component):
                 if self.env.product:
                     product_field['value'] = self.env.product.prefix
                 else:
-                    product_field['value'] = product_field['options'][0]
+                    # Global scope, now check default_product_prefix is valid
+                    default_prefix = self.config.get('multiproduct',
+                                                     'default_product_prefix')
+                    try:
+                        ProductEnvironment.lookup_env(self.env, default_prefix)
+                    except LookupError:
+                        product_field['value'] = product_field['options'][0]
+                    else:
+                        product_field['value'] = default_prefix
 
             data['qct'] = {
                 'fields': [all_fields[k] for k in self.qct_fields
@@ -540,8 +548,6 @@ class QuickCreateTicketDialog(Component):
             t[k] = v
         t['status'] = 'new'
         t['resolution'] = ''
-        if self.env.product:
-            t['product'] = self.env.product.prefix
         t.insert()
 
         if notify:
