@@ -474,18 +474,11 @@ class QuickCreateTicketDialog(Component):
             }
 
             product_field = all_fields['product']
-            if product_field:
-                if self.env.product:
-                    product_field['value'] = self.env.product.prefix
-                else:
-                    product_field['value'] = product_field['options'][0]
+            if product_field and self.env.product:
+                product_field['value'] = self.env.product.prefix
 
-            data['qct'] = {
-                'fields': [all_fields[k] for k in self.qct_fields
-                           if k in all_fields],
-                'hidden_fields': [all_fields[k] for k in all_fields.keys()
-                                  if k not in self.qct_fields]
-            }
+            data['qct'] = {'fields': [all_fields[k] for k in self.qct_fields
+                                      if k in all_fields]}
         return template, data, content_type
 
     # IRequestHandler methods
