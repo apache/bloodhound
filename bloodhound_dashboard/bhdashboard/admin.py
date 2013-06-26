@@ -131,7 +131,7 @@ class BloodhoundAdmin(Component):
                             SET text=%s
                             WHERE name=%s
                             """, 
-                         (re.sub(r'\b%s\b' % old_name, new_name, text), name))
+                         (re.sub(r'(?!\[\[)\b%s\b(?!\]\])' % old_name, new_name, text), name))
 
     def _get_tdump(self, db, table, fields):
         """Dumps all the data from a table for a known set of fields"""
