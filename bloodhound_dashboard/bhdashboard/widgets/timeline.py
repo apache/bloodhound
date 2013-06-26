@@ -33,7 +33,7 @@ from trac.core import Component, ExtensionPoint, implements, Interface, \
         TracError
 from trac.config import IntOption
 from trac.mimeview.api import RenderingContext
-from trac.resource import Resource, resource_exists
+from trac.resource import Resource, resource_exists, ResourceNotFound
 from trac.timeline.web_ui import TimelineModule
 from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
@@ -380,22 +380,24 @@ class TicketFieldTimelineFilter(Component):
                 except:
                     self.log.exception('Unknown ticket event %s ... [SKIP]',
                             event)
-                else:
-                    if not isinstance(ticket_ids, list):
-                        ticket_ids = [ticket_ids]
+                    return None
+
+                if not isinstance(ticket_ids, list):
+                    ticket_ids = [ticket_ids]
                 context._ticket_cache = ticket_cache = \
-                        getattr(context, '_ticket_cache', None) or {}
+                    getattr(context, '_ticket_cache', None) or {}
                 for t in ticket_ids:
                     if isinstance(t, Resource):
                         if event[0] != 'attachment':
                             t = t.id
                         else:
                             t = t.parent.id
-                    if isinstance(t, (int, basestring)):
+                    try:
                         t = ticket_cache.get(t) or Ticket(self.env, t)
-                    if field_name == 'ticket':
-                        if t.id == context.resource.id:
-                            return event
+                    except ResourceNotFound:
+                        return None
+                    if field_name == 'ticket' and t.id == context.resource.id:
+                        return event
                     if t[field_name] == context.resource.id:
                         return event
                     ticket_cache[t.id] = t
