@@ -24,7 +24,6 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Administration commands for Bloodhound Dashboard.
 """
 import json
-import pkg_resources
 from sys import stdout
 
 from trac.admin.api import IAdminCommandProvider, AdminCommandError
@@ -39,8 +38,7 @@ from bhdashboard import wiki
 try:
     from multiproduct.model import Product, ProductResourceMap, ProductSetting
 except ImportError:
-    Product = None
-    ProductResourceMap = None
+    Product = ProductResourceMap = ProductSetting = None
 
 schema = tracschema[:]
 if Product is not None:
@@ -51,13 +49,14 @@ structure = dict([(table.name, [col.name for col in table.columns])
                   for table in schema])
 
 # add product for any columns required
-for table in ['ticket',]:
+for table in ['ticket']:
     structure[table].append('product')
 
 # probably no point in keeping data from these tables
 ignored = ['auth_cookie', 'session', 'session_attribute', 'cache']
 IGNORED_DB_STRUCTURE = dict([(k, structure[k]) for k in ignored])
 DB_STRUCTURE = dict([(k, structure[k]) for k in structure if k not in ignored])
+
 
 class BloodhoundAdmin(Component):
     """Bloodhound administration commands.
@@ -70,8 +69,8 @@ class BloodhoundAdmin(Component):
         """List available commands.
         """
         yield ('wiki bh-upgrade', '',
-                'Move Trac* wiki pages to %s/*' % wiki.GUIDE_NAME,
-                None, self._do_wiki_upgrade)
+               'Move Trac* wiki pages to %s/*' % wiki.GUIDE_NAME,
+               None, self._do_wiki_upgrade)
 
         yield ('devfixture dump', '[filename]',
                """Dumps database to stdout in a form suitable for reloading
@@ -108,7 +107,7 @@ class BloodhoundAdmin(Component):
                     wiki_admin._do_rename(old_name, new_name)
                 except AdminCommandError, exc:
                     printout(_('Error moving %(page)s : %(message)s',
-                            page=old_name, message=unicode(exc)))
+                               page=old_name, message=unicode(exc)))
                 else:
                     # On success, rename links in other pages
                     self._do_wiki_rename_links(old_name, new_name)
@@ -124,8 +123,8 @@ class BloodhoundAdmin(Component):
         with self.env.db_transaction as db:
             pages = db("""SELECT name, text FROM wiki
                           WHERE text %s
-                          """ % db.like(),
-                              ('%' + db.like_escape(old_name) + '%',))
+                       """ % db.like(),
+                       ('%' + db.like_escape(old_name) + '%',))
             for name, text in pages:
                 res = db("""UPDATE wiki
                             SET text=%s
@@ -135,8 +134,8 @@ class BloodhoundAdmin(Component):
 
     def _get_tdump(self, db, table, fields):
         """Dumps all the data from a table for a known set of fields"""
-        return db("SELECT %s from %s" %(','.join([db.quote(f) for f in fields]),
-                                        db.quote(table)))
+        return db("SELECT %s from %s" % (','.join([db.quote(f) for f in fields]),
+                                         db.quote(table)))
 
     def _dump_as_fixture(self, *args):
         """Dumps database to a json fixture"""
@@ -182,10 +181,9 @@ class BloodhoundAdmin(Component):
                 db("DELETE FROM " + db.quote(tab))
             for tab, cols, vals in data:
                 printout("Populating %s table" % tab)
-                db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (
-                                        db.quote(tab),
-                                        ','.join([db.quote(c) for c in cols]),
-                                        ','.join(['%s']*len(cols))),
+                db.executemany("INSERT INTO %s (%s) VALUES (%s)"
+                               % (db.quote(tab),
+                                  ','.join([db.quote(c) for c in cols]),
+                                  ','.join(['%s']*len(cols))),
                                vals)
                 printout("%d records added" % len(vals))
-                
