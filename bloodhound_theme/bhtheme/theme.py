@@ -462,10 +462,9 @@ class QuickCreateTicketDialog(Component):
             req = dummy_request(self.env)
             ticket = Ticket(self.env)
             tm._populate(req, ticket, False)
-            all_fields = {
-                f['name']: f for f in tm._prepare_fields(req, ticket)
-                if f['type'] == 'select'
-            }
+            all_fields = dict([f['name'], f]
+                              for f in tm._prepare_fields(req, ticket)
+                              if f['type'] == 'select')
 
             product_field = all_fields['product']
             if product_field:
