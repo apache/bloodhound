@@ -208,26 +208,28 @@ class MultiproductTestCase(unittest.TestCase):
             env._log_handler.close()
             del env._log_handler
 
-    def _load_product_from_data(self, env, prefix):
+    @classmethod
+    def _load_product_from_data(cls, env, prefix):
         r"""Ensure test product with prefix is loaded
         """
         # TODO: Use fixtures implemented in #314
-        product_data = self.PRODUCT_DATA[prefix]
+        product_data = cls.PRODUCT_DATA[prefix]
         prefix = to_unicode(prefix)
         product = Product(env)
         product._data.update(product_data)
         product.insert()
 
-    def _upgrade_mp(self, env):
+    @classmethod
+    def _upgrade_mp(cls, env):
         r"""Apply multi product upgrades
         """
         # Do not break wiki parser ( see #373 )
         env.disable_component(TicketModule)
         env.disable_component(ReportModule)
 
-        self.mpsystem = MultiProductSystem(env)
+        mpsystem = MultiProductSystem(env)
         try:
-            self.mpsystem.upgrade_environment(env.db_transaction)
+            mpsystem.upgrade_environment(env.db_transaction)
         except OperationalError:
             # Database is upgraded, but database version was deleted.
             # Complete the upgrade by inserting default product.
@@ -236,7 +238,8 @@ class MultiproductTestCase(unittest.TestCase):
         # multi-product schema support in environment
         env.enable_multiproduct_schema(True)
 
-    def _load_default_data(self, env):
+    @classmethod
+    def _load_default_data(cls, env):
         r"""Initialize environment with default data by respecting
         values set in system table.
         """
