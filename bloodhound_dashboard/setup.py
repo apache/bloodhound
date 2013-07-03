@@ -136,7 +136,7 @@ setup(
     description=DESC.split('\n', 1)[0],
     author = "Apache Bloodhound",
     license = "Apache License v2",
-    url = "http://incubator.apache.org/bloodhound/",
+    url = "https://bloodhound.apache.org/",
     requires = ['trac'],
     tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
     install_requires = [

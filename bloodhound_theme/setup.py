@@ -27,7 +27,7 @@ setup(
   description = "Theme for Apache(TM) Bloodhound.",
   author = "Apache Bloodhound",
   license = "Apache License v2",
-  url = "http://incubator.apache.org/bloodhound/",
+  url = "https://bloodhound.apache.org/",
   keywords = "trac plugin theme bloodhound",
   packages = ['bhtheme'],
   package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/img/*.*',

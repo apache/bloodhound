@@ -145,7 +145,7 @@ setup(
     description=DESC.split('\n', 1)[0],
     author = "Apache Bloodhound",
     license = "Apache License v2",
-    url = "http://incubator.apache.org/bloodhound/",
+    url = "https://bloodhound.apache.org/",
     requires = ['trac'],
     install_requires = [
         'setuptools>=0.6b1',
