@@ -153,10 +153,22 @@
       (the  #preview will float at the right of the edit form's textarea)
 
       -->
-      <div py:if="not sidebyside" class="span12">
-        <xi:include href="bh_wiki_edit_form.html" />
-      </div>
       <py:choose test="action">
+        <py:when test="'collision'">
+          <div class="span12">
+            <div class="alert alert-error">
+              <span class="label label-important">Oops !</span>
+              Sorry, this page has been modified by somebody else since you started
+              editing. Your changes cannot be saved.
+            </div>
+          </div>
+          <div py:if="sidebyside" class="span12">
+            <xi:include href="bh_wiki_edit_form.html" />
+          </div>
+        </py:when>
+        <div py:if="not sidebyside" class="span12">
+          <xi:include href="bh_wiki_edit_form.html" />
+        </div>
         <py:when test="'preview'">
           <div class="span12">
             <table id="info" summary="Revision info">
@@ -195,18 +207,6 @@
               <a href="#changeinfo"
                 title="Go to Save, Preview, Review or Cancel buttons">Actions</a> &uarr;
             </div>
-          </div>
-        </py:when>
-        <py:when test="'collision'">
-          <div class="span12">
-            <div class="alert alert-error">
-              <span class="label label-important">Oops !</span>
-              Sorry, this page has been modified by somebody else since you started
-              editing. Your changes cannot be saved.
-            </div>
-          </div>
-          <div py:if="sidebyside" class="span12">
-            <xi:include href="bh_wiki_edit_form.html" />
           </div>
         </py:when>
       </py:choose>
