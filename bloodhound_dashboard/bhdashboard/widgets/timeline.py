@@ -39,7 +39,7 @@ from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
 from trac.util.datefmt import utc
-from trac.util.translation import _
+from trac.util.translation import _, tag_
 from trac.web.chrome import add_stylesheet
 
 from bhdashboard.api import DateField, EnumField, ListField
@@ -140,14 +140,20 @@ class TimelineWidget(WidgetBase):
         req = context.req
         try:
             timemdl = self.env[TimelineModule]
+            admin_page = tag.a(_("administration page."),
+                               title=_("Plugin Administration Page"),
+                               href=req.href.admin('general/plugin'))
             if timemdl is None :
                 return 'widget_alert.html', {
                     'title':  _("Activity"),
                     'data': {
                         'msglabel': "Warning",
-                        'msgbody': _("TimelineWidget is disabled because the "
-                                     "Timeline component is not available. "
-                                     "Is the component disabled?"),
+                        'msgbody':
+                            tag_("The TimelineWidget is disabled because the "
+                                 "Timeline component is not available. "
+                                  "Is the component disabled? "
+                                  "You can enable from the %(page)s",
+                                  page=admin_page),
                         'dismiss': False,
                     }
                 }, context
