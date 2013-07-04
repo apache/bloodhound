@@ -21,7 +21,9 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:with="today = format_date(today); yesterday = format_date(yesterday)"
+  py:with="now = datetime.now(req.tz);
+           today = format_date(now);
+           yesterday = format_date(now - timedelta(days=1))"
   py:choose="">
 
   <table py:when="events"

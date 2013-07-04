@@ -213,8 +213,6 @@ class TimelineWidget(WidgetBase):
         else:
             merge_links(srcreq=fakereq, dstreq=req,
                         exclude=["stylesheet", "alternate"])
-            data['today'] = today = datetime.now(req.tz)
-            data['yesterday'] = today - timedelta(days=1)
             if 'context' in data:
                 # Needed for abbreviated messages in widget events (#340)
                 wcontext.set_hints(**(data['context']._hints or {}))
