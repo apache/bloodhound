@@ -31,6 +31,7 @@ from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
+from trac.util.presentation import to_json
 from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
@@ -509,12 +510,13 @@ class QuickCreateTicketDialog(Component):
             desc = ""
             attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
-            ticket_id = self.create(req, summary, desc, attrs, True)
+            product, tid = self.create(req, summary, desc, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
         else:
-            req.send(str(ticket_id), 'plain/text')
+            req.send(to_json({'product': product, 'id': tid}),
+                     'application/json')
 
     def _get_ticket_module(self):
         ptm = None
@@ -550,7 +552,7 @@ class QuickCreateTicketDialog(Component):
             except Exception, e:
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
-        return t.id
+        return t['product'], t.id
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
