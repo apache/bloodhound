@@ -139,6 +139,7 @@ class BloodhoundTheme(ThemeBase):
         'account_details.html': ('bh_account_details.html', None),
         'login.html': ('bh_login.html', None),
         'prefs_account.html': ('bh_prefs_account.html', None),
+        'register.html' : ('bh_register.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
