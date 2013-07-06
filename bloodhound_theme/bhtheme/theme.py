@@ -66,6 +66,8 @@ class BloodhoundTheme(ThemeBase):
     )
     BLOODHOUND_TEMPLATE_MAP = {
         # Admin
+        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', '_modify_admin_breadcrumb'),
+        'admin_accountsnotification.html': ('bh_admin_accountsnotification.html', '_modify_admin_breadcrumb'),
         'admin_basics.html': ('bh_admin_basics.html', '_modify_admin_breadcrumb'),
         'admin_components.html': ('bh_admin_components.html', '_modify_admin_breadcrumb'),
         'admin_enums.html': ('bh_admin_enums.html', '_modify_admin_breadcrumb'),
@@ -73,22 +75,23 @@ class BloodhoundTheme(ThemeBase):
         'admin_milestones.html': ('bh_admin_milestones.html', '_modify_admin_breadcrumb'),
         'admin_perms.html': ('bh_admin_perms.html', '_modify_admin_breadcrumb'),
         'admin_plugins.html': ('bh_admin_plugins.html', '_modify_admin_breadcrumb'),
-        'admin_repositories.html': ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
-        'admin_versions.html': ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
         'admin_products.html': ('bh_admin_products.html', '_modify_admin_breadcrumb'),
+        'admin_repositories.html': ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
+        'admin_users.html': ('bh_admin_users.html', '_modify_admin_breadcrumb'),
+        'admin_versions.html': ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
+
         # no template substitutions below - use the default template,
         # but call the modifier nonetheless
-        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', '_modify_admin_breadcrumb'),
-        'admin_users.html': ('bh_admin_users.html', '_modify_admin_breadcrumb'),
         'repository_links.html': ('repository_links.html', '_modify_admin_breadcrumb'),
 
         # Preferences
         'prefs.html': ('bh_prefs.html', None),
+        'prefs_account.html': ('bh_prefs_account.html', None),
         'prefs_advanced.html': ('bh_prefs_advanced.html', None),
         'prefs_datetime.html': ('bh_prefs_datetime.html', None),
         'prefs_general.html': ('bh_prefs_general.html', None),
-        'prefs_language.html': ('bh_prefs_language.html', None),
         'prefs_keybindings.html': ('bh_prefs_keybindings.html', None),
+        'prefs_language.html': ('bh_prefs_language.html', None),
         'prefs_pygments.html': ('bh_prefs_pygments.html', None),
         'prefs_userinterface.html': ('bh_prefs_userinterface.html', None),
 
@@ -108,24 +111,24 @@ class BloodhoundTheme(ThemeBase):
         'milestone_edit.html': ('bh_milestone_edit.html', '_modify_roadmap_page'),
         'milestone_delete.html': ('bh_milestone_delete.html', '_modify_roadmap_page'),
         'milestone_view.html': ('bh_milestone_view.html', '_modify_roadmap_page'),
-        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
         'query.html': ('bh_query.html', '_add_products_general_breadcrumb'),
         'report_delete.html': ('bh_report_delete.html', '_add_products_general_breadcrumb'),
         'report_edit.html': ('bh_report_edit.html', '_add_products_general_breadcrumb'),
         'report_list.html': ('bh_report_list.html', '_add_products_general_breadcrumb'),
         'report_view.html': ('bh_report_view.html', '_add_products_general_breadcrumb'),
+        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
         'ticket.html': ('bh_ticket.html', '_modify_ticket'),
-        'ticket_preview.html': ('bh_ticket_preview.html', None),
         'ticket_delete.html': ('bh_ticket_delete.html', None),
+        'ticket_preview.html': ('bh_ticket_preview.html', None),
 
         # Attachment
         'attachment.html': ('bh_attachment.html', None),
         'preview_file.html': ('bh_preview_file.html', None),
 
         # Version control
-        'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
         'browser.html': ('bh_browser.html', '_modify_browser'),
         'dir_entries.html': ('bh_dir_entries.html', None),
+        'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
 
         # Multi Product
         'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
@@ -138,8 +141,7 @@ class BloodhoundTheme(ThemeBase):
         # Account manager plugin
         'account_details.html': ('bh_account_details.html', None),
         'login.html': ('bh_login.html', None),
-        'prefs_account.html': ('bh_prefs_account.html', None),
-        'register.html' : ('bh_register.html', None),
+        'register.html': ('bh_register.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
