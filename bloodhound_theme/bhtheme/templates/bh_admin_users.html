@@ -142,49 +142,21 @@
                       py:with="msglabel = 'Warning';
                                msgbody = _('This password store does not support listing users.')"/>
         </div>
-        <form py:otherwise="" method="post"  py:strip="not delete_enabled">
-          <div>
-            <table id="accountlist"
-                   class="listing table table-striped table-condensed table-bordered" >
-              <thead>
-                <tr>
-                  <th py:if="delete_enabled" class="sel">
-                    <i class="icon-check"></i>
-                  </th>
-                  <th>Account</th><th>Name</th><th>Email</th><th>Last Login</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr py:for="acct in accounts">
-                  <td py:if="delete_enabled">
-                    <input type="checkbox" name="sel" value="${acct.username}" />
-                  </td>
-                  <td>
-                    <a href="${acct.review_url}">$acct.username</a>
-                    <!--! Additional account status icons -->
-                    <py:choose py:if="acct.locked">
-                      <img py:when="acct.release_hint" alt="Account locked"
-                           src="${href.chrome('/acct_mgr/time-locked.png')}"
-                           title="${acct.release_hint}" />
-                      <img py:otherwise="" alt="Permanently locked"
-                           src="${href.chrome('/acct_mgr/locked.png')}"
-                           title="${dgettext('acct_mgr', 'Permanently locked')}" />
-                    </py:choose>
-                  </td>
-                  <td>$acct.name</td>
-                  <td>$acct.email</td>
-                  <td>$acct.last_visit</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="buttons">
-            <input type="submit" name="reset" class="btn"
+        <form method="post" py:otherwise="" py:strip="not delete_enabled">
+          <div class="system-message"
+               py:if="deletion_error"><p>${deletion_error}</p></div>
+          <xi:include href="bh_user_table.html"/>
+          <div class="buttons control-group">
+            <input type="submit" class="btn" name="reset"
                    py:if="password_reset_enabled"
+                   title="Send another random password"
                    value="${dgettext('acct_mgr', 'Reset passwords')}" />
-            <input type="submit" name="remove" class="btn"
+            <input type="submit" class="btn" name="remove"
                    py:if="delete_enabled"
                    value="${dgettext('acct_mgr', 'Remove selected accounts')}" />
+            <input type="submit" class="btn" name="cleanup"
+                   py:if="req.perm.has_permission('ACCTMGR_ADMIN')"
+                   value="${dgettext('acct_mgr', 'Review account attributes')}" />
           </div>
         </form>
         </py:choose>

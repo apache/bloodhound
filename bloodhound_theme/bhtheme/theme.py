@@ -143,6 +143,7 @@ class BloodhoundTheme(ThemeBase):
         'login.html': ('bh_login.html', None),
         'register.html': ('bh_register.html', None),
         'reset_password.html': ('bh_reset_password.html', None),
+        'user_table.html': ('bh_user_table.html', None),
         'verify_email.html': ('bh_verify_email.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
