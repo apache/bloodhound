@@ -13,9 +13,9 @@
   <head>
     <title>Register</title>
     <script type="text/javascript">
-    jQuery(document).ready(function($) {
+      jQuery(document).ready(function($) {
         $('#username').focus();
-    });
+      });
     </script>
   </head>@name=username
 
@@ -42,8 +42,8 @@
                   <label class="control-label" for="username">Username:</label>
                   <div class="controls">
                     <input type="text" id="username" name="username"
-                        class="textwidget input-large no-add-on" 
-                        value="${acctmgr.username}" placeholder="e.g. newuser"/>
+                          class="textwidget input-large no-add-on"
+                          value="${acctmgr.username}" placeholder="e.g. newuser"/>
                   </div>
               </div>
               <div class="control-group">
@@ -54,8 +54,8 @@
                       <i class="icon-lock"></i>
                     </span>
                     <input type="password" name="password" id="password"
-                        class="textwidget input-large" 
-                        placeholder="Better use letters and numbers" />
+                           class="textwidget input-large"
+                           placeholder="Better use letters and numbers" />
                     </div>
                 </div>
               </div>
@@ -67,8 +67,8 @@
                       <i class="icon-lock"></i>
                     </span>
                     <input type="password" name="password_confirm"
-                        id="pasword_confirm" class="textwidget input-large" 
-                        placeholder="Must match password" />
+                           id="pasword_confirm" class="textwidget input-large"
+                           placeholder="Must match password" />
                   </div>
                 </div>
               </div>
@@ -80,8 +80,8 @@
                       <i class="icon-envelope"></i>
                     </span>
                     <input type="text" name="email" value="${acctmgr.email}"
-                        class="textwidget input-large" id="email" 
-                        placeholder="user@domain.com" />
+                           class="textwidget input-large" id="email"
+                           placeholder="user@domain.com" />
                   </div>
                   <p class="help-block">
                     <span class="label label-info">Notice</span>
@@ -116,8 +116,9 @@
                 <label for="name" class="control-label">Name:</label>
                 <div class="controls">
                   <input type="text" name="name" id="name"
-                    class="textwidget input-large" value="${acctmgr.name}"
-                    placeholder="e.g. John Smith" />
+                         class="textwidget input-large"
+                         value="${acctmgr.name}"
+                         placeholder="e.g. John Smith" />
                 </div>
               </div>
               <div py:if="not verify_account_enabled" class="control-group">
@@ -128,8 +129,8 @@
                       <i class="icon-envelope"></i>
                     </span>
                     <input type="text" name="email" value="${acctmgr.email}"
-                        class="textwidget input-large" 
-                        placeholder="user@domain.com" />
+                           class="textwidget input-large"
+                           placeholder="user@domain.com" />
                     <p py:if="reset_password_enabled" class="help-block">
                       <span class="label label-info">Notice</span>
                       Entering your email address
