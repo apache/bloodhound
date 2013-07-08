@@ -1,0 +1,72 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bloodhound">
+  <xi:include href="layout.html" />
+  <?python
+    if _dgettext is not None:
+        dgettext = _dgettext ?>
+  <head>
+    <title>Verify Email</title>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $('#token').focus();
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="content" class="verify_email row">
+
+      <h1 class="span12">Verify Email</h1>
+      
+      <p class="help span12" i18n:msg="email">An email was sent to
+        $req.session.email with a token to verify your new address.
+        Please check your email and enter the token in the form below.</p>
+      <p class= "span12" i18n:msg="">You can <a href="${href.prefs()}">change
+        your email address</a>, if it is incorrect.</p>
+
+      <form method="post" action="" id="acctmgr_verify_email" class="form-inline">
+        <label for="token">Verification Token:</label>
+        <div class="input-append">
+          <input type="text" id="token" name="token" class="textwidget"
+                 size="10" value="${value_of('token')}" /><!--!
+       --><button type="submit" name="verify" py:attrs="button_state"
+              value="${dgettext('acct_mgr', 'Verify')}" class="btn">
+            <i class="icon-ok"></i>
+            ${dgettext('acct_mgr', 'Verify')}
+          </button><!--!
+       --><button type="submit" name="resend" py:attrs="button_state"
+              value="${dgettext('acct_mgr', 'Resend Email')}" class="btn">
+            <i class="icon-envelope"></i>
+            ${dgettext('acct_mgr', 'Resend Email')}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </body>
+</html>
