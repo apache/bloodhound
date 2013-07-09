@@ -1,0 +1,43 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      py:with="preview_mode = 'preview' in req.args">
+  <xi:include href="layout.html" />
+
+  <head>
+    <title>Ticket ${ticket.id}</title>
+  </head>
+  <body>
+    <div>
+      <div>
+        <h2>Ticket ${ticket.id}</h2>
+        <p><strong>Summary:</strong> ${ticket.summary}</p>
+        <p><strong>Product:</strong> ${ticket.product}</p>
+        <py:choose>
+          <p py:when="ticket.milestone">
+            <strong>Milestone:</strong> ${ticket.milestone}</p>
+          <p py:otherwise="">
+            The ticket doesn't belong to any milestone.</p>
+        </py:choose>
+        <p><strong>Component:</strong> ${ticket.component}</p>
+        <p><strong>Priority:</strong> ${ticket.priority}</p>
+        <p><strong>Last modified:</strong> ${pretty_dateinfo(ticket.changetime)}</p>
+        <py:choose>
+          <p py:when="ticket.version">
+            <strong>Version:</strong> ${ticket.version}</p>
+          <p py:otherwise="">
+            No version was provided.</p>
+        </py:choose>
+        <p><strong>Assigned to:</strong> ${ticket.owner}</p>
+        <p><strong>Status:</strong> ${ticket.status}</p>
+
+        <p><strong>No. of comments:</strong></p>        
+
+      </div>
+    </div>
+  </body>
+</html>

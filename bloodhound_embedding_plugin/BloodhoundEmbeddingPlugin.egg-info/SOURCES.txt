@@ -1,0 +1,15 @@
+setup.py
+BloodhoundEmbeddingPlugin.egg-info/PKG-INFO
+BloodhoundEmbeddingPlugin.egg-info/SOURCES.txt
+BloodhoundEmbeddingPlugin.egg-info/dependency_links.txt
+BloodhoundEmbeddingPlugin.egg-info/entry_points.txt
+BloodhoundEmbeddingPlugin.egg-info/top_level.txt
+bhembedding/__init__.py
+bhembedding/api.py
+bhembedding/templates/bh_emb_milestone.html
+bhembedding/templates/bh_emb_product.html
+bhembedding/templates/bh_emb_ticket.html
+bhembedding/templates/emb_component.html
+bhembedding/templates/emb_source.html
+bhembedding/templates/emb_version.html
+bhembedding/tests/api.py
