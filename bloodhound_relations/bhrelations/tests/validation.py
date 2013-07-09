@@ -20,10 +20,10 @@
 import unittest
 
 from bhrelations.validation import Validator
-from bhrelations.tests.api import BaseApiApiTestCase
+from bhrelations.tests.base import BaseRelationsTestCase
 
 
-class GraphFunctionsTestCase(BaseApiApiTestCase):
+class GraphFunctionsTestCase(BaseRelationsTestCase):
     edges = [
         ('A', 'B', 'p'),  #      A    H
         ('A', 'C', 'p'),  #     /  \ /
@@ -35,7 +35,7 @@ class GraphFunctionsTestCase(BaseApiApiTestCase):
     ]
 
     def setUp(self):
-        BaseApiApiTestCase.setUp(self)
+        BaseRelationsTestCase.setUp(self)
         # bhrelations point from destination to source
         for destination, source, type in self.edges:
             self.env.db_direct_transaction(

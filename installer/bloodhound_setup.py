@@ -93,6 +93,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                    'global_validators':
                        'NoSelfReferenceValidator,ExclusiveValidator,'
                        'BlockerValidator',
+                   'duplicate_relation':
+                        'duplicateof',
                },
                'bhrelations_links': {
                     'children.label': 'Child',

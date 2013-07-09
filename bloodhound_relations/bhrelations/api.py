@@ -17,17 +17,24 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+import itertools
+
+import re
 from datetime import datetime
 from pkg_resources import resource_filename
 from bhrelations import db_default
 from bhrelations.model import Relation
+from bhrelations.utils import unique
 from multiproduct.api import ISupportMultiProductEnvironment
-from trac.config import OrderedExtensionsOption
+from multiproduct.model import Product
+from multiproduct.env import ProductEnvironment
+
+from trac.config import OrderedExtensionsOption, Option
 from trac.core import (Component, implements, TracError, Interface,
                        ExtensionPoint)
 from trac.env import IEnvironmentSetupParticipant
 from trac.db import DatabaseManager
-from trac.resource import (ResourceSystem, Resource,
+from trac.resource import (ResourceSystem, Resource, ResourceNotFound,
                            get_resource_shortname, Neighborhood)
 from trac.ticket import Ticket, ITicketManipulator, ITicketChangeListener
 from trac.util.datefmt import utc, to_utimestamp
@@ -166,6 +173,12 @@ class RelationsSystem(Component):
         doc="""Validators used to validate all relations,
         regardless of their type."""
     )
+
+    duplicate_relation_type = Option(
+        'bhrelations',
+        'duplicate_relation',
+        '',
+        "Relation type to be used with the resolve as duplicate workflow.")
 
     def __init__(self):
         links, labels, validators, blockers, copy_fields, exclusive = \
@@ -443,28 +456,46 @@ class ResourceIdSerializer(object):
 class TicketRelationsSpecifics(Component):
     implements(ITicketManipulator, ITicketChangeListener)
 
-    #ITicketChangeListener methods
+    def __init__(self):
+        self.rls = RelationsSystem(self.env)
 
+    #ITicketChangeListener methods
     def ticket_created(self, ticket):
         pass
 
     def ticket_changed(self, ticket, comment, author, old_values):
-        pass
+        if (
+            self._closed_as_duplicate(ticket) and
+            self.rls.duplicate_relation_type
+        ):
+            try:
+                self.rls.add(ticket, ticket.duplicate,
+                             self.rls.duplicate_relation_type,
+                             comment, author)
+            except TracError:
+                pass
+
+    def _closed_as_duplicate(self, ticket):
+        return (ticket['status'] == 'closed' and
+                ticket['resolution'] == 'duplicate')
 
     def ticket_deleted(self, ticket):
-        RelationsSystem(self.env).delete_resource_relations(ticket)
+        self.rls.delete_resource_relations(ticket)
 
     #ITicketManipulator methods
-
     def prepare_ticket(self, req, ticket, fields, actions):
         pass
 
     def validate_ticket(self, req, ticket):
-        action = req.args.get('action')
-        if action == 'resolve':
-            rls = RelationsSystem(self.env)
-            blockers = rls.find_blockers(
-                ticket, self.is_blocker)
+        return itertools.chain(
+            self._check_blockers(req, ticket),
+            self._check_open_children(req, ticket),
+            self._check_duplicate_id(req, ticket),
+        )
+
+    def _check_blockers(self, req, ticket):
+        if req.args.get('action') == 'resolve':
+            blockers = self.rls.find_blockers(ticket, self.is_blocker)
             if blockers:
                 blockers_str = ', '.join(
                     get_resource_shortname(self.env, blocker_ticket.resource)
@@ -474,13 +505,60 @@ class TicketRelationsSpecifics(Component):
                        % blockers_str)
                 yield None, msg
 
-            for relation in [r for r in rls.get_relations(ticket)
-                             if r['type'] == rls.CHILDREN_RELATION_TYPE]:
+    def _check_open_children(self, req, ticket):
+        if req.args.get('action') == 'resolve':
+            for relation in [r for r in self.rls.get_relations(ticket)
+                             if r['type'] == self.rls.CHILDREN_RELATION_TYPE]:
                 ticket = self._create_ticket_by_full_id(relation['destination'])
                 if ticket['status'] != 'closed':
                     msg = ("Cannot resolve this ticket because it has open"
                            "child tickets.")
                     yield None, msg
+
+    def _check_duplicate_id(self, req, ticket):
+        if req.args.get('action') == 'resolve':
+            resolution = req.args.get('action_resolve_resolve_resolution')
+            if resolution == 'duplicate':
+                duplicate_id = req.args.get('duplicate_id')
+                if not duplicate_id:
+                    yield None, "Duplicate ticket ID must be provided."
+
+                try:
+                    duplicate_ticket = self.find_ticket(duplicate_id)
+                    req.perm.require('TICKET_MODIFY',
+                                     Resource(duplicate_ticket.id))
+                    ticket.duplicate = duplicate_ticket
+                except NoSuchTicketError:
+                    yield None, "Invalid duplicate ticket ID."
+
+    def find_ticket(self, ticket_spec):
+        ticket = None
+        m = re.match(r'#?(?P<tid>\d+)', ticket_spec)
+        if m:
+            tid = m.group('tid')
+            try:
+                ticket = Ticket(self.env, tid)
+            except ResourceNotFound:
+                # ticket not found in current product, try all other products
+                for p in Product.select(self.env):
+                    if p.prefix != self.env.product.prefix:
+                        # TODO: check for PRODUCT_VIEW permissions
+                        penv = ProductEnvironment(self.env.parent, p.prefix)
+                        try:
+                            ticket = Ticket(penv, tid)
+                        except ResourceNotFound:
+                            pass
+                        else:
+                            break
+
+        # ticket still not found, use fallback for <prefix>:ticket:<id> syntax
+        if ticket is None:
+            try:
+                resource = ResourceIdSerializer.get_resource_by_id(ticket_spec)
+                ticket = self._create_ticket_by_full_id(resource)
+            except:
+                raise NoSuchTicketError
+        return ticket
 
     def is_blocker(self, resource):
         ticket = self._create_ticket_by_full_id(resource)
@@ -573,14 +651,10 @@ class TicketChangeRecordUpdater(Component):
             new_value,
             product))
 
-# Copied from trac/utils.py, ticket-links-trunk branch
-def unique(seq):
-    """Yield unique elements from sequence of hashables, preserving order.
-    (New in 0.13)
-    """
-    seen = set()
-    return (x for x in seq if x not in seen and not seen.add(x))
-
 
 class UnknownRelationType(ValueError):
+    pass
+
+
+class NoSuchTicketError(ValueError):
     pass

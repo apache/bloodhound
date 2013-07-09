@@ -18,99 +18,19 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from datetime import datetime
-from _sqlite3 import OperationalError, IntegrityError
+from _sqlite3 import IntegrityError
 import unittest
-from bhrelations.api import (EnvironmentSetup, RelationsSystem,
-                             TicketRelationsSpecifics)
+from bhrelations.api import TicketRelationsSpecifics
 from bhrelations.tests.mocks import TestRelationChangingListener
 from bhrelations.validation import ValidationError
+from bhrelations.tests.base import BaseRelationsTestCase
 from multiproduct.env import ProductEnvironment
-from tests.env import MultiproductTestCase
 from trac.ticket.model import Ticket
-from trac.test import EnvironmentStub, Mock, MockPerm
 from trac.core import TracError
 from trac.util.datefmt import utc
 
-try:
-    from babel import Locale
 
-    locale_en = Locale.parse('en_US')
-except ImportError:
-    locale_en = None
-
-
-class BaseApiApiTestCase(MultiproductTestCase):
-    def setUp(self, enabled=()):
-        env = EnvironmentStub(
-            default_data=True,
-            enable=(['trac.*', 'multiproduct.*', 'bhrelations.*'] +
-                    list(enabled))
-        )
-        env.config.set('bhrelations', 'global_validators',
-                       'NoSelfReferenceValidator,ExclusiveValidator,'
-                       'BlockerValidator')
-        config_name = RelationsSystem.RELATIONS_CONFIG_NAME
-        env.config.set(config_name, 'dependency', 'dependson,dependent')
-        env.config.set(config_name, 'dependency.validators',
-                       'NoCycles,SingleProduct')
-        env.config.set(config_name, 'dependson.blocks', 'true')
-        env.config.set(config_name, 'parent_children', 'parent,children')
-        env.config.set(config_name, 'parent_children.validators',
-                       'OneToMany,SingleProduct,NoCycles')
-        env.config.set(config_name, 'children.label', 'Overridden')
-        env.config.set(config_name, 'parent.copy_fields',
-                       'summary, foo')
-        env.config.set(config_name, 'parent.exclusive', 'true')
-        env.config.set(config_name, 'multiproduct_relation', 'mprel,mpbackrel')
-        env.config.set(config_name, 'oneway', 'refersto')
-        env.config.set(config_name, 'duplicate', 'duplicateof,duplicatedby')
-        env.config.set(config_name, 'duplicate.validators', 'ReferencesOlder')
-        env.config.set(config_name, 'duplicateof.label', 'Duplicate of')
-        env.config.set(config_name, 'duplicatedby.label', 'Duplicated by')
-        env.config.set(config_name, 'blocker', 'blockedby,blocks')
-        env.config.set(config_name, 'blockedby.blocks', 'true')
-
-        self.global_env = env
-        self._upgrade_mp(self.global_env)
-        self._setup_test_log(self.global_env)
-        self._load_product_from_data(self.global_env, self.default_product)
-        self.env = ProductEnvironment(self.global_env, self.default_product)
-
-        self.req = Mock(href=self.env.href, authname='anonymous', tz=utc,
-                        args=dict(action='dummy'),
-                        locale=locale_en, lc_time=locale_en)
-        self.req.perm = MockPerm()
-        self.relations_system = RelationsSystem(self.env)
-        self._upgrade_env()
-
-    def tearDown(self):
-        self.global_env.reset_db()
-
-    def _upgrade_env(self):
-        environment_setup = EnvironmentSetup(self.env)
-        try:
-            environment_setup.upgrade_environment(self.env.db_transaction)
-        except OperationalError:
-            # table remains but database version is deleted
-            pass
-
-    @classmethod
-    def _insert_ticket(cls, env, summary, **kw):
-        """Helper for inserting a ticket into the database"""
-        ticket = Ticket(env)
-        ticket["Summary"] = summary
-        for k, v in kw.items():
-            ticket[k] = v
-        return ticket.insert()
-
-    def _insert_and_load_ticket(self, summary, **kw):
-        return Ticket(self.env, self._insert_ticket(self.env, summary, **kw))
-
-    def _insert_and_load_ticket_with_env(self, env, summary, **kw):
-        return Ticket(env, self._insert_ticket(env, summary, **kw))
-
-
-class ApiTestCase(BaseApiApiTestCase):
+class ApiTestCase(BaseRelationsTestCase):
     def test_can_add_two_ways_relations(self):
         #arrange
         ticket = self._insert_and_load_ticket("A1")
@@ -475,7 +395,7 @@ class ApiTestCase(BaseApiApiTestCase):
         )
 
     def test_cannot_create_other_relations_between_descendants(self):
-        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, range(5))
+        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
         self.relations_system.add(t4, t2, "parent")  #    t1 -> t2
         self.relations_system.add(t3, t2, "parent")  #         /  \
         self.relations_system.add(t2, t1, "parent")  #       t3    t4
@@ -503,7 +423,7 @@ class ApiTestCase(BaseApiApiTestCase):
             self.fail("Could not add valid relation.")
 
     def test_cannot_add_parent_if_this_would_cause_invalid_relations(self):
-        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, range(5))
+        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
         self.relations_system.add(t4, t2, "parent")  #    t1 -> t2
         self.relations_system.add(t3, t2, "parent")  #         /  \
         self.relations_system.add(t2, t1, "parent")  #       t3    t4    t5
@@ -553,7 +473,7 @@ class ApiTestCase(BaseApiApiTestCase):
         self.relations_system.add(t2, t1, "duplicateof")
 
     def test_detects_blocker_cycles(self):
-        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, range(5))
+        t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
         self.relations_system.add(t1, t2, "blocks")
         self.relations_system.add(t3, t2, "dependson")
         self.relations_system.add(t4, t3, "blockedby")
@@ -577,7 +497,7 @@ class ApiTestCase(BaseApiApiTestCase):
         self.relations_system.add(t2, t1, "refersto")
 
 
-class RelationChangingListenerTestCase(BaseApiApiTestCase):
+class RelationChangingListenerTestCase(BaseRelationsTestCase):
     def test_can_sent_adding_event(self):
         #arrange
         ticket1 = self._insert_and_load_ticket("A1")
@@ -608,7 +528,7 @@ class RelationChangingListenerTestCase(BaseApiApiTestCase):
         self.assertEqual("dependent", relation.type)
 
 
-class TicketChangeRecordUpdaterTestCase(BaseApiApiTestCase):
+class TicketChangeRecordUpdaterTestCase(BaseRelationsTestCase):
     def test_can_update_ticket_history_on_relation_add_on(self):
         #arrange
         ticket1 = self._insert_and_load_ticket("A1")
