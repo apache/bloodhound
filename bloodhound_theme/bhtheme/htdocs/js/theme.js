@@ -129,15 +129,11 @@ $( function () {
             product_base_url = '';
           $.post(product_base_url + '/qct', $('#qct-form').serialize(),
               function(ticket) {
-                var base_url = product_base_url.split('/products/')[0];
-                var href = base_url + '/products/' +
-                           encodeURIComponent(ticket.product) +
-                           '/ticket/' + ticket.id;
                 qct_alert({
                     ticket: ticket.id,
                     msg: '<span class="alert alert-success">' +
                          'Has been created</span> ' +
-                         '<a href="' + href + '">View / Edit</a>'
+                         '<a href="' + ticket.url + '">View / Edit</a>'
                   });
               })
               .error(function(jqXHR, textStatus, errorMsg) {
@@ -165,13 +161,8 @@ $( function () {
         product_base_url = '';
       $.post(product_base_url + '/qct', $('#qct-inline-form').serialize(),
           function(ticket) {
-            var base_url = product_base_url.split('/products/')[0];
-            var href = base_url + '/products/' +
-                       encodeURIComponent(ticket.product) +
-                       '/ticket/' + ticket.id;
-
             var msg = 'Ticket #' + ticket.id + ' has been created. ';
-            msg += '<a href="' + href + '">View / Edit</a>';
+            msg += '<a href="' + ticket.url + '">View / Edit</a>';
             $('#qct-inline-notice-success span').html(msg);
             $('#qct-inline-notice-success').show({'duration': 400});
           })

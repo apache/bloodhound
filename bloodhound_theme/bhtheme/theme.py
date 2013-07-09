@@ -26,7 +26,7 @@ from genshi.output import DocType
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
-from trac.resource import Resource
+from trac.resource import get_resource_url, Neighborhood, Resource
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
@@ -521,7 +521,10 @@ class QuickCreateTicketDialog(Component):
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
         else:
-            req.send(to_json({'product': product, 'id': tid}),
+            tres = Neighborhood('product', product)('ticket', tid)
+            href = req.href
+            req.send(to_json({'product': product, 'id': tid,
+                              'url': get_resource_url(self.env, tres, href)}),
                      'application/json')
 
     def _get_ticket_module(self):
