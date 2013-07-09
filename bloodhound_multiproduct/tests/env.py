@@ -233,7 +233,7 @@ class MultiproductTestCase(unittest.TestCase):
         except OperationalError:
             # Database is upgraded, but database version was deleted.
             # Complete the upgrade by inserting default product.
-            self.mpsystem._insert_default_product(env.db_transaction)
+            mpsystem._insert_default_product(env.db_transaction)
         # assume that the database schema has been upgraded, enable
         # multi-product schema support in environment
         env.enable_multiproduct_schema(True)
