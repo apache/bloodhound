@@ -33,7 +33,7 @@ PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
 REDIRECT_DEFAULT_RE = \
     re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|'
                r'ticket|qct|timeline|diff|batchmodify|search|'
-               r'(raw-|zip-)?attachment)(?P<pathinfo>.*)')
+               r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
 
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
