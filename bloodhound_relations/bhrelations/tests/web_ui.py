@@ -120,7 +120,6 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
         self.relations_system.add(t2, t1, 'duplicateof')
-        self.req.args['id'] = t2.id
         self.req.path_info = '/ticket/%d' % t2.id
 
         data = self.process_request()
@@ -141,6 +140,15 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
         self.assertEqual(t2['status'], 'closed')
         self.assertEqual(t2['resolution'], 'duplicate')
 
+    def test_post_process_request_does_not_break_ticket(self):
+        t1 = self._insert_and_load_ticket("Foo")
+        self.req.path_info = '/ticket/%d' % t1.id
+        self.process_request()
+
+    def test_post_process_request_does_not_break_newticket(self):
+        self.req.path_info = '/newticket'
+        self.process_request()
+
     def resolve_as_duplicate(self, ticket, duplicate_id):
         self.req.method = 'POST'
         self.req.path_info = '/ticket/%d' % ticket.id
@@ -154,8 +162,10 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
         return self.process_request()
 
     def process_request(self):
-        template, data, content_type = \
-            TicketModule(self.env).process_request(self.req)
+        ticket_module = TicketModule(self.env)
+
+        ticket_module.match_request(self.req)
+        template, data, content_type = ticket_module.process_request(self.req)
         template, data, content_type = \
             RelationManagementModule(self.env).post_process_request(
                 self.req, template, data, content_type)

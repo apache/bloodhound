@@ -445,6 +445,9 @@ class ResourceIdSerializer(object):
         #TODO: temporary workaround for the ticket specific behavior
         #change it to generic resource behaviour
         ticket = resource_instance
+        if ticket.id is None:
+            raise ValueError("Cannot get resource id for ticket "
+                             "that does not exist yet.")
         nbhprefix = ticket["product"]
 
         resource_full_id = cls.RESOURCE_ID_DELIMITER.join(

@@ -134,10 +134,13 @@ class RelationManagementModule(Component):
         if 'ticket' in data:
             ticket = data['ticket']
             rls = RelationsSystem(self.env)
-            resid = ResourceIdSerializer.get_resource_id_from_instance(
-                self.env, ticket)
+            try:
+                resid = ResourceIdSerializer.get_resource_id_from_instance(
+                    self.env, ticket)
+            except ValueError:
+                resid = None
 
-            if rls.duplicate_relation_type:
+            if rls.duplicate_relation_type and resid is not None:
                 duplicate_relations = \
                     rls._select_relations(resid, rls.duplicate_relation_type)
                 if duplicate_relations:
