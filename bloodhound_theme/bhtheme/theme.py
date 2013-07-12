@@ -398,9 +398,15 @@ class BloodhoundTheme(ThemeBase):
 
     def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
         # override 'normal' product list with the admin one
-        glsettings = (None, _('(Global settings)'), req.href.admin())
-        admin_url = lambda x: req.href.products(x, 'admin')
-        data['admin_product_list'] = [glsettings] + \
+
+        def admin_url(prefix):
+            env = ProductEnvironment.lookup_env(self.env, prefix)
+            href = ProductEnvironment.resolve_href(env, self.env)
+            return href.admin()
+
+        global_settings = (None, _('(Global settings)'), admin_url(None))
+
+        data['admin_product_list'] = [global_settings] + \
             ProductModule.get_product_list(self.env, req, admin_url)
 
         if isinstance(req.perm.env, ProductEnvironment):
@@ -409,7 +415,7 @@ class BloodhoundTheme(ThemeBase):
                 (product.prefix, product.name,
                  req.href.products(product.prefix, 'admin'))
         else:
-            data['admin_current_product'] = glsettings
+            data['admin_current_product'] = global_settings
         data['resourcepath_template'] = 'bh_path_general.html'
 
     def _modify_browser(self, req, template, data, content_type, is_active):
