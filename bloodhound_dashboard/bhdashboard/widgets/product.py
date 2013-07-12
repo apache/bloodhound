@@ -48,12 +48,11 @@ class ProductWidget(WidgetBase):
         """Return a dictionary containing arguments specification for
         the widget with specified name.
         """
-        return {
-                'max' : {
-                        'desc' : """Limit the number of products displayed""",
-                        'type' : int
-                    },
-            }
+        return {'max' : {'desc' : """Limit the number of products displayed""",
+                         'type' : int},
+                'cols' : {'desc' : """Number of columns""",
+                          'type' : int}
+                }
 
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
@@ -116,8 +115,8 @@ class ProductWidget(WidgetBase):
         data = {}
         req = context.req
         title = ''
-        params = ('max', )
-        max_, = self.bind_params(name, options, *params)
+        params = ('max', 'cols')
+        max_, cols = self.bind_params(name, options, *params)
 
         if not isinstance(req.perm.env, ProductEnvironment):
             for p in Product.select(self.env):
@@ -135,6 +134,9 @@ class ProductWidget(WidgetBase):
                         % (p._data['owner'] or '', )).get_href(req.href)
                     data.setdefault('product_list', []).append(p)
             title = _('Products')
+
+        data['colseq'] = itertools.cycle(xrange(cols - 1, -1, -1)) if cols \
+                         else itertools.repeat(1)
 
         return 'widget_product.html', \
             {
