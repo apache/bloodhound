@@ -54,8 +54,7 @@ class ProductTicketModule(TicketModule):
         productid = req.args.get('productid','')
         
         if ticketid:
-            if (req.path_info == '/products/' + productid + '/newticket' or
-                req.path_info == '/products'):
+            if req.path_info in ('/newticket', '/products'):
                 raise TracError(_("id can't be set for a new ticket request."))
             ticket = Ticket(self.env, ticketid)
             if productid and ticket['product'] != productid:
