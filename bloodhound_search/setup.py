@@ -18,6 +18,8 @@
 #  under the License.
 
 
+import sys
+from pkg_resources import parse_version
 try:
     from setuptools import setup
 except ImportError:
@@ -164,5 +166,6 @@ setup(
     classifiers = cats,
     long_description= DESC,
     test_suite='bhsearch.tests.test_suite',
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
     )
 

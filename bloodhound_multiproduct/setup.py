@@ -17,6 +17,8 @@
 #  under the License.
 
 """setup for multi product plugin"""
+import sys
+from pkg_resources import parse_version
 from setuptools import setup
 
 setup(
@@ -37,5 +39,6 @@ setup(
             'multiproduct.web_ui = multiproduct.web_ui',
         ],},
     test_suite='tests.test_suite',
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
 )
 

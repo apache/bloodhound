@@ -17,7 +17,8 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-
+import sys
+from pkg_resources import parse_version
 try:
     from setuptools import setup
 except ImportError:
@@ -135,6 +136,7 @@ setup(
     entry_points = ENTRY_POINTS,
     classifiers = cats,
     long_description= DESC,
-    test_suite='bhrelations.tests.test_suite'
+    test_suite='bhrelations.tests.test_suite',
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
     )
 
