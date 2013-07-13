@@ -216,13 +216,6 @@ class ProductModuleTestCase(RequestHandlerTestCase):
         spy = self.global_env[TestRequestSpy]
         self.assertIsNot(None, spy)
 
-        # Missing product
-        req = self._get_request_obj(self.global_env)
-        req.authname = 'testuser'
-        req.environ['PATH_INFO'] = '/products/missing'
-
-        real_prefix = None
-
         def assert_product_view(req, template, data, content_type):
             self.assertEquals('product_view.html', template)
             self.assertIs(None, content_type)
@@ -238,11 +231,6 @@ class ProductModuleTestCase(RequestHandlerTestCase):
 
         spy.testProcessing = assert_product_view
 
-        self.expectedPrefix = 'missing'
-        self.expectedPathInfo = ''
-        with self.assertRaises(RequestDone):
-            self._dispatch(req, self.global_env)
-
         # Existing product
         req = self._get_request_obj(self.global_env)
         req.authname = 'testuser'
@@ -254,6 +242,33 @@ class ProductModuleTestCase(RequestHandlerTestCase):
         with self.assertRaises(RequestDone):
             self._dispatch(req, self.global_env)
 
+    def test_missing_product(self):
+        spy = self.global_env[TestRequestSpy]
+        self.assertIsNot(None, spy)
+
+        mps = MultiProductSystem(self.global_env)
+        def assert_product_list(req, template, data, content_type):
+            self.assertEquals('product_list.html', template)
+            self.assertIs(None, content_type)
+            self.assertEquals([mps.default_product_prefix,
+                               self.default_product],
+                              [p.prefix for p in data.get('products')])
+            self.assertTrue('context' in data)
+            ctx = data['context']
+            self.assertEquals('product', ctx.resource.realm)
+            self.assertEquals(None, ctx.resource.id)
+
+        spy.testProcessing = assert_product_list
+
+        # Missing product
+        req = self._get_request_obj(self.global_env)
+        req.authname = 'testuser'
+        req.environ['PATH_INFO'] = '/products/missing'
+
+        self.expectedPrefix = 'missing'
+        self.expectedPathInfo = ''
+        with self.assertRaises(RequestDone):
+            self._dispatch(req, self.global_env)
 
     def test_product_edit(self):
         spy = self.global_env[TestRequestSpy]
