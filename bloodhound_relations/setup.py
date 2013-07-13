@@ -98,6 +98,8 @@ PKG_INFO = {'bhrelations': ('bhrelations',                     # Package dir
                               'htdocs/img/*.*', 'htdocs/js/*.js',
                               'templates/*', 'default-pages/*'],
                           ),
+            'bhrelations.widgets': (
+                'bhrelations/widgets', ['templates/*.html']),
             'bhrelations.tests': (
                 'bhrelations/tests', ['data/*.*']),
             }
