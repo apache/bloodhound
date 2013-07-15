@@ -73,13 +73,6 @@ cats = [
       "Topic :: Software Development :: User Interfaces",
     ]
 
-# Be compatible with older versions of Python
-from sys import version
-if version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
-
 # Add the change log to the package description.
 chglog = None
 try:
