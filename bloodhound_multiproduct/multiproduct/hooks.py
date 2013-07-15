@@ -103,10 +103,11 @@ class ProductizedHref(Href):
         self._global_href = global_href
 
     def __call__(self, *args, **kwargs):
-        if args:
+        if args and isinstance(args[0], basestring):
             if args[0] in self.PATHS_NO_TRANSFORM or \
-               (len(args) == 1 and args[0] == 'admin') or \
-               filter(lambda x: args[0].startswith(x), self.STATIC_PREFIXES):
+                    (len(args) == 1 and args[0] == 'admin') or \
+                    filter(lambda x: args[0].startswith(x),
+                           self.STATIC_PREFIXES):
                 return self._global_href(*args, **kwargs)
         return self.super.__call__(*args, **kwargs)
 
