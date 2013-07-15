@@ -131,7 +131,7 @@ class RelationManagementModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        if 'ticket' in data:
+        if req.path_info.startswith('/ticket/'):
             ticket = data['ticket']
             rls = RelationsSystem(self.env)
             try:

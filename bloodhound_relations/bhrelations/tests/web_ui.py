@@ -149,6 +149,11 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
         self.req.path_info = '/newticket'
         self.process_request()
 
+    def test_post_process_request_can_handle_none_data(self):
+        self.req.path_info = '/source'
+        RelationManagementModule(self.env).post_process_request(
+            self.req, '', None, '')
+
     def resolve_as_duplicate(self, ticket, duplicate_id):
         self.req.method = 'POST'
         self.req.path_info = '/ticket/%d' % ticket.id
