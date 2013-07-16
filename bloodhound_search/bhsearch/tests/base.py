@@ -45,7 +45,7 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         if not enabled:
             enabled = ['trac.*', 'bhsearch.*']
         if not enable_security:
-            disabled = ['bhsearch.security.SecurityPreprocessor']
+            disabled = ['bhsearch.security.*']
         else:
             disabled = []
 
