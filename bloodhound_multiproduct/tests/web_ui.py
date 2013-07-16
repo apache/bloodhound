@@ -148,23 +148,6 @@ class ProductModuleTestCase(RequestHandlerTestCase):
                          "Unexpected product prefix")
         self.assertEqual(self.expectedPathInfo, req.args['pathinfo'],
                          "Unexpected sub path")
- 
-    def test_product_pathinfo_warning(self):
-        spy = self.global_env[TestRequestSpy]
-        self.assertIsNot(None, spy)
-
-        req = self._get_request_obj(self.global_env)
-        req.authname = 'testuser'
-        req.environ['PATH_INFO'] = '/products/PREFIX/some/path'
-        self.expectedPrefix = 'PREFIX'
-        self.expectedPathInfo = '/some/path'
-        spy.testProcessing = lambda *args, **kwargs: None
-
-        with self.assertRaises(HTTPNotFound) as test_cm:
-            self._dispatch(req, self.global_env)
-
-        self.assertEqual('Unable to render product page. Wrong setup ?',
-                         test_cm.exception.detail)
 
     def test_product_list(self):
         spy = self.global_env[TestRequestSpy]
@@ -269,6 +252,9 @@ class ProductModuleTestCase(RequestHandlerTestCase):
         self.expectedPathInfo = ''
         with self.assertRaises(RequestDone):
             self._dispatch(req, self.global_env)
+        self.assertEqual(1, len(req.chrome['warnings']))
+        self.assertEqual('Product missing not found',
+                         req.chrome['warnings'][0].unescape())
 
     def test_product_edit(self):
         spy = self.global_env[TestRequestSpy]
