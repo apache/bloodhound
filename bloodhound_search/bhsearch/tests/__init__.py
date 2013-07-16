@@ -17,10 +17,10 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import sys
-if sys.version_info[:2] < (2, 7):
+
+try:
     import unittest2 as unittest
-else:
+except ImportError:
     import unittest
 
 from bhsearch.tests import (whoosh_backend, index_with_whoosh, web_ui,

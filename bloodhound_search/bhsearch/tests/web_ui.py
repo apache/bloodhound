@@ -17,30 +17,27 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import sys
-if sys.version_info[:2] < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 from urllib import urlencode, unquote, unquote_plus
 
-from bhsearch import web_ui
-from bhsearch.api import ASC, DESC, SortInstruction
-from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.web_ui import RequestParameters, BloodhoundSearchModule
-from bhsearch.whoosh_backend import WhooshBackend
-
-from trac.test import Mock, MockPerm
 from trac.core import TracError
 from trac.search.web_ui import SearchModule as TracSearchModule
-from trac.util.datefmt import FixedOffset
+from trac.test import Mock, MockPerm
 from trac.util import format_datetime
-from trac.web import Href, arg_list_to_args, parse_arg_list, RequestDone
+from trac.util.datefmt import FixedOffset
+from trac.web import Href, RequestDone, arg_list_to_args, parse_arg_list
+
+from bhsearch import web_ui
+from bhsearch.api import ASC, DESC, SortInstruction
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
+from bhsearch.web_ui import BloodhoundSearchModule, RequestParameters
+from bhsearch.whoosh_backend import WhooshBackend
 
 BASE_PATH = "/main/"
 BHSEARCH_URL = BASE_PATH + "bhsearch"
 DEFAULT_DOCS_PER_PAGE = 10
+
 
 class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
     def setUp(self):

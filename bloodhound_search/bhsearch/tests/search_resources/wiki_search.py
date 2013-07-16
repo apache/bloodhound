@@ -18,16 +18,16 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import shutil
-import unittest
+
+from trac.wiki import WikiSystem, WikiPage
 
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.query_parser import DefaultQueryParser
-from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.whoosh_backend import WhooshBackend
 from bhsearch.search_resources.wiki_search import (
     WikiIndexer, WikiSearchParticipant)
-
-from trac.wiki import WikiSystem, WikiPage
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
+from bhsearch.whoosh_backend import WhooshBackend
 
 
 class WikiIndexerSilenceOnExceptionTestCase(BaseBloodhoundSearchTest):

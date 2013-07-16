@@ -17,17 +17,18 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
+
+from trac.core import Component, implements
+from trac.versioncontrol import Changeset
+from trac.versioncontrol.api import (
+    IRepositoryConnector, Repository, RepositoryManager)
 
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.search_resources.changeset_search import (
     ChangesetSearchParticipant)
+from bhsearch.tests import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
-from trac.core import Component, implements
-from trac.versioncontrol.api import (IRepositoryConnector, RepositoryManager,
-                                     Repository)
-from trac.versioncontrol import Changeset
 
 
 class ChangesetIndexerEventsTestCase(BaseBloodhoundSearchTest):

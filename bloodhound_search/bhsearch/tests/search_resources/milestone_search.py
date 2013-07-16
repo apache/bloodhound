@@ -17,15 +17,15 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
+
+from trac.ticket import Milestone
 
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.search_resources.milestone_search import (
     MilestoneSearchParticipant)
+from bhsearch.tests import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
-
-from trac.ticket import Milestone
 
 
 class MilestoneIndexerEventsTestCase(BaseBloodhoundSearchTest):

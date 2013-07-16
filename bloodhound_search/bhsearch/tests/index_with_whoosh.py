@@ -18,13 +18,15 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import unittest
 import shutil
+
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.search_resources.milestone_search import MilestoneIndexer
-from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketIndexer
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
+
 
 class IndexWhooshTestCase(BaseBloodhoundSearchTest):
     def setUp(self):

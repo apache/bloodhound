@@ -23,21 +23,18 @@ Test utils methods
 """
 import contextlib
 import shutil
-import sys
 import tempfile
-if sys.version_info[:2] < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
-
-from bhsearch.web_ui import BloodhoundSearchModule
-from trac.ticket import Ticket, Milestone
 from trac.test import EnvironmentStub, Mock, MockPerm
+from trac.ticket import Ticket, Milestone
 from trac.web import Href, arg_list_to_args
 from trac.wiki import WikiPage
 
+from bhsearch.tests import unittest
+from bhsearch.web_ui import BloodhoundSearchModule
+
 BASE_PATH = "/main/"
+
 
 class BaseBloodhoundSearchTest(unittest.TestCase):
 
