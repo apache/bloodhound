@@ -79,4 +79,5 @@ class TestLoader(unittest.TestLoader):
 def test_suite():
     return TestLoader().discover_package('tests', pattern='*.py')
 
-
+if __name__ == '__main__':
+    unittest.main(defaultTest='test_suite')
