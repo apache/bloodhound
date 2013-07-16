@@ -25,7 +25,6 @@ Ticket relations user interface.
 """
 
 import re
-import pkg_resources
 
 from trac.core import Component, implements, TracError
 from trac.resource import get_resource_url, Resource
@@ -119,12 +118,11 @@ class RelationManagementModule(Component):
 
     # ITemplateProvider methods
     def get_htdocs_dirs(self):
-        resource_filename = pkg_resources.resource_filename
-        return [('relations', resource_filename('bhrelations', 'htdocs')), ]
+        return []
 
     def get_templates_dirs(self):
-        resource_filename = pkg_resources.resource_filename
-        return [resource_filename('bhrelations', 'templates'), ]
+        from pkg_resources import resource_filename
+        return [resource_filename('bhrelations', 'templates')]
 
     # IRequestFilter methods
     def pre_process_request(self, req, handler):
