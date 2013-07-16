@@ -30,12 +30,39 @@ from multiproduct.hooks import ProductizedHref
 
 class ProductizedHrefTestCase(unittest.TestCase):
 
-    def test_params_is_dictionary(self):
-        ghref = Href('/base')
-        phref = ProductizedHref(ghref, '/product')
-        self.assertIn(phref({'param': 'value', 'other': 'other value'}),
-                      ['/product?param=value&other=other+value',
-                       '/product?other=other+value&param=value'])
+    def setUp(self):
+        self.ghref = Href('/gbase')
+        self.phref = ProductizedHref(self.ghref, '/gbase/product')
+
+    def test_paths_no_transform(self):
+        self.assertEqual('/gbase/admin', self.phref.admin())
+        self.assertEqual('/gbase/logout', self.phref.logout())
+        self.assertEqual('/gbase/prefs', self.phref('prefs'))
+        self.assertEqual('/gbase/verify_email?a=1&b=cde',
+                         self.phref('verify_email', a=1, b='cde'))
+
+    def test_static_path_no_transform(self):
+        self.assertEqual('/gbase/js', self.phref('js/'))
+        self.assertEqual('/gbase/css', self.phref('css/'))
+        self.assertEqual('/gbase/img', self.phref('img/'))
+
+    def test_params_as_args(self):
+        self.assertEqual('/gbase/product/ticket/540',
+                         self.phref('ticket', 540))
+        self.assertEqual('/gbase/product/ticket/540',
+                         self.phref.ticket(540))
+
+    def test_params_as_kwargs(self):
+        self.assertIn(self.phref('ticket', param='value',
+                                 other='other value'),
+                      ['/gbase/product/ticket?param=value&other=other+value',
+                       '/gbase/product/ticket?other=other+value&param=value'])
+
+    def test_params_as_dictionary(self):
+        self.assertIn(self.phref.ticket({'param': 'value',
+                                         'other': 'other value'}),
+                      ['/gbase/product/ticket/?param=value&other=other+value',
+                       '/gbase/product/ticket?other=other+value&param=value'])
 
 
 def test_suite():
