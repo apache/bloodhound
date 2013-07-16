@@ -190,7 +190,7 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
                     % (table, len(rows), 6, rows))
             for table in ('permission',):
                 # Permissions also hold rows for global product.
-                rows = db("SELECT * FROM %s" % table)
+                rows = db("SELECT * FROM %s WHERE username='x'" % table)
                 self.assertEqual(
                     len(rows), 7,
                     "Wrong number of lines in %s (%d instead of %d)\n%s"
