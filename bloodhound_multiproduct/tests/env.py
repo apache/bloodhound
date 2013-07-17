@@ -620,10 +620,10 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
     def test_product_href_uses_multiproduct_product_base_url(self):
-        # If [trac] base_url is not set for the product environment, the
-        # product environment object's base_url attribute should be determined
-        # by [multiproduct] product_base_url
-
+        """Test that [multiproduct] product_base_url is used to compute
+        abs_href for the product environment when [trac] base_url for
+        the product environment is an empty string (the default).
+        """
         # Global URLs
         self.assertEqual('http://globalenv.com/trac.cgi', self.env.base_url)
         self.assertEqual('http://globalenv.com/trac.cgi', self.env.abs_href())
@@ -634,10 +634,11 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
     def test_product_href_uses_products_base_url(self):
-        # If [trac] base_url is set for the product environment, the
-        # product environment object's base_url attribute should be
-        # determined by [trac] base_url for the product environment
-
+        """Test that [trac] base_url for the product environment is used to
+        compute abs_href for the product environment when [trac] base_url
+        for the product environment is different than [trac] base_url for
+        the global environment.
+        """
         self.product_env.config.set('trac', 'base_url', 'http://productenv.com')
         self.product_env.config.save()
 
@@ -645,11 +646,11 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         self.assertEqual('http://productenv.com', self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
-    def test_product_href_uses_products_base_url(self):
-        # If [trac] base_url is set for the product environment but is equal to
-        # [trac] base_url for the global environment, the product environment
-        # object's base_url attribute should be determined by [multiproduct]
-        # product_base_url
+    def test_product_href_global_and_product_base_urls_same(self):
+        """Test that [multiproduct] product_base_url is used to compute
+        abs_href for the product environment when [trac] base_url is the same
+        for the product and global environment.
+        """
         self.product_env.config.set('trac', 'base_url',
                                     self.env.config.get('trac', 'base_url'))
         self.product_env.config.save()
