@@ -42,6 +42,7 @@ from trac.tests.env import EnvironmentTestCase
 from trac.ticket.report import ReportModule
 from trac.ticket.web_ui import TicketModule
 from trac.util.text import to_unicode
+from trac.web.href import Href
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
@@ -558,9 +559,11 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def setUp(self):
         self._mp_setup()
         self.env.path = '/path/to/env'
+        self.env.abs_href = Href('http://globalenv.com/trac.cgi')
         url_pattern = getattr(getattr(self, self._testMethodName).im_func,
                               'product_base_url', '')
         self.env.config.set('multiproduct', 'product_base_url', url_pattern)
+        self.env.config.set('trac', 'base_url', 'http://globalenv.com/trac.cgi')
         self.product_env = ProductEnvironment(self.env, self.default_product)
 
     def tearDown(self):
@@ -585,21 +588,28 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_sibling_paths(self):
         """Test product base URL at sibling paths
         """
-        self.assertEqual('http://example.org/trac.cgi/path/to/bloodhound/tp1', 
+        self.assertEqual('http://globalenv.com/trac.cgi/path/to/bloodhound/tp1',
                          self.product_env.abs_href())
 
     @product_base_url('/$(envname)s/$(prefix)s')
     def test_href_inherit_sibling_paths(self):
         """Test product base URL at sibling paths inheriting configuration.
         """
-        self.assertEqual('http://example.org/trac.cgi/env/tp1', 
+        self.assertEqual('http://globalenv.com/trac.cgi/env/tp1',
+                         self.product_env.abs_href())
+
+    @product_base_url('')
+    def test_href_default(self):
+        """Test product base URL is to a default
+        """
+        self.assertEqual('http://globalenv.com/trac.cgi/products/tp1',
                          self.product_env.abs_href())
 
     @product_base_url('/products/$(prefix)s')
     def test_href_embed(self):
         """Test default product base URL /products/prefix
         """
-        self.assertEqual('http://example.org/trac.cgi/products/tp1', 
+        self.assertEqual('http://globalenv.com/trac.cgi/products/tp1',
                          self.product_env.abs_href())
 
     @product_base_url('http://$(envname)s.tld/bh/$(prefix)s')
@@ -607,6 +617,45 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         """Test complex product base URL
         """
         self.assertEqual('http://env.tld/bh/tp1', self.product_env.abs_href())
+
+    @product_base_url('http://$(prefix)s.$(envname)s.tld/')
+    def test_product_href_uses_multiproduct_product_base_url(self):
+        # If [trac] base_url is not set for the product environment, the
+        # product environment object's base_url attribute should be determined
+        # by [multiproduct] product_base_url
+
+        # Global URLs
+        self.assertEqual('http://globalenv.com/trac.cgi', self.env.base_url)
+        self.assertEqual('http://globalenv.com/trac.cgi', self.env.abs_href())
+
+        # Product URLs
+        self.assertEqual('', self.product_env.base_url)
+        self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
+
+    @product_base_url('http://$(prefix)s.$(envname)s.tld/')
+    def test_product_href_uses_products_base_url(self):
+        # If [trac] base_url is set for the product environment, the
+        # product environment object's base_url attribute should be
+        # determined by [trac] base_url for the product environment
+
+        self.product_env.config.set('trac', 'base_url', 'http://productenv.com')
+        self.product_env.config.save()
+
+        self.assertEqual('http://productenv.com', self.product_env.base_url)
+        self.assertEqual('http://productenv.com', self.product_env.abs_href())
+
+    @product_base_url('http://$(prefix)s.$(envname)s.tld/')
+    def test_product_href_uses_products_base_url(self):
+        # If [trac] base_url is set for the product environment but is equal to
+        # [trac] base_url for the global environment, the product environment
+        # object's base_url attribute should be determined by [multiproduct]
+        # product_base_url
+        self.product_env.config.set('trac', 'base_url',
+                                    self.env.config.get('trac', 'base_url'))
+        self.product_env.config.save()
+
+        self.assertEqual('', self.product_env.base_url)
+        self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
 
     product_base_url = staticmethod(product_base_url)
 

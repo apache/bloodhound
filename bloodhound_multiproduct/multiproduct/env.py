@@ -405,7 +405,7 @@ class ProductEnvironment(Component, ComponentManager):
         """
         return ''
 
-    base_url = Option('trac', 'base_url', '',
+    _base_url = Option('trac', 'base_url', '',
         """Reference URL for the Trac deployment.
         
         This is the base URL that will be used when producing
@@ -413,7 +413,14 @@ class ProductEnvironment(Component, ComponentManager):
         context, like for example when inserting URLs pointing to Trac
         resources in notification e-mails.""")
 
-    base_url_for_redirect = BoolOption('trac', 'use_base_url_for_redirect',
+    @property
+    def base_url(self):
+        base_url = self._base_url
+        if base_url == self.parent.base_url:
+            return ''
+        return base_url
+
+    _base_url_for_redirect = BoolOption('trac', 'use_base_url_for_redirect',
             False, 
         """Optionally use `[trac] base_url` for redirects.
         
