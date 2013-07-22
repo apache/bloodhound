@@ -550,11 +550,15 @@ class QuickCreateTicketDialog(Component):
 
         PS: Borrowed from XmlRpcPlugin.
         """
-        t = Ticket(self.env)
+        attrs = dict(attributes)
+        product = attrs.pop('product', '')
+        env = self._get_env(product)
+
+        t = Ticket(env)
         t['summary'] = summary
         t['description'] = description
         t['reporter'] = req.authname
-        for k, v in attributes.iteritems():
+        for k, v in attrs.iteritems():
             t[k] = v
         t['status'] = 'new'
         t['resolution'] = ''
@@ -562,12 +566,21 @@ class QuickCreateTicketDialog(Component):
 
         if notify:
             try:
-                tn = TicketNotifyEmail(self.env)
+                tn = TicketNotifyEmail(env)
                 tn.notify(t, newticket=True)
             except Exception, e:
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
-        return t['product'], t.id
+        return product, t.id
+
+    def _get_env(self, product):
+        global_env = self.env.parent or self.env
+        if product:
+            env = ProductEnvironment(global_env, product)
+        else:
+            env = global_env
+        return env
+
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
