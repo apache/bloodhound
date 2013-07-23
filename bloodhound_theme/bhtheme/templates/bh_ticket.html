@@ -426,6 +426,9 @@
                     </label>
                   </p>
 
+                  <!-- Current product prefix, used to override default_product from config. -->
+                  <input type="hidden" id="field-product" name="field_product" value="$req.perm.env.product.prefix" />
+
                   <div class="buttons">
                     <input type="submit" class="btn" name="submit" value="${_('Create ticket')}" />
                   </div>
