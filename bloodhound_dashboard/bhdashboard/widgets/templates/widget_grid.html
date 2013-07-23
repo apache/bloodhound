@@ -61,7 +61,7 @@
                 }${'__style__' in row and row.__style__+';' or None
                 }${fullrow and 'border: none; padding: 0;' or None}">
 
-              <td py:if="use_groups" py:choose="" 
+              <td py:if="use_groups" py:choose=""
                   style="background: none repeat scroll 0 0 #FFFFFF; color: #333333;">
                 <py:when test="idx == 0 and value_for_group and not fullrow">
                   $value_for_group
@@ -75,33 +75,33 @@
                 <py:if test="not cell.header.hidden">
                   <py:with vars="col = cell.header.col.strip('_')">
                     <py:choose>
-  
+
                       <!--! for the report listing -->
                       <py:when test="col == 'report'">
                         <td class="$col" py:attrs="td_attrs">
                           <a title="View report" href="${href.report(cell.value)}">{$cell.value}</a>
                         </td>
                       </py:when>
-  
+
                       <py:when test="col == 'title'">
                         <td class="$col" py:attrs="td_attrs">
                           <a title="View report" href="${href.report(row.id)}">$cell.value</a>
                         </td>
                       </py:when>
-  
+
                       <!--! for the ticket listing -->
                       <py:when test="col in ('ticket', 'id')">
                         <td class="ticket" py:attrs="td_attrs">
                           <a title="View ${row.resource.realm}" href="${row.href if row.href else url_of(row.resource)}">${shortname_of(row.resource)}</a>
                         </td>
                       </py:when>
-  
+
                       <py:when test="col == 'summary' and row.id">
                         <td class="$col" py:attrs="td_attrs">
                           <a title="View ${row.resource.realm}" href="${row.href if row.href else url_of(row.resource)}">$cell.value</a>
                         </td>
                       </py:when>
-  
+
                       <!--! generic fields -->
                       <py:when test="col == 'time'" py:with="value = int(cell.value) if isinstance(cell.value, basestring) else cell.value">
                         <td class="date" py:attrs="td_attrs">${cell.value != '' and format_time(value) or '--'}
@@ -113,7 +113,7 @@
                         </td>
                       </py:when>
 
-                      <py:when test="col == 'datetime'" py:with="value = int(cell.value) if isinstance(cell.value, basestring) else cell.value">
+                      <py:when test="col in ('datetime','tctime')" py:with="value = int(cell.value) if isinstance(cell.value, basestring) else cell.value">
                         <td class="date" py:attrs="td_attrs">${cell.value != '' and format_datetime(value) or '--'}
                         </td>
                       </py:when>
@@ -123,18 +123,18 @@
                           ${wiki_to_html(context(row.resource), cell.value)}
                         </td>
                       </py:when>
-  
+
                       <py:when test="col == 'milestone'">
                         <td class="$col" py:attrs="td_attrs">
                           <a title="View milestone" href="${href.milestone(cell.value)}">$cell.value</a>
                         </td>
                       </py:when>
-  
+
                       <py:otherwise>
                         <td class="$col" py:attrs="td_attrs">$cell.value
                         </td>
                       </py:otherwise>
-  
+
                     </py:choose>
                   </py:with>
                 </py:if>
