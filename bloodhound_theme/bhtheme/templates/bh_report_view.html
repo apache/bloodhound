@@ -35,7 +35,6 @@
   </head>
 
   <body>
-
     <div id="content" class="report row">
       <span class='span12'><h1>$title
         <small py:if="numrows" class="numrows">(${ngettext('%(num)s match', '%(num)s matches', numrows)})</small>
@@ -45,12 +44,12 @@
         <div py:if="description" id="description" xml:space="preserve">
           ${wiki_to_html(context, description)}
         </div>
-
+  
         <div class="buttons control-group">
           <form py:if="'REPORT_MODIFY' in perm(report.resource)" action="" method="get">
             <div>
               <input type="hidden" name="action" value="edit" />
-              <input type="submit" value="${_('Edit report')}" accesskey="e"
+              <input type="submit" value="${_('Edit report')}" accesskey="e" 
                   class="btn" />
             </div>
           </form>
@@ -63,7 +62,7 @@
           <form py:if="'REPORT_DELETE' in perm(report.resource)" action="" method="get">
             <div>
               <input type="hidden" name="action" value="delete" />
-              <input type="submit" value="${_('Delete report')}"
+              <input type="submit" value="${_('Delete report')}" 
                   class="btn" />
             </div>
           </form>
@@ -75,7 +74,7 @@
             <div>
               <label>
                 Max items per page
-                <input type="text" naime="max" size="10" value="${max}"
+                <input type="text" naime="max" size="10" value="${max}" 
                     class="input-mini" />
               </label>
               <fieldset id="reportfilters" py:if="show_args_form">

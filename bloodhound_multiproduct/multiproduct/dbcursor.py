@@ -41,7 +41,7 @@ TRANSLATE_TABLES = ['system',
                     'permission',
                     'wiki',
                     'report',
-                   ]
+                    ]
 PRODUCT_COLUMN = 'product'
 GLOBAL_PRODUCT = ''
 

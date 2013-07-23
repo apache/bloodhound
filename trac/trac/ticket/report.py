@@ -847,7 +847,6 @@ class ReportModule(Component):
             'date': iso_datetime,
             'created': iso_datetime,
             'modified': iso_datetime,
-			'tctime':iso_datetime,
         }
 
         converters = [col_conversions.get(c.strip('_'), cell_value)
