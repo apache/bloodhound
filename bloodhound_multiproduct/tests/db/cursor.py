@@ -987,7 +987,14 @@ data = {
 """create temporary table table_old as select * from table""",
 """create temporary table "PRODUCT_table_old" as select * from (SELECT * FROM "PRODUCT_table") AS table""",
         )
-    ]
+    ],
+    # insert with specified product (#601)
+    'insert_with_product': [
+        (
+"""INSERT INTO ticket (summary, product) VALUES ('S', 'swlcu')""",
+"""INSERT INTO ticket (summary, product) VALUES ('S', 'swlcu')"""
+        ),
+    ],
 
 }
 
@@ -1044,6 +1051,9 @@ class DbCursorTestCase(unittest.TestCase):
 
     def test_lowercase_tokens(self):
         self._run_test('lowercase_tokens')
+
+    def test_insert_with_product(self):
+        self._run_test('insert_with_product')
 
 if __name__ == '__main__':
     unittest.main()
