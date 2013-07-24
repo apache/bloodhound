@@ -22,12 +22,13 @@ from datetime import datetime
 import shutil
 import unittest
 
-from trac.ticket.model import Milestone
+from trac.ticket.model import Milestone, Ticket
 from trac.ticket.tests.model import TicketTestCase, TicketCommentTestCase, \
         TicketCommentEditTestCase, TicketCommentDeleteTestCase, EnumTestCase, \
         MilestoneTestCase, ComponentTestCase, VersionTestCase
 from trac.util.datefmt import to_utimestamp, utc
 
+from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 
@@ -46,6 +47,46 @@ class ProductTicketTestCase(TicketTestCase, MultiproductTestCase):
     def tearDown(self):
         self.global_env.reset_db()
         self.env = self.global_env = None
+
+    def _get_ticket_uid(self, tid):
+        with self.env.db_query as db:
+            rows = db("""SELECT uid FROM ticket WHERE id=%s""", (tid, ))
+            return rows[0][0] if rows else -1
+
+    def test_insert_into_multiple_products(self):
+        # UIDs are global, autoincremented
+        # IDs are product-scoped, incremented in the SQL translator
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+
+        tid = self._insert_ticket('hello kitty', reporter='admin')
+        ticket = Ticket(self.env, tid)
+        self.assertEqual(tid, 1)
+        self.assertEqual(self._get_ticket_uid(tid), 1)
+        self.assertEqual(ticket.id, tid)
+        tid = self._insert_ticket('hello kitteh', reporter='admin')
+        ticket = Ticket(self.env, tid)
+        self.assertEqual(tid, 2)
+        self.assertEqual(self._get_ticket_uid(tid), 2)
+        self.assertEqual(ticket.id, tid)
+
+        p2 = Product(self.global_env)
+        p2.prefix = 'p2'
+        p2.name = 'product, too'
+        p2.owner = 'admin'
+        p2.insert()
+        self.env = ProductEnvironment(self.global_env, p2)
+
+        tid = self._insert_ticket('hello catty', reporter='admin')
+        ticket = Ticket(self.env, tid)
+        self.assertEqual(tid, 1)
+        self.assertEqual(self._get_ticket_uid(tid), 3)
+        self.assertEqual(ticket.id, tid)
+        tid = self._insert_ticket('hello ocelot', reporter='admin')
+        ticket = Ticket(self.env, tid)
+        self.assertEqual(tid, 2)
+        self.assertEqual(self._get_ticket_uid(tid), 4)
+        self.assertEqual(ticket.id, tid)
+
 
 class ProductTicketCommentTestCase(MultiproductTestCase):
 

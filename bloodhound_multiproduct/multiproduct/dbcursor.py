@@ -24,6 +24,7 @@ import sqlparse.tokens as Tokens
 import sqlparse.sql as Types
 
 from multiproduct.cache import lru_cache
+from multiproduct.util import using_sqlite_backend
 
 __all__ = ['BloodhoundIterableCursor', 'BloodhoundConnectionWrapper', 'ProductEnvContextManager']
 
@@ -41,7 +42,7 @@ TRANSLATE_TABLES = ['system',
                     'permission',
                     'wiki',
                     'report',
-                    ]
+                   ]
 PRODUCT_COLUMN = 'product'
 GLOBAL_PRODUCT = ''
 
@@ -55,21 +56,22 @@ translator_not_set = empty_translator()
 def translate_sql(env, sql):
     translator = None
     log = None
+    product_prefix = None
     if env is not None:
-        # FIXME: This is the right way to do it but breaks translation
-        # if trac.db.api.DatabaseManager(self.env).debug_sql:
-        if (env.parent or env).config['trac'].get('debug_sql', False):
+        if trac.db.api.DatabaseManager(env).debug_sql:
             log = env.log
         product_prefix = env.product.prefix if env.product else GLOBAL_PRODUCT
         translator = BloodhoundProductSQLTranslate(SKIP_TABLES,
                                                    TRANSLATE_TABLES,
                                                    PRODUCT_COLUMN,
-                                                   product_prefix)
+                                                   product_prefix,
+                                                   env)
     if log:
         log.debug('Original SQl: %s', sql)
     realsql = translator.translate(sql) if (translator is not None) else sql
     if log:
         log.debug('SQL: %s', realsql)
+
     return realsql
 
 class BloodhoundIterableCursor(trac.db.util.IterableCursor):
@@ -202,11 +204,12 @@ class BloodhoundProductSQLTranslate(object):
                         'JOIN', 'INNER JOIN']
     _from_end_words = ['WHERE', 'GROUP', 'HAVING', 'ORDER', 'UNION', 'LIMIT']
 
-    def __init__(self, skip_tables, translate_tables, product_column, product_prefix):
+    def __init__(self, skip_tables, translate_tables, product_column, product_prefix, env=None):
         self._skip_tables = skip_tables
         self._translate_tables = translate_tables
         self._product_column = product_column
         self._product_prefix = product_prefix
+        self._using_sqlite = env is None or using_sqlite_backend(env)
 
     def _sqlparse_underline_hack(self, token):
         underline_token = lambda token: token.ttype == Tokens.Token.Error and token.value == '_'
@@ -524,7 +527,8 @@ class BloodhoundProductSQLTranslate(object):
         token = self._token_next(parent, start_token)
         if not token.match(Tokens.Keyword, 'INTO'):
             raise Exception("Invalid INSERT statement")
-        def insert_extra_column(tablename, columns_token):
+        def insert_extra_columns(tablename, columns_token):
+            columns_present = []
             if tablename in self._translate_tables and \
                isinstance(columns_token, Types.Parenthesis):
                 ptoken = self._token_first(columns_token)
@@ -534,26 +538,56 @@ class BloodhoundProductSQLTranslate(object):
                 last_token = ptoken
                 while ptoken:
                     if isinstance(ptoken, Types.IdentifierList):
-                        if any(i.get_name() == 'product'
-                               for i in ptoken.get_identifiers()
-                               if isinstance(i, Types.Identifier)):
-                            return True
+                        if not 'product' in columns_present \
+                           and any(i.get_name() == 'product'
+                                for i in ptoken.get_identifiers()
+                                if isinstance(i, Types.Identifier)):
+                            columns_present.append('product')
+                        elif not 'id' in columns_present \
+                             and tablename == 'ticket' \
+                             and isinstance(ptoken, Types.IdentifierList) \
+                             and any((t.ttype is None or t.is_keyword)
+                                    and t.value == 'id'
+                                    for t in ptoken.get_identifiers()):
+                            columns_present.append('id')
                     last_token = ptoken
                     ptoken = self._token_next(columns_token, ptoken)
                 if not last_token or \
                    not last_token.match(Tokens.Punctuation, ')'):
                     raise Exception("Invalid INSERT statement, unable to find column parenthesis end")
-                for keyword in [',', ' ', self._product_column]:
+
+                columns_to_insert = []
+                if not 'product' in columns_present:
+                    columns_to_insert += [',', ' ', self._product_column]
+                if self._using_sqlite \
+                   and tablename == 'ticket'\
+                   and not 'id' in columns_present:
+                    columns_to_insert += [',', ' ', 'id']
+                for keyword in columns_to_insert:
                     self._token_insert_before(columns_token, last_token, Types.Token(Tokens.Keyword, keyword))
-            return False
-        def insert_extra_column_value(tablename, ptoken, before_token):
+            return columns_present
+
+        def insert_extra_column_values(tablename, ptoken, before_token,
+                columns_present):
             if tablename in self._translate_tables:
-                for keyword in [',', "'", self._product_prefix, "'"]:
+                values_to_insert = []
+                if not 'product' in columns_present:
+                    values_to_insert += [',', "'", self._product_prefix, "'"]
+                if self._using_sqlite \
+                   and tablename == 'ticket' \
+                   and not 'id' in columns_present:
+                    values_to_insert += [
+                        ',', """COALESCE((SELECT MAX(id) FROM ticket
+                                           WHERE product='%s'), 0)+1""" %
+                             (self._product_prefix,)
+                    ]
+                for keyword in values_to_insert:
                     self._token_insert_before(ptoken, before_token, Types.Token(Tokens.Keyword, keyword))
             return
+
         tablename = None
         table_name_token = self._token_next(parent, token)
-        has_product_column = False
+        columns_present = []
         if isinstance(table_name_token, Types.Function):
             token = self._token_first(table_name_token)
             if isinstance(token, Types.Identifier):
@@ -562,7 +596,7 @@ class BloodhoundProductSQLTranslate(object):
                 if columns_token.match(Tokens.Keyword, 'VALUES'):
                     token = columns_token
                 else:
-                    has_product_column = insert_extra_column(tablename, columns_token)
+                    columns_present = insert_extra_columns(tablename, columns_token)
                     token = self._token_next(parent, table_name_token)
         else:
             tablename = table_name_token.value
@@ -570,11 +604,10 @@ class BloodhoundProductSQLTranslate(object):
             if columns_token.match(Tokens.Keyword, 'VALUES'):
                 token = columns_token
             else:
-                has_product_column = insert_extra_column(tablename, columns_token)
+                columns_present = insert_extra_columns(tablename, columns_token)
                 token = self._token_next(parent, columns_token)
-        if has_product_column:
-            pass  # INSERT already has product, no translation needed
-        elif token.match(Tokens.Keyword, 'VALUES'):
+
+        if token.match(Tokens.Keyword, 'VALUES'):
             separators = [',', '(', ')']
             token = self._token_next(parent, token)
             while token:
@@ -594,7 +627,7 @@ class BloodhoundProductSQLTranslate(object):
                     if not last_token or \
                        not last_token.match(Tokens.Punctuation, ')'):
                         raise Exception("Invalid INSERT statement, unable to find column value parenthesis end")
-                    insert_extra_column_value(tablename, token, last_token)
+                    insert_extra_column_values(tablename, token, last_token, columns_present)
                 elif not token.match(Tokens.Punctuation, separators) and\
                      not token.match(Tokens.Keyword, separators) and\
                      not token.is_whitespace():

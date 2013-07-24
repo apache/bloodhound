@@ -45,11 +45,12 @@ from trac.wiki.parser import WikiParser
 
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
-from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER
+from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER, \
+    using_sqlite_backend
 
 __all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER']
 
-DB_VERSION = 4
+DB_VERSION = 5
 DB_SYSTEM_KEY = 'bloodhound_multi_product_version'
 PLUGIN_NAME = 'Bloodhound multi product'
 
@@ -242,6 +243,12 @@ class MultiProductSystem(Component):
                 self._create_product_tables_for_plugins(db)
                 db_installed_version = self._update_db_version(db, 4)
 
+            if db_installed_version < 5:
+                table_defs = self._add_product_column_to_tables(
+                    ['ticket'], db_installed_version)
+                self._modify_ticket_pk(db, table_defs)
+                db_installed_version = self._update_db_version(db, 5)
+
             self.env.enable_multiproduct_schema(True)
 
     def _add_column_product_to_ticket(self, db):
@@ -302,7 +309,7 @@ class MultiProductSystem(Component):
                     (t.name, t.key, PLUGIN_NAME, current_version, 3))
         return table_defs
 
-    def _get_table_columns(self, table_defs):
+    def _get_table_columns(self, table_defs, all_columns=False):
         table_columns = dict()
         for table in table_defs:
             table_definition = \
@@ -310,7 +317,7 @@ class MultiProductSystem(Component):
             column_names = \
                 [column.name for column in table_definition.columns]
             table_columns[table.name] = \
-                [c for c in column_names if c != 'product']
+                [c for c in column_names if all_columns or c != 'product']
         return table_columns
 
     def _insert_default_product(self, db):
@@ -511,6 +518,39 @@ class MultiProductSystem(Component):
         db_connector, dummy = DatabaseManager(self.env)._get_connector()
         for statement in db_connector.to_sql(ProductSetting._get_schema()):
             db(statement)
+
+    def _modify_ticket_pk(self, db, table_defs):
+        self.log.debug("Modifying ticket primary key: id -> uid")
+        table_columns = self._get_table_columns(table_defs, True)
+        db_connector, _ = DatabaseManager(self.env)._get_connector()
+
+        def rename_id_to_uid(table):
+            for c in table.columns:
+                if c.name == 'id':
+                    c.name = 'uid'
+                    break
+            table.key = ['uid']
+
+        def add_new_id_column(table):
+            id_column = Column('id', type='int', auto_increment=True)
+            if using_sqlite_backend(self.env):
+                # sqlite does not support multiple auto increment columns
+                id_column.auto_increment = False
+            table.columns.append(id_column)
+
+
+        for t in table_defs:
+            rename_id_to_uid(t)
+            add_new_id_column(t)
+
+            temp_table_name, cols = self._create_temp_table(
+                db, t.name, table_columns, table_defs)
+            db("""INSERT INTO ticket (%s, uid)
+                       SELECT %s, id FROM ticket_temp""" %
+                (cols, cols))
+            self._drop_temp_table(db, temp_table_name)
+            db.update_sequence(db.cursor(), 'ticket', 'id')
+            db.update_sequence(db.cursor(), 'ticket', 'uid')
 
     # IResourceChangeListener methods
     def match_resource(self, resource):

@@ -226,7 +226,6 @@ class Ticket(object):
         # Insert ticket record
         std_fields = []
         custom_fields = []
-        print self.values
         for f in self.fields:
             fname = f['name']
             if fname in self.values:
@@ -240,7 +239,13 @@ class Ticket(object):
                            % (','.join(std_fields),
                               ','.join(['%s'] * len(std_fields))),
                            [values[name] for name in std_fields])
-            tkt_id = db.get_last_id(cursor, 'ticket')
+            if getattr(self.env, '_multiproduct_schema_enabled', False):
+                tkt_id = db.get_last_id(cursor, 'ticket', 'uid')
+                rows = db("""SELECT id FROM ticket WHERE uid=%s""", (tkt_id,))
+                tkt_id = rows[0][0] if rows else -1
+            else:
+                tkt_id = db.get_last_id(cursor, 'ticket')
+
 
             # Insert custom fields
             if custom_fields:
