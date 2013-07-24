@@ -30,10 +30,15 @@ from sqlite3 import OperationalError
 
 from trac.test import EnvironmentStub
 from trac.core import TracError
+from trac.ticket.model import Ticket
 
+from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
+from bhdashboard.model import ModelBase
+
 from multiproduct.api import MultiProductSystem
 from trac.tests.resource import TestResourceChangeListener
+
 
 class ProductTestCase(unittest.TestCase):
     """Unit tests covering the Product model"""
@@ -56,7 +61,8 @@ class ProductTestCase(unittest.TestCase):
         self.default_data = {'prefix':self.INITIAL_PREFIX,
                              'name':self.INITIAL_NAME,
                              'description':self.INITIAL_DESCRIPTION}
-        
+
+        self.global_env = self.env
         self.product = Product(self.env)
         self.product._data.update(self.default_data)
         self.product.insert()
@@ -205,7 +211,6 @@ class ProductTestCase(unittest.TestCase):
         """ensure that that insert method works when _meta does not specify
         unique fields when inserting more than one ProductResourceMap instances
         """
-        from multiproduct.model import ModelBase
         class TestModel(ModelBase):
             """A test model with no unique_fields"""
             _meta = {'table_name': 'bloodhound_testmodel',
@@ -252,6 +257,33 @@ class ProductTestCase(unittest.TestCase):
         self.assertEqual('deleted', self.listener.action)
         self.assertIsInstance(self.listener.resource, Product)
         self.assertEqual(self.INITIAL_PREFIX, self.prefix)
+
+    def test_get_tickets(self):
+        for pdata in (
+            {'prefix': 'p2', 'name':'product, too', 'description': ''},
+            {'prefix': 'p3', 'name':'strike three', 'description': ''},
+        ):
+            num_tickets = 5
+            product = Product(self.global_env)
+            product._data.update(pdata)
+            product.insert()
+            self.env = ProductEnvironment(self.global_env, product)
+            for i in range(num_tickets):
+                ticket = Ticket(self.env)
+                ticket['summary'] = 'hello ticket #%s-%d' % (product.prefix, i)
+                ticket['reporter'] = 'admin'
+                tid = ticket.insert()
+
+            # retrieve tickets using both global and product scope
+            tickets_from_global = [(t['product'], t['id']) for t in
+                Product.get_tickets(self.global_env, product.prefix)]
+            self.assertEqual(len(tickets_from_global), num_tickets)
+            tickets_from_product = [(t['product'], t['id']) for t in
+                Product.get_tickets(self.env)]
+            self.assertEqual(len(tickets_from_product), num_tickets)
+            # both lists should contain same elements
+            intersection = set(tickets_from_global) & set(tickets_from_product)
+            self.assertEqual(len(intersection), num_tickets)
 
 def suite():
     test_suite = unittest.TestSuite()

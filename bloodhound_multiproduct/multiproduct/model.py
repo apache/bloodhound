@@ -81,7 +81,11 @@ class Product(ModelBase):
     @classmethod
     def get_tickets(cls, env, product=''):
         """Retrieve all tickets associated with the product."""
-        q = Query.from_string(env, 'product=%s' % product)
+        from multiproduct.ticket.query import ProductQuery
+        from multiproduct.env import ProductEnvironment
+        if not product and isinstance(env, ProductEnvironment):
+            product = env.product.prefix
+        q = ProductQuery.from_string(env, 'product=%s' % product)
         return q.execute()
 
 class ProductResourceMap(ModelBase):
