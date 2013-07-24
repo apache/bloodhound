@@ -226,7 +226,6 @@ class Ticket(object):
         # Insert ticket record
         std_fields = []
         custom_fields = []
-        print self.values
         for f in self.fields:
             fname = f['name']
             if fname in self.values:
