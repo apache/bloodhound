@@ -165,13 +165,13 @@ class ITicketFieldProvider(Interface):
         """Returns a list of select fields, each as a tuple of
         (rank, field)
         where field is a dictionary that defines:
-            * name: the field name 
+            * name: the field name
             * pk: the primary key of the field table
             * label: the label to display, preferably wrapped with N_()
             * cls: the model describing the field
         the following keys can also usefully be defined:
             * optional: a boolean specifying that the select can be empty
-        
+
         The rank is expected to be an integer to specify the sorting of the
         select and radio fields. This is not intended to allow for the extent
         of configurability of the custom fields but allows a plugin to mix in
@@ -342,11 +342,11 @@ class TicketSystem(Component):
 
         # Default select and radio fields
         selects = []
-        [selects.extend(field_provider.get_select_fields()) 
+        [selects.extend(field_provider.get_select_fields())
                     for field_provider in self.ticket_field_providers]
         [select.update({'type': 'select'}) for n, select in selects]
         radios = []
-        [radios.extend(field_provider.get_radio_fields()) 
+        [radios.extend(field_provider.get_radio_fields())
                     for field_provider in self.ticket_field_providers]
         [radio.update({'type': 'radio',
                        'optional': True}) for n, radio in radios]
@@ -379,6 +379,8 @@ class TicketSystem(Component):
                        'label': N_('Created')})
         fields.append({'name': 'changetime', 'type': 'time',
                        'label': N_('Modified')})
+        fields.append({'name':'tctime','type':'time',
+                        'label': N_('Change Time')})
 
         for field in self.get_custom_fields():
             if field['name'] in [f['name'] for f in fields]:
@@ -643,17 +645,17 @@ class TicketSystem(Component):
     def get_select_fields(self):
         """Default select and radio fields"""
         from trac.ticket import model
-        selects = [(10, {'name': 'type', 'label': N_('Type'), 
+        selects = [(10, {'name': 'type', 'label': N_('Type'),
                          'cls': model.Type}),
-                   (30, {'name':'priority', 'label': N_('Priority'), 
+                   (30, {'name':'priority', 'label': N_('Priority'),
                          'cls': model.Priority}),
-                   (40, {'name': 'milestone', 'label': N_('Milestone'), 
+                   (40, {'name': 'milestone', 'label': N_('Milestone'),
                          'cls': model.Milestone, 'optional': True}),
-                   (50, {'name': 'component', 'label': N_('Component'), 
+                   (50, {'name': 'component', 'label': N_('Component'),
                          'cls': model.Component}),
-                   (60, {'name': 'version', 'label': N_('Version'), 
+                   (60, {'name': 'version', 'label': N_('Version'),
                          'cls': model.Version, 'optional': True}),
-                   (70, {'name': 'severity', 'label': N_('Severity'), 
+                   (70, {'name': 'severity', 'label': N_('Severity'),
                          'cls': model.Severity})]
         return selects
 
@@ -662,6 +664,6 @@ class TicketSystem(Component):
         from trac.ticket import model
         radios = [(20, {'name': 'status', 'label': N_('Status'),
                         'cls': model.Status}),
-                  (80, {'name': 'resolution', 'label': N_('Resolution'), 
+                  (80, {'name': 'resolution', 'label': N_('Resolution'),
                         'cls': model.Resolution})]
         return radios
