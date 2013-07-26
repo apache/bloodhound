@@ -351,7 +351,22 @@ SELECT p.value AS __color__,
   WHERE status <> 'closed'
   ORDER BY (COALESCE(owner, '') = $USER) DESC, """
   + db.cast('p.value', 'int') + """, milestone, t.type, time
-"""))
+"""),
+#----------------------------------------------------------------------------
+('Historical status changes - All tickets',
+"""\
+Display historical status changes for all ticket order by ticket id.
+""",
+"""\
+SELECT p.value AS __color__,
+    t.id AS ticket, t.type AS type, t.time AS created, priority,
+    owner, status, reporter, milestone, summary, tc.time AS tctime,
+    tc.oldvalue AS Previous_status, tc.newvalue AS Current_status
+  FROM ticket t, ticket_change tc
+  LEFT JOIN enum p ON p.name = t.priority AND p.type = 'priority'
+  WHERE t.id=tc.ticket AND field='status'
+  ORDER BY id,
+""" % db.cast('p.value', 'int') ))
 
 
 ##
