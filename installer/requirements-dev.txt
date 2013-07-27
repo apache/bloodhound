@@ -29,4 +29,4 @@ TracThemeEngine
 TracPermRedirect
 -e ../bloodhound_search
 -e ../bloodhound_relations
-
+-e ../bloodhound_time_series_reports
