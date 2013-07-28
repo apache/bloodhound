@@ -4,39 +4,60 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n"
-      py:with="preview_mode = 'preview' in req.args">
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
   <xi:include href="layout.html" />
 
   <head>
     <title>Ticket ${ticket.id}</title>
   </head>
+
   <body>
     <div>
       <div>
-        <h2>Ticket ${ticket.id}</h2>
-        <p><strong>Summary:</strong> ${ticket.summary}</p>
+        <h2>${ticket.summary}</h2>
+        <p>
+          <a href="${href.ticket(ticket.id)}">Ticket ${ticket.id}</a>
+           - Assigned to
+          <a href="${href.query(owner=ticket.owner, status='!closed',
+              ticket=ticket.id, order='priority')}">${ticket.owner}</a>
+           , last modified ${pretty_dateinfo(ticket.changetime)}
+        </p>
+        <p><strong>Reporter:</strong> ${ticket.reporter}</p>
+        <py:choose>
+          <p py:when="ticket.keywords">
+           <strong>Keywords:</strong> ${ticket.keywords}</p>
+        </py:choose>
+        <p><strong>Type:</strong> ${ticket.type}</p>
+        <p><strong>Status:</strong> ${ticket.status}</p>
+        <py:choose>
+          <p py:when="ticket.priority">
+           <strong>Priority:</strong> ${ticket.priority}</p>
+        </py:choose>
         <p><strong>Product:</strong> ${ticket.product}</p>
         <py:choose>
           <p py:when="ticket.milestone">
             <strong>Milestone:</strong> ${ticket.milestone}</p>
-          <p py:otherwise="">
-            The ticket doesn't belong to any milestone.</p>
         </py:choose>
-        <p><strong>Component:</strong> ${ticket.component}</p>
-        <p><strong>Priority:</strong> ${ticket.priority}</p>
-        <p><strong>Last modified:</strong> ${pretty_dateinfo(ticket.changetime)}</p>
         <py:choose>
-          <p py:when="ticket.version">
-            <strong>Version:</strong> ${ticket.version}</p>
-          <p py:otherwise="">
-            No version was provided.</p>
+          <p py:when="ticket.milestone">
+           <strong>Component:</strong> ${ticket.component}</p>
         </py:choose>
-        <p><strong>Assigned to:</strong> ${ticket.owner}</p>
-        <p><strong>Status:</strong> ${ticket.status}</p>
-
-        <p><strong>No. of comments:</strong></p>        
-
+        <py:choose>
+          <p py:when="ticket.milestone">
+           <strong>Version:</strong> ${ticket.version}</p>
+        </py:choose>
+        <py:choose>
+          <p py:when="ticket.severity">
+           <strong>Severity:</strong> ${ticket.severity}</p>
+        </py:choose>
+        <py:choose>
+          <p py:when="comm_num">
+           <strong>Number of comments:</strong> $comm_num</p>
+        </py:choose>
+        <py:choose>
+          <p py:when="attachment_num">
+           <strong>Number of attachments:</strong> ${attachment_num}</p>
+        </py:choose>
       </div>
     </div>
   </body>

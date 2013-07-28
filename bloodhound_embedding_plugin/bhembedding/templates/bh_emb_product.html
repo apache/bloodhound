@@ -7,22 +7,23 @@
       xmlns:i18n="http://genshi.edgewall.org/i18n">
   <xi:include href="layout.html" />
   <head>
-    <title>Product</title>
+    <title>Product ${product.name}</title>
   </head>
   <body>
-    <h2>Product ${product.name}</h2>
+    <h2><a href="${href.products(product.prefix)}">${product.name}</a></h2>
     <py:choose>
       <p py:when="product.description">
-          <strong>Description:</strong> ${product.description}</p>
-      <p py:otherwise="">
-        No description provided.</p>
+        <strong>Description:</strong> ${product.description}
+      </p>
     </py:choose>
-
-    <p><strong>Owner:</strong></p>
-    <p><strong>No. of tickets:</strong></p>
-    <p><strong>No. of milestones:</strong></p>
-    <p><strong>No. of components:</strong></p>
-    <p><strong>No. of versions</strong></p>
-    
+    <py:choose>
+      <p py:when="owner">
+          <strong>Owner:</strong><a href="${href.query(owner=owner, status='!closed',order='priority')}">
+                                  ${owner}</a></p>
+    </py:choose>
+    <p><strong>Number of tickets:</strong> ${ticket_num}</p>
+    <p><strong>Number of milestones:</strong> ${milestone_num}</p>
+    <p><strong>Number of versions:</strong> ${version_num}</p>
+    <p><strong>Number of components:</strong> ${component_num}</p>
   </body>
 </html>

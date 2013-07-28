@@ -6,11 +6,13 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n">
   <xi:include href="layout.html" />
+
   <head>
-    <title>Milestone</title>
+    <title>Milestone ${milestone.name}</title>
   </head>
+
   <body>
-    <h2>Milestone ${milestone.name}</h2>
+    <h2><a href="${href.milestone(milestone.name)}">${milestone.name}</a></h2>
     <py:choose>
       <p py:when="milestone.completed" class="date">
         <i18n:msg params="duration, date">
@@ -24,20 +26,13 @@
         <i18n:msg params="duration, date">
           <strong>Due in:</strong> ${dateinfo(milestone.due)} (${format_datetime(milestone.due)})
         </i18n:msg></p>
-      <p py:otherwise="" class="date">
-        No date set</p>
     </py:choose>
     <py:choose>
       <p py:when="milestone.description">
-          Description: ${milestone.description}</p>
-      <p py:otherwise="">
-        No description provided.</p>
+          <strong>Description:</strong> ${milestone.description}</p>
     </py:choose>
-
-
-    <p><strong>No. of tickets:</strong></p>
-    <p><strong>Attachments:</strong></p>
-
-
+    <p><strong>Product:</strong> ${product.name}</p>
+    <p><strong>Number of tickets:</strong> ${ticket_number}</p>
+    <p><strong>Attachments:</strong> ${attachment_number}</p>
   </body>
 </html>

@@ -4,8 +4,8 @@ import shutil
 from trac.test import EnvironmentStub, Mock, MockPerm
 from trac.core import TracError
 from trac.core import implements, Component
-from bhembedding.api import EmbeddingSystem
-
+# from bhembedding.api import EmbeddingSystem
+import bhembedding.api
 
 class EmbeddingSystemTestCase(unittest.TestCase):
 
@@ -16,3 +16,5 @@ class EmbeddingSystemTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.env.reset_db()
+
+
