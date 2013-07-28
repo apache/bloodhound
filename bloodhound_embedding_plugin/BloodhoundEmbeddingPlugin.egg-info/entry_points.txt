@@ -1,3 +1,0 @@
-[trac.plugins]
-bhembedding.api = bhembedding.api
-
