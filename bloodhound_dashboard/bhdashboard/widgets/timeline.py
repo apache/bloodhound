@@ -39,7 +39,7 @@ from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
 from trac.util.datefmt import utc
-from trac.util.translation import _
+from trac.util.translation import _, tag_
 from trac.web.chrome import add_stylesheet
 
 from bhdashboard.api import DateField, EnumField, ListField
@@ -49,6 +49,7 @@ from bhdashboard.util import WidgetBase, InvalidIdentifier, \
                               trac_tags
 
 __metaclass__ = type
+
 
 class ITimelineEventsFilter(Interface):
     """Filter timeline events displayed in a rendering context
@@ -71,11 +72,12 @@ class ITimelineEventsFilter(Interface):
                   `NotImplemented` if the filter doesn't care about it.
         """
 
+
 class TimelineWidget(WidgetBase):
     """Display activity feed.
     """
     default_count = IntOption('widget_activity', 'limit', 25, 
-                        """Maximum number of items displayed by default""")
+        """Maximum number of items displayed by default""")
 
     event_filters = ExtensionPoint(ITimelineEventsFilter)
 
@@ -101,36 +103,36 @@ class TimelineWidget(WidgetBase):
         the widget with specified name.
         """
         return {
-                'from' : {
-                        'desc' : """Display events before this date""",
-                        'type' : DateField(), # TODO: Custom datetime format
-                    },
-                'daysback' : {
-                        'desc' : """Event time window""",
-                        'type' : int, 
-                    },
-                'precision' : {
-                        'desc' : """Time precision""",
-                        'type' : EnumField('second', 'minute', 'hour')
-                    },
-                'doneby' : {
-                        'desc' : """Filter events related to user""",
-                    },
-                'filters' : {
-                        'desc' : """Event filters""",
-                        'type' : ListField()
-                    },
-                'max' : {
-                        'desc' : """Limit the number of events displayed""",
-                        'type' : int
-                    },
-                'realm' : {
-                        'desc' : """Resource realm. Used to filter events""",
-                    },
-                'id' : {
-                        'desc' : """Resource ID. Used to filter events""",
-                    },
-            }
+            'from': {
+                'desc': """Display events before this date""",
+                'type': DateField(),  # TODO: Custom datetime format
+            },
+            'daysback': {
+                'desc': """Event time window""",
+                'type': int,
+            },
+            'precision': {
+                'desc': """Time precision""",
+                'type': EnumField('second', 'minute', 'hour')
+            },
+            'doneby': {
+                'desc': """Filter events related to user""",
+            },
+            'filters': {
+                'desc': """Event filters""",
+                'type': ListField()
+            },
+            'max': {
+                'desc': """Limit the number of events displayed""",
+                'type': int
+            },
+            'realm': {
+                'desc': """Resource realm. Used to filter events""",
+            },
+            'id': {
+                'desc': """Resource ID. Used to filter events""",
+            },
+        }
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
     def render_widget(self, name, context, options):
@@ -140,28 +142,34 @@ class TimelineWidget(WidgetBase):
         req = context.req
         try:
             timemdl = self.env[TimelineModule]
-            if timemdl is None :
+            admin_page = tag.a(_("administration page."),
+                               title=_("Plugin Administration Page"),
+                               href=req.href.admin('general/plugin'))
+            if timemdl is None:
                 return 'widget_alert.html', {
                     'title':  _("Activity"),
                     'data': {
                         'msglabel': "Warning",
-                        'msgbody': _("TimelineWidget is disabled because the "
-                                     "Timeline component is not available. "
-                                     "Is the component disabled?"),
+                        'msgbody':
+                            tag_("The TimelineWidget is disabled because the "
+                                 "Timeline component is not available. "
+                                  "Is the component disabled? "
+                                  "You can enable from the %(page)s",
+                                  page=admin_page),
                         'dismiss': False,
                     }
                 }, context
 
-            params = ('from', 'daysback', 'doneby', 'precision', 'filters', \
-                        'max', 'realm', 'id')
+            params = ('from', 'daysback', 'doneby', 'precision', 'filters',
+                      'max', 'realm', 'id')
             start, days, user, precision, filters, count, realm, rid = \
-                    self.bind_params(name, options, *params)
+                self.bind_params(name, options, *params)
             if context.resource.realm == 'ticket':
                 if days is None:
                     # calculate a long enough time daysback
                     ticket = Ticket(self.env, context.resource.id)
-                    ticketage = datetime.now(utc) - ticket.time_created
-                    days = ticketage.days + 1
+                    ticket_age = datetime.now(utc) - ticket.time_created
+                    days = ticket_age.days + 1
                 if count is None:
                     # ignore short count for ticket feeds
                     count = 0
@@ -170,12 +178,12 @@ class TimelineWidget(WidgetBase):
 
             fakereq = dummy_request(self.env, req.authname)
             fakereq.args = {
-                    'author' : user or '',
-                    'daysback' : days or '',
-                    'max' : count,
-                    'precision' : precision,
-                    'user' : user
-                }
+                'author': user or '',
+                'daysback': days or '',
+                'max': count,
+                'precision': precision,
+                'user': user
+            }
             if filters:
                 fakereq.args.update(dict((k, True) for k in filters))
             if start is not None:
@@ -191,12 +199,12 @@ class TimelineWidget(WidgetBase):
                     wcontext.req = req
                 else:
                     self.log.warning("TimelineWidget: Resource %s not found",
-                            resource)
+                                     resource)
             # FIXME: Filter also if existence check is not conclusive ?
             if resource_exists(self.env, wcontext.resource):
                 module = FilteredTimeline(self.env, wcontext)
-                self.log.debug('Filtering timeline events for %s', \
-                        wcontext.resource)
+                self.log.debug('Filtering timeline events for %s',
+                               wcontext.resource)
             else:
                 module = timemdl
             data = module.process_request(fakereq)[1]
@@ -207,22 +215,18 @@ class TimelineWidget(WidgetBase):
         else:
             merge_links(srcreq=fakereq, dstreq=req,
                         exclude=["stylesheet", "alternate"])
-            data['today'] = today = datetime.now(req.tz)
-            data['yesterday'] = today - timedelta(days=1)
             if 'context' in data:
                 # Needed for abbreviated messages in widget events (#340)
                 wcontext.set_hints(**(data['context']._hints or {}))
             data['context'] = wcontext
-            return 'widget_timeline.html', \
-                    {
-                        'title' : _('Activity'),
-                        'data' : data, 
-                        'altlinks' : fakereq.chrome.get('links',
-                                                        {}).get('alternate')
-                    }, \
-                    context
+            return 'widget_timeline.html', {
+                'title': _('Activity'),
+                'data': data,
+                'altlinks': fakereq.chrome.get('links', {}).get('alternate')
+            }, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
+
 
 class FilteredTimeline:
     """This is a class (not a component ;) aimed at overriding some parts of
@@ -250,7 +254,7 @@ class FilteredTimeline:
     @property
     def max_daysback(self):
         return (-1 if self.context.resource.realm == 'ticket'
-                   else self._max_daysback)
+                else self._max_daysback)
 
     @property
     def event_providers(self):
@@ -268,10 +272,11 @@ class FilteredTimeline:
             if isinstance(value, MethodType):
                 raise AttributeError()
         except AttributeError:
-            raise AttributeError("'%s' object has no attribute '%s'" % \
-                    (self.__class__.__name__, attrnm))
+            raise AttributeError("'%s' object has no attribute '%s'"
+                                 % (self.__class__.__name__, attrnm))
         else:
             return value
+
 
 class TimelineFilterAdapter:
     """Wrapper class used to filter timeline event streams transparently.
@@ -289,9 +294,9 @@ class TimelineFilterAdapter:
 
     def get_timeline_filters(self, req):
         gen = self.provider.get_timeline_filters(req)
-        if (self.context.resource.realm == 'ticket' and
-            isinstance(self.provider, TicketModule) and
-            'TICKET_VIEW' in req.perm):
+        if self.context.resource.realm == 'ticket' and \
+                isinstance(self.provider, TicketModule) and \
+                'TICKET_VIEW' in req.perm:
             # ensure ticket_details appears once if this is a query on a ticket
             gen = list(gen)
             if not [g for g in gen if g[0] == 'ticket_details']:
@@ -305,16 +310,16 @@ class TimelineFilterAdapter:
         """
         filters_map = TimelineWidget(self.env).filters_map
         evfilters = filters_map.get(self.provider.__class__.__name__, []) + \
-                filters_map.get(None, [])
+            filters_map.get(None, [])
         self.log.debug('Applying filters %s for %s against %s', evfilters, 
-                self.context.resource, self.provider)
+                       self.context.resource, self.provider)
         if evfilters:
             for event in self.provider.get_timeline_events(
                     req, start, stop, filters):
                 match = False
                 for f in evfilters:
                     new_event = f.filter_event(self.context, self.provider,
-                            event, filters)
+                                               event, filters)
                     if new_event is None:
                         event = None
                         match = True
@@ -338,10 +343,11 @@ class TimelineFilterAdapter:
         try:
             value = getattr(self.provider, attrnm)
         except AttributeError:
-            raise AttributeError("'%s' object has no attribute '%s'" % \
-                    (self.__class__.__name__, attrnm))
+            raise AttributeError("'%s' object has no attribute '%s'"
+                                 % (self.__class__.__name__, attrnm))
         else:
             return value
+
 
 class TicketFieldTimelineFilter(Component):
     """A class filtering ticket events related to a given resource
@@ -355,8 +361,8 @@ class TicketFieldTimelineFilter(Component):
         """
         field_names = getattr(self, '_fields', None)
         if field_names is None:
-            self._fields = set(f['name'] \
-                    for f in TicketSystem(self.env).get_ticket_fields())
+            self._fields = set(f['name'] for f in
+                               TicketSystem(self.env).get_ticket_fields())
         return self._fields
 
     # ITimelineEventsFilter methods
@@ -379,7 +385,7 @@ class TicketFieldTimelineFilter(Component):
                     ticket_ids = event[3][0]
                 except:
                     self.log.exception('Unknown ticket event %s ... [SKIP]',
-                            event)
+                                       event)
                     return None
 
                 if not isinstance(ticket_ids, list):

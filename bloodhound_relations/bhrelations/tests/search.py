@@ -21,25 +21,25 @@ import shutil
 import tempfile
 import unittest
 
-from bhrelations.tests.api import BaseApiApiTestCase
 from bhsearch.api import BloodhoundSearchApi
 
 # TODO: Figure how to get trac to load components from these modules
 import bhsearch.query_parser, bhsearch.search_resources.ticket_search, \
     bhsearch.whoosh_backend
 import bhrelations.search
+from bhrelations.tests.base import BaseRelationsTestCase
 
 
-class SearchIntegrationTestCase(BaseApiApiTestCase):
+class SearchIntegrationTestCase(BaseRelationsTestCase):
     def setUp(self):
-        BaseApiApiTestCase.setUp(self, enabled=['bhsearch.*'])
+        BaseRelationsTestCase.setUp(self, enabled=['bhsearch.*'])
         self.global_env.path = tempfile.mkdtemp('bhrelations-tempenv')
         self.search_api = BloodhoundSearchApi(self.env)
         self.search_api.upgrade_environment(self.env.db_transaction)
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
-        BaseApiApiTestCase.tearDown(self)
+        BaseRelationsTestCase.tearDown(self)
 
     def test_relations_are_indexed_on_creation(self):
         t1 = self._insert_and_load_ticket("Foo")

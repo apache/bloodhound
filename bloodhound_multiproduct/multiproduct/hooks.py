@@ -30,7 +30,10 @@ from trac.web.href import Href
 from trac.web.main import RequestWithSession
 
 PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
-REDIRECT_DEFAULT_RE = re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|ticket|qct|timeline|(raw-|zip-)?attachment|diff|batchmodify|search)(?P<pathinfo>.*)')
+REDIRECT_DEFAULT_RE = \
+    re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|'
+               r'ticket|qct|timeline|diff|batchmodify|search|'
+               r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
 
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
@@ -100,10 +103,11 @@ class ProductizedHref(Href):
         self._global_href = global_href
 
     def __call__(self, *args, **kwargs):
-        if args:
+        if args and isinstance(args[0], basestring):
             if args[0] in self.PATHS_NO_TRANSFORM or \
-               (len(args) == 1 and args[0] == 'admin') or \
-               filter(lambda x: args[0].startswith(x), self.STATIC_PREFIXES):
+                    (len(args) == 1 and args[0] == 'admin') or \
+                    filter(lambda x: args[0].startswith(x),
+                           self.STATIC_PREFIXES):
                 return self._global_href(*args, **kwargs)
         return self.super.__call__(*args, **kwargs)
 

@@ -35,6 +35,7 @@ versions = [
     (0, 4, 0),
     (0, 5, 0),
     (0, 6, 0),
+    (0, 7, 0),
     ]
     
 latest = '.'.join(str(x) for x in versions[-1])
@@ -74,13 +75,6 @@ cats = [
       "Topic :: Software Development :: User Interfaces",
       "Topic :: Software Development :: Widget Sets"
     ]
-
-# Be compatible with older versions of Python
-from sys import version
-if version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
 
 # Add the change log to the package description.
 chglog = None
@@ -136,7 +130,7 @@ setup(
     description=DESC.split('\n', 1)[0],
     author = "Apache Bloodhound",
     license = "Apache License v2",
-    url = "http://incubator.apache.org/bloodhound/",
+    url = "https://bloodhound.apache.org/",
     requires = ['trac'],
     tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
     install_requires = [

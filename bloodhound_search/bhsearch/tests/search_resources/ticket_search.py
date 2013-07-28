@@ -17,13 +17,15 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
+
+from trac.ticket.model import Component
+
 from bhsearch.api import BloodhoundSearchApi
+from bhsearch.search_resources.ticket_search import TicketIndexer
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
 
-from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.search_resources.ticket_search import TicketIndexer
-from trac.ticket.model import Component
 
 class TicketIndexerTestCase(BaseBloodhoundSearchTest):
     def setUp(self):

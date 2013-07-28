@@ -20,23 +20,20 @@
 from datetime import datetime
 import os
 import shutil
-import sys
 import tempfile
-if sys.version_info[:2] < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+
+from trac.util.datefmt import FixedOffset, utc
 
 from bhsearch.api import ASC, DESC, SCORE, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
+from bhsearch.tests import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.whoosh_backend import (WhooshBackend,
-    WhooshEmptyFacetErrorWorkaround)
-from trac.util.datefmt import FixedOffset, utc
-from whoosh import index, sorting, query
-from whoosh.fields import Schema, ID, TEXT, KEYWORD
-from whoosh.qparser import MultifieldPlugin, QueryParser, WhitespacePlugin, \
-    PhrasePlugin, MultifieldParser
+from bhsearch.whoosh_backend import WhooshBackend, \
+    WhooshEmptyFacetErrorWorkaround
+from whoosh import index, query, sorting
+from whoosh.fields import ID, KEYWORD, TEXT, Schema
+from whoosh.qparser import MultifieldParser, MultifieldPlugin, PhrasePlugin, \
+    QueryParser, WhitespacePlugin
 
 
 class WhooshBackendTestCase(BaseBloodhoundSearchTest):

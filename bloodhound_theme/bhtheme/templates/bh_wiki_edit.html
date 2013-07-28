@@ -115,19 +115,6 @@
         &darr;
       </div>
       <h1 class="span12" i18n:msg="name">Editing ${name_of(page.resource)}</h1>
-      <div py:if="merge" class="system-message span12">
-        <div class="alert">
-          <p><span class="label label-important">Important</span>
-          Someone else has modified that page since you started your edits.</p><br />
-          <p i18n:msg=""><strong>If you save right away, you risk to revert those changes
-          (highlighted below as deletions).</strong></p><br />
-          <p i18n:msg="">Please review all those changes and manually merge them with your
-          own changes. <br />
-          If you're unsure about what you're doing, please press <code>Cancel</code>
-          (losing your changes) and start editing the latest version of the page
-          again.</p>
-        </div>
-      </div>
 
       <!--/p!
 
@@ -153,10 +140,35 @@
       (the  #preview will float at the right of the edit form's textarea)
 
       -->
-      <div py:if="not sidebyside" class="span12">
-        <xi:include href="bh_wiki_edit_form.html" />
-      </div>
       <py:choose test="action">
+        <py:when test="'collision'">
+          <div class="span12">
+            <div class="alert alert-error">
+              <span class="label label-important">Oops !</span>
+              Sorry, this page has been modified by somebody else since you started
+              editing. Your changes cannot be saved.
+            </div>
+          </div>
+          <div py:if="sidebyside" class="span12">
+            <xi:include href="bh_wiki_edit_form.html" />
+          </div>
+        </py:when>
+        <div py:if="not sidebyside" class="span12">
+          <xi:include href="bh_wiki_edit_form.html" />
+        </div>
+        <div py:if="merge" class="system-message span12">
+          <div class="alert">
+            <p><span class="label label-important">Important</span>
+            Someone else has modified that page since you started your edits.</p><br />
+            <p i18n:msg=""><strong>If you save right away, you risk to revert those changes
+            (highlighted below as deletions).</strong></p><br />
+            <p i18n:msg="">Please review all those changes and manually merge them with your
+            own changes. <br />
+            If you're unsure about what you're doing, please press <code>Cancel</code>
+            (losing your changes) and start editing the latest version of the page
+            again.</p>
+          </div>
+        </div>
         <py:when test="'preview'">
           <div class="span12">
             <table id="info" summary="Revision info">
@@ -195,18 +207,6 @@
               <a href="#changeinfo"
                 title="Go to Save, Preview, Review or Cancel buttons">Actions</a> &uarr;
             </div>
-          </div>
-        </py:when>
-        <py:when test="'collision'">
-          <div class="span12">
-            <div class="alert alert-error">
-              <span class="label label-important">Oops !</span>
-              Sorry, this page has been modified by somebody else since you started
-              editing. Your changes cannot be saved.
-            </div>
-          </div>
-          <div class="span12">
-            <xi:include href="bh_wiki_edit_form.html" />
           </div>
         </py:when>
       </py:choose>

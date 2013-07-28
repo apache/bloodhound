@@ -24,17 +24,16 @@ system backend.
 """
 import contextlib
 import os
-import unittest
 from sqlite3 import OperationalError
 
-from trac.perm import (PermissionSystem, DefaultPermissionPolicy,
-                       PermissionCache)
+from trac.perm import (DefaultPermissionPolicy, PermissionCache,
+                       PermissionSystem)
 
-from multiproduct.api import MultiProductSystem, ProductEnvironment
-
-from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.api import BloodhoundSearchApi
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
+from multiproduct.api import MultiProductSystem, ProductEnvironment
 
 # TODO: Convince trac to register modules without these imports
 from trac.wiki import web_ui

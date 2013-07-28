@@ -224,7 +224,8 @@ class DashboardModule(Component):
                             'args': ['Timeline', None, {'args': {}}]
                         },
                     'products': {
-                            'args': ['Product', None, {'args': {'max': 3}}]
+                            'args': ['Product', None, {'args': {'max': 3, 
+                                                                'cols': 2}}]
                         },
                }
         }

@@ -474,9 +474,9 @@ th:'wiki:"my test spaced wiki3"'
 ============================== Another arbitrary protocol Link
 svn+ssh://secureserver.org
 [svn+ssh://secureserver.org SVN link]
-rfc-2396.compatible://link
+[rfc-2396.compatible://link]
 [rfc-2396.compatible://link RFC 2396]
-rfc-2396+under_score://link
+[rfc-2396+under_score://link]
 [rfc-2396+under_score://link underscore]
 unsafe://scheme is not rendered
 ------------------------------
@@ -488,6 +488,15 @@ unsafe://scheme is not rendered
 <a class="ext-link" href="rfc-2396+under_score://link"><span class="icon"></span>rfc-2396+under_score://link</a>
 <a class="ext-link" href="rfc-2396+under_score://link"><span class="icon"></span>underscore</a>
 unsafe://scheme is not rendered
+</p>
+------------------------------
+============================== Another arbitrary protocol Link without [] - SKIP as it clashes with Jira ticket syntax
+rfc-2396.compatible://link
+rfc-2396+under_score://link
+------------------------------
+<p>
+<a class="ext-link" href="rfc-2396.compatible://link"><span class="icon"></span>rfc-2396.compatible://link</a>
+<a class="ext-link" href="rfc-2396+under_score://link"><span class="icon"></span>rfc-2396+under_score://link</a>
 </p>
 ------------------------------
 ============================== WikiCreole style for the above examples

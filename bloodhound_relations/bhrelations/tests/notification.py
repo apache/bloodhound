@@ -21,11 +21,11 @@ import unittest
 from trac.tests.notification import SMTPServerStore, SMTPThreadedServer
 from trac.ticket.tests.notification import (
     SMTP_TEST_PORT, smtp_address, parse_smtp_message)
+from bhrelations.tests.base import BaseRelationsTestCase
 from bhrelations.notification import RelationNotifyEmail
-from bhrelations.tests.api import BaseApiApiTestCase
 
 
-class NotificationTestCase(BaseApiApiTestCase):
+class NotificationTestCase(BaseRelationsTestCase):
     @classmethod
     def setUpClass(cls):
         cls.smtpd = CustomSMTPThreadedServer(SMTP_TEST_PORT)

@@ -26,11 +26,12 @@ from genshi.output import DocType
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
-from trac.resource import Resource
+from trac.resource import get_resource_url, Neighborhood, Resource
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
+from trac.util.presentation import to_json
 from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
@@ -65,6 +66,8 @@ class BloodhoundTheme(ThemeBase):
     )
     BLOODHOUND_TEMPLATE_MAP = {
         # Admin
+        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', '_modify_admin_breadcrumb'),
+        'admin_accountsnotification.html': ('bh_admin_accountsnotification.html', '_modify_admin_breadcrumb'),
         'admin_basics.html': ('bh_admin_basics.html', '_modify_admin_breadcrumb'),
         'admin_components.html': ('bh_admin_components.html', '_modify_admin_breadcrumb'),
         'admin_enums.html': ('bh_admin_enums.html', '_modify_admin_breadcrumb'),
@@ -72,22 +75,23 @@ class BloodhoundTheme(ThemeBase):
         'admin_milestones.html': ('bh_admin_milestones.html', '_modify_admin_breadcrumb'),
         'admin_perms.html': ('bh_admin_perms.html', '_modify_admin_breadcrumb'),
         'admin_plugins.html': ('bh_admin_plugins.html', '_modify_admin_breadcrumb'),
-        'admin_repositories.html': ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
-        'admin_versions.html': ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
         'admin_products.html': ('bh_admin_products.html', '_modify_admin_breadcrumb'),
+        'admin_repositories.html': ('bh_admin_repositories.html', '_modify_admin_breadcrumb'),
+        'admin_users.html': ('bh_admin_users.html', '_modify_admin_breadcrumb'),
+        'admin_versions.html': ('bh_admin_versions.html', '_modify_admin_breadcrumb'),
+
         # no template substitutions below - use the default template,
         # but call the modifier nonetheless
-        'admin_accountsconfig.html': ('bh_admin_accountsconfig.html', '_modify_admin_breadcrumb'),
-        'admin_users.html': ('bh_admin_users.html', '_modify_admin_breadcrumb'),
         'repository_links.html': ('repository_links.html', '_modify_admin_breadcrumb'),
 
         # Preferences
         'prefs.html': ('bh_prefs.html', None),
+        'prefs_account.html': ('bh_prefs_account.html', None),
         'prefs_advanced.html': ('bh_prefs_advanced.html', None),
         'prefs_datetime.html': ('bh_prefs_datetime.html', None),
         'prefs_general.html': ('bh_prefs_general.html', None),
-        'prefs_language.html': ('bh_prefs_language.html', None),
         'prefs_keybindings.html': ('bh_prefs_keybindings.html', None),
+        'prefs_language.html': ('bh_prefs_language.html', None),
         'prefs_pygments.html': ('bh_prefs_pygments.html', None),
         'prefs_userinterface.html': ('bh_prefs_userinterface.html', None),
 
@@ -107,24 +111,24 @@ class BloodhoundTheme(ThemeBase):
         'milestone_edit.html': ('bh_milestone_edit.html', '_modify_roadmap_page'),
         'milestone_delete.html': ('bh_milestone_delete.html', '_modify_roadmap_page'),
         'milestone_view.html': ('bh_milestone_view.html', '_modify_roadmap_page'),
-        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
         'query.html': ('bh_query.html', '_add_products_general_breadcrumb'),
         'report_delete.html': ('bh_report_delete.html', '_add_products_general_breadcrumb'),
         'report_edit.html': ('bh_report_edit.html', '_add_products_general_breadcrumb'),
         'report_list.html': ('bh_report_list.html', '_add_products_general_breadcrumb'),
         'report_view.html': ('bh_report_view.html', '_add_products_general_breadcrumb'),
+        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
         'ticket.html': ('bh_ticket.html', '_modify_ticket'),
-        'ticket_preview.html': ('bh_ticket_preview.html', None),
         'ticket_delete.html': ('bh_ticket_delete.html', None),
+        'ticket_preview.html': ('bh_ticket_preview.html', None),
 
         # Attachment
         'attachment.html': ('bh_attachment.html', None),
         'preview_file.html': ('bh_preview_file.html', None),
 
         # Version control
-        'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
         'browser.html': ('bh_browser.html', '_modify_browser'),
         'dir_entries.html': ('bh_dir_entries.html', None),
+        'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
 
         # Multi Product
         'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
@@ -137,7 +141,10 @@ class BloodhoundTheme(ThemeBase):
         # Account manager plugin
         'account_details.html': ('bh_account_details.html', None),
         'login.html': ('bh_login.html', None),
-        'prefs_account.html': ('bh_prefs_account.html', None),
+        'register.html': ('bh_register.html', None),
+        'reset_password.html': ('bh_reset_password.html', None),
+        'user_table.html': ('bh_user_table.html', None),
+        'verify_email.html': ('bh_verify_email.html', None),
     }
     BOOTSTRAP_CSS_DEFAULTS = (
         # ('XPath expression', ['default', 'bootstrap', 'css', 'classes'])
@@ -391,9 +398,15 @@ class BloodhoundTheme(ThemeBase):
 
     def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
         # override 'normal' product list with the admin one
-        glsettings = (None, _('(Global settings)'), req.href.admin())
-        admin_url = lambda x: req.href.products(x, 'admin')
-        data['admin_product_list'] = [glsettings] + \
+
+        def admin_url(prefix):
+            env = ProductEnvironment.lookup_env(self.env, prefix)
+            href = ProductEnvironment.resolve_href(env, self.env)
+            return href.admin()
+
+        global_settings = (None, _('(Global settings)'), admin_url(None))
+
+        data['admin_product_list'] = [global_settings] + \
             ProductModule.get_product_list(self.env, req, admin_url)
 
         if isinstance(req.perm.env, ProductEnvironment):
@@ -402,7 +415,7 @@ class BloodhoundTheme(ThemeBase):
                 (product.prefix, product.name,
                  req.href.products(product.prefix, 'admin'))
         else:
-            data['admin_current_product'] = glsettings
+            data['admin_current_product'] = global_settings
         data['resourcepath_template'] = 'bh_path_general.html'
 
     def _modify_browser(self, req, template, data, content_type, is_active):
@@ -509,12 +522,16 @@ class QuickCreateTicketDialog(Component):
             desc = ""
             attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
-            ticket_id = self.create(req, summary, desc, attrs, True)
+            product, tid = self.create(req, summary, desc, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
         else:
-            req.send(str(ticket_id), 'plain/text')
+            tres = Neighborhood('product', product)('ticket', tid)
+            href = req.href
+            req.send(to_json({'product': product, 'id': tid,
+                              'url': get_resource_url(self.env, tres, href)}),
+                     'application/json')
 
     def _get_ticket_module(self):
         ptm = None
@@ -550,7 +567,7 @@ class QuickCreateTicketDialog(Component):
             except Exception, e:
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
-        return t.id
+        return t['product'], t.id
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version

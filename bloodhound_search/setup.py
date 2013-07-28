@@ -18,6 +18,8 @@
 #  under the License.
 
 
+import sys
+from pkg_resources import parse_version
 try:
     from setuptools import setup
 except ImportError:
@@ -32,6 +34,7 @@ versions = [
     (0, 4, 0),
     (0, 5, 0),
     (0, 6, 0),
+    (0, 7, 0),
     ]
 
 latest = '.'.join(str(x) for x in versions[-1])
@@ -70,13 +73,6 @@ cats = [
       "Topic :: Software Development :: Libraries :: Python Modules",
       "Topic :: Software Development :: User Interfaces",
     ]
-
-# Be compatible with older versions of Python
-from sys import version
-if version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
 
 # Add the change log to the package description.
 chglog = None
@@ -145,7 +141,7 @@ setup(
     description=DESC.split('\n', 1)[0],
     author = "Apache Bloodhound",
     license = "Apache License v2",
-    url = "http://incubator.apache.org/bloodhound/",
+    url = "https://bloodhound.apache.org/",
     requires = ['trac'],
     install_requires = [
         'setuptools>=0.6b1',
@@ -163,5 +159,6 @@ setup(
     classifiers = cats,
     long_description= DESC,
     test_suite='bhsearch.tests.test_suite',
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
     )
 

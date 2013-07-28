@@ -27,4 +27,5 @@ developed by Trent Richardson
 
 LRU and LFU cache decorators - licensed under the PSF License
 This product includes code (LRU and LFU cache decorators) developed by
-Raymond Hettinger (http://code.activestate.com/recipes/498245-lru-and-lfu-cache-decorators/)
+Raymond Hettinger
+(http://code.activestate.com/recipes/498245-lru-and-lfu-cache-decorators/)

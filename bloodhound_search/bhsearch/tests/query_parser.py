@@ -18,10 +18,11 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import unittest
-from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.query_parser import DefaultQueryParser
 from trac.test import Mock
+
+from bhsearch.query_parser import DefaultQueryParser
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from whoosh import query
 
 

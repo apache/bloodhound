@@ -69,7 +69,7 @@ class TicketRelationsWidget(WidgetBase):
                 RelationManagementModule(self.env).get_ticket_relations(ticket),
         }
         return 'widget_relations.html', \
-            { 'title': title, 'data': data, }, context
+            {'title': title, 'data': data, }, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
 

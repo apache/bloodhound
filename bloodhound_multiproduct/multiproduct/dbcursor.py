@@ -41,7 +41,7 @@ TRANSLATE_TABLES = ['system',
                     'permission',
                     'wiki',
                     'report',
-                   ]
+                    ]
 PRODUCT_COLUMN = 'product'
 GLOBAL_PRODUCT = ''
 
@@ -533,6 +533,11 @@ class BloodhoundProductSQLTranslate(object):
                 ptoken = self._token_next(columns_token, ptoken)
                 last_token = ptoken
                 while ptoken:
+                    if isinstance(ptoken, Types.IdentifierList):
+                        if any(i.get_name() == 'product'
+                               for i in ptoken.get_identifiers()
+                               if isinstance(i, Types.Identifier)):
+                            return True
                     last_token = ptoken
                     ptoken = self._token_next(columns_token, ptoken)
                 if not last_token or \
@@ -540,7 +545,7 @@ class BloodhoundProductSQLTranslate(object):
                     raise Exception("Invalid INSERT statement, unable to find column parenthesis end")
                 for keyword in [',', ' ', self._product_column]:
                     self._token_insert_before(columns_token, last_token, Types.Token(Tokens.Keyword, keyword))
-            return
+            return False
         def insert_extra_column_value(tablename, ptoken, before_token):
             if tablename in self._translate_tables:
                 for keyword in [',', "'", self._product_prefix, "'"]:
@@ -548,6 +553,7 @@ class BloodhoundProductSQLTranslate(object):
             return
         tablename = None
         table_name_token = self._token_next(parent, token)
+        has_product_column = False
         if isinstance(table_name_token, Types.Function):
             token = self._token_first(table_name_token)
             if isinstance(token, Types.Identifier):
@@ -556,7 +562,7 @@ class BloodhoundProductSQLTranslate(object):
                 if columns_token.match(Tokens.Keyword, 'VALUES'):
                     token = columns_token
                 else:
-                    insert_extra_column(tablename, columns_token)
+                    has_product_column = insert_extra_column(tablename, columns_token)
                     token = self._token_next(parent, table_name_token)
         else:
             tablename = table_name_token.value
@@ -564,9 +570,11 @@ class BloodhoundProductSQLTranslate(object):
             if columns_token.match(Tokens.Keyword, 'VALUES'):
                 token = columns_token
             else:
-                insert_extra_column(tablename, columns_token)
+                has_product_column = insert_extra_column(tablename, columns_token)
                 token = self._token_next(parent, columns_token)
-        if token.match(Tokens.Keyword, 'VALUES'):
+        if has_product_column:
+            pass  # INSERT already has product, no translation needed
+        elif token.match(Tokens.Keyword, 'VALUES'):
             separators = [',', '(', ')']
             token = self._token_next(parent, token)
             while token:

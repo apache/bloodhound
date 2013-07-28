@@ -18,11 +18,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import unittest
-from bhsearch.tests.base import BaseBloodhoundSearchTest
-
 from bhsearch.api import BloodhoundSearchApi
 from bhsearch.query_suggestion import SuggestionFields
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.web_ui import RequestParameters, RequestContext
 from bhsearch.whoosh_backend import WhooshBackend
 

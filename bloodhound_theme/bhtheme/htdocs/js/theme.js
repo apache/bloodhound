@@ -123,17 +123,17 @@ $( function () {
       );
     $('#qct-create').click(
         function() {
-          var base_url = $('#qct-create').attr('data-target');
-          if (base_url === '/')
-            base_url = '';
-          $.post(base_url + '/qct', $('#qct-form').serialize(), 
-              function(ticket_id) {
-                var href = base_url + '/ticket/' + ticket_id;
+          // data-target is the base url for the product in current scope
+          var product_base_url = $('#qct-create').attr('data-target');
+          if (product_base_url === '/')
+            product_base_url = '';
+          $.post(product_base_url + '/qct', $('#qct-form').serialize(),
+              function(ticket) {
                 qct_alert({
-                    ticket: ticket_id,
+                    ticket: ticket.id,
                     msg: '<span class="alert alert-success">' +
                          'Has been created</span> ' +
-                         '<a href="' + href + '">View / Edit</a>'
+                         '<a href="' + ticket.url + '">View / Edit</a>'
                   });
               })
               .error(function(jqXHR, textStatus, errorMsg) {
@@ -155,30 +155,29 @@ $( function () {
       );
 
     $('#qct-inline-create').click(function() {
-      var base_url = $('#qct-inline-create').attr('data-target');
-      if (base_url === '/')
-        base_url = '';
+      // data-target is the base url for the product in current scope
+      var product_base_url = $('#qct-inline-create').attr('data-target');
+      if (product_base_url === '/')
+        product_base_url = '';
+      $.post(product_base_url + '/qct', $('#qct-inline-form').serialize(),
+          function(ticket) {
+            var msg = 'Ticket #' + ticket.id + ' has been created. ';
+            msg += '<a href="' + ticket.url + '">View / Edit</a>';
+            $('#qct-inline-notice-success span').html(msg);
+            $('#qct-inline-notice-success').show({'duration': 400});
+          })
+          .error(function(jqXHR, textStatus, errorMsg) {
+            var msg;
+            if (textStatus === 'timeout')
+              msg = 'Request timed out';
+            else if (textStatus === 'error')
+              msg = 'Could not create ticket. Error : ' + errorMsg;
+            else if (textStatus === 'abort')
+              msg = 'Aborted request';
 
-      $.post(base_url + '/qct', $('#qct-inline-form').serialize(), 
-        function(ticket_id) {
-          var href = base_url + '/ticket/' + ticket_id;
-          var msg = 'Ticket #' + ticket_id + ' has been created. ';
-          msg += '<a href="' + href + '">View / Edit</a>';
-          $('#qct-inline-notice-success span').html(msg);
-          $('#qct-inline-notice-success').show({'duration': 400});
-        })
-        .error(function(jqXHR, textStatus, errorMsg) {
-          var msg;
-          if (textStatus === 'timeout')
-            msg = 'Request timed out';
-          else if (textStatus === 'error')
-            msg = 'Could not create ticket. Error : ' + errorMsg;
-          else if (textStatus === 'abort')
-            msg = 'Aborted request';
-
-          $('#qct-inline-notice-error span').html(msg);
-          $('#qct-inline-notice-error').show({'duration': 400});
-        });
+            $('#qct-inline-notice-error span').html(msg);
+            $('#qct-inline-notice-error').show({'duration': 400});
+          });
 
       qct_clearui();
       qct_inline_close();

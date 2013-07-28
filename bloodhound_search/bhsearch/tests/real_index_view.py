@@ -17,15 +17,17 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
-from bhsearch.web_ui import RequestParameters
-import os
-from bhsearch.tests.base import BaseBloodhoundSearchTest
 
-from bhsearch.whoosh_backend import WhooshBackend
+import os
+
 from trac.test import EnvironmentStub, Mock, MockPerm
-from whoosh import query
 from trac.web import Href, arg_list_to_args
+
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
+from bhsearch.web_ui import RequestParameters
+from bhsearch.whoosh_backend import WhooshBackend
+from whoosh import query
 
 
 class RealIndexTestCase(BaseBloodhoundSearchTest):

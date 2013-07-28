@@ -1,0 +1,81 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!--!
+Table style account/user list.
+
+Arguments:
+ - accounts:
+ - delete_enabled:
+ - cls:
+ - cols:
+-->
+<div xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:xi="http://www.w3.org/2001/XInclude"
+     xmlns:py="http://genshi.edgewall.org/" 
+     xmlns:i18n="http://genshi.edgewall.org/i18n"
+     i18n:domain="acct_mgr"
+     id="accountlist">
+  <table class="$cls table table-striped table-condensed table-bordered" id="accountlist">
+    <thead>
+      <tr>
+        <th class="sel" py:if="delete_enabled"><i class="icon-check"></i></th>
+        <th>Account</th>
+        <th py:if="'name' in cols">Name</th>
+        <th py:if="'email' in cols">Email</th>
+        <th>Last Login</th>
+      </tr>
+    </thead>
+    <tbody>
+      <py:for each="idx, acct in enumerate(accounts)">
+        <py:with vars="odd_even = ('even', 'odd')[idx % 2]">
+          <tr class="$odd_even">
+            <td py:if="delete_enabled">
+              <input type="checkbox" name="sel"
+                     value="${acct.username}" />
+            </td>
+            <td>
+              <a href="${acct.review_url}">${acct.username}</a>
+              <!--! Additional account status icons -->
+              <py:choose py:if="acct.locked">
+                <img src="${href.chrome('/acct_mgr/time-locked.png')}"
+                     py:when="acct.release_hint" alt="Account locked"
+                     title="${acct.release_hint}" />
+                <img src="${href.chrome('/acct_mgr/locked.png')}"
+                     py:otherwise="" alt="Permanently locked"
+                     title="${dgettext('acct_mgr', 'Permanently locked')}" />
+              </py:choose>
+            </td>
+            <td py:if="'name' in cols">${acct.name}</td>
+            <td py:if="'email' in cols">${acct.email}</td>
+            <!--! Trac >= 0.13: 'pretty_dateinfo' calls 'user_time' here -->
+            <py:if test="pretty_dateinfo">
+              <td>${acct.last_visit and pretty_date(acct.last_visit) or ''}</td>
+            </py:if>
+            <!--! pre-trac-0.13 fallback: always show absolute time here -->
+            <py:if test="not pretty_dateinfo">
+              <td>${acct.last_visit and \
+                    pretty_date(acct.last_visit, format='absolute') or ''}</td>
+            </py:if>
+          </tr>
+        </py:with>
+      </py:for>
+    </tbody>
+  </table>
+</div>

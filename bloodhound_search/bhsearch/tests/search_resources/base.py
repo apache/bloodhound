@@ -18,17 +18,14 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import sys
-if sys.version_info[:2] < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+from trac.test import MockPerm
+from trac.web import Href
+from trac.wiki import format_to_html
 
 from bhsearch.search_resources.base import SimpleSearchWikiSyntaxFormatter
+from bhsearch.tests import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
-from trac.web import Href
-from trac.test import MockPerm
-from trac.wiki import format_to_html
+
 
 class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
     def setUp(self):

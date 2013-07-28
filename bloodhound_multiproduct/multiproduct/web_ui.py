@@ -99,7 +99,6 @@ class ProductModule(Component):
 
     def _render_list(self, req):
         """products list"""
-        print "Rendering list"
         products = [p for p in Product.select(self.env)
                     if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
                                                                p.prefix))]

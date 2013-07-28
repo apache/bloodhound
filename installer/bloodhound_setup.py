@@ -93,6 +93,8 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                    'global_validators':
                        'NoSelfReferenceValidator,ExclusiveValidator,'
                        'BlockerValidator',
+                   'duplicate_relation':
+                        'duplicateof',
                },
                'bhrelations_links': {
                     'children.label': 'Child',
@@ -134,6 +136,7 @@ ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
                                   'acct_mgr.api.accountmanager' : 'enabled',
                                   'acct_mgr.guard.accountguard' : 'enabled',
                                   'acct_mgr.htfile.htdigeststore' : 'enabled',
+                                  'acct_mgr.macros.*': 'enabled',
                                   'acct_mgr.web_ui.accountmodule' : 'enabled',
                                   'acct_mgr.web_ui.loginmodule' : 'enabled',
                                   'trac.web.auth.loginmodule' : 'disabled',

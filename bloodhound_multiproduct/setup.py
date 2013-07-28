@@ -17,15 +17,17 @@
 #  under the License.
 
 """setup for multi product plugin"""
+import sys
+from pkg_resources import parse_version
 from setuptools import setup
 
 setup(
     name = 'BloodhoundMultiProduct',
-    version = '0.6.0',
+    version = '0.7.0',
     description = "Multiproduct support for Apache(TM) Bloodhound.",
     author = "Apache Bloodhound",
     license = "Apache License v2",
-    url = "http://incubator.apache.org/bloodhound/",
+    url = "https://bloodhound.apache.org/",
     packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
     package_data = {'multiproduct' : ['templates/*.html',]},
     entry_points = {'trac.plugins': [
@@ -37,5 +39,6 @@ setup(
             'multiproduct.web_ui = multiproduct.web_ui',
         ],},
     test_suite='tests.test_suite',
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
 )
 

@@ -17,13 +17,13 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
 import shutil
 
 from bhsearch.api import BloodhoundSearchApi, ASC, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
-from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.search_resources.ticket_search import TicketSearchParticipant
+from bhsearch.tests import unittest
+from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
 
 

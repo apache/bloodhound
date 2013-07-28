@@ -160,6 +160,10 @@
         }
 
         function install_workflow(){
+          <py:if test="bhrelations">
+            var act = $('#action_resolve_resolve_resolution').parent();
+            act.append('<span id="duplicate_id" class="hide">Duplicate ID:&nbsp;<input name="duplicate_id" type="text" class="input-mini" value="${ticket_duplicate_of}"></input></span>');
+          </py:if>
           var actions_box = $('#workflow-actions')
               .click(function(e) { e.stopPropagation(); });
           $('#action').children('div').each(function() {
@@ -180,7 +184,17 @@
                 else if (newowner)
                   newlabel = newlabel + ' to ' + newowner;
                 else if (newresolution)
+                {
                   newlabel = newlabel + ' as ' + newresolution;
+                  if (newresolution === 'duplicate')
+                  {
+                    $('#duplicate_id').show();
+                  }
+                  else
+                  {
+                    $('#duplicate_id').hide();
+                  }
+                }
                 $('#submit-action-label').text(newlabel);
 
                 // Enable | disable action controls
@@ -411,6 +425,9 @@
                       I have files to attach to this ticket
                     </label>
                   </p>
+
+                  <!-- Current product prefix, used to override default_product from config. -->
+                  <input type="hidden" id="field-product" name="field_product" value="$req.perm.env.product.prefix" />
 
                   <div class="buttons">
                     <input type="submit" class="btn" name="submit" value="${_('Create ticket')}" />

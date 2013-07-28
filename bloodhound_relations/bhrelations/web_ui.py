@@ -25,25 +25,22 @@ Ticket relations user interface.
 """
 
 import re
-import pkg_resources
 
 from trac.core import Component, implements, TracError
-from trac.resource import get_resource_url, ResourceNotFound, Resource
+from trac.resource import get_resource_url, Resource
 from trac.ticket.model import Ticket
 from trac.util.translation import _
-from trac.web import IRequestHandler
+from trac.web import IRequestHandler, IRequestFilter
 from trac.web.chrome import ITemplateProvider, add_warning
 
 from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
-    TicketRelationsSpecifics, UnknownRelationType
+    TicketRelationsSpecifics, UnknownRelationType, NoSuchTicketError
 from bhrelations.model import Relation
 from bhrelations.validation import ValidationError
 
-from multiproduct.model import Product
-from multiproduct.env import ProductEnvironment
 
 class RelationManagementModule(Component):
-    implements(IRequestHandler, ITemplateProvider)
+    implements(IRequestFilter, IRequestHandler, ITemplateProvider)
 
     # IRequestHandler methods
     def match_request(self, req):
@@ -88,22 +85,27 @@ class RelationManagementModule(Component):
                     comment=req.args.get('comment', ''),
                 )
                 try:
-                    dest_ticket = self.find_ticket(relation['destination'])
-                    req.perm.require('TICKET_MODIFY',
-                                     Resource(dest_ticket.id))
-                    relsys.add(ticket, dest_ticket,
-                               relation['type'],
-                               relation['comment'],
-                               req.authname)
+                    trs = TicketRelationsSpecifics(self.env)
+                    dest_ticket = trs.find_ticket(relation['destination'])
                 except NoSuchTicketError:
-                    data['error'] = _('Invalid ticket id.')
-                except UnknownRelationType:
-                    data['error'] = _('Unknown relation type.')
-                except ValidationError as ex:
-                    data['error'] = ex.message
+                    data['error'] = _('Invalid ticket ID.')
+                else:
+                    req.perm.require('TICKET_MODIFY', Resource(dest_ticket.id))
+
+                    try:
+                        relsys.add(ticket, dest_ticket,
+                            relation['type'],
+                            relation['comment'],
+                            req.authname)
+                    except NoSuchTicketError:
+                        data['error'] = _('Invalid ticket ID.')
+                    except UnknownRelationType:
+                        data['error'] = _('Unknown relation type.')
+                    except ValidationError as ex:
+                        data['error'] = ex.message
+
                 if 'error' in data:
                     data['relation'] = relation
-
             else:
                 raise TracError(_('Invalid operation.'))
 
@@ -116,12 +118,33 @@ class RelationManagementModule(Component):
 
     # ITemplateProvider methods
     def get_htdocs_dirs(self):
-        resource_filename = pkg_resources.resource_filename
-        return [('relations', resource_filename('bhrelations', 'htdocs')), ]
+        return []
 
     def get_templates_dirs(self):
-        resource_filename = pkg_resources.resource_filename
-        return [resource_filename('bhrelations', 'templates'), ]
+        from pkg_resources import resource_filename
+        return [resource_filename('bhrelations', 'templates')]
+
+    # IRequestFilter methods
+    def pre_process_request(self, req, handler):
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        if req.path_info.startswith('/ticket/'):
+            ticket = data['ticket']
+            rls = RelationsSystem(self.env)
+            try:
+                resid = ResourceIdSerializer.get_resource_id_from_instance(
+                    self.env, ticket)
+            except ValueError:
+                resid = None
+
+            if rls.duplicate_relation_type and resid is not None:
+                duplicate_relations = \
+                    rls._select_relations(resid, rls.duplicate_relation_type)
+                if duplicate_relations:
+                    data['ticket_duplicate_of'] = \
+                        duplicate_relations[0].destination
+        return template, data, content_type
 
     # utility functions
     def get_ticket_relations(self, ticket):
@@ -136,36 +159,6 @@ class RelationManagementModule(Component):
             grouped_relations.setdefault(reltypes[r['type']], []).append(r)
         return grouped_relations
 
-    def find_ticket(self, ticket_spec):
-        ticket = None
-        m = re.match(r'#?(?P<tid>\d+)', ticket_spec)
-        if m:
-            tid = m.group('tid')
-            try:
-                ticket = Ticket(self.env, tid)
-            except ResourceNotFound:
-                # ticket not found in current product, try all other products
-                for p in Product.select(self.env):
-                    if p.prefix != self.env.product.prefix:
-                        # TODO: check for PRODUCT_VIEW permissions
-                        penv = ProductEnvironment(self.env.parent, p.prefix)
-                        try:
-                            ticket = Ticket(penv, tid)
-                        except ResourceNotFound:
-                            pass
-                        else:
-                            break
-
-        # ticket still not found, use fallback for <prefix>:ticket:<id> syntax
-        if ticket is None:
-            trs = TicketRelationsSpecifics(self.env)
-            try:
-                resource = ResourceIdSerializer.get_resource_by_id(tid)
-                ticket = trs._create_ticket_by_full_id(resource)
-            except:
-                raise NoSuchTicketError
-        return ticket
-
     def remove_relations(self, req, rellist):
         relsys = RelationsSystem(self.env)
         for relid in rellist:
@@ -177,7 +170,3 @@ class RelationManagementModule(Component):
             else:
                 add_warning(req,
                     _('Not enough permissions to remove relation "%s"' % relid))
-
-
-class NoSuchTicketError(ValueError):
-    pass
