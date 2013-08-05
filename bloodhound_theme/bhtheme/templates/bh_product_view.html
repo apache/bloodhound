@@ -44,6 +44,7 @@
     <h6 py:if="product.owner">${product_owner()}</h6>
   </py:def>
 
+
   <py:def function="product_buttons()">
     <div py:if="'PRODUCT_MODIFY' in perm(product.resource) or
                 'PRODUCT_DELETE' in perm(product.resource) or

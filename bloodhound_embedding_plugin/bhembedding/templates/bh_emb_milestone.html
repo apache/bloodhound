@@ -5,7 +5,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <xi:include href="layout.html" />
+  <!-- <xi:include href="layout.html" /> -->
 
   <head>
     <title>Milestone ${milestone.name}</title>
@@ -34,5 +34,7 @@
     <p><strong>Product:</strong> ${product.name}</p>
     <p><strong>Number of tickets:</strong> ${ticket_number}</p>
     <p><strong>Attachments:</strong> ${attachment_number}</p>
+
+    <a class='btn' href="${href.milestone(milestone.name)}">Back to milestone ${milestone.name}</a>
   </body>
 </html>

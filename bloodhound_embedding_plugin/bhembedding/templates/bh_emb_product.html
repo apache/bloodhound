@@ -5,10 +5,12 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <xi:include href="layout.html" />
+  <!-- <xi:include href="layout.html" /> -->
+
   <head>
     <title>Product ${product.name}</title>
   </head>
+
   <body>
     <h2><a href="${href.products(product.prefix)}">${product.name}</a></h2>
     <py:choose>
@@ -25,5 +27,7 @@
     <p><strong>Number of milestones:</strong> ${milestone_num}</p>
     <p><strong>Number of versions:</strong> ${version_num}</p>
     <p><strong>Number of components:</strong> ${component_num}</p>
+
+    <a class='btn' href="${href.products(product.prefix)}">Back to product ${product.name}</a>
   </body>
 </html>

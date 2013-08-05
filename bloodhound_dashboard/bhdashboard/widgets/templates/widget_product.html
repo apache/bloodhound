@@ -34,7 +34,7 @@
               </small>
             </py:if>
           </h4>
-  
+
           <h5>Milestones</h5>
           <py:choose test="">
             <py:when test="p.milestones">
@@ -48,7 +48,7 @@
               (No milestones for this product)
             </py:otherwise>
           </py:choose>
-  
+
           <h5>Components</h5>
           <py:choose test="">
             <py:when test="p.components">
@@ -62,7 +62,7 @@
               (No components for this product)
             </py:otherwise>
           </py:choose>
-  
+
           <h5>Versions</h5>
           <py:choose test="">
             <py:when test="p.versions">
@@ -76,6 +76,10 @@
               (No versions for this product)
             </py:otherwise>
           </py:choose>
+
+          <!-- Embedding plugin -->
+          <a class='btn btn-small' href="${href.api('products', p.prefix)}">Embed product</a>
+
         </div>
       </div>
       <div class="clearfix" py:if="i == 0" />

@@ -94,6 +94,10 @@
         </div>
       </form>
       <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
+
+      <!-- Embedding plugin -->
+      <a class='btn' href="${href.api('milestone', milestone.name)}">Embed milestone</a>
+
     </div>
   </py:def>
 

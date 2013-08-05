@@ -90,7 +90,7 @@
               var fc = $(this).addClass('edit-active');
               var fieldnm = fc.attr('id').substr(3);
               fc.attr('data-edit-orig', fc.html());
-              
+
               if (fieldnm != 'summary') {
                 fc.empty();
               }
@@ -116,7 +116,7 @@
             });
 
           // Enable automatic preview
-          //$('#inplace-propertyform').autoSubmit({preview : 1}, 
+          //$('#inplace-propertyform').autoSubmit({preview : 1},
           //    full_preview, '#overview .trac-loading')
           $('#inplace-propertyform').submit(function() {
               $('#hidden-comment').val($('#edit-comment').val());
@@ -307,7 +307,7 @@
         $("#comment").focus(function() {
           if ($(this).height() < 50) {
             $(this).animate({ height: 100 }, 500);
-          }}).blur(function() { 
+          }}).blur(function() {
           if ($(this).height() <= 100 && $(this).val().length == 0 ) {
             $(this).animate({ height: init_comment_height }, 500);
           }
@@ -324,7 +324,7 @@
         data-edit="${'inplace' if can_modify or can_create else None}" id="vc-summary"
         placeholder-content="${'Enter ticket summary' if not t.summary else ''}">${t.summary if t.summary else None}</h2>
     </py:def>
-    
+
     <py:def function="render_ticket_summary_details(t)">
       <h5 id="trac-ticket-title" py:choose="">
         <py:when test="t.exists">
@@ -350,6 +350,11 @@
           <i class="icon-edit"></i>
           <span>${_('Modify Ticket')}</span>
         </button>
+
+        <!-- Embedding plugin -->
+        <a class='btn' href="${href.api('ticket', ticket.id)}">Embed ticket</a>
+
+
         <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
           <button id="edit-submit" class="btn" type="submit"
               value="Submit changes" name="submit">
@@ -367,7 +372,7 @@
         <a href="#propertyform" title="Go to the ticket editor">Modify</a> &darr;
       </div>
       <br/>
-      
+
       <div class="row">
         <div class="span12">
           ${render_ticket_summary(ticket, False)}
@@ -383,7 +388,7 @@
               <input type="hidden" name="view_time" value="${to_utimestamp(ticket['changetime'])}" />
             </py:if>
             <input id="hidden-comment" type="hidden" name="comment" value="" />
-    
+
             <!--! ticket properties -->
             <div class="properties">
               ${render_ticket_summary_details(ticket)}
@@ -457,7 +462,7 @@
             <a href="${href.wiki('TracTickets')}">TracTickets</a> for help on using tickets.
           </div>
         </div>
-        
+
         <div class="${cols_activity + ' activityfeed' if ticket.exists else None}">
           <form py:if="ticket.exists" id="prefs" method="get" action="${href.prefs()}">
             <div id="trac-comments-order" class="pull-right">

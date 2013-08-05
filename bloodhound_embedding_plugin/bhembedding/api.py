@@ -95,7 +95,9 @@ class EmbeddingSystem(Component):
                 if log[2] == 'comment' and log[4]:
                     comm_num += 1
 
-            data = {'ticket': Ticket(self.env, id),
+            ticket = Ticket(self.env, id)
+
+            data = {'ticket': ticket,
                     'comm_num': comm_num,
                     'attachment_num': attachment_num}
             return 'bh_emb_ticket.html', data, None
@@ -132,31 +134,29 @@ class EmbeddingSystem(Component):
         elif name == 'query':
             # Feature not yet finished
             qstring = req.query_string
-            if qstring == '':
-                if req.authname and req.authname != 'anonymous':
-                    default_query = QueryModule.default_query
-                    qstring = default_query.default
-                    user = req.authname
-                else:
-                    email = req.session.get('email')
-                    name = req.session.get('name')
-                    default_anonymous_query = QueryModule.default_anonymous_query
-                    qstring = default_anonymous_query.default
-                    user = email or name or None
+            # if qstring == '':
+            #     if req.authname and req.authname != 'anonymous':
+            #         default_query = query.ProductQueryModule.default_query
+            #         qstring = default_query.default
+            #         user = req.authname
+            #     else:
+            #         email = req.session.get('email')
+            #         name = req.session.get('name')
+            #         default_anonymous_query = query.ProductQueryModule.default_anonymous_query
+            #         qstring = default_anonymous_query.default
+            #         user = email or name or None
 
-            query_results = self.query(req, qstring)
+            q = self.query(self.env, qstring)
+
             print "Query results:"
-            print query
-            for r in query_results:
-                ticket = Ticket(self.env, r)
-                if ticket.product == self.env.product.prefix:
-                    print q
+            print q
 
             data = {}
             return 'bh_emb_query.html', data, None
         else:
             msg = "It is not possible to embed this resource."
             raise ResourceNotFound((msg), ("Invalid resource"))
+
 
 
     ### ITemplateProvider methods

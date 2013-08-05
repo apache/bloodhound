@@ -31,13 +31,18 @@
 
   <body>
     <h2 py:if="not is_global">Dashboard for product <i>${req.perm.env.product.name}</i></h2>
+
+    <!-- Embedding plugin -->
+    <!-- Not working -->
+    <a class="btn" href="${href.api('products', req.perm.env.product.prefix)}" py:if="not is_global">Embed product</a>
+
     <xi:include href="bs_grid.html" />
     <div id="ft" class="row">
       <div id="help" class="span8">
-        <strong>Note:</strong> See 
+        <strong>Note:</strong> See
         <a href="${href.wiki('BloodhoundDashboard')}">BloodhoundDashboard</a>
         for help on using the dashboard.
       </div>
-    </div>  
+    </div>
   </body>
 </html>
