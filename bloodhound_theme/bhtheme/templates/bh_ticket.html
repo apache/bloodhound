@@ -329,7 +329,17 @@
       <h5 id="trac-ticket-title" py:choose="">
         <py:when test="t.exists">
           <a href="${href.ticket(t.id)}"
-              i18n:msg="id">Ticket #${t.id}</a> -
+              i18n:msg="id">Ticket #${t.id}</a>
+          <py:if test="version is not None" />
+            <py:choose test="">
+              <py:when test="version == 0">
+                <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
+              </py:when>
+              <py:otherwise>
+                <i18n:msg params="version">at <a href="#comment:$version">Version $version</a></i18n:msg>
+              </py:otherwise>
+            </py:choose>
+          </py:if> &mdash;
         </py:when>
         <py:otherwise>
           New Ticket <small><span py:if="preview_mode and t.type" class="status">(${t.type})</span></small>
