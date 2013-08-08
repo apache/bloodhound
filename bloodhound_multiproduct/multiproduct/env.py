@@ -892,6 +892,10 @@ class ProductEnvironment(Component, ComponentManager):
     # Multi-product API extensions
 
     @classmethod
+    def lookup_global_env(cls, env):
+        return env.parent if isinstance(env, ProductEnvironment) else env
+
+    @classmethod
     def lookup_env(cls, env, prefix=None, name=None):
         """Instantiate environment according to product prefix or name
 

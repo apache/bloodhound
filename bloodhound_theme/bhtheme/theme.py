@@ -430,7 +430,8 @@ class BloodhoundTheme(ThemeBase):
 
     def _add_products_general_breadcrumb(self, req, template, data,
                                          content_type, is_active):
-        data['resourcepath_template'] = 'bh_path_general.html'
+        if isinstance(req.perm.env, ProductEnvironment):
+            data['resourcepath_template'] = 'bh_path_general.html'
 
     # INavigationContributor methods
 
