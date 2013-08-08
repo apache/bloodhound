@@ -486,6 +486,10 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         # Unregister class C as its fake module might break something else.
         ComponentMeta._components.remove(C)
 
+    def test_href_is_lazy(self):
+        href = self.product_env.href
+        self.assertIs(href, self.product_env.href)
+
     def test_path(self):
         """Testing env.path"""
         self.assertEqual(self.product_env.path,

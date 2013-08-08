@@ -348,7 +348,7 @@ class ProductEnvironment(Component, ComponentManager):
 
     Product environments contain among other things:
 
-    * configuration key-value pairs stored in the database, 
+    * configuration key-value pairs stored in the database,
     * product-aware clones of the wiki and ticket attachments files,
 
     Product environments do not have:
@@ -542,7 +542,7 @@ class ProductEnvironment(Component, ComponentManager):
         self.parent = env
         self.product = product
         self.systeminfo = []
-        self._href = self._abs_href = None
+        self._abs_href = None
 
         self.setup_config()
 
@@ -858,9 +858,7 @@ class ProductEnvironment(Component, ComponentManager):
     @lazy
     def href(self):
         """The application root path"""
-        if not self._href:
-            self._href = Href(urlsplit(self.abs_href.base)[2])
-        return self._href
+        return Href(urlsplit(self.abs_href.base)[2])
 
     @lazy
     def abs_href(self):
