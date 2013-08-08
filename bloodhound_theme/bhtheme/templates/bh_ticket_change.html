@@ -84,7 +84,7 @@ Arguments:
               action="${href.ticket(ticket.id) + '#comment:%d' % cnum}">
           <div>
             <textarea name="edited_comment" class="wikitext trac-resizable" rows="10" cols="78">
-  ${edited_comment if edited_comment is not None else change.comment}</textarea>
+${edited_comment if edited_comment is not None else change.comment}</textarea>
             <input type="hidden" name="cnum_edit" value="${cnum}"/>
           </div>
           <div class="btn-toolbar buttons">
