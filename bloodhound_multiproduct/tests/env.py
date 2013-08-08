@@ -594,12 +594,15 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_subdomain(self):
         """Test product sub domain base URL
         """
+        self.assertEqual('/', self.product_env.href())
         self.assertEqual('http://tp1.domain.tld', self.product_env.abs_href())
 
     @product_base_url('/path/to/bloodhound/$(prefix)s')
     def test_href_sibling_paths(self):
         """Test product base URL at sibling paths
         """
+        self.assertEqual('/trac.cgi/path/to/bloodhound/tp1',
+                         self.product_env.href())
         self.assertEqual('http://globalenv.com/trac.cgi/path/to/bloodhound/tp1',
                          self.product_env.abs_href())
 
@@ -607,6 +610,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_inherit_sibling_paths(self):
         """Test product base URL at sibling paths inheriting configuration.
         """
+        self.assertEqual('/trac.cgi/env/tp1', self.product_env.href())
         self.assertEqual('http://globalenv.com/trac.cgi/env/tp1',
                          self.product_env.abs_href())
 
@@ -614,6 +618,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_default(self):
         """Test product base URL is to a default
         """
+        self.assertEqual('/trac.cgi/products/tp1', self.product_env.href())
         self.assertEqual('http://globalenv.com/trac.cgi/products/tp1',
                          self.product_env.abs_href())
 
@@ -621,6 +626,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_embed(self):
         """Test default product base URL /products/prefix
         """
+        self.assertEqual('/trac.cgi/products/tp1', self.product_env.href())
         self.assertEqual('http://globalenv.com/trac.cgi/products/tp1',
                          self.product_env.abs_href())
 
@@ -628,6 +634,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_complex(self):
         """Test complex product base URL
         """
+        self.assertEqual('/bh/tp1', self.product_env.href())
         self.assertEqual('http://env.tld/bh/tp1', self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
@@ -638,10 +645,12 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         """
         # Global URLs
         self.assertEqual('http://globalenv.com/trac.cgi', self.env.base_url)
+        self.assertEqual('/trac.cgi', self.env.href())
         self.assertEqual('http://globalenv.com/trac.cgi', self.env.abs_href())
 
         # Product URLs
         self.assertEqual('', self.product_env.base_url)
+        self.assertEqual('/', self.product_env.href())
         self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
@@ -655,6 +664,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         self.product_env.config.save()
 
         self.assertEqual('http://productenv.com', self.product_env.base_url)
+        self.assertEqual('/', self.product_env.href())
         self.assertEqual('http://productenv.com', self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
@@ -668,6 +678,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         self.product_env.config.save()
 
         self.assertEqual('', self.product_env.base_url)
+        self.assertEqual('/', self.product_env.href())
         self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
 
     product_base_url = staticmethod(product_base_url)
