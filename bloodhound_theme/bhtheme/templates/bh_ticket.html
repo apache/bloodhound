@@ -330,7 +330,7 @@
         <py:when test="t.exists">
           <a href="${href.ticket(t.id)}"
               i18n:msg="id">Ticket #${t.id}</a>
-          <py:if test="version is not None" />
+          <py:if test="version is not None">
             <py:choose test="">
               <py:when test="version == 0">
                 <i18n:msg>at <a href="#comment:description">Initial Version</a></i18n:msg>
