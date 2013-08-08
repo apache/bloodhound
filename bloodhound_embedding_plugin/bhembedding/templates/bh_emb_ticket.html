@@ -7,7 +7,6 @@
       xmlns:i18n="http://genshi.edgewall.org/i18n">
       <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
       <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
-      <meta py:if="responsive_layout" name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <!-- <xi:include href="layout.html" /> -->
 
 
@@ -18,9 +17,6 @@
   <body>
     <div class="span4">
       <h2>${ticket.summary}</h2>
-      <script type="text/javascript" src="../ht_docs/iframe_generator.js"></script>
-      <button class="btn" onclick="makeIFrame(bh_emb_ticket.html)">Iframe</button>
-
       <p>
         <a href="${href.ticket(ticket.id)}">Ticket ${ticket.id}</a>
          - Assigned to

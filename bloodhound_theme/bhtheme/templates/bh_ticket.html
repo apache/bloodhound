@@ -352,8 +352,24 @@
         </button>
 
         <!-- Embedding plugin -->
-        <a class='btn' href="${href.api('ticket', ticket.id)}">Embed ticket</a>
 
+        <a href='#' class="btn" id="embed-btn">Embed ticket</a>
+
+        <script language="JavaScript" type="text/javascript">
+          function make_iframe(src) {
+            iframe = document.createElement("iframe");
+            $(iframe).attr("src", src);
+            $(iframe).attr("width", "640");
+            $(iframe).attr("height", "480");
+            return $(iframe).get(0).outerHTML;
+         }
+
+         $('#embed-btn').click(function() {
+           alert(make_iframe('${href.api("ticket", ticket.id)}'));
+
+           return false;
+         });
+        </script>
 
         <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
           <button id="edit-submit" class="btn" type="submit"
