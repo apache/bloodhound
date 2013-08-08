@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -47,10 +49,12 @@ class ComponentEnvironmentContext(object):
     def __init__(self, env, component):
         self._env = env
         self._component = component
+
     def __enter__(self):
         self._old_env = self._component.env
         self._env.component_activated(self._component)
         return self
+
     def __exit__(self, type, value, traceback):
         self._old_env.component_activated(self._component)
 
@@ -262,6 +266,7 @@ class Environment(trac.env.Environment):
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
 
+
 # this must follow the monkey patch (trac.env.Environment) above, otherwise
 # trac.test.EnvironmentStub will not be correct as the class will derive from
 # not replaced trac.env.Environment
@@ -332,6 +337,7 @@ class EnvironmentStub(trac.test.EnvironmentStub):
 
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
+
 
 class ProductEnvironment(Component, ComponentManager):
     """Bloodhound product-aware environment manager.
