@@ -490,6 +490,10 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         href = self.product_env.href
         self.assertIs(href, self.product_env.href)
 
+    def test_abs_href_is_lazy(self):
+        abs_href = self.product_env.abs_href
+        self.assertIs(abs_href, self.product_env.abs_href)
+
     def test_path(self):
         """Testing env.path"""
         self.assertEqual(self.product_env.path,

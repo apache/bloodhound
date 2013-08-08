@@ -542,7 +542,6 @@ class ProductEnvironment(Component, ComponentManager):
         self.parent = env
         self.product = product
         self.systeminfo = []
-        self._abs_href = None
 
         self.setup_config()
 
@@ -863,33 +862,32 @@ class ProductEnvironment(Component, ComponentManager):
     @lazy
     def abs_href(self):
         """The application URL"""
-        if not self._abs_href:
-            if not self.base_url:
-                urlpattern = MultiProductSystem(self.parent).product_base_url
-                if not urlpattern:
-                    self.log.warn("product_base_url option not set in "
-                                  "configuration, generated links may be "
-                                  "incorrect")
-                    urlpattern = 'products/$(prefix)s'
-                envname = os.path.basename(self.parent.path)
-                prefix = unicode_quote(self.product.prefix, safe="")
-                name = unicode_quote(self.product.name, safe="")
-                url = urlpattern.replace('$(', '%(') \
-                                .replace('%(envname)s', envname) \
-                                .replace('%(prefix)s', prefix) \
-                                .replace('%(name)s', name)
-                if urlsplit(url).netloc:
-                    #  Absolute URLs
-                    self._abs_href = Href(url)
-                else:
-                    # Relative URLs
-                    parent_href = Href(self.parent.abs_href(),
-                                       path_safe="/!~*'()%",
-                                       query_safe="!~*'()%")
-                    self._abs_href = Href(parent_href(url))
+        if not self.base_url:
+            urlpattern = MultiProductSystem(self.parent).product_base_url
+            if not urlpattern:
+                self.log.warn("product_base_url option not set in "
+                              "configuration, generated links may be "
+                              "incorrect")
+                urlpattern = 'products/$(prefix)s'
+            envname = os.path.basename(self.parent.path)
+            prefix = unicode_quote(self.product.prefix, safe="")
+            name = unicode_quote(self.product.name, safe="")
+            url = urlpattern.replace('$(', '%(') \
+                            .replace('%(envname)s', envname) \
+                            .replace('%(prefix)s', prefix) \
+                            .replace('%(name)s', name)
+            if urlsplit(url).netloc:
+                #  Absolute URLs
+                _abs_href = Href(url)
             else:
-                self._abs_href = Href(self.base_url)
-        return self._abs_href
+                # Relative URLs
+                parent_href = Href(self.parent.abs_href(),
+                                   path_safe="/!~*'()%",
+                                   query_safe="!~*'()%")
+                _abs_href = Href(parent_href(url))
+        else:
+            _abs_href = Href(self.base_url)
+        return _abs_href
 
     # Multi-product API extensions
 
