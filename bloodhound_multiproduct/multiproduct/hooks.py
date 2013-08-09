@@ -40,6 +40,8 @@ REDIRECT_DEFAULT_RE = \
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
+        environ.setdefault('SCRIPT_NAME', '')  # bh:ticket:594
+
         env = pid = None
         path_info = environ.get('PATH_INFO')
         if not path_info:
