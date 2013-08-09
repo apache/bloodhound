@@ -388,6 +388,10 @@ h1, h2, h3, h4 {
  margin: 0.5em;
 }
 
+#content textarea, .popover-content textarea {
+ font-family: monospace;
+}
+
 /* copied from bootstrap for appropriate focus/unfocused state for contenteditable*/
 [contenteditable="true"] {
  border-radius: 4px 4px 4px 4px;
