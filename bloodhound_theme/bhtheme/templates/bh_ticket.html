@@ -355,7 +355,8 @@
           <span py:if="not t.exists" class="label label-warning">(ticket not yet created)</span>
         </span>
       </h5>
-      <span id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
+      <span id="inplace-edit-button" py:if="has_property_editor"
+            class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
         <button id="inplace-edit" class="btn">
           <i class="icon-edit"></i>
           <span>${_('Modify Ticket')}</span>
@@ -406,7 +407,7 @@
                 <div class="properties">
                   <xi:include href="bh_ticket_box.html"
                       py:with="preview_mode = change_preview.fields if change_preview else False;
-                          colcount = 4 if bhdb else 6"/>
+                               colcount = 4 if bhdb else 6"/>
                 </div>
 
                 <div id="dummy-vc-summary" style="display: none"></div>
@@ -447,7 +448,7 @@
             </div>
           </form>
 
-          <div py:if="bhrelations and ticket.exists" class="relations">
+          <div py:if="bhrelations and ticket.exists and has_property_editor" class="relations">
             <bh:widget urn="TicketRelations">
               <bh:args>
                 <bh:arg name="tid">$ticket.id</bh:arg>
