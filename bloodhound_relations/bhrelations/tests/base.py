@@ -59,8 +59,8 @@ class BaseRelationsTestCase(MultiproductTestCase):
         env.config.set(config_name, 'oneway', 'refersto')
         env.config.set(config_name, 'duplicate', 'duplicateof,duplicatedby')
         env.config.set(config_name, 'duplicate.validators', 'ReferencesOlder')
-        env.config.set(config_name, 'duplicateof.label', 'Duplicate of')
-        env.config.set(config_name, 'duplicatedby.label', 'Duplicated by')
+        env.config.set(config_name, 'duplicateof.label', 'is a duplicate of')
+        env.config.set(config_name, 'duplicatedby.label', 'duplicates')
         env.config.set(config_name, 'blocker', 'blockedby,blocks')
         env.config.set(config_name, 'blockedby.blocks', 'true')
 

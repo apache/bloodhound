@@ -47,27 +47,27 @@
 
         <form id="addrelation" class="well form-horizontal" method="post" action="">
           <fieldset>
-            <legend>Add relation:</legend>
+            <legend>Add relation</legend>
           </fieldset>
 
           <div class="control-group">
-            <label class="control-label" for="dest_tid">Related ticket:</label>
+            <label class="control-label" for="reltype">This ticket</label>
+            <div class="controls">
+              <select class="span4" id="reltype" name="reltype">
+                <option py:for="reltype,label in reltypes" value="$reltype" selected="${True if reltype == relation.type else None}">$label</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dest_tid">Related ticket</label>
             <div class="controls">
               <input type="text" id="dest_tid" class="span4" name="dest_tid" value="$relation.destination" />
             </div>
           </div>
 
           <div class="control-group">
-            <label class="control-label" for="reltype">Relation type:</label>
-            <div class="controls">
-              <select class="span4" id="reltype" name="reltype">
-                <option py:for="reltype,label in reltypes.iteritems()" value="$reltype" selected="${True if reltype == relation.type else None}">$label</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <label class="control-label" for="comment">Comment:</label>
+            <label class="control-label" for="comment">Comment</label>
             <div class="controls">
               <textarea name="comment" rows="3" class="span4">${relation.comment}</textarea>
             </div>
