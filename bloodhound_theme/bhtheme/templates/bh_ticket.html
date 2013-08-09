@@ -372,7 +372,7 @@
       </span>
     </py:def>
 
-    <div class="ticket">
+    <div id="content" class="ticket">
       <div class="trac-topnav span2" py:if="has_property_editor">
         <a href="#propertyform" title="Go to the ticket editor">Modify</a> &darr;
       </div>
@@ -399,7 +399,7 @@
               ${render_ticket_summary_details(ticket)}
             </div>
 
-            <div id="content">
+            <div>
               <div id="belowStatus">
                 <!--! ticket details -->
                 <!--! main ticket info -->
@@ -491,7 +491,7 @@
               <!--! Add comment -->
               <div id="trac-add-comment" class="field">
                 <div class="trac-nav">
-                  <a href="#content" title="View ticket fields and description">View</a> &uarr;
+                  <a href="#belowStatus" title="View ticket fields and description">View</a> &uarr;
                 </div>
                 <div id="trac-edit-warning" class="warning system-message alert"
                       style="${'display: none' if start_time == ticket['changetime'] else None}"
