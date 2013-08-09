@@ -1,0 +1,14 @@
+.properties {
+  color: rgb(120, 120, 120);
+  width: 35%;
+}
+
+.table th, .table td {
+     border-top: none;
+ }
+
+.table th {
+  width: 250px;
+  padding-left: 0px;
+}
+

@@ -351,9 +351,10 @@
           <span>${_('Modify Ticket')}</span>
         </button>
 
-        <!-- Embedding plugin -->
 
-        <a href='#' class="btn" id="embed-btn">Embed ticket</a>
+
+        <!-- Embedding plugin -->
+        <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Ticket</a>
 
         <script language="JavaScript" type="text/javascript">
           function make_iframe(src) {
@@ -361,15 +362,32 @@
             $(iframe).attr("src", src);
             $(iframe).attr("width", "640");
             $(iframe).attr("height", "480");
+            $(iframe).attr("frameborder", "0");
             return $(iframe).get(0).outerHTML;
          }
 
          $('#embed-btn').click(function() {
-           alert(make_iframe('${href.api("ticket", ticket.id)}'));
-
-           return false;
+           $('#embed-textarea').val(make_iframe('${href.embed("ticket", ticket.id)}'));
          });
         </script>
+
+
+        <!-- Embedding Modal -->
+        <div id="embed-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Embed this Ticket</h3>
+          </div>
+          <div class="modal-body">
+            <textarea id="embed-textarea" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">
+            </textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          </div>
+        </div>
+
+
 
         <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
           <button id="edit-submit" class="btn" type="submit"

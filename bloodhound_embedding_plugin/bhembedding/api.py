@@ -1,5 +1,6 @@
 import re
 import pkg_resources
+from datetime import datetime, date, time
 
 from trac.core import *
 from trac.web.chrome import ITemplateProvider
@@ -61,22 +62,22 @@ class EmbeddingSystem(Component):
     # IRequestHandler methods
 
     def match_request(self, req):
-        if re.match(r'/api/ticket/([0-9]+)$', req.path_info):
-            match = re.match(r'/api/(ticket)/([0-9]+)$', req.path_info)
+        if re.match(r'/embed/ticket/([0-9]+)$', req.path_info):
+            match = re.match(r'/embed/(ticket)/([0-9]+)$', req.path_info)
             req.args['name'] = match.group(1)
             req.args['id'] = match.group(2)
             return True
-        elif re.match(r'/api/milestone/(.+)$', req.path_info):
-            match = re.match(r'/api/(milestone)/(.+)$', req.path_info)
+        elif re.match(r'/embed/milestone/(.+)$', req.path_info):
+            match = re.match(r'/embed/(milestone)/(.+)$', req.path_info)
             req.args['name'] = match.group(1)
             req.args['id'] = match.group(2)
             return True
-        elif re.match(r'/api/products/(.+)$', req.path_info):
-            match = re.match(r'/api/(products)/(.+)$', req.path_info)
+        elif re.match(r'/embed/products/(.+)$', req.path_info):
+            match = re.match(r'/embed/(products)/(.+)$', req.path_info)
             req.args['name'] = match.group(1)
             req.args['id'] = match.group(2)
             return True
-        elif req.path_info == '/api/query':
+        elif req.path_info == '/embed/query':
             req.args['name'] = 'query'
             return True
 
@@ -95,7 +96,11 @@ class EmbeddingSystem(Component):
                 if log[2] == 'comment' and log[4]:
                     comm_num += 1
 
+            # print "LAST LOG"
+            # print last_log
             ticket = Ticket(self.env, id)
+            changetime = ticket['changetime']
+            c_time = changetime.strftime("%H:%M:%S, %Y-%m-%d ")
 
             data = {'ticket': ticket,
                     'comm_num': comm_num,
@@ -166,4 +171,5 @@ class EmbeddingSystem(Component):
         return [resource_filename('bhembedding', 'templates')]
 
     def get_htdocs_dirs(self):
-        return []
+        resource_filename = pkg_resources.resource_filename
+        return [('embedding', resource_filename('bhembedding', 'htdocs'))]

@@ -9,7 +9,7 @@ setup(
     license = "Apache License v2",
     url = "http://bloodhound.apache.org/",
     packages = ['bhembedding', 'bhembedding.tests',],
-    package_data = {'bhembedding' : ['templates/*.html',]},
+    package_data = {'bhembedding' : ['templates/*.html', 'htdocs/*.css',]},
     entry_points = {'trac.plugins': [
             'bhembedding.api = bhembedding.api',
         ],},
