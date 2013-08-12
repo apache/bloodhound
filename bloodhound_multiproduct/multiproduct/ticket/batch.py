@@ -40,7 +40,7 @@ class ProductBatchModifyModule(BatchModifyModule):
         global_env = ProductEnvironment.lookup_global_env(self.env)
         tmpenv = self.env
         for k,v in tickets_by_product.iteritems():
-            self.env = ProductEnvironment(global_env, k)
+            self.env = ProductEnvironment(global_env, k) if k else global_env
             data['action_controls'] += self._get_action_controls(req, v)
         self.env = tmpenv
         batch_list_modes = [
