@@ -46,6 +46,7 @@ setup(
             'multiproduct.model = multiproduct.model',
             'multiproduct.perm = multiproduct.perm',
             'multiproduct.product_admin = multiproduct.product_admin',
+            'multiproduct.ticket.batch = multiproduct.ticket.batch',
             'multiproduct.ticket.query = multiproduct.ticket.query',
             'multiproduct.ticket.web_ui = multiproduct.ticket.web_ui',
             'multiproduct.web_ui = multiproduct.web_ui',
