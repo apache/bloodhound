@@ -221,6 +221,10 @@ div.reports h2 {
 
 /* @group Wiki */
 
+div.trac-content {
+ padding: 19px;
+}
+
 .wiki-toc {
  float: right;
  margin-left: 25px;
