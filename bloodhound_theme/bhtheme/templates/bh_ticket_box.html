@@ -123,11 +123,10 @@ Arguments:
 
     <!--! Quote the description (only for existing tickets) -->
     <div class="pull-right">
-      <form py:if="ticket.exists and ticket.description and can_append"
-          id="addreply" method="get" action="#comment">
-        <a href="?replyto=description#trac-add-comment" class="btn btn-mini"
-            title="Reply, quoting this description" type="submit">Reply</a>
-      </form>
+      <a py:if="ticket.exists and ticket.description and can_append"
+          id="addreply" class="btn btn-mini" type="submit"
+          href="?replyto=description#trac-add-comment"
+          title="Reply, quoting this description">Reply</a>
     </div>
     <div class="searchable" xml:space="preserve"
         data-edit="${'inplace' if can_edit or can_create else None}"

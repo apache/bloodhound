@@ -51,20 +51,9 @@
     </py:choose>
   </py:def>
 
-  <py:def function="milestone_owner()">
-    <py:choose>
-      <py:when test="milestone.owner">
-        Assigned to
-        <a href="${href.query(owner=milestone.owner, status='!closed',
-            milestone=milestone.name, order='priority')}">${milestone.name}</a>
-      </py:when>
-      <py:otherwise>&nbsp;</py:otherwise>
-    </py:choose>
-  </py:def>
-
   <py:def function="milestone_heading()">
     <h1>Milestone ${milestone.name}</h1>
-    <h6>${milestone_date()} &nbsp;&nbsp;&nbsp; ${milestone_owner()}</h6>
+    <h6>${milestone_date()}</h6>
   </py:def>
 
   <py:def function="milestone_buttons()">

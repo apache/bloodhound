@@ -17,9 +17,21 @@
 #  under the License.
 
 """setup for multi product plugin"""
-import sys
+import sys, codecs
 from pkg_resources import parse_version
 from setuptools import setup
+
+
+# Force UTF-8 for stdout/err if --utf8 option is specified.
+# For some reason python doesn't obey LANG/LC_CTYPE settings
+# if output is not a terminal (e.g. pipes don't work).
+if __name__ == '__main__':
+    for ac,av in enumerate(sys.argv):
+        if av == '--utf8':
+            sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+            sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+            del sys.argv[ac]
+            break
 
 setup(
     name = 'BloodhoundMultiProduct',

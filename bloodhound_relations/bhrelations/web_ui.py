@@ -111,7 +111,8 @@ class RelationManagementModule(Component):
 
         data.update({
             'ticket': ticket,
-            'reltypes': relsys.get_relation_types(),
+            'reltypes': sorted(relsys.get_relation_types().iteritems(),
+                key=lambda x: x[0]),
             'relations': self.get_ticket_relations(ticket),
         })
         return 'manage.html', data, None

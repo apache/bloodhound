@@ -20,6 +20,8 @@
 import multiproduct.env
 import multiproduct.dbcursor
 import multiproduct.versioncontrol
+import multiproduct.ticket.query
+import multiproduct.ticket.batch
 
 import re
 
@@ -31,13 +33,15 @@ from trac.web.main import RequestWithSession
 
 PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
 REDIRECT_DEFAULT_RE = \
-    re.compile(r'^/(?P<section>milestone|roadmap|query|report|newticket|'
+    re.compile(r'^/(?P<section>milestone|roadmap|report|newticket|'
                r'ticket|qct|timeline|diff|batchmodify|search|'
                r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
 
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
+        environ.setdefault('SCRIPT_NAME', '')  # bh:ticket:594
+
         env = pid = None
         path_info = environ.get('PATH_INFO')
         if not path_info:

@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -47,10 +49,12 @@ class ComponentEnvironmentContext(object):
     def __init__(self, env, component):
         self._env = env
         self._component = component
+
     def __enter__(self):
         self._old_env = self._component.env
         self._env.component_activated(self._component)
         return self
+
     def __exit__(self, type, value, traceback):
         self._old_env.component_activated(self._component)
 
@@ -262,6 +266,7 @@ class Environment(trac.env.Environment):
 # replace trac.env.Environment with Environment
 trac.env.Environment = Environment
 
+
 # this must follow the monkey patch (trac.env.Environment) above, otherwise
 # trac.test.EnvironmentStub will not be correct as the class will derive from
 # not replaced trac.env.Environment
@@ -333,6 +338,7 @@ class EnvironmentStub(trac.test.EnvironmentStub):
 # replace trac.test.EnvironmentStub
 trac.test.EnvironmentStub = EnvironmentStub
 
+
 class ProductEnvironment(Component, ComponentManager):
     """Bloodhound product-aware environment manager.
 
@@ -342,7 +348,7 @@ class ProductEnvironment(Component, ComponentManager):
 
     Product environments contain among other things:
 
-    * configuration key-value pairs stored in the database, 
+    * configuration key-value pairs stored in the database,
     * product-aware clones of the wiki and ticket attachments files,
 
     Product environments do not have:
@@ -536,7 +542,6 @@ class ProductEnvironment(Component, ComponentManager):
         self.parent = env
         self.product = product
         self.systeminfo = []
-        self._href = self._abs_href = None
 
         self.setup_config()
 
@@ -852,42 +857,43 @@ class ProductEnvironment(Component, ComponentManager):
     @lazy
     def href(self):
         """The application root path"""
-        if not self._href:
-            self._href = Href(urlsplit(self.abs_href.base)[2])
-        return self._href
+        return Href(urlsplit(self.abs_href.base).path)
 
     @lazy
     def abs_href(self):
         """The application URL"""
-        if not self._abs_href:
-            if not self.base_url:
-                urlpattern = MultiProductSystem(self.parent).product_base_url
-                if not urlpattern:
-                    self.log.warn("product_base_url option not set in "
-                                  "configuration, generated links may be "
-                                  "incorrect")
-                    urlpattern = 'products/$(prefix)s'
-                envname = os.path.basename(self.parent.path)
-                prefix = unicode_quote(self.product.prefix, safe="")
-                name = unicode_quote(self.product.name, safe="")
-                url = urlpattern.replace('$(', '%(') \
-                                .replace('%(envname)s', envname) \
-                                .replace('%(prefix)s', prefix) \
-                                .replace('%(name)s', name)
-                if urlsplit(url).netloc:
-                    #  Absolute URLs
-                    self._abs_href = Href(url)
-                else:
-                    # Relative URLs
-                    parent_href = Href(self.parent.abs_href(),
-                                       path_safe="/!~*'()%",
-                                       query_safe="!~*'()%")
-                    self._abs_href = Href(parent_href(url))
+        if not self.base_url:
+            urlpattern = MultiProductSystem(self.parent).product_base_url
+            if not urlpattern:
+                self.log.warn("product_base_url option not set in "
+                              "configuration, generated links may be "
+                              "incorrect")
+                urlpattern = 'products/$(prefix)s'
+            envname = os.path.basename(self.parent.path)
+            prefix = unicode_quote(self.product.prefix, safe="")
+            name = unicode_quote(self.product.name, safe="")
+            url = urlpattern.replace('$(', '%(') \
+                            .replace('%(envname)s', envname) \
+                            .replace('%(prefix)s', prefix) \
+                            .replace('%(name)s', name)
+            if urlsplit(url).netloc:
+                #  Absolute URLs
+                _abs_href = Href(url)
             else:
-                self._abs_href = Href(self.base_url)
-        return self._abs_href
+                # Relative URLs
+                parent_href = Href(self.parent.abs_href(),
+                                   path_safe="/!~*'()%",
+                                   query_safe="!~*'()%")
+                _abs_href = Href(parent_href(url))
+        else:
+            _abs_href = Href(self.base_url)
+        return _abs_href
 
     # Multi-product API extensions
+
+    @classmethod
+    def lookup_global_env(cls, env):
+        return env.parent if isinstance(env, ProductEnvironment) else env
 
     @classmethod
     def lookup_env(cls, env, prefix=None, name=None):

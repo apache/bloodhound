@@ -221,6 +221,10 @@ div.reports h2 {
 
 /* @group Wiki */
 
+div.trac-content {
+ padding: 19px;
+}
+
 .wiki-toc {
  float: right;
  margin-left: 25px;
@@ -386,6 +390,10 @@ h1, h2, h3, h4 {
 
 #content img {
  margin: 0.5em;
+}
+
+#content textarea, .popover-content textarea {
+ font-family: monospace;
 }
 
 /* copied from bootstrap for appropriate focus/unfocused state for contenteditable*/
