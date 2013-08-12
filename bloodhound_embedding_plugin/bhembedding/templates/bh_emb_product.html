@@ -1,11 +1,13 @@
-<!DOCTYPE html
+  <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <!-- <xi:include href="layout.html" /> -->
+      <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
+      <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
+      <link rel="stylesheet" href="${href.chrome('embedding/embedding.css')}" type="text/css" />
 
   <head>
     <title>Product ${product.name}</title>
@@ -13,19 +15,52 @@
 
   <body>
     <h2><a href="${href.products(product.prefix)}">${product.name}</a></h2>
-    <py:choose>
-      <p py:when="product.description">
-        <strong>Description:</strong> ${product.description}
-      </p>
-    </py:choose>
-    <py:choose>
-      <p py:when="owner">
-          <strong>Owner:</strong><a href="${href.query(owner=owner, status='!closed',order='priority')}">
-                                  ${owner}</a></p>
-    </py:choose>
-    <p><strong>Number of tickets:</strong> ${ticket_num}</p>
-    <p><strong>Number of milestones:</strong> ${milestone_num}</p>
-    <p><strong>Number of versions:</strong> ${version_num}</p>
-    <p><strong>Number of components:</strong> ${component_num}</p>
+    <h4><a target="_blank" href="${href.products(product.prefix)}">Product #${product.prefix}</a></h4>
+
+    <table class="table table-condensed ticket-properties">
+      <tr>
+        <th class="properties">Description</th>
+        <py:choose>
+          <td py:when="product.description">${product.description}</td>
+          <td py:otherwise="">none</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Owner</th>
+        <py:choose>
+          <td py:when="owner">${owner}</td>
+          <td py:otherwise="">none</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Number of Tickets:</th>
+        <py:choose>
+          <td py:when="ticket_num"><a target="_blank" href="#">${ticket_num}</a></td>
+          <td py:otherwise="">0</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Number of Milestones:</th>
+        <py:choose>
+          <td py:when="milestone_num"><a target="_blank" href="#">${milestone_num}</a></td>
+          <td py:otherwise="">0</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Number of Versions:</th>
+        <py:choose>
+          <td py:when="version_num">${version_num}</td>
+          <td py:otherwise="">0</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Number of Components:</th>
+        <py:choose>
+          <td py:when="component_num">${component_num}</td>
+          <td py:otherwise="">0</td>
+        </py:choose>
+      </tr>
+    </table>
+
   </body>
 </html>

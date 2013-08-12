@@ -352,23 +352,29 @@
         </button>
 
 
-
         <!-- Embedding plugin -->
         <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Ticket</a>
 
         <script language="JavaScript" type="text/javascript">
           function make_iframe(src) {
             iframe = document.createElement("iframe");
-            $(iframe).attr("src", src);
-            $(iframe).attr("width", "640");
+            var root = get_root()
+            $(iframe).attr("src", root + src);
+            $(iframe).attr("width", "470");
             $(iframe).attr("height", "480");
-            $(iframe).attr("frameborder", "0");
+            $(iframe).attr("frameborder", "1");
+            $(iframe).attr("scrolling", "no");
             return $(iframe).get(0).outerHTML;
          }
 
          $('#embed-btn').click(function() {
            $('#embed-textarea').val(make_iframe('${href.embed("ticket", ticket.id)}'));
          });
+
+         function get_root() {
+           var root = window.location.protocol + '//' + window.location.host;
+           return root
+         }
         </script>
 
 
@@ -379,14 +385,13 @@
             <h3 id="myModalLabel">Embed this Ticket</h3>
           </div>
           <div class="modal-body">
-            <textarea id="embed-textarea" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">
+            <textarea id="embed-textarea" rows="3" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">
             </textarea>
           </div>
           <div class="modal-footer">
             <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
           </div>
         </div>
-
 
 
         <span id="edit-state-buttons" class="btn-toolbar" style="display: None">

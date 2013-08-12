@@ -78,7 +78,44 @@
           </py:choose>
 
           <!-- Embedding plugin -->
-          <a class='btn btn-small' href="${href.api('products', p.prefix)}">Embed product</a>
+          <a id="embed-btn-${i}" href="#embed-modal-${i}" role="button" class="btn" data-toggle="modal">Embed Product</a>
+          <!-- Embedding Modal -->
+          <div id="embed-modal-${i}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h3 id="myModalLabel">Embed this Product</h3>
+            </div>
+            <div class="modal-body">
+              <textarea id="embed-textarea-${i}" rows="3" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">
+              </textarea>
+            </div>
+            <div class="modal-footer">
+              <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+          </div>
+
+          <script language="JavaScript" type="text/javascript">
+            function make_iframe(src) {
+              iframe = document.createElement("iframe");
+              var root = get_root();
+              $(iframe).attr("src", root + src);
+              $(iframe).attr("width", "640");
+              $(iframe).attr("height", "480");
+              $(iframe).attr("frameborder", "0");
+              return $(iframe).get(0).outerHTML;
+           }
+
+
+           // p.prefix doesn't have any value
+           $('#embed-btn-${i}').click(function() {
+             $('#embed-textarea-${i}').val(make_iframe('${href.embed("products", p.prefix)}'));
+           });
+
+           function get_root() {
+            var root = window.location.protocol + '//' + window.location.host;
+            return root;
+           }
+          </script>
 
         </div>
       </div>

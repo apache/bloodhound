@@ -33,8 +33,52 @@
     <h2 py:if="not is_global">Dashboard for product <i>${req.perm.env.product.name}</i></h2>
 
     <!-- Embedding plugin -->
-    <!-- Not working -->
-    <a class="btn" href="${href.api('products', req.perm.env.product.prefix)}" py:if="not is_global">Embed product</a>
+    <a py:if="not is_global" id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Product</a>
+
+    <script language="JavaScript" type="text/javascript">
+      function make_iframe(src) {
+        iframe = document.createElement("iframe");
+        var root = get_root()
+        $(iframe).attr("src", root + src);
+        $(iframe).attr("width", "640");
+        $(iframe).attr("height", "480");
+        $(iframe).attr("frameborder", "0");
+        return $(iframe).get(0).outerHTML;
+     }
+
+     $('#embed-btn').click(function() {
+       $('#embed-textarea').val(make_iframe(prepare_embed_url('${href.embed("products", req.perm.env.product.prefix)}')));
+     });
+
+     function prepare_embed_url(url) {
+      var url_array = url.split('/');
+      url_array.splice(2,2);
+      embed_url = url_array.join("/");
+      return embed_url
+     }
+
+     function get_root() {
+      var root = window.location.protocol + '//' + window.location.host;
+      return root
+     }
+    </script>
+
+
+    <!-- Embedding Modal -->
+    <div id="embed-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Embed this Product</h3>
+      </div>
+      <div class="modal-body">
+        <textarea id="embed-textarea" rows="3" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">
+        </textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      </div>
+    </div>
+
 
     <xi:include href="bs_grid.html" />
     <div id="ft" class="row">

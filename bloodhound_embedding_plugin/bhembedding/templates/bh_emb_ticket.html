@@ -21,9 +21,8 @@
           <a target="_blank" href="${href.query(owner=ticket.owner, status='!closed',
               ticket=ticket.id, order='priority')}">${ticket.owner}</a>
            , last modified
-<!--            <a target="_blank" href="${href('timeline', {'from': ticket.changetime})}">
-                      ${ticket.changetime}</a> -->
-           ${pretty_dateinfo(ticket.changetime)}
+           <a target="_blank" href="${href('timeline', {'from': ticket.changetime})}">
+              ${format_datetime(ticket.changetime)}</a>
         </h5>
 
       <table class="table table-condensed ticket-properties">
@@ -32,13 +31,14 @@
           <td><a target="_blank" href="${href.query(reporter=ticket.reporter, status='!closed',
                 ticket=ticket.id, order='priority')}">${ticket.reporter}</a></td>
         </tr>
-        <py:choose>
-          <tr py:when="ticket.keywords">
-            <th class="properties">Keywords</th>
-            <td><a target="_blank" href="${href.query(keywords=ticket.keywords, status='!closed',
+        <tr>
+          <th class="properties">Keywords</th>
+          <py:choose>
+            <td py:when="ticket.keywords"><a target="_blank" href="${href.query(keywords=ticket.keywords, status='!closed',
                   ticket=ticket.id, order='priority')}">${ticket.keywords}</a></td>
-          </tr>
-        </py:choose>
+            <td py:otherwise="">none</td>
+          </py:choose>
+        </tr>
         <tr>
           <th class="properties">Type</th>
           <td><a target="_blank" href="${href.query(type=ticket.type, status='!closed',
@@ -49,59 +49,70 @@
           <td><a target="_blank" href="${href.query(status=ticket.status,
                 ticket=ticket.id, order='priority')}">${ticket.status}</a></td>
         </tr>
-        <py:choose>
-          <tr py:when="ticket.priority">
-            <th class="properties">Priority</th>
-            <td><a target="_blank" href="${href.query(priority=ticket.priority, status='!closed',
+        <tr>
+          <th class="properties">Priority</th>
+          <td><a target="_blank" href="${href.query(priority=ticket.priority, status='!closed',
                   ticket=ticket.id, order='priority')}">${ticket.priority}</a></td>
-          </tr>
-        </py:choose>
+        </tr>
         <tr>
           <th class="properties">Product</th>
           <td><a target="_blank" href="${href.query(product=ticket.product, status='!closed',
                 ticket=ticket.id, order='priority')}">${ticket.product}</a></td>
         </tr>
-        <py:choose>
-          <tr py:when="ticket.milestone">
-            <th class="properties">Milestone</th>
-            <td><a target="_blank" href="${href.query(milestone=ticket.milestone, status='!closed',
+        <tr>
+          <th class="properties">Milestone</th>
+          <py:choose>
+            <td py:when="ticket.milestone">
+              <a target="_blank" href="${href.query(milestone=ticket.milestone, status='!closed',
                   ticket=ticket.id, order='priority')}">${ticket.milestone}</a></td>
-          </tr>
-        </py:choose>
-        <py:choose>
-          <tr py:when="ticket.component">
-            <th class="properties">Component</th>
-            <td><a target="_blank" href="${href.query(component=ticket.component, status='!closed',
+            <td py:otherwise="">none</td>
+          </py:choose>
+        </tr>
+        <tr>
+          <th class="properties">Component</th>
+          <py:choose>
+            <td py:when="ticket.component">
+              <a target="_blank" href="${href.query(component=ticket.component, status='!closed',
                   ticket=ticket.id, order='priority')}">${ticket.component}</a></td>
-          </tr>
-        </py:choose>
-        <py:choose>
-          <tr py:when="ticket.version">
-            <th class="properties">Version</th>
-            <td><a target="_blank" href="${href.query(version=ticket.version, status='!closed',
+            <td py:otherwise="">none</td>
+          </py:choose>
+        </tr>
+        <tr>
+          <th class="properties">Version</th>
+          <py:choose>
+            <td py:when="ticket.version">
+              <a target="_blank" href="${href.query(version=ticket.version, status='!closed',
                   ticket=ticket.id, order='priority')}">${ticket.version}</a></td>
-          </tr>
-        </py:choose>
-        <py:choose>
-          <tr py:when="ticket.severity">
-            <th class="properties">Severity</th>
-            <td><a target="_blank" href="${href.query(severity=ticket.severity, status='!closed',
+            <td py:otherwise="">none</td>
+          </py:choose>
+        </tr>
+        <tr>
+          <th class="properties">Severity</th>
+          <py:choose>
+            <td py:when="ticket.severity">
+              <a target="_blank" href="${href.query(severity=ticket.severity, status='!closed',
                   ticket=ticket.id, order='priority')}">${ticket.severity}</a></td>
-          </tr>
-        </py:choose>
-        <py:choose>
-          <tr py:when="comm_num">
-            <th class="properties">Number of comments</th>
-            <td><a target="_blank" href="${href.ticket(ticket.id)}">${comm_num}</a></td>
-          </tr>
-        </py:choose>
-        <py:choose>
-          <tr py:when="attachment_num">
-            <th class="properties">Number of attachments</th>
-            <td><a target="_blank" href="${href.attachment('ticket', ticket.id)}">${attachment_num}</a></td>
-          </tr>
-        </py:choose>
+            <td py:otherwise="">none</td>
+          </py:choose>
+        </tr>
+        <tr>
+          <th class="properties">Number of comments</th>
+          <py:choose>
+            <td py:when="comm_num">
+              <a target="_blank" href="${href.ticket(ticket.id)}">${comm_num}</a></td>
+            <td py:otherwise="">0</td>
+          </py:choose>
+        </tr>
+        <tr>
+          <th class="properties">Number of attachments</th>
+          <py:choose>
+            <td py:when="attachment_num">
+              <a target="_blank" href="${href.attachment('ticket', ticket.id)}">${attachment_num}</a></td>
+            <td py:otherwise="">0</td>
+          </py:choose>
+        </tr>
       </table>
+
     </div>
   </body>
 </html>

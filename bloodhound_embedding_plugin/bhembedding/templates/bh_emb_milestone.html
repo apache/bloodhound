@@ -5,7 +5,9 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <!-- <xi:include href="layout.html" /> -->
+      <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
+      <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
+      <link rel="stylesheet" href="${href.chrome('embedding/embedding.css')}" type="text/css" />
 
   <head>
     <title>Milestone ${milestone.name}</title>
@@ -13,26 +15,41 @@
 
   <body>
     <h2><a href="${href.milestone(milestone.name)}">${milestone.name}</a></h2>
-    <py:choose>
-      <p py:when="milestone.completed" class="date">
-        <i18n:msg params="duration, date">
-          <strong>Completed:</strong> ${dateinfo(milestone.completed)} ago (${format_datetime(milestone.completed)})
-        </i18n:msg></p>
-      <p py:when="milestone.is_late" class="date">
-        <i18n:msg params="duration, date">
-          <strong>Due:</strong> ${dateinfo(milestone.due)} late (${format_datetime(milestone.due)})
-        </i18n:msg></p>
-      <p py:when="milestone.due" class="date">
-        <i18n:msg params="duration, date">
-          <strong>Due in:</strong> ${dateinfo(milestone.due)} (${format_datetime(milestone.due)})
-        </i18n:msg></p>
-    </py:choose>
-    <py:choose>
-      <p py:when="milestone.description">
-          <strong>Description:</strong> ${milestone.description}</p>
-    </py:choose>
-    <p><strong>Product:</strong> ${product.name}</p>
-    <p><strong>Number of tickets:</strong> ${ticket_number}</p>
-    <p><strong>Attachments:</strong> ${attachment_number}</p>
+
+    <table class="table table-condensed ticket-properties">
+      <tr>
+        <th class="properties">Description</th>
+        <py:choose>
+          <td py:when="milestone.description">${milestone.description}</td>
+          <td py:otherwise="">none</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Product</th>
+        <td><a target="_blank" href="${href.products(product.prefix)}">${product.name}</a></td>
+      </tr>
+      <tr>
+        <th class="properties">Number of Tickets</th>
+        <py:choose>
+          <td py:when="ticket_number"><a target="_blank" href="#">${ticket_number}</a></td>
+          <td py:otherwise="">0</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Number of Attachments</th>
+        <py:choose>
+          <td py:when="attachment_number"><a target="_blank" href="#">${attachment_number}</a></td>
+          <td py:otherwise="">0</td>
+        </py:choose>
+      </tr>
+      <tr>
+        <th class="properties">Status</th>
+        <py:choose>
+          <td py:when="milestone.completed">Completed (${format_datetime(milestone.completed)})</td>
+          <td py:when="milestone.is_late">Is late (${format_datetime(milestone.due)})</td>
+          <td py:when="milestone.due">Due (${format_datetime(milestone.due)})</td>
+         </py:choose>
+      </tr>
+    </table>
   </body>
 </html>

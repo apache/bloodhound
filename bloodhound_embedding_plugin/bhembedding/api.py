@@ -96,12 +96,7 @@ class EmbeddingSystem(Component):
                 if log[2] == 'comment' and log[4]:
                     comm_num += 1
 
-            # print "LAST LOG"
-            # print last_log
             ticket = Ticket(self.env, id)
-            changetime = ticket['changetime']
-            c_time = changetime.strftime("%H:%M:%S, %Y-%m-%d ")
-
             data = {'ticket': ticket,
                     'comm_num': comm_num,
                     'attachment_num': attachment_num}
@@ -139,18 +134,6 @@ class EmbeddingSystem(Component):
         elif name == 'query':
             # Feature not yet finished
             qstring = req.query_string
-            # if qstring == '':
-            #     if req.authname and req.authname != 'anonymous':
-            #         default_query = query.ProductQueryModule.default_query
-            #         qstring = default_query.default
-            #         user = req.authname
-            #     else:
-            #         email = req.session.get('email')
-            #         name = req.session.get('name')
-            #         default_anonymous_query = query.ProductQueryModule.default_anonymous_query
-            #         qstring = default_anonymous_query.default
-            #         user = email or name or None
-
             q = self.query(self.env, qstring)
 
             print "Query results:"
