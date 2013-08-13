@@ -12,3 +12,13 @@
   padding-left: 0px;
 }
 
+
+#query-embed-content {
+  width: 300px;
+}
+
+#query-results {
+  height: 150px;
+  overflow: scroll;
+  overflow-x: hidden;
+}

@@ -46,7 +46,7 @@ class EmbeddingSystem(Component):
 
 
     def query(self, req, qstr='status!=closed'):
-        q = query.ProductQuery.from_string(self.env, qstr)
+        q = Query.from_string(self.env, qstr)
         ticket_realm = Resource('ticket')
         out = []
         for t in q.execute(req):
@@ -132,14 +132,18 @@ class EmbeddingSystem(Component):
                     'component_num': component_num}
             return 'bh_emb_product.html', data, None
         elif name == 'query':
-            # Feature not yet finished
-            qstring = req.query_string
-            q = self.query(self.env, qstring)
+            qstr = req.query_string
 
-            print "Query results:"
-            print q
+            if qstr=='' or qstr=='?':
+                if req.authname and req.authname != 'anonymous':
+                    qstr = 'status!=closed&owner=$USER'
+                else:
+                    qstr = 'status!=closed'
 
-            data = {}
+            tickets = self.query(req, qstr)
+
+            data={'tickets': tickets,
+                  'query': qstr}
             return 'bh_emb_query.html', data, None
         else:
             msg = "It is not possible to embed this resource."

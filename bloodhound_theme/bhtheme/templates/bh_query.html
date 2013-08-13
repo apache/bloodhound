@@ -101,10 +101,10 @@
                               <th colspan="${1 if field.type == 'time' else 2}"><label>or</label></th>
                             </py:otherwise>
                           </py:choose>
-    
+
                           <td class="filter" colspan="${2 if field.type in ('radio', 'checkbox', 'time') else None}"
                               py:choose="">
-    
+
                             <py:when test="field.type == 'select'">
                               <select name="${n_field_name}">
                                 <option></option>
@@ -120,7 +120,7 @@
                                 </optgroup>
                               </select>
                             </py:when>
-    
+
                             <py:when test="field.type == 'radio'">
                               <py:for each="option in field.options">
                                 <input type="checkbox" id="_${n_field_name}_$option" name="${n_field_name}"
@@ -129,7 +129,7 @@
                                 <label for="_${n_field_name}_$option" class="control">${option or 'none'}</label>
                               </py:for>
                             </py:when>
-    
+
                             <py:when test="field.type == 'checkbox'">
                               <input type="radio" id="_${n_field_name}_on" name="$n_field_name" value="1"
                                      checked="${constraint.mode != '!' or constraint_value == '1' or None}" />
@@ -138,11 +138,11 @@
                                      checked="${constraint.mode == '!' or constraint_value != '1' or None}" />
                               <label for="_${n_field_name}_off" class="control">no</label>
                             </py:when>
-    
+
                             <py:when test="field.type in ('text', 'textarea', 'id')">
                               <input type="text" name="${n_field_name}" value="$constraint_value" size="42" />
                             </py:when>
-                            
+
                             <py:when test="field.type == 'time'"
                                      py:with="(start, end) = '..' in constraint_value and constraint_value.split('..', 1)
                                                              or (constraint_value, '')">
@@ -156,7 +156,7 @@
                           </td>
                         </tr>
                       </tbody>
-    
+
                       <tbody py:with="last_clause = clause_num == (len(clauses) or 1) - 1">
                         <tr class="actions">
                           <td class="and" colspan="2">
@@ -234,7 +234,7 @@
               <input type="text" name="max" id="max" size="10" value="${query.max}"
                   class="input-mini" />
             </label>
-  
+
             <!--! Allow the user to decide what rows to include in the output of the query -->
             <label>Show under each result:
               <py:for each="column in all_textareas">
@@ -243,7 +243,7 @@
                 ${fields.get(column, {'label': column or 'none'}).label}</label>
               </py:for>
             </label>
-  
+
           </div>
         </div>
 
@@ -251,7 +251,7 @@
           <input py:if="report_resource" type="hidden" name="report" value="$report_resource.id" />
           <input type="hidden" name="order" value="$query.order" />
           <input py:if="query.desc" type="hidden" name="desc" value="1" />
-          <input type="submit" name="update" value="${_('Update')}" 
+          <input type="submit" name="update" value="${_('Update')}"
               class="btn" />
         </div>
         <hr />
@@ -265,6 +265,7 @@
           <xi:include py:if="batch_modify" href="bh_batch_modify.html" />
         </div>
       </div>
+
 
       <div class="buttons span12"
            py:with="edit = report_resource and 'REPORT_MODIFY' in perm(report_resource);
@@ -287,6 +288,55 @@
                             else _('Create new report from current query')}" />
           </div>
         </form>
+
+
+        <!-- Embedding plugin -->
+        <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Results</a>
+
+        <script language="JavaScript" type="text/javascript">
+          function make_iframe(src) {
+            iframe = document.createElement("iframe");
+            var root = get_root();
+            $(iframe).attr("src", root + src);
+            $(iframe).attr("width", "470");
+            $(iframe).attr("height", "480");
+            $(iframe).attr("frameborder", "0");
+            $(iframe).attr("scrolling", "no");
+            return $(iframe).get(0).outerHTML;
+         }
+
+         $('#embed-btn').click(function() {
+           $('#embed-textarea').val(make_iframe(prepare_embed_url('$query_href')));
+         });
+
+         function get_root() {
+           var root = window.location.protocol + '//' + window.location.host;
+           return root
+         }
+
+         function prepare_embed_url(url) {
+           var url_array = url.split('/');
+           var embed_url = '${href.embed()}';
+           return embed_url + '/' + url_array[url_array.length-1];
+         }
+        </script>
+
+
+        <!-- Embedding Modal -->
+        <div id="embed-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Embed Query Results</h3>
+          </div>
+          <div class="modal-body">
+            <textarea id="embed-textarea" rows="5" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">
+            </textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          </div>
+        </div>
+
         <form py:if="delete" method="get" action="${url_of(report_resource)}"
             style="display: inline-block">
           <input type="hidden" name="action" value="delete" />
