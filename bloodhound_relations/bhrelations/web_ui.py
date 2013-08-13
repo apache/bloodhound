@@ -115,7 +115,7 @@ class RelationManagementModule(Component):
                 key=lambda x: x[0]),
             'relations': self.get_ticket_relations(ticket),
         })
-        return 'manage.html', data, None
+        return 'relations_manage.html', data, None
 
     # ITemplateProvider methods
     def get_htdocs_dirs(self):
