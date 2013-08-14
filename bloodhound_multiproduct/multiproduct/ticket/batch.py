@@ -38,11 +38,13 @@ class ProductBatchModifyModule(BatchModifyModule):
 
         data['action_controls'] = []
         global_env = ProductEnvironment.lookup_global_env(self.env)
-        tmpenv = self.env
+        cache = {}
         for k,v in tickets_by_product.iteritems():
-            self.env = ProductEnvironment(global_env, k) if k else global_env
-            data['action_controls'] += self._get_action_controls(req, v)
-        self.env = tmpenv
+            batchmdl = cache.get(k or '')
+            if batchmdl is None:
+                env = ProductEnvironment(global_env, k) if k else global_env
+                cache[k] = batchmdl = ProductBatchModifyModule(env)
+            data['action_controls'] += batchmdl._get_action_controls(req, v)
         batch_list_modes = [
             {'name': _("add"), 'value': "+"},
             {'name': _("remove"), 'value': "-"},
