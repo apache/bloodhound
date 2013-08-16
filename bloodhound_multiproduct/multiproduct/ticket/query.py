@@ -77,6 +77,13 @@ class ProductQuery(Query):
         href = resolve_product_href(env, self.env)
         return href.ticket(tid)
 
+    def get_href(self, href, id=None, order=None, desc=None, format=None,
+                 max=None, page=None):
+        from multiproduct.hooks import ProductizedHref
+        return super(ProductQuery, self).get_href(
+            ProductizedHref(href, self.env.href.base), id, order, desc,
+            format, max, page)
+
     def execute(self, req=None, db=None, cached_ids=None, authname=None,
                 tzinfo=None, href=None, locale=None):
         """Retrieve the list of matching tickets.
@@ -84,10 +91,6 @@ class ProductQuery(Query):
         :since 1.0: the `db` parameter is no longer needed and will be removed
         in version 1.1.1
         """
-        if isinstance(self.env, ProductEnvironment):
-            return super(ProductQuery, self).execute(req, db, cached_ids, authname,
-                tzinfo, href, locale)
-
         if req is not None:
             href = req.href
         with self.env.db_direct_query as db:
@@ -97,6 +100,8 @@ class ProductQuery(Query):
             sql, args = self.get_sql(req, cached_ids, authname, tzinfo, locale)
             if sql.startswith('SELECT ') and not sql.startswith('SELECT DISTINCT '):
                 sql = 'SELECT DISTINCT * FROM (' + sql + ') AS subquery'
+            if isinstance(self.env, ProductEnvironment):
+                sql = sql + """ WHERE product='%s'""" % (self.env.product.prefix, )
             self.num_items = self._count(sql, args)
 
             if self.num_items <= self.max:
@@ -131,12 +136,8 @@ class ProductQuery(Query):
                         val = val or 'anonymous'
                     elif name == 'id':
                         val = int(val)
-                        if not isinstance(self.env, ProductEnvironment):
-                            # global -> retrieve ProductizedHref()
-                            result['href'] = self._get_ticket_href(
-                                row[product_idx], val)
-                        elif href is not None:
-                            result['href'] = href.ticket(val)
+                        result['href'] = self._get_ticket_href(
+                            row[product_idx], val)
                     elif name in self.time_fields:
                         val = from_utimestamp(val)
                     elif field and field['type'] == 'checkbox':
