@@ -40,10 +40,11 @@
         iframe = document.createElement("iframe");
         var root = get_root()
         $(iframe).attr("src", root + src);
-        $(iframe).attr("width", "640");
-        $(iframe).attr("height", "480");
+        $(iframe).attr("width", "480");
+        $(iframe).attr("height", "300");
         $(iframe).attr("frameborder", "0");
-        return $(iframe).get(0).outerHTML;
+        $(iframe).attr("scrolling", "yes");
+      return $(iframe).get(0).outerHTML;
      }
 
      $('#embed-btn').click(function() {

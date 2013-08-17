@@ -18,7 +18,7 @@
       <h2>Query</h2>
 
       <h5 class="properties">Query String</h5>
-      <p>add query string here</p>
+      <p>${filters}</p>
       <h5 class="properties">Query Results</h5>
 
       <py:choose>
@@ -31,7 +31,6 @@
             </py:for>
           </div>
         </py:when>
-
         <py:otherwise>
           <div>
             <py:for each="ticket in tickets">
@@ -41,9 +40,6 @@
             </py:for>
           </div>
         </py:otherwise>
-
-        <p>tickets: ${tickets}</p>
-
       </py:choose>
     </div>
   </body>

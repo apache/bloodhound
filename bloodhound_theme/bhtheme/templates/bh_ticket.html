@@ -355,15 +355,9 @@
           <span py:if="not t.exists" class="label label-warning">(ticket not yet created)</span>
         </span>
       </h5>
-      <span id="inplace-edit-button" py:if="has_property_editor"
-            class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
-        <button id="inplace-edit" class="btn">
-          <i class="icon-edit"></i>
-          <span>${_('Modify Ticket')}</span>
-        </button>
 
-
-        <!-- Embedding plugin -->
+      <!-- Embedding plugin -->
+      <span class="btn-toolbar">
         <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Ticket</a>
 
         <script language="JavaScript" type="text/javascript">
@@ -373,8 +367,8 @@
             $(iframe).attr("src", root + src);
             $(iframe).attr("width", "470");
             $(iframe).attr("height", "480");
-            $(iframe).attr("frameborder", "1");
-            $(iframe).attr("scrolling", "no");
+            $(iframe).attr("frameborder", "0");
+            $(iframe).attr("scrolling", "yes");
             return $(iframe).get(0).outerHTML;
          }
 
@@ -403,8 +397,14 @@
             <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
           </div>
         </div>
+      </span>
 
-
+      <span id="inplace-edit-button" py:if="has_property_editor"
+            class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
+        <button id="inplace-edit" class="btn">
+          <i class="icon-edit"></i>
+          <span>${_('Modify Ticket')}</span>
+        </button>
         <span id="edit-state-buttons" class="btn-toolbar" style="display: None">
           <button id="edit-submit" class="btn" type="submit"
               value="Submit changes" name="submit">
@@ -416,6 +416,7 @@
         </span>
       </span>
     </py:def>
+
 
     <div id="content" class="ticket">
       <div class="trac-topnav span2" py:if="has_property_editor">

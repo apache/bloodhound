@@ -53,6 +53,50 @@
 
   <py:def function="milestone_heading()">
     <h1>Milestone ${milestone.name}</h1>
+
+    <!-- Embedding plugin -->
+    <div style="margin: 10px 0;">
+      <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Milestone</a>
+
+      <script language="JavaScript" type="text/javascript">
+        function make_iframe(src) {
+          iframe = document.createElement("iframe");
+          var root = get_root()
+          $(iframe).attr("src", root + src);
+          $(iframe).attr("width", "550");
+          $(iframe).attr("height", "250");
+          $(iframe).attr("frameborder", "0");
+          $(iframe).attr("scrolling", "yes");
+          return $(iframe).get(0).outerHTML;
+       }
+
+       $('#embed-btn').click(function() {
+         $('#embed-textarea').val(make_iframe('${href.embed("milestone", milestone.name)}'));
+       });
+
+       function get_root() {
+        var root = window.location.protocol + '//' + window.location.host;
+        return root
+       }
+      </script>
+
+
+      <!-- Embedding Modal -->
+      <div id="embed-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h3 id="myModalLabel">Embed this Milestone</h3>
+        </div>
+        <div class="modal-body">
+          <textarea id="embed-textarea" class="input-block-level" rows="4" style="width:100%;min-width:100%;max-width:100%;">
+          </textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        </div>
+      </div>
+    </div>
+
     <h6>${milestone_date()}</h6>
   </py:def>
 
@@ -83,48 +127,6 @@
         </div>
       </form>
       <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
-
-      <!-- Embedding plugin -->
-      <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Milestone</a>
-
-      <script language="JavaScript" type="text/javascript">
-        function make_iframe(src) {
-          iframe = document.createElement("iframe");
-          var root = get_root()
-          $(iframe).attr("src", root + src);
-          $(iframe).attr("width", "640");
-          $(iframe).attr("height", "480");
-          $(iframe).attr("frameborder", "0");
-          return $(iframe).get(0).outerHTML;
-       }
-
-       $('#embed-btn').click(function() {
-         $('#embed-textarea').val(make_iframe('${href.embed("milestone", milestone.name)}'));
-       });
-
-       function get_root() {
-        var root = window.location.protocol + '//' + window.location.host;
-        return root
-       }
-      </script>
-
-
-      <!-- Embedding Modal -->
-      <div id="embed-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h3 id="myModalLabel">Embed this Milestone</h3>
-        </div>
-        <div class="modal-body">
-          <textarea id="embed-textarea" class="input-block-level" rows="4" style="width:100%;min-width:100%;max-width:100%;">
-          </textarea>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        </div>
-      </div>
-
-
     </div>
   </py:def>
 

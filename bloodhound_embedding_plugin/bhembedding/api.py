@@ -21,6 +21,7 @@ from trac.resource import Resource, ResourceNotFound
 from trac.ticket.roadmap import get_tickets_for_milestone
 from trac.attachment import Attachment
 
+from trac.web.href import Href
 
 from multiproduct.env import ProductEnvironment
 
@@ -31,7 +32,7 @@ class EmbeddingSystem(Component):
 
     # IPermissionRequestor method
     def get_permission_actions(self):
-        return ['TICKET_VIEW', 'MILESTONE_VIEW', 'PRODUCT_VIEW']
+        return ['TICKET_EMBED', 'MILESTONE_EMBED', 'PRODUCT_EMBED', 'QUERY_EMBED']
 
     def get_tickets_for_product(self, env, product=''):
         """Retrieve all tickets associated with the product."""
@@ -45,15 +46,17 @@ class EmbeddingSystem(Component):
             yield (date, author, field, old, new, permanent)
 
 
-    def query(self, req, qstr='status!=closed'):
+    def query(self, req, qstr):
         q = Query.from_string(self.env, qstr)
+        filters = Query.to_string(q)
         ticket_realm = Resource('ticket')
         out = []
         for t in q.execute(req):
             tid = t['id']
             if 'TICKET_VIEW' in req.perm(ticket_realm(id=tid)):
                 out.append(tid)
-        return out
+        return filters, out
+
 
     def get_attachments(self, realm, id):
         return [a.filename for a in Attachment.select(self.env, realm, id)]
@@ -88,7 +91,6 @@ class EmbeddingSystem(Component):
             id = req.args.get('id')
 
         if name == 'ticket':
-            req.perm.require('TICKET_VIEW')
             comm_num = 0
             attachment_num = len(self.get_attachments('ticket', id))
             ticket_log = self.changeLog(id)
@@ -103,7 +105,6 @@ class EmbeddingSystem(Component):
             return 'bh_emb_ticket.html', data, None
 
         elif name == 'milestone':
-            req.perm.require('MILESTONE_VIEW')
             ticket_num = len(get_tickets_for_milestone(self.env, milestone=id))
             attachment_num = len(self.get_attachments('milestone', id))
             data = {'milestone': Milestone(self.env, id),
@@ -113,7 +114,6 @@ class EmbeddingSystem(Component):
             return 'bh_emb_milestone.html', data, None
 
         elif name == 'products':
-            req.perm.require('PRODUCT_VIEW')
             product = Product(self.env, {'prefix': id})
             ticket_num = len(self.get_tickets_for_product(self.env, id))
             product_env = ProductEnvironment(self.env, product.prefix)
@@ -134,16 +134,19 @@ class EmbeddingSystem(Component):
         elif name == 'query':
             qstr = req.query_string
 
-            if qstr=='' or qstr=='?':
-                if req.authname and req.authname != 'anonymous':
-                    qstr = 'status!=closed&owner=$USER'
-                else:
-                    qstr = 'status!=closed'
+            if qstr=='':
+                # if req.authname and req.authname != 'anonymous':
+                #     qstr = 'status!=closed&owner=' + req.authname
+                # else:
+                qstr = 'status!=closed'
 
-            tickets = self.query(req, qstr)
+            qresults = self.query(req, qstr)
+            filters = qresults[0]
+            tickets = qresults[1]
 
             data={'tickets': tickets,
-                  'query': qstr}
+                  'query': qstr,
+                  'filters': filters}
             return 'bh_emb_query.html', data, None
         else:
             msg = "It is not possible to embed this resource."

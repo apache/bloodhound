@@ -294,30 +294,26 @@
         <a id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Results</a>
 
         <script language="JavaScript" type="text/javascript">
-          function make_iframe(src) {
+          function make_iframe() {
             iframe = document.createElement("iframe");
-            var root = get_root();
-            $(iframe).attr("src", root + src);
-            $(iframe).attr("width", "470");
-            $(iframe).attr("height", "480");
+            var src = get_embed_path();
+            $(iframe).attr("src", src);
+            $(iframe).attr("width", "380");
+            $(iframe).attr("height", "380");
             $(iframe).attr("frameborder", "0");
-            $(iframe).attr("scrolling", "no");
+            $(iframe).attr("scrolling", "yes");
             return $(iframe).get(0).outerHTML;
          }
 
          $('#embed-btn').click(function() {
-           $('#embed-textarea').val(make_iframe(prepare_embed_url('$query_href')));
+           $('#embed-textarea').val(make_iframe());
          });
 
-         function get_root() {
-           var root = window.location.protocol + '//' + window.location.host;
-           return root
-         }
 
-         function prepare_embed_url(url) {
+         function get_embed_path() {
+           var url = window.location.href
            var url_array = url.split('/');
-           var embed_url = '${href.embed()}';
-           return embed_url + '/' + url_array[url_array.length-1];
+           return window.location.protocol + '//' + window.location.host + '${href.embed()}' + '/' + url_array[url_array.length-1];
          }
         </script>
 
@@ -327,6 +323,9 @@
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="myModalLabel">Embed Query Results</h3>
+            <h5 py:if="req.authname!='anonymous' and req.query_string==''">
+              You cannot embed the default query corresponding to an authenticated user.
+              The snippet below embeds the query containing all open tickets.</h5>
           </div>
           <div class="modal-body">
             <textarea id="embed-textarea" rows="5" class="input-block-level" style="width:100%;min-width:100%;max-width:100%;">

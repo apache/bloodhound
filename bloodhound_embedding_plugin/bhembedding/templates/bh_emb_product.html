@@ -14,8 +14,8 @@
   </head>
 
   <body>
-    <h2><a href="${href.products(product.prefix)}">${product.name}</a></h2>
-    <h4><a target="_blank" href="${href.products(product.prefix)}">Product #${product.prefix}</a></h4>
+    <h2>${product.name}</h2>
+    <h4><a target="_blank" href="${href.products(product.prefix)}">Product ${product.prefix}</a></h4>
 
     <table class="table table-condensed ticket-properties">
       <tr>
@@ -28,21 +28,28 @@
       <tr>
         <th class="properties">Owner</th>
         <py:choose>
-          <td py:when="owner">${owner}</td>
+          <td py:when="owner"><a target="_blank" href="${href.query(owner=owner, status='!closed'
+                                                       , order='priority')}">${owner}</a>
+          </td>
           <td py:otherwise="">none</td>
         </py:choose>
       </tr>
       <tr>
         <th class="properties">Number of Tickets:</th>
         <py:choose>
-          <td py:when="ticket_num"><a target="_blank" href="#">${ticket_num}</a></td>
+          <td py:when="ticket_num">
+            <a target="_blank" href="${href.query(product=product.prefix, status='!closed'
+                                      , order='priority')}">${ticket_num}</a>
+          </td>
           <td py:otherwise="">0</td>
         </py:choose>
       </tr>
       <tr>
         <th class="properties">Number of Milestones:</th>
         <py:choose>
-          <td py:when="milestone_num"><a target="_blank" href="#">${milestone_num}</a></td>
+          <td py:when="milestone_num">
+            <a target="_blank" href="${href.products(product.prefix, 'roadmap')}">${milestone_num}</a>
+          </td>
           <td py:otherwise="">0</td>
         </py:choose>
       </tr>
