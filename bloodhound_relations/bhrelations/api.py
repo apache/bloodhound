@@ -41,6 +41,26 @@ from trac.util.datefmt import utc, to_utimestamp
 from trac.web.chrome import ITemplateProvider
 
 PLUGIN_NAME = 'Bloodhound Relations Plugin'
+RELATIONS_CONFIG_NAME = 'bhrelations_links'
+
+default_bhrelations_links = {
+    'children.label': 'is a child of',
+    'dependency': 'dependson,dependent',
+    'dependency.validators': 'NoCycles,SingleProduct',
+    'dependson.blocks': 'true',
+    'dependson.label': 'depends on',
+    'dependent.label': 'is a dependency of',
+    'oneway': 'refersto',
+    'parent_children': 'parent,children',
+    'parent.exclusive': 'true',
+    'parent.label': 'is a parent of',
+    'parent_children.validators': 'OneToMany,SingleProduct,NoCycles',
+    'refersto.label': 'refers to',
+    'duplicate': 'duplicateof,duplicatedby',
+    'duplicate.validators': 'ReferencesOlder',
+    'duplicateof.label': 'is a duplicate of',
+    'duplicatedby.label': 'is duplicated by',
+}
 
 
 #TODO: consider making the interface part of future
@@ -106,7 +126,8 @@ class EnvironmentSetup(Component):
             this version of the %s (%d).''' % (db_installed_version,
                                                PLUGIN_NAME,
                                                db_version))
-        needs_upgrade = db_installed_version < db_version
+        needs_upgrade = db_installed_version < db_version or \
+                        not list(self.config.options(RELATIONS_CONFIG_NAME))
         return needs_upgrade
 
     def upgrade_environment(self, db):
@@ -117,6 +138,13 @@ class EnvironmentSetup(Component):
             self._initialize_db(db)
             self._update_db_version(db, db_default.DB_VERSION)
             #add upgrade logic later if needed
+
+        if not list(self.config.options(RELATIONS_CONFIG_NAME)):
+            for option, value in default_bhrelations_links.iteritems():
+                self.config.set(RELATIONS_CONFIG_NAME, option, value)
+            self.config.save()
+            print("Your environment has been upgraded with the default "
+                  "[bhrelations_links] configuration.")
 
     def _get_version(self, db):
         """Finds the current version of the bloodhound database schema"""
@@ -162,13 +190,13 @@ class EnvironmentSetup(Component):
 class RelationsSystem(Component):
     PARENT_RELATION_TYPE = 'parent'
     CHILDREN_RELATION_TYPE = 'children'
-    RELATIONS_CONFIG_NAME = 'bhrelations_links'
 
     changing_listeners = ExtensionPoint(IRelationChangingListener)
     all_validators = ExtensionPoint(IRelationValidator)
     global_validators = OrderedExtensionsOption(
         'bhrelations', 'global_validators',
-        interface=IRelationValidator,
+        IRelationValidator,
+        'NoSelfReferenceValidator, ExclusiveValidator, BlockerValidator',
         include_missing=False,
         doc="""Validators used to validate all relations,
         regardless of their type."""
@@ -177,7 +205,7 @@ class RelationsSystem(Component):
     duplicate_relation_type = Option(
         'bhrelations',
         'duplicate_relation',
-        '',
+        'duplicateof',
         "Relation type to be used with the resolve as duplicate workflow.")
 
     def __init__(self):
@@ -328,7 +356,7 @@ class RelationsSystem(Component):
         copy_fields = {}
         exclusive = set()
 
-        config = self.config[self.RELATIONS_CONFIG_NAME]
+        config = self.config[RELATIONS_CONFIG_NAME]
         for name in [option for option, _ in config.options()
                      if '.' not in option]:
             reltypes = config.getlist(name)
