@@ -3,6 +3,9 @@
  * Several fixes for multiproduct installations with products that map to subdomains.
  * Numerous important fixes and minor enhancements.
 
+ * Not fixed for this release:
+   * No major outstanding issues
+
 0.6
 
  * Added support for multiple products.
