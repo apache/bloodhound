@@ -1,3 +1,8 @@
+0.7
+ * Duplicate ticket relation is integrated to the ticket workflow.
+ * Several fixes for multiproduct installations with products that map to subdomains.
+ * Numerous important fixes and minor enhancements.
+
 0.6
 
  * Added support for multiple products.
