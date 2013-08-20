@@ -329,7 +329,17 @@
       <h5 id="trac-ticket-title" py:choose="">
         <py:when test="t.exists">
           <a href="${href.ticket(t.id)}"
-              i18n:msg="id">Ticket #${t.id}</a> -
+              i18n:msg="id">Ticket #${t.id}</a>
+          <small py:if="version is not None">
+            <py:choose test="">
+              <py:when test="version == 0">
+                <i18n:msg>at <a href="#comment:description" class="muted">Initial Version</a></i18n:msg>
+              </py:when>
+              <py:otherwise>
+                <i18n:msg params="version">at <a href="#comment:$version" class="muted">Version $version</a></i18n:msg>
+              </py:otherwise>
+            </py:choose>
+          </small> &mdash;
         </py:when>
         <py:otherwise>
           New Ticket <small><span py:if="preview_mode and t.type" class="status">(${t.type})</span></small>
@@ -345,7 +355,8 @@
           <span py:if="not t.exists" class="label label-warning">(ticket not yet created)</span>
         </span>
       </h5>
-      <span id="inplace-edit-button" py:if="can_modify or can_edit or can_create" class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
+      <span id="inplace-edit-button" py:if="has_property_editor"
+            class="btn-toolbar" style="${'display: None;' if not t.exists else ''}">
         <button id="inplace-edit" class="btn">
           <i class="icon-edit"></i>
           <span>${_('Modify Ticket')}</span>
@@ -362,7 +373,7 @@
       </span>
     </py:def>
 
-    <div class="ticket">
+    <div id="content" class="ticket">
       <div class="trac-topnav span2" py:if="has_property_editor">
         <a href="#propertyform" title="Go to the ticket editor">Modify</a> &darr;
       </div>
@@ -389,14 +400,14 @@
               ${render_ticket_summary_details(ticket)}
             </div>
 
-            <div id="content">
+            <div>
               <div id="belowStatus">
                 <!--! ticket details -->
                 <!--! main ticket info -->
                 <div class="properties">
                   <xi:include href="bh_ticket_box.html"
                       py:with="preview_mode = change_preview.fields if change_preview else False;
-                          colcount = 4 if bhdb else 6"/>
+                               colcount = 4 if bhdb else 6"/>
                 </div>
 
                 <div id="dummy-vc-summary" style="display: none"></div>
@@ -437,7 +448,7 @@
             </div>
           </form>
 
-          <div py:if="bhrelations and ticket.exists" class="relations">
+          <div py:if="bhrelations and ticket.exists and has_property_editor" class="relations">
             <bh:widget urn="TicketRelations">
               <bh:args>
                 <bh:arg name="tid">$ticket.id</bh:arg>
@@ -481,7 +492,7 @@
               <!--! Add comment -->
               <div id="trac-add-comment" class="field">
                 <div class="trac-nav">
-                  <a href="#content" title="View ticket fields and description">View</a> &uarr;
+                  <a href="#belowStatus" title="View ticket fields and description">View</a> &uarr;
                 </div>
                 <div id="trac-edit-warning" class="warning system-message alert"
                       style="${'display: none' if start_time == ticket['changetime'] else None}"

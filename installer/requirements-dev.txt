@@ -16,10 +16,10 @@
 #  under the License.
 
 Pygments
-pytz
+pytz==2013b
 sqlparse==0.1.7
-Babel
-Genshi
+Babel==0.9.6
+Genshi==0.6.1
 -e ../trac
 TracAccountManager
 -e ../bloodhound_multiproduct

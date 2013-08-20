@@ -34,6 +34,7 @@ from trac.ticket.api import TicketSystem
 from trac.ticket.query import Query
 from trac.ticket.roadmap import apply_ticket_permissions, get_ticket_stats, \
                             ITicketGroupStatsProvider, RoadmapModule
+from trac.util.text import unicode_urlencode
 from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
 
@@ -217,7 +218,7 @@ class TicketFieldValuesWidget(WidgetBase):
 
             query_href = query.get_href(req.href)
             item_link= lambda item: query_href + \
-                    '&' + urlencode([(fieldnm, item[0])])
+                    '&' + unicode_urlencode([(fieldnm, item[0])])
 
         if fieldnm in self.DASH_ITEM_HREF_MAP:
             def dash_item_link(item):

@@ -20,6 +20,8 @@
 
 from __future__ import with_statement
 
+import re
+
 from itertools import groupby
 from math import ceil
 from datetime import datetime, timedelta
@@ -52,6 +54,9 @@ class ProductQuery(Query):
     """
     
     def _count(self, sql, args):
+        if isinstance(self.env, ProductEnvironment):
+            return super(ProductQuery, self)._count(sql, args)
+
         cnt = self.env.db_direct_query("SELECT COUNT(*) FROM (%s) AS x"
                                 % sql, args)[0][0]
         # "AS x" is needed for MySQL ("Subqueries in the FROM Clause")
@@ -72,6 +77,13 @@ class ProductQuery(Query):
         href = resolve_product_href(env, self.env)
         return href.ticket(tid)
 
+    def get_href(self, href, id=None, order=None, desc=None, format=None,
+                 max=None, page=None):
+        from multiproduct.hooks import ProductizedHref
+        return super(ProductQuery, self).get_href(
+            ProductizedHref(href, self.env.href.base), id, order, desc,
+            format, max, page)
+
     def execute(self, req=None, db=None, cached_ids=None, authname=None,
                 tzinfo=None, href=None, locale=None):
         """Retrieve the list of matching tickets.
@@ -88,6 +100,8 @@ class ProductQuery(Query):
             sql, args = self.get_sql(req, cached_ids, authname, tzinfo, locale)
             if sql.startswith('SELECT ') and not sql.startswith('SELECT DISTINCT '):
                 sql = 'SELECT DISTINCT * FROM (' + sql + ') AS subquery'
+            if isinstance(self.env, ProductEnvironment):
+                sql = sql + """ WHERE product='%s'""" % (self.env.product.prefix, )
             self.num_items = self._count(sql, args)
 
             if self.num_items <= self.max:
@@ -122,12 +136,8 @@ class ProductQuery(Query):
                         val = val or 'anonymous'
                     elif name == 'id':
                         val = int(val)
-                        if not isinstance(self.env, ProductEnvironment):
-                            # global -> retrieve ProductizedHref()
-                            result['href'] = self._get_ticket_href(
-                                row[product_idx], val)
-                        elif href is not None:
-                            result['href'] = href.ticket(val)
+                        result['href'] = self._get_ticket_href(
+                            row[product_idx], val)
                     elif name in self.time_fields:
                         val = from_utimestamp(val)
                     elif field and field['type'] == 'checkbox':
@@ -142,184 +152,68 @@ class ProductQuery(Query):
             cursor.close()
             return results
 
+import trac.ticket.query
+trac.ticket.query.Query = ProductQuery
+trac.ticket.Query = ProductQuery
+
 
 class ProductQueryModule(QueryModule):
-    def process_request(self, req):
-        req.perm.assert_permission('TICKET_VIEW')
+    def process_request(self, req, env=None):
+        tmpenv = self.env
+        if isinstance(self.env, ProductEnvironment) and env is not None:
+            self.env = env
+        result = super(ProductQueryModule, self).process_request(req)
+        self.env = tmpenv
+        return result
 
-        constraints = self._get_constraints(req)
-        args = req.args
-        if not constraints and not 'order' in req.args:
-            # If no constraints are given in the URL, use the default ones.
-            if req.authname and req.authname != 'anonymous':
-                qstring = self.default_query
-                user = req.authname
-            else:
-                email = req.session.get('email')
-                name = req.session.get('name')
-                qstring = self.default_anonymous_query
-                user = email or name or None
-
-            self.log.debug('QueryModule: Using default query: %s', str(qstring))
-            if qstring.startswith('?'):
-                arg_list = parse_arg_list(qstring[1:])
-                args = arg_list_to_args(arg_list)
-                constraints = self._get_constraints(arg_list=arg_list)
-            else:
-                query = ProductQuery.from_string(self.env, qstring)
-                args = {'order': query.order, 'group': query.group,
-                        'col': query.cols, 'max': query.max}
-                if query.desc:
-                    args['desc'] = '1'
-                if query.groupdesc:
-                    args['groupdesc'] = '1'
-                constraints = query.constraints
-
-            # Substitute $USER, or ensure no field constraints that depend
-            # on $USER are used if we have no username.
-            for clause in constraints:
-                for field, vals in clause.items():
-                    for (i, val) in enumerate(vals):
-                        if user:
-                            vals[i] = val.replace('$USER', user)
-                        elif val.endswith('$USER'):
-                            del clause[field]
-                            break
-
-        cols = args.get('col')
-        if isinstance(cols, basestring):
-            cols = [cols]
-        # Since we don't show 'id' as an option to the user,
-        # we need to re-insert it here.
-        if cols and 'id' not in cols:
-            cols.insert(0, 'id')
-        rows = args.get('row', [])
-        if isinstance(rows, basestring):
-            rows = [rows]
-        format = req.args.get('format')
-        max = args.get('max')
-        if max is None and format in ('csv', 'tab'):
-            max = 0 # unlimited unless specified explicitly
-        query = ProductQuery(self.env, req.args.get('report'),
-                      constraints, cols, args.get('order'),
-                      'desc' in args, args.get('group'),
-                      'groupdesc' in args, 'verbose' in args,
-                      rows,
-                      args.get('page'),
-                      max)
-
-        if 'update' in req.args:
-            # Reset session vars
-            for var in ('query_constraints', 'query_time', 'query_tickets'):
-                if var in req.session:
-                    del req.session[var]
-            req.redirect(query.get_href(req.href))
-
-        # Add registered converters
-        for conversion in Mimeview(self.env).get_supported_conversions(
-                                             'trac.ticket.Query'):
-            add_link(req, 'alternate',
-                     query.get_href(req.href, format=conversion[0]),
-                     conversion[1], conversion[4], conversion[0])
-
-        if format:
-            filename = 'query' if format != 'rss' else None
-            Mimeview(self.env).send_converted(req, 'trac.ticket.Query', query,
-                                              format, filename=filename)
-
-        return self.display_html(req, query)
-
-    def display_html(self, req, query):
-        # The most recent query is stored in the user session;
-        orig_list = None
-        orig_time = datetime.now(utc)
-        query_time = int(req.session.get('query_time', 0))
-        query_time = datetime.fromtimestamp(query_time, utc)
-        query_constraints = unicode(query.constraints)
-        try:
-            if query_constraints != req.session.get('query_constraints') \
-                    or query_time < orig_time - timedelta(hours=1):
-                tickets = query.execute(req)
-                # New or outdated query, (re-)initialize session vars
-                req.session['query_constraints'] = query_constraints
-                req.session['query_tickets'] = ' '.join([str(t['id'])
-                                                         for t in tickets])
-            else:
-                orig_list = [int(id) for id
-                             in req.session.get('query_tickets', '').split()]
-                tickets = query.execute(req, cached_ids=orig_list)
-                orig_time = query_time
-        except QueryValueError, e:
-            tickets = []
-            for error in e.errors:
-                add_warning(req, error)
-
-        context = web_context(req, 'query')
-        owner_field = [f for f in query.fields if f['name'] == 'owner']
-        if owner_field:
-            TicketSystem(self.env).eventually_restrict_owner(owner_field[0])
-        data = query.template_data(context, tickets, orig_list, orig_time, req)
-
-        req.session['query_href'] = query.get_href(context.href)
-        req.session['query_time'] = to_timestamp(orig_time)
-        req.session['query_tickets'] = ' '.join([str(t['id'])
-                                                 for t in tickets])
-        title = _('Custom Query')
-
-        # Only interact with the report module if it is actually enabled.
-        #
-        # Note that with saved custom queries, there will be some convergence
-        # between the report module and the query module.
-        from trac.ticket.report import ReportModule
-        if 'REPORT_VIEW' in req.perm and \
-               self.env.is_component_enabled(ReportModule):
-            data['report_href'] = req.href.report()
-            add_ctxtnav(req, _('Available Reports'), req.href.report())
-            add_ctxtnav(req, _('Custom Query'), req.href.query())
-            if query.id:
-                for title, description in self.env.db_query("""
-                        SELECT title, description FROM report WHERE id=%s
-                        """, (query.id,)):
-                    data['report_resource'] = Resource('report', query.id)
-                    data['description'] = description
-        else:
-            data['report_href'] = None
-
-        # Only interact with the batch modify module it it is enabled
-        # TODO: fix this for multiproduct
-        """
-        from trac.ticket.batch import BatchModifyModule
-        if 'TICKET_BATCH_MODIFY' in req.perm and \
-                self.env.is_component_enabled(BatchModifyModule):
-            self.env[BatchModifyModule].add_template_data(req, data, tickets)
-        """
-
-        data.setdefault('report', None)
-        data.setdefault('description', None)
-        data['title'] = title
-
-        data['all_columns'] = query.get_all_columns()
-        # Don't allow the user to remove the id column
-        data['all_columns'].remove('id')
-        data['all_textareas'] = query.get_all_textareas()
-
-        properties = dict((name, dict((key, field[key])
-                                      for key in ('type', 'label', 'options',
-                                                  'optgroups')
-                                      if key in field))
-                          for name, field in data['fields'].iteritems())
-        add_script_data(req, properties=properties, modes=data['modes'])
-
-        add_stylesheet(req, 'common/css/report.css')
-        Chrome(self.env).add_jquery_ui(req)
-        add_script(req, 'common/js/query.js')
-
-        return 'query.html', data, None
+trac.ticket.query.QueryModule = ProductQueryModule
+trac.ticket.QueryModule = ProductQueryModule
 
 
 class ProductTicketQueryMacro(TicketQueryMacro):
     """TracQuery macro retrieving results across product boundaries. 
     """
+    @staticmethod
+    def parse_args(content):
+        """Parse macro arguments and translate them to a query string."""
+        clauses = [{}]
+        argv = []
+        kwargs = {}
+        for arg in TicketQueryMacro._comma_splitter.split(content):
+            arg = arg.replace(r'\,', ',')
+            m = re.match(r'\s*[^=]+=', arg)
+            if m:
+                kw = arg[:m.end() - 1].strip()
+                value = arg[m.end():]
+                if kw in ('order', 'max', 'format', 'col', 'product'):
+                    kwargs[kw] = value
+                else:
+                    clauses[-1][kw] = value
+            elif arg.strip() == 'or':
+                clauses.append({})
+            else:
+                argv.append(arg)
+        clauses = filter(None, clauses)
+
+        if len(argv) > 0 and not 'format' in kwargs: # 0.10 compatibility hack
+            kwargs['format'] = argv[0]
+        if 'order' not in kwargs:
+            kwargs['order'] = 'id'
+        if 'max' not in kwargs:
+            kwargs['max'] = '0' # unlimited by default
+
+        format = kwargs.pop('format', 'list').strip().lower()
+        if format in ('list', 'compact'): # we need 'status' and 'summary'
+            if 'col' in kwargs:
+                kwargs['col'] = 'status|summary|' + kwargs['col']
+            else:
+                kwargs['col'] = 'status|summary'
+
+        query_string = '&or&'.join('&'.join('%s=%s' % item
+                                            for item in clause.iteritems())
+                                   for clause in clauses)
+        return query_string, kwargs, format
+
     def expand_macro(self, formatter, name, content):
         req = formatter.req
         query_string, kwargs, format = self.parse_args(content)
@@ -327,7 +221,9 @@ class ProductTicketQueryMacro(TicketQueryMacro):
             query_string += '&'
         query_string += '&'.join('%s=%s' % item
                                  for item in kwargs.iteritems())
-        query = ProductQuery.from_string(self.env, query_string)
+
+        env = ProductEnvironment.lookup_global_env(self.env)
+        query = ProductQuery.from_string(env, query_string)
 
         if format == 'count':
             cnt = query.count(req)
@@ -342,7 +238,7 @@ class ProductTicketQueryMacro(TicketQueryMacro):
 
             add_stylesheet(req, 'common/css/report.css')
 
-            return Chrome(self.env).render_template(
+            return Chrome(env).render_template(
                 req, 'query_results.html', data, None, fragment=True)
 
         if format == 'progress':
@@ -354,7 +250,7 @@ class ProductTicketQueryMacro(TicketQueryMacro):
             add_stylesheet(req, 'common/css/roadmap.css')
 
             def query_href(extra_args, group_value = None):
-                q = Query.from_string(self.env, query_string)
+                q = ProductQuery.from_string(env, query_string)
                 if q.group:
                     extra_args[q.group] = group_value
                     q.group = None
@@ -363,9 +259,9 @@ class ProductTicketQueryMacro(TicketQueryMacro):
                 if not q.constraints:
                     q.constraints.append(extra_args)
                 return q.get_href(formatter.context)
-            chrome = Chrome(self.env)
-            tickets = apply_ticket_permissions(self.env, req, tickets)
-            stats_provider = RoadmapModule(self.env).stats_provider
+            chrome = Chrome(env)
+            tickets = apply_ticket_permissions(env, req, tickets)
+            stats_provider = RoadmapModule(env).stats_provider
             by = query.group
             if not by:
                 stat = get_ticket_stats(stats_provider, tickets)
@@ -393,7 +289,7 @@ class ProductTicketQueryMacro(TicketQueryMacro):
                     'legend': False,
                 }
 
-            groups = grouped_stats_data(self.env, stats_provider, tickets, by,
+            groups = grouped_stats_data(env, stats_provider, tickets, by,
                                         per_group_stats_data)
             data = {
                 'groups': groups, 'grouped_by': by,
@@ -438,7 +334,7 @@ class ProductTicketQueryMacro(TicketQueryMacro):
         def ticket_groups():
             groups = []
             for v, g in groupby(tickets, lambda t: t[query.group]):
-                q = Query.from_string(self.env, query_string)
+                q = ProductQuery.from_string(env, query_string)
                 # produce the hint for the group
                 q.group = q.groupdesc = None
                 order = q.order

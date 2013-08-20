@@ -65,7 +65,7 @@ def ticket_setup(tc):
                           'status': 'new'})
 
     # FIXME : UGLY ! Should not be explicit for product environments
-    ticket['product'] = (tc.env.product.name
+    ticket['product'] = (tc.env.product.prefix
                          if isinstance(tc.env, ProductEnvironment)
                          else '')
 

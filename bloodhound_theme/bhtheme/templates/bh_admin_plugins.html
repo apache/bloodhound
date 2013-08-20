@@ -136,7 +136,7 @@
                           <i class="icon-tag"></i>
                           <span class="label">${module_name}.*</span>
                           <span py:if="module.summary" class="help-inline">
-                            &mdash; ${module.summary}
+                            &mdash; ${wiki_to_oneliner(context, module.summary)}
                           </span>
                         </td>
                         <td class="sel"></td>
@@ -149,7 +149,7 @@
                           </span>
                           <span py:if="component.summary" class="help-inline"
                               style="display: inline;">
-                            &mdash; ${component.summary}
+                            &mdash; ${wiki_to_oneliner(context, component.summary)}
                           </span>
                         </td>
                         <td class="sel">

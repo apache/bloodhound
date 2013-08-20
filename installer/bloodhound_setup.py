@@ -89,33 +89,7 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                           'footer_left_postfix': '',
                           'footer_right': ''},
                'bhsearch': {'is_default': 'true', 'enable_redirect': 'true'},
-               'bhrelations': {
-                   'global_validators':
-                       'NoSelfReferenceValidator,ExclusiveValidator,'
-                       'BlockerValidator',
-                   'duplicate_relation':
-                        'duplicateof',
-               },
-               'bhrelations_links': {
-                    'children.label': 'Child',
-                    'dependency': 'dependson,dependent',
-                    'dependency.validators': 'NoCycles,SingleProduct',
-                    'dependson.blocks': 'true',
-                    'dependson.label': 'Depends on',
-                    'dependent.label': 'Dependent',
-                    'oneway': 'refersto',
-                    'parent_children': 'parent,children',
-                    'parent.exclusive': 'true',
-                    'parent_children.validators':
-                        'OneToMany,SingleProduct,NoCycles',
-                    'refersto.label': 'Refers to',
-                    'duplicate': 'duplicateof,duplicatedby',
-                    'duplicate.validators': 'ReferencesOlder',
-                    'duplicateof.label': 'Duplicate of',
-                    'duplicatedby.label': 'Duplicated by',
-               },
-
-               }
+}
 
 ACCOUNTS_CONFIG = {'account-manager': {'account_changes_notify_addresses' : '',
                                        'authentication_url' : '',
