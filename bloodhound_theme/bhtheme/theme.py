@@ -551,7 +551,16 @@ class QuickCreateTicketDialog(Component):
 
         PS: Borrowed from XmlRpcPlugin.
         """
-        t = Ticket(self.env)
+        if 'product' in attributes:
+            if attributes['product']:
+                env = ProductEnvironment(self.env, attributes['product'])
+            else:
+                # Global product
+                env = self.env.parent or self.env
+        else:
+            env = self.env
+
+        t = Ticket(env)
         t['summary'] = summary
         t['description'] = description
         t['reporter'] = req.authname
@@ -563,7 +572,7 @@ class QuickCreateTicketDialog(Component):
 
         if notify:
             try:
-                tn = TicketNotifyEmail(self.env)
+                tn = TicketNotifyEmail(env)
                 tn.notify(t, newticket=True)
             except Exception, e:
                 self.log.exception("Failure sending notification on creation "
