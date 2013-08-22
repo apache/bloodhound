@@ -494,7 +494,10 @@ class QuickCreateTicketDialog(Component):
                         product_field['value'] = product_field['options'][0]
                     else:
                         product_field['value'] = default_prefix
-
+                product_field['options_desc'] = [
+                    ProductEnvironment.lookup_env(self.env, p).product.name
+                        for p in product_field['options']
+                ]
             data['qct'] = {
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
