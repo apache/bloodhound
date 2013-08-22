@@ -850,6 +850,7 @@ tt {
  list-style: none outside none;
  margin: 0 0 18px;
  padding: 7px 14px;
+ z-index: 1001 !important;
 }
 
 .ui-datepicker a.ui-datepicker-prev,
