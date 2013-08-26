@@ -41,18 +41,21 @@ from multiproduct.hooks import ProductizedHref
 
 __metaclass__ = type
 
+
 class ProductWidget(WidgetBase):
     """Display products available to the user.
     """
+
     def get_widget_params(self, name):
         """Return a dictionary containing arguments specification for
         the widget with specified name.
         """
-        return {'max' : {'desc' : """Limit the number of products displayed""",
-                         'type' : int},
-                'cols' : {'desc' : """Number of columns""",
-                          'type' : int}
-                }
+        return {
+            'max': {'desc': """Limit the number of products displayed""",
+                    'type': int},
+            'cols': {'desc': """Number of columns""",
+                     'type': int}
+        }
 
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
@@ -71,12 +74,15 @@ class ProductWidget(WidgetBase):
 
         query = resource['type'].select(penv)
         for q in itertools.islice(query, max_):
-            q.url = href(resource['name'], q.name) if resource.get('hrefurl') \
-                else Query.from_string(penv, 'order=priority&%s=%s' %
-                    (resource['name'], q.name)).get_href(href)
-            q.ticket_count = penv.db_query(
-                """SELECT COUNT(*) FROM ticket WHERE ticket.%s='%s'
-                   AND ticket.status <> 'closed'""" % (resource['name'], q.name))[0][0]
+            q.url = href(resource['name'], q.name) \
+                if resource.get('hrefurl') \
+                else Query.from_string(
+                    penv, 'order=priority&%s=%s' %
+                          (resource['name'], q.name)).get_href(href)
+            q.ticket_count = penv.db_query("""
+                SELECT COUNT(*) FROM ticket WHERE ticket.%s='%s'
+                AND ticket.status <> 'closed'
+                """ % (resource['name'], q.name))[0][0]
 
             results.append(q)
 
@@ -89,9 +95,10 @@ class ProductWidget(WidgetBase):
             q = resource['type'](penv)
             q.name = '(No %s)' % (resource['name'],)
             q.url = Query.from_string(penv,
-                        'status=!closed&col=id&col=summary&col=owner'
-                        '&col=status&col=priority&order=priority&%s=' %
-                        (resource['name'],)).get_href(href)
+               'status=!closed&col=id&col=summary&col=owner'
+               '&col=status&col=priority&order=priority&%s='
+               % (resource['name'],)
+            ).get_href(href)
             q.ticket_count = ticket_count
             results.append(q)
 
@@ -122,31 +129,27 @@ class ProductWidget(WidgetBase):
             for p in Product.select(self.env):
                 if 'PRODUCT_VIEW' in req.perm(Neighborhood('product', p.prefix)):
                     for resource in (
-                        { 'type': Milestone, 'name': 'milestone', 'hrefurl': True },
-                        { 'type': Component, 'name': 'component' },
-                        { 'type': Version, 'name': 'version' },
+                        {'type': Milestone, 'name': 'milestone', 'hrefurl': True},
+                        {'type': Component, 'name': 'component'},
+                        {'type': Version, 'name': 'version'},
                     ):
                         setattr(p, resource['name'] + 's',
-                            self._get_product_info(p, resource, max_))
-                    p.owner_link = Query.from_string(self.env, 'status!=closed&'
-                        'col=id&col=summary&col=owner&col=status&col=priority&'
-                        'order=priority&group=product&owner=%s'
-                        % (p._data['owner'] or '', )).get_href(req.href)
+                                self._get_product_info(p, resource, max_))
+                    p.owner_link = Query.from_string(self.env,
+                        'status!=closed&col=id&col=summary&col=owner'
+                        '&col=status&col=priority&order=priority'
+                        '&group=product&owner=%s' % (p._data['owner'] or '', )
+                    ).get_href(req.href)
                     data.setdefault('product_list', []).append(p)
             title = _('Products')
 
         data['colseq'] = itertools.cycle(xrange(cols - 1, -1, -1)) if cols \
-                         else itertools.repeat(1)
+            else itertools.repeat(1)
 
-        return 'widget_product.html', \
-            {
-                'title': title,
-                'data': data,
-                'ctxtnav' : [
-                    tag.a(_('More'), 
-                    href = context.req.href('products'))],
-            }, \
-            context
+        return 'widget_product.html', {
+            'title': title,
+            'data': data,
+            'ctxtnav': [tag.a(_('More'), href=req.href('products'))],
+        }, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-
