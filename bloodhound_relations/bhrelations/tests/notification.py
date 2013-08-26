@@ -69,8 +69,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         relation = self.relations_system.add(
             ticket, ticket2, "dependent")
 
-        rn = RelationNotifyEmail(self.env)
-        rn.notify(relation)
+        self.notifier.notify(relation)
 
         recipients = self.smtpd.get_recipients()
         # checks there is no duplicate in the recipient list
@@ -95,7 +94,8 @@ class NotificationTestCase(BaseRelationsTestCase):
         ticket = self._insert_and_load_ticket('Foo', reporter='anonymous')
         ticket2 = self._insert_and_load_ticket('Bar', reporter='anonymous')
 
-        self.relations_system.add(ticket, ticket2, "dependent")
+        relation = self.relations_system.add(ticket, ticket2, "dependent")
+        self.notifier.notify(relation)
 
         sender = self.smtpd.get_sender()
         recipients = self.smtpd.get_recipients()
@@ -110,6 +110,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         ticket2 = self._insert_and_load_ticket('Bar', reporter='anonymous')
 
         relation = self.relations_system.add(ticket, ticket2, "dependent")
+        self.notifier.notify(relation)
 
         relations = self.env.db_direct_query(
             "SELECT * FROM bloodhound_relations")
