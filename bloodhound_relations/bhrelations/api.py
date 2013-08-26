@@ -269,9 +269,6 @@ class RelationsSystem(Component):
             for listener in self.changing_listeners:
                 listener.adding_relation(relation)
 
-            from bhrelations.notification import RelationNotifyEmail
-            RelationNotifyEmail(self.env).notify(relation)
-
     def delete(self, relation_id, when=None):
         if when is None:
             when = datetime.now(utc)
