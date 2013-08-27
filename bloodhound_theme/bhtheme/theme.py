@@ -500,7 +500,7 @@ class QuickCreateTicketDialog(Component):
                         for p in product_field['options']
                 ]
             else:
-                msg = _("Missing ticket field '%s'.", 'product')
+                msg = _("Missing ticket field '%(field)s'.", field='product')
                 if ProductTicketModule is not None and \
                         self.env[ProductTicketModule] is not None:
                     # Display warning alert to users
