@@ -111,7 +111,7 @@ class ProductWidget(WidgetBase):
             q.name = _('... more')
             q.ticket_count = None
             q.url = href(resource['name']) if resource.get('hrefurl') \
-                else href.product(product.prefix)
+                else href.dashboard()
             results.append(q)
 
         return results
