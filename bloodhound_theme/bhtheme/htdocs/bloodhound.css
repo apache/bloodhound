@@ -374,6 +374,10 @@ h1, h2, h3, h4 {
  page-break-after: avoid;
 }
 
+h1, h2, h3 {
+ min-height: 40px;
+}
+
 .clip, .affix .clip-affix {
  overflow: hidden;
  text-overflow: ellipsis;
