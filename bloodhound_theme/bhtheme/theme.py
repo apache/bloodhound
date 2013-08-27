@@ -363,14 +363,15 @@ class BloodhoundTheme(ThemeBase):
                                          is_active)
 
         #add a creation event to the changelog if the ticket exists
-        if data['ticket'].exists:
+        ticket = data['ticket']
+        if ticket.exists:
             data['changes'] = [{'comment': '',
-                                'author': data['author_id'],
+                                'author': ticket['reporter'],
                                 'fields': {u'reported': {'label': u'Reported'},
                                            },
                                 'permanent': 1,
                                 'cnum': 0,
-                                'date': data['start_time'],
+                                'date': ticket['time'],
                                 },
                                ] + data['changes']
         #and set default order
