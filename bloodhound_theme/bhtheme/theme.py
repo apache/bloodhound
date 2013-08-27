@@ -35,7 +35,7 @@ from trac.util.presentation import to_json
 from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
-from trac.web.chrome import (add_stylesheet, INavigationContributor,
+from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
                              ITemplateProvider, prevnext_nav, Chrome)
 from trac.wiki.admin import WikiAdmin
 
@@ -481,7 +481,7 @@ class QuickCreateTicketDialog(Component):
                               for f in tm._prepare_fields(req, ticket)
                               if f['type'] == 'select')
 
-            product_field = all_fields['product']
+            product_field = all_fields.get('product')
             if product_field:
                 if self.env.product:
                     product_field['value'] = self.env.product.prefix
@@ -499,6 +499,15 @@ class QuickCreateTicketDialog(Component):
                     ProductEnvironment.lookup_env(self.env, p).product.name
                         for p in product_field['options']
                 ]
+            else:
+                msg = _("Missing ticket field '%s'.", 'product')
+                if ProductTicketModule is not None and \
+                        self.env[ProductTicketModule] is not None:
+                    # Display warning alert to users
+                    add_warning(req, msg)
+                else:
+                    # Include message in logs since this might be a failure
+                    self.log.warning(msg)
             data['qct'] = {
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
