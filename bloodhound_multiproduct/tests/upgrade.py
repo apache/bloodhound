@@ -351,6 +351,66 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
         self.assertEqual(len(products), 1)
         self.assertEqual(products[0].prefix, 'xxx')
 
+    def test_migration_to_multiproduct_preserves_ticket_ids(self):
+        for ticket_id in (1, 3, 5, 7):
+            with self.env.db_transaction as db:
+                cursor = db.cursor()
+                cursor.execute("INSERT INTO ticket (id) VALUES (%i)" % ticket_id)
+                db.update_sequence(cursor, 'ticket')
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        for ticket_id in (1, 3, 5, 7):
+            with self.product('@'):
+                ticket = Ticket(self.env, ticket_id)
+            self.assertEqual(ticket.id, ticket_id)
+
+    def test_can_insert_tickets_after_upgrade(self):
+        t1 = Ticket(self.env)
+        t1.summary = "test"
+        t1.insert()
+        self.assertEqual(t1.id, 1)
+
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        with self.product('@'):
+            ticket = Ticket(self.env)
+            ticket.summary = 'test'
+            ticket.insert()
+            self.assertEqual(ticket.id, 2)
+
+    def test_can_insert_tickets_with_same_id_to_different_products(self):
+        self._enable_multiproduct()
+        self.env.upgrade()
+
+        self.env.db_transaction("INSERT INTO ticket (id, summary)"
+                                "            VALUES (1, 'first product')")
+        t1 = Ticket(self.env, 1)
+
+        with self.product('@'):
+            self.env.db_transaction("INSERT INTO ticket (id, summary)"
+                                    "            VALUES (1, 'second product')")
+            t2 = Ticket(self.env, 1)
+
+        self.assertEqual(t1.id, t2.id)
+        self.assertNotEqual(t1['summary'], t2['summary'])
+
+    def test_batch_ticket_insert_after_upgrade(self):
+        self._enable_multiproduct()
+        self.env.upgrade()
+        with self.env.db_direct_transaction as db:
+            db("""CREATE TABLE "@_tmp" (summary text, product text)""")
+            for summary in "abcdef":
+                db("""INSERT INTO "@_tmp" VALUES ('%s', '@')""" % (summary,))
+
+        with self.product('@'):
+            with self.env.db_transaction as db:
+                db("""INSERT INTO ticket (summary) SELECT summary FROM tmp""")
+
+
+
     def _enable_multiproduct(self):
         self._update_config('components', 'multiproduct.*', 'enabled')
 
