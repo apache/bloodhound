@@ -118,10 +118,11 @@
                 <select id="field-${field.name}" name="field_${field.name}"
                     class="input-block-level" data-empty="true" data-field="${field.name}">
                   <option py:if="field.optional"></option>
-                  <option py:for="option in field.options"
+                  <option py:for="idx,option in enumerate(field.options)"
+                          py:with="description = field.options_desc[idx] if field.options_desc else option"
                           selected="${field.value == option or None}"
                           value = "$option"
-                          py:content="option"></option>
+                          py:content="description"></option>
                   <optgroup py:for="optgroup in field.optgroups"
                             py:if="optgroup.options"
                             label="${optgroup.label}">

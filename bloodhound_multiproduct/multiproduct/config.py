@@ -30,6 +30,7 @@ from trac.util.text import to_unicode
 from multiproduct.model import ProductSetting
 from multiproduct.perm import MultiproductPermissionPolicy
 
+
 class Configuration(Configuration):
     """Product-aware settings repository equivalent to instances of
     `trac.config.Configuration` (and thus `ConfigParser` from the
@@ -115,7 +116,7 @@ class Configuration(Configuration):
         for section, default_options in self.defaults(compmgr).items():
             for name, value in default_options.items():
                 if not ProductSetting.exists(self.env, self.product,
-                        section, name):
+                                             section, name):
                     if any(parent[section].contains(name, defaults=False)
                            for parent in self.parents):
                         value = None
@@ -135,6 +136,7 @@ class Configuration(Configuration):
             filename = Section._normalize_path(filename.strip(), self.env)
             self.parents.append(config.Configuration(filename))
 
+
 class Section(Section):
     """Proxy for a specific configuration section.
 
@@ -144,7 +146,7 @@ class Section(Section):
 
     @staticmethod
     def optionxform(optionstr):
-        return to_unicode(optionstr.lower());
+        return to_unicode(optionstr.lower())
 
     def __init__(self, config, name):
         self.config = config
@@ -180,7 +182,8 @@ class Section(Section):
         options = set()
         name_str = self.name
         for setting in ProductSetting.select(self.env,
-                where={'product':self.product, 'section':name_str}):
+                                             where={'product': self.product,
+                                                    'section': name_str}):
             option = self.optionxform(setting.option)
             options.add(option)
             yield option
@@ -199,8 +202,8 @@ class Section(Section):
     __iter__ = iterate
 
     def __repr__(self):
-        return '<%s [%s , %s]>' % (self.__class__.__name__, \
-                self.product, self.name)
+        return '<%s [%s , %s]>' % (self.__class__.__name__,
+                                   self.product, self.name)
 
     def get(self, key, default=''):
         """Return the value of the specified option.
@@ -213,9 +216,10 @@ class Section(Section):
             return cached
         name_str = self.name
         key_str = to_unicode(key)
-        settings = ProductSetting.select(self.env, 
-                where={'product':self.product, 'section':name_str,
-                        'option':key_str})
+        settings = ProductSetting.select(self.env,
+                                         where={'product': self.product,
+                                                'section': name_str,
+                                                'option': key_str})
         if len(settings) > 0:
             value = settings[0].value
         else:
@@ -261,10 +265,10 @@ class Section(Section):
         """
         key_str = self.optionxform(key)
         option_key = {
-                'product' : self.product, 
-                'section' : self.name,
-                'option' : key_str,
-            }
+            'product': self.product,
+            'section': self.name,
+            'option': key_str
+        }
         try:
             setting = ProductSetting(self.env, keys=option_key)
         except ResourceNotFound:
@@ -283,10 +287,10 @@ class Section(Section):
         value_str = to_unicode(value)
         self._cache.pop(key_str, None)
         option_key = {
-                'product' : self.product, 
-                'section' : self.name,
-                'option' : key_str,
-            }
+            'product': self.product,
+            'section': self.name,
+            'option': key_str,
+        }
         try:
             setting = ProductSetting(self.env, option_key)
         except ResourceNotFound:
@@ -315,6 +319,7 @@ class Section(Section):
         if not os.path.isabs(path):
             path = os.path.join(env.path, 'conf', path)
         return os.path.normcase(os.path.realpath(path))
+
 
 #--------------------
 # Option override classes

@@ -18,7 +18,8 @@
 from _sqlite3 import OperationalError
 from tests.env import MultiproductTestCase
 from multiproduct.env import ProductEnvironment
-from bhrelations.api import RelationsSystem, EnvironmentSetup
+from bhrelations.api import RelationsSystem, EnvironmentSetup, \
+    RELATIONS_CONFIG_NAME
 from trac.test import EnvironmentStub, Mock, MockPerm
 from trac.ticket import Ticket
 from trac.util.datefmt import utc
@@ -43,7 +44,7 @@ class BaseRelationsTestCase(MultiproductTestCase):
                        'BlockerValidator')
         env.config.set('bhrelations', 'duplicate_relation',
                        'duplicateof')
-        config_name = RelationsSystem.RELATIONS_CONFIG_NAME
+        config_name = RELATIONS_CONFIG_NAME
         env.config.set(config_name, 'dependency', 'dependson,dependent')
         env.config.set(config_name, 'dependency.validators',
                        'NoCycles,SingleProduct')
@@ -72,7 +73,8 @@ class BaseRelationsTestCase(MultiproductTestCase):
 
         self.req = Mock(href=self.env.href, authname='anonymous', tz=utc,
                         args=dict(action='dummy'),
-                        locale=locale_en, lc_time=locale_en)
+                        locale=locale_en, lc_time=locale_en,
+                        chrome={'warnings': []})
         self.req.perm = MockPerm()
         self.relations_system = RelationsSystem(self.env)
         self._upgrade_env()
