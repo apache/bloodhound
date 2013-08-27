@@ -537,6 +537,7 @@ class MultiProductSystem(Component):
                 # sqlite does not support multiple auto increment columns
                 id_column.auto_increment = False
             table.columns.append(id_column)
+            table.indices.append(Index(['product', 'id'], unique=True))
 
 
         for t in table_defs:
