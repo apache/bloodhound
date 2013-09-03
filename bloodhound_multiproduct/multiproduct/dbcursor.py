@@ -24,7 +24,7 @@ import sqlparse.tokens as Tokens
 import sqlparse.sql as Types
 
 from multiproduct.cache import lru_cache
-from multiproduct.util import using_sqlite_backend
+from multiproduct.util import using_sqlite_backend, using_mysql_backend
 
 __all__ = ['BloodhoundIterableCursor', 'BloodhoundConnectionWrapper', 'ProductEnvContextManager']
 
@@ -209,7 +209,8 @@ class BloodhoundProductSQLTranslate(object):
         self._translate_tables = translate_tables
         self._product_column = product_column
         self._product_prefix = product_prefix
-        self._using_sqlite = env is None or using_sqlite_backend(env)
+        self._id_calculated = env is None or using_sqlite_backend(env) \
+            or using_mysql_backend(env)
 
     def _sqlparse_underline_hack(self, token):
         underline_token = lambda token: token.ttype == Tokens.Token.Error and token.value == '_'
@@ -559,7 +560,7 @@ class BloodhoundProductSQLTranslate(object):
                 columns_to_insert = []
                 if not 'product' in columns_present:
                     columns_to_insert += [',', ' ', self._product_column]
-                if self._using_sqlite \
+                if self._id_calculated \
                    and tablename == 'ticket'\
                    and not 'id' in columns_present:
                     columns_to_insert += [',', ' ', 'id']
@@ -573,12 +574,13 @@ class BloodhoundProductSQLTranslate(object):
                 values_to_insert = []
                 if not 'product' in columns_present:
                     values_to_insert += [',', "'", self._product_prefix, "'"]
-                if self._using_sqlite \
+                if self._id_calculated \
                    and tablename == 'ticket' \
                    and not 'id' in columns_present:
                     values_to_insert += [
-                        ',', """COALESCE((SELECT MAX(id) FROM ticket
-                                           WHERE product='%s'), 0)+1""" %
+                        ',', """COALESCE((SELECT MAX(id) FROM
+                                           (SELECT * FROM ticket WHERE product='%s')
+                                           AS subquery), 0)+1""" %
                              (self._product_prefix,)
                     ]
                 for keyword in values_to_insert:

@@ -141,11 +141,17 @@ class EmbeddedLinkFormatter(LinkFormatter):
         return self._make_lhref_link(match, fullmatch, rel, ns, target, label)
 
 
-def using_sqlite_backend(env):
+def get_db_connector_from_uri(env):
     connector, arg = trac.db.api._parse_db_str(
         trac.db.api.DatabaseManager(env).connection_uri
     )
-    return connector == 'sqlite'
+    return connector
+    
+def using_sqlite_backend(env):
+    return get_db_connector_from_uri(env) == 'sqlite'
+
+def using_mysql_backend(env):
+    return get_db_connector_from_uri(env) == 'mysql'
 
 #----------------------
 # Useful regex

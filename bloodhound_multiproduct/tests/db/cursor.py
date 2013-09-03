@@ -992,7 +992,7 @@ data = {
     'insert_with_product': [
         (
 """INSERT INTO ticket (summary, product) VALUES ('S', 'swlcu')""",
-"""INSERT INTO ticket (summary, product, id) VALUES ('S', 'swlcu',COALESCE((SELECT MAX(id) FROM ticket\nWHERE product='PRODUCT'), 0)+1)"""
+"""INSERT INTO ticket (summary, product, id) VALUES ('S', 'swlcu',COALESCE((SELECT MAX(id) FROM\n(SELECT * FROM ticket WHERE product='PRODUCT')\nAS subquery), 0)+1)"""
         ),
     ],
 

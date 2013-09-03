@@ -46,7 +46,7 @@ from trac.wiki.parser import WikiParser
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER, \
-    using_sqlite_backend
+    using_sqlite_backend, using_mysql_backend
 
 __all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER']
 
@@ -533,8 +533,8 @@ class MultiProductSystem(Component):
 
         def add_new_id_column(table):
             id_column = Column('id', type='int', auto_increment=True)
-            if using_sqlite_backend(self.env):
-                # sqlite does not support multiple auto increment columns
+            if using_sqlite_backend(self.env) or using_mysql_backend(self.env):
+                # sqlite and mysql don't support multiple auto increment columns
                 id_column.auto_increment = False
             table.columns.append(id_column)
             table.indices.append(Index(['product', 'id'], unique=True))
