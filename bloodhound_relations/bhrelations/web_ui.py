@@ -94,7 +94,7 @@ class RelationManagementModule(Component):
                     req.perm.require('TICKET_MODIFY', Resource(dest_ticket.id))
 
                     try:
-                        relsys.add(ticket, dest_ticket,
+                        dbrel = relsys.add(ticket, dest_ticket,
                             relation['type'],
                             relation['comment'],
                             req.authname)
@@ -107,7 +107,7 @@ class RelationManagementModule(Component):
 
                 # Notify
                 try:
-                    self.notify_relation_changed(relation)
+                    self.notify_relation_changed(dbrel)
                 except Exception, e:
                     self.log.error("Failure sending notification on"
                                    "creation of relation: %s",
