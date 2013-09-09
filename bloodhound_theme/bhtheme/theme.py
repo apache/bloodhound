@@ -486,15 +486,7 @@ class QuickCreateTicketDialog(Component):
                 if self.env.product:
                     product_field['value'] = self.env.product.prefix
                 else:
-                    # Global scope, now check default_product_prefix is valid
-                    default_prefix = self.config.get('multiproduct',
-                                                     'default_product_prefix')
-                    try:
-                        ProductEnvironment.lookup_env(self.env, default_prefix)
-                    except LookupError:
-                        product_field['value'] = product_field['options'][0]
-                    else:
-                        product_field['value'] = default_prefix
+                    product_field['value'] = product_field['options'][0]
                 product_field['options_desc'] = [
                     ProductEnvironment.lookup_env(self.env, p).product.name
                         for p in product_field['options']
