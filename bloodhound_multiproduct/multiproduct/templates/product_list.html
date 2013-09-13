@@ -37,7 +37,7 @@
         <div py:for="product in products" class="product">
 
           <div class="info trac-progress">
-            <h3><a href="${href.products(product.prefix)}"><em>${product.name}</em></a></h3>
+            <h3><a href="${product.href()}"><em>${product.name}</em></a></h3>
           </div>
 
           <div class="description" xml:space="preserve">
