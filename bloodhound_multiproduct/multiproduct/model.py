@@ -35,13 +35,13 @@ from bhdashboard.model import ModelBase
 
 class Product(ModelBase):
     """The Product table"""
-    _meta = {'table_name':'bloodhound_product',
-            'object_name':'Product',
-            'key_fields':['prefix',],
-            'non_key_fields':['name', 'description', 'owner'],
-            'no_change_fields':['prefix',],
-            'unique_fields':['name'],
-            }
+    _meta = {'table_name': 'bloodhound_product',
+             'object_name': 'Product',
+             'key_fields': ['prefix'],
+             'non_key_fields': ['name', 'description', 'owner'],
+             'no_change_fields': ['prefix'],
+             'unique_fields': ['name'],
+             }
 
     @property
     def resource(self):
@@ -54,14 +54,14 @@ class Product(ModelBase):
         if resources_to is not None:
             new_product = Product(self._env, resources_to)
             if not new_product._exists:
-                sdata = {'new_table':resources_to}
+                sdata = {'new_table': resources_to}
                 sdata.update(self._meta)
                 raise TracError('%(object_name)s %(new_table)s does not exist' %
                                 sdata)
         original_prefix = self._data['prefix']
         super(Product, self).delete()
         #find and update all resources that should move
-        where = {'product_id':original_prefix}
+        where = {'product_id': original_prefix}
         for prm in ProductResourceMap.select(self._env, where=where):
             prm._data['product_id'] = resources_to
             prm.update()
@@ -88,28 +88,30 @@ class Product(ModelBase):
         q = ProductQuery.from_string(env, 'product=%s' % product)
         return q.execute()
 
+
 class ProductResourceMap(ModelBase):
     """Table representing the mapping of resources to their product"""
-    _meta = {'table_name':'bloodhound_productresourcemap',
-            'object_name':'ProductResourceMapping',
-            'key_fields':['id',],
-            'non_key_fields':['product_id','resource_type','resource_id',],
-            'no_change_fields':['id',],
-            'unique_fields':[],
-            'auto_inc_fields': ['id'],
-            }
+    _meta = {'table_name': 'bloodhound_productresourcemap',
+             'object_name': 'ProductResourceMapping',
+             'key_fields': ['id'],
+             'non_key_fields': ['product_id', 'resource_type', 'resource_id'],
+             'no_change_fields': ['id'],
+             'unique_fields': [],
+             'auto_inc_fields': ['id'],
+             }
 
     def reparent_resource(self, product=None):
         """a specific function to update a record when it is to move product"""
         if product is not None:
             new_product = Product(self._env, product)
             if not new_product._exists:
-                sdata = {'new_table':product}
+                sdata = {'new_table': product}
                 sdata.update(self.meta)
-                raise TracError('%(object_name)s %(new_table)s does not exist' %
-                                sdata)
+                raise TracError('%(object_name)s %(new_table)s does not exist'
+                                % sdata)
         self._data['product_id'] = product
         self.update()
+
 
 # -------------------------------------------
 # Configuration
@@ -118,13 +120,13 @@ class ProductResourceMap(ModelBase):
 class ProductSetting(ModelBase):
     """The Product configuration table
     """
-    _meta = {'table_name':'bloodhound_productconfig',
-            'object_name':'ProductSetting',
-            'key_fields':['product', 'section', 'option'],
-            'non_key_fields':['value', ],
-            'no_change_fields':['product', 'section', 'option'],
-            'unique_fields':[],
-            }
+    _meta = {'table_name': 'bloodhound_productconfig',
+             'object_name': 'ProductSetting',
+             'key_fields': ['product', 'section', 'option'],
+             'non_key_fields': ['value', ],
+             'no_change_fields': ['product', 'section', 'option'],
+             'unique_fields': [],
+             }
 
     @classmethod
     def exists(cls, env, product, section=None, option=None, db=None):
@@ -145,5 +147,4 @@ class ProductSetting(ModelBase):
         # FIXME: Maybe something more ORM-ish should be added in ModelBase
         return [row[0] for row in env.db_query("""SELECT DISTINCT section 
                 FROM bloodhound_productconfig WHERE product = %s""", 
-                (product,)) ]
-
+                (product,))]
