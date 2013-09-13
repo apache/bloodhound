@@ -77,7 +77,7 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'theme': {'theme': 'bloodhound',},
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
                                              'tickets', 'newticket', 'timeline',
-                                             'roadmap', 'search', 'admin']),
+                                             'roadmap', 'search']),
                         'environment_factory': '',
                         'request_factory': '',},
                'project': {'footer': ('Get involved with '

@@ -249,7 +249,13 @@ class BloodhoundTheme(ThemeBase):
             return req.href.__call__("wiki", *a, **kw)
 
         req.href.wiki = hwiki
-        
+
+        # Move 'admin' entry from mainnav to metanav
+        for i, entry in enumerate(req.chrome['nav']['mainnav']):
+            if entry['name'] == 'admin':
+                req.chrome['nav']['metanav'] \
+                    .append(req.chrome['nav']['mainnav'].pop(i))
+
         return handler
 
     def post_process_request(self, req, template, data, content_type):
