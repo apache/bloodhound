@@ -58,7 +58,7 @@ class ProductQuery(Query):
             return super(ProductQuery, self)._count(sql, args)
 
         cnt = self.env.db_direct_query("SELECT COUNT(*) FROM (%s) AS x"
-                                % sql, args)[0][0]
+                                       % sql, args)[0][0]
         # "AS x" is needed for MySQL ("Subqueries in the FROM Clause")
         self.env.log.debug("Count results in Query: %d", cnt)
         return cnt
@@ -91,8 +91,6 @@ class ProductQuery(Query):
         :since 1.0: the `db` parameter is no longer needed and will be removed
         in version 1.1.1
         """
-        if req is not None:
-            href = req.href
         with self.env.db_direct_query as db:
             cursor = db.cursor()
 
@@ -112,8 +110,8 @@ class ProductQuery(Query):
                 if self.group:
                     max += 1
                 sql = sql + " LIMIT %d OFFSET %d" % (max, self.offset)
-                if (self.page > int(ceil(float(self.num_items) / self.max)) and
-                    self.num_items != 0):
+                if self.page > int(ceil(float(self.num_items) / self.max)) and \
+                        self.num_items != 0:
                     raise TracError(_("Page %(page)s is beyond the number of "
                                       "pages in the query", page=self.page))
 
@@ -249,7 +247,7 @@ class ProductTicketQueryMacro(TicketQueryMacro):
 
             add_stylesheet(req, 'common/css/roadmap.css')
 
-            def query_href(extra_args, group_value = None):
+            def query_href(extra_args, group_value=None):
                 q = ProductQuery.from_string(env, query_string)
                 if q.group:
                     extra_args[q.group] = group_value
@@ -319,13 +317,13 @@ class ProductTicketQueryMacro(TicketQueryMacro):
                 envhref = hrefcache[pvalue]
             except KeyError:
                 try:
-                    env = lookup_product_env(self.env, prefix= pvalue,
+                    env = lookup_product_env(self.env, prefix=pvalue,
                                              name=pvalue)
                 except LookupError:
                     return tag.a('#%s' % ticket['id'], 
                                  class_='missing product')
-                hrefcache[pvalue] = envhref = resolve_product_href(
-                         to_env=env, at_env=self.env)
+                hrefcache[pvalue] = envhref = \
+                    resolve_product_href(to_env=env, at_env=self.env)
             return tag.a('#%s' % ticket['id'],
                          class_=ticket['status'],
                          href=envhref.ticket(int(ticket['id'])),
