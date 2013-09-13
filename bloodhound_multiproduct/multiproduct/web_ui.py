@@ -32,6 +32,7 @@ from trac.web.chrome import (
     prevnext_nav, web_context
 )
 
+from multiproduct.env import resolve_product_href, lookup_product_env
 from multiproduct.hooks import PRODUCT_RE
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
@@ -121,6 +122,8 @@ class ProductModule(Component):
         products = [p for p in Product.select(self.env)
                     if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
                                                                p.prefix))]
+        map(lambda p: setattr(p, 'href', resolve_product_href(
+            lookup_product_env(self.env, p.prefix), self.env)), products)
         data = {'products': products,
                 'context': web_context(req, Resource('product', None))}
         return 'product_list.html', data, None
