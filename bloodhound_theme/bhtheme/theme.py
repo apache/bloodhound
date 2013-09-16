@@ -35,7 +35,7 @@ from trac.util.presentation import to_json
 from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
-from trac.web.chrome import (add_stylesheet, INavigationContributor,
+from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
                              ITemplateProvider, prevnext_nav, Chrome)
 from trac.wiki.admin import WikiAdmin
 
@@ -249,7 +249,13 @@ class BloodhoundTheme(ThemeBase):
             return req.href.__call__("wiki", *a, **kw)
 
         req.href.wiki = hwiki
-        
+
+        # Move 'admin' entry from mainnav to metanav
+        for i, entry in enumerate(req.chrome['nav']['mainnav']):
+            if entry['name'] == 'admin':
+                req.chrome['nav']['metanav'] \
+                    .append(req.chrome['nav']['mainnav'].pop(i))
+
         return handler
 
     def post_process_request(self, req, template, data, content_type):
@@ -363,14 +369,15 @@ class BloodhoundTheme(ThemeBase):
                                          is_active)
 
         #add a creation event to the changelog if the ticket exists
-        if data['ticket'].exists:
+        ticket = data['ticket']
+        if ticket.exists:
             data['changes'] = [{'comment': '',
-                                'author': data['author_id'],
+                                'author': ticket['reporter'],
                                 'fields': {u'reported': {'label': u'Reported'},
                                            },
                                 'permanent': 1,
                                 'cnum': 0,
-                                'date': data['start_time'],
+                                'date': ticket['time'],
                                 },
                                ] + data['changes']
         #and set default order
@@ -480,21 +487,25 @@ class QuickCreateTicketDialog(Component):
                               for f in tm._prepare_fields(req, ticket)
                               if f['type'] == 'select')
 
-            product_field = all_fields['product']
+            product_field = all_fields.get('product')
             if product_field:
                 if self.env.product:
                     product_field['value'] = self.env.product.prefix
                 else:
-                    # Global scope, now check default_product_prefix is valid
-                    default_prefix = self.config.get('multiproduct',
-                                                     'default_product_prefix')
-                    try:
-                        ProductEnvironment.lookup_env(self.env, default_prefix)
-                    except LookupError:
-                        product_field['value'] = product_field['options'][0]
-                    else:
-                        product_field['value'] = default_prefix
-
+                    product_field['value'] = product_field['options'][0]
+                product_field['options_desc'] = [
+                    ProductEnvironment.lookup_env(self.env, p).product.name
+                        for p in product_field['options']
+                ]
+            else:
+                msg = _("Missing ticket field '%(field)s'.", field='product')
+                if ProductTicketModule is not None and \
+                        self.env[ProductTicketModule] is not None:
+                    # Display warning alert to users
+                    add_warning(req, msg)
+                else:
+                    # Include message in logs since this might be a failure
+                    self.log.warning(msg)
             data['qct'] = {
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
@@ -551,7 +562,14 @@ class QuickCreateTicketDialog(Component):
 
         PS: Borrowed from XmlRpcPlugin.
         """
-        t = Ticket(self.env)
+        if 'product' in attributes:
+            env = self.env.parent or self.env
+            if attributes['product']:
+                env = ProductEnvironment(env, attributes['product'])
+        else:
+            env = self.env
+
+        t = Ticket(env)
         t['summary'] = summary
         t['description'] = description
         t['reporter'] = req.authname
@@ -563,7 +581,7 @@ class QuickCreateTicketDialog(Component):
 
         if notify:
             try:
-                tn = TicketNotifyEmail(self.env)
+                tn = TicketNotifyEmail(env)
                 tn.notify(t, newticket=True)
             except Exception, e:
                 self.log.exception("Failure sending notification on creation "

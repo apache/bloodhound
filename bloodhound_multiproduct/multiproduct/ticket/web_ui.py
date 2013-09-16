@@ -37,9 +37,8 @@ from trac.wiki.parser import WikiParser
 from multiproduct.api import MultiProductSystem, PRODUCT_SYNTAX_DELIMITER_RE
 from multiproduct.env import lookup_product_env, ProductEnvironment
 from multiproduct.util import IDENTIFIER
+from multiproduct.model import Product
 from multiproduct.web_ui import ProductModule
-
-REPORT_RE = re.compile(r'/report(?:/(?:([0-9]+)|-1))?$')
 
 class ProductTicketModule(TicketModule):
     """Product Overrides for the TicketModule"""
@@ -47,23 +46,41 @@ class ProductTicketModule(TicketModule):
     # IRequestHandler methods
     #def match_request(self, req):
     # override not yet required
-    
+
     def process_request(self, req):
         """Override for TicketModule process_request"""
         ticketid = req.args.get('id')
         productid = req.args.get('productid','')
-        
-        if ticketid:
-            if req.path_info in ('/newticket', '/products'):
-                raise TracError(_("id can't be set for a new ticket request."))
+        if not ticketid:
+            # if /newticket is executed in global scope (from QCT), redirect
+            # the request to /products/<first_product_in_DB>/newticket
+            if not productid and not isinstance(self.env, ProductEnvironment):
+                products = Product.select(self.env, {'fields': ['prefix']})
+                req.redirect(req.href.products(products[0].prefix, 'newticket'))
+            return self._process_newticket_request(req)
+
+        if req.path_info in ('/newticket', '/products'):
+            raise TracError(_("id can't be set for a new ticket request."))
+
+        if isinstance(self.env, ProductEnvironment):
             ticket = Ticket(self.env, ticketid)
             if productid and ticket['product'] != productid:
-                msg = "Ticket %(id)s in product '%(prod)' does not exist."
+                msg = "Ticket %(id)s in product '%(prod)s' does not exist."
                 raise ResourceNotFound(_(msg, id=ticketid, prod=productid),
                                        _("Invalid ticket number"))
             return self._process_ticket_request(req)
-        return self._process_newticket_request(req)
-    
+
+        # executed in global scope -> assume ticketid=UID, redirect to product
+        with self.env.db_direct_query as db:
+            rows = db("""SELECT id,product FROM ticket WHERE uid=%s""",
+                    (ticketid,))
+            if not rows:
+                msg = "Ticket with uid %(uid)s does not exist."
+                raise ResourceNotFound(_(msg, uid=ticketid),
+                        _("Invalid ticket number"))
+            tid, prefix = rows[0]
+            req.redirect(req.href.products(prefix, 'ticket', tid))
+
     # INavigationContributor methods
     
     #def get_active_navigation_item(self, req):

@@ -15,7 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-# these import monkey patch classes required to enable
+# these imports monkey patch classes required to enable
 # multi product support
 import multiproduct.env
 import multiproduct.dbcursor
@@ -32,11 +32,6 @@ from trac.web.href import Href
 from trac.web.main import RequestWithSession
 
 PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
-REDIRECT_DEFAULT_RE = \
-    re.compile(r'^/(?P<section>milestone|roadmap|report|newticket|'
-               r'ticket|qct|timeline|diff|batchmodify|search|'
-               r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
-
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
@@ -74,15 +69,7 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                                      environ['SCRIPT_NAME'] + '/products/' +
                                      pid,
                                      m.group('pathinfo') or '')
-        else:
-            redirect = REDIRECT_DEFAULT_RE.match(path_info)
-            if redirect:
-                from multiproduct.api import MultiProductSystem
-                default_product_prefix = \
-                    MultiProductSystem(global_env).default_product_prefix
-                env = create_product_env(default_product_prefix,
-                                         environ['SCRIPT_NAME'],
-                                         environ['PATH_INFO'])
+
         return env
 
 

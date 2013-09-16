@@ -24,6 +24,7 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Administration commands for Bloodhound Dashboard.
 """
 import json
+import re
 from sys import stdout
 
 from trac.admin.api import IAdminCommandProvider, AdminCommandError
@@ -116,21 +117,24 @@ class BloodhoundAdmin(Component):
                     redirection.text = _('See [wiki:"%(name)s"].', name=new_name)
                     comment = 'Bloodhound guide update'
                     redirection.save('bloodhound', comment, '0.0.0.0')
-        self._do_wiki_rename_links('TracGuideToc', 'UserGuideToc')
+        self._do_wiki_rename_links('[[TracGuideToc]]', '[[UserGuideToc]]')
 
     def _do_wiki_rename_links(self, old_name, new_name):
-        import re
+        if old_name.startswith('[[') and old_name.endswith(']]'):
+            pattern = r'%s'
+        else:
+            pattern = r'\b%s\b'
         with self.env.db_transaction as db:
             pages = db("""SELECT name, text FROM wiki
                           WHERE text %s
                        """ % db.like(),
                        ('%' + db.like_escape(old_name) + '%',))
             for name, text in pages:
-                res = db("""UPDATE wiki
-                            SET text=%s
-                            WHERE name=%s
-                            """, 
-                         (re.sub(r'(?!\[\[)\b%s\b(?!\]\])' % old_name, new_name, text), name))
+                db("""UPDATE wiki
+                      SET text=%s
+                      WHERE name=%s
+                    """, (re.sub(pattern % re.escape(old_name),
+                                 new_name, text), name))
 
     def _get_tdump(self, db, table, fields):
         """Dumps all the data from a table for a known set of fields"""

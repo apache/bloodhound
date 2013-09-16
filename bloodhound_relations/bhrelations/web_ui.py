@@ -29,6 +29,7 @@ import re
 from trac.core import Component, implements, TracError
 from trac.resource import get_resource_url, Resource
 from trac.ticket.model import Ticket
+from trac.util import exception_to_unicode, to_unicode
 from trac.util.translation import _
 from trac.web import IRequestHandler, IRequestFilter
 from trac.web.chrome import ITemplateProvider, add_warning
@@ -93,7 +94,7 @@ class RelationManagementModule(Component):
                     req.perm.require('TICKET_MODIFY', Resource(dest_ticket.id))
 
                     try:
-                        relsys.add(ticket, dest_ticket,
+                        dbrel = relsys.add(ticket, dest_ticket,
                             relation['type'],
                             relation['comment'],
                             req.authname)
@@ -103,6 +104,18 @@ class RelationManagementModule(Component):
                         data['error'] = _('Unknown relation type.')
                     except ValidationError as ex:
                         data['error'] = ex.message
+
+                # Notify
+                try:
+                    self.notify_relation_changed(dbrel)
+                except Exception, e:
+                    self.log.error("Failure sending notification on"
+                                   "creation of relation: %s",
+                                   exception_to_unicode(e))
+                    add_warning(req, _("The relation has been added, but an "
+                                       "error occurred while sending"
+                                       "notifications: " "%(message)s",
+                                       message=to_unicode(e)))
 
                 if 'error' in data:
                     data['relation'] = relation
@@ -115,7 +128,11 @@ class RelationManagementModule(Component):
                 key=lambda x: x[0]),
             'relations': self.get_ticket_relations(ticket),
         })
-        return 'manage.html', data, None
+        return 'relations_manage.html', data, None
+
+    def notify_relation_changed(self, relation):
+        from bhrelations.notification import RelationNotifyEmail
+        RelationNotifyEmail(self.env).notify(relation)
 
     # ITemplateProvider methods
     def get_htdocs_dirs(self):

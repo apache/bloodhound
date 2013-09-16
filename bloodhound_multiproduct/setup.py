@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
 setup(
     name = 'BloodhoundMultiProduct',
-    version = '0.7.0',
+    version = '0.8.0',
     description = "Multiproduct support for Apache(TM) Bloodhound.",
     author = "Apache Bloodhound",
     license = "Apache License v2",
@@ -46,6 +46,7 @@ setup(
             'multiproduct.model = multiproduct.model',
             'multiproduct.perm = multiproduct.perm',
             'multiproduct.product_admin = multiproduct.product_admin',
+            'multiproduct.ticket.batch = multiproduct.ticket.batch',
             'multiproduct.ticket.query = multiproduct.ticket.query',
             'multiproduct.ticket.web_ui = multiproduct.ticket.web_ui',
             'multiproduct.web_ui = multiproduct.web_ui',

@@ -21,24 +21,43 @@
 Provides request filtering to capture product related paths
 """
 
+import re
+
 from trac.core import Component, TracError, implements
 from trac.resource import Neighborhood, Resource, ResourceNotFound
 from trac.util.translation import _
-from trac.web.api import HTTPNotFound, IRequestHandler
+from trac.web.api import HTTPNotFound, IRequestHandler, IRequestFilter
 from trac.web.chrome import (
     Chrome, INavigationContributor, add_link, add_notice, add_warning,
     prevnext_nav, web_context
 )
 
+from multiproduct.env import resolve_product_href, lookup_product_env
 from multiproduct.hooks import PRODUCT_RE
 from multiproduct.model import Product
+from multiproduct.env import ProductEnvironment
 
+
+# requests to the following URLs will be skipped in the global scope
+# (no more redirection to default product)
+IGNORED_REQUESTS_RE = \
+    re.compile(r'^/(?P<section>milestone|roadmap|diff|search|'
+               r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
 
 class ProductModule(Component):
     """Base Product behaviour"""
 
-    implements(IRequestHandler)
+    implements(IRequestFilter, IRequestHandler)
 
+    # IRequestFilter methods
+    def pre_process_request(self, req, handler):
+        if not isinstance(self.env, ProductEnvironment) and \
+           IGNORED_REQUESTS_RE.match(req.path_info):
+           return None
+        return handler
+
+    def post_process_request(req, template, data, content_type):
+        return template, data, content_type
 
     # IRequestHandler methods
     def match_request(self, req):
@@ -103,6 +122,8 @@ class ProductModule(Component):
         products = [p for p in Product.select(self.env)
                     if 'PRODUCT_VIEW' in req.perm(Neighborhood('product',
                                                                p.prefix))]
+        map(lambda p: setattr(p, 'href', resolve_product_href(
+            lookup_product_env(self.env, p.prefix), self.env)), products)
         data = {'products': products,
                 'context': web_context(req, Resource('product', None))}
         return 'product_list.html', data, None

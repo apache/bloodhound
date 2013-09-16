@@ -374,6 +374,10 @@ h1, h2, h3, h4 {
  page-break-after: avoid;
 }
 
+h1, h2, h3 {
+ min-height: 40px;
+}
+
 .clip, .affix .clip-affix {
  overflow: hidden;
  text-overflow: ellipsis;
@@ -847,9 +851,11 @@ tt {
  border: 1px solid #DDDDDD;
  border-radius: 3px 3px 3px 3px;
  box-shadow: 0 1px 0 #FFFFFF inset;
+ display: none; /* can be removed after upgrading to jQuery UI 1.9 (http://bugs.jqueryui.com/ticket/4111 */
  list-style: none outside none;
  margin: 0 0 18px;
  padding: 7px 14px;
+ z-index: 1001 !important;
 }
 
 .ui-datepicker a.ui-datepicker-prev,

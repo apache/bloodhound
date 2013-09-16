@@ -20,6 +20,7 @@
 
 from genshi.builder import tag
 
+import trac.db.api
 from trac.util.text import unquote_label
 from trac.wiki.formatter import LinkFormatter
 from trac.core import Component, ComponentMeta
@@ -138,6 +139,19 @@ class EmbeddedLinkFormatter(LinkFormatter):
                  if self.parent_match['label'] != self.parent_match['target']
                  else fullmatch.group('label'))
         return self._make_lhref_link(match, fullmatch, rel, ns, target, label)
+
+
+def get_db_connector_from_uri(env):
+    connector, arg = trac.db.api._parse_db_str(
+        trac.db.api.DatabaseManager(env).connection_uri
+    )
+    return connector
+    
+def using_sqlite_backend(env):
+    return get_db_connector_from_uri(env) == 'sqlite'
+
+def using_mysql_backend(env):
+    return get_db_connector_from_uri(env) == 'mysql'
 
 #----------------------
 # Useful regex

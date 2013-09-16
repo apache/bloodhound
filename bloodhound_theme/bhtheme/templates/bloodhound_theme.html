@@ -60,8 +60,7 @@
             </a>
           </div>
           <!--! top menu (login, logout...) -->
-          <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav);
-                         main_items = dict([i.name, i] for i in chrome.nav.mainnav);">
+          <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav);">
             <div id="usermenu" class="span8">
               <div class="metanav pull-right">
                 <span id="nav_login" py:choose="">
@@ -77,8 +76,8 @@
                 <span py:if="'logout' in meta_items" id="nav_logout">
                   ${meta_items.logout.label}
                 </span>
-                <span py:if="'admin' in main_items">
-                  ${main_items.admin.label}
+                <span py:if="'admin' in meta_items">
+                  ${meta_items.admin.label}
                 </span>
                 <span py:if="'help' in meta_items">
                   ${meta_items.help.label}
@@ -118,10 +117,11 @@
                 <select id="field-${field.name}" name="field_${field.name}"
                     class="input-block-level" data-empty="true" data-field="${field.name}">
                   <option py:if="field.optional"></option>
-                  <option py:for="option in field.options"
+                  <option py:for="idx,option in enumerate(field.options)"
+                          py:with="description = field.options_desc[idx] if field.options_desc else option"
                           selected="${field.value == option or None}"
                           value = "$option"
-                          py:content="option"></option>
+                          py:content="description"></option>
                   <optgroup py:for="optgroup in field.optgroups"
                             py:if="optgroup.options"
                             label="${optgroup.label}">
@@ -215,23 +215,21 @@
           <!--! main navigation tabs -->
           <div class="span6">
             <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
-                class="nav nav-tabs pull-right"
-                id="mainnav"
+                class="nav nav-tabs pull-right" id="mainnav"
                 py:with="mainnav_show = ('wiki', 'tickets', 'browser');
-                          mainnav_to_meta = ('admin',);
-                          metanav_hide = ('login', 'logout', 'prefs', 'help', 'about', 'register')">
+                         metanav_hide = ('login', 'logout', 'prefs', 'help', 'about', 'register', 'admin')">
               <!--! TODO: Parameterize visible mainnav items in trac.ini -->
               <li py:if="chrome.nav.mainnav"
                   py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
                   class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
               <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}"
                   py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide] +
-                             [i for i in chrome.nav.mainnav if i.name not in mainnav_show + mainnav_to_meta])">
+                             [i for i in chrome.nav.mainnav if i.name not in mainnav_show])">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">More<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li py:if="chrome.nav.mainnav"
                       py:for="idx, item in enumerate(i for i in chrome.nav.mainnav
-                                                     if i.name not in mainnav_show + mainnav_to_meta)"
+                                                     if i.name not in mainnav_show)"
                       class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
                   <py:if test="chrome.nav.metanav">
                     <li py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide])"

@@ -86,6 +86,20 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
 
         self.assertEqual(len(data["relations"]), 1)
 
+    def test_failure_to_notify_does_not_result_in_error(self):
+        t2 = self._insert_ticket(self.env, "Bar")
+        self.req.args['add'] = True
+        self.req.args['dest_tid'] = str(t2)
+        self.req.args['reltype'] = 'dependson'
+        rlm = RelationManagementModule(self.env)
+        rlm.notify_relation_changed = self._failing_notification
+
+        url, data, x = rlm.process_request(self.req)
+        self.assertEqual(len(self.req.chrome['warnings']), 1)
+
+    def _failing_notification(self, relation):
+        raise Exception()
+
     def process_request(self):
         url, data, x = RelationManagementModule(self.env).process_request(
             self.req)
