@@ -41,7 +41,7 @@ from trac.util.presentation import Paginator
 from trac.util.text import empty, shorten_line, quote_query_string
 from trac.util.translation import _, tag_, cleandoc_
 from trac.util.introspection import get_enabled_component_subclass
-from trac.web import arg_list_to_args, parse_arg_list, IRequestHandler
+from trac.web import arg_list_to_args, parse_arg_list, IRequestHandler, IRequestFilter
 from trac.web.href import Href
 from trac.web.chrome import (INavigationContributor, Chrome,
                              add_ctxtnav, add_link, add_script,
@@ -824,7 +824,7 @@ class Query(object):
 class QueryModule(Component):
 
     implements(IRequestHandler, INavigationContributor, IWikiSyntaxProvider,
-               IContentConverter)
+               IContentConverter, IRequestFilter)
 
     default_query = Option('query', 'default_query',
         default='status!=closed&owner=$USER',
@@ -876,6 +876,23 @@ class QueryModule(Component):
                 get_enabled_component_subclass(self.env, ReportModule) is None:
             yield ('mainnav', 'tickets',
                    tag.a(_('View Tickets'), href=req.href.query()))
+
+
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        """Pre process request filter"""
+
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """Post process request filter. """
+
+        if data is not None:
+            data['bhembedding'] = self.env.config.getbool('components', 'bhembedding.*')
+
+        return template, data, content_type
+
 
     # IRequestHandler methods
 

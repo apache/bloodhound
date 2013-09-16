@@ -29,4 +29,5 @@ TracThemeEngine
 TracPermRedirect
 -e ../bloodhound_search
 -e ../bloodhound_relations
-
+# Embedding plugin
+-e ../bloodhound_embedding_plugin

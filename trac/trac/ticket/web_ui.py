@@ -60,6 +60,9 @@ from trac.web.chrome import (
 from trac.wiki.formatter import format_to, format_to_html, format_to_oneliner
 
 
+# Embedding
+from trac.web.main import IRequestFilter
+
 class InvalidTicket(TracError):
     """Exception raised when a ticket fails validation."""
     title = N_("Invalid Ticket")
@@ -68,7 +71,7 @@ class InvalidTicket(TracError):
 class TicketModule(Component):
 
     implements(IContentConverter, INavigationContributor, IRequestHandler,
-               ISearchSource, ITemplateProvider, ITimelineEventProvider)
+               ISearchSource, ITemplateProvider, ITimelineEventProvider, IRequestFilter)
 
     ticket_manipulators = ExtensionPoint(ITicketManipulator)
 
@@ -161,6 +164,24 @@ class TicketModule(Component):
             yield ('mainnav', 'newticket',
                    tag.a(_("New Ticket"), href=req.href.newticket(),
                          accesskey=7))
+
+
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        """Pre process request filter"""
+
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """Post process request filter. """
+
+        if data is not None:
+            data['bhembedding'] = self.env.config.getbool('components', 'bhembedding.*')
+
+        return template, data, content_type
+
+
 
     # IRequestHandler methods
 

@@ -48,6 +48,9 @@ from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.formatter import format_to
 
 
+from trac.web.main import IRequestFilter
+
+
 class ITicketGroupStatsProvider(Interface):
     def get_ticket_group_stats(ticket_ids):
         """ Gather statistics on a group of tickets.
@@ -585,7 +588,7 @@ class MilestoneModule(Component):
 
     implements(INavigationContributor, IPermissionRequestor, IRequestHandler,
                ITimelineEventProvider, IWikiSyntaxProvider, IResourceManager,
-               ISearchSource)
+               ISearchSource, IRequestFilter)
 
     stats_provider = ExtensionOption('milestone', 'stats_provider',
                                      ITicketGroupStatsProvider,
@@ -644,6 +647,24 @@ class MilestoneModule(Component):
         elif field == 'description':
             return format_to(self.env, None, context.child(resource=milestone),
                              description)
+
+
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        """Pre process request filter"""
+
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """Post process request filter. """
+
+        # trac.web.auth.loginmodule
+        if data is not None:
+            data['bhembedding'] = self.env.config.getbool('components', 'bhembedding.*')
+
+        return template, data, content_type
+
 
     # IRequestHandler methods
 

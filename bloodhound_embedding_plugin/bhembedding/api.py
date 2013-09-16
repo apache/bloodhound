@@ -1,31 +1,25 @@
 import re
 import pkg_resources
+import urllib
 from datetime import datetime, date, time
 
-from trac.core import *
+from trac.core import Component, TracError, implements
+from trac.core import TracError
+from trac.util import escape, Markup
 from trac.web.chrome import ITemplateProvider
 from trac.web.main import IRequestHandler
 from trac.perm import IPermissionRequestor, PermissionCache, PermissionSystem
-from trac.util import escape, Markup
-from trac.core import Component, TracError, implements
-from trac.ticket import model
-from trac.core import TracError
 from trac.ticket.model import Ticket, Milestone, MilestoneCache, Version, Component as component
 from trac.ticket.web_ui import TicketModule
 from trac.ticket.api import TicketSystem
-from trac.ticket.query import Query, QueryModule, TicketQueryMacro, QueryValueError, QuerySyntaxError
 from multiproduct.model import Product
 from multiproduct.web_ui import ProductModule
 from multiproduct.ticket import query
+from trac.ticket.query import Query, QueryModule, TicketQueryMacro, QueryValueError, QuerySyntaxError
 from trac.resource import Resource, ResourceNotFound
 from trac.ticket.roadmap import get_tickets_for_milestone
 from trac.attachment import Attachment
-
-from trac.web.href import Href
-
 from multiproduct.env import ProductEnvironment
-
-from multiproduct.ticket.web_ui import ProductTicketModule
 
 class EmbeddingSystem(Component):
     implements(IRequestHandler, IPermissionRequestor, ITemplateProvider)
@@ -35,12 +29,13 @@ class EmbeddingSystem(Component):
         return ['TICKET_EMBED', 'MILESTONE_EMBED', 'PRODUCT_EMBED', 'QUERY_EMBED']
 
     def get_tickets_for_product(self, env, product=''):
-        """Retrieve all tickets associated with the product."""
+        """Retrieve all tickets associated with a product."""
         q = query.ProductQuery.from_string(env, 'product=%s' % product)
         return q.execute()
 
 
     def changeLog(self, id):
+        """Retrieve all changes associated with a ticket."""
         t = Ticket(self.env, id)
         for date, author, field, old, new, permanent in t.get_changelog():
             yield (date, author, field, old, new, permanent)
@@ -87,18 +82,21 @@ class EmbeddingSystem(Component):
 
     def process_request(self, req):
         name = req.args.get('name')
+
+
         if not (name == 'query'):
             id = req.args.get('id')
 
         if name == 'ticket':
+            ticket = Ticket(self.env, id)
             comm_num = 0
             attachment_num = len(self.get_attachments('ticket', id))
             ticket_log = self.changeLog(id)
+
             for log in ticket_log:
                 if log[2] == 'comment' and log[4]:
                     comm_num += 1
 
-            ticket = Ticket(self.env, id)
             data = {'ticket': ticket,
                     'comm_num': comm_num,
                     'attachment_num': attachment_num}
@@ -107,6 +105,7 @@ class EmbeddingSystem(Component):
         elif name == 'milestone':
             ticket_num = len(get_tickets_for_milestone(self.env, milestone=id))
             attachment_num = len(self.get_attachments('milestone', id))
+
             data = {'milestone': Milestone(self.env, id),
                     'product': self.env.product,
                     'ticket_number': ticket_num,
@@ -121,6 +120,7 @@ class EmbeddingSystem(Component):
             version_num = len(Version.select(product_env))
             components = component.select(product_env)
             component_num = 0
+
             for c in components:
                 component_num += 1
 
@@ -133,11 +133,9 @@ class EmbeddingSystem(Component):
             return 'bh_emb_product.html', data, None
         elif name == 'query':
             qstr = req.query_string
+            qstr = urllib.unquote(qstr).decode('utf8')
 
             if qstr=='':
-                # if req.authname and req.authname != 'anonymous':
-                #     qstr = 'status!=closed&owner=' + req.authname
-                # else:
                 qstr = 'status!=closed'
 
             qresults = self.query(req, qstr)
@@ -151,7 +149,6 @@ class EmbeddingSystem(Component):
         else:
             msg = "It is not possible to embed this resource."
             raise ResourceNotFound((msg), ("Invalid resource"))
-
 
 
     ### ITemplateProvider methods
