@@ -40,6 +40,7 @@ from trac.util.text import to_unicode, unquote_label, unicode_unquote
 from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider, add_warning
 from trac.web.main import FakePerm, FakeSession
+from trac.wiki.admin import WikiAdmin
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.parser import WikiParser
 
@@ -581,6 +582,13 @@ class MultiProductSystem(Component):
                     "INSERT INTO %s (%s) VALUES (%s)" %
                     (table[0], ','.join(cols), ','.join(['%s' for c in cols])),
                     rows)
+
+        # Import default pages in product wiki
+        wikiadmin = WikiAdmin(ProductEnvironment(self.env, product.prefix))
+        pages = ('TitleIndex', 'RecentChanges')
+        for page in pages:
+            filename = resource_filename('trac.wiki', 'default-pages/' + page)
+            wikiadmin.import_page(filename, page)
 
     def resource_changed(self, resource, old_values, context):
         return
