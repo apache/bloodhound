@@ -24,13 +24,13 @@
 
   <li py:for="item in items" class="media">
     <a class="pull-left" href="${item.href}">
-      <img class="media-object img-polaroid" src="${item.thumb}" 
-          width="${thumbsize or 64}" height="${thumbsize or 64}"/>
+      <img class="media-object img-polaroid" src="${item.thumb}"
+           width="${thumbsize or 64}" height="${thumbsize or 64}"/>
     </a>
     <div class="media-body">
       <h4 class="media-heading">${item.title}</h4>
       <a class="pull-right btn" href="${link.href}" title="${link.title}" style="display: inline-block"
-          py:if="item.links and item.links.main" py:with="link = item.links.main">
+         py:if="item.links and item.links.main" py:with="link = item.links.main">
         <span>${link.label}</span> ${link.icon}
       </a>
       <div xml:space="preserve" class="description">${item.description}</div>

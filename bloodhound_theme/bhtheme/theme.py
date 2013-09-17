@@ -38,6 +38,7 @@ from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
                              ITemplateProvider, prevnext_nav, Chrome)
 from trac.wiki.admin import WikiAdmin
+from trac.wiki.formatter import format_to_html
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
 
@@ -132,6 +133,7 @@ class BloodhoundTheme(ThemeBase):
 
         # Multi Product
         'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
+        'product_list.html': ('bh_product_list.html', '_modify_product_list'),
 
         # General purpose
         'about.html': ('bh_about.html', None),
@@ -439,6 +441,52 @@ class BloodhoundTheme(ThemeBase):
                                          content_type, is_active):
         if isinstance(req.perm.env, ProductEnvironment):
             data['resourcepath_template'] = 'bh_path_general.html'
+
+    def _modify_product_list(self, req, template, data, content_type, 
+                             is_active):
+        """Transform products list into media list by adding 
+        configured product icon as well as further navigation items.
+        """
+        products = data.pop('products')
+        context = data['context']
+        with self.env.db_query as db:
+            icons = db.execute("""
+                SELECT product, value FROM bloodhound_productconfig
+                WHERE product IN (%s) AND section='project' AND
+                option='icon'""" % ', '.join(["%s"] * len(products)),
+                tuple(p.prefix for p in products))
+        icons = dict(icons)
+        data['thumbsize'] = 64
+        # FIXME: Gray icon for missing products
+        no_thumbnail = req.href('chrome/theme/img/bh.ico')
+        product_ctx = lambda item: context.child(item.resource)
+
+        def product_media_data(icons, product):
+            return dict(href=product.href(),
+                        thumb=icons.get(product.prefix, no_thumbnail),
+                        title=product.name,
+                        description=format_to_html(self.env,
+                                                   product_ctx(product),
+                                                   product.description),
+                        links={'extras': [{'href': product.href(),
+                                           'title': 'Home page',
+                                           'icon': tag.i(class_='icon-home'),
+                                           'label': 'Home'},
+                                          {'href': product.href.dashboard(),
+                                           'title': 'Tickets dashboard',
+                                           'icon': tag.i(class_='icon-tasks'),
+                                           'label': 'Tickets'},
+                                          {'href': product.href.wiki(),
+                                           'title': 'Wiki',
+                                           'icon': tag.i(class_='icon-book'),
+                                           'label': 'Wiki'}],
+                               'main': {'href': product.href(),
+                                        'title': None,
+                                        'icon': tag.i(class_='icon-chevron-right'),
+                                        'label': 'Browse'}})
+
+        data['products'] = [product_media_data(icons, product)
+                            for product in products]
 
     # INavigationContributor methods
 
