@@ -25,8 +25,11 @@ class LiveSyntaxHighlightingPlugin(Component):
         flag = False
         if re.match(r'.*?(/wiki/)', req.path_info) or re.match(r'/wiki/', 
             req.path_info):
-            if req.args['action'] == "edit":
-                flag = True
+            try:
+                if req.args['action'] == "edit":
+                    flag = True
+            except KeyError:
+                flag = False
         
         if flag:
 
