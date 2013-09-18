@@ -53,8 +53,8 @@ $(document).ready(function (){
   // To adjust the height of the editor
   $("#editrows").change(function(){
     var twidth = livesyntaxhighlight.cmwidth;
-    // livesyntaxhighlight.editor.setSize(twidth, 
-      // this.options[this.selectedIndex].value*13);
+    livesyntaxhighlight.editor.setSize(twidth, 
+      this.options[this.selectedIndex].value*13);
   });
   //Functions to hook in the wikitoolbar
   $("#strong").click(function () {
