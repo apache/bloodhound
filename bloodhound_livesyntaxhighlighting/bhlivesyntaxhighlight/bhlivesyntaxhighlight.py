@@ -22,23 +22,21 @@ class LiveSyntaxHighlightingPlugin(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        flag = False
+        flag = ""
         if re.match(r'.*?(/wiki/)', req.path_info) or re.match(r'/wiki/', 
             req.path_info):
-            try:
-                if req.args['action'] == "edit":
-                    flag = True
-            except KeyError:
-                flag = False
-        
-        if flag:
+            flag = req.args.get('action')
+
+        if flag == "edit":
 
             ### Future implementation ###
             # defaults = {}
-            # prefs = dict((key, req.session.get('wiki_%s' % key, defaults.get(key)))
+            # prefs = dict((key, req.session.get('wiki_%s' % key,
+            # defaults.get(key)))
             #     for key in ('editrows','sidebyside','livesyntaxhighlight'))
             # if 'from_editor' in req.args:
-            #     livesyntaxhighlight = req.args.get('livesyntaxhighlight') or None
+            #     livesyntaxhighlight = req.args.get('livesyntaxhighlight') 
+            # or None
             #     if livesyntaxhighlight != prefs['livesyntaxhighlight']:
             #         req.session.set('wiki_livesyntaxhighlight', 
             #             int(bool(livesyntaxhighlight)), 1)
@@ -68,4 +66,5 @@ class LiveSyntaxHighlightingPlugin(Component):
 
     def get_htdocs_dirs(self):
         resource_filename = pkg_resources.resource_filename
-        return [('livesyntaxhighlight', resource_filename('bhlivesyntaxhighlight', 'htdocs'))]
+        return [('livesyntaxhighlight', 
+            resource_filename('bhlivesyntaxhighlight', 'htdocs'))]
