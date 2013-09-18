@@ -1,0 +1,48 @@
+.cm-wm-syntaxerror {
+	color: #FFF;
+	background-color: #900;
+}
+
+.cm-wm-deleted {
+	text-decoration: line-through;
+}
+
+
+.cm-wm-listitem:first-child { /*Added first child to fix duplicate padding when highlighting*/
+	padding-left: 10px;
+}
+
+.cm-wm-box {
+	border-top-width: 0px ! important;
+	border-style: solid;
+	border-width: 1px;
+	border-color: inherit;
+}
+
+.cm-wm-underline {
+	text-decoration: underline;
+}
+
+.cm-wm-superscript{
+    vertical-align: super;
+    font-size: 8px;
+}
+.cm-wm-subscript{
+    vertical-align: sub;
+    font-size: 8px;
+}
+.cm-wm-header1{
+    font-size: 2em; /* font size of h1 tag according to w3c*/
+    font-weight: bold;
+}
+.cm-wm-header2{
+    font-size: 1.5em; /* font size of h2 tag according to w3c*/
+    font-weight: bold;
+}
+.cm-wm-header3{
+    font-size: 1.17em; /* font size of h3 tag according to w3c*/
+    font-weight: bold;
+}
+.cm-wm-header5 {
+    font-weight: bold;
+}
