@@ -107,7 +107,7 @@ class SecurityTest(BaseBloodhoundSearchTest):
             del PermissionSystem(env).store._all_permissions
 
 
-class MultiProductSecurityTestSuite(SecurityTest):
+class MultiProductSecurityTestCase(SecurityTest):
     def test_applies_security(self):
         self.insert_ticket('ticket 1')
 
@@ -388,7 +388,7 @@ class AuthzSecurityTestCase(SecurityTest):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(MultiProductSecurityTestSuite, 'test'))
+    suite.addTest(unittest.makeSuite(MultiProductSecurityTestCase, 'test'))
     if configobj:
         suite.addTest(unittest.makeSuite(AuthzSecurityTestCase, 'test'))
     return suite
