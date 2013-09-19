@@ -26,6 +26,11 @@ import contextlib
 import os
 from sqlite3 import OperationalError
 
+try:
+    import configobj
+except ImportError:
+    configobj = None
+
 from trac.perm import (DefaultPermissionPolicy, PermissionCache,
                        PermissionSystem)
 
@@ -382,7 +387,11 @@ class AuthzSecurityTestCase(SecurityTest):
 
 
 def suite():
-    return unittest.makeSuite(MultiProductSecurityTestSuite, 'test')
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(MultiProductSecurityTestSuite, 'test'))
+    if configobj:
+        suite.addTest(unittest.makeSuite(AuthzSecurityTestCase, 'test'))
+    return suite
 
 if __name__ == '__main__':
     unittest.main()
