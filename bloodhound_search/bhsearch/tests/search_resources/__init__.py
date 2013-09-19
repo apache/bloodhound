@@ -18,3 +18,19 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from bhsearch.tests import unittest
+from bhsearch.tests.search_resources import base, changeset_search, \
+    milestone_search, ticket_search, wiki_search
+
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(base.suite())
+    suite.addTest(changeset_search.suite())
+    suite.addTest(milestone_search.suite())
+    suite.addTest(ticket_search.suite())
+    suite.addTest(wiki_search.suite())
+    return suite
+
+if __name__ == '__main__':
+    unittest.main(defaultTest='suite')
