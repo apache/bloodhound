@@ -272,9 +272,10 @@ class AuthzSecurityTestCase(SecurityTest):
 
         # Create some dummy objects
         self.insert_ticket('ticket 1')
+        self.insert_ticket('ticket 2')
         self.insert_wiki('page 1', 'content')
         with self.product('p1'):
-            self.insert_ticket('ticket 2')
+            self.insert_ticket('ticket 1 in p1')
             self.insert_wiki('page 1', 'content')
 
     def write_authz_config(self, content):
@@ -289,7 +290,7 @@ class AuthzSecurityTestCase(SecurityTest):
         ]))
 
         results = self.search_api.query("type:ticket", context=self.context)
-        self.assertEqual(2, results.hits)
+        self.assertEqual(3, results.hits)
         results = self.search_api.query("type:wiki", context=self.context)
         self.assertEqual(0, results.hits)
 
@@ -300,7 +301,7 @@ class AuthzSecurityTestCase(SecurityTest):
         """)
 
         results = self.search_api.query("type:ticket", context=self.context)
-        self.assertEqual(1, results.hits)
+        self.assertEqual(2, results.hits)
         self.assertEqual(u'1', results.docs[0]['id'])
 
     def test_deny_overrides_default_permissions(self):
