@@ -284,10 +284,10 @@ class AuthzSecurityTestCase(SecurityTest):
 
     def test_authz_permissions(self):
         self._add_permission('x', 'WIKI_VIEW')
-        self.write_authz_config('\n'.join([
-            '[*]',
-            '* = TICKET_VIEW, !WIKI_VIEW',
-        ]))
+        self.write_authz_config("""
+            [*]
+            * = TICKET_VIEW, !WIKI_VIEW
+        """)
 
         results = self.search_api.query("type:ticket", context=self.context)
         self.assertEqual(3, results.hits)
@@ -375,10 +375,8 @@ class AuthzSecurityTestCase(SecurityTest):
         self.write_authz_config("""
             [groups]
             admins = x
-
             [*]
             @admins = TICKET_VIEW
-
             [ticket:1]
             * = !TRAC_ADMIN
         """)

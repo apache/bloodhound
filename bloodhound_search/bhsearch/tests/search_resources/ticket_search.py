@@ -110,6 +110,7 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
         component.insert()
         return component
 
+
 def suite():
     return unittest.makeSuite(TicketIndexerTestCase, 'test')
 
