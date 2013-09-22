@@ -125,7 +125,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         result_datetime = result_items[0]["date"]
         self.env.log.debug(
             "Ticket time: %s, Formatted time: %s ,Returned time: %s",
-            ticket_time, expected_datetime,result_datetime)
+            ticket_time, expected_datetime, result_datetime)
         self.assertEqual(expected_datetime, result_datetime)
 
     def test_ticket_href(self):
@@ -149,7 +149,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self._insert_tickets(DEFAULT_DOCS_PER_PAGE+1)
         self.req.args[RequestParameters.QUERY] = "*:*"
         data = self.process_request()
-        shown_pages =  data["results"].shown_pages
+        shown_pages = data["results"].shown_pages
         second_page_href = shown_pages[1]["href"]
         self.assertIn("page=2", second_page_href)
         self.assertIn("q=*%3A*", second_page_href)
@@ -270,12 +270,11 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         page_href = data["page_href"]
-        self.assertIn(urlencode({'fq':'component:"c1"'}), page_href)
-        self.assertIn(urlencode({'fq':'status:"new"'}), page_href)
+        self.assertIn(urlencode({'fq': 'component:"c1"'}), page_href)
+        self.assertIn(urlencode({'fq': 'status:"new"'}), page_href)
 
         docs = data["results"].items
         self.assertEqual(2, len(docs))
-
 
     def test_can_handle_empty_facet_result(self):
         #arrange
@@ -412,7 +411,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.assertEqual('T1 (new)', quick_jump_data["description"])
         self.assertEqual('/main/ticket/1', quick_jump_data["href"])
 
-
     def test_that_ticket_search_can_return_in_grid(self):
         #arrange
         self.env.config.set(
@@ -455,7 +453,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         #assert
         self.assertNotIn("headers", data)
         self.assertNotIn("view", data)
-
 
     def test_can_returns_all_views(self):
         #arrange
@@ -520,7 +517,6 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         data = self.process_request()
         #assert
         self.assertIn("title", data["results"].items[0])
-
 
     def test_that_grid_header_has_correct_sort_when_default_sorting(self):
         #arrange
@@ -622,7 +618,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
         self.insert_ticket(term, id=id)
         self.insert_wiki(id, term)
 
-        self.req.args[RequestParameters.QUERY] =  term
+        self.req.args[RequestParameters.QUERY] = term
         data = self.process_request()
 
         for row in data["results"].items:
@@ -834,7 +830,7 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
 
         return i
 
-    def _assertResourceType(self, type, label, active, href_contains = None):
+    def _assertResourceType(self, type, label, active, href_contains=None):
         self.assertEquals(label, type["label"])
         self.assertEquals(active, type["active"])
         if href_contains:
@@ -867,13 +863,13 @@ class RequestParametersTest(unittest.TestCase):
             None,
             self._evaluate_sort(" ,  , "))
         self.assertEqual(
-            [SortInstruction("f1", ASC),],
+            [SortInstruction("f1", ASC)],
             self._evaluate_sort(" f1 "))
         self.assertEqual(
-            [SortInstruction("f1", ASC),],
+            [SortInstruction("f1", ASC)],
             self._evaluate_sort(" f1 asc"))
         self.assertEqual(
-            [SortInstruction("f1", DESC),],
+            [SortInstruction("f1", DESC)],
             self._evaluate_sort("f1  desc"))
         self.assertEqual(
             [SortInstruction("f1", ASC), SortInstruction("f2", DESC)],
