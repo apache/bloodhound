@@ -65,6 +65,12 @@ class WebUiTestCaseWithWhoosh(BaseBloodhoundSearchTest):
             def href(self, *args):
                 return ('/main/products/%s/' % self.product) + '/'.join(args)
 
+            def abs_href(self, *args):
+                return 'http://example.org' + self.href(*args)
+
+            from multiproduct.env import ProductEnvironment
+            resolve_href = ProductEnvironment.resolve_href
+
         web_ui.ProductEnvironment = MockProductEnvironment
 
     def tearDown(self):
