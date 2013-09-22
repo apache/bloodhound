@@ -23,27 +23,22 @@ try:
 except ImportError:
     import unittest
 
-from bhsearch.tests import (whoosh_backend, index_with_whoosh, web_ui,
-                            api, query_parser, query_suggestion, security)
-from bhsearch.tests.search_resources import (ticket_search, wiki_search,
-                                             milestone_search, base,
-                                             changeset_search)
+from bhsearch.tests import (
+    api, index_with_whoosh, query_parser, query_suggestion,
+    search_resources, security, web_ui, whoosh_backend
+)
 
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(index_with_whoosh.suite())
-    test_suite.addTest(whoosh_backend.suite())
-    test_suite.addTest(web_ui.suite())
     test_suite.addTest(api.suite())
+    test_suite.addTest(index_with_whoosh.suite())
     test_suite.addTest(query_parser.suite())
     test_suite.addTest(query_suggestion.suite())
+    test_suite.addTest(search_resources.suite())
+    test_suite.addTest(web_ui.suite())
+    test_suite.addTest(whoosh_backend.suite())
     test_suite.addTest(security.suite())
-    test_suite.addTest(ticket_search.suite())
-    test_suite.addTest(wiki_search.suite())
-    test_suite.addTest(milestone_search.suite())
-    test_suite.addTest(changeset_search.suite())
-    test_suite.addTest(base.suite())
     return test_suite
 
 if __name__ == '__main__':
