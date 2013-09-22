@@ -659,7 +659,6 @@ class MilestoneModule(Component):
     def post_process_request(self, req, template, data, content_type):
         """Post process request filter. """
 
-        # trac.web.auth.loginmodule
         if data is not None:
             data['bhembedding'] = self.env.config.getbool('components', 'bhembedding.*')
 

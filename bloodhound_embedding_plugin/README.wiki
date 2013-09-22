@@ -1,0 +1,52 @@
+
+= Embed Bloodhound data to external services =
+
+REST API for interacting with objects from external services
+
+== ToDo ==
+
+Outstanding tasks are :
+
+Once installed, the plugin cannot be disabled for products and milestones, only for tickets and queries.
+More details can be found in Ticket #664 on https://issues.apache.org/bloodhound
+
+== Dependencies ==
+
+The plugin needs the following Bloodhound components to be enabled:
+- Multiproduct
+
+In order to be able to embed products, Bloodhound Dashboard needs to be enabled.
+
+
+== Installation ==
+
+The plugin can be installed by running
+
+{{{
+$ python setup.py bdist_egg
+}}}
+
+from within /path/to/bloodhound_embedding_plugin and then copying the resulted *.egg file
+to the plugins directory of the project environment.
+
+More details about the installation of plugins can be found here:
+http://trac.edgewall.org/wiki/TracPlugins
+
+== Configuration ==
+
+In order to enable the BloodhoundEmbedding plugin,
+the only thing to do is to add the following lines to [wiki:TracIni trac.ini].
+
+{{{
+[components]
+bhembedding.* = enabled
+}}}
+
+== Bug / feature requests ==
+
+Existing bugs and feature requests for the EmbeddingPlugin are
+[query:status=accepted|new|reopened|needinfo|needinfo(new)|needinfo(review)|review&component=plugins].
+
+If you have any issues, please create a [/newticket?component=plugins new ticket].
+
+

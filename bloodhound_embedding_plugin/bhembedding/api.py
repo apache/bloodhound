@@ -1,8 +1,8 @@
 import re
 import pkg_resources
 import urllib
-from datetime import datetime, date, time
 
+from datetime import datetime, date, time
 from trac.core import Component, TracError, implements
 from trac.core import TracError
 from trac.util import escape, Markup
@@ -42,6 +42,7 @@ class EmbeddingSystem(Component):
 
 
     def query(self, req, qstr):
+        """Retrieve all tickets associated with a query string"""
         q = Query.from_string(self.env, qstr)
         filters = Query.to_string(q)
         ticket_realm = Resource('ticket')
@@ -54,6 +55,7 @@ class EmbeddingSystem(Component):
 
 
     def get_attachments(self, realm, id):
+        """Retrieve all attachments associated with a resource."""
         return [a.filename for a in Attachment.select(self.env, realm, id)]
 
 
