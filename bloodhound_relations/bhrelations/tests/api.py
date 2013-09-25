@@ -496,6 +496,42 @@ class ApiTestCase(BaseRelationsTestCase):
         self.relations_system.add(t1, t2, "refersto")
         self.relations_system.add(t2, t1, "refersto")
 
+    def test_can_find_ticket_by_id_from_same_env(self):
+        """ Can find ticket given #id"""
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        t1 = self._insert_and_load_ticket_with_env(p2_env, "T1")
+        trs = TicketRelationsSpecifics(p2_env)
+
+        ticket = trs.find_ticket("#%d" % t1.id)
+
+        self.assertEqual(ticket.id, 1)
+
+    def test_can_find_ticket_by_id_from_different_env(self):
+        """ Can find ticket from different env given #id"""
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        t1 = self._insert_and_load_ticket_with_env(p2_env, "T1")
+        trs = TicketRelationsSpecifics(self.env)
+
+        ticket = trs.find_ticket("#%d" % t1.id)
+
+        self.assertEqual(ticket.id, 1)
+
+    def test_can_find_ticket_by_product_and_id(self):
+        """ Can find ticket given #prefix-id"""
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        t1 = self._insert_and_load_ticket_with_env(p2_env, "T1")
+        trs = TicketRelationsSpecifics(self.env)
+
+        ticket = trs.find_ticket("#%s-%d" % (product2, t1.id))
+
+        self.assertEqual(ticket.id, 1)
+
 
 class RelationChangingListenerTestCase(BaseRelationsTestCase):
     def test_can_sent_adding_event(self):

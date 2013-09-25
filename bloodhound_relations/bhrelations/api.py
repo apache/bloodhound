@@ -561,23 +561,31 @@ class TicketRelationsSpecifics(Component):
 
     def find_ticket(self, ticket_spec):
         ticket = None
-        m = re.match(r'#?(?P<tid>\d+)', ticket_spec)
+        m = re.match(r'#?(?:(?P<pid>[^-]+)-)?(?P<tid>\d+)', ticket_spec)
         if m:
+            pid = m.group('pid')
             tid = m.group('tid')
-            try:
-                ticket = Ticket(self.env, tid)
-            except ResourceNotFound:
-                # ticket not found in current product, try all other products
-                for p in Product.select(self.env):
-                    if p.prefix != self.env.product.prefix:
-                        # TODO: check for PRODUCT_VIEW permissions
-                        penv = ProductEnvironment(self.env.parent, p.prefix)
-                        try:
-                            ticket = Ticket(penv, tid)
-                        except ResourceNotFound:
-                            pass
-                        else:
-                            break
+            if pid:
+                try:
+                    env = ProductEnvironment(self.env.parent, pid)
+                    ticket = Ticket(env, tid)
+                except:
+                    pass
+            else:
+                try:
+                    ticket = Ticket(self.env, tid)
+                except ResourceNotFound:
+                    # ticket not found in current product, try all other products
+                    for p in Product.select(self.env):
+                        if p.prefix != self.env.product.prefix:
+                            # TODO: check for PRODUCT_VIEW permissions
+                            penv = ProductEnvironment(self.env.parent, p.prefix)
+                            try:
+                                ticket = Ticket(penv, tid)
+                            except ResourceNotFound:
+                                pass
+                            else:
+                                break
 
         # ticket still not found, use fallback for <prefix>:ticket:<id> syntax
         if ticket is None:
