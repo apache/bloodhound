@@ -96,7 +96,7 @@
               <tbody py:for="relgroup,items in relations.iteritems()">
                 <tr py:for="item in items">
                   <td class="sel"><input type="checkbox" name="sel" value="${item.relation_id}" /></td>
-                  <td>${relgroup if items.index(item) == 0 else None}</td>
+                  <td>$relgroup</td>
                   <td>
                     <a href="${href.products(item['destticket'].env.product.prefix)}">
                       <span class="hidden-phone">${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})</span>
