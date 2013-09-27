@@ -74,8 +74,12 @@ class Product(ModelBase):
         now = datetime.now(utc)
         comment = 'Product %s renamed to %s' % (old_name, new_name)
         if old_name != new_name:
+            env = self._env.parent or self._env
+            if self._data['prefix']:
+                from multiproduct.env import ProductEnvironment
+                env = ProductEnvironment(env, self._data['prefix'])
             for t in Product.get_tickets(self._env, self._data['prefix']):
-                ticket = Ticket(self._env, t['id'], db)
+                ticket = Ticket(env, t['id'], db)
                 ticket.save_changes(author, comment, now)
 
     @classmethod
