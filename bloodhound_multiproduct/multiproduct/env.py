@@ -362,6 +362,15 @@ class ProductEnvironment(Component, ComponentManager):
     
     class __metaclass__(ComponentMeta):
 
+        def select_global_env(f):
+            """Replaces env with env.parent where appropriate"""
+            # Keep the signature of __call__ method
+            def __call__(self, env, *args, **kwargs):
+                g_env = env.parent if isinstance(env,
+                                                 ProductEnvironment) else env
+                return f(self, g_env, *args, **kwargs)
+            return __call__
+
         def product_env_keymap(args, kwds, kwd_mark):
             # Remove meta-reference to self (i.e. product env class)
             args = args[1:]
@@ -377,14 +386,15 @@ class ProductEnvironment(Component, ComponentManager):
                     kwds['product'] = product.prefix
             return default_keymap(args, kwds, kwd_mark)
 
+        @select_global_env
         @lru_cache(maxsize=100, keymap=product_env_keymap)
         def __call__(self, *args, **kwargs):
-            """Return an existing instance of there is a hit 
+            """Return an existing instance if there is a hit
             in the global LRU cache, otherwise create a new instance.
             """
             return ComponentMeta.__call__(self, *args, **kwargs)
 
-        del product_env_keymap
+        del product_env_keymap, select_global_env
 
     implements(trac.env.ISystemInfoProvider, IPermissionRequestor)
 
