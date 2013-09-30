@@ -117,7 +117,8 @@
                       <input py:if="can_revoke" type="checkbox"
                              id="$subject_action_id"
                              name="sel" value="$subject_action" />
-                      $action
+                      <span py:strip="action in actions" class="missing"
+                            title="Action is no longer defined">${action}</span>
                     </label>
                   </py:for>
                 </td>
