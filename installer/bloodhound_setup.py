@@ -133,6 +133,9 @@ class BloodhoundSetup(object):
             options['envsdir'] = os.path.join('bloodhound',
                                               'environments')
 
+        # Flags used when running the functional test suite
+        self.apply_bhwiki_upgrades = True
+
     def _generate_db_str(self, options):
         """Builds an appropriate db string for trac-admin for sqlite and
         postgres options. Also allows for a user to provide their own db string
@@ -266,8 +269,11 @@ class BloodhoundSetup(object):
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
         
-        print "Running wiki Bloodhound upgrades"
-        bloodhound.onecmd('wiki bh-upgrade')
+        if self.apply_bhwiki_upgrades:
+            print "Running wiki Bloodhound upgrades"
+            bloodhound.onecmd('wiki bh-upgrade')
+        else:
+            print "Skipping Bloodhound wiki upgrades"
 
         print "Loading default product wiki"
         bloodhound.onecmd('product admin %s wiki load %s' %
@@ -278,9 +284,12 @@ class BloodhoundSetup(object):
         bloodhound.onecmd('product admin %s wiki upgrade' %
                           default_product_prefix)
 
-        print "Running default product wiki Bloodhound upgrades"
-        bloodhound.onecmd('product admin %s wiki bh-upgrade' %
-                          default_product_prefix)
+        if self.apply_bhwiki_upgrades:
+            print "Running default product Bloodhound wiki upgrades"
+            bloodhound.onecmd('product admin %s wiki bh-upgrade' %
+                              default_product_prefix)
+        else:
+            print "Skipping default product Bloodhound wiki upgrades"
 
         print """
 You can now start Bloodhound by running:
