@@ -388,15 +388,8 @@ class ProductEnvApiTestCase(MultiproductTestCase):
     def test_typecheck(self):
         """Testing env.__init__"""
         self._load_product_from_data(self.env, 'tp2')
-        with self.assertRaises(TypeError) as cm_test:
-            new_env = ProductEnvironment(self.product_env, 'tp2')
-
-        msg = str(cm_test.exception)
-        expected_msg = "Initializer must be called with " \
-                       "trac.env.Environment instance as first argument " \
-                       "(got multiproduct.env.ProductEnvironment instance " \
-                       "instead)"
-        self.assertEqual(msg, expected_msg)
+        env2 = ProductEnvironment(self.product_env, 'tp2')
+        self.assertIs(env2, ProductEnvironment(self.env, 'tp2'))
 
     def test_component_enable(self):
         """Testing env.is_component_enabled"""
