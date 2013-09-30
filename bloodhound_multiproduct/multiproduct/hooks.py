@@ -37,13 +37,14 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
         environ.setdefault('SCRIPT_NAME', '')  # bh:ticket:594
 
-        env = pid = None
+        env = pid = product_path = None
         path_info = environ.get('PATH_INFO')
         if not path_info:
             return env
         m = PRODUCT_RE.match(path_info)
         if m:
             pid = m.group('pid')
+            product_path = m.group('pathinfo') or ''
 
         def create_product_env(product_prefix, script_name, path_info):
             if not global_env._abs_href:
@@ -64,11 +65,11 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                 environ['PATH_INFO'] = path_info
             return env
 
-        if pid:
+        if pid and not (product_path in ('', '/') and 
+                        environ.get('QUERY_STRING')):
             env = create_product_env(pid,
                                      environ['SCRIPT_NAME'] + '/products/' +
-                                     pid,
-                                     m.group('pathinfo') or '')
+                                     pid, product_path)
 
         return env
 
