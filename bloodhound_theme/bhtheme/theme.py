@@ -253,9 +253,9 @@ class BloodhoundTheme(ThemeBase):
         req.href.wiki = hwiki
 
         # Move 'admin' entry from mainnav to metanav
-        for i, entry in enumerate(req.chrome['nav']['mainnav']):
+        for i, entry in enumerate(req.chrome['nav'].get('mainnav', [])):
             if entry['name'] == 'admin':
-                req.chrome['nav']['metanav'] \
+                req.chrome['nav'].setdefault('metanav', []) \
                     .append(req.chrome['nav']['mainnav'].pop(i))
 
         return handler
