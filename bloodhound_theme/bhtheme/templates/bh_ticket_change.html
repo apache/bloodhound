@@ -59,7 +59,7 @@ Arguments:
         <div class="pull-right">
           <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>
         </div>
-        <div py:if="show_buttons" class="pull-right bh-ticket-buttons hidden-desktop trac-ticket-buttons">
+        <div py:if="show_buttons" class="pull-right bh-ticket-buttons shade-desktop trac-ticket-buttons">
           <py:if test="'date' in change">
             ${pretty_dateinfo(change.date)}
           </py:if>
@@ -163,7 +163,7 @@ ${edited_comment if edited_comment is not None else change.comment}</textarea>
             <em>${field.old}</em> deleted
           </i18n:msg></py:otherwise>
         </py:choose>
-        <span class="${'hidden-desktop' if change.cnum else ''}">
+        <span class="${'shade-desktop' if change.cnum else ''}">
         - by ${authorinfo(change.author)}<span py:if="'date' in change">, ${pretty_dateinfo(change.date)}</span>
         </span>
         <span py:if="field_name == 'attachment' and change.comment" class="attachment-desc searchable" xml:space="preserve">

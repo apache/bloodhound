@@ -187,12 +187,6 @@ div.reports form {
  font-weight: normal;
 }
 
-.activityfeed {
-  background-image: url("img/change_history_arrow_line.png");
-  background-repeat: repeat-y;
-  background-position: 20px 0px;
-}
-
 .timeline .activityfeed {
   background-image: none;
 }
@@ -625,6 +619,14 @@ input[type="submit"].btn.btn-micro {
 
 .affix .hidden-affix {
  display: none !important;
+}
+
+.shade-desktop {
+ opacity: 0.2;
+}
+
+.visible-desktop-hover:hover .shade-desktop {
+ opacity: 1;
 }
 
 .hidden-desktop {
@@ -1243,13 +1245,17 @@ table.wiki th {
 
 
 #changelog div.comment-box{
- border: 1px solid #ccc;
+ border: 2px solid #ccc;
  border-radius: 6px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
  padding: 13px;
  margin: 10px 0px 10px 0px;
  background-color: rgb(253, 252, 250);
  min-height: 20px;
+}
+
+#changelog div.change:hover div.comment-box{
+ border-color: #FFCC33;
 }
 
 #trac-add-comment fieldset{
@@ -1267,13 +1273,70 @@ textarea#comment, #trac-add-comment fieldset{
  content: attr(placeholder-content);
 }
 
+.uparrow div.change,
+.downarrow div.change {
+  margin-bottom: 3px;
+  padding: 1px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.uparrow div.change:before,
+.uparrow div.change:after,
+.downarrow div.change:before,
+.downarrow div.change:after{
+  background: none repeat scroll 0 0 #CCCCCC;
+  content: "";
+  height: 100%;
+  position: absolute;
+  top: 0;
+  width: 0.5em;
+  z-index: -1;
+}
+
+.uparrow div.change:hover:before,
+.uparrow div.change:hover:after,
+.downarrow div.change:hover:before,
+.downarrow div.change:hover:after {
+  background: none repeat scroll 0 0 #FFCC33;
+}
+
+.uparrow div.change:before,
+.downarrow div.change:before {
+  left: 20px;
+}
+
+.uparrow div.change:after,
+.downarrow div.change:after{
+  left: 15px;
+  right: 100%;
+}
+
+.uparrow div.change:before, 
+.downarrow div.change:after {
+  transform: skew(0deg, 26deg);
+  -ms-transform: skew(0deg, 26deg);
+  -webkit-transform: skew(0deg, 26deg);
+}
+
+.uparrow div.change:after, 
+.downarrow div.change:before {
+  transform: skew(0deg, -26deg);
+  -ms-transform: skew(0deg, -26deg);
+  -webkit-transform: skew(0deg, -26deg);
+}
+
 #changelog div.comment-box h4 {
   margin-top: 0px;
 }
 
 #changelog ul.changes {
-  list-style-image: url('../common/collapsed.png');
-  padding: 0px 0px 0px 11px;
+  list-style-type: none;
+  margin: 0 0 0 11px;
+}
+
+#changelog ul.changes>li {
+  padding: 0 20px;
 }
 
 .ticket form#prefs input[type="radio"]{

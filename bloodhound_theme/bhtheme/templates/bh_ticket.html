@@ -288,6 +288,23 @@
           var comment = $("#trac-comment-editor").next("div.comment").html(reply);
           comment.toggle(comment.children().length != 0);
         }, "#changelog .trac-loading");
+
+        // quick hack to set arrow direction on change
+        arrow_dir = {
+          'oldest': function() {
+            $('div#changelog').addClass('downarrow');
+            $('div#changelog').removeClass('uparrow');
+          },
+          'newest': function() {
+            $('div#changelog').addClass('uparrow');
+            $('div#changelog').removeClass('downarrow');
+          },
+        };
+
+        $('#trac-comments-newest').change(arrow_dir['newest']);
+        $('#trac-comments-oldest').change(arrow_dir['oldest']);
+        arrow_dir[comments_prefs.comments_order]();
+
         /*]]>*/
         <py:if test="preview_mode">
         $("#attachments").toggleClass("collapsed");
@@ -648,7 +665,7 @@
               </div>
             </div>
 
-            <div class="$cols_activity">
+            <div>
               <!--! Preview of ticket changes -->
               <div py:if="ticket.exists and can_append" id="ticketchange" class="ticketdraft"
                     style="${'display: none' if not (change_preview.fields or change_preview.comment)
