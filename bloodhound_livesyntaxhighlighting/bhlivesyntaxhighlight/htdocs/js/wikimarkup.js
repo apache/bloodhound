@@ -24,7 +24,6 @@ CodeMirror.defineMode('wikimarkup', function(config) {
             return style;
         };
     }
-
     function inText(stream, state) {
         function chain(parser) {
             state.tokenize = parser;
@@ -33,6 +32,7 @@ CodeMirror.defineMode('wikimarkup', function(config) {
 
         var sol = stream.sol();
         var ch = stream.next();
+
 
         //non start of line
         switch (ch) { //switch is generally much faster than if, so it is used here
@@ -64,12 +64,6 @@ CodeMirror.defineMode('wikimarkup', function(config) {
                     return chain(inBlock("em", "''", inText));
                 }
                 break;
-//            case "'": //italics
-//                if (stream.eat("'")) {
-//                    // Italic text
-//                    return chain(inBlock("em", "''", inText));
-//                }
-//                break;
             case "(":// Wiki Link
                 if (stream.eat("(")) {
                     return chain(inBlock("variable-2", "))", inText));
@@ -83,7 +77,7 @@ CodeMirror.defineMode('wikimarkup', function(config) {
                     if(stream.eat("="))
                         return chain(inBlock("header comment","=||", inText));
                     else if(stream.eat("|") )
-                    return chain(inBlock("comment", "||"));
+                        return chain(inBlock("comment", "||"));
                 }
                 break;
             case "~":
@@ -126,7 +120,6 @@ CodeMirror.defineMode('wikimarkup', function(config) {
                 else
                     return chain(inBlock("wm-header1","="));
                 break;
-
         }
 
         //start of line types
@@ -140,6 +133,17 @@ CodeMirror.defineMode('wikimarkup', function(config) {
                     return chain(inLine("wm-listitem bracket"));
                     break;
             }
+        }
+        // For matching wikiPageNames. Basically matches CamelCase
+        // TO DETECT CAMEL CASE - Needs a fix badly
+        if(ch >= "A" && ch <= "Z"){
+            if(stream.match(/([A-Z]*[a-z][a-z]*[A-Z]|[a-z]*[A-Z][A-Z]*[a-z])[A-Za-z]*/)){
+                var string = stream.string;
+                return chain(inBlock("variable-2", " ", inText));
+            }
+       }
+        else{
+            stream.eatSpace();
         }
 
         //stream.eatWhile(/[&{]/); was eating up plugins, turned off to act less like html and more like wikimarkup
