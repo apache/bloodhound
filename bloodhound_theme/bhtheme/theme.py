@@ -252,12 +252,6 @@ class BloodhoundTheme(ThemeBase):
 
         req.href.wiki = hwiki
 
-        # Move 'admin' entry from mainnav to metanav
-        for i, entry in enumerate(req.chrome['nav'].get('mainnav', [])):
-            if entry['name'] == 'admin':
-                req.chrome['nav'].setdefault('metanav', []) \
-                    .append(req.chrome['nav']['mainnav'].pop(i))
-
         return handler
 
     def post_process_request(self, req, template, data, content_type):
@@ -295,6 +289,12 @@ class BloodhoundTheme(ThemeBase):
         
         is_active_theme = is_active_theme()
         if self.disable_all_trac_css and is_active_theme:
+            # Move 'admin' entry from mainnav to metanav
+            for i, entry in enumerate(req.chrome['nav'].get('mainnav', [])):
+                if entry['name'] == 'admin':
+                    req.chrome['nav'].setdefault('metanav', []) \
+                       .append(req.chrome['nav']['mainnav'].pop(i))
+
             if self.disable_all_trac_css:
                 stylesheets = links.get('stylesheet', [])
                 if stylesheets:
