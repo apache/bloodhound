@@ -290,21 +290,21 @@
         }, "#changelog .trac-loading");
 
         // quick hack to set arrow direction on change
-        arrow_dir = {
-          'oldest': function() {
-            $('div#changelog').addClass('downarrow');
-            $('div#changelog').removeClass('uparrow');
-          },
-          'newest': function() {
-            $('div#changelog').addClass('uparrow');
-            $('div#changelog').removeClass('downarrow');
-          },
+        if (typeof(comments_prefs) !== "undefined") {
+          arrow_dir = {
+            'oldest': function() {
+              $('div#changelog').addClass('downarrow');
+              $('div#changelog').removeClass('uparrow');
+            },
+            'newest': function() {
+              $('div#changelog').addClass('uparrow');
+              $('div#changelog').removeClass('downarrow');
+            },
+          };
+          $('#trac-comments-newest').change(arrow_dir['newest']);
+          $('#trac-comments-oldest').change(arrow_dir['oldest']);
+          arrow_dir[comments_prefs.comments_order]();
         };
-
-        $('#trac-comments-newest').change(arrow_dir['newest']);
-        $('#trac-comments-oldest').change(arrow_dir['oldest']);
-        arrow_dir[comments_prefs.comments_order]();
-
         /*]]>*/
         <py:if test="preview_mode">
         $("#attachments").toggleClass("collapsed");
