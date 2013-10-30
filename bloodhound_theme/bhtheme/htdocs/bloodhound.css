@@ -33,7 +33,7 @@ body {
 }
 
 #logo {
-  margin-bottom: 10px;
+ margin-bottom: 10px;
 }
 
 #searchbox {
@@ -175,8 +175,8 @@ div.reports form {
 }
 
 #duplicate_id {
-  margin-left: 10px;
-  margin-right: 10px;
+ margin-left: 10px;
+ margin-right: 10px;
 }
 
 #trac-ticket-title {
@@ -188,11 +188,11 @@ div.reports form {
 }
 
 .timeline .activityfeed {
-  background-image: none;
+ background-image: none;
 }
 
 .activityfeed .help-block {
-  margin-left: 30px;
+ margin-left: 30px;
 }
 
 #mobile-activity {
@@ -285,7 +285,7 @@ pre {
 }
 
 #edit-comment {
-  margin-top: 30px;
+ margin-top: 30px;
 }
 
 .trac-loading {
@@ -300,8 +300,8 @@ pre {
 }
 
 .relations {
-  margin-top: 30px;
-  margin-bottom: 30px;
+ margin-top: 30px;
+ margin-bottom: 30px;
 }
 
 /* @end */
@@ -309,8 +309,8 @@ pre {
 /* @group Quick Create Ticket popup */
 
 #qct-box {
-  width: 300px;
-  padding: 0px 0px 5px 0px;
+ width: 300px;
+ padding: 0px 0px 5px 0px;
 }
 
 #qct-box p {
@@ -325,17 +325,16 @@ pre {
 }
 
 #qct-inline {
-  position: relative;
-  max-width: inherit;
-  box-shadow: none;
-  z-index: 0;
-  margin-top: 20px;
+ position: relative;
+ max-width: inherit;
+ box-shadow: none;
+ z-index: 0;
+ margin-top: 20px;
 }
 #qct-inline h4 {
-  margin-top: 5px;
-  margin-bottom: 5px;
+ margin-top: 5px;
+ margin-bottom: 5px;
 }
-
 
 /*
   workaround for -hidden/-visible buttons in a btn-group, which don't
@@ -343,16 +342,16 @@ pre {
   (the first button always gets picked, regardless of visibility)
 */
 #qct-inline-newticket {
-  margin-left: 0;
-  -webkit-border-bottom-left-radius: 4px;
-          border-bottom-left-radius: 4px;
-  -webkit-border-top-left-radius: 4px;
-          border-top-left-radius: 4px;
-  -moz-border-radius-bottomleft: 4px;
-  -moz-border-radius-topleft: 4px;
+ margin-left: 0;
+ -webkit-border-bottom-left-radius: 4px;
+ border-bottom-left-radius: 4px;
+ -webkit-border-top-left-radius: 4px;
+ border-top-left-radius: 4px;
+ -moz-border-radius-bottomleft: 4px;
+ -moz-border-radius-topleft: 4px;
 }
 #qct-inline-alert-cancel {
-  display: inline;
+ display: inline;
 }
 
 /* @end */
@@ -400,23 +399,23 @@ h1, h2, h3 {
  background-color: #ffffff;
  border: 1px solid #cccccc;
  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+ -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+ box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
-      -o-transition: border linear 0.2s, box-shadow linear 0.2s;
-         transition: border linear 0.2s, box-shadow linear 0.2s;
+ -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+ -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+ transition: border linear 0.2s, box-shadow linear 0.2s;
 }
 
 [contenteditable="true"]:focus {
  border-color: rgba(82, 168, 236, 0.8);
  outline: 0;
- outline: thin dotted  \9;
+ outline: thin dotted \9;
  /* IE6-9 */
 
  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+ -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+ box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
 }
 
 /* @end */
@@ -492,7 +491,7 @@ h1, h2, h3 {
 }
 
 .comment blockquote p {
-   font-size: 13px;
+ font-size: 13px;
 }
 
 /* @end */
@@ -650,40 +649,39 @@ input[type="submit"].btn.btn-micro {
 }
 
 #breadcrumbbar .btn-group a:hover {
-  text-decoration: none;
+ text-decoration: none;
 }
 
 .icon, a.trac-rawlink, a.trac-ziplink {
-  background-image: url("../dashboard/img/glyphicons-halflings.png");
-  background-repeat: no-repeat;
-  *margin-right: .3em;
-  padding-left: 15px;
-  vertical-align: text-top;
+ background-image: url("../dashboard/img/glyphicons-halflings.png");
+ background-repeat: no-repeat;
+ *margin-right: .3em;
+ padding-left: 15px;
+ vertical-align: text-top;
 }
 a.ext-link .icon {
-  background-position: -336px -144px;
+ background-position: -336px -144px;
 }
 a.mail-link .icon {
-  background-position: -72px 0;
+ background-position: -72px 0;
 }
 a.trac-rawlink, a.trac-ziplink {
-  background-position: -96px -24px;
+ background-position: -96px -24px;
 }
 a.missing:link, a.missing:visited, a.missing, span.missing,
-a.forbidden, span.forbidden { 
-  color: #998;
+a.forbidden, span.forbidden {
+ color: #998;
 }
 
 a.missing:link:hover, a.missing:visited:hover,
 a.missing:hover, span.missing:hover, a.forbidden:hover, span.forbidden:hover {
-  color: black;
-  background-color: #EEE;
+ color: black;
+ background-color: #EEE;
 }
 
 a.closed:link, a.closed:visited, span.closed {
-  text-decoration: line-through;
+ text-decoration: line-through;
 }
-
 
 @media (max-width: 979px) {
  .hidden-desktop {
@@ -695,6 +693,7 @@ a.closed:link, a.closed:visited, span.closed {
  .facets {
   width: 220px;
  }
+
  .span9.search_results {
   width: 920px;
  }
@@ -722,6 +721,7 @@ a.closed:link, a.closed:visited, span.closed {
  #logo {
   width: 33%;
  }
+
  #usermenu {
   width: 67%;
  }
@@ -824,8 +824,8 @@ tt {
  padding: 2px 4px;
  white-space: nowrap;
  -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-         border-radius: 3px;
+ -moz-border-radius: 3px;
+ border-radius: 3px;
 }
 
 /* @end */
@@ -845,10 +845,10 @@ tt {
 .ui-datepicker {
  background-color: #FBFBFB;
  background-image: -webkit-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:    -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:      -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:     -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:         linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: linear-gradient(center top, #FFFFFF, #F5F5F5);
  background-repeat: repeat-x;
  border: 1px solid #DDDDDD;
  border-radius: 3px 3px 3px 3px;
@@ -864,10 +864,10 @@ tt {
 .ui-datepicker a.ui-datepicker-next {
  background-color: #FBFBFB;
  background-image: -webkit-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:    -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:      -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:     -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:         linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: linear-gradient(center top, #FFFFFF, #F5F5F5);
  background-repeat: repeat-x;
  border: 1px solid #DDDDDD;
  border-radius: 3px 3px 3px 3px;
@@ -901,10 +901,10 @@ tt {
 .ui-datepicker-calendar td {
  background-color: #FBFBFB;
  background-image: -webkit-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:    -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:      -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:     -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
- background-image:         linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -moz-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -o-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: -ms-linear-gradient(center top, #FFFFFF, #F5F5F5);
+ background-image: linear-gradient(center top, #FFFFFF, #F5F5F5);
  background-repeat: repeat-x;
  border: 1px solid #DDDDDD;
  border-radius: 3px 3px 3px 3px;
@@ -955,16 +955,12 @@ tt {
  -webkit-border-radius: 4px;
  -moz-border-radius: 4px;
  border-radius: 4px;
- filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',
- endColorstr='#ffe6e6e6', GradientType=0);
+ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe6e6e6', GradientType=0);
  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
  *zoom: 1;
- -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
-2px rgba(0, 0, 0, 0.05);
-    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
-2px rgba(0, 0, 0, 0.05);
-         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px
-2px rgba(0, 0, 0, 0.05);
+ -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+ -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+ box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
  border-color: #c5c5c5;
  border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
 
@@ -991,9 +987,9 @@ tt {
 
  background-position: 0 -15px;
  -webkit-transition: background-position 0.1s linear;
-    -moz-transition: background-position 0.1s linear;
-      -o-transition: background-position 0.1s linear;
-         transition: background-position 0.1s linear;
+ -moz-transition: background-position 0.1s linear;
+ -o-transition: background-position 0.1s linear;
+ transition: background-position 0.1s linear;
 }
 
 /* @end */
@@ -1018,21 +1014,15 @@ tt {
 
  border-bottom: 1px solid rgba(75%, 75%, 75%, 0.5);
 
- -webkit-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
-                    -20px 0px 0px rgb(93%, 93%, 93%),
-                     20px 0px 0px rgb(93%, 93%, 93%);
-    -moz-box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
-                    -20px 0px 0px rgb(93%, 93%, 93%),
-                     20px 0px 0px rgb(93%, 93%, 93%);
-         box-shadow:  0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5),
-                    -20px 0px 0px rgb(93%, 93%, 93%),
-                     20px 0px 0px rgb(93%, 93%, 93%);
+ -webkit-box-shadow: 0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5), -20px 0px 0px rgb(93%, 93%, 93%), 20px 0px 0px rgb(93%, 93%, 93%);
+ -moz-box-shadow: 0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5), -20px 0px 0px rgb(93%, 93%, 93%), 20px 0px 0px rgb(93%, 93%, 93%);
+ box-shadow: 0px 6px 5px -4px rgba(50%, 50%, 50%, 0.5), -20px 0px 0px rgb(93%, 93%, 93%), 20px 0px 0px rgb(93%, 93%, 93%);
 
  -webkit-transition: all 0.3s ease-out;
-    -moz-transition: all 0.3s ease-out;
-      -o-transition: all 0.3s ease-out;
-     -ms-transition: all 0.3s ease-out;
-         transition: all 0.3s ease-out;
+ -moz-transition: all 0.3s ease-out;
+ -o-transition: all 0.3s ease-out;
+ -ms-transition: all 0.3s ease-out;
+ transition: all 0.3s ease-out;
 }
 
 #belowStatus {
@@ -1191,60 +1181,59 @@ table.wiki th {
 /* @group Dashboard */
 
 #products h4 {
-  margin: 5px 0 10px 0;
+ margin: 5px 0 10px 0;
 }
 
 #products h5 {
-  margin: 5px 0 0 0;
+ margin: 5px 0 0 0;
 }
 
 #products .product-well {
-  background-color: white;
-  padding: 10px;
+ background-color: white;
+ padding: 10px;
 }
 
 #products .subset {
-  list-style-type: none;
-  margin: 0 0 10px 0;
-  padding: 0;
+ list-style-type: none;
+ margin: 0 0 10px 0;
+ padding: 0;
 }
 
 /* @end */
 
 .lastmod {
-  font-size: 90%;
-  color: rgb(120, 120, 120);
-  font-style: italic;
-  margin-bottom: 5px;
+ font-size: 90%;
+ color: rgb(120, 120, 120);
+ font-style: italic;
+ margin-bottom: 5px;
 }
 
 .attachments .attachment-info {
-  font-weight: normal;
+ font-weight: normal;
 }
 
 .ticket-properties td {
-  border: none;
-  padding-left: 0;
+ border: none;
+ padding-left: 0;
 }
 
 .ticket-properties input, .ticket-properties select {
-  margin-bottom: 0;
+ margin-bottom: 0;
 }
 
-.ticket-properties td:first-child{
-  color: rgb(120, 120, 120);
-  width: 35%;
+.ticket-properties td:first-child {
+ color: rgb(120, 120, 120);
+ width: 35%;
 }
 
-#trac-add-comment textarea#comment{
+#trac-add-comment textarea#comment {
  border-radius: 8px 8px 8px 8px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
  padding: 2px 4px 2px 4px;
  min-height: 20px;
 }
 
-
-#changelog div.comment-box{
+#changelog div.comment-box {
  border: 2px solid #ccc;
  border-radius: 6px;
  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
@@ -1254,17 +1243,18 @@ table.wiki th {
  min-height: 20px;
 }
 
-#changelog div.change:hover div.comment-box{
+#changelog div.change:hover div.comment-box {
  border-color: #FFCC33;
 }
 
-#trac-add-comment fieldset{
+#trac-add-comment fieldset {
  width: 100%;
 }
-textarea#comment, #trac-add-comment fieldset{
+
+textarea#comment, #trac-add-comment fieldset {
  -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-         box-sizing: border-box;
+ -moz-box-sizing: border-box;
+ box-sizing: border-box;
  width: 100%;
 }
 
@@ -1275,86 +1265,83 @@ textarea#comment, #trac-add-comment fieldset{
 
 .uparrow div.change,
 .downarrow div.change {
-  margin-bottom: 3px;
-  padding: 1px 0;
-  position: relative;
-  z-index: 1;
+ margin-bottom: 3px;
+ padding: 1px 0;
+ position: relative;
+ z-index: 1;
 }
 
 .uparrow div.change:before,
 .uparrow div.change:after,
 .downarrow div.change:before,
-.downarrow div.change:after{
-  background: none repeat scroll 0 0 #CCCCCC;
-  content: "";
-  height: 100%;
-  position: absolute;
-  top: 0;
-  width: 0.5em;
-  z-index: -1;
+.downarrow div.change:after {
+ background: none repeat scroll 0 0 #CCCCCC;
+ content: "";
+ height: 100%;
+ position: absolute;
+ top: 0;
+ width: 0.5em;
+ z-index: -1;
 }
 
 .uparrow div.change:hover:before,
 .uparrow div.change:hover:after,
 .downarrow div.change:hover:before,
 .downarrow div.change:hover:after {
-  background: none repeat scroll 0 0 #FFCC33;
+ background: none repeat scroll 0 0 #FFCC33;
 }
 
 .uparrow div.change:before,
 .downarrow div.change:before {
-  left: 20px;
+ left: 20px;
 }
 
 .uparrow div.change:after,
-.downarrow div.change:after{
-  left: 15px;
-  right: 100%;
-}
-
-.uparrow div.change:before, 
 .downarrow div.change:after {
-  transform: skew(0deg, 26deg);
-  -ms-transform: skew(0deg, 26deg);
-  -webkit-transform: skew(0deg, 26deg);
+ left: 15px;
+ right: 100%;
 }
 
-.uparrow div.change:after, 
+.uparrow div.change:before,
+.downarrow div.change:after {
+ transform: skew(0deg, 26deg);
+ -ms-transform: skew(0deg, 26deg);
+ -webkit-transform: skew(0deg, 26deg);
+}
+
+.uparrow div.change:after,
 .downarrow div.change:before {
-  transform: skew(0deg, -26deg);
-  -ms-transform: skew(0deg, -26deg);
-  -webkit-transform: skew(0deg, -26deg);
+ transform: skew(0deg, -26deg);
+ -ms-transform: skew(0deg, -26deg);
+ -webkit-transform: skew(0deg, -26deg);
 }
 
-#changelog div.comment-box h4 {
-  margin-top: 0px;
-}
+#changelog div.comment-box h4 { margin-top: 0px; }
 
 #changelog ul.changes {
-  list-style-type: none;
-  margin: 0 0 0 11px;
+ list-style-type: none;
+ margin: 0 0 0 11px;
 }
 
-#changelog ul.changes>li {
-  padding: 0 20px;
-}
+#changelog ul.changes > li { padding: 0 20px; }
 
-.ticket form#prefs input[type="radio"]{
- display: none;
-}
+.ticket form#prefs input[type="radio"] { display: none; }
 
 .ticket form#prefs input[type="radio"] + label span {
  display: inline-block;
- cursor:pointer;
+ cursor: pointer;
 }
+
 .ticket form#prefs input[type="radio"]:checked + label span {
  display: inline-block;
  cursor: pointer;
 }
+
 input[type="radio"]:checked + label span {
  font-weight: bold;
  cursor: pointer;
 }
+
 input[type="radio"]:not(:checked) + label span {
- text-decoration:underline;
+ text-decoration: underline;
 }
