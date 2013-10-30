@@ -103,7 +103,9 @@
                       <span class="visible-phone">${item['destticket'].env.product.prefix}</span>
                     </a>
                   </td>
-                  <td><a href="${item['desthref']}">#${item['destticket'].id}</a> - ${item['destticket'].summary}</td>
+                  <td><a href="${item['desthref']}" class="${classes(item['destticket'].status, 'ticket')}">
+                    ${shortname_of(item['destticket'].resource)}</a> - ${summary_of(item['destticket'].resource)}
+                  </td>
                   <td>$item.comment</td>
                   <td>$item.author</td>
                   <td class="hidden-phone">${pretty_dateinfo(item.when)}</td>
