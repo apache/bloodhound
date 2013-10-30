@@ -22,4 +22,3 @@ from tests import TestLoader
 
 def test_suite():
     return TestLoader().discover_package(__name__, pattern='*.py')
-

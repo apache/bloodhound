@@ -16,12 +16,12 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import sys
 from collections import deque
 from fnmatch import fnmatch
-import sys
-try:
+if sys.version_info < (2, 7):
     import unittest2 as unittest
-except ImportError:
+else:
     import unittest
 
 from pkg_resources import resource_listdir, resource_isdir, resource_exists

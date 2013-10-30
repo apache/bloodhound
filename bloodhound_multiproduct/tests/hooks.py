@@ -17,11 +17,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+from tests import unittest
 
 from trac.web.href import Href
 

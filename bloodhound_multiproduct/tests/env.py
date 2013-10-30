@@ -22,17 +22,11 @@
 from inspect import stack
 import os.path
 import shutil
-from sqlite3 import OperationalError
-import sys
 import tempfile
+from sqlite3 import OperationalError
+from tests import unittest
 from types import MethodType
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-    from unittest2.case import _AssertRaisesContext
-else:
-    import unittest
-    from unittest.case import _AssertRaisesContext
+from unittest.case import _AssertRaisesContext
 
 from trac.config import Option
 from trac.core import Component, ComponentMeta

@@ -18,26 +18,19 @@
 
 """Tests for multiproduct/model.py"""
 import shutil
-import sys
 import tempfile
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
 from sqlite3 import OperationalError
+from tests import unittest
 
-from trac.test import EnvironmentStub
 from trac.core import TracError
+from trac.test import EnvironmentStub
+from trac.tests.resource import TestResourceChangeListener
 from trac.ticket.model import Ticket
 
+from bhdashboard.model import ModelBase
+from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
-from bhdashboard.model import ModelBase
-
-from multiproduct.api import MultiProductSystem
-from trac.tests.resource import TestResourceChangeListener
 
 
 class ProductTestCase(unittest.TestCase):
