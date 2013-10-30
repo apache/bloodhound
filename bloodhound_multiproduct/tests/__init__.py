@@ -24,7 +24,8 @@ if sys.version_info < (2, 7):
 else:
     import unittest
 
-from pkg_resources import resource_listdir, resource_isdir, resource_exists
+from pkg_resources import resource_exists, resource_filename, \
+                          resource_isdir, resource_listdir
 
 
 class TestLoader(unittest.TestLoader):
@@ -33,7 +34,8 @@ class TestLoader(unittest.TestLoader):
     sortTestMethodsUsing = cmp
     suiteClass = unittest.TestSuite
 
-    def discover_package(self, package_or_requirement, pattern='test*.py', ignore_subpkg_root=True):
+    def discover_package(self, package_or_requirement, pattern='*/test*.py', 
+                         ignore_subpkg_root=True, exclude=None):
         """Find and return all test modules from the specified package
         directory, recursing into subdirectories to find them. Only test files
         that match the pattern will be loaded. (Using shell style pattern
@@ -63,12 +65,18 @@ class TestLoader(unittest.TestLoader):
                     tests.append(loader.loadTestsFromModule(mdl))
             if isdir and resource_exists(mdlnm, '__init__.py'):
                 for fnm in resource_listdir(mdlnm, ''):
-                    if resource_isdir(mdlnm, fnm):
-                        pending.append( (mdlnm + '.' + fnm, loader, True) )
+                    fpath = resource_filename(mdlnm, fnm)
+                    if resource_isdir(mdlnm, fnm) \
+                            and (exclude is None
+                                 or not fnmatch(fpath + '/', exclude)):
+                        pending.append((mdlnm + '.' + fnm, loader, True))
                     elif any(fnm.endswith(ext) for ext in ['.py', '.pyc']) \
-                            and fnmatch(fnm, pattern) and fnm != '__init__.py':
+                            and fnmatch(fpath, pattern) \
+                            and fnm != '__init__.py'\
+                            and (exclude is None
+                                 or not fnmatch(fpath, exclude)):
                         submdlnm = mdlnm + '.' + fnm.rsplit('.', 1)[0]
-                        pending.append( (submdlnm, loader, False) )
+                        pending.append((submdlnm, loader, False))
         return self.suiteClass(tests)
 
     def _get_module_from_name(self, name):
@@ -77,7 +85,8 @@ class TestLoader(unittest.TestLoader):
 
 
 def test_suite():
-    return TestLoader().discover_package('tests', pattern='*.py')
+    return TestLoader().discover_package('tests', pattern='*.py',
+                                         exclude='*/functional/*')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
