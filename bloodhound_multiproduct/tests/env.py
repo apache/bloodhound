@@ -164,7 +164,7 @@ class MultiproductTestCase(unittest.TestCase):
         self.env = env = EnvironmentStub(**kwargs)
         if create_folder:
             if path is None:
-                env.path = tempfile.mkdtemp('bh-product-tempenv')
+                env.path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
             else:
                 env.path = path
                 if not os.path.exists(path):

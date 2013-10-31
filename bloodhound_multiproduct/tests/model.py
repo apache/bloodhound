@@ -41,7 +41,7 @@ class ProductTestCase(unittest.TestCase):
 
     def setUp(self):
         self.env = EnvironmentStub(enable=['trac.*', 'multiproduct.*'])
-        self.env.path = tempfile.mkdtemp('bh-product-tempenv')
+        self.env.path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
         
         self.mpsystem = MultiProductSystem(self.env)
         try:

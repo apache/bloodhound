@@ -53,12 +53,12 @@ TABLES_WITH_PRODUCT_FIELD = (
 
 class EnvironmentUpgradeTestCase(unittest.TestCase):
     def setUp(self, options=()):
-        self.env_path = tempfile.mkdtemp('multiproduct-tempenv')
-        self.env = Environment(self.env_path, create=True, options=options)
+        env_path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
+        self.env = Environment(env_path, create=True, options=options)
         DummyPlugin.version = 1
 
     def tearDown(self):
-        shutil.rmtree(self.env_path)
+        shutil.rmtree(self.env.path)
 
     def test_can_upgrade_environment_with_multi_product_disabled(self):
         self.env.upgrade()
@@ -423,11 +423,11 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
     def _update_config(self, section, key, value):
         self.env.config.set(section, key, value)
         self.env.config.save()
-        self.env = Environment(self.env_path)
+        self.env = Environment(self.env.path)
 
     def _create_file_with_content(self, content):
         filename = str(uuid.uuid4())[:6]
-        path = os.path.join(self.env_path, filename)
+        path = os.path.join(self.env.path, filename)
         with open(path, 'wb') as f:
             f.write(content)
         return path
