@@ -174,10 +174,14 @@ class MultiproductTestCase(unittest.TestCase):
     def _setup_test_log(self, env):
         r"""Ensure test product with prefix is loaded
         """
-        logdir = tempfile.gettempdir()
-        logpath = os.path.join(logdir, 'trac-testing.log')
+        if not hasattr(env, 'path') or not env.path:
+            env.path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
+        log_dir = os.path.join(env.path, 'log')
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        log_file = os.path.join(log_dir, 'trac-testing.log')
         config = env.config
-        config.set('logging', 'log_file', logpath)
+        config.set('logging', 'log_file', log_file)
         config.set('logging', 'log_type', 'file')
         config.set('logging', 'log_level', 'DEBUG')
 
