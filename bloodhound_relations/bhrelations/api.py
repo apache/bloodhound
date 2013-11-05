@@ -494,7 +494,8 @@ class TicketRelationsSpecifics(Component):
     def ticket_changed(self, ticket, comment, author, old_values):
         if (
             self._closed_as_duplicate(ticket) and
-            self.rls.duplicate_relation_type
+            self.rls.duplicate_relation_type and
+            hasattr(ticket, 'duplicate') # workaround for comment:5:ticket:710
         ):
             try:
                 self.rls.add(ticket, ticket.duplicate,
