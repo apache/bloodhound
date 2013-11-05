@@ -42,6 +42,7 @@ setup(
     url = "https://bloodhound.apache.org/",
     packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
     package_data = {'multiproduct' : ['templates/*.html',]},
+    install_requires = ['sqlparse'],
     entry_points = {'trac.plugins': [
             'multiproduct.model = multiproduct.model',
             'multiproduct.perm = multiproduct.perm',
@@ -54,4 +55,3 @@ setup(
     test_suite='tests.test_suite',
     tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
 )
-
