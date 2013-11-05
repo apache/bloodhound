@@ -26,7 +26,6 @@ import tempfile
 from sqlite3 import OperationalError
 from tests import unittest
 from types import MethodType
-from unittest.case import _AssertRaisesContext
 
 from trac.config import Option
 from trac.core import Component, ComponentMeta
@@ -41,6 +40,8 @@ from trac.web.href import Href
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
+
+_AssertRaisesContext = unittest.case._AssertRaisesContext
 
 
 class ProductEnvironmentStub(ProductEnvironment):
