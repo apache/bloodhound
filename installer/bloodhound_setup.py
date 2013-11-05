@@ -215,14 +215,15 @@ class BloodhoundSetup(object):
         trac = TracAdmin(os.path.abspath(new_env))
         if not trac.env_check():
             try:
-                trac.do_initenv('%(project)s %(db)s '
-                                '%(repo_type)s %(repo_path)s '
-                                '--inherit=%(inherit)s '
-                                '--nowiki'
-                                % options)
+                rv = trac.do_initenv('%(project)s %(db)s '
+                                     '%(repo_type)s %(repo_path)s '
+                                     '--inherit=%(inherit)s '
+                                     '--nowiki'
+                                     % options)
+                if rv == 2:
+                    raise SystemExit
             except SystemExit:
-                print ("Error: Unable to initialise the database"
-                       "Traceback for error is above")
+                print ("Error: Unable to initialise the environment.")
                 return False
         else:
             print ("Warning: Environment already exists at %s." % new_env)
