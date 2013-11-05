@@ -16,6 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import logging
 import sys
 from collections import deque
 from fnmatch import fnmatch
@@ -50,12 +51,18 @@ class TestLoader(unittest.TestLoader):
         """
         pending = deque([(package_or_requirement, self, True)])
         tests = []
+        log = logging.getLogger('bh.tests')
+        if len(log.handlers) == 0:
+            # Configure logger instance. otherwise messages won't be displayed
+            _configure_logger(log)
         while pending:
             mdlnm, loader, isdir = pending.popleft()
             try:
                 mdl = self._get_module_from_name(mdlnm)
             except (ImportError, ValueError):
-                # Skip packages not having __init__.py
+                # Log import error and skip packages that don't import
+                log.exception('Discovered package %s but import failed',
+                              mdlnm)
                 continue
             loader = getattr(mdl, self.testLoaderAttribute, None) or loader
             if not (isdir and ignore_subpkg_root):
@@ -82,6 +89,14 @@ class TestLoader(unittest.TestLoader):
     def _get_module_from_name(self, name):
         __import__(name)
         return sys.modules[name]
+
+
+def _configure_logger(log):
+    # See logging.basicConfig
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(logging.BASIC_FORMAT, None)
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
 
 
 def test_suite():
