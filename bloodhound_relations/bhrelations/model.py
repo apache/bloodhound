@@ -17,6 +17,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 from bhdashboard.model import ModelBase
 from trac.resource import Resource
 from trac.util.datefmt import to_utimestamp, from_utimestamp
@@ -24,19 +25,20 @@ from trac.util.datefmt import to_utimestamp, from_utimestamp
 
 class Relation(ModelBase):
     """The Relation table"""
-    RELATION_ID_DELIMITER = u","
+    RELATION_ID_DELIMITER = u','
 
-    _meta = {'table_name':'bloodhound_relations',
-            'object_name':'Relation',
-            'key_fields':['source', 'type', 'destination'],
-            'non_key_fields':[
-                'comment',
-                'author',
-                {'name': 'time','type': 'int64'},
-                ],
-            'no_change_fields':['source', 'destination', 'type'],
-            'unique_fields':[],
-            }
+    _meta = {
+        'table_name': 'bloodhound_relations',
+        'object_name': 'Relation',
+        'key_fields': ['source', 'type', 'destination'],
+        'non_key_fields': [
+            'comment',
+            'author',
+            {'name': 'time', 'type': 'int64'},
+        ],
+        'no_change_fields': ['source', 'destination', 'type'],
+        'unique_fields': [],
+    }
 
     @property
     def resource(self):
@@ -45,7 +47,7 @@ class Relation(ModelBase):
 
     @property
     def when(self):
-        when_ts = self._data.get("time")
+        when_ts = self._data.get('time')
         if when_ts is not None:
             return from_utimestamp(when_ts)
         return None
@@ -57,9 +59,9 @@ class Relation(ModelBase):
 
     def clone_reverted(self, type):
         data = self._data.copy()
-        data["type"] = type
-        data["source"] = self.destination
-        data["destination"] = self.source
+        data['type'] = type
+        data['source'] = self.destination
+        data['destination'] = self.source
         relation = Relation(self._env)
         # pylint: disable=protected-access
         relation._data = data
@@ -92,7 +94,7 @@ class Relation(ModelBase):
             source=source,
             destination=destination,
             type=relation_type
-            ))
+        ))
 
     def __str__(self):
         return '%s %s %s' % (self.source, self.type, self.destination)
