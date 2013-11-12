@@ -50,6 +50,16 @@ $( function () {
     });
 */
 
+    function checkSelections () {
+      return $.inArray('', $('#qct-box select[data-optional=false]').map(function() {
+        return $(this).val();
+      })) == -1;
+    }
+    $('#qct-create').attr("disabled", !checkSelections());
+    $('#qct-box select').change(function () {
+        $('#qct-create').attr("disabled", !checkSelections());
+    });
+
     $('#qct-inline-newticket').click(function() {
       $('#qct-inline-notice-success, #qct-inline-notice-error').hide();
 
@@ -100,9 +110,24 @@ $( function () {
     }
 
     // Clear input controls inside quick create box
+    var timeout;
+    $('#qct-newticket').click(function () {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    });
     function qct_clearui() {
-      $('#qct-form input[name!="__FORM_TOKEN"], #qct-form select, #qct-form textarea').val('');
-      $('#qct-inline-form input[name!="__FORM_TOKEN"], #qct-inline-form select, #qct-inline-form textarea').val('');
+      $('#qct-form input[name!="__FORM_TOKEN"], #qct-form textarea').val('');
+      $('#qct-inline-form input[name!="__FORM_TOKEN"], #qct-inline-form textarea').val('');
+      $('#qct-create').attr("disabled", !checkSelections());
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(function () {
+        $('#qct-form select').val('');
+        $('#qct-inline-form select').val('');
+        $('#qct-create').attr("disabled", !checkSelections());
+      }, 120000);
     }
 
     // We want to submit via #qct-create
