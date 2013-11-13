@@ -1217,6 +1217,7 @@ table.wiki th {
 .attachments .attachment-info {
  font-weight: normal;
 }
+#attachments ul { list-style-type: none }
 
 .ticket-properties td {
  border: none;
