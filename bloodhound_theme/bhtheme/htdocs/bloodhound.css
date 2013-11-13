@@ -539,6 +539,12 @@ table.listing th.sel, table.listing td.sel {
  width: 1%
 }
 
+.query fieldset .table th,
+.query fieldset .table td,
+.query fieldset .table tbody {
+ border: none;
+}
+
 /* @end */
 
 #filters td .trac-clause-lsep {
