@@ -259,9 +259,9 @@
       <div class="span12">
         <xi:include href="widget_query_results.html" />
       </div>
-      <div class="span12">
+      <div py:if="batch_modify" class="span12">
         <div class="well">
-          <xi:include py:if="batch_modify" href="bh_batch_modify.html" />
+          <xi:include href="bh_batch_modify.html" />
         </div>
       </div>
 
