@@ -251,8 +251,7 @@
           <input py:if="report_resource" type="hidden" name="report" value="$report_resource.id" />
           <input type="hidden" name="order" value="$query.order" />
           <input py:if="query.desc" type="hidden" name="desc" value="1" />
-          <input type="submit" name="update" value="${_('Update')}" 
-              class="btn" />
+          <input type="submit" class="btn pull-right" name="update" value="${_('Update')}" />
         </div>
         <hr />
       </form>
