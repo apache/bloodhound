@@ -81,14 +81,28 @@ class RegressionTestTicket5765(functional.FunctionalTwillTestCaseSetup):
         tc.submit()
         tc.notfind('name="accesskeys".*checked="checked"')
 
+def trac_functionalSuite(suite=None):
+    suite.addTest(TestPreferences())
+    suite.addTest(RegressionTestRev5785())
+    suite.addTest(RegressionTestTicket5765())
+
+
+#--------------
+# Multiproduct test cases
+#--------------
+
+
+
 def functionalSuite(suite=None):
     if not suite:
         import tests.functional
         suite = tests.functional.functionalSuite()
 
-    suite.addTest(TestPreferences())
-    suite.addTest(RegressionTestRev5785())
-    suite.addTest(RegressionTestTicket5765())
+    trac_functionalSuite(suite)
+
+    return suite
+
 
 if __name__ == '__main__':
+    import unittest
     unittest.main(defaultTest='functionalSuite')

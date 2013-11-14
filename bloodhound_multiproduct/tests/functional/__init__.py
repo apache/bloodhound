@@ -17,6 +17,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import contextlib
 import imp
 from inspect import isclass
 import os
@@ -26,8 +27,8 @@ import time
 import urllib
 import urllib2
 
-from trac.tests.contentgen import random_sentence, random_page,\
-    random_unique_camel
+from trac.tests.contentgen import random_page, random_sentence, \
+    random_unique_camel, random_word
 from trac.tests import functional
 from trac.tests.functional.svntestenv import SvnFunctionalTestEnvironment
 from trac.tests.functional.testenv import FunctionalTestEnvironment, ConnectError
@@ -35,15 +36,24 @@ from trac.tests.functional.tester import b, FunctionalTester, internal_error, tc
 from trac.util.compat import close_fds
 from trac.util.text import unicode_quote
 from trac.web.href import Href
-from multiproduct.api import MultiProductSystem
-from multiproduct import hooks
 
+from multiproduct.api import MultiProductSystem
+from multiproduct.env import ProductEnvironment
+from multiproduct import hooks
+from multiproduct.product_admin import ProductAdminModule
 from tests import unittest
+
+#----------------
+# Constants
+#----------------
+
+from multiproduct.dbcursor import GLOBAL_PRODUCT as GLOBAL_ENV
 
 #----------------
 # Product-aware classes for functional tests
 #----------------
 
+# TODO: Virtual ABCs for isinstance() checks
 class MultiproductFunctionalMixin(object):
     """Mixin class applying multi-product upgrade path upon a given
     functional Trac test environment. Access to the global environment
@@ -54,9 +64,14 @@ class MultiproductFunctionalMixin(object):
                 class declaration because it overrides some methods
     """
 
+    @property
+    def parent(self):
+        return None
+
     def init(self):
         """Determine the location of Trac source code
         """
+        self.bh_install_project = 'trac'
         self.bhmp_upgrade = False
         self.trac_src = os.path.realpath(os.path.join( 
                 __import__('trac', []).__file__, '..' , '..'))
@@ -114,7 +129,7 @@ class MultiproductFunctionalMixin(object):
         """Default implementation just returning href object for global
         environment and failing if product prefix is specified.
         """
-        if envname not in ('trac', None):
+        if envname not in (self.bh_install_project, None):
             raise LookupError('Unknown environment ' + repr(envname))
         if prefix is not None:
             self._fail_no_mp_setup()
@@ -145,7 +160,7 @@ class MultiproductFunctionalMixin(object):
         """
         do_wait = kwargs.pop('wait', False)
         product_id = kwargs.pop('product', None)
-        if product_id:
+        if product_id is not None and product_id != GLOBAL_ENV:
             if self.bhmp_upgrade and \
                     args[0] not in ProductAdminModule.GLOBAL_COMMANDS:
                 args = ('product', 'admin', product_id) + args
@@ -155,6 +170,11 @@ class MultiproductFunctionalMixin(object):
         super(MultiproductFunctionalMixin, self)._tracadmin(*args, **kwargs)
         if do_wait: # Delay to ensure command executes and caches resets
             time.sleep(5)
+
+    def _tracd_options(self):
+        """List options to run tracd server started for the test run.
+        """
+        return ["--port=%s" % self.port, "-s", "--hostname=127.0.0.1"]
 
     def start(self):
         """Starts the webserver, and waits for it to come up.
@@ -169,9 +189,11 @@ class MultiproductFunctionalMixin(object):
                 args = [exe]
         else:
             args = [sys.executable]
-        options = ["--port=%s" % self.port, "-s", "--hostname=127.0.0.1"]
+        options = self._tracd_options()
         if 'TRAC_TEST_TRACD_OPTIONS' in os.environ:
             options += os.environ['TRAC_TEST_TRACD_OPTIONS'].split()
+        self.get_trac_environment().log.debug('Starting tracd with args ' +
+                                              ' '.join(options))
         args.append(os.path.join(self.trac_src, 'trac', 'web',
                                  'standalone.py'))
         server = Popen(args + options + [self.tracdir],
@@ -205,16 +227,14 @@ class MultiproductFunctionalMixin(object):
         plugins_dir = global_env.shared_plugins_dir
         load_components(global_env, plugins_dir and (plugins_dir,))
 
-    def product_test_env(self, product_id):
-        """Functional test environment for product
+    def product_testenv(self, product_id):
+        if product_id == GLOBAL_ENV:
+            return self.parent or self
+        else:
+            return FunctionalProductEnvironment(self, product_id)
 
-        @param product_id: target product prefix
-        @return: an object reusing resources in target functional test
-                 environment to implement a compatible interface for
-                 a given product environment
-        @raise LookupError: if there's no product for given prefix
-        """
-        raise NotImplementedError()
+    def product_environment(self, product_id):
+        return ProductEnvironment(self.get_trac_environment(), product_id)
 
     def configure_web_hooks(self):
         """Setup web bootstrap_handlers and generation of product and global
@@ -238,6 +258,8 @@ class MultiproductFunctionalMixin(object):
         global environment.
         """
         def _default_base_href(user=None, prefix=None, envname=None):
+            if envname not in (self.bh_install_project, None):
+                raise LookupError('Unknown environment ' + repr(envname))
             # TODO: Does not generate /login ? Should it ?
             parts = urllib2.urlparse.urlsplit(self.url)
             if not user or user == 'anonymous':
@@ -245,12 +267,24 @@ class MultiproductFunctionalMixin(object):
             else:
                 global_href = Href('%s://%s:%s@%s/' % 
                                    (parts[0], user, user, parts[1]))
-            return global_href if not prefix \
+            # FIXME : Check that prefix is None is correct
+            return global_href if (prefix is None or prefix == GLOBAL_ENV) \
                                else Href(global_href('products', prefix))
 
         return _default_base_href
 
     # Protected methods
+
+    @property
+    def _bloodhound_install_args(self):
+        """Determine arguments supplied in to Bloodhound installer.
+        """
+        return dict(adminuser='admin', adminpass='admin', 
+                    dbstring=self.dburi, default_product_prefix='test',
+                    digestfile=self.htdigest, realm=self.htdigest_realm,
+                    repo_type=self.repotype,
+                    repo_path=self.repo_path_for_initenv(),
+                    sourcedir=self.bh_src)
 
     def _bloodhound_install(self):
         """Execute Bloodhound installer script
@@ -267,29 +301,22 @@ class MultiproductFunctionalMixin(object):
                                       os.path.join(self.bh_src, 'installer',
                                                    'bloodhound_setup.py'))
 
-            #FIXME: Account manager's store will not work even after this
-            # Prepare installer for HTTP basic authentication store
-#            bhsetup.ACCOUNTS_CONFIG['account-manager'].update(
-#                          {'htpasswd_file' : self.htpasswd,
-#                           'password_store' : 'HtPasswdStore'})
-
             # Enable timeline and roadmap views; needed in functional tests
             bhsetup.BASE_CONFIG['mainnav'].update({'timeline': 'enabled',
                                                    'roadmap': 'enabled'})
 
-            bhsetup = bhsetup.BloodhoundSetup({'project' : 'trac',
+            bhsetup = bhsetup.BloodhoundSetup({'project' : self.bh_install_project,
                                                'envsdir' : self.dirname})
 
             # Do not perform Bloodhound-specific wiki upgrades
             bhsetup.apply_bhwiki_upgrades = False
 
-            bhsetup.setup(adminuser='admin', adminpass='admin', 
-                          dbstring=self.dburi, default_product_prefix='test',
-                          digestfile=self.htdigest, realm=self.htdigest_realm,
-                          repo_type=self.repotype,
-                          repo_path=self.repo_path_for_initenv(),
-                          sourcedir=self.bh_src)
-
+            bh_install_args = self._bloodhound_install_args
+            bhsetup.setup(**bh_install_args)
+        except:
+            raise
+        else:
+            self.bhmp_upgrade = True
         finally:
             os.chdir(cwd)
 
@@ -305,6 +332,76 @@ class MultiproductFunctionalMixin(object):
             raise LookupError('Unable to open environment ' + envname)
         env = self.get_trac_environment()
         return MultiProductSystem(env).default_product_prefix
+
+
+# TODO: Virtual ABCs for isinstance() checks
+# TODO: Assess implications of forwarding methods to global test env
+class FunctionalProductEnvironment(object):
+    """Functional test environment limiting interactions to product context
+    """
+    def __init__(self, testenv, product_id):
+        """Initialize functional product environment
+
+        @param product_id: target product prefix
+        @return: an object reusing resources in target functional test
+                 environment to implement a compatible interface for
+                 a given product environment
+        @raise LookupError: if there's no product for given prefix
+        """
+        self.parent = testenv
+        self.prefix = product_id
+        self.url = self.parent.get_env_href(prefix=product_id)
+        ProductEnvironment(testenv.get_trac_environment(), self.prefix)
+
+    def _tracadmin(self, *args, **kwargs): 
+        """Execute trac-admin command in target product context by default
+        """
+        product_id = kwargs.get('product')
+        if product_id is None:
+            kwargs['product'] = self.prefix
+        return self.parent._tracadmin(*args, **kwargs)
+
+    def get_trac_environment(self):
+        return ProductEnvironment(self.parent.get_trac_environment(),
+                                  self.prefix)
+
+    def create(self):
+        raise RuntimeError('Bloodhound test environment already created')
+
+    def _bloodhound_install(self):
+        raise RuntimeError('Bloodhound test environment already created')
+
+    def __getattr__(self, attrnm):
+        try:
+            if attrnm == 'parent':
+                raise AttributeError
+            return getattr(self.parent, attrnm)
+        except AttributeError:
+            raise AttributeError("'%s' object has no attribute '%s'" % 
+                                 (self.__class__.__name__, attrnm))
+
+
+# TODO: Virtual ABCs for isinstance() checks
+class BasicAuthTestEnvironment(object):
+    """Setup tracd for HTTP basic authentication.
+    """
+    def _tracd_options(self):
+        options = super(BasicAuthTestEnvironment, self)._tracd_options()
+        options.append("--basic-auth=%s,%s," % (self.bh_install_project,
+                                                self.htpasswd))
+        return options
+
+
+# TODO: Virtual ABCs for isinstance() checks
+class DigestAuthTestEnvironment(object):
+    """Setup tracd for HTTP digest authentication.
+    """
+    def _tracd_options(self):
+        options = super(DigestAuthTestEnvironment, self)._tracd_options()
+        options.append("--auth=%s,%s,%s" % (self.bh_install_project,
+                                            self.htdigest,
+                                            self.htdigest_realm))
+        return options
 
 
 class BloodhoundFunctionalTester(FunctionalTester):
@@ -333,10 +430,49 @@ class BloodhoundFunctionalTester(FunctionalTester):
 
     - Preferences link removed in Bloodhound UI
     - There's no such thing like ticket preview in Bloodhound UI
-    - 'Create New Ticket' label in new ticket page replaced by 'New Ticket' 
+    - 'Create New Ticket' label in new ticket page replaced by 'New Ticket'
+    - Ticket owner label changed from 'Owned by' to 'Assigned to' 
+    - Source files (*.py) files copied in /plugins folder not enabled ootb
+    - Twitter Bootstrap class="input-mini" added in 'Max items per page'
+      input control in query view.
+    - Ticket comment header changed 
+    - 'Page PageName created' is not shown anymore for new wiki page
+    - Ticket workflow <select /> does not end with `id` attribute
+    - Ticket events in timeline are different i.e. 'by user' outside <a />
+    - Description 'modified' label in ticket comments feed inside <span />
+    - closed: labels in milestone progress reports not shown anymore
+    - active: labels in milestone progress reports not shown anymore
+    - In ticket comments reply form 'Submit changes' => 'Submit'
+    - No preview button for ticket (comments) in BH theme
+    - class="input-mini" appended to priorities admin <select />
 
     As a consequence some methods of Trac functional tester have to be updated.
     """
+
+    def __init__(self, url, skiplogin=False, instance_state=None):
+        """Create a :class:`BloodhoundFunctionalTester` for the given 
+        environment URL and Subversion URL
+        
+        :param skiplogin:   Skip admin user login
+        """
+        self.url = url
+        self._state = instance_state or dict(ticketcount=0)
+
+        # Connect, and login so we can run tests.
+        self.go_to_front()
+        if not skiplogin:
+            self.login('admin')
+
+    @property
+    def ticketcount(self):
+        """Retrieve ticket count from shared instance state.
+        Ticket ID sequence is global.
+        """
+        return self._state.get('ticketcount', 0)
+
+    @ticketcount.setter
+    def ticketcount(self, value):
+        self._state['ticketcount'] = value
 
     def login(self, username):
         """Login as the given user
@@ -412,9 +548,9 @@ class BloodhoundFunctionalTester(FunctionalTester):
         """
         self.go_to_front()
         # [BLOODHOUND] View Tickets renamed to Tickets pointing at dashboard
-        tc.follow('Tickets')
+        tc.follow(r'\bTickets\b')
         tc.notfind(internal_error)
-        tc.follow('Reports')
+        tc.follow(r'\bReports\b')
         tc.notfind(internal_error)
         tc.formvalue('create_report', 'action', 'new') # select new report form
         tc.submit()
@@ -473,6 +609,12 @@ class BloodhoundFunctionalTester(FunctionalTester):
         tc.follow('Custom Query')
         tc.url(self.url + '/query')
 
+    def quickjump(self, search):
+        """Do a quick search to jump to a page."""
+        tc.formvalue('mainsearch', 'q', search)
+        tc.submit()
+        tc.notfind(internal_error)
+
     # Bloodhound functional tester extensions
 
     def go_to_newticket(self):
@@ -513,10 +655,108 @@ class BloodhoundFunctionalTester(FunctionalTester):
 
         return self.ticketcount
 
+    @staticmethod
+    def regex_ticket_field(fieldname, fieldval):
+        return r'<td [^>]*\bid="vc-%s"[^>]*>\s*%s\s*</td>' % (fieldname, fieldval)
+
+    @staticmethod
+    def regex_owned_by(username):
+        return '(Assigned to(<[^>]*>|\\n| )*%s)' % username
+
+    @staticmethod
+    def regex_query_column_selector(fieldname, fieldlbl):
+        return r'<label>( |\n)*<input[^<]*value="%s"[^<]*>' \
+                '( |\n)*<[^<]*>( |\n)*%s( |\n)*</[^<]*>' \
+                '(.|\n)*</label>' % (fieldname, fieldlbl)
+
     def find_ticket_field(self, fieldname, fieldval):
         """Assert that expected value (pattern) matches value in ticket view
         """
-        tc.find(r'<td [^>]*\bid="vc-%s"[^>]*>\s*%s\s*</td>' % (fieldname, fieldval))
+        tc.find(self.regex_ticket_field(fieldname, fieldval))
+
+    def find_owned_by(self, username):
+        """Assert that a ticket is owned by a given user
+        """
+        tc.find(self.regex_owned_by(username))
+
+    def find_query_column_selector(self, fieldname, fieldlbl):
+        tc.find(self.regex_query_column_selector(fieldname, fieldlbl), 's')
+
+    def as_user(self, user, restore='admin'):
+        """Context manager to track access to the web site 
+        as user and restore login afterwards (by default to admin)
+        """
+        @contextlib.contextmanager
+        def user_ctx():
+            try:
+                login_ok = False
+                try:
+                    self.logout()
+                except:
+                    pass
+                if user:
+                    self.login(user)
+                    login_ok = True
+                yield self
+            finally:
+                if login_ok:
+                    try:
+                        self.logout()
+                    except:
+                        pass
+                if restore:
+                    self.login(restore)
+
+        return user_ctx()
+
+
+    class in_product(object):
+        """Context manager temporarily switching to product URL
+        """
+        def __init__(self, tester, url=None):
+            self.tester = tester
+            self.prev_url = None
+            self.url = url
+
+        def __enter__(self):
+            """Replace tester base URL with default product's URL
+            """
+            self.prev_url = self.tester.url
+            self.tester.url = self.url if self.url else \
+                              getattr(self.tester, 'default_product_url',
+                                      self.tester.url)
+            return self.tester
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            """Restore tester URL poiting at global environment
+            """
+            self.tester.url = self.prev_url 
+
+    def create_product(self, prefix=None, name=None, desc=None):
+        products_url = self.url + "/products"
+        tc.go(products_url)
+        tc.find('Products')
+        # Touch new product form
+        tc.formvalue('new', 'action', 'new')
+        tc.submit('Add new product')
+        tc.find('New Product')
+
+        prefix = prefix or random_word()
+        name = prefix or random_sentence()
+
+        tc.formvalue('edit', 'prefix', prefix)
+        tc.formvalue('edit', 'name', name)
+        if desc:
+            tc.formvalue('edit', 'description', desc)
+        tc.submit()
+        tc.find('The product "%s" has been added' % (prefix,))
+        return prefix
+
+    def go_to_dashboard(self):
+        """Surf to the dashboard page."""
+        self.go_to_front()
+        tc.follow('Tickets')
+        tc.url(self.url + '/dashboard')
 
 
 class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
@@ -536,35 +776,30 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
     As a consequence some methods of Trac functional tester have to be
     executed in special ways.
     """
-    def __init__(self, url, default_product_url=None):
-        super(BloodhoundGlobalEnvFunctionalTester, self).__init__(url)
-        self.default_product_url = default_product_url
+    def __init__(self, url, *args, **kwargs):
+        super(BloodhoundGlobalEnvFunctionalTester,
+              self).__init__(url, *args, **kwargs)
+        self.default_product_url = None
 
-    class in_defaut_product(object):
-        """Context manager temporarily switching to default product URL
+    class in_product(BloodhoundFunctionalTester.in_product):
+        """Context manager temporarily switching to product URL
         """
-        def __init__(self, tester):
-            self.tester = tester
-            self.global_url = None
-
-        def __enter__(self):
-            """Replace tester base URL with default product's URL
-            """
-            self.global_url = self.tester.url
-            self.tester.url = self.tester.default_product_url
-            return self.tester
-
-        def __exit__(self, exc_type, exc_value, traceback):
-            """Restore tester URL poiting at global environment
-            """
-            self.tester.url = self.global_url 
+        def __init__(self, tester, url=None):
+            if url is not None and \
+                    isinstance(tester, BloodhoundGlobalEnvFunctionalTester):
+                # Create a regular functional tester instance, no redirections
+                default_product_url = tester.default_product_url
+                tester = BloodhoundFunctionalTester(tester.url, True,
+                                                    tester._state)
+                tester.default_product_url = default_product_url 
+            super(self.__class__, self).__init__(tester, url)
 
     def _post_create_ticket(self):
         """Look at the newly created ticket page after creating it
         ... but in default product context ...
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
-        with self.in_defaut_product(self):
+        with self.in_product(self):
             return superobj._post_create_ticket()
 
     def create_milestone(self, name=None, due=None):
@@ -574,7 +809,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         ... executed in default product context 
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
-        with self.in_defaut_product(self):
+        with self.in_product(self):
             return superobj.create_milestone(name, due)
 
     def create_component(self, name=None, user=None):
@@ -584,7 +819,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         ... executed in default product context 
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
-        with self.in_defaut_product(self):
+        with self.in_product(self):
             return superobj.create_component(name, user)
 
     def create_enum(self, kind, name=None):
@@ -596,7 +831,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
 
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
-        with self.in_defaut_product(self):
+        with self.in_product(self):
             return superobj.create_enum(kind, name)
 
     def create_version(self, name=None, releasetime=None):
@@ -606,9 +841,47 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         ... executed in default product context 
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
-        with self.in_defaut_product(self):
+        with self.in_product(self):
             return superobj.create_version(name, releasetime)
 
+
+class OpenerDirectorMixin(object):
+    """URL opener extensions for functional testers.
+    """
+    def build_opener(self, url, user, passwd=None):
+        """Build an urllib2 OpenerDirector configured to access the web
+        instance on behalf of a given user
+        """
+        return urllib2.build_opener()
+
+
+class HttpAuthTester(OpenerDirectorMixin):
+    """Configure HTTP authentication (basic or digest, proxy, ...)
+    """
+
+    def url_auth_handlers(self, password_mgr):
+        """Return a (list of) instance(s) of urllib2.AbstractBasicAuthHandler,
+        urllib2.AbstractDigestAuthHandler or equivalent.
+        """
+        raise NotImplementedError("Must override 'url_auth_handlers' method")
+
+    def build_opener(self, url, user, passwd=None):
+        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        handlers = self.url_auth_handlers(password_mgr)
+        if not isinstance(handlers, (tuple, list)):
+            handlers = (handlers,)
+        password_mgr.add_password(realm=None, uri=url, user=user,
+                                  passwd=passwd or user)
+        return urllib2.build_opener(*handlers)
+
+
+#----------------
+# Twill's find command accepts regexes; some convenient but complex regexes
+# & regex factories are provided here :
+#----------------
+
+regex_owned_by = BloodhoundFunctionalTester.regex_owned_by
+regex_ticket_field = BloodhoundFunctionalTester.regex_ticket_field
 
 #----------------
 # Product-aware functional setup
@@ -627,10 +900,26 @@ class MultiproductFunctionalTestSuite(functional.FunctionalTestSuite):
 
     tester_class = BloodhoundGlobalEnvFunctionalTester
 
+    def testenv_path(self, port=None):
+        if port is None:
+            dirname = "testenv"
+        else:
+            dirname = "testenv%s" % port
+        return os.path.join(functional.trac_source_tree, dirname)
+
     def setUp(self, port=None):
         print "Starting web server ..."
         try:
-            functional.FunctionalTestSuite.setUp(self)
+            # Rewrite FunctionalTestSuite.setUp for custom dirname
+            dirname = self.testenv_path(port)
+            if port is None:
+                port = 8000 + os.getpid() % 1000
+
+            baseurl = "http://127.0.0.1:%s" % port
+            self._testenv = self.env_class(dirname, port, baseurl)
+            self._testenv.start()
+            self._tester = self.tester_class(baseurl)
+            self.fixture = (self._testenv, self._tester)
         except:
             # Ensure tracd process is killed on failure
             print "Stopping web server...\n"
@@ -653,6 +942,7 @@ class MultiproductFunctionalTestSuite(functional.FunctionalTestSuite):
         order access default product URL namespace instead of global.
         """
         self.setUp()
+        # FIXME: Loop once over test cases
         if hasattr(self, 'fixture'):
             for test in self._tests:
                 if hasattr(test, 'setFixture'):
@@ -661,10 +951,20 @@ class MultiproductFunctionalTestSuite(functional.FunctionalTestSuite):
         for test in self._tests:
             if result.shouldStop:
                 break
-            if getattr(test, 'BH_IN_DEFAULT_PRODUCT', False) and \
-                    hasattr(self._tester, 'in_defaut_product'):
-                with self._tester.in_defaut_product(self._tester):
-                    test(result)
+            if getattr(test, 'BH_IN_DEFAULT_PRODUCT', False):
+                if hasattr(test, 'in_product'):
+                    with test.in_product():
+                        test(result)
+                elif hasattr(self._tester, 'in_product'):
+                    with self._tester.in_product(self._tester):
+                        test(result)
+                else:
+                    try:
+                        raise RuntimeError('Impossible to run test %s in '
+                                           'default product' % (test,))
+                    except:
+                        err = sys.exc_info()
+                    result.addError(test, err)
             else:
                 test(result)
         self.tearDown()
@@ -674,16 +974,56 @@ class MultiproductFunctionalTestSuite(functional.FunctionalTestSuite):
         print "\nStopping web server...\n"
         functional.FunctionalTestSuite.tearDown(self)
 
+class MultiproductFunctionalTestCase(object):
+    """Mixin extending functional test case setup classes with multi-product
+    test methods.
+    """
+    def in_product(self, prefix=None):
+        """Switch the functional tester to work in product context.
+
+        :param prefix:  target product prefix
+        :return:        context manager object
+        """
+        # Force setting tester and test environment
+        functional.FunctionalTestCaseSetup.setUp(self)
+
+        @contextlib.contextmanager
+        def in_product_testenv(product_id):
+            try:
+                # Backup active test env
+                original = self._testenv
+                self._testenv = original.product_testenv(product_id)
+                yield self._testenv
+            finally:
+                self._testenv = original
+
+        if prefix is None:
+            default_product = self._testenv._default_product()
+            return contextlib.nested(in_product_testenv(default_product),
+                                     self._tester.in_product(self._tester))
+        else:
+            product_href = self._testenv.get_env_href(prefix=prefix)
+            return contextlib.nested(in_product_testenv(prefix),
+                          self._tester.in_product(self._tester, product_href()))
+
 # Mark some test cases to be run against default product
 import trac.ticket.tests.functional
 import trac.admin.tests.functional
+from trac.tests.functional import testcases
+
+ignore_tc = (functional.FunctionalTwillTestCaseSetup, 
+             functional.FunctionalTestCaseSetup)
 for mdl in (trac.ticket.tests.functional, trac.admin.tests.functional):
     for attr in dir(mdl):
         attr = getattr(mdl, attr)
-        if isclass(attr) and issubclass(attr, 
-                                        functional.FunctionalTwillTestCaseSetup):
+        if isclass(attr) and attr not in ignore_tc \
+                and issubclass(attr, functional.FunctionalTestCaseSetup):
             attr.BH_IN_DEFAULT_PRODUCT = True
-del attr, mdl
+del attr, mdl, ignore_tc
+
+testcases.RegressionTestTicket7209.BH_IN_DEFAULT_PRODUCT = True
+testcases.RegressionTestTicket9880.BH_IN_DEFAULT_PRODUCT = True
+
 
 def trac_functionalSuite(suite):
     from trac.tests.functional import testcases
@@ -697,8 +1037,14 @@ def trac_functionalSuite(suite):
     suite.addTest(testcases.ErrorPageValidation())
     suite.addTest(testcases.RegressionTestTicket3663())
 
+    import trac.admin.tests
+    trac.admin.tests.functionalSuite(suite)
     import trac.versioncontrol.tests
     trac.versioncontrol.tests.functionalSuite(suite)
+    import trac.wiki.tests
+    trac.wiki.tests.functionalSuite(suite)
+    import trac.timeline.tests
+    trac.timeline.tests.functionalSuite(suite)
 
     # import trac.ticket.tests
     # trac.ticket.tests.functionalSuite(suite)
@@ -710,12 +1056,6 @@ def trac_functionalSuite(suite):
     import tests.functional.prefs
     tests.functional.prefs.functionalSuite(suite)
 
-    import trac.wiki.tests
-    trac.wiki.tests.functionalSuite(suite)
-    import trac.timeline.tests
-    trac.timeline.tests.functionalSuite(suite)
-    import trac.admin.tests
-    trac.admin.tests.functionalSuite(suite)
     # The db tests should be last since the backup test occurs there.
     import trac.db.tests
     trac.db.tests.functionalSuite(suite)
