@@ -665,9 +665,9 @@ class BloodhoundFunctionalTester(FunctionalTester):
 
     @staticmethod
     def regex_query_column_selector(fieldname, fieldlbl):
-        return r'<label>( |\n)*<input[^<]*value="%s"[^<]*>' \
-                '( |\n)*<[^<]*>( |\n)*%s( |\n)*</[^<]*>' \
-                '(.|\n)*</label>' % (fieldname, fieldlbl)
+        return r'<label>( |\n)*<input[^<]*value="%s"[^<]*/>' \
+               r'( |\n)*<[^<]*>( |\n)*%s( |\n)*</[^<]*>' \
+               r'( |\n)*</label>' % (fieldname, fieldlbl)
 
     def find_ticket_field(self, fieldname, fieldval):
         """Assert that expected value (pattern) matches value in ticket view
