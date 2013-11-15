@@ -18,7 +18,7 @@
 #  under the License.
 
 from trac.tests import functional
-from trac.tests.functional.tester import internal_error, tc
+from trac.tests.functional.tester import tc
 
 #----------------
 # Functional test cases for preferences (rewritten) 
@@ -60,9 +60,8 @@ class RegressionTestRev5785(functional.FunctionalTwillTestCaseSetup):
         # [BLOODHOUND] Preferences link removed
         tc.follow('/prefs')
         tc.url(prefs_url)
-        tc.follow('Logout')
-        tc.notfind(internal_error) # See [5785]
-        tc.follow('Login')
+        self._tester.logout()
+        self._tester.login('admin')
 
 
 class RegressionTestTicket5765(functional.FunctionalTwillTestCaseSetup):
