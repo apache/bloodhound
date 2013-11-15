@@ -585,7 +585,7 @@ class MultiProductSystem(Component):
 
         # Import default pages in product wiki
         wikiadmin = WikiAdmin(ProductEnvironment(self.env, product.prefix))
-        pages = ('TitleIndex', 'RecentChanges')
+        pages = ('TitleIndex', 'RecentChanges', 'InterTrac', 'InterWiki')
         for page in pages:
             filename = resource_filename('trac.wiki', 'default-pages/' + page)
             wikiadmin.import_page(filename, page)

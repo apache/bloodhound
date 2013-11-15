@@ -1056,6 +1056,9 @@ def trac_functionalSuite(suite):
     import tests.functional.prefs
     tests.functional.prefs.functionalSuite(suite)
 
+    import tests.functional.product
+    tests.functional.product.functionalSuite(suite)
+
     # The db tests should be last since the backup test occurs there.
     import trac.db.tests
     trac.db.tests.functionalSuite(suite)
