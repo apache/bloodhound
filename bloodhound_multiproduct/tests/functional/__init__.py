@@ -1072,13 +1072,14 @@ def functionalSuite():
 def test_suite():
     suite = functionalSuite()
 
-    # TODO: Load Bloodhound-specific functional test cases
-
     #from tests import TestLoader
     # FIXME: Does this work for functional tests suite ?
     # bhsuite = TestLoader().discover_package('tests.functional', pattern='*.py')
 
     trac_functionalSuite(suite)
+
+    import tests.functional.admin
+    tests.functional.admin.functionalSuite(suite)
 
     return suite
 
