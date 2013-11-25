@@ -1352,3 +1352,9 @@ input[type="radio"]:checked + label span {
 input[type="radio"]:not(:checked) + label span {
  text-decoration: underline;
 }
+
+/* Same styling as ".browser .table td" in boostrap.css */
+.browser .table tbody tr {
+ border-top: 1px solid #dddddd;
+}
+
