@@ -827,7 +827,7 @@ class ProductEnvironment(Component, ComponentManager):
         if logtype == 'inherit':
             self.log = self.parent.log
             self._log_handler = self.parent._log_handler
-            self.parent.log.warning("Inheriting parent logger for product '%s'",
+            self.parent.log.info("Inheriting parent logger for product '%s'",
                     self.product.prefix)
         else:
             if logtype == 'file' and not os.path.isabs(logfile):
