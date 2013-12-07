@@ -1358,3 +1358,17 @@ input[type="radio"]:not(:checked) + label span {
  border-top: 1px solid #dddddd;
 }
 
+/* @group Related tickets */
+
+.relations table {
+ table-layout: fixed;
+ word-wrap: break-word;
+}
+
+.relations table .width-standard {
+ width: 17%;
+}
+.relations table .width-wide {
+ width: 32%;
+}
+/* @end */
