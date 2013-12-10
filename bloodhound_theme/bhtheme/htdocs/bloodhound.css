@@ -354,6 +354,11 @@ pre {
  display: inline;
 }
 
+#qct-last-container {
+  background-color: #FFFFCC;
+  margin-top: 4px;
+}
+
 /* @end */
 
 /* @group Generic rules */

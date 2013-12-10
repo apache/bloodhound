@@ -99,7 +99,13 @@ $( function () {
     // Display & hide message triggered by quick create box
     function qct_alert(msg) {
       qct_info = msg;
-      jQuery('#qct-newticket').popover('show');
+      var link_content = '#' + qct_info.product + '-' + qct_info.ticket;
+      var link = $(qct_info.msg).filter('a').html(link_content);
+      $('#qct-last').empty()
+                    .append('Last ticket created: ')
+                    .append(link);
+      $('#qct-last-container').show();
+      $('#qct-newticket').popover('show');
       if (qct_timeout)
         clearTimeout(qct_timeout);
       qct_timeout = setTimeout(qct_alert_close, 4000);
@@ -156,6 +162,7 @@ $( function () {
               function(ticket) {
                 qct_alert({
                     ticket: ticket.id,
+                    product: ticket.product,
                     msg: '<span class="alert alert-success">' +
                          'Has been created</span> ' +
                          '<a href="' + ticket.url + '">View / Edit</a>'
@@ -246,4 +253,3 @@ function setup_sticky_panel(selector) {
       }
     })
 }
-
