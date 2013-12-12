@@ -93,6 +93,17 @@ $( function () {
         content : function () { return qct_info.msg; }
       });
 
+    /** 
+     * Pass QCT form fields to full ticket form when "More fields" is clicked
+     */
+    $('#qct-more').click(function(e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        var params = $('#qct-form').serialize();
+        params = params.replace(/field_/g, ''); // map to newticket querystring
+        window.location = href + '?' + params;
+    });
+
     $('body').on('click.close', '#qct-alert-close', 
         function (e) { qct_alert_close() });
 
