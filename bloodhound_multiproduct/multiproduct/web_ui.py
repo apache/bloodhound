@@ -41,7 +41,7 @@ from multiproduct.env import ProductEnvironment
 # requests to the following URLs will be skipped in the global scope
 # (no more redirection to default product)
 IGNORED_REQUESTS_RE = \
-    re.compile(r'^/(?P<section>milestone|roadmap|diff|search|'
+    re.compile(r'^/(?P<section>milestone|roadmap|search|'
                r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
 
 class ProductModule(Component):
