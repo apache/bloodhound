@@ -129,6 +129,7 @@ class BloodhoundTheme(ThemeBase):
         # Version control
         'browser.html': ('bh_browser.html', '_modify_browser'),
         'changeset.html': ('bh_changeset.html', None),
+        'diff_form.html': ('bh_diff_form.html', None),
         'dir_entries.html': ('bh_dir_entries.html', None),
         'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
 
