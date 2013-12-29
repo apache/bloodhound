@@ -62,8 +62,13 @@ class ProductTicketModule(TicketModule):
 
             if not productid and not qct_product and not isinstance(self.env,
                     ProductEnvironment):
+                default_product = self.env.config.get('ticket',
+                                                      'default_product')
                 products = Product.select(self.env, {'fields': ['prefix']})
-                req.redirect(req.href.products(products[0].prefix, 'newticket',
+                prefixes = [prod.prefix for prod in products]
+                if not default_product or default_product not in prefixes:
+                    default_product = products[0].prefix
+                req.redirect(req.href.products(default_product, 'newticket',
                                                req.args))
             elif qct_product:
                 # Most likely arrived here via the QCT "More fields" link.
