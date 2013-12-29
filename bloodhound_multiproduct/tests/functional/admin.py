@@ -31,6 +31,27 @@ from tests.functional import MultiproductFunctionalTestCase
 #----------------
 
 
+class TestAdminProductDefault(MultiproductFunctionalTestCase,
+                              FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Admin set default product"""
+        name = self._tester.create_product()
+        products_url = self._tester.url + '/admin/ticket/products'
+        tc.go(products_url)
+        tc.formvalue('product_table', 'default', name)
+        tc.submit('apply')
+        tc.find('type="radio" name="default" value="%s" checked="checked"'
+                % name)
+        tc.go(self._tester.url + '/newticket')
+        tc.find('<option selected="selected" value="%s">%s</option>'
+                % (name, name))
+        # Test the "Clear default" button
+        tc.go(products_url)
+        tc.submit('clear', 'product_table')
+        tc.notfind('type="radio" name="default" value=".+" checked="checked"')
+        tid = self._tester.create_ticket()
+
+
 class RegressionTestBhTicket667(MultiproductFunctionalTestCase,
                                 FunctionalTwillTestCaseSetup):
 
@@ -59,6 +80,7 @@ def functionalSuite(suite=None):
         import tests.functional
         suite = tests.functional.functionalSuite()
 
+    suite.addTest(TestAdminProductDefault())
     suite.addTest(RegressionTestBhTicket667())
     return suite
 

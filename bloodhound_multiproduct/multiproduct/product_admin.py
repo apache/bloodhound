@@ -142,6 +142,13 @@ class ProductAdminPanel(TicketAdminPanel):
                                         prefix)
                         _save_config(self.config, req, self.log)
                         req.redirect(req.href.admin(cat, page))
+
+                # Clear default product
+                elif req.args.get('clear'):
+                    self.log.info("Clearing default product")
+                    self.config.set('ticket', 'default_product', '')
+                    _save_config(self.config, req, self.log)
+                    req.redirect(req.href.admin(cat, page))
             
             products = Product.select(self.env)
             data = {'view': 'list',
