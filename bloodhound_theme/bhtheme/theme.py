@@ -549,8 +549,6 @@ class QuickCreateTicketDialog(Component):
             if product_field:
                 if self.env.product:
                     product_field['value'] = self.env.product.prefix
-                else:
-                    product_field['value'] = product_field['options'][0]
                 product_field['options_desc'] = [
                     ProductEnvironment.lookup_env(self.env, p).product.name
                         for p in product_field['options']

@@ -86,6 +86,9 @@ class MultiProductSystem(Component):
         doc="""Prefix used for default product when migrating single-product
         installations to multi-product.""")
 
+    default_product = Option('ticket', 'default_product', '',
+        """Default product for newly created tickets.""")
+
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
         e.g. the use cases listed in bh:wiki:/Proposals/BEP-0003#url-mapping .
@@ -623,7 +626,8 @@ class MultiProductSystem(Component):
     def get_select_fields(self):
         """Product select fields"""
         return [(35, {'name': 'product', 'label': N_('Product'),
-                      'cls': Product, 'pk': 'prefix', 'optional': False})]
+                      'cls': Product, 'pk': 'prefix', 'optional': False,
+                      'value': self.default_product})]
 
     def get_radio_fields(self):
         """Product radio fields"""
