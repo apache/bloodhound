@@ -27,7 +27,7 @@ from trac.config import *
 from trac.perm import PermissionSystem
 from trac.resource import ResourceNotFound
 from trac.ticket.admin import TicketAdminPanel, _save_config
-from trac.util import lazy
+from trac.util import getuser, lazy
 from trac.util.text import print_table, to_unicode, printerr, printout
 from trac.util.translation import _, N_, gettext, ngettext
 from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
@@ -94,7 +94,7 @@ class ProductAdminPanel(TicketAdminPanel):
                 if req.args.get('save'):
                     req.perm.require('PRODUCT_MODIFY')
                     prod.update_field_dict(field_data)
-                    prod.update()
+                    prod.update(req.authname)
                     add_notice(req, _('Your changes have been saved.'))
                     req.redirect(req.href.admin(cat, page))
                 elif req.args.get('cancel'):
@@ -188,7 +188,7 @@ class ProductAdminPanel(TicketAdminPanel):
     def _do_product_chown(self, prefix, owner):
         product = self.load_product(prefix)
         product._data['owner'] = owner
-        product.update()
+        product.update(getuser())
 
     def _do_product_list(self):
         if not isinstance(self.env, ProductEnvironment):
@@ -202,7 +202,7 @@ class ProductAdminPanel(TicketAdminPanel):
     def _do_product_rename(self, prefix, newname):
         product = self.load_product(prefix)
         product._data['name'] = newname
-        product.update()
+        product.update(getuser())
 
 
 #--------------------------

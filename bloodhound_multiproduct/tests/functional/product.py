@@ -17,8 +17,12 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from uuid import uuid4
+
 from trac.tests.functional import FunctionalTwillTestCaseSetup
 from trac.tests.functional.tester import tc
+
+from tests.functional import MultiproductFunctionalTestCase
 
 #----------------
 # Functional test cases for products
@@ -27,7 +31,7 @@ from trac.tests.functional.tester import tc
 class TestNewProduct(FunctionalTwillTestCaseSetup):
     def runTest(self):
         """Setup new product"""
-        prefix = self._tester.create_product()
+        prefix, name = self._tester.create_product()
         base_url = self._testenv.get_env_href(prefix=prefix)
         tc.url(base_url())
 
@@ -43,12 +47,41 @@ class TestNewProduct(FunctionalTwillTestCaseSetup):
         tc.find('<a[^>]*>Index by Title')
 
 
+class TestProductRenameAuthor(MultiproductFunctionalTestCase, 
+                              FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Check for correct author in ticket comments on product rename
+        https://issues.apache.org/bloodhound/ticket/671
+        """
+        prefix, name = self._tester.create_product()
+        with self.in_product(prefix) as (testenv, tester):
+            t1 = tester.create_ticket()
+            t2 = tester.create_ticket()
+        new_name = '%s%s' % (name, str(uuid4()).split('-')[0])
+
+        tc.go(self._tester.url + '/products')
+        tc.follow('.*/products/' + prefix + r'\?action=edit$')
+        tc.find('Edit Product')
+        tc.find(prefix)
+        tc.formvalue('edit', 'name', new_name)
+        tc.submit()
+        tc.find('Your changes have been saved')
+
+        with self.in_product(prefix) as (testenv, tester):
+            tester.go_to_ticket(t1)
+            comment = 'Product %s renamed to %s' % (name, new_name)
+            tc.find(comment)
+            tester.go_to_ticket(t2)
+            tc.find(comment)
+
+
 def functionalSuite(suite=None):
     if not suite:
         import tests.functional
         suite = tests.functional.functionalSuite()
 
     suite.addTest(TestNewProduct())
+    # suite.addTest(TestProductRenameAuthor())
     return suite
 
 if __name__ == '__main__':

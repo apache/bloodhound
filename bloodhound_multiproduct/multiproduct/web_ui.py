@@ -161,7 +161,7 @@ class ProductModule(Component):
         def warn(msg):
             add_warning(req, msg)
             warnings.append(msg)
-        
+
         if product._exists:
             if name != product.name and Product.select(self.env, 
                                                        where={'name': name}):
@@ -172,7 +172,7 @@ class ProductModule(Component):
             else:
                 req.perm.require('PRODUCT_MODIFY')
                 product.update_field_dict(field_data)
-                product.update()
+                product.update(req.authname)
                 add_notice(req, _('Your changes have been saved.'))
         else:
             req.perm.require('PRODUCT_CREATE')

@@ -750,7 +750,7 @@ class BloodhoundFunctionalTester(FunctionalTester):
             tc.formvalue('edit', 'description', desc)
         tc.submit()
         tc.find('The product "%s" has been added' % (prefix,))
-        return prefix
+        return prefix, name
 
     def go_to_dashboard(self):
         """Surf to the dashboard page."""

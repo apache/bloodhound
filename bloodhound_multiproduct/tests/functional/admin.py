@@ -35,16 +35,16 @@ class TestAdminProductDefault(MultiproductFunctionalTestCase,
                               FunctionalTwillTestCaseSetup):
     def runTest(self):
         """Admin set default product"""
-        name = self._tester.create_product()
+        prefix, name = self._tester.create_product()
         products_url = self._tester.url + '/admin/ticket/products'
         tc.go(products_url)
-        tc.formvalue('product_table', 'default', name)
+        tc.formvalue('product_table', 'default', prefix)
         tc.submit('apply')
         tc.find('type="radio" name="default" value="%s" checked="checked"'
-                % name)
+                % prefix)
         tc.go(self._tester.url + '/newticket')
         tc.find('<option selected="selected" value="%s">%s</option>'
-                % (name, name))
+                % (prefix, prefix))
         # Test the "Clear default" button
         tc.go(products_url)
         tc.submit('clear', 'product_table')
