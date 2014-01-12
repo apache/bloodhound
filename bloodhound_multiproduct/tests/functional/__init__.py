@@ -456,7 +456,7 @@ class BloodhoundFunctionalTester(FunctionalTester):
         :param skiplogin:   Skip admin user login
         """
         self.url = url
-        self._state = instance_state or dict(ticketcount=0)
+        self._state = instance_state or dict(ticketcount={})
 
         # Connect, and login so we can run tests.
         self.go_to_front()
@@ -468,11 +468,13 @@ class BloodhoundFunctionalTester(FunctionalTester):
         """Retrieve ticket count from shared instance state.
         Ticket ID sequence is global.
         """
-        return self._state.get('ticketcount', 0)
+        ticketcount_cache = self._state.setdefault('ticketcount', {})
+        return ticketcount_cache.get(self.url, 0)
 
     @ticketcount.setter
     def ticketcount(self, value):
-        self._state['ticketcount'] = value
+        ticketcount_cache = self._state.setdefault('ticketcount', {})
+        ticketcount_cache[self.url] = value
 
     def login(self, username):
         """Login as the given user
