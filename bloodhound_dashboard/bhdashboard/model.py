@@ -206,11 +206,11 @@ class ModelBase(object):
             TicketSystem(self._env).reset_ticket_fields()
         ResourceSystem(self._env).resource_created(self)
 
-    def _update_relations(self, db):
+    def _update_relations(self, db, author=None):
         """Extra actions due to update"""
         pass
     
-    def update(self):
+    def update(self, author=None):
         """Update the matching record in the database"""
         if self._old_data == self._data:
             return 
@@ -239,7 +239,7 @@ class ModelBase(object):
                           if self._data.get(k) != v)
         with self._env.db_transaction as db:
             db(sql, setvalues + values)
-            self._update_relations(db)
+            self._update_relations(db, author)
             self._old_data.update(self._data)
             TicketSystem(self._env).reset_ticket_fields()
 
