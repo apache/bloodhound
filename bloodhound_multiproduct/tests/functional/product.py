@@ -81,7 +81,7 @@ def functionalSuite(suite=None):
         suite = tests.functional.functionalSuite()
 
     suite.addTest(TestNewProduct())
-    # suite.addTest(TestProductRenameAuthor())
+    suite.addTest(TestProductRenameAuthor())
     return suite
 
 if __name__ == '__main__':
