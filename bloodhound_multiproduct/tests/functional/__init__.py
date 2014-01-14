@@ -736,6 +736,7 @@ class BloodhoundFunctionalTester(FunctionalTester):
             self.tester.url = self.prev_url 
 
     def create_product(self, prefix=None, name=None, desc=None):
+        """Create a product from the product list page."""
         products_url = self.url + '/products'
         tc.go(products_url)
         tc.find('Products')
@@ -743,7 +744,7 @@ class BloodhoundFunctionalTester(FunctionalTester):
         tc.find('New Product')
 
         prefix = prefix or random_word()
-        name = prefix or random_sentence()
+        name = name or random_sentence()
         desc = desc or random_paragraph()
 
         tc.formvalue('edit', 'prefix', prefix)
@@ -752,6 +753,27 @@ class BloodhoundFunctionalTester(FunctionalTester):
         tc.submit()
         tc.find('The product "%s" has been added' % prefix)
         return prefix, name
+
+    def admin_create_product(self, prefix=None, name=None, owner=None):
+        """Create a product from the admin page."""
+        admin_product_url = self.url + '/admin/ticket/products'
+        tc.go(admin_product_url)
+        tc.url(admin_product_url + '$')
+        prefix = prefix or random_word()
+        name = name or random_sentence()
+        owner = owner or random_word()
+        tc.formvalue('addproduct', 'prefix', prefix)
+        tc.formvalue('addproduct', 'name', name)
+        tc.formvalue('addproduct', 'owner', owner)
+        tc.submit()
+
+        tc.find(r'The product "%s" has been added' % prefix)
+        tc.find(r'<a href="/admin/ticket/products/%s">%s</a>'
+                % (prefix, prefix))
+        tc.find(r'<a href="/admin/ticket/products/%s">%s</a>'
+                % (prefix, name))
+        tc.find(r'<td class="owner">%s</td>' % owner)
+        return prefix, name, owner
 
     def go_to_dashboard(self):
         """Surf to the dashboard page."""
