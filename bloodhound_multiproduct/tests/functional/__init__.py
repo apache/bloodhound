@@ -19,17 +19,18 @@
 
 import contextlib
 import imp
-from inspect import isclass
 import os
-from subprocess import call, Popen
 import sys
 import time
-import urllib
 import urllib2
+from inspect import isclass
+from subprocess import call, Popen
 
-from trac.tests.contentgen import random_page, random_sentence, \
-    random_unique_camel, random_word
 from trac.tests import functional
+from trac.tests.contentgen import (
+    random_page, random_paragraph, random_sentence, random_unique_camel,
+    random_word
+)
 from trac.tests.functional.svntestenv import SvnFunctionalTestEnvironment
 from trac.tests.functional.testenv import FunctionalTestEnvironment, ConnectError
 from trac.tests.functional.tester import b, FunctionalTester, internal_error, tc
@@ -735,23 +736,21 @@ class BloodhoundFunctionalTester(FunctionalTester):
             self.tester.url = self.prev_url 
 
     def create_product(self, prefix=None, name=None, desc=None):
-        products_url = self.url + "/products"
+        products_url = self.url + '/products'
         tc.go(products_url)
         tc.find('Products')
-        # Touch new product form
-        tc.formvalue('new', 'action', 'new')
-        tc.submit('Add new product')
+        tc.submit('add', 'new')
         tc.find('New Product')
 
         prefix = prefix or random_word()
         name = prefix or random_sentence()
+        desc = desc or random_paragraph()
 
         tc.formvalue('edit', 'prefix', prefix)
         tc.formvalue('edit', 'name', name)
-        if desc:
-            tc.formvalue('edit', 'description', desc)
+        tc.formvalue('edit', 'description', desc)
         tc.submit()
-        tc.find('The product "%s" has been added' % (prefix,))
+        tc.find('The product "%s" has been added' % prefix)
         return prefix, name
 
     def go_to_dashboard(self):
@@ -1084,6 +1083,7 @@ def test_suite():
     tests.functional.admin.functionalSuite(suite)
 
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

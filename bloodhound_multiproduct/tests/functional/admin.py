@@ -45,11 +45,11 @@ class TestAdminProductDefault(MultiproductFunctionalTestCase,
         tc.go(self._tester.url + '/newticket')
         tc.find('<option selected="selected" value="%s">%s</option>'
                 % (prefix, prefix))
+
         # Test the "Clear default" button
         tc.go(products_url)
         tc.submit('clear', 'product_table')
         tc.notfind('type="radio" name="default" value=".+" checked="checked"')
-        tid = self._tester.create_ticket()
 
 
 class RegressionTestBhTicket667(MultiproductFunctionalTestCase,
