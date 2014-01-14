@@ -31,16 +31,17 @@ import time
 
 from createdigest import htdigest_create
 
-from trac.util import translation
-from trac.util.translation import _, get_negotiated_locale, has_babel
 LANG = os.environ.get('LANG')
 
 try:
+    from trac.util import translation
+    from trac.util.translation import _, get_negotiated_locale, has_babel
     from trac.admin.console import TracAdmin
     from trac.config import Configuration
 except ImportError, e:
-    print ("Post install setup requires that Bloodhound is properly installed "
-           "Traceback for error follows:\n")
+    print ("Requirements should be installed before running bloodhound_setup.py.\n"
+           "You can install them with the following command:\n"
+           "   pip install -r requirements.txt\n")
     traceback.print_exc()
     sys.exit(1)
 
