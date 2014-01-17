@@ -252,7 +252,7 @@ class MultiProductSecurityTestCase(SecurityTest):
         self._add_permission('x', 'TRAC_ADMIN')
 
         security.SecurityPreprocessor.check_permission = \
-            lambda x, doc, z: doc['product'] == 'p1'
+            lambda x, doc, z: doc.get('product', None) == 'p1'
 
         results = self.search_api.query(
             "*",
