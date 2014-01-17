@@ -54,8 +54,8 @@ class SecurityPreprocessor(Component):
 
     def update_security_filter(self, query_parameters, allowed=(), denied=()):
         security_filter = self.create_security_filter(query_parameters)
-        security_filter.allowed.extend(allowed)
-        security_filter.denied.extend(denied)
+        security_filter.add_allowed(allowed)
+        security_filter.add_denied(denied)
 
     def create_security_filter(self, query_parameters):
         security_filter = self.find_security_filter(query_parameters['filter'])
@@ -214,32 +214,22 @@ class AuthzSecurityPreprocessor(SecurityPreprocessor):
 
 
 class SecurityFilter(query.AndNot):
-    def __init__(self, allowed=(), denied=()):
-        self.allowed = list(allowed)
-        self.denied = list(denied)
-        super(SecurityFilter, self).__init__(self.allowed, self.denied)
+    def __init__(self):
+        super(SecurityFilter, self).__init__(query.NullQuery, query.NullQuery)
 
-    _subqueries = ()
-    @property
-    def subqueries(self):
-        self.finalize()
-        return self._subqueries
+    def add_allowed(self, allowed):
+        if self.a == query.NullQuery:
+            self.a = query.Or([])
 
-    @subqueries.setter
-    def subqueries(self, value):
-        pass
+        self.a.subqueries.extend(allowed)
+        self.subqueries = (self.a, self.b)
 
-    def finalize(self):
-        self._subqueries = []
-        if self.allowed:
-            self.a = query.Or(self.allowed)
-        else:
-            self.a = query.NullQuery
-        if self.denied:
-            self.b = query.Or(self.denied)
-        else:
-            self.b = query.NullQuery
-        self._subqueries = (self.a, self.b)
+    def add_denied(self, denied):
+        if self.b == query.NullQuery:
+            self.b = query.Or([])
+
+        self.b.subqueries.extend(denied)
+        self.subqueries = (self.a, self.b)
 
     def __repr__(self):
         r = "%s(allow=%r, deny=%r)" % (self.__class__.__name__,

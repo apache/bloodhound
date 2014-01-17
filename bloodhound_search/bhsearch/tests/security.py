@@ -25,6 +25,7 @@ system backend.
 import contextlib
 import os
 from sqlite3 import OperationalError
+from bhsearch.security import SecurityFilter
 
 try:
     import configobj
@@ -385,12 +386,19 @@ class AuthzSecurityTestCase(SecurityTest):
         self.assertEqual(1, results.hits)
 
 
+class SecurityFilterTests(unittest.TestCase):
+    def test_hash(self):
+        sf = SecurityFilter()
+        hash(sf)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(MultiProductSecurityTestCase, 'test'))
     if configobj:
         suite.addTest(unittest.makeSuite(AuthzSecurityTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(SecurityFilterTests, 'test'))
     return suite
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(defaultTest="suite")
