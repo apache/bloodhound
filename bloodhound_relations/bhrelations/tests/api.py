@@ -449,17 +449,20 @@ class ApiTestCase(BaseRelationsTestCase):
             self.fail("Could not add valid relation.")
 
     def test_cannot_close_ticket_with_open_children(self):
-        t1 = self._insert_and_load_ticket("1", status='closed')
-        t2 = self._insert_and_load_ticket("2", status='closed')
-        t3 = self._insert_and_load_ticket("3")
+        t1 = self._insert_and_load_ticket("1")                  #     t1
+        t2 = self._insert_and_load_ticket("2", status='closed') #   /  | \
+        t3 = self._insert_and_load_ticket("3")                  #  t2 t3 t4
+        t4 = self._insert_and_load_ticket("4")
         self.relations_system.add(t2, t1, "parent")
         self.relations_system.add(t3, t1, "parent")
+        self.relations_system.add(t4, t1, "parent")
 
+        # A warning is be returned for each open ticket
         self.req.args["action"] = 'resolve'
-        warnings = TicketRelationsSpecifics(self.env).validate_ticket(
-            self.req, t1)
-        #assert
-        self.assertEqual(1, len(list(warnings)))
+        warnings = \
+            TicketRelationsSpecifics(self.env).validate_ticket(self.req, t1)
+
+        self.assertEqual(2, len(list(warnings)))
 
     def test_duplicate_can_only_reference_older_ticket(self):
         t1 = self._insert_and_load_ticket("1")
