@@ -541,9 +541,10 @@ class TicketRelationsSpecifics(Component):
         if 'set_resolution' in operations:
             for relation in [r for r in self.rls.get_relations(ticket)
                              if r['type'] == self.rls.CHILDREN_RELATION_TYPE]:
-                ticket = self._create_ticket_by_full_id(relation['destination'])
-                if ticket['status'] != 'closed':
-                    msg = ("Cannot resolve this ticket because it has open"
+                child_ticket = \
+                    self._create_ticket_by_full_id(relation['destination'])
+                if child_ticket['status'] != 'closed':
+                    msg = ("Cannot resolve this ticket because it has open "
                            "child tickets.")
                     yield None, msg
 
