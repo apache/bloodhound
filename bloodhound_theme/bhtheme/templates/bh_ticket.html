@@ -57,7 +57,10 @@
     <script type="text/javascript" py:choose="">
       jQuery(document).ready(function($) {
         /* Affixed navbar */
-        $(".local-nav a").click(function() { $($(this).attr('href')).removeClass('collapsed').parent().removeClass("collapsed"); });
+        $(".local-nav a").click(function() {
+          $($(this).attr('href')).removeClass('collapsed')
+                                 .parent().removeClass("collapsed");
+        });
         $('.trac-nav').hide();
         $('.trac-topnav').hide();
 
@@ -124,8 +127,7 @@
 
           $('#inplace-edit, #vc-status a').hide();
           $('#edit-state-buttons, #edit-state-buttons-below, #edit-workflow-buttons, #edit-comment').show();
-          if (!newticket)
-          {
+          if (!newticket) {
             // disable input controls on all other forms when in modify mode
             $('.activityfeed, .relations, #attachments').css('opacity', '0.3');
             $('form:not("#inplace-propertyform") :input').attr('disabled', 'disabled');
@@ -161,8 +163,8 @@
 
         function install_workflow(){
           <py:if test="bhrelations">
-            var act = $('#action_resolve_resolve_resolution').parent();
-            act.append('<span id="duplicate_id" class="hide">Duplicate ID:&nbsp;<input name="duplicate_id" type="text" class="input-mini" value="${ticket_duplicate_of}"></input></span>');
+          var act = $('#action_resolve_resolve_resolution').parent();
+          act.append('<span id="duplicate_id" class="hide">Duplicate ID:&nbsp;<input name="duplicate_id" type="text" class="input-mini" value="${ticket_duplicate_of}"></input></span>');
           </py:if>
           var actions_box = $('#workflow-actions')
               .click(function(e) { e.stopPropagation(); });
@@ -183,15 +185,11 @@
                   newlabel = newlabel + ' as ' + $('#vc-status a').text();
                 else if (newowner)
                   newlabel = newlabel + ' to ' + newowner;
-                else if (newresolution)
-                {
+                else if (newresolution) {
                   newlabel = newlabel + ' as ' + newresolution;
-                  if (newresolution === 'duplicate')
-                  {
+                  if (newresolution === 'duplicate') {
                     $('#duplicate_id').show();
-                  }
-                  else
-                  {
+                  } else {
                     $('#duplicate_id').hide();
                   }
                 }
