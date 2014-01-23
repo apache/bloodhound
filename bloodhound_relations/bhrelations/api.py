@@ -37,7 +37,6 @@ from trac.db import DatabaseManager
 from trac.resource import (ResourceSystem, Resource, ResourceNotFound,
                            get_resource_shortname, Neighborhood)
 from trac.ticket import Ticket, ITicketManipulator, ITicketChangeListener
-from trac.ticket.api import TicketSystem
 from trac.util.datefmt import utc, to_utimestamp
 from trac.web.chrome import ITemplateProvider
 
@@ -522,9 +521,7 @@ class TicketRelationsSpecifics(Component):
         )
 
     def _check_blockers(self, req, ticket):
-        action = req.args.get('action')
-        operations = self._get_operations_for_action(req, ticket, action)
-        if 'set_resolution' in operations:
+        if req.args.get('action') == 'resolve':
             blockers = self.rls.find_blockers(ticket, self.is_blocker)
             if blockers:
                 blockers_str = ', '.join(
@@ -536,9 +533,7 @@ class TicketRelationsSpecifics(Component):
                 yield None, msg
 
     def _check_open_children(self, req, ticket):
-        action = req.args.get('action')
-        operations = self._get_operations_for_action(req, ticket, action)
-        if 'set_resolution' in operations:
+        if req.args.get('action') == 'resolve':
             for relation in [r for r in self.rls.get_relations(ticket)
                              if r['type'] == self.rls.CHILDREN_RELATION_TYPE]:
                 ticket = self._create_ticket_by_full_id(relation['destination'])
@@ -548,10 +543,8 @@ class TicketRelationsSpecifics(Component):
                     yield None, msg
 
     def _check_duplicate_id(self, req, ticket):
-        action = req.args.get('action')
-        operations = self._get_operations_for_action(req, ticket, action)
-        if 'set_resolution' in operations:
-            resolution = req.args.get('action_%s_resolve_resolution' % action)
+        if req.args.get('action') == 'resolve':
+            resolution = req.args.get('action_resolve_resolve_resolution')
             if resolution == 'duplicate':
                 duplicate_id = req.args.get('duplicate_id')
                 if not duplicate_id:
@@ -564,15 +557,6 @@ class TicketRelationsSpecifics(Component):
                     ticket.duplicate = duplicate_ticket
                 except NoSuchTicketError:
                     yield None, "Invalid duplicate ticket ID."
-
-    def _get_operations_for_action(self, req, ticket, action):
-        operations = []
-        for controller in TicketSystem(self.env).action_controllers:
-            actions = [a for w, a in
-                       controller.get_ticket_actions(req, ticket) or []]
-            if action in actions:
-                operations += controller.actions[action]['operations']
-        return operations
 
     def find_ticket(self, ticket_spec):
         ticket = None
