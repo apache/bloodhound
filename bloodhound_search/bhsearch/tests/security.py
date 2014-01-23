@@ -24,7 +24,6 @@ system backend.
 """
 import contextlib
 import os
-from sqlite3 import OperationalError
 from bhsearch.security import SecurityFilter
 
 try:
@@ -69,7 +68,7 @@ class SecurityTest(BaseBloodhoundSearchTest):
         try:
             MultiProductSystem(self.env)\
                 .upgrade_environment(self.env.db_transaction)
-        except OperationalError:
+        except self.env.db_exc.OperationalError:
             # table remains but content is deleted
             self._add_products('@')
         self.env.enable_multiproduct_schema()

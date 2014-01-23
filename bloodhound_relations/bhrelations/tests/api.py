@@ -18,7 +18,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from datetime import datetime
-from _sqlite3 import IntegrityError
 import unittest
 from bhrelations.api import TicketRelationsSpecifics
 from bhrelations.tests.mocks import TestRelationChangingListener
@@ -98,7 +97,10 @@ class ApiTestCase(BaseRelationsTestCase):
         with self.env.db_transaction as db:
             db(sql, ["1", "2", "dependson"])
             self.assertRaises(
-                IntegrityError, db, sql, ["1", "2", "dependson"])
+                self.env.db_exc.IntegrityError,
+                db,
+                sql,
+                ["1", "2", "dependson"])
 
     def test_can_add_one_way_relations(self):
         #arrange

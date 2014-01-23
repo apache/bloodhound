@@ -23,7 +23,6 @@ from inspect import stack
 import os.path
 import shutil
 import tempfile
-from sqlite3 import OperationalError
 from tests import unittest
 from types import MethodType
 
@@ -230,7 +229,7 @@ class MultiproductTestCase(unittest.TestCase):
         mpsystem = MultiProductSystem(env)
         try:
             mpsystem.upgrade_environment(env.db_transaction)
-        except OperationalError:
+        except env.db_exc.OperationalError:
             # Database is upgraded, but database version was deleted.
             # Complete the upgrade by inserting default product.
             mpsystem._insert_default_product(env.db_transaction)
@@ -310,7 +309,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         if self.env is not None:
             try:
                 self.env.reset_db()
-            except OperationalError:
+            except self.env.db_exc.OperationalError:
                 # "Database not found ...",
                 # "OperationalError: no such table: system" or the like
                 pass
@@ -575,7 +574,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         if self.env is not None:
             try:
                 self.env.reset_db()
-            except OperationalError:
+            except self.env.db_exc.OperationalError:
                 # "Database not found ...",
                 # "OperationalError: no such table: system" or the like
                 pass

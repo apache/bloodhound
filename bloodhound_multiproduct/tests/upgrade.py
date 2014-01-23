@@ -21,7 +21,6 @@ import os
 import shutil
 import tempfile
 import uuid
-from sqlite3 import OperationalError
 from contextlib import contextmanager
 from tests import unittest
 
@@ -434,13 +433,13 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
 
     @contextmanager
     def assertFailsWithMissingTable(self):
-        with self.assertRaises(OperationalError) as cm:
+        with self.assertRaises(self.env.db_exc.OperationalError) as cm:
             yield
         self.assertIn('no such table', str(cm.exception))
 
     @contextmanager
     def assertFailsWithMissingColumn(self):
-        with self.assertRaises(OperationalError) as cm:
+        with self.assertRaises(self.env.db_exc.OperationalError) as cm:
             yield
         self.assertIn('no such column', str(cm.exception))
 

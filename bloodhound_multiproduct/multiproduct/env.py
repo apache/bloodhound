@@ -21,7 +21,6 @@
 
 import os.path
 from urlparse import urlsplit
-from sqlite3 import OperationalError
 
 from trac.config import BoolOption, ConfigSection, Option
 from trac.core import Component, ComponentManager, ExtensionPoint, implements, \

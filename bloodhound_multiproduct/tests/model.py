@@ -19,7 +19,6 @@
 """Tests for multiproduct/model.py"""
 import shutil
 import tempfile
-from sqlite3 import OperationalError
 from tests import unittest
 
 from trac.core import TracError
@@ -46,7 +45,7 @@ class ProductTestCase(unittest.TestCase):
         self.mpsystem = MultiProductSystem(self.env)
         try:
             self.mpsystem.upgrade_environment(self.env.db_transaction)
-        except OperationalError:
+        except self.env.db_exc.OperationalError:
             # table remains but database version is deleted
             pass
         
