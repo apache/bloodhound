@@ -162,10 +162,13 @@
         }
 
         function install_workflow(){
-          <py:if test="bhrelations">
-          var act = $('#action_resolve_resolve_resolution').parent();
-          act.append('<span id="duplicate_id" class="hide">Duplicate ID:&nbsp;<input name="duplicate_id" type="text" class="input-mini" value="${ticket_duplicate_of}"></input></span>');
-          </py:if>
+          <py:if test="bhrelations">/*<![CDATA[*/
+          $('select[id$=_resolve_resolution]').each(function () {
+            var prefix = $(this).attr('id').split('_').slice(0, 2).join('_');
+            $(this).parent().append('<span class="duplicate_id hide">Duplicate ID:&nbsp;' +
+                                    '<input id="' + prefix + '_duplicate_id" name="duplicate_id" type="text" class="input-mini" value="${ticket_duplicate_of}" /></span>');
+          });
+          /*]]>*/</py:if>
           var actions_box = $('#workflow-actions')
               .click(function(e) { e.stopPropagation(); });
           $('#action').children('div').each(function() {
@@ -188,9 +191,9 @@
                 else if (newresolution) {
                   newlabel = newlabel + ' as ' + newresolution;
                   if (newresolution === 'duplicate') {
-                    $('#duplicate_id').show();
+                    $('.duplicate_id', $(this).parent()).show();
                   } else {
-                    $('#duplicate_id').hide();
+                    $('.duplicate_id', $(this).parent()).hide();
                   }
                 }
                 $('#submit-action-label').text(newlabel);
