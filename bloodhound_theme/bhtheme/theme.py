@@ -539,6 +539,7 @@ class QuickCreateTicketDialog(Component):
             if data is None:
                 data = {}
             dum_req = dummy_request(self.env)
+            dum_req.perm = req.perm
             ticket = Ticket(self.env)
             tm._populate(dum_req, ticket, False)
             all_fields = dict([f['name'], f]
@@ -547,7 +548,14 @@ class QuickCreateTicketDialog(Component):
 
             product_field = all_fields.get('product')
             if product_field:
-                if self.env.product:
+                # Filter out products for which user doesn't have TICKET_CREATE
+                product_field['options'] = \
+                    [prefix for prefix in product_field['options']
+                     if req.perm.has_permission('TICKET_CREATE',
+                                                Neighborhood('product', prefix)
+                                                    .child(None, None))]
+                if self.env.product and \
+                        self.env.product.prefix in product_field['options']:
                     product_field['value'] = self.env.product.prefix
                 product_field['options_desc'] = [
                     ProductEnvironment.lookup_env(self.env, p).product.name
