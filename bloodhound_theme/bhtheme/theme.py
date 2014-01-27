@@ -538,11 +538,11 @@ class QuickCreateTicketDialog(Component):
         if (template, data, content_type) != (None,) * 3:  # TODO: Check !
             if data is None:
                 data = {}
-            req = dummy_request(self.env)
+            dum_req = dummy_request(self.env)
             ticket = Ticket(self.env)
-            tm._populate(req, ticket, False)
+            tm._populate(dum_req, ticket, False)
             all_fields = dict([f['name'], f]
-                              for f in tm._prepare_fields(req, ticket)
+                              for f in tm._prepare_fields(dum_req, ticket)
                               if f['type'] == 'select')
 
             product_field = all_fields.get('product')
