@@ -70,6 +70,7 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
             env = create_product_env(pid,
                                      environ['SCRIPT_NAME'] + '/products/' +
                                      pid, product_path)
+            env.config.parse_if_needed()
 
         return env
 

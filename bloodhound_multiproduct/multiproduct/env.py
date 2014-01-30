@@ -323,8 +323,7 @@ class EnvironmentStub(trac.test.EnvironmentStub):
             del env._rules
         except AttributeError:
             pass
-        # FIXME: Shall we ?
-        #env.config.save()
+        env.config.save()
 
     def reset_db(self, default_data=None):
         multiproduct_schema = self._multiproduct_schema_enabled
@@ -634,6 +633,25 @@ class ProductEnvironment(Component, ComponentManager):
 
     is_component_enabled_local = trac.env.Environment.is_component_enabled.im_func
 
+    def is_enabled(self, cls):
+        """Return whether the given component class is enabled."""
+        modtime = max(self.config.get_lock_file_mtime(),
+                      self.config._lastmtime)
+        if modtime > self._config_mtime:
+            self.enabled.clear()
+            try:
+                del self._rules
+            except AttributeError:
+                pass
+            # FIXME : Improve cache hits by tracking global env last mtime
+            self.parent.enabled.clear()
+            try:
+                del self.parent._rules
+            except AttributeError:
+                pass
+        self._config_mtime = modtime
+        return super(ProductEnvironment, self).is_enabled(cls)
+
     def is_component_enabled(self, cls):
         """Implemented to only allow activation of components already 
         activated in the global environment that are in turn not disabled in
@@ -806,6 +824,7 @@ class ProductEnvironment(Component, ComponentManager):
         else:
             parents = [self.parent.config]
         self.config = Configuration(self.parent, self.product.prefix, parents)
+        self._config_mtime = 0
         self.setup_log()
 
     def setup_log(self):

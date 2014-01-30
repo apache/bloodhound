@@ -19,12 +19,13 @@
 
 """Tests for Apache(TM) Bloodhound's product configuration objects"""
 
-from ConfigParser import ConfigParser
-from itertools import groupby
 import os.path
 import shutil
-from StringIO import StringIO
+import time
 import unittest
+from ConfigParser import ConfigParser
+from StringIO import StringIO
+from itertools import groupby
 
 from trac.config import Option
 from trac.tests.config import ConfigurationTestCase
@@ -35,9 +36,8 @@ from multiproduct.config import Configuration
 from multiproduct.model import Product, ProductSetting
 from tests.env import MultiproductTestCase
 
-class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
-    r"""Test cases for Trac configuration objects rewritten for product 
-    scope.
+class MultiproductConfigTestCase(MultiproductTestCase):
+    r"""Test setup for configuration test cases.
     """
     def setUp(self):
         r"""Replace Trac environment with product environment
@@ -48,7 +48,7 @@ class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
         tmpdir = os.path.realpath(self.env.path)
         self.filename = os.path.join(tmpdir, 'conf', 'product.ini')
         # Ensure conf sub-folder is created
-        os.mkdir(os.path.dirname(self.filename))
+        os.path.dirname(self.filename)
 
         self._upgrade_mp(self.env)
         self._setup_test_log(self.env)
@@ -131,6 +131,11 @@ class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
                 dump.append('%s = %s\n' % (row[1], row[2]))
         return dump
 
+
+class ProductConfigTestCase(MultiproductConfigTestCase, ConfigurationTestCase):
+    r"""Test cases for Trac configuration objects rewritten for product 
+    scope.
+    """
     # Test cases rewritten to avoid reading config file. 
     # It does make sense for product config as it's stored in the database
 
@@ -196,8 +201,62 @@ class ProductConfigTestCase(ConfigurationTestCase, MultiproductTestCase):
         config.set('a', 'option', 'value2')
         self.assertEquals('value2', config.get('a', 'option'))
 
+
+class ProductConfigSyncTestCase(MultiproductConfigTestCase):
+    """Test cases for concurrent access of product configuration objects.
+    """
+    def test_sync(self):
+        """Config cache consistency on concurrent edits
+        """
+        config1 = self._read()
+        config2 = self._read()
+
+        # Initial values will be empty
+        # This will initialize both instances' cache
+        self.assertEqual('', config1.get('s', 'o'))
+        self.assertEqual('', config2.get('s', 'o'))
+
+        # First time assignment, no actual cache
+        config1.set('s', 'o', 'value0')
+        self.assertEqual('value0', config1.get('s', 'o'))
+        self.assertEqual('value0', config2.get('s', 'o'))
+
+        # Subsequent hits retrieved from cache
+        config1.set('s', 'o', 'value1')
+        self.assertEqual('value0', config2.get('s', 'o'))
+        # ... unless cache invalidated e.g. by calling save()
+        config1.save()
+        self.assertTrue(config2.parse_if_needed())
+        self.assertEqual('value1', config1.get('s', 'o'))
+        self.assertEqual('value1', config2.get('s', 'o'))
+
+        # TODO: Replace with trac.util.compat:wait_for_file_mtime_change when
+        # changes from Trac 1.0-stable (> r12258) or Trac 1.0.2 are integrated
+        # Two edits may look simultaneous depending on FS accuracy,
+        # so wait 1 second to ensure next timestamp below will be different
+        # otherwise the test is fragile and results non-deterministic.
+        # This holds for Trac config objects too.
+        time.sleep(1)
+
+        # After update no subsequent modifications reported
+        config2.set('s', 'o', 'value2')
+        self.assertFalse(config1.parse_if_needed())
+        self.assertEqual('value1', config1.get('s', 'o'))
+        # ... unless cache invalidated e.g. by calling touch()
+        config2.touch()
+        self.assertTrue(config1.parse_if_needed())
+        self.assertEqual('value2', config1.get('s', 'o'))
+        self.assertEqual('value2', config2.get('s', 'o'))
+        self.assertTrue(config2.parse_if_needed())
+
+
 def test_suite():
-    return unittest.makeSuite(ProductConfigTestCase,'test')
+    suite = unittest.TestSuite()
+
+    suite.addTest(unittest.makeSuite(ProductConfigTestCase,'test'))
+    suite.addTest(unittest.makeSuite(ProductConfigSyncTestCase,'test'))
+
+    return suite
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

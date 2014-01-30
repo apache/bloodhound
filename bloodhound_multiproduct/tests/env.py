@@ -19,15 +19,17 @@
 
 """Tests for Apache(TM) Bloodhound's product environments"""
 
-from inspect import stack
 import os.path
 import shutil
+import sys
 import tempfile
+from inspect import stack
 from tests import unittest
 from types import MethodType
 
+from trac.admin.api import AdminCommandManager, IAdminCommandProvider
 from trac.config import Option
-from trac.core import Component, ComponentMeta
+from trac.core import Component, ComponentMeta, implements
 from trac.env import Environment
 from trac.test import EnvironmentStub, MockPerm
 from trac.tests.env import EnvironmentTestCase
@@ -164,11 +166,14 @@ class MultiproductTestCase(unittest.TestCase):
         self.env = env = EnvironmentStub(**kwargs)
         if create_folder:
             if path is None:
-                env.path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
+                env.path = tempfile.mkdtemp(prefix='bh-tempenv-')
             else:
                 env.path = path
-                if not os.path.exists(path):
-                    os.mkdir(path)
+                if not os.path.exists(env.path):
+                    os.mkdir(env.path)
+            conf_dir = os.path.join(env.path, 'conf')
+            if not os.path.exists(conf_dir):
+                os.mkdir(conf_dir)
         return env
 
     def _setup_test_log(self, env):
@@ -223,8 +228,8 @@ class MultiproductTestCase(unittest.TestCase):
         r"""Apply multi product upgrades
         """
         # Do not break wiki parser ( see #373 )
-        env.disable_component(TicketModule)
-        env.disable_component(ReportModule)
+        EnvironmentStub.disable_component_in_config(env, TicketModule)
+        EnvironmentStub.disable_component_in_config(env, ReportModule)
 
         mpsystem = MultiProductSystem(env)
         try:
@@ -395,6 +400,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             pass
         # Let's pretend this was declared elsewhere
         C.__module__ = 'dummy_module'
+        sys.modules['dummy_module'] = sys.modules[__name__]
 
         global_env = self.env
         product_env = self.product_env
@@ -411,6 +417,8 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             expected_rules = {
                 'multiproduct': True,
                 'trac': True,
+                'trac.ticket.report.reportmodule': False,
+                'trac.ticket.web_ui.ticketmodule': False,
                 'trac.db': True,
                 cname: False,
             }
@@ -560,8 +568,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         return decorator
 
     def setUp(self):
-        self._mp_setup()
-        self.env.path = '/path/to/env'
+        self._mp_setup(create_folder=True)
         self.env.abs_href = Href('http://globalenv.com/trac.cgi')
         url_pattern = getattr(getattr(self, self._testMethodName).im_func,
                               'product_base_url', '')
@@ -570,6 +577,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         self.product_env = ProductEnvironment(self.env, self.default_product)
 
     def tearDown(self):
+        shutil.rmtree(os.path.dirname(self.env.path), ignore_errors=True)
         # Release reference to transient environment mock object
         if self.env is not None:
             try:
@@ -675,11 +683,139 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     product_base_url = staticmethod(product_base_url)
 
 
+class ProductEnvConfigTestCase(MultiproductTestCase):
+    """Test cases for product environment's configuration
+    """
+
+    class DummyAdminCommand(Component):
+        """Dummy class used for testing purposes
+        """
+        implements(IAdminCommandProvider) 
+
+        class DummyException(Exception):
+            pass
+
+        def do_fail(self, *args):
+            raise DummyException(args)
+
+        def get_admin_commands(self):
+            yield "fail", "[ARG]...", "Always fail", None, self.do_fail
+
+
+    def setUp(self):
+        self._mp_setup(create_folder=True)
+        self.global_env = self.env
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+
+        # Random component class
+        self.component_class = self.DummyAdminCommand
+
+    def tearDown(self):
+        if self.global_env is not None:
+            try:
+                self.global_env.reset_db()
+            except self.global_env.db_exc.OperationalError:
+                # "Database not found ...",
+                # "OperationalError: no such table: system" or the like
+                pass
+
+        shutil.rmtree(self.env.path)
+        self.env = self.global_env = None
+
+    def test_regression_bh_539(self):
+        tracadmin = AdminCommandManager(self.env)
+
+        self.assertTrue(self.env[self.component_class] is None,
+                        "Expected component disabled")
+        self.assertFalse(any(isinstance(c, self.component_class)
+                             for c in tracadmin.providers),
+                         "Component erroneously listed in admin cmd providers")
+        self.assertEqual([], tracadmin.get_command_help(args=['fail']))
+
+        # Enable component in both global and product context
+        cmd_args = ['config', 'set', 'components', __name__ + '.*', 'enabled']
+        AdminCommandManager(self.global_env).execute_command(*cmd_args)
+        tracadmin.execute_command(*cmd_args)
+
+        self.assertTrue(self.env[self.component_class] is not None,
+                        "Expected component enabled")
+        self.assertTrue(any(isinstance(c, self.component_class)
+                            for c in tracadmin.providers),
+                        "Component not listed in admin cmd providers")
+        self.assertEqual(1, len(tracadmin.get_command_help(args=['fail'])))
+
+    def test_regression_bh_539_concurrent(self):
+        try:
+            # It is necessary to load another environment object to work around
+            # ProductEnvironment class' parametric singleton constraint
+            old_env = self.env 
+            # In-memory DB has to be shared
+            self.global_env.__class__.global_databasemanager = \
+                self.env.global_databasemanager
+            new_global_env = self._setup_test_env(create_folder=True,
+                                                  path=self.global_env.path)
+            self.env = old_env
+            self._setup_test_log(new_global_env)
+            
+            # FIXME: EnvironmentStub config is not bound to a real file
+            # ... so let's reuse one config for both envs to simulate that they
+            # are in sync, a condition verified in another test case
+            new_global_env.config = self.global_env.config
+            
+            new_env = ProductEnvironment(new_global_env, self.default_product)
+
+            self.assertTrue(new_global_env is not self.global_env)
+            self.assertTrue(new_env is not self.env)
+            self.assertEqual(self.env.path, new_env.path)
+            self.assertEqual(self.env.config._lock_path,
+                             new_env.config._lock_path)
+            
+            tracadmin = AdminCommandManager(self.env)
+            new_tracadmin = AdminCommandManager(new_env)
+    
+            # Assertions for self.env
+            self.assertTrue(self.env[self.component_class] is None,
+                            "Expected component disabled")
+            self.assertFalse(any(isinstance(c, self.component_class)
+                                 for c in tracadmin.providers),
+                             "Component erroneously listed in admin cmd "
+                             "providers")
+            self.assertEqual([], tracadmin.get_command_help(args=['fail']))
+    
+            # Repeat assertions for new_env
+            self.assertTrue(new_env[self.component_class] is None,
+                            "Expected component disabled")
+            self.assertFalse(any(isinstance(c, self.component_class)
+                                 for c in new_tracadmin.providers),
+                             "Component erroneously listed in admin cmd "
+                             "providers")
+            self.assertEqual([], new_tracadmin.get_command_help(args=['fail']))
+    
+            # Enable component in both self.global_env and self.env contexts
+            cmd_args = ['config', 'set', 'components',
+                       __name__ + '.*', 'enabled']
+            AdminCommandManager(self.global_env).execute_command(*cmd_args)
+            tracadmin.execute_command(*cmd_args)
+    
+            # Assert that changes are auto-magically reflected in new_env
+            self.assertTrue(new_env[self.component_class] is not None,
+                            "Expected component enabled")
+            self.assertTrue(any(isinstance(c, self.component_class)
+                                for c in new_tracadmin.providers),
+                            "Component not listed in admin cmd providers")
+            self.assertEqual(
+                1, len(new_tracadmin.get_command_help(args=['fail'])))
+        finally:
+            self.global_env.__class__.global_databasemanager = None
+            new_global_env = new_env = None
+
+
 def test_suite():
     return unittest.TestSuite([
         unittest.makeSuite(ProductEnvTestCase, 'test'),
         unittest.makeSuite(ProductEnvApiTestCase, 'test'),
         unittest.makeSuite(ProductEnvHrefTestCase, 'test'),
+        unittest.makeSuite(ProductEnvConfigTestCase, 'test'),
     ])
 
 if __name__ == '__main__':

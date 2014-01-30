@@ -25,6 +25,7 @@ import os.path
 from trac.config import Configuration, ConfigurationError, Option, \
         OrderedExtensionsOption, Section, _use_default
 from trac.resource import ResourceNotFound
+from trac.util import create_file
 from trac.util.text import to_unicode
 
 from multiproduct.model import ProductSetting
@@ -37,6 +38,9 @@ class Configuration(Configuration):
     Python Standard Library) but retrieving configuration values 
     from the database.
     """
+
+    CONFIG_LOCK_FILE = 'config.lock'
+
     def __init__(self, env, product, parents=None):
         """Initialize configuration object with an instance of 
         `trac.env.Environment` and product prefix.
@@ -48,6 +52,11 @@ class Configuration(Configuration):
         self.env = env
         self.product = to_unicode(product)
         self._sections = {}
+        self._lastmtime = 0
+        self._lock_path = os.path.join(self.env.path, self.CONFIG_LOCK_FILE)
+        if not os.path.exists(self._lock_path):
+            create_file(self._lock_path)
+        self._orig_parents = parents
         self._setup_parents(parents)
 
     def __getitem__(self, name):
@@ -56,6 +65,10 @@ class Configuration(Configuration):
         if name not in self._sections:
             self._sections[name] = Section(self, name)
         return self._sections[name]
+
+    def get_lock_file_mtime(self):
+        """Returns to modification time of the lock file."""
+        return os.path.getmtime(self._lock_path)
 
     def sections(self, compmgr=None, defaults=True):
         """Return a list of section names.
@@ -87,25 +100,40 @@ class Configuration(Configuration):
         return defaults and (section, option) in Option.registry
 
     def save(self):
-        """Nothing to do.
+        """Just touch config lock file.
 
-        Notice: Opposite to Trac's Configuration objects Bloodhound's
+        Notice: In contrast to Trac's Configuration objects Bloodhound's
         product configuration objects commit changes to the database 
         immediately. Thus there's no much to do in this method.
         """
+        self.touch()
+        self._lastmtime = self.get_lock_file_mtime()
 
     def parse_if_needed(self, force=False):
-        """Just invalidate options cache.
+        """Invalidate options cache considering global lock timestamp.
 
         Notice: Opposite to Trac's Configuration objects Bloodhound's
         product configuration objects commit changes to the database 
         immediately. Thus there's no much to do in this method.
         """
-        for section in self.sections():
-            self[section]._cache.clear()
+        changed = False
+        modtime = self.get_lock_file_mtime()
+        if force or modtime > self._lastmtime:
+            self._sections = {}
+            self._lastmtime = modtime
+            changed = True
+
+        if changed:
+            self._setup_parents(self._orig_parents)
+        else:
+            for parent in self.parents:
+                changed |= parent.parse_if_needed(force=force)
+
+        return changed
 
     def touch(self):
-        pass
+        if os.access(self._lock_path, os.W_OK):
+            os.utime(self._lock_path, None)
 
     def set_defaults(self, compmgr=None):
         """Retrieve all default values and store them explicitly in the
