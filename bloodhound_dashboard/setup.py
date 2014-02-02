@@ -149,4 +149,3 @@ setup(
     classifiers = cats,
     long_description= DESC
     )
-

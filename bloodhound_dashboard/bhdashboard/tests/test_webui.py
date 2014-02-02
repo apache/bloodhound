@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -52,35 +51,37 @@ the test name be written like `|widget_name: Descriptive message`):
 #    Test artifacts
 #------------------------------------------------------
 
+import sys
+
 from bhdashboard.tests import trac_version, trac_tags
 
+
 def test_suite():
-  from doctest import NORMALIZE_WHITESPACE, ELLIPSIS, REPORT_UDIFF
-  from dutest import MultiTestLoader
-  from unittest import defaultTestLoader
+    from doctest import NORMALIZE_WHITESPACE, ELLIPSIS, REPORT_UDIFF
+    from dutest import MultiTestLoader
+    from unittest import defaultTestLoader
 
-  from bhdashboard.tests import DocTestTracLoader, ticket_data
+    from bhdashboard.tests import DocTestTracLoader, ticket_data
 
-  magic_vars = dict(ticket_data=ticket_data)
-  if trac_version < (0, 13): # FIXME: Should it be (0, 12) ?
-    kwargs = {'enable': ['trac.[a-uw-z]*', 'tracrpc.*', 'bhdashboard.*']}
-  else:
-    kwargs = {
+    magic_vars = dict(ticket_data=ticket_data)
+    if trac_version < (0, 13):  # FIXME: Should it be (0, 12) ?
+        kwargs = {'enable': ['trac.[a-uw-z]*', 'tracrpc.*', 'bhdashboard.*']}
+    else:
+        kwargs = {
             'enable': ['trac.*', 'tracrpc.*', 'bhdashboard.*'],
             'disable': ['trac.versioncontrol.*']
         }
 
-  l = MultiTestLoader(
-        [defaultTestLoader, \
-          DocTestTracLoader(extraglobs=magic_vars, \
-                            default_data=True, \
-                            optionflags=ELLIPSIS | REPORT_UDIFF | \
-                                        NORMALIZE_WHITESPACE, \
-                            **kwargs) \
+    l = MultiTestLoader(
+        [defaultTestLoader,
+         DocTestTracLoader(extraglobs=magic_vars,
+                           default_data=True,
+                           optionflags=ELLIPSIS | REPORT_UDIFF |
+                                       NORMALIZE_WHITESPACE,
+                           **kwargs)
         ])
 
-  import sys
-  return l.loadTestsFromModule(sys.modules[__name__])
+    return l.loadTestsFromModule(sys.modules[__name__])
 
 #------------------------------------------------------
 #    Helper functions
@@ -92,24 +93,25 @@ from pprint import pprint
 
 from bhdashboard.tests import clear_perm_cache
 
-def prepare_ticket_workflow(tcktrpc, ticket_data, auth_req):
-  r"""Set ticket status considering the actions defined in standard 
-  ticket workflow. Needed for TracRpc>=1.0.6
-  """
-  from time import sleep
 
-  TICKET_ACTIONS = {'accepted': 'accept', 'closed' : 'resolve',
-                    'assigned': 'reassign'}
-  sleep(1)
-  for idx, (_, __, td) in enumerate(ticket_data) :
-    action = TICKET_ACTIONS.get(td.get('status'))
-    if action is not None :
-      aux_attrs = {'action' : action}
-      aux_attrs.update(td)
-      tcktrpc.update(auth_req, idx + 1, "", aux_attrs)
-  sleep(1)
-  for idx, (_, __, td) in enumerate(ticket_data) :
-    tcktrpc.update(auth_req, idx + 1, "", td)
+def prepare_ticket_workflow(tcktrpc, ticket_data, auth_req):
+    r"""Set ticket status considering the actions defined in standard
+    ticket workflow. Needed for TracRpc>=1.0.6
+    """
+    from time import sleep
+
+    TICKET_ACTIONS = {'accepted': 'accept', 'closed': 'resolve',
+                      'assigned': 'reassign'}
+    sleep(1)
+    for idx, (_, __, td) in enumerate(ticket_data):
+        action = TICKET_ACTIONS.get(td.get('status'))
+        if action is not None:
+            aux_attrs = {'action': action}
+            aux_attrs.update(td)
+            tcktrpc.update(auth_req, idx + 1, "", aux_attrs)
+    sleep(1)
+    for idx, (_, __, td) in enumerate(ticket_data):
+        tcktrpc.update(auth_req, idx + 1, "", td)
 
 from bhdashboard.web_ui import DashboardModule
 
@@ -127,5 +129,4 @@ __test__ = {
       [{'content': <genshi.core.Stream object at ...>, 
       'title': <Element "a">}]
       """,
-  }
-
+}

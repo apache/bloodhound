@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -17,7 +16,9 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 import unittest
+
 from bhdashboard.widgets.timeline import TicketFieldTimelineFilter
 from trac.test import EnvironmentStub, Mock
 from trac.ticket import Ticket
@@ -28,7 +29,7 @@ class TicketFieldTimelineFilterTests(unittest.TestCase):
         self.env = EnvironmentStub()
         t1 = self._insert_and_load_ticket("foo")
         self.filter = TicketFieldTimelineFilter(self.env)
-        self.context = context = Mock(resource=t1.resource)
+        self.context = Mock(resource=t1.resource)
 
     def tearDown(self):
         self.env.reset_db()

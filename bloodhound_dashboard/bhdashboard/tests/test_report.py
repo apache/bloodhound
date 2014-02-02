@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -55,35 +54,37 @@ the test name be written like `|widget_name: Descriptive message`):
 #    Test artifacts
 #------------------------------------------------------
 
-from bhdashboard.tests import trac_version, trac_tags
+import sys
+
+from bhdashboard.tests import trac_version
+
 
 def test_suite():
-  from doctest import NORMALIZE_WHITESPACE, ELLIPSIS, REPORT_UDIFF
-  from dutest import MultiTestLoader
-  from unittest import defaultTestLoader
+    from doctest import NORMALIZE_WHITESPACE, ELLIPSIS, REPORT_UDIFF
+    from dutest import MultiTestLoader
+    from unittest import defaultTestLoader
 
-  from bhdashboard.tests import DocTestWidgetLoader, ticket_data
+    from bhdashboard.tests import DocTestWidgetLoader, ticket_data
 
-  magic_vars = dict(ticket_data=ticket_data)
-  if trac_version < (0, 13): # FIXME: Should it be (0, 12) ?
-    kwargs = {'enable': ['trac.[a-uw-z]*', 'tracrpc.*', 'bhdashboard.*']}
-  else:
-    kwargs = {
+    magic_vars = dict(ticket_data=ticket_data)
+    if trac_version < (0, 13):  # FIXME: Should it be (0, 12) ?
+        kwargs = {'enable': ['trac.[a-uw-z]*', 'tracrpc.*', 'bhdashboard.*']}
+    else:
+        kwargs = {
             'enable': ['trac.*', 'tracrpc.*', 'bhdashboard.*'],
             'disable': ['trac.versioncontrol.*']
         }
 
-  l = MultiTestLoader(
-        [defaultTestLoader, \
-          DocTestWidgetLoader(extraglobs=magic_vars, \
-                            default_data=True, \
-                            optionflags=ELLIPSIS | REPORT_UDIFF | \
-                                        NORMALIZE_WHITESPACE, \
-                            **kwargs) \
+    l = MultiTestLoader(
+        [defaultTestLoader,
+         DocTestWidgetLoader(extraglobs=magic_vars,
+                             default_data=True,
+                             optionflags=ELLIPSIS | REPORT_UDIFF |
+                                         NORMALIZE_WHITESPACE,
+                             **kwargs)
         ])
 
-  import sys
-  return l.loadTestsFromModule(sys.modules[__name__])
+    return l.loadTestsFromModule(sys.modules[__name__])
 
 #------------------------------------------------------
 #    Helper functions
@@ -95,53 +96,59 @@ from pprint import pprint
 
 from bhdashboard.tests import clear_perm_cache
 
+
 def print_report_metadata(report_desc):
-  for attrnm in ('id', 'title', 'description', 'query'):
-    print attrnm.capitalize()
-    print '-' * len(attrnm)
-    print report_desc[attrnm]
+    for attrnm in ('id', 'title', 'description', 'query'):
+        print attrnm.capitalize()
+        print '-' * len(attrnm)
+        print report_desc[attrnm]
+
 
 def print_report_columns(cols):
-  for coldsc in cols:
-    print 'Column:', coldsc[0], 'Type:', coldsc[1] or '_', \
-          'Label:', 
-    try :
-      print coldsc[2] or '_'
-    except IndexError :
-      print '_'
+    for coldsc in cols:
+        print 'Column:', coldsc[0], 'Type:', coldsc[1] or '_', \
+            'Label:',
+        try:
+            print coldsc[2] or '_'
+        except IndexError:
+            print '_'
+
 
 def print_report_result(cols, data):
-  for i, row in enumerate(data):
-    print '= Row', i, '='
-    for coldsc in cols:
-      colnm = coldsc[0]
-      print 'Column:', colnm, 'Value:', row.get(colnm) or None, ''
+    for i, row in enumerate(data):
+        print '= Row', i, '='
+        for coldsc in cols:
+            colnm = coldsc[0]
+            print 'Column:', colnm, 'Value:', row.get(colnm) or None, ''
 
-TICKET_ATTRS = ('summary', 'description', 'priority', \
-                'milestone', 'type', 'owner', 'status', \
+
+TICKET_ATTRS = ('summary', 'description', 'priority',
+                'milestone', 'type', 'owner', 'status',
                 'component', 'version')
 
-def prepare_ticket_workflow(tcktrpc, ticket_data, auth_req):
-  r"""Set ticket status considering the actions defined in standard 
-  ticket workflow. Needed for TracRpc>=1.0.6
-  """
-  from time import sleep
 
-  TICKET_ACTIONS = {'accepted': 'accept', 'closed' : 'resolve',
-                    'assigned': 'reassign'}
-  sleep(1)
-  for idx, (_, __, td) in enumerate(ticket_data) :
-    action = TICKET_ACTIONS.get(td.get('status'))
-    if action is not None :
-      aux_attrs = {'action' : action}
-      aux_attrs.update(td)
-      tcktrpc.update(auth_req, idx + 1, "", aux_attrs)
-  sleep(1)
-  for idx, (_, __, td) in enumerate(ticket_data) :
-    tcktrpc.update(auth_req, idx + 1, "", td)
+def prepare_ticket_workflow(tktrpc, ticket_data, auth_req):
+    r"""Set ticket status considering the actions defined in standard
+    ticket workflow. Needed for TracRpc>=1.0.6
+    """
+    from time import sleep
+
+    TICKET_ACTIONS = {'accepted': 'accept', 'closed': 'resolve',
+                      'assigned': 'reassign'}
+    sleep(1)
+    for idx, (_, __, td) in enumerate(ticket_data):
+        action = TICKET_ACTIONS.get(td.get('status'))
+        if action is not None:
+            aux_attrs = {'action': action}
+            aux_attrs.update(td)
+            tktrpc.update(auth_req, idx + 1, "", aux_attrs)
+    sleep(1)
+    for idx, (_, __, td) in enumerate(ticket_data):
+        tktrpc.update(auth_req, idx + 1, "", td)
+
 
 __test__ = {
-    'Initialization: Report widgets' : r"""
+    'Initialization: Report widgets': r"""
       >>> from trac.core import ComponentMeta
       >>> from bhdashboard.api import IWidgetProvider
       >>> from bhdashboard.widgets.report import *
@@ -149,7 +156,7 @@ __test__ = {
       >>> [wpcls in allcls for wpcls in (TicketReportWidget,)]
       [True]
       """,
-    '|TicketReport: Metadata' : r"""
+    '|TicketReport: Metadata': r"""
       >>> list(widget.get_widgets())
       ['TicketReport']
       >>> params = widget.get_widget_params('TicketReport')
@@ -162,7 +169,7 @@ __test__ = {
                   'type': <type 'int'>},
        'user': {'desc': 'Render the report for a given user.'}}
       """,
-    '|TicketReport: Render My Tickets report' : r"""
+    '|TicketReport: Render My Tickets report': r"""
 
       Add tickets
 
@@ -630,7 +637,7 @@ __test__ = {
       ...     )
       ...
       """,
-    '|TicketReport: Render a subset of My Tickets report' : r"""
+    '|TicketReport: Render a subset of My Tickets report': r"""
 
       Add tickets
 
@@ -998,7 +1005,7 @@ __test__ = {
        'title': <Element "a">},
        <...Context <Resource u'report:7'>>)
       """,
-    '|TicketReport: Invalid widget name' : r"""
+    '|TicketReport: Invalid widget name': r"""
       >>> widget.render_widget('OlkswSk', ctx, {
       ...     'args' : {'id' : 1, 'limit' : 8}
       ...   })
@@ -1007,7 +1014,7 @@ __test__ = {
         ...
       InvalidIdentifier: Widget name MUST match any of TicketReport
       """,
-    '|TicketReport: Invalid report ID in arguments' : r"""
+    '|TicketReport: Invalid report ID in arguments': r"""
       >>> widget.render_widget('TicketReport', ctx, {
       ...     'args' : {'id' : 99999}
       ...   })
@@ -1016,7 +1023,7 @@ __test__ = {
         ...
       InvalidIdentifier: Report 99999 does not exist.
       """,
-    '|TicketReport: Missing required arguments' : r"""
+    '|TicketReport: Missing required arguments': r"""
       >>> widget.render_widget('TicketReport', ctx, {
       ...     'args' : {}
       ...   })
@@ -1033,7 +1040,7 @@ __test__ = {
         ...
       InvalidWidgetArgument: Invalid argument `id`. Required parameter expected
       """,
-    '|TicketReport: Invalid widget parameter' : r"""
+    '|TicketReport: Invalid widget parameter': r"""
 
       Add tickets
 
@@ -1401,8 +1408,7 @@ __test__ = {
         'title': <Element "a">},
        <...Context <Resource u'report:7'>>)
       """,
-    '|TicketReport: Invalid report definition' : r"""
+    '|TicketReport: Invalid report definition': r"""
       >>> raise NotImplementedError()
       """,
-  }
-
+}
