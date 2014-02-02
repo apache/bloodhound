@@ -55,3 +55,11 @@ class TicketFieldTimelineFilterTests(unittest.TestCase):
         for k, v in kw.items():
             ticket[k] = v
         return Ticket(self.env, ticket.insert())
+
+
+def suite():
+    return unittest.makeSuite(TicketFieldTimelineFilterTests)
+
+
+if __name__ == '__main__':
+    unittest.main(defaultTest='suite')
