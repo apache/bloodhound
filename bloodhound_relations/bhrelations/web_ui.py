@@ -104,18 +104,18 @@ class RelationManagementModule(Component):
                         data['error'] = _('Unknown relation type.')
                     except ValidationError as ex:
                         data['error'] = ex.message
-
-                # Notify
-                try:
-                    self.notify_relation_changed(dbrel)
-                except Exception, e:
-                    self.log.error("Failure sending notification on"
-                                   "creation of relation: %s",
-                                   exception_to_unicode(e))
-                    add_warning(req, _("The relation has been added, but an "
-                                       "error occurred while sending"
-                                       "notifications: " "%(message)s",
-                                       message=to_unicode(e)))
+                    else:
+                        # Notify
+                        try:
+                            self.notify_relation_changed(dbrel)
+                        except Exception, e:
+                            self.log.error("Failure sending notification on"
+                                           "creation of relation: %s",
+                                           exception_to_unicode(e))
+                            add_warning(req, _("The relation has been added, but an "
+                                               "error occurred while sending"
+                                               "notifications: " "%(message)s",
+                                               message=to_unicode(e)))
 
                 if 'error' in data:
                     data['relation'] = relation
