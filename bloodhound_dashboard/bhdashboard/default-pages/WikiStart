@@ -13,8 +13,9 @@ Any questions you have should be answered in the [wiki:TracGuide extensive docum
 == Further reading ==
 
  * [wiki:TracGuide Guide] -  Built-in Documentation
- * [https://issues.apache.org/bloodhound/ The Apache Bloodhound project] - currently incubating
- * [http://trac.edgewall.org/ The Trac project] which Bloodhound is built on
+ * [https://bloodhound.apache.org The Apache Bloodhound project home]
+ * [https://issues.apache.org/bloodhound The Apache Bloodhound issue tracker]
+ * [http://trac.edgewall.org/ The Trac project], which Bloodhound is built on
  * [wiki:TracSupport Support]
 
 For a complete list of local wiki pages, see TitleIndex.
