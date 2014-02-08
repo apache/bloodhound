@@ -39,10 +39,6 @@ from whoosh.collectors import FilterCollector
 from whoosh.writing import AsyncWriter
 from datetime import datetime
 
-from bhsearch.whoosh_fixes import fixes_for
-for fix in fixes_for(whoosh.__version__):
-    apply(fix)
-
 UNIQUE_ID = "unique_id"
 
 
@@ -283,25 +279,10 @@ class WhooshBackend(Component):
         searcher.collector = collector
 
     def _create_unique_id(self, product, doc_type, doc_id):
-        product, doc_type, doc_id = \
-            self._apply_empty_facets_workaround(product, doc_type, doc_id)
-
         if product:
             return u"%s:%s:%s" % (product, doc_type, doc_id)
         else:
             return u"%s:%s" % (doc_type, doc_id)
-
-    def _apply_empty_facets_workaround(self, product, doc_type, doc_id):
-        # Apply the same workaround that is used at insertion time
-        doc = {
-            IndexFields.PRODUCT: product,
-            IndexFields.TYPE: doc_type,
-            IndexFields.ID: doc_id,
-        }
-        WhooshEmptyFacetErrorWorkaround(self.env).pre_process(doc)
-        return (doc[IndexFields.PRODUCT],
-                doc[IndexFields.TYPE],
-                doc[IndexFields.ID])
 
     def _to_whoosh_format(self, value):
         if isinstance(value, basestring):
@@ -470,90 +451,6 @@ class WhooshBackend(Component):
 
 class WhooshEmFormatter(whoosh.highlight.HtmlFormatter):
     template = '<em>%(t)s</em>'
-
-
-class WhooshEmptyFacetErrorWorkaround(Component):
-    """
-        Whoosh 2.4.1 raises "IndexError: list index out of range"
-        when search contains facets on field that is missing in at least one
-        document in the index. The error manifests only when index contains
-        more than one segment.
-
-        The goal of this class is to temporary solve the problem for
-        prototype phase. Fro non-prototype phase, the problem should be solved
-        by the next version of Whoosh.
-
-        Remove this class when fixed version of Whoosh is introduced.
-    """
-    implements(IDocIndexPreprocessor)
-    implements(IResultPostprocessor)
-    implements(IQueryPreprocessor)
-
-    NULL_MARKER = u"empty"
-
-    should_not_be_empty_fields = [
-        IndexFields.STATUS,
-        TicketFields.MILESTONE,
-        TicketFields.COMPONENT,
-        IndexFields.PRODUCT,
-    ]
-
-    #IDocIndexPreprocessor methods
-    def pre_process(self, doc):
-        for field in self.should_not_be_empty_fields:
-            if field not in doc or doc[field] is None or doc[field] == empty:
-                doc[field] = self.NULL_MARKER
-
-    #IResultPostprocessor methods
-    def post_process(self, query_result):
-        #fix facets
-        if query_result.facets:
-            for count_dict in query_result.facets.values():
-                for field, count in count_dict.iteritems():
-                    if field == self.NULL_MARKER:
-                        count_dict[None] = count
-                        del count_dict[self.NULL_MARKER]
-
-        #fix query_result.docs
-        for doc in query_result.docs:
-            for field, value in doc.items():
-                if value == self.NULL_MARKER:
-                    del doc[field]
-
-    #IQueryPreprocessor methods
-    def query_pre_process(self, query_parameters, context=None):
-        """
-        Go through filter queries and replace "NOT (field_name:*)" query with
-        "field_name:NULL_MARKER" query.
-
-        This is really quick fix to make prototype working with hope that
-        the next Whoosh version will be released soon.
-        """
-        # pylint: disable=unused-argument
-        if "filter" in query_parameters and query_parameters["filter"]:
-            term_to_replace = \
-                self._find_and_fix_condition(query_parameters["filter"])
-            if term_to_replace:
-                query_parameters["filter"] = term_to_replace
-        if "query" in query_parameters and query_parameters["query"]:
-            term_to_replace = \
-                self._find_and_fix_condition(query_parameters["query"])
-            if term_to_replace:
-                query_parameters["query"] = term_to_replace
-
-    def _find_and_fix_condition(self, filter_condition):
-        if isinstance(filter_condition, whoosh.query.CompoundQuery):
-            sub_queries = list(filter_condition.subqueries)
-            for i, subquery in enumerate(sub_queries):
-                term_to_replace = self._find_and_fix_condition(subquery)
-                if term_to_replace:
-                    filter_condition.subqueries[i] = term_to_replace
-        elif isinstance(filter_condition, whoosh.query.Not):
-            not_query = filter_condition.query
-            if isinstance(not_query, whoosh.query.Every) and \
-               not_query.fieldname in self.should_not_be_empty_fields:
-                return whoosh.query.Term(not_query.fieldname, self.NULL_MARKER)
-        return None
 
 
 class AdvancedFilterCollector(FilterCollector):

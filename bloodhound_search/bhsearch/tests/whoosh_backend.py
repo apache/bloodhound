@@ -28,8 +28,7 @@ from bhsearch.api import ASC, DESC, SCORE, SortInstruction
 from bhsearch.query_parser import DefaultQueryParser
 from bhsearch.tests import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
-from bhsearch.whoosh_backend import WhooshBackend, \
-    WhooshEmptyFacetErrorWorkaround
+from bhsearch.whoosh_backend import WhooshBackend
 from whoosh import index, query, sorting
 from whoosh.fields import ID, KEYWORD, TEXT, Schema
 from whoosh.qparser import MultifieldParser, MultifieldPlugin, PhrasePlugin, \
@@ -54,12 +53,12 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.assertEqual(2, result.hits)
         docs = result.docs
         self.assertEqual(
-            {'id': u'1', 'type': u'ticket', 'unique_id': u'empty:ticket:1',
-             'score': u'1'},
+            {'id': u'1', 'type': u'ticket', 'unique_id': u'ticket:1',
+             'score': 0},
             docs[0])
         self.assertEqual(
-            {'id': u'2', 'type': u'ticket', 'unique_id': u'empty:ticket:2',
-             'score': u'2'},
+            {'id': u'2', 'type': u'ticket', 'unique_id': u'ticket:2',
+             'score': 1},
             docs[1])
 
     def test_can_return_all_fields(self):
@@ -68,7 +67,7 @@ class WhooshBackendTestCase(BaseBloodhoundSearchTest):
         self.print_result(result)
         docs = result.docs
         self.assertEqual(
-            {'id': u'1', 'type': u'ticket', 'unique_id': u'empty:ticket:1',
+            {'id': u'1', 'type': u'ticket', 'unique_id': u'ticket:1',
                 "score": 1.0},
             docs[0])
 
@@ -476,43 +475,6 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
             {'status': {None: 1, 'New': 1}, 'type': {'type1': 1, 'type2': 1}},
             facets)
 
-    def test_out_of_range_on_empty_facets(self):
-        """
-        Whoosh raises exception IndexError: list index out of range
-        when search contains facets on field that is missing in at least one
-        document in the index. The error manifests only when index contains
-        more than one segment
-
-        The problem expected to be fixed in the next release.
-
-        For the time of being, whoosh-backend have to introduce workaround in
-        order to fix the problem. This unit-test is just a reminder to remove
-        workaround when the fixed version of Whoosh is applied.
-        """
-        schema = Schema(
-                unique_id=ID(stored=True, unique=True),
-                status=ID(stored=True),
-                )
-
-#        ix = RamStorage().create_index(schema)
-        ix = index.create_in(self.index_dir, schema=schema)
-        def insert_docs():
-            with ix.writer() as w:
-                for i in range(10):
-                    w.add_document(unique_id=unicode(i))
-
-        #the problem occurs only when index contains more than one segment
-        insert_docs()
-        insert_docs()
-
-        with ix.searcher() as s:
-            with self.assertRaises(IndexError):
-                s.search(
-                    query.Every(),
-                    groupedby=(u"status"),
-                    maptype=sorting.Count,
-                )
-
     def _load_facets(self, non_paged_results):
         facet_names = non_paged_results.facet_names()
         if not facet_names:
@@ -602,56 +564,10 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
         self.assertEquals(len(r), 0)
 
 
-class WhooshEmptyFacetErrorWorkaroundTestCase(BaseBloodhoundSearchTest):
-    def setUp(self):
-        super(WhooshEmptyFacetErrorWorkaroundTestCase, self).setUp()
-        self.whoosh_backend = WhooshBackend(self.env)
-        self.whoosh_backend.recreate_index()
-        self.parser = DefaultQueryParser(self.env)
-        self.empty_facet_workaround = WhooshEmptyFacetErrorWorkaround(self.env)
-
-    def tearDown(self):
-        shutil.rmtree(self.env.path)
-        self.env.reset_db()
-
-    def test_set_should_not_be_empty_fields(self):
-        self.insert_ticket("test x")
-        result = self.whoosh_backend.query(query.Every())
-        self.print_result(result)
-        doc = result.docs[0]
-        null_marker = WhooshEmptyFacetErrorWorkaround.NULL_MARKER
-        self.assertEqual(null_marker, doc["component"])
-        self.assertEqual(null_marker, doc["status"])
-        self.assertEqual(null_marker, doc["milestone"])
-
-    def test_can_fix_query_filter(self):
-        parsed_filter = self.parser.parse_filters(
-            ["type:ticket", "NOT (milestone:*)"])
-        query_parameters = dict(filter=parsed_filter)
-        self.empty_facet_workaround.query_pre_process(
-            query_parameters)
-
-        result_filter = query_parameters["filter"]
-        self.assertEquals('(type:ticket AND milestone:empty)',
-            str(result_filter))
-
-    def test_does_interfere_query_filter_if_not_needed(self):
-        parsed_filter = self.parser.parse_filters(
-            ["type:ticket", "milestone:aaa"])
-        query_parameters = dict(filter=parsed_filter)
-        self.empty_facet_workaround.query_pre_process(
-            query_parameters)
-
-        result_filter = query_parameters["filter"]
-        self.assertEquals('(type:ticket AND milestone:aaa)',
-            str(result_filter))
-
 def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
     test_suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
-    test_suite.addTest(
-        unittest.makeSuite(WhooshEmptyFacetErrorWorkaroundTestCase, 'test'))
     return test_suite
 
 if __name__ == '__main__':

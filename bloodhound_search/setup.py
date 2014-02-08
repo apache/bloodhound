@@ -147,7 +147,7 @@ setup(
     install_requires = [
         'setuptools>=0.6b1',
         'Trac>=0.11',
-        'whoosh==2.4.1',
+        'whoosh>=2.5.1',
     ],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),
