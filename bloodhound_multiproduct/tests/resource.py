@@ -17,27 +17,27 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from datetime import datetime
 import os.path
 import shutil
-from StringIO import StringIO
 import tempfile
 import unittest
+from StringIO import StringIO
+from datetime import datetime
 
-from trac.attachment import Attachment
+import trac.ticket.api
+import trac.ticket.report
+import trac.ticket.roadmap
+import trac.wiki.api
 from trac import resource
-import trac.ticket.report       # report resources ?
-import trac.ticket.roadmap      # milestone resources
-import trac.ticket.api          # ticket resources
+from trac.attachment import Attachment
 from trac.ticket.model import Ticket
-from trac.ticket.tests.api import TicketSystemTestCase
 from trac.util.datefmt import utc
-import trac.wiki.api            # wiki resources
 from trac.wiki.model import WikiPage
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
+
 
 class ProductResourceTestCase(MultiproductTestCase):
     def setUp(self):
@@ -228,20 +228,6 @@ class ProductTicketResourceTestCase(ProductResourceTestCase):
                                                     target, self.env.href))
 
 
-#class ProductVcsResourceTestCase(ProductResourceTestCase):
-#    def setUp(self):
-#        pass
-#
-#    def tearDown(self):
-#        pass
-#
-#    def test_global_neighborhood_versioncontrol(self):
-#        raise NotImplementedError()
-#
-#    def test_product_neighborhood_versioncontrol(self):
-#        raise NotImplementedError()
-
-
 class ProductWikiResourceTestCase(ProductResourceTestCase):
     resource = resource.Resource('wiki', 'TestPage', version=2)
 
@@ -313,7 +299,6 @@ def test_suite():
         unittest.makeSuite(ProductMilestoneResourceTestCase, 'test'),
         unittest.makeSuite(ProductReportResourceTestCase, 'test'),
         unittest.makeSuite(ProductTicketResourceTestCase, 'test'),
-#        unittest.makeSuite(ProductVcsResourceTestCase, 'test'),
         unittest.makeSuite(ProductWikiResourceTestCase, 'test'),
         unittest.makeSuite(NeighborhoodTestCase, 'test'),
     ])
