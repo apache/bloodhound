@@ -84,5 +84,3 @@ class SimpleSearchWikiSyntaxFormatter(Component):
         intermediate = self.REPLACE_CHARS.sub(" ", intermediate)
         result = self.WHITE_SPACE_RE.sub(" ", intermediate)
         return result.strip()
-
-

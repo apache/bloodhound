@@ -53,7 +53,7 @@ class ProductModule(Component):
     def pre_process_request(self, req, handler):
         if not isinstance(self.env, ProductEnvironment) and \
            IGNORED_REQUESTS_RE.match(req.path_info):
-           return None
+            return None
         return handler
 
     def post_process_request(req, template, data, content_type):
@@ -134,36 +134,36 @@ class ProductModule(Component):
             req.perm(product.resource).require('PRODUCT_MODIFY')
         else:
             req.perm(product.resource).require('PRODUCT_CREATE')
-        
+
         chrome = Chrome(self.env)
         chrome.add_jquery_ui(req)
         chrome.add_wiki_toolbars(req)
-        data = {'product': product, 
+        data = {'product': product,
                 'context': web_context(req, product.resource)}
         return 'product_edit.html', data, None
-    
+
     def _do_save(self, req, product):
         """common processing for product save events"""
         req.perm.require('PRODUCT_VIEW')
-        
+
         name = req.args.get('name')
         prefix = req.args.get('prefix')
         description = req.args.get('description', '')
-        
+
         owner = req.args.get('owner') or req.authname
         keys = {'prefix': prefix}
         field_data = {'name': name,
                       'description': description,
                       'owner': owner,
                       }
-        
+
         warnings = []
         def warn(msg):
             add_warning(req, msg)
             warnings.append(msg)
 
         if product._exists:
-            if name != product.name and Product.select(self.env, 
+            if name != product.name and Product.select(self.env,
                                                        where={'name': name}):
                 warn(_('A product with name "%(name)s" already exists, please '
                        'choose a different name.', name=name))
@@ -176,7 +176,7 @@ class ProductModule(Component):
                 add_notice(req, _('Your changes have been saved.'))
         else:
             req.perm.require('PRODUCT_CREATE')
-            
+
             if not prefix:
                 warn(_('You must provide a prefix for the product.'))
             elif Product.select(self.env, where={'prefix': prefix}):
@@ -187,7 +187,7 @@ class ProductModule(Component):
             elif Product.select(self.env, where={'name': name}):
                 warn(_('A product with name "%(name)s" already exists, please '
                        'choose a different name.', name=name))
-            
+
             if not warnings:
                 prod = Product(self.env)
                 prod.update_field_dict(keys)

@@ -69,7 +69,7 @@ class ContainerWidget(WidgetBase):
                 self.bind_params(name, options, *params)
         lp = dbsys.resolve_layout(layout)
         dbmod = DashboardModule(self.env)
-        layout_data = lp.expand_layout(layout, context, 
+        layout_data = lp.expand_layout(layout, context,
                 { 'schema' : schema, 'embed' : True })
         widgets = dbmod.expand_widget_data(context, schema)
 
@@ -89,4 +89,3 @@ class ContainerWidget(WidgetBase):
                 context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-

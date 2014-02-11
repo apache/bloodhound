@@ -44,10 +44,10 @@ class ProductChromeTestCase(ChromeTestCase, MultiproductTestCase):
         pass
 
     def setUp(self):
-        # Instantiate environment stub before clearing ComponentMeta._registry  
+        # Instantiate environment stub before clearing ComponentMeta._registry
         self.env
         ChromeTestCase.setUp(self)
-    
+
     def tearDown(self):
         try:
             try:
@@ -66,4 +66,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

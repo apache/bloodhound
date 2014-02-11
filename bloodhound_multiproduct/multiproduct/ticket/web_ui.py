@@ -42,7 +42,7 @@ from multiproduct.web_ui import ProductModule
 
 class ProductTicketModule(TicketModule):
     """Product Overrides for the TicketModule"""
-    
+
     # IRequestHandler methods
     #def match_request(self, req):
     # override not yet required
@@ -103,18 +103,18 @@ class ProductTicketModule(TicketModule):
             req.redirect(req.href.products(prefix, 'ticket', tid))
 
     # INavigationContributor methods
-    
+
     #def get_active_navigation_item(self, req):
     # override not yet required
 
     def get_navigation_items(self, req):
         """Overriding TicketModules New Ticket nav item"""
         return
-    
+
     # ISearchSource methods
     #def get_search_filters(self, req):
     # override not yet required
-    
+
     def get_search_results(self, req, terms, filters):
         """Overriding search results for Tickets"""
         if not 'ticket' in filters:
@@ -122,7 +122,7 @@ class ProductTicketModule(TicketModule):
         ticket_realm = Resource('ticket')
         with self.env.db_query as db:
             sql, args = search_to_sql(db, ['summary', 'keywords',
-                                           'description', 'reporter', 'cc', 
+                                           'description', 'reporter', 'cc',
                                            db.cast('id', 'text')], terms)
             sql2, args2 = search_to_sql(db, ['newvalue'], terms)
             sql3, args3 = search_to_sql(db, ['value'], terms)
@@ -131,10 +131,10 @@ class ProductTicketModule(TicketModule):
                 productsql = "product='%s' AND" % req.args.get('product')
             else:
                 productsql = ""
-            
+
             for summary, desc, author, type, tid, ts, status, resolution in \
                     db("""SELECT summary, description, reporter, type, id,
-                                 time, status, resolution 
+                                 time, status, resolution
                           FROM ticket
                           WHERE (%s id IN (
                               SELECT id FROM ticket WHERE %s
@@ -157,7 +157,7 @@ class ProductTicketModule(TicketModule):
                                     summary, status, resolution, type)),
                            from_utimestamp(ts), author,
                            shorten_result(desc, terms))
-        
+
         # Attachments
         for result in AttachmentModule(self.env).get_search_results(
             req, ticket_realm, terms):
@@ -183,8 +183,8 @@ class ProductReportModule(ReportModule):
         # FIXME: yield from
         for s in super(ProductReportModule, self).get_wiki_syntax():
             yield s
-        # Previously unmatched prefix 
-        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}" % 
+        # Previously unmatched prefix
+        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}" %
                     (IDENTIFIER, PRODUCT_SYNTAX_DELIMITER_RE),
                lambda x, y, z: self._format_link(x, 'report', y[1:-1], y, z))
         # Absolute product report syntax
@@ -215,7 +215,7 @@ class ProductReportModule(ReportModule):
             if not prns:
                 # Forwarded from _format_link, inherit current context
                 product_id = fullmatch.group('it_' + ns) or \
-                             fullmatch.group('prp') 
+                             fullmatch.group('prp')
                 if product_id:
                     product_ns = 'product'
                     substeps = [product_id.strip()]
@@ -232,8 +232,8 @@ class ProductReportModule(ReportModule):
             report_id = fullmatch.group('prid') or \
                         re.match(r'^.*?(\d+)$', target).group(1)
             substeps += [ns, report_id]
-            
-            return mpsys._format_link(formatter, product_ns, 
+
+            return mpsys._format_link(formatter, product_ns,
                                       u':'.join(substeps),
                                       label, fullmatch)
         else:

@@ -29,7 +29,7 @@ from bhdashboard.wiki import GUIDE_NAME
 
 class UserGuideTocMacro(WikiMacroBase):
     _description = cleandoc_("""Display a Guide table of contents
-    
+
     This macro provides the table-of-contents specific to the user Guide
     """
     )

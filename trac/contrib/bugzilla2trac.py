@@ -243,7 +243,7 @@ class TracDatabase(object):
         self.loginNameCache = {}
         self.fieldNameCache = {}
         from trac.db.api import DatabaseManager
-	self.using_postgres = \
+        self.using_postgres = \
                 DatabaseManager(self.env).connection_uri.startswith("postgres:")
 
     def hasTickets(self):
@@ -377,7 +377,7 @@ class TracDatabase(object):
         comment = value
 
         if PREFORMAT_COMMENTS:
-          comment = '{{{\n%s\n}}}' % comment
+            comment = '{{{\n%s\n}}}' % comment
 
         if REPLACE_BUG_NO:
             if BUG_NO_RE.search(comment):
@@ -720,7 +720,7 @@ def convert(_db, _host, _user, _password, _env, _force):
                     ignore = True
 
             if ignore:
-                    continue
+                continue
 
             trac.addTicketComment(ticket=bugid,
                 time = desc['bug_when'],
@@ -824,19 +824,19 @@ def convert(_db, _host, _user, _password, _env, _force):
 
             # Bugzilla splits large summary changes into two records.
             for oldChange in ticketChanges:
-              if (field_name == "summary"
-                  and oldChange['field'] == ticketChange['field']
-                  and oldChange['time'] == ticketChange['time']
-                  and oldChange['author'] == ticketChange['author']):
-                  oldChange['oldvalue'] += " " + ticketChange['oldvalue']
-                  oldChange['newvalue'] += " " + ticketChange['newvalue']
-                  break
-              # cc and attachments.isobsolete sometime appear
-              # in different activities with same time
-              if ((field_name == "cc" or field_name == "attachments.isobsolete") \
-                  and oldChange['time'] == ticketChange['time']):
-                  oldChange['newvalue'] += ", " + ticketChange['newvalue']
-                  break
+                if (field_name == "summary"
+                    and oldChange['field'] == ticketChange['field']
+                    and oldChange['time'] == ticketChange['time']
+                    and oldChange['author'] == ticketChange['author']):
+                    oldChange['oldvalue'] += " " + ticketChange['oldvalue']
+                    oldChange['newvalue'] += " " + ticketChange['newvalue']
+                    break
+                # cc and attachments.isobsolete sometime appear
+                # in different activities with same time
+                if ((field_name == "cc" or field_name == "attachments.isobsolete") \
+                    and oldChange['time'] == ticketChange['time']):
+                    oldChange['newvalue'] += ", " + ticketChange['newvalue']
+                    break
             else:
                 ticketChanges.append (ticketChange)
 
@@ -939,36 +939,36 @@ def main():
     global BZ_DB, BZ_HOST, BZ_USER, BZ_PASSWORD, TRAC_ENV, TRAC_CLEAN
     global SEVERITIES, PRIORITIES, PRIORITIES_MAP
     if len (sys.argv) > 1:
-    	if sys.argv[1] in ['--help','help'] or len(sys.argv) < 4:
-    	    usage()
-    	iter = 1
-    	while iter < len(sys.argv):
-    	    if sys.argv[iter] in ['--db'] and iter+1 < len(sys.argv):
-    	        BZ_DB = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-h', '--host'] and iter+1 < len(sys.argv):
-    	        BZ_HOST = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-u', '--user'] and iter+1 < len(sys.argv):
-    	        BZ_USER = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-p', '--passwd'] and iter+1 < len(sys.argv):
-    	        BZ_PASSWORD = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['--tracenv'] and iter+1 < len(sys.argv):
-    	        TRAC_ENV = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-c', '--clean']:
-    	        TRAC_CLEAN = 1
+        if sys.argv[1] in ['--help','help'] or len(sys.argv) < 4:
+            usage()
+        iter = 1
+        while iter < len(sys.argv):
+            if sys.argv[iter] in ['--db'] and iter+1 < len(sys.argv):
+                BZ_DB = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-h', '--host'] and iter+1 < len(sys.argv):
+                BZ_HOST = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-u', '--user'] and iter+1 < len(sys.argv):
+                BZ_USER = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-p', '--passwd'] and iter+1 < len(sys.argv):
+                BZ_PASSWORD = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['--tracenv'] and iter+1 < len(sys.argv):
+                TRAC_ENV = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-c', '--clean']:
+                TRAC_CLEAN = 1
             elif sys.argv[iter] in ['-n', '--noseverities']:
                 # treat Bugzilla severites as Trac priorities
                 PRIORITIES = SEVERITIES
                 SEVERITIES = []
                 PRIORITIES_MAP = {}
-    	    else:
-    	        print "Error: unknown parameter: " + sys.argv[iter]
-    	        sys.exit(0)
-    	    iter = iter + 1
+            else:
+                print "Error: unknown parameter: " + sys.argv[iter]
+                sys.exit(0)
+            iter = iter + 1
 
     convert(BZ_DB, BZ_HOST, BZ_USER, BZ_PASSWORD, TRAC_ENV, TRAC_CLEAN)
 

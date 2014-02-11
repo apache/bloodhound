@@ -462,7 +462,7 @@ class PermissionSystem(Component):
                 resource = None
             elif resource.neighborhood is not None:
                 try:
-                    compmgr = manager_for_neighborhood(self.env, 
+                    compmgr = manager_for_neighborhood(self.env,
                                                        resource.neighborhood)
                 except ResourceNotFound:
                     #FIXME: raise ?

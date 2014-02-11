@@ -65,7 +65,7 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
                 environ['PATH_INFO'] = path_info
             return env
 
-        if pid and not (product_path in ('', '/') and 
+        if pid and not (product_path in ('', '/') and
                         environ.get('QUERY_STRING')):
             env = create_product_env(pid,
                                      environ['SCRIPT_NAME'] + '/products/' +

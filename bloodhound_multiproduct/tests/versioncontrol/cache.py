@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Tests for Apache(TM) Bloodhound's repository cache in 
+"""Tests for Apache(TM) Bloodhound's repository cache in
 product environments"""
 
 import unittest
@@ -56,4 +56,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

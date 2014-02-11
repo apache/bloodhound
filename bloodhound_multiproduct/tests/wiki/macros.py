@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Tests for inherited Apache(TM) Bloodhound's wiki macros 
+"""Tests for inherited Apache(TM) Bloodhound's wiki macros
 in product environments"""
 
 import os.path
@@ -32,38 +32,38 @@ from tests.wiki import formatter
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(formatter.test_suite(
-                                  macros.IMAGE_MACRO_TEST_CASES, 
+                                  macros.IMAGE_MACRO_TEST_CASES,
                                   file=macros.__file__))
     suite.addTest(formatter.test_suite(
-                                  macros.TITLEINDEX1_MACRO_TEST_CASES, 
+                                  macros.TITLEINDEX1_MACRO_TEST_CASES,
                                   file=macros.__file__))
     suite.addTest(formatter.test_suite(
-                                  macros.TITLEINDEX2_MACRO_TEST_CASES, 
+                                  macros.TITLEINDEX2_MACRO_TEST_CASES,
                                   file=macros.__file__,
                                   setup=macros.titleindex2_setup,
                                   teardown=macros.titleindex_teardown))
     suite.addTest(formatter.test_suite(
-                                  macros.TITLEINDEX3_MACRO_TEST_CASES, 
+                                  macros.TITLEINDEX3_MACRO_TEST_CASES,
                                   file=macros.__file__,
                                   setup=macros.titleindex3_setup,
                                   teardown=macros.titleindex_teardown))
     suite.addTest(formatter.test_suite(
-                                  macros.TITLEINDEX4_MACRO_TEST_CASES, 
+                                  macros.TITLEINDEX4_MACRO_TEST_CASES,
                                   file=macros.__file__,
                                   setup=macros.titleindex4_setup,
                                   teardown=macros.titleindex_teardown))
     suite.addTest(formatter.test_suite(
-                                  macros.TITLEINDEX5_MACRO_TEST_CASES, 
+                                  macros.TITLEINDEX5_MACRO_TEST_CASES,
                                   file=macros.__file__,
                                   setup=macros.titleindex5_setup,
                                   teardown=macros.titleindex_teardown))
     suite.addTest(formatter.test_suite(
-                                  macros.RECENTCHANGES_MACRO_TEST_CASES, 
+                                  macros.RECENTCHANGES_MACRO_TEST_CASES,
                                   file=macros.__file__,
                                   setup=macros.recentchanges_setup,
                                   teardown=macros.recentchanges_teardown))
     suite.addTest(formatter.test_suite(
-                                  macros.TRACINI_MACRO_TEST_CASES, 
+                                  macros.TRACINI_MACRO_TEST_CASES,
                                   file=macros.__file__,
                                   setup=macros.tracini_setup,
                                   teardown=macros.tracini_teardown))
@@ -72,4 +72,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

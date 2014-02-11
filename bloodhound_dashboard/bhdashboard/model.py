@@ -43,7 +43,7 @@ def fields_to_kv_str(env, fields, data, sep=' AND '):
 class ModelBase(object):
     """Base class for the models to factor out common features
     Derived classes should provide a meta dictionary to describe the table like:
-    
+
     _meta = {'table_name':'mytable',
              'object_name':'WhatIWillCallMyselfInMessages',
              'key_fields':['id','id2'],
@@ -62,7 +62,7 @@ class ModelBase(object):
     text columns) or dict with detailed column specification. In case of
     detailed column specification 'name' parameter is obligatory).
     """
-    
+
     def __init__(self, env, keys=None):
         """Initialisation requires an environment to be specified.
         If keys are provided, the Model will initialise from the database
@@ -88,7 +88,7 @@ class ModelBase(object):
     def update_field_dict(self, field_dict):
         """Updates the object's copy of the db fields (no db transaction)"""
         self._data.update(field_dict)
-    
+
     def __getattr__(self, name):
         """Overridden to allow table.field style field access."""
         try:
@@ -97,7 +97,7 @@ class ModelBase(object):
         except KeyError:
             raise AttributeError(name)
         raise AttributeError(name)
-    
+
     def __setattr__(self, name, value):
         """Overridden to allow table.field = value style field setting."""
         data = self.__dict__.get('_data')
@@ -110,7 +110,7 @@ class ModelBase(object):
     @classmethod
     def get_table_name(cls):
         return cls._meta["table_name"]
-    
+
     def _update_from_row(self, row = None):
         """uses a provided database row to update the model"""
         fields = self._all_fields
@@ -120,7 +120,7 @@ class ModelBase(object):
         self._data = dict([(fields[i], row[i]) for i in range(len(row))])
         self._old_data = {}
         self._old_data.update(self._data)
-    
+
     def _get_row(self, keys):
         """queries the database and stores the result in the model"""
         row = None
@@ -129,7 +129,7 @@ class ModelBase(object):
         sdata = {'fields':fields,
                  'where':where}
         sdata.update(self._meta)
-        
+
         sql = """SELECT %(fields)s FROM %(table_name)s
                  WHERE %(where)s""" % sdata
         with self._env.db_query as db:
@@ -138,9 +138,9 @@ class ModelBase(object):
                 break
             else:
                 raise ResourceNotFound(
-                        ('No %(object_name)s with %(where)s' % sdata) 
+                        ('No %(object_name)s with %(where)s' % sdata)
                                 % tuple(values))
-    
+
     def delete(self):
         """Deletes the matching record from the database"""
         if not self._exists:
@@ -159,7 +159,7 @@ class ModelBase(object):
         self._data = dict([(k, None) for k in self._data.keys()])
         self._old_data.update(self._data)
 
-    
+
     def insert(self):
         """Create new record in the database"""
         sdata = None
@@ -178,7 +178,7 @@ class ModelBase(object):
             sdata['values'] = self._data
             raise TracError('%(object_name)s %(keys)s already exists %(values)s' %
                             sdata)
-            
+
         for key in self._key_fields:
             if self._data[key] is None and key not in self._auto_inc_fields:
                 sdata = {'key':key}
@@ -209,11 +209,11 @@ class ModelBase(object):
     def _update_relations(self, db, author=None):
         """Extra actions due to update"""
         pass
-    
+
     def update(self, author=None):
         """Update the matching record in the database"""
         if self._old_data == self._data:
-            return 
+            return
         if not self._exists:
             raise TracError('%(object_name)s does not exist' % self._meta)
         for key in self._meta['no_change_fields']:

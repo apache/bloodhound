@@ -40,7 +40,7 @@ class ProductTracadminTestCase(TracadminTestCase, MultiproductTestCase):
         env = getattr(self, '_env', None)
         if env is None:
             self.global_env = self._setup_test_env(
-                    enable=('trac.*', 'multiproduct.*'), 
+                    enable=('trac.*', 'multiproduct.*'),
                     disable=('trac.tests.*',),
                 )
             self._upgrade_mp(self.global_env)
@@ -96,4 +96,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

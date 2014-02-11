@@ -49,12 +49,12 @@ from bhdashboard.util import WidgetBase, check_widget_name, \
 from multiproduct.env import Product, ProductEnvironment
 
 class TicketFieldValuesWidget(WidgetBase):
-    """Display a tag cloud representing frequency of values assigned to 
+    """Display a tag cloud representing frequency of values assigned to
     ticket fields.
     """
     DASH_ITEM_HREF_MAP = {'milestone': ('milestone',),
                          }
-                     
+
     def get_widget_params(self, name):
         """Return a dictionary containing arguments specification for
         the widget with specified name.
@@ -73,7 +73,7 @@ class TicketFieldValuesWidget(WidgetBase):
                 'verbose' : {
                         'desc' : """Show frequency next to each value""",
                         'default' : False,
-                        'type' : bool, 
+                        'type' : bool,
                     },
                 'threshold' : {
                         'desc' : """Filter items having smaller frequency""",
@@ -104,7 +104,7 @@ class TicketFieldValuesWidget(WidgetBase):
                   'view')
         fieldnm, query, verbose, threshold, maxitems, title, view = \
                 self.bind_params(name, options, *params)
-        
+
         field_maps = {'type': {'admin_url': 'type',
                                'title': 'Types',
                                },
@@ -163,10 +163,10 @@ class TicketFieldValuesWidget(WidgetBase):
                                     )
                             }, context
                 else:
-                    raise InvalidWidgetArgument('field', 
+                    raise InvalidWidgetArgument('field',
                             'Unknown ticket field %s' % (fieldnm,))
             return None
-        
+
         if query is None :
             data = check_field_name()
             if data is not None:
@@ -192,7 +192,7 @@ class TicketFieldValuesWidget(WidgetBase):
                 items = cursor.fetchall()
 
             QUERY_COLS = ['id', 'summary', 'owner', 'type', 'status', 'priority']
-            item_link= lambda item: req.href.query(col=QUERY_COLS + [fieldnm], 
+            item_link= lambda item: req.href.query(col=QUERY_COLS + [fieldnm],
                                                     **{fieldnm:item[0]})
         else:
             query = Query.from_string(self.env, query, group=fieldnm)
@@ -200,11 +200,11 @@ class TicketFieldValuesWidget(WidgetBase):
                 data = check_field_name()
                 if data is not None:
                     return data
-                raise InvalidWidgetArgument('field', 
+                raise InvalidWidgetArgument('field',
                         'Invalid ticket field for ticket groups')
 
             fieldnm = query.group
-            sql, v = query.get_sql() 
+            sql, v = query.get_sql()
             sql = "SELECT COALESCE(%(name)s, '') , count(COALESCE(%(name)s, ''))"\
                     "FROM (%(sql)s) AS foo GROUP BY COALESCE(%(name)s, '')" % \
                     { 'name' : fieldnm, 'sql' : sql }
@@ -245,7 +245,7 @@ class TicketFieldValuesWidget(WidgetBase):
                             items=items,
                             verbose=verbose,
                             view=view,
-                        ), 
+                        ),
                 }, \
                 context
 
@@ -266,15 +266,15 @@ class TicketGroupStatsWidget(WidgetBase):
                     },
                 'stats_provider' : {
                         'desc' : """Name of the component implementing
-        `ITicketGroupStatsProvider`, which is used to collect statistics 
+        `ITicketGroupStatsProvider`, which is used to collect statistics
         on groups of tickets.""",
                         'default' : 'DefaultTicketGroupStatsProvider'
                     },
                 'skin' : {
                         'desc' : """Look and feel of the progress bar""",
-                        'type' : EnumField('info', 'success', 'warning', 
+                        'type' : EnumField('info', 'success', 'warning',
                                 'danger',
-                                'info-stripped', 'success-stripped', 
+                                'info-stripped', 'success-stripped',
                                 'warning-stripped', 'danger-stripped')
                     },
                 'title' : {
@@ -319,7 +319,7 @@ class TicketGroupStatsWidget(WidgetBase):
                     'data' : dict(
                             desc=desc, legend=legend, bar_styles=skin,
                             stats=stat, view=view,
-                        ), 
+                        ),
                 }, \
                 context
 

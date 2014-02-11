@@ -47,7 +47,7 @@ class TestNewProduct(FunctionalTwillTestCaseSetup):
         tc.find('<a[^>]*>Index by Title')
 
 
-class TestProductRenameAuthor(MultiproductFunctionalTestCase, 
+class TestProductRenameAuthor(MultiproductFunctionalTestCase,
                               FunctionalTwillTestCaseSetup):
     def runTest(self):
         """Check for correct author in ticket comments on product rename

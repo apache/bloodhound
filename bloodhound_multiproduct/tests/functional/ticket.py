@@ -30,7 +30,7 @@ from tests import unittest
 from tests.functional import regex_owned_by
 
 #----------------
-# Functional test cases for tickets (rewritten) 
+# Functional test cases for tickets (rewritten)
 #----------------
 
 # TODO: These classes are almost a copycat of Trac's. Beware of license header
@@ -65,18 +65,18 @@ class TestTicketNoSummary(FunctionalTwillTestCaseSetup):
 
         desc = random_sentence(5)
         tc.formvalue('propertyform', 'field-description', desc)
-        # [BLOODHOUND] no actual button to submit /newticket `propertyform` 
+        # [BLOODHOUND] no actual button to submit /newticket `propertyform`
         tc.submit()
         tc.find(desc)
         tc.find('Tickets must contain a summary.')
-        # [BLOODHOUND] Create New Ticket => New Ticket 
+        # [BLOODHOUND] Create New Ticket => New Ticket
         tc.find('New Ticket')
         tc.find('ticket not yet created')
 
 
 class TestTicketCustomFieldTextNoFormat(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test custom text field with no format explicitly specified.
         Its contents should be rendered as plain text.
@@ -95,12 +95,12 @@ class TestTicketCustomFieldTextNoFormat(FunctionalTwillTestCaseSetup):
         self._tester.go_to_ticket(ticketid)
 
         # [BLOODHOUND] Different markup to render field values
-        self._tester.find_ticket_field('newfield', val) 
+        self._tester.find_ticket_field('newfield', val)
 
 
 class TestTicketCustomFieldTextAreaNoFormat(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test custom textarea field with no format explicitly specified,
         its contents should be rendered as plain text.
@@ -124,7 +124,7 @@ class TestTicketCustomFieldTextAreaNoFormat(FunctionalTwillTestCaseSetup):
 
 class TestTicketCustomFieldTextWikiFormat(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test custom text field with `wiki` format.
         Its contents should through the wiki engine, wiki-links and all.
@@ -147,12 +147,12 @@ class TestTicketCustomFieldTextWikiFormat(FunctionalTwillTestCaseSetup):
         wiki = '<a [^>]*>%s\??</a> %s' % (word1, word2)
 
         # [BLOODHOUND] Different markup to render field values
-        self._tester.find_ticket_field('newfield', wiki) 
+        self._tester.find_ticket_field('newfield', wiki)
 
 
 class TestTicketCustomFieldTextAreaWikiFormat(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test custom textarea field with no format explicitly specified,
         its contents should be rendered as plain text.
@@ -174,7 +174,7 @@ class TestTicketCustomFieldTextAreaWikiFormat(FunctionalTwillTestCaseSetup):
         wiki = '<p>\s*<a [^>]*>%s\??</a> %s<br />\s*</p>' % (word1, word2)
 
         # [BLOODHOUND] Different markup to render field values
-        self._tester.find_ticket_field('newfield', wiki) 
+        self._tester.find_ticket_field('newfield', wiki)
 
 
 class TestTicketCustomFieldTextReferenceFormat(FunctionalTwillTestCaseSetup):
@@ -208,7 +208,7 @@ class TestTicketCustomFieldTextReferenceFormat(FunctionalTwillTestCaseSetup):
         querylink = '<a href="%s/query\?%s">%s</a>' % (path_prefix, query, val)
 
         # [BLOODHOUND] Different markup to render field values
-        self._tester.find_ticket_field('newfield', querylink) 
+        self._tester.find_ticket_field('newfield', querylink)
 
 
 class TestTicketCustomFieldTextListFormat(FunctionalTwillTestCaseSetup):
@@ -247,7 +247,7 @@ class TestTicketCustomFieldTextListFormat(FunctionalTwillTestCaseSetup):
         querylinks = '%s %s' % (querylink1, querylink2)
 
         # [BLOODHOUND] Different markup to render field values
-        self._tester.find_ticket_field('newfield', querylinks) 
+        self._tester.find_ticket_field('newfield', querylinks)
 
 
 class RegressionTestTicket10828(FunctionalTwillTestCaseSetup):
@@ -300,7 +300,7 @@ class RegressionTestTicket10828(FunctionalTwillTestCaseSetup):
         query2 = 'status=!closed&amp;newfield=~%s' % word2
         query3 = 'status=!closed&amp;newfield=~%s' % word3
 
-        
+
         path_prefix = urlsplit(self._tester.url).path
         querylink1 = '<a href="%s/query\?%s">%s</a>' % (path_prefix,
                                                         query1, word1)
@@ -311,12 +311,12 @@ class RegressionTestTicket10828(FunctionalTwillTestCaseSetup):
         querylinks = '%s %s, %s' % (querylink1, querylink2, querylink3)
 
         # [BLOODHOUND] Different markup to render field values
-        self._tester.find_ticket_field('newfield', querylinks) 
+        self._tester.find_ticket_field('newfield', querylinks)
 
 
 class RegressionTestTicket5394a(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/5394 a
         Order user list alphabetically in (re)assign action
@@ -382,7 +382,7 @@ class RegressionTestTicket5394b(FunctionalTwillTestCaseSetup):
 # FIXME: Verbatim copy of its peer just to override regex_owned_by
 class RegressionTestTicket5497a(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/5497 a
         Open ticket, component changed, owner not changed"""
@@ -396,7 +396,7 @@ class RegressionTestTicket5497a(FunctionalTwillTestCaseSetup):
 # FIXME: Verbatim copy of its peer just to override regex_owned_by
 class RegressionTestTicket5497b(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/5497 b
         Open ticket, component changed, owner changed"""
@@ -413,7 +413,7 @@ class RegressionTestTicket5497b(FunctionalTwillTestCaseSetup):
 # FIXME: Verbatim copy of its peer just to override regex_owned_by
 class RegressionTestTicket5497c(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/5497 c
         New ticket, component changed, owner not changed"""
@@ -426,7 +426,7 @@ class RegressionTestTicket5497c(FunctionalTwillTestCaseSetup):
 # FIXME: Verbatim copy of its peer just to override regex_owned_by
 class RegressionTestTicket5497d(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/5497 d
         New ticket, component changed, owner changed"""
@@ -455,7 +455,7 @@ class RegressionTestRev5994(FunctionalTwillTestCaseSetup):
 
 class RegressionTestTicket6048(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/6048"""
         # Setup the DeleteTicket plugin
@@ -566,7 +566,7 @@ class RegressionTestTicket8247(FunctionalTwillTestCaseSetup):
         tc.submit('remove')
         tc.go(ticket_url)
 
-        # [BLOODHOUND] Ticket comment header changed 
+        # [BLOODHOUND] Ticket comment header changed
         tc.find('<strong class="trac-field-milestone">Milestone</strong>'
                 '[ \n\t]*<span>[ \n\t]*<em>%s</em> deleted' % name)
         tc.find('by admin<span>, <a.* ago</a></span>')
@@ -592,8 +592,8 @@ class TestTimelineTicketDetails(FunctionalTwillTestCaseSetup):
         htmltags = '(<[^>]*>)*'
 
         # [BLOODHOUND] Ticket events are different i.e. 'by user' outside <a />
-        tc.find(htmltags + 'Ticket ' + htmltags + '#' + str(ticketid) + 
-                htmltags + ' \\(' + summary + '\\) updated\\s*' + 
+        tc.find(htmltags + 'Ticket ' + htmltags + '#' + str(ticketid) +
+                htmltags + ' \\(' + summary + '\\) updated\\s*' +
                 htmltags + '\\s+by\\s+' + htmltags + 'admin', 's')
 
 
@@ -659,12 +659,12 @@ class RegressionTestTicket5602(FunctionalTwillTestCaseSetup):
         tc.go(self._tester.url + "/roadmap")
         tc.follow(milestone)
 
-        # [BLOODHOUND] closed: labels in milestone progress bar removed 
+        # [BLOODHOUND] closed: labels in milestone progress bar removed
         tc.follow(r"/query\?.*status=closed&.*milestone=%s$" % (milestone,))
         tc.find("Resolution:[ \t\n]+fixed")
 
         tc.back()
-        # [BLOODHOUND] active: labels in milestone progress bar removed 
+        # [BLOODHOUND] active: labels in milestone progress bar removed
         tc.follow(r"/query\?.*status=new&.*milestone=%s$" % (milestone,))
         tc.find("Status:[ \t\n]+new")
         tc.find("Status:[ \t\n]+assigned")
@@ -689,10 +689,10 @@ class RegressionTestTicket9084(FunctionalTwillTestCaseSetup):
         tc.notfind('AssertionError')
 
 
-class RegressionTestTicket6879a(FunctionalTwillTestCaseSetup, 
+class RegressionTestTicket6879a(FunctionalTwillTestCaseSetup,
                                 unittest.TestCase):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/6879 a
 
@@ -715,10 +715,10 @@ class RegressionTestTicket6879a(FunctionalTwillTestCaseSetup,
         tc.submit('preview')
 
 
-class RegressionTestTicket6879b(FunctionalTwillTestCaseSetup, 
+class RegressionTestTicket6879b(FunctionalTwillTestCaseSetup,
                                 unittest.TestCase):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Test for regression of http://trac.edgewall.org/ticket/6879 b
 
@@ -731,7 +731,7 @@ class RegressionTestTicket6879b(FunctionalTwillTestCaseSetup,
         tc.formvalue('propertyform', 'action', 'resolve')
         tc.formvalue('propertyform', 'action_resolve_resolve_resolution', 'fixed')
 
-        # [BLOODHOUND] No preview button for ticket (comments) in BH theme 
+        # [BLOODHOUND] No preview button for ticket (comments) in BH theme
         try:
             tc.submit('preview')
         except TwillException:
@@ -743,11 +743,11 @@ class RegressionTestTicket6879b(FunctionalTwillTestCaseSetup,
 
 class TestAdminPriorityRenumber(FunctionalTwillTestCaseSetup):
     BH_IN_DEFAULT_PRODUCT = True
-    
+
     def runTest(self):
         """Admin renumber priorities"""
 
-        # [BLOODHOUND] class="input-mini" appended to priorities <select /> 
+        # [BLOODHOUND] class="input-mini" appended to priorities <select />
         valuesRE = re.compile('<select name="value_([0-9]+)".*>', re.M)
 
         html = b.get_html()
@@ -782,7 +782,7 @@ def trac_functionalSuite(suite=None):
     suite.addTest(TestTicketTabFormat())
     suite.addTest(TestTicketRSSFormat())
 
-    # [BLOODHOUND] TODO: Move to BloodhoundSearch plugin 
+    # [BLOODHOUND] TODO: Move to BloodhoundSearch plugin
     # suite.addTest(TestTicketSearch())
     # suite.addTest(TestNonTicketSearch())
 
@@ -894,4 +894,3 @@ def functionalSuite(suite=None):
 if __name__ == '__main__':
     import unittest
     unittest.main(defaultTest='functionalSuite')
-

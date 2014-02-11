@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Tests for Apache(TM) Bloodhound's tickets batch updates 
+"""Tests for Apache(TM) Bloodhound's tickets batch updates
 in product environments"""
 
 import unittest
@@ -41,9 +41,9 @@ class ProductBatchModifyTestCase(BatchModifyTestCase, MultiproductTestCase):
         self._load_product_from_data(self.global_env, self.default_product)
         self.env = ProductEnvironment(self.global_env, self.default_product)
 
-        self.global_env.enable_component_in_config(self.env, 
+        self.global_env.enable_component_in_config(self.env,
                 ConfigurableTicketWorkflow)
-        self.global_env.enable_component_in_config(self.env, 
+        self.global_env.enable_component_in_config(self.env,
                 ProductTicketModule)
 
         self._load_default_data(self.env)
@@ -63,4 +63,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

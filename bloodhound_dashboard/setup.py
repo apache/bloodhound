@@ -38,7 +38,7 @@ versions = [
     (0, 7, 0),
     (0, 8, 0),
     ]
-    
+
 latest = '.'.join(str(x) for x in versions[-1])
 
 status = {
@@ -54,25 +54,25 @@ dev_status = status["alpha"]
 
 cats = [
       dev_status,
-      "Environment :: Plugins", 
-      "Environment :: Web Environment", 
-      "Framework :: Trac", 
-      "Intended Audience :: Developers", 
-      "Intended Audience :: Information Technology", 
-      "Intended Audience :: Other Audience", 
-      "Intended Audience :: System Administrators", 
-      "License :: Unknown", 
-      "Operating System :: OS Independent", 
-      "Programming Language :: Python", 
-      "Programming Language :: Python :: 2.5", 
+      "Environment :: Plugins",
+      "Environment :: Web Environment",
+      "Framework :: Trac",
+      "Intended Audience :: Developers",
+      "Intended Audience :: Information Technology",
+      "Intended Audience :: Other Audience",
+      "Intended Audience :: System Administrators",
+      "License :: Unknown",
+      "Operating System :: OS Independent",
+      "Programming Language :: Python",
+      "Programming Language :: Python :: 2.5",
       "Programming Language :: Python :: 2.6",
       "Programming Language :: Python :: 2.7",
-      "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries", 
-      "Topic :: Internet :: WWW/HTTP :: HTTP Servers", 
-      "Topic :: Internet :: WWW/HTTP :: WSGI", 
-      "Topic :: Software Development :: Bug Tracking", 
-      "Topic :: Software Development :: Libraries :: Application Frameworks", 
-      "Topic :: Software Development :: Libraries :: Python Modules", 
+      "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries",
+      "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+      "Topic :: Internet :: WWW/HTTP :: WSGI",
+      "Topic :: Software Development :: Bug Tracking",
+      "Topic :: Software Development :: Libraries :: Application Frameworks",
+      "Topic :: Software Development :: Libraries :: Python Modules",
       "Topic :: Software Development :: User Interfaces",
       "Topic :: Software Development :: Widget Sets"
     ]
@@ -90,24 +90,24 @@ finally:
 DIST_NM = 'BloodhoundDashboardPlugin'
 PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                             # Package data
-                            ['../CHANGES', '../TODO', '../COPYRIGHT', 
+                            ['../CHANGES', '../TODO', '../COPYRIGHT',
                               '../NOTICE', '../README', '../TESTING_README',
                               'htdocs/*.*', 'htdocs/css/*.css',
                               'htdocs/img/*.*', 'htdocs/js/*.js',
                               'templates/*', 'default-pages/*'],
-                          ), 
+                          ),
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
                             # Package data
                             ['templates/*', 'htdocs/*.css'],
-                          ), 
+                          ),
             'bhdashboard.layouts' : ('bhdashboard/layouts',     # Package dir
                             # Package data
                             ['templates/*'],
-                          ), 
+                          ),
             'bhdashboard.tests' : ('bhdashboard/tests',     # Package dir
                             # Package data
                             ['data/**'],
-                          ), 
+                          ),
             }
 
 ENTRY_POINTS = r"""

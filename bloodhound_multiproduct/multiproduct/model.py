@@ -149,6 +149,6 @@ class ProductSetting(ModelBase):
         """Retrieve configuration sections defined for a product
         """
         # FIXME: Maybe something more ORM-ish should be added in ModelBase
-        return [row[0] for row in env.db_query("""SELECT DISTINCT section 
-                FROM bloodhound_productconfig WHERE product = %s""", 
+        return [row[0] for row in env.db_query("""SELECT DISTINCT section
+                FROM bloodhound_productconfig WHERE product = %s""",
                 (product,))]

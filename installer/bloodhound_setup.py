@@ -161,16 +161,16 @@ class BloodhoundSetup(object):
     def setup(self, **kwargs):
         """Do the setup. A kwargs dictionary may be passed to override base
         options, potentially allowing for multiple environment creation."""
-        
+
         if has_babel:
             import babel
             try:
-                locale = get_negotiated_locale([LANG]) 
+                locale = get_negotiated_locale([LANG])
                 locale = locale or babel.Locale.default()
             except babel.UnknownLocaleError:
                 pass
             translation.activate(locale)
-        
+
         options = dict(self.options)
         options.update(kwargs)
         if psycopg2 is None and options.get('dbtype') == 'postgres':
@@ -270,7 +270,7 @@ class BloodhoundSetup(object):
 
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
-        
+
         if self.apply_bhwiki_upgrades:
             print "Running wiki Bloodhound upgrades"
             bloodhound.onecmd('wiki bh-upgrade')

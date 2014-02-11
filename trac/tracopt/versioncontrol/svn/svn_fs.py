@@ -1093,4 +1093,3 @@ def DiffChangeEditor():
             self.deltas.append((path, Node.FILE, Changeset.EDIT))
 
     return DiffChangeEditor()
-

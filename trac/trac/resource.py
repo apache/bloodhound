@@ -97,7 +97,7 @@ class IExternalResourceConnector(Interface):
         """
 
     def manager_exists(neighborhood):
-        """Check whether the component manager identified by 
+        """Check whether the component manager identified by
         the given `neighborhood` exists physically.
 
         :param neighborhood: manager identifier (i.e. `Neighborhood`)
@@ -109,7 +109,7 @@ class IExternalResourceConnector(Interface):
 
 
 class Neighborhood(object):
-    """Neighborhoods are the topmost level in the resources hierarchy. 
+    """Neighborhoods are the topmost level in the resources hierarchy.
     They represent resources managed by a component manager, thereby
     identifying the later. As such, resource neighborhoods serve to
     the purpose of specifying absolute references to resources hosted beyond
@@ -302,7 +302,7 @@ class Resource(object):
         if self.neighborhood is None:
             return '<Resource %r>' % (', '.join(path))
         else:
-            return '<Resource %r in Neighborhood %s:%s>' % (', '.join(path), 
+            return '<Resource %r in Neighborhood %s:%s>' % (', '.join(path),
                                                     self.neighborhood._realm,
                                                     self.neighborhood._id)
 
@@ -532,18 +532,18 @@ class ResourceSystem(Component):
             if default is not None:
                 return default
             else:
-                raise ResourceNotFound('Unexpected neighborhood %s' % 
+                raise ResourceNotFound('Unexpected neighborhood %s' %
                                        (neighborhood,))
         c = self.get_resource_connector(neighborhood._realm)
         if c is None:
-            raise ResourceNotFound('Missing connector for neighborhood %s' % 
+            raise ResourceNotFound('Missing connector for neighborhood %s' %
                                    (neighborhood,))
         return c.load_manager(neighborhood)
 
     def neighborhood_prefix(self, neighborhood):
         return '' if neighborhood is None \
                   else '[%s:%s] ' % (neighborhood._realm,
-                                     neighborhood._id or '') 
+                                     neighborhood._id or '')
 
     # -- Utilities to trigger resources event notifications
 
@@ -571,7 +571,7 @@ class ResourceSystem(Component):
 def manager_for_neighborhood(compmgr, neighborhood):
     """Instantiate a given component manager identified by
     target neighborhood.
-    
+
     :param compmgr: Source component manager.
     :param neighborhood: Target neighborhood
     :throws ResourceNotFound: if there is no connector for neighborhood
@@ -670,7 +670,7 @@ def get_resource_description(env, resource, format='default', **kwargs):
         manager = rsys.get_resource_manager(resource.realm)
         if manager and hasattr(manager, 'get_resource_description'):
             return manager.get_resource_description(resource, format, **kwargs)
-    nbhprefix = rsys.neighborhood_prefix(resource.neighborhood) 
+    nbhprefix = rsys.neighborhood_prefix(resource.neighborhood)
 
     name = u'%s%s:%s' % (nbhprefix, resource.realm, resource.id)
     if format == 'summary':

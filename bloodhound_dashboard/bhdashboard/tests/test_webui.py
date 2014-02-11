@@ -23,26 +23,26 @@ r"""Project dashboard for Apache(TM) Bloodhound
 In this file you'll find part of the tests written to ensure that
 dashboard web module works as expected.
 
-Only the tests requiring minimal setup effort are included below. 
-This means that the environment used to run these tests contains the 
-barely minimal information included in an environment (i.e. only the 
+Only the tests requiring minimal setup effort are included below.
+This means that the environment used to run these tests contains the
+barely minimal information included in an environment (i.e. only the
 data specified by `trac.db_default.get_data`.).
 
-Once the tests are started all built-in components (except 
+Once the tests are started all built-in components (except
 trac.versioncontrol.* ) as well as widget system and extensions
 are loaded. Besides the following values are (auto-magically)
-made available in the global namespace (i.e. provided that 
+made available in the global namespace (i.e. provided that
 the test name be written like `|widget_name: Descriptive message`):
 
-  - __tester__  An instance of `unittest.TestCase` representing the 
-                test case for the statement under test. Useful 
-                when specific assertions (e.g. `assertEquals`) 
+  - __tester__  An instance of `unittest.TestCase` representing the
+                test case for the statement under test. Useful
+                when specific assertions (e.g. `assertEquals`)
                 are needed.
   - req         A dummy request object setup for anonymous access.
-  - auth_req    A dummy request object setup like if user `murphy` was  
+  - auth_req    A dummy request object setup like if user `murphy` was
                 accessing the site.
   - env         the Trac environment used as a stub for testing purposes.
-                This object is an instance of 
+                This object is an instance of
                 `bhdashboard.tests.EnvironmentStub`.
   - ticket_data A set of tickets used for testing purposes.
 """
@@ -122,11 +122,11 @@ __test__ = {
       >>> dbm = DashboardModule(env)
       >>> from trac.mimeview.api import Context
       >>> context = Context.from_request(auth_req)
-      
+
       #FIXME: This won't work. Missing schema
 
       >>> pprint(dbm.expand_widget_data(context))
-      [{'content': <genshi.core.Stream object at ...>, 
+      [{'content': <genshi.core.Stream object at ...>,
       'title': <Element "a">}]
       """,
 }

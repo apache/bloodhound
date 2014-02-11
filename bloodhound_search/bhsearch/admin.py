@@ -36,4 +36,3 @@ class BloodhoundSearchAdmin(Component):
         yield ('bhsearch optimize', '',
             'Optimize Bloodhound search index',
             None, BloodhoundSearchApi(self.env).optimize)
-

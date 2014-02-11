@@ -35,7 +35,7 @@ class TestLoader(unittest.TestLoader):
     sortTestMethodsUsing = cmp
     suiteClass = unittest.TestSuite
 
-    def discover_package(self, package_or_requirement, pattern='*/test*.py', 
+    def discover_package(self, package_or_requirement, pattern='*/test*.py',
                          ignore_subpkg_root=True, exclude=None):
         """Find and return all test modules from the specified package
         directory, recursing into subdirectories to find them. Only test files
@@ -46,7 +46,7 @@ class TestLoader(unittest.TestLoader):
         and registered with `pkg_resources` (e.g. via `setup.py develop`).
 
         If a target test module contains a '__testloader__' attribute then
-        related object will override current loader for every individual 
+        related object will override current loader for every individual
         module across the hierarchy.
         """
         pending = deque([(package_or_requirement, self, True)])

@@ -82,13 +82,13 @@ class MultiproductConfigTestCase(MultiproductTestCase):
         parser.readfp(fp, 'bh-product-test')
         with self.env.db_transaction as db:
             # Delete existing setting for target product , if any
-            for setting in ProductSetting.select(self.env, db, 
+            for setting in ProductSetting.select(self.env, db,
                     {'product' : product}):
                 setting.delete()
             # Insert new options
             for section in parser.sections():
                 option_key = dict(
-                        section=to_unicode(section), 
+                        section=to_unicode(section),
                         product=to_unicode(product)
                     )
                 for option, value in parser.items(section):
@@ -121,7 +121,7 @@ class MultiproductConfigTestCase(MultiproductTestCase):
     def _dump_settings(self, config):
         product = config.product
         fields = ('section', 'option', 'value')
-        rows = [tuple(getattr(s, f, None) for f in fields) for s in 
+        rows = [tuple(getattr(s, f, None) for f in fields) for s in
                 ProductSetting.select(config.env, where={'product' : product})]
 
         dump = []
@@ -133,10 +133,10 @@ class MultiproductConfigTestCase(MultiproductTestCase):
 
 
 class ProductConfigTestCase(MultiproductConfigTestCase, ConfigurationTestCase):
-    r"""Test cases for Trac configuration objects rewritten for product 
+    r"""Test cases for Trac configuration objects rewritten for product
     scope.
     """
-    # Test cases rewritten to avoid reading config file. 
+    # Test cases rewritten to avoid reading config file.
     # It does make sense for product config as it's stored in the database
 
     def test_set_and_save(self):
@@ -155,12 +155,12 @@ class ProductConfigTestCase(MultiproductConfigTestCase, ConfigurationTestCase):
         dump = self._dump_settings(config)
         self.assertEquals([
                            u'[aä]\n',
-                           u"option1 = Voilà l'été\n", 
-                           u"option2 = Voilà l'été\n", 
-                           u'öption0 = x\n', 
-                           # u"option3 = VoilÃ  l'Ã©tÃ©\n", 
+                           u"option1 = Voilà l'été\n",
+                           u"option2 = Voilà l'été\n",
+                           u'öption0 = x\n',
+                           # u"option3 = VoilÃ  l'Ã©tÃ©\n",
                            u'[b]\n',
-                           u'öption0 = y\n', 
+                           u'öption0 = y\n',
                            ],
                           dump)
         config2 = self._read()
@@ -182,10 +182,10 @@ class ProductConfigTestCase(MultiproductConfigTestCase, ConfigurationTestCase):
             dump = self._dump_settings(config)
             self.assertEquals([
                                u'[a]\n',
-                               u"option1 = Voilà l'été\n", 
-                               u"option2 = Voilà l'été\n", 
+                               u"option1 = Voilà l'été\n",
+                               u"option2 = Voilà l'été\n",
                                u'[inherit]\n',
-                               u"file = trac-site.ini\n", 
+                               u"file = trac-site.ini\n",
                                ],
                               dump)
             config2 = self._read()
@@ -260,4 +260,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

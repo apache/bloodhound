@@ -48,7 +48,7 @@ def dummy_request(env, uname=None):
     environ.update({
                 'REQUEST_METHOD' : 'GET',
                 'SCRIPT_NAME' : urlparse(str(env._abs_href())).path,
-                'trac.base_url' : str(env._abs_href()), 
+                'trac.base_url' : str(env._abs_href()),
                 })
     req = Request(environ, lambda *args, **kwds: None)
     # Intercept redirection
@@ -56,7 +56,7 @@ def dummy_request(env, uname=None):
     # Setup user information
     if uname is not None :
         environ['REMOTE_USER'] = req.authname = uname
-    
+
     rd = RequestDispatcher(env)
     chrome = Chrome(env)
     req.callbacks.update({
@@ -116,7 +116,7 @@ class WidgetBase(Component):
 
     # Helper methods
     def bind_params(self, name, options, *params):
-        return DashboardSystem(self.env).bind_params(options, 
+        return DashboardSystem(self.env).bind_params(options,
                 self.get_widget_params(name), *params)
 
 def check_widget_name(f):
@@ -125,9 +125,9 @@ def check_widget_name(f):
     """
     def widget_name_checker(self, name, *args, **kwargs):
         names = set(self.get_widgets())
-        if name not in names: 
-            raise InvalidIdentifier('Widget name MUST match any of ' + 
-                        ', '.join(names), 
+        if name not in names:
+            raise InvalidIdentifier('Widget name MUST match any of ' +
+                        ', '.join(names),
                     title='Invalid widget identifier')
         return f(self, name, *args, **kwargs)
     return widget_name_checker
@@ -137,7 +137,7 @@ def check_widget_name(f):
 #------------------------------------------------------
 
 def pretty_wrapper(wrapped, *decorators):
-    """Apply multiple decorators to a given function and make the result 
+    """Apply multiple decorators to a given function and make the result
     look like wrapped function.
     """
     wrapper = wrapped
@@ -160,7 +160,7 @@ def resolve_ep_class(interface, component, clsnm, **kwargs):
         if 'default' in kwargs:
             return kwargs['default']
         else:
-            raise LookupError('No match found for class %s implementing %s' % 
+            raise LookupError('No match found for class %s implementing %s' %
                     (clsnm, interface) )
 
 #------------------------------------------------------
@@ -197,5 +197,3 @@ def minmax(seq, accessor=lambda x: x):
         if value < minval:
             minval = value
     return dict(min=minval, max=maxval)
-
-

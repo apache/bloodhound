@@ -56,23 +56,23 @@ class BloodhoundSetupTest(unittest.TestCase):
         self.bhs = BloodhoundSetup({})
         self.basedata =  {'section': {'option1': 'option1value',
                               'option2': 'option2value',},}
-    
+
     def tearDown(self):
         shutil.rmtree(self.tempdir)
-    
+
     def test_db_str_no_options(self):
         """Checks that giving no options at all has defaults enough to create
         a sqlite db string"""
         self.assertEqual(self.bhs._generate_db_str({}), 'sqlite:' +
                          os.path.join('db', 'bloodhound.db'))
-    
+
     def test_db_str_provided_db_string(self):
         """Checks that if a dbstring is provided it will not be respected above
         other options"""
         dbstr = 'sillyexample'
         options = {'dbstring': dbstr,}
         self.assertEqual(self.bhs._generate_db_str(options), dbstr)
-    
+
     def test_writeconfig_create_basic_config(self):
         filepath = os.path.join(self.tempdir, 'basic.ini')
         data =  [self.basedata]
@@ -82,7 +82,7 @@ class BloodhoundSetupTest(unittest.TestCase):
         with file(filepath) as f:
             fdata = f.read()
             self.assertIn('option1value', fdata)
-    
+
     def test_writeconfig_update_config(self):
         """Checks that writing a new config with non-overlapping values updates
         an existing file"""
@@ -95,7 +95,7 @@ class BloodhoundSetupTest(unittest.TestCase):
         with file(filepath) as f:
             fdata = f.read()
             self.assertIn('option3value', fdata)
-    
+
     def test_writeconfig_update_config_overwrite_values(self):
         """Checks that writing a new config with non-overlapping values updates
         an existing file"""

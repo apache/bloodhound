@@ -108,7 +108,7 @@ class DashboardModule(Component):
             self.DASHBOARD_SCHEMA if isinstance(self.env, ProductEnvironment)
             else self.DASHBOARD_GLOBAL_SCHEMA
         )
-        widgets = self.expand_widget_data(context, layout_data) 
+        widgets = self.expand_widget_data(context, layout_data)
         return template, {
             'context': Context.from_request(req),
             'layout': layout_data,
@@ -224,7 +224,7 @@ class DashboardModule(Component):
                             'args': ['Timeline', None, {'args': {}}]
                         },
                     'products': {
-                            'args': ['Product', None, {'args': {'max': 3, 
+                            'args': ['Product', None, {'args': {'max': 3,
                                                                 'cols': 2}}]
                         },
                }
@@ -320,8 +320,8 @@ class DashboardModule(Component):
 
     def alert_disabled(self):
         return tag.div(tag.span('Error', class_='label label-important'),
-                       ' Could not load dashboard. Is ', 
-                       tag.code('bhdashboard.web_ui.DashboardModule'), 
+                       ' Could not load dashboard. Is ',
+                       tag.code('bhdashboard.web_ui.DashboardModule'),
                        ' component disabled ?',
                        class_='alert alert-error')
 
@@ -333,7 +333,7 @@ XMLNS_DASHBOARD_UI = 'http://issues.apache.org/bloodhound/wiki/Ui/Dashboard'
 
 
 class DashboardChrome:
-    """Helper functions providing access to dashboard infrastructure 
+    """Helper functions providing access to dashboard infrastructure
     in Genshi templates. Useful to reuse layouts and widgets across
     website.
     """

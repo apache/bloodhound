@@ -48,11 +48,11 @@ from multiproduct.env import lookup_product_env, resolve_product_href, \
 
 class ProductQuery(Query):
     """Product Overrides for TracQuery.
-    
+
     This class allows for writing TracQuery expressions matching resources
     beyond product boundaries.
     """
-    
+
     def _count(self, sql, args):
         if isinstance(self.env, ProductEnvironment):
             return super(ProductQuery, self)._count(sql, args)
@@ -66,7 +66,7 @@ class ProductQuery(Query):
     def get_columns(self):
         super(ProductQuery, self).get_columns()
         if not 'product' in self.cols and self.group != 'product':
-            # make sure 'product' is always present 
+            # make sure 'product' is always present
             # (needed for product context, href, permission checks ...)
             # but don't implicitly include it if items are grouped by product
             self.cols.insert(0, 'product')
@@ -169,7 +169,7 @@ trac.ticket.QueryModule = ProductQueryModule
 
 
 class ProductTicketQueryMacro(TicketQueryMacro):
-    """TracQuery macro retrieving results across product boundaries. 
+    """TracQuery macro retrieving results across product boundaries.
     """
     @staticmethod
     def parse_args(content):
@@ -320,7 +320,7 @@ class ProductTicketQueryMacro(TicketQueryMacro):
                     env = lookup_product_env(self.env, prefix=pvalue,
                                              name=pvalue)
                 except LookupError:
-                    return tag.a('#%s' % ticket['id'], 
+                    return tag.a('#%s' % ticket['id'],
                                  class_='missing product')
                 hrefcache[pvalue] = envhref = \
                     resolve_product_href(to_env=env, at_env=self.env)

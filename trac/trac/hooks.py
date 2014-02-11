@@ -91,7 +91,7 @@ def request_factory(env):
 
 class BootstrapHandlerBase(object):
     """Objects responsible for loading the target environment and
-    request objects used in subsequent dispatching. 
+    request objects used in subsequent dispatching.
     """
     def open_environment(self, environ, start_response):
         """Load and initialize target Trac environment involved in request
@@ -108,14 +108,14 @@ class BootstrapHandlerBase(object):
         || trac.base_url || TRAC_BASE_URL || Trac base URL hint ||
 
         A new entry named 'trac.env_name' identifying environment SHOULD be
-        added (e.g. used by tracd to choose authentication realms). 
+        added (e.g. used by tracd to choose authentication realms).
         As a side-effect the WSGI environment dict (i.e. `environ`) may be
         modified in many different ways to prepare it for subsequent
         dispatching.
 
         This method may handle the request (e.g. render environment index page)
-        in case environment lookup yields void results. In that case it MUST 
-        invoke WSGI `write` callable returned by `start_response` and raise 
+        in case environment lookup yields void results. In that case it MUST
+        invoke WSGI `write` callable returned by `start_response` and raise
         `trac.web.api.RequestDone` exception.
 
         :param environ: WSGI environment dict
@@ -124,9 +124,9 @@ class BootstrapHandlerBase(object):
         :throws RequestDone: if the request is fully processed while loading
                              target environment e.g. environment index page
         :throws EnvironmentError: if it is impossible to find a way to locate
-                                  target environment e.g. TRAC_ENV and 
+                                  target environment e.g. TRAC_ENV and
                                   TRAC_ENV_PARENT_DIR both missing
-        :throws Exception: any other exception will be processed by the caller 
+        :throws Exception: any other exception will be processed by the caller
                            in order to send a generic error message back to
                            the HTTP client
         """
@@ -135,7 +135,7 @@ class BootstrapHandlerBase(object):
     def default_probe_environment(self, environ):
         """By default it will invoke `open_environment` and discard the
         resulting environment object. This approach is generic but not
-        efficient. Should be overridden whenever possible. 
+        efficient. Should be overridden whenever possible.
         """
         # If the expected configuration keys aren't found in the WSGI environment,
         # try looking them up in the process environment variables
@@ -151,7 +151,7 @@ class BootstrapHandlerBase(object):
                            os.getenv('TRAC_BASE_URL'))
 
         try:
-            self.open_environment(environ, 
+            self.open_environment(environ,
                                   lambda status, headers: (lambda data: None))
         except Exception:
             # Handle all exceptions; else potential HTTP protocol violation
@@ -159,21 +159,21 @@ class BootstrapHandlerBase(object):
 
     def probe_environment(self, environ):
         """This method is aimed at providing a lightweight version of
-        `open_environment` by solely applying upon `environ` the side effects 
+        `open_environment` by solely applying upon `environ` the side effects
         needed to dispatch the request in environment context.
 
         By default it will invoke `open_environment` and discard the
         resulting environment object. Specialized versions will have the chance
         to implement more efficient strategies in case environment
-        instantiation may be avoided. 
+        instantiation may be avoided.
 
         :return: None
         """
         self.default_probe_environment(environ)
-        
+
     def create_request(self, env, environ, start_response):
         """Instantiate request object used in subsequent request dispatching
-        
+
         :param env: target Trac environment returned by `open_environment`
         :param environ: WSGI environment dict
         :param start_response: WSGI callback for starting the response
@@ -183,10 +183,10 @@ class BootstrapHandlerBase(object):
 
 class DefaultBootstrapHandler(BootstrapHandlerBase):
     """Default bootstrap handler
-    
+
     - Load environment based on URL path.
     - Instantiate RequestWithSession
-    
+
     Notice: This class is a straightforward refactoring of factories
     implementation.
     """
@@ -204,7 +204,7 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
                 # environment
                 path_info = environ.get('PATH_INFO', '').lstrip('/').split('/')
                 env_name = path_info.pop(0)
-    
+
                 if not env_name:
                     # No specific environment requested, so render an environment
                     # index page
@@ -214,7 +214,7 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
 
                 environ['trac.env_name'] = env_name
                 errmsg = None
-    
+
                 # To make the matching patterns of request handlers work, we append
                 # the environment name to the `SCRIPT_NAME` variable, and keep only
                 # the remaining path in the `PATH_INFO` variable.
@@ -224,24 +224,24 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
                     # (as Href expects unicode parameters)
                     environ['SCRIPT_NAME'] = Href(script_name)(env_name)
                     environ['PATH_INFO'] = '/' + '/'.join(path_info)
-    
+
                     if env_parent_dir:
                         env_path = os.path.join(env_parent_dir, env_name)
                     else:
                         env_path = get_environments(environ).get(env_name)
-    
+
                     if not env_path or not os.path.isdir(env_path):
                         errmsg = 'Environment not found'
                 except UnicodeDecodeError:
                     errmsg = 'Invalid URL encoding (was %r)' % script_name
-    
+
                 if errmsg:
                     write = start_response('404 Not Found',
                                    [('Content-Type', 'text/plain'),
                                     ('Content-Length', str(len(errmsg)))])
                     write(errmsg)
                     raise RequestDone
-    
+
         if not env_path:
             raise EnvironmentError('The environment options "TRAC_ENV" or '
                                    '"TRAC_ENV_PARENT_DIR" or the mod_python '
@@ -249,7 +249,7 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
                                    'missing. Trac requires one of these options '
                                    'to locate the Trac environment(s).')
         run_once = environ['wsgi.run_once']
-    
+
         env = None
         self.global_env = global_env = None
         try:

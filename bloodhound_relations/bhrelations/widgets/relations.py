@@ -72,4 +72,3 @@ class TicketRelationsWidget(WidgetBase):
             {'title': title, 'data': data, }, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-

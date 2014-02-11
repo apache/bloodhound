@@ -41,14 +41,14 @@ class ProductTestCase(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentStub(enable=['trac.*', 'multiproduct.*'])
         self.env.path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
-        
+
         self.mpsystem = MultiProductSystem(self.env)
         try:
             self.mpsystem.upgrade_environment(self.env.db_transaction)
         except self.env.db_exc.OperationalError:
             # table remains but database version is deleted
             pass
-        
+
         self.listener = self._enable_resource_change_listener()
         self.default_data = {'prefix':self.INITIAL_PREFIX,
                              'name':self.INITIAL_NAME,
@@ -62,7 +62,7 @@ class ProductTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.env.path)
         self.env.reset_db()
-    
+
     def _enable_resource_change_listener(self):
         listener = TestResourceChangeListener(self.env)
         listener.resource_type = Product
@@ -81,36 +81,36 @@ class ProductTestCase(unittest.TestCase):
         test = {'prefix': 'td',
                 'name': 'test field access',
                 'description': 'product to test field setting'}
-        
+
         product = Product(self.env)
-        
+
         # attempt to set the fields from the data
         product.prefix = test['prefix']
         product.name = test['name']
         product.description = test['description']
-        
+
         self.assertEqual(product._data['prefix'], test['prefix'])
         self.assertEqual(product._data['name'], test['name'])
         self.assertEqual(product._data['description'], test['description'])
-    
+
     def test_select(self):
         """tests that select can search Products by fields"""
-        
+
         p2_data = {'prefix':'tp2',
                    'name':'test project 2',
                    'description':'a different test project'}
         p3_data = {'prefix':'tp3',
                    'name':'test project 3',
                    'description':'test project'}
-        
+
         product2 = Product(self.env)
         product2._data.update(p2_data)
         product3 = Product(self.env)
         product3._data.update(p3_data)
-        
+
         product2.insert()
         product3.insert()
-        
+
         products = list(Product.select(self.env, where={'prefix':'tp'}))
         self.assertEqual(1, len(products))
         products = list(Product.select(self.env,
@@ -119,43 +119,43 @@ class ProductTestCase(unittest.TestCase):
         products = list(Product.select(self.env,
             where={'prefix':'tp3', 'name':'test project 3'}))
         self.assertEqual(1, len(products))
-    
+
     def test_update(self):
         """tests that we can use update to push data to the database"""
         product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         self.assertEqual('test project', product._data['name'])
-        
-        new_data = {'prefix':'tp', 
-                    'name':'updated', 
+
+        new_data = {'prefix':'tp',
+                    'name':'updated',
                     'description':'nothing'}
         product._data.update(new_data)
         product.update()
-        
+
         comp_product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         self.assertEqual('updated', comp_product._data['name'])
-    
+
     def test_update_key_change(self):
         """tests that we raise an error for attempting to update key fields"""
-        bad_data = {'prefix':'tp0', 
-                    'name':'update', 
+        bad_data = {'prefix':'tp0',
+                    'name':'update',
                     'description':'nothing'}
         product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         product._data.update(bad_data)
         self.assertRaises(TracError, product.update)
-    
+
     def test_insert(self):
         """test saving new Product"""
         data = {'prefix':'new', 'name':'new', 'description':'new'}
         product = Product(self.env)
         product._data.update(data)
         product.insert()
-        
+
         check_products = list(Product.select(self.env, where={'prefix':'new'}))
-        
+
         self.assertEqual(product._data['prefix'],
                          check_products[0]._data['prefix'])
         self.assertEqual(1, len(check_products))
-    
+
     def test_insert_duplicate_key(self):
         """test attempted saving of Product with existing key fails"""
         dupe_key_data = {'prefix':'tp',
@@ -164,22 +164,22 @@ class ProductTestCase(unittest.TestCase):
         product2 = Product(self.env)
         product2._data.update(dupe_key_data)
         self.assertRaises(TracError, product2.insert)
-    
+
     def test_delete(self):
         """test that we are able to delete Products"""
         product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         product.delete()
-        
+
         post = list(Product.select(self.env, where={'prefix':'tp'}))
         self.assertEqual(0, len(post))
-        
+
     def test_delete_twice(self):
         """test that we error when deleting twice on the same key"""
         product = list(Product.select(self.env, where={'prefix':'tp'}))[0]
         product.delete()
-        
+
         self.assertRaises(TracError, product.delete)
-    
+
     def test_field_data_get(self):
         """tests that we can use table.field syntax to get to the field data"""
         prefix = self.default_data['prefix']
@@ -189,12 +189,12 @@ class ProductTestCase(unittest.TestCase):
         self.assertEqual(prefix, product.prefix)
         self.assertEqual(name, product.name)
         self.assertEqual(description, product.description)
-    
+
     def test_field_set(self):
         """tests that we can use table.field = something to set field data"""
         prefix = self.default_data['prefix']
         product = list(Product.select(self.env, where={'prefix':prefix}))[0]
-        
+
         new_description = 'test change of description'
         product.description = new_description
         self.assertEqual(new_description, product.description)
@@ -218,7 +218,7 @@ class ProductTestCase(unittest.TestCase):
             for table in schema:
                 for statement in db_connector.to_sql(table):
                     db(statement)
-        
+
         structure =  dict([(table.name, [col.name for col in table.columns])
                            for table in schema])
         tm1 = TestModel(self.env)
@@ -284,4 +284,3 @@ def suite():
 
 if __name__ == '__main__':
     unittest.main()
-

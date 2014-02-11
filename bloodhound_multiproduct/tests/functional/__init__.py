@@ -59,7 +59,7 @@ class MultiproductFunctionalMixin(object):
     """Mixin class applying multi-product upgrade path upon a given
     functional Trac test environment. Access to the global environment
     is provided at testing time. In order to obtain a compatible test
-    environment for a given product @see: `product_test_env` method 
+    environment for a given product @see: `product_test_env` method
 
     @attention: This class must precede functional test environment class in
                 class declaration because it overrides some methods
@@ -74,9 +74,9 @@ class MultiproductFunctionalMixin(object):
         """
         self.bh_install_project = 'trac'
         self.bhmp_upgrade = False
-        self.trac_src = os.path.realpath(os.path.join( 
+        self.trac_src = os.path.realpath(os.path.join(
                 __import__('trac', []).__file__, '..' , '..'))
-        self.bh_src = os.path.realpath(os.path.join( 
+        self.bh_src = os.path.realpath(os.path.join(
                 __import__('multiproduct', []).__file__, '..' , '..', '..'))
         self.htdigest = os.path.join(self.dirname, "htdigest")
         self.htdigest_realm = 'bloodhound'
@@ -110,13 +110,13 @@ class MultiproductFunctionalMixin(object):
         self.post_create(env)
 
     def adduser_htpasswd(self, user):
-        """Add a user to the environment.  The password will be set 
+        """Add a user to the environment.  The password will be set
         in htpasswd file to the same as username.
         """
-        return super(MultiproductFunctionalMixin, self).adduser(user)  
+        return super(MultiproductFunctionalMixin, self).adduser(user)
 
     def adduser_htdigest(self, user):
-        """Add a user to the environment.  The password will be set 
+        """Add a user to the environment.  The password will be set
         in htdigest file to the same as username.
         """
         if call([sys.executable, os.path.join(self.trac_src, 'contrib',
@@ -141,7 +141,7 @@ class MultiproductFunctionalMixin(object):
             return Href('%s://%s:%s@%s/' % (parts[0], user, user, parts[1]))
 
     def get_enabled_components(self):
-        """Also enable Bloodhound multiproduct plugin. 
+        """Also enable Bloodhound multiproduct plugin.
         """
         return super(MultiproductFunctionalMixin, self).get_enabled_components() + \
                 ['multiproduct.*']
@@ -156,7 +156,7 @@ class MultiproductFunctionalMixin(object):
 
         super(MultiproductFunctionalMixin, self).post_create(env)
 
-    def _tracadmin(self, *args, **kwargs): 
+    def _tracadmin(self, *args, **kwargs):
         """Execute trac-admin command in product or (by default) global context
         """
         do_wait = kwargs.pop('wait', False)
@@ -179,7 +179,7 @@ class MultiproductFunctionalMixin(object):
 
     def start(self):
         """Starts the webserver, and waits for it to come up.
-        
+
         Notice: Same as inherited method but without basic auth by default
         """
         if 'FIGLEAF' in os.environ:
@@ -241,7 +241,7 @@ class MultiproductFunctionalMixin(object):
         """Setup web bootstrap_handlers and generation of product and global
         base URLs for a given user
 
-        :return: a function used to generate base URL for product and 
+        :return: a function used to generate base URL for product and
                  global environments . It will satisfy the following signature
                  `base_url(user=None, prefix=None, envname=None)` where::
 
@@ -254,7 +254,7 @@ class MultiproductFunctionalMixin(object):
                                  parent directory
 
         Generated URLs must be consistent with web hooks configuration
-        @see: `_configure_web_hooks` method . By default `envname` is ignored 
+        @see: `_configure_web_hooks` method . By default `envname` is ignored
         and product base URL will be at /products under URL namespace of the
         global environment.
         """
@@ -266,7 +266,7 @@ class MultiproductFunctionalMixin(object):
             if not user or user == 'anonymous':
                 global_href = Href('%s://%s/' % (parts[0], parts[1]))
             else:
-                global_href = Href('%s://%s:%s@%s/' % 
+                global_href = Href('%s://%s:%s@%s/' %
                                    (parts[0], user, user, parts[1]))
             # FIXME : Check that prefix is None is correct
             return global_href if (prefix is None or prefix == GLOBAL_ENV) \
@@ -280,7 +280,7 @@ class MultiproductFunctionalMixin(object):
     def _bloodhound_install_args(self):
         """Determine arguments supplied in to Bloodhound installer.
         """
-        return dict(adminuser='admin', adminpass='admin', 
+        return dict(adminuser='admin', adminpass='admin',
                     dbstring=self.dburi, default_product_prefix='test',
                     digestfile=self.htdigest, realm=self.htdigest_realm,
                     repo_type=self.repotype,
@@ -354,7 +354,7 @@ class FunctionalProductEnvironment(object):
         self.url = self.parent.get_env_href(prefix=product_id)
         ProductEnvironment(testenv.get_trac_environment(), self.prefix)
 
-    def _tracadmin(self, *args, **kwargs): 
+    def _tracadmin(self, *args, **kwargs):
         """Execute trac-admin command in target product context by default
         """
         product_id = kwargs.get('product')
@@ -378,7 +378,7 @@ class FunctionalProductEnvironment(object):
                 raise AttributeError
             return getattr(self.parent, attrnm)
         except AttributeError:
-            raise AttributeError("'%s' object has no attribute '%s'" % 
+            raise AttributeError("'%s' object has no attribute '%s'" %
                                  (self.__class__.__name__, attrnm))
 
 
@@ -414,10 +414,10 @@ class BloodhoundFunctionalTester(FunctionalTester):
 
     - 'New Ticket' link has been phased out in favor of 'More fields' link in
       quick create ticket shortcut menu.
-    - New helper method `quick_create_ticket` has been added to create a 
+    - New helper method `quick_create_ticket` has been added to create a
       new (random) ticket via quick create ticket shortcut menu.
     - 'logged in as user' label replaced by '<i class="icon-user"></i>user'
-    - By using account manager plugin a web form must be submitted to login  
+    - By using account manager plugin a web form must be submitted to login
     - As a consequence of default hooks new tickets in global scope are
       always bound to default product
     - Timeline module is disabled; frequently used along functional tests
@@ -432,11 +432,11 @@ class BloodhoundFunctionalTester(FunctionalTester):
     - Preferences link removed in Bloodhound UI
     - There's no such thing like ticket preview in Bloodhound UI
     - 'Create New Ticket' label in new ticket page replaced by 'New Ticket'
-    - Ticket owner label changed from 'Owned by' to 'Assigned to' 
+    - Ticket owner label changed from 'Owned by' to 'Assigned to'
     - Source files (*.py) files copied in /plugins folder not enabled ootb
     - Twitter Bootstrap class="input-mini" added in 'Max items per page'
       input control in query view.
-    - Ticket comment header changed 
+    - Ticket comment header changed
     - 'Page PageName created' is not shown anymore for new wiki page
     - Ticket workflow <select /> does not end with `id` attribute
     - Ticket events in timeline are different i.e. 'by user' outside <a />
@@ -451,9 +451,9 @@ class BloodhoundFunctionalTester(FunctionalTester):
     """
 
     def __init__(self, url, skiplogin=False, instance_state=None):
-        """Create a :class:`BloodhoundFunctionalTester` for the given 
+        """Create a :class:`BloodhoundFunctionalTester` for the given
         environment URL and Subversion URL
-        
+
         :param skiplogin:   Skip admin user login
         """
         self.url = url
@@ -539,8 +539,8 @@ class BloodhoundFunctionalTester(FunctionalTester):
         if info:
             for field, value in info.items():
                 tc.formvalue('propertyform', 'field_%s' % field, value)
-        
-        # [BLOODHOUND] no actual button to submit /newticket `propertyform` 
+
+        # [BLOODHOUND] no actual button to submit /newticket `propertyform`
         tc.submit()
 
         self._post_create_ticket()
@@ -686,7 +686,7 @@ class BloodhoundFunctionalTester(FunctionalTester):
         tc.find(self.regex_query_column_selector(fieldname, fieldlbl), 's')
 
     def as_user(self, user, restore='admin'):
-        """Context manager to track access to the web site 
+        """Context manager to track access to the web site
         as user and restore login afterwards (by default to admin)
         """
         @contextlib.contextmanager
@@ -733,7 +733,7 @@ class BloodhoundFunctionalTester(FunctionalTester):
         def __exit__(self, exc_type, exc_value, traceback):
             """Restore tester URL poiting at global environment
             """
-            self.tester.url = self.prev_url 
+            self.tester.url = self.prev_url
 
     def create_product(self, prefix=None, name=None, desc=None):
         """Create a product from the product list page."""
@@ -814,7 +814,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
                 default_product_url = tester.default_product_url
                 tester = BloodhoundFunctionalTester(tester.url, True,
                                                     tester._state)
-                tester.default_product_url = default_product_url 
+                tester.default_product_url = default_product_url
             super(self.__class__, self).__init__(tester, url)
 
     def _post_create_ticket(self):
@@ -829,7 +829,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         """Creates the specified milestone, with a random name if none is
         provided.  Returns the name of the milestone.
 
-        ... executed in default product context 
+        ... executed in default product context
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
         with self.in_product(self):
@@ -839,7 +839,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         """Creates the specified component, with a random camel-cased name if
         none is provided.  Returns the name.
 
-        ... executed in default product context 
+        ... executed in default product context
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
         with self.in_product(self):
@@ -850,7 +850,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         ``severity``, etc). If no name is given, a unique random word is used.
         The name is returned.
 
-        ... executed in default product context 
+        ... executed in default product context
 
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
@@ -861,7 +861,7 @@ class BloodhoundGlobalEnvFunctionalTester(BloodhoundFunctionalTester):
         """Create a new version.  The name defaults to a random camel-cased
         word if not provided.
 
-        ... executed in default product context 
+        ... executed in default product context
         """
         superobj = super(BloodhoundGlobalEnvFunctionalTester, self)
         with self.in_product(self):
@@ -917,7 +917,7 @@ class MultiproductFunctionalTestSuite(functional.FunctionalTestSuite):
     and dashboard plugins.
     """
 
-    class env_class(MultiproductFunctionalMixin, 
+    class env_class(MultiproductFunctionalMixin,
                     functional.FunctionalTestSuite.env_class):
         pass
 
@@ -1034,7 +1034,7 @@ import trac.ticket.tests.functional
 import trac.admin.tests.functional
 from trac.tests.functional import testcases
 
-ignore_tc = (functional.FunctionalTwillTestCaseSetup, 
+ignore_tc = (functional.FunctionalTwillTestCaseSetup,
              functional.FunctionalTestCaseSetup)
 for mdl in (trac.ticket.tests.functional, trac.admin.tests.functional):
     for attr in dir(mdl):

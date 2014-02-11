@@ -41,4 +41,3 @@ if __name__ == '__main__':
     unittest.main(defaultTest='suite')
 else:
     test_suite = suite()
-

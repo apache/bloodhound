@@ -13,7 +13,7 @@ class BatchModifyTestCase(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentStub(default_data=True,
             enable=[default_workflow.ConfigurableTicketWorkflow,
-                    web_ui.TicketModule, 
+                    web_ui.TicketModule,
                     api.TicketSystem])
         self.req = Mock(href=self.env.href, authname='anonymous', tz=utc)
         self.req.session = {}

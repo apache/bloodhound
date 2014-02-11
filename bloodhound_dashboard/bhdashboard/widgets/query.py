@@ -112,7 +112,7 @@ class TicketQueryWidget(WidgetBase):
             data.update(
                 dict(header_groups=[headers],
                     numrows=len(data['tickets']),
-                    row_groups=[(group_value, 
+                    row_groups=[(group_value,
                             [{
                                 '__color__' : t['priority_value'],
                                 '__idx__' : idxs.next(),
@@ -133,7 +133,7 @@ class TicketQueryWidget(WidgetBase):
                         'title' : title or _('Custom Query'),
                         'data' : data,
                         'ctxtnav' : [
-                                tag.a(_('More'), 
+                                tag.a(_('More'),
                                     href=more_link_href)],
                         'altlinks' : fakereq.chrome.get('links', {}).get('alternate')
                     }, \
@@ -146,6 +146,6 @@ class TicketQueryWidget(WidgetBase):
 #--------------------------------------
 
 def exec_query(env, req, qstr='status!=closed'):
-    """ Perform a ticket query, returning a list of ticket ID's. 
+    """ Perform a ticket query, returning a list of ticket ID's.
     """
     return Query.from_string(env, qstr).execute(req)

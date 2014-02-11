@@ -108,4 +108,3 @@ class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepos
 
 trac.versioncontrol.api.DbRepositoryProvider = DbRepositoryProvider
 trac.versioncontrol.DbRepositoryProvider = DbRepositoryProvider
-

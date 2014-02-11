@@ -436,13 +436,13 @@ class ReportModule(Component):
                                                 offset)
 
         if len(res) == 2:
-             e, sql = res
-             data['message'] = \
-                 tag_("Report execution failed: %(error)s %(sql)s",
-                      error=tag.pre(exception_to_unicode(e)),
-                      sql=tag(tag.hr(),
-                              tag.pre(sql, style="white-space: pre")))
-             return 'report_view.html', data, None
+            e, sql = res
+            data['message'] = \
+                tag_("Report execution failed: %(error)s %(sql)s",
+                     error=tag.pre(exception_to_unicode(e)),
+                     sql=tag(tag.hr(),
+                             tag.pre(sql, style="white-space: pre")))
+            return 'report_view.html', data, None
 
         cols, results, num_items, missing_args, limit_offset = res
         need_paginator = limit > 0 and limit_offset

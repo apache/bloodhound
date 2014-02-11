@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Tests for Apache(TM) Bloodhound's tickets notifications 
+"""Tests for Apache(TM) Bloodhound's tickets notifications
 in product environments"""
 
 import unittest
@@ -27,7 +27,7 @@ from trac.ticket.tests import notification
 from tests.env import ProductEnvironmentStub as ProductEnvironment
 from tests.env import MultiproductTestCase
 
-class ProductNotificationTestCase(notification.NotificationTestCase, 
+class ProductNotificationTestCase(notification.NotificationTestCase,
         MultiproductTestCase):
 
     @property
@@ -66,4 +66,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(test_suite())
-

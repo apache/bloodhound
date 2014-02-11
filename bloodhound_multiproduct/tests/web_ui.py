@@ -95,26 +95,26 @@ class RequestHandlerTestCase(MultiproductTestCase):
 
     def assertHttpHeaders(self, expectedHeaders):
         for h, v in expectedHeaders.iteritems():
-            self.assertTrue(h in self.http_headers, 
+            self.assertTrue(h in self.http_headers,
                             "Expected HTTP header '%s' not set" % (h,))
-            self.assertEquals(v, self.http_headers[h], 
+            self.assertEquals(v, self.http_headers[h],
                               "Unexpected value for HTTP header '%s'" % (h,))
 
     def assertRedirect(self, req, url, permanent=False):
         if permanent:
-            self.assertEquals('301 Moved Permanently', self.http_status, 
+            self.assertEquals('301 Moved Permanently', self.http_status,
                               'Unexpected status code in HTTP redirect')
         elif req.method == 'POST':
-            self.assertEquals('303 See Other', self.http_status, 
+            self.assertEquals('303 See Other', self.http_status,
                               'Unexpected status code in HTTP redirect')
         else:
-            self.assertEquals('302 Found', self.http_status, 
+            self.assertEquals('302 Found', self.http_status,
                               'Unexpected status code in HTTP redirect')
-        self.assertHttpHeaders({'Location' : url, 
-                                'Content-Type' : 'text/plain', 
+        self.assertHttpHeaders({'Location' : url,
+                                'Content-Type' : 'text/plain',
                                 'Content-Length' : '0',
-                                'Pragma' : 'no-cache', 
-                                'Cache-Control' : 'no-cache', 
+                                'Pragma' : 'no-cache',
+                                'Cache-Control' : 'no-cache',
                                 'Expires' : 'Fri, 01 Jan 1999 00:00:00 GMT'})
 
 
@@ -294,7 +294,7 @@ class ProductModuleTestCase(RequestHandlerTestCase):
         req.environ['REQUEST_METHOD'] = 'POST'
         req.environ['PATH_INFO'] = '/products/%s' % (self.default_product,)
         req.args = dict(action='edit', description='New description',
-                        prefix=self.default_product, 
+                        prefix=self.default_product,
                         name=self.env.product.name)
 
         spy.testProcessing = assert_product_edit
@@ -306,7 +306,7 @@ class ProductModuleTestCase(RequestHandlerTestCase):
             self._dispatch(req, self.global_env)
 
         try:
-            product = Product(self.global_env, 
+            product = Product(self.global_env,
                               {'prefix' : self.env.product.prefix})
         except ResourceNotFound:
             self.fail('Default test product deleted ?')
@@ -342,4 +342,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

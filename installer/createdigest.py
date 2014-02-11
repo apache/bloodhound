@@ -38,11 +38,11 @@ def htdigest_create(filename, user, realm, password, path=''):
     data line by line into a temporary file, commenting out any lines that match
     the user and realm data. The new entry is then appended before the temporary
     copy is moved back to the original location"""
-    
+
     user_realm = ':'.join((user, realm))
     digest = md5(':'.join((user_realm, password))).hexdigest()
     data = ':'.join((user_realm, digest)) + '\n'
-    
+
     filepath = os.path.join(path, filename)
     temp, tempfilepath = mkstemp()
     with open(tempfilepath,'w') as tempdigestfile:
@@ -61,7 +61,7 @@ def htdigest_create(filename, user, realm, password, path=''):
 
 def main():
     """Parse arguments and run the  function"""
-    
+
     parser = OptionParser()
     parser.add_option('-f', '--digestfile', dest='digestfile',
                       help='htdigest filename')
@@ -71,18 +71,18 @@ def main():
                       help='user name')
     parser.add_option('-p', '--password', dest='password',
                       help='password for USER')
-    
+
     (opts, args) = parser.parse_args()
-    
+
     if not opts.digestfile:
         input_file = raw_input('Enter the file [%s]: ' % DEFAULT_FILE)
         opts.digestfile = input_file if input_file else DEFAULT_FILE
     path, filename = os.path.split(opts.digestfile)
-    
+
     if not opts.user:
         input_user = raw_input('Enter the user [%s]: ' % DEFAULT_USER)
         opts.user = input_user if input_user else DEFAULT_USER
-        
+
     if not opts.password:
         attempts = 3
         for attempt in range(attempts):
@@ -97,11 +97,11 @@ def main():
         if not opts.password:
             print "Passwords did not match. Quitting."
             sys.exit(1)
-    
+
     if not opts.realm:
         input_realm = raw_input('Enter the auth realm [%s]: ' % DEFAULT_REALM)
         opts.realm = input_realm if input_realm else DEFAULT_REALM
-    
+
     htdigest_create(filename, opts.user, opts.realm, opts.password, path)
 
 if __name__ == '__main__':

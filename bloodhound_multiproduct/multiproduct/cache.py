@@ -6,7 +6,7 @@
 # March 13, 2013 updated by Olemis Lang
 #    Added keymap arg to build custom keys out of actual args
 # March 14, 2013 updated by Olemis Lang
-#    Keep cache consistency on user function failure 
+#    Keep cache consistency on user function failure
 
 import collections
 import functools

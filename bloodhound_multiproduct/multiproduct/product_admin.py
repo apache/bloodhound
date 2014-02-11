@@ -50,8 +50,8 @@ class ProductAdminPanel(TicketAdminPanel):
     """The Product Admin Panel"""
     _type = 'products'
     _label = ('Product','Products')
-    
-    def get_admin_commands(self): 
+
+    def get_admin_commands(self):
         if not isinstance(self.env, ProductEnvironment):
             yield ('product add', '<prefix> <owner> <name>',
                    'Add a new product',
@@ -73,10 +73,10 @@ class ProductAdminPanel(TicketAdminPanel):
         if isinstance(req.perm.env, ProductEnvironment):
             return None
         return super(ProductAdminPanel, self).get_admin_panels(req)
-    
+
     def _render_admin_panel(self, req, cat, page, product):
         req.perm.require('PRODUCT_VIEW')
-        
+
         name = req.args.get('name')
         description = req.args.get('description','')
         prefix = req.args.get('prefix') if product is None else product
@@ -86,7 +86,7 @@ class ProductAdminPanel(TicketAdminPanel):
                       'description':description,
                       'owner':owner,
                       }
-        
+
         # Detail view?
         if product:
             prod = Product(self.env, keys)
@@ -99,7 +99,7 @@ class ProductAdminPanel(TicketAdminPanel):
                     req.redirect(req.href.admin(cat, page))
                 elif req.args.get('cancel'):
                     req.redirect(req.href.admin(cat, page))
-            
+
             Chrome(self.env).add_wiki_toolbars(req)
             data = {'view': 'detail', 'product': prod}
         else:
@@ -127,11 +127,11 @@ class ProductAdminPanel(TicketAdminPanel):
                             raise TracError(_('Invalid product id.'))
                         raise TracError(_("Product %(id)s already exists.",
                                           id=prefix))
-                
+
                 # Remove product
                 elif req.args.get('remove'):
                     raise TracError(_('Product removal is not allowed!'))
-                
+
                 # Set default product
                 elif req.args.get('apply'):
                     prefix = req.args.get('default')
@@ -149,7 +149,7 @@ class ProductAdminPanel(TicketAdminPanel):
                     self.config.set('ticket', 'default_product', '')
                     _save_config(self.config, req, self.log)
                     req.redirect(req.href.admin(cat, page))
-            
+
             products = Product.select(self.env)
             data = {'view': 'list',
                     'products': products,
@@ -212,8 +212,8 @@ class ProductAdminPanel(TicketAdminPanel):
 class IProductAdminAclContributor(Interface):
     """Interface implemented by components contributing with entries to the
     access control white list in order to enable admin panels in product
-    context. 
-    
+    context.
+
     **Notice** that deny entries configured by users in the blacklist
     (i.e. using TracIni `admin_blacklist` option in `multiproduct` section)
     will override these entries.
@@ -234,7 +234,7 @@ class ProductAdminModule(Component):
 
     acl_contributors = ExtensionPoint(IProductAdminAclContributor)
 
-    raw_blacklist = ListOption('multiproduct', 'admin_blacklist', 
+    raw_blacklist = ListOption('multiproduct', 'admin_blacklist',
         doc="""Do not show any product admin panels in this list even if
         allowed by white list. Value must be a comma-separated list of
         `cat:id` strings respectively identifying the section and identifier
@@ -260,7 +260,7 @@ class ProductAdminModule(Component):
                     else:
                         self.log.warning('Invalid panel %s in white list',
                                          panel_id)
-    
+
             # Blacklist entries will override those in white list
             warnings = []
             for panelref in self.raw_blacklist:
@@ -464,5 +464,3 @@ class ProductRepositoryAdminPanel(ReplacementComponent, trac.versioncontrol.admi
         return 'repository_links.html', data
 
 trac.versioncontrol.admin.RepositoryAdminPanel = ProductRepositoryAdminPanel
-
-

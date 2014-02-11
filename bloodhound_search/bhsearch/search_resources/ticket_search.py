@@ -250,4 +250,3 @@ class TicketSearchParticipant(BaseSearchParticipant):
         id = tag.span('#', id, class_=css_class)
         summary = res['hilited_summary'] or res['summary']
         return tag('[', res['product'], '] ', id, ': ', summary, ' (%s)' % stat)
-

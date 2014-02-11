@@ -35,14 +35,14 @@ from multiproduct.perm import MultiproductPermissionPolicy
 class Configuration(Configuration):
     """Product-aware settings repository equivalent to instances of
     `trac.config.Configuration` (and thus `ConfigParser` from the
-    Python Standard Library) but retrieving configuration values 
+    Python Standard Library) but retrieving configuration values
     from the database.
     """
 
     CONFIG_LOCK_FILE = 'config.lock'
 
     def __init__(self, env, product, parents=None):
-        """Initialize configuration object with an instance of 
+        """Initialize configuration object with an instance of
         `trac.env.Environment` and product prefix.
 
         Optionally it is possible to inherit settings from parent
@@ -103,7 +103,7 @@ class Configuration(Configuration):
         """Just touch config lock file.
 
         Notice: In contrast to Trac's Configuration objects Bloodhound's
-        product configuration objects commit changes to the database 
+        product configuration objects commit changes to the database
         immediately. Thus there's no much to do in this method.
         """
         self.touch()
@@ -113,7 +113,7 @@ class Configuration(Configuration):
         """Invalidate options cache considering global lock timestamp.
 
         Notice: Opposite to Trac's Configuration objects Bloodhound's
-        product configuration objects commit changes to the database 
+        product configuration objects commit changes to the database
         immediately. Thus there's no much to do in this method.
         """
         changed = False
@@ -273,7 +273,7 @@ class Section(Section):
     def getpath(self, key, default=''):
         """Return a configuration value as an absolute path.
 
-        Relative paths are resolved relative to `conf` subfolder 
+        Relative paths are resolved relative to `conf` subfolder
         of the target global environment. This approach is consistent
         with TracIni path resolution.
 

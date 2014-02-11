@@ -89,7 +89,7 @@ class MultiproductTestCase(unittest.TestCase):
                 return _AssertRaisesContext.__exit__(self, exc_type,
                                                      exc_value, tb)
             except self.failureException, exc:
-                msg = self.test_case.exceptFailureMessage 
+                msg = self.test_case.exceptFailureMessage
                 if msg is not None:
                     standardMsg = str(exc)
                     msg = msg % self._tb_locals(tb)
@@ -156,7 +156,7 @@ class MultiproductTestCase(unittest.TestCase):
     # Test setup
 
     def _setup_test_env(self, create_folder=True, path=None, **kwargs):
-        r"""Prepare a new test environment . 
+        r"""Prepare a new test environment .
 
         Optionally set its path to a meaningful location (temp folder
         if `path` is `None`).
@@ -199,7 +199,7 @@ class MultiproductTestCase(unittest.TestCase):
 
         # Clean-up logger instance and associated handler
         # Otherwise large test suites will only result in ERROR eventually
-        # (at least in Unix systems) with messages 
+        # (at least in Unix systems) with messages
         #
         # TracError: Error reading '/path/to/file', make sure it is readable.
         # error: /path/to/: Too many open files
@@ -336,7 +336,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
         def property_mock(attrnm, expected_self):
             def assertAttrFwd(instance):
-                self.assertIs(instance, expected_self, 
+                self.assertIs(instance, expected_self,
                               "Mismatch in property '%s'" % (attrnm,))
                 raise AttrSuccess
             return property(assertAttrFwd)
@@ -346,7 +346,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             for attrnm in 'system_info_providers secure_cookies ' \
                     'project_admin_trac_url get_system_info get_version ' \
                     'get_templates_dir get_templates_dir get_log_dir ' \
-                    'backup'.split(): 
+                    'backup'.split():
                 original = getattr(Environment, attrnm)
                 if isinstance(original, MethodType):
                     translation = getattr(self.product_env, attrnm)
@@ -519,24 +519,24 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         self.assertEquals('value2', product_config['section'].get('key'))
 
     def test_parametric_singleton(self):
-        self.assertIs(self.product_env, 
+        self.assertIs(self.product_env,
                       ProductEnvironment(self.env, self.default_product))
 
         for prefix in self.PRODUCT_DATA:
             if prefix != self.default_product:
                 self._load_product_from_data(self.env, prefix)
 
-        envgen1 = dict([prefix, ProductEnvironment(self.env, prefix)] 
+        envgen1 = dict([prefix, ProductEnvironment(self.env, prefix)]
                        for prefix in self.PRODUCT_DATA)
-        envgen2 = dict([prefix, ProductEnvironment(self.env, prefix)] 
+        envgen2 = dict([prefix, ProductEnvironment(self.env, prefix)]
                        for prefix in self.PRODUCT_DATA)
 
         for prefix, env1 in envgen1.iteritems():
-            self.assertIs(env1, envgen2[prefix], 
+            self.assertIs(env1, envgen2[prefix],
                           "Identity check (by prefix) '%s'" % (prefix,))
 
         for prefix, env1 in envgen1.iteritems():
-            self.assertIs(env1, envgen2[prefix], 
+            self.assertIs(env1, envgen2[prefix],
                           "Identity check (by prefix) '%s'" % (prefix,))
 
         def load_product(prefix):
@@ -551,12 +551,12 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                        for prefix in self.PRODUCT_DATA)
 
         for prefix, env1 in envgen1.iteritems():
-            self.assertIs(env1, envgen3[prefix], 
+            self.assertIs(env1, envgen3[prefix],
                           "Identity check (by product model) '%s'" % (prefix,))
 
 
 class ProductEnvHrefTestCase(MultiproductTestCase):
-    """Assertions for resolution of product environment's base URL 
+    """Assertions for resolution of product environment's base URL
     [https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003 BEP 3]
     """
 
@@ -690,7 +690,7 @@ class ProductEnvConfigTestCase(MultiproductTestCase):
     class DummyAdminCommand(Component):
         """Dummy class used for testing purposes
         """
-        implements(IAdminCommandProvider) 
+        implements(IAdminCommandProvider)
 
         class DummyException(Exception):
             pass
@@ -748,7 +748,7 @@ class ProductEnvConfigTestCase(MultiproductTestCase):
         try:
             # It is necessary to load another environment object to work around
             # ProductEnvironment class' parametric singleton constraint
-            old_env = self.env 
+            old_env = self.env
             # In-memory DB has to be shared
             self.global_env.__class__.global_databasemanager = \
                 self.env.global_databasemanager
@@ -756,12 +756,12 @@ class ProductEnvConfigTestCase(MultiproductTestCase):
                                                   path=self.global_env.path)
             self.env = old_env
             self._setup_test_log(new_global_env)
-            
+
             # FIXME: EnvironmentStub config is not bound to a real file
             # ... so let's reuse one config for both envs to simulate that they
             # are in sync, a condition verified in another test case
             new_global_env.config = self.global_env.config
-            
+
             new_env = ProductEnvironment(new_global_env, self.default_product)
 
             self.assertTrue(new_global_env is not self.global_env)
@@ -769,10 +769,10 @@ class ProductEnvConfigTestCase(MultiproductTestCase):
             self.assertEqual(self.env.path, new_env.path)
             self.assertEqual(self.env.config._lock_path,
                              new_env.config._lock_path)
-            
+
             tracadmin = AdminCommandManager(self.env)
             new_tracadmin = AdminCommandManager(new_env)
-    
+
             # Assertions for self.env
             self.assertTrue(self.env[self.component_class] is None,
                             "Expected component disabled")
@@ -781,7 +781,7 @@ class ProductEnvConfigTestCase(MultiproductTestCase):
                              "Component erroneously listed in admin cmd "
                              "providers")
             self.assertEqual([], tracadmin.get_command_help(args=['fail']))
-    
+
             # Repeat assertions for new_env
             self.assertTrue(new_env[self.component_class] is None,
                             "Expected component disabled")
@@ -790,13 +790,13 @@ class ProductEnvConfigTestCase(MultiproductTestCase):
                              "Component erroneously listed in admin cmd "
                              "providers")
             self.assertEqual([], new_tracadmin.get_command_help(args=['fail']))
-    
+
             # Enable component in both self.global_env and self.env contexts
             cmd_args = ['config', 'set', 'components',
                        __name__ + '.*', 'enabled']
             AdminCommandManager(self.global_env).execute_command(*cmd_args)
             tracadmin.execute_command(*cmd_args)
-    
+
             # Assert that changes are auto-magically reflected in new_env
             self.assertTrue(new_env[self.component_class] is not None,
                             "Expected component enabled")

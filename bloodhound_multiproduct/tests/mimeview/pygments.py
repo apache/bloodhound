@@ -23,7 +23,7 @@ from tests import unittest
 from tests.env import MultiproductTestCase
 from trac.mimeview.api import Mimeview
 from trac.mimeview.pygments import PygmentsRenderer
-from trac.mimeview.tests import pygments as test_pygments 
+from trac.mimeview.tests import pygments as test_pygments
 from trac.web.chrome import Chrome
 
 from multiproduct.env import ProductEnvironment
@@ -68,7 +68,7 @@ class ProductPygmentsRendererTestCase(super_class, MultiproductTestCase):
         self.global_env = self._env = None
 
 ProductPygmentsRendererTestCase = unittest.skipUnless(
-        test_pygments.have_pygments, 
+        test_pygments.have_pygments,
         'mimeview/tests/pygments (no pygments installed)'
     )(ProductPygmentsRendererTestCase)
 
@@ -79,4 +79,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

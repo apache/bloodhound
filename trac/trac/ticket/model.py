@@ -244,7 +244,7 @@ class Ticket(object):
                 rows = db("""SELECT id FROM ticket WHERE uid=%s""", (tkt_id,))
                 if len(rows) != 1:
                     # One row SHOULD always be retrieved, but if it does not
-                    # then insertion MUST fail since the cause may be a bug in 
+                    # then insertion MUST fail since the cause may be a bug in
                     # BH SQL translator executing previous INSERT without
                     # product prefix properly setup.
                     # By raising the error the transaction should be rolled back

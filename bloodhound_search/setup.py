@@ -162,4 +162,3 @@ setup(
     test_suite='bhsearch.tests.test_suite',
     tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
     )
-

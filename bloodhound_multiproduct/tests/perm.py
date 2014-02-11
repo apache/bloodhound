@@ -40,7 +40,7 @@ from tests.env import MultiproductTestCase
 perm.DefaultPermissionPolicy.CACHE_EXPIRY = 0
 
 
-class ProductDefaultPermissionStoreTestCase(DefaultPermissionStoreTestCase, 
+class ProductDefaultPermissionStoreTestCase(DefaultPermissionStoreTestCase,
         MultiproductTestCase):
 
     def setUp(self):
@@ -64,17 +64,17 @@ class ProductDefaultPermissionStoreTestCase(DefaultPermissionStoreTestCase,
         store1 = perm.DefaultPermissionStore(env1)
 
         global_env.db_transaction.executemany(
-            "INSERT INTO permission VALUES (%s,%s)", 
+            "INSERT INTO permission VALUES (%s,%s)",
             [('dev', 'WIKI_MODIFY'),
              ('dev', 'REPORT_ADMIN'),
              ('john', 'dev')])
         env.db_transaction.executemany(
-            "INSERT INTO permission VALUES (%s,%s)", 
+            "INSERT INTO permission VALUES (%s,%s)",
             [('dev', 'WIKI_VIEW'),
              ('dev', 'REPORT_VIEW'),
              ('john', 'dev')])
         env1.db_transaction.executemany(
-            "INSERT INTO permission VALUES (%s,%s)", 
+            "INSERT INTO permission VALUES (%s,%s)",
             [('dev', 'TICKET_CREATE'),
              ('dev', 'MILESTONE_VIEW'),
              ('john', 'dev')])
@@ -185,7 +185,7 @@ class SudoTestCase(ProductPermissionCacheTestCase):
 
         with self.assertRaises(RuntimeError) as test_cm:
             sudoperm.has_permission('TEST_MODIFY')
-        self.assertEqual('Permission check out of context', 
+        self.assertEqual('Permission check out of context',
                          str(test_cm.exception))
 
         with self.assertRaises(ValueError) as test_cm:
@@ -210,30 +210,30 @@ class SudoTestCase(ProductPermissionCacheTestCase):
 
         sudoperm = sudo(None, 'TEST_CREATE', ['TRAC_ADMIN'])
         sudoperm.perm = self.perm
-        
+
         self.assertTrue(sudoperm.has_permission('EMAIL_VIEW'))
 
     def test_sudo_ambiguous(self):
         with self.assertRaises(ValueError) as test_cm:
-            sudo(None, 'TEST_MODIFY', ['TEST_MODIFY', 'TEST_DELETE'], 
+            sudo(None, 'TEST_MODIFY', ['TEST_MODIFY', 'TEST_DELETE'],
                  ['TEST_MODIFY', 'TEST_CREATE'])
-        self.assertEquals('Impossible to grant and revoke (TEST_MODIFY)', 
+        self.assertEquals('Impossible to grant and revoke (TEST_MODIFY)',
                           str(test_cm.exception))
 
         with self.assertRaises(ValueError) as test_cm:
-            sudoperm = sudo(None, 'TEST_MODIFY', ['TEST_ADMIN'], 
+            sudoperm = sudo(None, 'TEST_MODIFY', ['TEST_ADMIN'],
                  ['TEST_MODIFY', 'TEST_CREATE'])
             sudoperm.perm = self.perm
         self.assertEquals('Impossible to grant and revoke '
-                          '(TEST_CREATE, TEST_MODIFY)', 
+                          '(TEST_CREATE, TEST_MODIFY)',
                           str(test_cm.exception))
 
         with self.assertRaises(ValueError) as test_cm:
             req = Mock(perm=self.perm)
-            sudo(req, 'TEST_MODIFY', ['TEST_ADMIN'], 
+            sudo(req, 'TEST_MODIFY', ['TEST_ADMIN'],
                  ['TEST_MODIFY', 'TEST_CREATE'])
         self.assertEquals('Impossible to grant and revoke '
-                          '(TEST_CREATE, TEST_MODIFY)', 
+                          '(TEST_CREATE, TEST_MODIFY)',
                           str(test_cm.exception))
 
     # Sudo permission context equivalent to  permissions cache
@@ -254,9 +254,9 @@ class SudoTestCase(ProductPermissionCacheTestCase):
 
     for tcnm in tcnames:
         f1 = _test_with_sudo_rules(tcnm, '', [])
-        f2 = _test_with_sudo_rules(tcnm, 'test_sudo_partial_', 
+        f2 = _test_with_sudo_rules(tcnm, 'test_sudo_partial_',
                                    ['TEST_MODIFY'])
-        f3 = _test_with_sudo_rules(tcnm, 'test_sudo_full_', 
+        f3 = _test_with_sudo_rules(tcnm, 'test_sudo_full_',
                                    ['TEST_MODIFY', 'TEST_ADMIN'])
         for f in (f1, f2, f3):
             _gen_tests[f.func_name] = f
@@ -267,7 +267,7 @@ list(setattr(SudoTestCase, tcnm, f)
      for tcnm, f in SudoTestCase._gen_tests.iteritems())
 
 
-class ProductPermissionPolicyTestCase(PermissionPolicyTestCase, 
+class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
                                            MultiproductTestCase):
     @property
     def env(self):
@@ -294,7 +294,7 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
     def setUp(self):
         super(ProductPermissionPolicyTestCase, self).setUp()
 
-        self.global_env.config.set('trac', 'permission_policies', 
+        self.global_env.config.set('trac', 'permission_policies',
                                    'DefaultPermissionPolicy')
         self.permsys = perm.PermissionSystem(self.env)
         self.global_perm_admin = perm.PermissionAdmin(self.global_env)
@@ -309,7 +309,7 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
                          self.permsys.policies)
 
     def test_policy_chaining(self):
-        self.env.config.set('trac', 'permission_policies', 
+        self.env.config.set('trac', 'permission_policies',
                             'TestPermissionPolicy,DefaultPermissionPolicy')
         self.policy.grant('testuser', ['TEST_MODIFY'])
         system = perm.PermissionSystem(self.env)
@@ -346,7 +346,7 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
                             'Check for permission action %s' % (action,))
         self.assertFalse(self.perm.has_permission('UNKNOWN_PERM'))
 
-        # Clear permissions cache and retry 
+        # Clear permissions cache and retry
         self.perm._cache.clear()
         self.global_perm_admin._do_remove('testuser', 'TRAC_ADMIN')
 
@@ -371,9 +371,9 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
         # Setting TRAC_ADMIN permission in product scope is in vain
         # since it controls access to critical actions affecting the whole site
         # This will protect the system against malicious actors
-        # and / or failures leading to the addition of TRAC_ADMIN permission 
+        # and / or failures leading to the addition of TRAC_ADMIN permission
         # in product perm store in spite of obtaining unrighteous super powers.
-        # On the other hand this also means that PRODUCT_ADMIN(s) are 
+        # On the other hand this also means that PRODUCT_ADMIN(s) are
         # able to set user permissions at will without jeopardizing system
         # integrity and stability.
         self.product_perm_admin._do_add('testuser', 'TRAC_ADMIN')
@@ -439,7 +439,7 @@ class ProductPermissionPolicyTestCase(PermissionPolicyTestCase,
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ProductDefaultPermissionStoreTestCase, 
+    suite.addTest(unittest.makeSuite(ProductDefaultPermissionStoreTestCase,
                                      'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionSystemTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ProductPermissionCacheTestCase, 'test'))
@@ -452,4 +452,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

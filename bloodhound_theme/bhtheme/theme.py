@@ -155,21 +155,21 @@ class BloodhoundTheme(ThemeBase):
         ("body//table[not(contains(@class, 'table'))]",  # TODO: Accurate ?
          ['table', 'table-condensed']),
     )
-    
-    labels_application_short = Option('labels', 'application_short', 
-        'Bloodhound', """A short version of application name most commonly 
+
+    labels_application_short = Option('labels', 'application_short',
+        'Bloodhound', """A short version of application name most commonly
         displayed in text, titles and labels""")
 
-    labels_application_full = Option('labels', 'application_full', 
-        'Apache Bloodhound', """This is full name with trade mark and 
+    labels_application_full = Option('labels', 'application_full',
+        'Apache Bloodhound', """This is full name with trade mark and
         everything, it is currently used in footers and about page only""")
-    
-    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '', 
+
+    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '',
         """Text to display before full application name in footers""")
 
-    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '', 
+    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '',
         """Text to display after full application name in footers""")
-    
+
     labels_footer_right = Option('labels', 'footer_right', '',
         """Text to use as the right aligned footer""")
 
@@ -196,8 +196,8 @@ class BloodhoundTheme(ThemeBase):
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
-        """Insert default Bootstrap CSS classes if rendering 
-        legacy templates (i.e. determined by template name prefix) 
+        """Insert default Bootstrap CSS classes if rendering
+        legacy templates (i.e. determined by template name prefix)
         and renames wiki guide links.
         """
         tx = Transformer('body')
@@ -214,12 +214,12 @@ class BloodhoundTheme(ThemeBase):
                 self.log.debug('BH Theme : Inserting class ' + out_classes)
                 return out_classes
             return attr_modifier
-        
+
         # Insert default bootstrap CSS classes if necessary
         for xpath, classes in self.BOOTSTRAP_CSS_DEFAULTS:
             tx = tx.end().select(xpath) \
                 .attr('class', add_classes(classes))
-         
+
         # Rename wiki guide links
         tx = tx.end() \
             .select("body//a[contains(@href,'/wiki/%s')]" % wiki.GUIDE_NAME) \
@@ -230,7 +230,7 @@ class BloodhoundTheme(ThemeBase):
         tx = tx.end() \
             .select("body//div[@class='error']/h1") \
             .map(lambda text: text.replace("Trac", app_short), TEXT)
-                    
+
         return stream | tx
 
     # IRequestFilter methods
@@ -259,11 +259,11 @@ class BloodhoundTheme(ThemeBase):
     def post_process_request(self, req, template, data, content_type):
         """Post process request filter.
         Removes all trac provided css if required"""
-        
+
         if template is None and data is None and \
                 sys.exc_info() == (None, None, None):
             return template, data, content_type
-        
+
         def is_active_theme():
             is_active = False
             active_theme = ThemeEngineSystem(self.env).theme
@@ -288,7 +288,7 @@ class BloodhoundTheme(ThemeBase):
                 links.get('icon')[0].update(new_icon)
             if links.get('shortcut icon'):
                 links.get('shortcut icon')[0].update(new_icon)
-        
+
         is_active_theme = is_active_theme()
         if self.disable_all_trac_css and is_active_theme:
             # Move 'admin' entry from mainnav to metanav
@@ -444,9 +444,9 @@ class BloodhoundTheme(ThemeBase):
         if isinstance(req.perm.env, ProductEnvironment):
             data['resourcepath_template'] = 'bh_path_general.html'
 
-    def _modify_product_list(self, req, template, data, content_type, 
+    def _modify_product_list(self, req, template, data, content_type,
                              is_active):
-        """Transform products list into media list by adding 
+        """Transform products list into media list by adding
         configured product icon as well as further navigation items.
         """
         products = data.pop('products')
@@ -507,7 +507,7 @@ class BloodhoundTheme(ThemeBase):
         if 'BROWSER_VIEW' in req.perm and 'VERSIONCONTROL_ADMIN' in req.perm:
             bm = self.env[BrowserModule]
             if bm and not list(bm.get_navigation_items(req)):
-                yield ('mainnav', 'browser', 
+                yield ('mainnav', 'browser',
                        tag.a(_('Browse Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
 
@@ -515,7 +515,7 @@ class BloodhoundTheme(ThemeBase):
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
-    qct_fields = ListOption('ticket', 'quick_create_fields', 
+    qct_fields = ListOption('ticket', 'quick_create_fields',
                             'product, version, type',
         doc="""Multiple selection fields displayed in create ticket menu""")
 
@@ -622,7 +622,7 @@ class QuickCreateTicketDialog(Component):
 
     # Public API
     def create(self, req, summary, description, attributes={}, notify=False):
-        """ Create a new ticket, returning the ticket ID. 
+        """ Create a new ticket, returning the ticket ID.
 
         PS: Borrowed from XmlRpcPlugin.
         """

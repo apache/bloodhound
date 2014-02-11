@@ -65,7 +65,7 @@ class WidgetMacro(WikiMacroBase):
             data = {
                     'msgtype' : 'error',
                     'msglabel' : 'Error',
-                    'msgbody' : tag('Expected ', tag.code(1), 
+                    'msgbody' : tag('Expected ', tag.code(1),
                             ' positional argument (i.e. widget name), but got ',
                             tag.code(len(largs)), ' instead'),
                     'msgdetails' : [
@@ -99,4 +99,3 @@ class WidgetMacro(WikiMacroBase):
                 }
         return Chrome(self.env).render_template(
                 formatter.req, template, data, fragment=True)
-

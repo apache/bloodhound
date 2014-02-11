@@ -19,7 +19,7 @@
 from __future__ import with_statement
 
 import os.path
-import pkg_resources 
+import pkg_resources
 import setuptools
 import sys
 from urlparse import urlsplit

@@ -23,4 +23,3 @@ r"""Project dashboard for Apache(TM) Bloodhound
 
 Available layouts.
 """
-

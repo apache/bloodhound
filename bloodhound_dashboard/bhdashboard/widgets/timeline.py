@@ -55,9 +55,9 @@ class ITimelineEventsFilter(Interface):
     """Filter timeline events displayed in a rendering context
     """
     def supported_providers():
-        """List supported timeline providers. Filtering process will take 
+        """List supported timeline providers. Filtering process will take
         place only for the events contributed by listed providers.
-        Return `None` and all events contributed by all timeline providers 
+        Return `None` and all events contributed by all timeline providers
         will be processed.
         """
     def filter_event(context, provider, event, filters):
@@ -67,7 +67,7 @@ class ITimelineEventsFilter(Interface):
         :param provider: provider contributing event
         :param event: target event
         :param filters: active timeline filters
-        :return: the event resulting from the filtering process or 
+        :return: the event resulting from the filtering process or
                   `None` if it has to be removed from the event stream or
                   `NotImplemented` if the filter doesn't care about it.
         """
@@ -76,7 +76,7 @@ class ITimelineEventsFilter(Interface):
 class TimelineWidget(WidgetBase):
     """Display activity feed.
     """
-    default_count = IntOption('widget_activity', 'limit', 25, 
+    default_count = IntOption('widget_activity', 'limit', 25,
         """Maximum number of items displayed by default""")
 
     event_filters = ExtensionPoint(ITimelineEventsFilter)
@@ -85,7 +85,7 @@ class TimelineWidget(WidgetBase):
 
     @property
     def filters_map(self):
-        """Quick access to timeline events filters to be applied for a 
+        """Quick access to timeline events filters to be applied for a
         given timeline provider.
         """
         if self._filters_map is None:
@@ -280,7 +280,7 @@ class FilteredTimeline:
 
 class TimelineFilterAdapter:
     """Wrapper class used to filter timeline event streams transparently.
-    Therefore it is compatible with `ITimelineEventProvider` interface 
+    Therefore it is compatible with `ITimelineEventProvider` interface
     and reuses the implementation provided by real provider.
     """
     def __init__(self, provider, context, keep_mismatched=False):
@@ -302,7 +302,7 @@ class TimelineFilterAdapter:
             if not [g for g in gen if g[0] == 'ticket_details']:
                 gen.append(('ticket_details', _("Ticket updates"), False))
         return gen
-    
+
     #def render_timeline_event(self, context, field, event):
 
     def get_timeline_events(self, req, start, stop, filters):
@@ -311,7 +311,7 @@ class TimelineFilterAdapter:
         filters_map = TimelineWidget(self.env).filters_map
         evfilters = filters_map.get(self.provider.__class__.__name__, []) + \
             filters_map.get(None, [])
-        self.log.debug('Applying filters %s for %s against %s', evfilters, 
+        self.log.debug('Applying filters %s for %s against %s', evfilters,
                        self.context.resource, self.provider)
         if evfilters:
             for event in self.provider.get_timeline_events(

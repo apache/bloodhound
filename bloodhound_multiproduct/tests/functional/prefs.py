@@ -21,7 +21,7 @@ from trac.tests import functional
 from trac.tests.functional.tester import tc
 
 #----------------
-# Functional test cases for preferences (rewritten) 
+# Functional test cases for preferences (rewritten)
 #----------------
 
 # TODO: These classes are almost a copycat of Trac's. Beware of license header

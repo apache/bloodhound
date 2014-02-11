@@ -16,7 +16,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Tests for inherited Apache(TM) Bloodhound's wiki syntax 
+"""Tests for inherited Apache(TM) Bloodhound's wiki syntax
 in product environments"""
 
 import os.path
@@ -31,19 +31,19 @@ from tests.wiki import formatter
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(formatter.test_suite(wikisyntax.TEST_CASES, 
+    suite.addTest(formatter.test_suite(wikisyntax.TEST_CASES,
                                   wikisyntax.wiki_setup, wikisyntax.__file__,
                                   wikisyntax.wiki_teardown))
-    suite.addTest(formatter.test_suite(wikisyntax.RELATIVE_LINKS_TESTS, 
+    suite.addTest(formatter.test_suite(wikisyntax.RELATIVE_LINKS_TESTS,
                                   wikisyntax.wiki_setup, wikisyntax.__file__,
                                   wikisyntax.wiki_teardown,
                                   context=('wiki', 'Main/Sub')))
-    suite.addTest(formatter.test_suite(wikisyntax.SPLIT_PAGE_NAMES_TESTS, 
-                                  wikisyntax.wiki_setup_split, 
-                                  wikisyntax.__file__, 
+    suite.addTest(formatter.test_suite(wikisyntax.SPLIT_PAGE_NAMES_TESTS,
+                                  wikisyntax.wiki_setup_split,
+                                  wikisyntax.__file__,
                                   wikisyntax.wiki_teardown,
                                   context=('wiki', 'Main/Sub')))
-    suite.addTest(formatter.test_suite(wikisyntax.SCOPED_LINKS_TESTS, 
+    suite.addTest(formatter.test_suite(wikisyntax.SCOPED_LINKS_TESTS,
                                   wikisyntax.wiki_setup, wikisyntax.__file__,
                                   wikisyntax.wiki_teardown,
                                   context=('wiki',
@@ -53,4 +53,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-
