@@ -665,7 +665,7 @@ def get_resource_description(env, resource, format='default', **kwargs):
         rsys = ResourceSystem(manager_for_neighborhood(env,
                                                        resource.neighborhood))
     except ResourceNotFound:
-        pass
+        rsys = ResourceSystem(env)
     else:
         manager = rsys.get_resource_manager(resource.realm)
         if manager and hasattr(manager, 'get_resource_description'):
