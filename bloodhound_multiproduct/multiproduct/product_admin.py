@@ -36,11 +36,11 @@ from trac.web.chrome import Chrome, add_notice, add_warning
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.perm import sudo
+from multiproduct.util import ReplacementComponent
 
 import multiproduct.versioncontrol
 import trac.versioncontrol.admin
 from trac.versioncontrol import DbRepositoryProvider, RepositoryManager
-from multiproduct.util import ReplacementComponent
 
 #--------------------------
 # Product admin panel

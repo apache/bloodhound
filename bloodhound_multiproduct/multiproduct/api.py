@@ -47,7 +47,7 @@ from trac.wiki.parser import WikiParser
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER, \
-    using_sqlite_backend, using_mysql_backend
+                              using_mysql_backend, using_sqlite_backend
 
 __all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER']
 

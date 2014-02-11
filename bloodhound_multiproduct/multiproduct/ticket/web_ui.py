@@ -32,13 +32,13 @@ from trac.resource import Resource, get_resource_shortname, ResourceNotFound
 from trac.search import search_to_sql, shorten_result
 from trac.util.datefmt import from_utimestamp
 from trac.util.translation import _, tag_
-from trac.wiki.parser import WikiParser
 
 from multiproduct.api import MultiProductSystem, PRODUCT_SYNTAX_DELIMITER_RE
-from multiproduct.env import lookup_product_env, ProductEnvironment
-from multiproduct.util import IDENTIFIER
+from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
+from multiproduct.util import IDENTIFIER
 from multiproduct.web_ui import ProductModule
+
 
 class ProductTicketModule(TicketModule):
     """Product Overrides for the TicketModule"""
@@ -60,8 +60,8 @@ class ProductTicketModule(TicketModule):
             # If product arg present then redirect to
             # /products/<qct_product>/newticket .
 
-            if not productid and not qct_product and not isinstance(self.env,
-                    ProductEnvironment):
+            if not productid and not qct_product and \
+                    not isinstance(self.env, ProductEnvironment):
                 default_product = self.env.config.get('ticket',
                                                       'default_product')
                 products = Product.select(self.env, {'fields': ['prefix']})
@@ -94,11 +94,11 @@ class ProductTicketModule(TicketModule):
         # executed in global scope -> assume ticketid=UID, redirect to product
         with self.env.db_direct_query as db:
             rows = db("""SELECT id,product FROM ticket WHERE uid=%s""",
-                    (ticketid,))
+                      (ticketid,))
             if not rows:
                 msg = "Ticket with uid %(uid)s does not exist."
                 raise ResourceNotFound(_(msg, uid=ticketid),
-                        _("Invalid ticket number"))
+                                       _("Invalid ticket number"))
             tid, prefix = rows[0]
             req.redirect(req.href.products(prefix, 'ticket', tid))
 
@@ -159,9 +159,10 @@ class ProductTicketModule(TicketModule):
                            shorten_result(desc, terms))
 
         # Attachments
-        for result in AttachmentModule(self.env).get_search_results(
-            req, ticket_realm, terms):
+        for result in AttachmentModule(self.env) \
+                      .get_search_results(req, ticket_realm, terms):
             yield result
+
 
 class ProductReportModule(ReportModule):
     """Multiproduct replacement for ReportModule"""
@@ -184,8 +185,8 @@ class ProductReportModule(ReportModule):
         for s in super(ProductReportModule, self).get_wiki_syntax():
             yield s
         # Previously unmatched prefix
-        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}" %
-                    (IDENTIFIER, PRODUCT_SYNTAX_DELIMITER_RE),
+        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}"
+               % (IDENTIFIER, PRODUCT_SYNTAX_DELIMITER_RE),
                lambda x, y, z: self._format_link(x, 'report', y[1:-1], y, z))
         # Absolute product report syntax
         yield (r"!?\{(?P<prns>global:|product:%s(?:\s+|:))"
@@ -193,8 +194,8 @@ class ProductReportModule(ReportModule):
                lambda x, y, z: (self._format_mplink(x, 'report', y[1:-1], y, z)))
 
     def _format_link(self, formatter, ns, target, label, fullmatch=None):
-        intertrac = formatter.shorthand_intertrac_helper(ns, target, label,
-                                                         fullmatch)
+        intertrac = \
+            formatter.shorthand_intertrac_helper(ns, target, label, fullmatch)
         if intertrac:
             return intertrac
 

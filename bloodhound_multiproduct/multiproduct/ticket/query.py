@@ -43,7 +43,7 @@ from trac.resource import Resource
 
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.env import lookup_product_env, resolve_product_href, \
-    ProductEnvironment
+                             ProductEnvironment
 
 
 class ProductQuery(Query):

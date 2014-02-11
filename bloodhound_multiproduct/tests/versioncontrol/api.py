@@ -27,7 +27,7 @@ from trac.versioncontrol.tests.api import ResourceManagerTestCase
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 
-class ProductResourceManagerTestCase(ResourceManagerTestCase, \
+class ProductResourceManagerTestCase(ResourceManagerTestCase,
                                      MultiproductTestCase):
 
     @property

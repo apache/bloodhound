@@ -791,8 +791,7 @@ def resource_exists(env, resource):
         False
     """
     try:
-        rsys = ResourceSystem(manager_for_neighborhood(env,
-                                                       resource.neighborhood))
+        ResourceSystem(manager_for_neighborhood(env, resource.neighborhood))
     except ResourceNotFound:
         return False
     manager = ResourceSystem(env).get_resource_manager(resource.realm)

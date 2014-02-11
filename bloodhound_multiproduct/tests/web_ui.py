@@ -32,9 +32,9 @@ from trac.web.main import RequestDispatcher
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
+from multiproduct.hooks import ProductRequestWithSession
 from multiproduct.model import Product
 from multiproduct.web_ui import ProductModule
-from multiproduct.hooks import ProductRequestWithSession
 
 from tests.env import MultiproductTestCase
 
