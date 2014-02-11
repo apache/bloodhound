@@ -297,6 +297,16 @@ class ProductWikiResourceTestCase(ProductResourceTestCase):
                                                     target, self.env.href))
 
 
+class NeighborhoodTestCase(MultiproductTestCase):
+    def setUp(self):
+        self._mp_setup()
+
+    def test_get_known_neighborhoods(self):
+        rsys = resource.ResourceSystem(self.env)
+        self.assertEquals(['global', 'product'],
+                          sorted(rsys.get_known_neighborhoods()))
+
+
 def test_suite():
     return unittest.TestSuite([
         unittest.makeSuite(ProductAttachmentResourceTestCase, 'test'),
@@ -305,7 +315,9 @@ def test_suite():
         unittest.makeSuite(ProductTicketResourceTestCase, 'test'),
 #        unittest.makeSuite(ProductVcsResourceTestCase, 'test'),
         unittest.makeSuite(ProductWikiResourceTestCase, 'test'),
+        unittest.makeSuite(NeighborhoodTestCase, 'test'),
     ])
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
