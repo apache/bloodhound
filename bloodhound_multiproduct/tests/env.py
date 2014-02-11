@@ -568,7 +568,7 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         return decorator
 
     def setUp(self):
-        self._mp_setup(create_folder=True)
+        self._mp_setup()
         self.env.abs_href = Href('http://globalenv.com/trac.cgi')
         url_pattern = getattr(getattr(self, self._testMethodName).im_func,
                               'product_base_url', '')
@@ -609,8 +609,11 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_inherit_sibling_paths(self):
         """Test product base URL at sibling paths inheriting configuration.
         """
-        self.assertEqual('/trac.cgi/env/tp1', self.product_env.href())
-        self.assertEqual('http://globalenv.com/trac.cgi/env/tp1',
+        self.assertEqual('/trac.cgi/%s/tp1'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.href())
+        self.assertEqual('http://globalenv.com/trac.cgi/%s/tp1'
+                         % os.path.split(self.env.path)[-1],
                          self.product_env.abs_href())
 
     @product_base_url('')
@@ -634,7 +637,9 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         """Test complex product base URL
         """
         self.assertEqual('/bh/tp1', self.product_env.href())
-        self.assertEqual('http://env.tld/bh/tp1', self.product_env.abs_href())
+        self.assertEqual('http://%s.tld/bh/tp1'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
     def test_product_href_uses_multiproduct_product_base_url(self):
@@ -650,7 +655,9 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         # Product URLs
         self.assertEqual('', self.product_env.base_url)
         self.assertEqual('/', self.product_env.href())
-        self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
+        self.assertEqual('http://tp1.%s.tld'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
     def test_product_href_uses_products_base_url(self):
@@ -678,7 +685,9 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
 
         self.assertEqual('', self.product_env.base_url)
         self.assertEqual('/', self.product_env.href())
-        self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
+        self.assertEqual('http://tp1.%s.tld'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.abs_href())
 
     product_base_url = staticmethod(product_base_url)
 
