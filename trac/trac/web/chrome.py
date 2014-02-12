@@ -1170,3 +1170,4 @@ class Chrome(Component):
     def _stream_location(self, stream):
         for kind, data, pos in stream:
             return pos
+

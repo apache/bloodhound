@@ -52,3 +52,4 @@ _DocumentPseudoWriter.get_transforms = pseudo_get_transforms
 
 # Run epydoc
 cli()
+

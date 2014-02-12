@@ -51,7 +51,7 @@ class NeighborhoodTestCase(unittest.TestCase):
         # Plain equalities
         self.assertEqual(resource.Neighborhood(), resource.Neighborhood())
         self.assertEqual(resource.Neighborhood(None), resource.Neighborhood())
-        self.assertEqual(resource.Neighborhood('realm'),
+        self.assertEqual(resource.Neighborhood('realm'), 
                          resource.Neighborhood('realm'))
         self.assertEqual(resource.Neighborhood('realm', 'id'),
                          resource.Neighborhood('realm', 'id'))
@@ -67,7 +67,7 @@ class NeighborhoodTestCase(unittest.TestCase):
         # Plain equalities
         self.assertEqual(nbh(resource.Resource()), nbh(resource.Resource()))
         self.assertEqual(nbh(resource.Resource(None)), nbh(resource.Resource()))
-        self.assertEqual(nbh(resource.Resource('wiki')),
+        self.assertEqual(nbh(resource.Resource('wiki')), 
                          nbh(resource.Resource('wiki')))
         self.assertEqual(nbh(resource.Resource('wiki', 'WikiStart')),
                          nbh(resource.Resource('wiki', 'WikiStart')))
@@ -78,11 +78,11 @@ class NeighborhoodTestCase(unittest.TestCase):
                             nbh(resource.Resource('wiki', 'WikiStart', 43)))
         self.assertNotEqual(nbh(resource.Resource('wiki', 'WikiStart', 0)),
                             nbh(resource.Resource('wiki', 'WikiStart', None)))
-        self.assertNotEqual(nbh1(resource.Resource()),
+        self.assertNotEqual(nbh1(resource.Resource()), 
                             nbh(resource.Resource()))
-        self.assertNotEqual(nbh1(resource.Resource(None)),
+        self.assertNotEqual(nbh1(resource.Resource(None)), 
                             nbh(resource.Resource()))
-        self.assertNotEqual(nbh1(resource.Resource('wiki')),
+        self.assertNotEqual(nbh1(resource.Resource('wiki')), 
                             nbh(resource.Resource('wiki')))
         self.assertNotEqual(nbh1(resource.Resource('wiki', 'WikiStart')),
                             nbh(resource.Resource('wiki', 'WikiStart')))
@@ -110,15 +110,15 @@ class NeighborhoodTestCase(unittest.TestCase):
         src.parent = resource.Resource('wiki', 'WikiStart')
         src.parent.parent = resource.Resource('x', 'y')
 
-        self.assertTrue(all(r.neighborhood is nbh
+        self.assertTrue(all(r.neighborhood is nbh 
                             for r in enum_parents(nbh(src))))
-        self.assertTrue(all(r.neighborhood is None
+        self.assertTrue(all(r.neighborhood is None 
                             for r in enum_parents(src)))
 
         src = nbh1(src)
-        self.assertTrue(all(r.neighborhood is nbh
+        self.assertTrue(all(r.neighborhood is nbh 
                             for r in enum_parents(nbh(src))))
-        self.assertTrue(all(r.neighborhood is nbh1
+        self.assertTrue(all(r.neighborhood is nbh1 
                             for r in enum_parents(src)))
 
 

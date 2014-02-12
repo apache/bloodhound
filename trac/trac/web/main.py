@@ -387,7 +387,7 @@ def dispatch_request(environ, start_response):
                                        environ.get('wsgi.errors'))
 
     # Determine the environment
-
+    
     env = env_error = None
     try:
         env = bootstrap.open_environment(environ, start_response)
@@ -404,7 +404,7 @@ def dispatch_request(environ, start_response):
         try:
             if env.base_url_for_redirect:
                 environ['trac.base_url'] = env.base_url
-
+    
             # Web front-end type and version information
             if not hasattr(env, 'webfrontend'):
                 mod_wsgi_version = environ.get('mod_wsgi.version')

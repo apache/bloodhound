@@ -336,12 +336,12 @@ class ComponentTestCase(unittest.TestCase):
         mgr = ManagerComponent('Test', 42)
         yamc = YetAnotherManagerComponent('y', 'z')
 
-        assert yamc[ManagerComponent] is None
-        assert mgr[YetAnotherManagerComponent] is None
-        assert yamc[ComponentManager] is None
-        assert self.compmgr[YetAnotherManagerComponent] is None
-        assert mgr[ComponentManager] is None
-        assert self.compmgr[ManagerComponent] is None
+        assert yamc[ManagerComponent] is None 
+        assert mgr[YetAnotherManagerComponent] is None 
+        assert yamc[ComponentManager] is None 
+        assert self.compmgr[YetAnotherManagerComponent] is None 
+        assert mgr[ComponentManager] is None 
+        assert self.compmgr[ManagerComponent] is None 
 
         self.assertTrue(any(c.__class__ is YetAnotherManagerComponent
                             for c in ComponentA(yamc).tests))

@@ -145,3 +145,4 @@ if __name__ == '__main__':
         data[p] = get_page(prefix, p)
     if check:
         check_links(data)
+
