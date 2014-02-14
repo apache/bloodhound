@@ -17,8 +17,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Bloodhound product environment and related APIs"""
-
 import os.path
 from urlparse import urlsplit
 

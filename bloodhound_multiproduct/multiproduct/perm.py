@@ -1,5 +1,5 @@
-from functools import wraps
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -19,10 +19,12 @@ from functools import wraps
 
 """Permission components for Bloodhound product environments"""
 
-__all__ = 'ProductPermissionPolicy',
+from functools import wraps
 
 from trac.core import Component, implements
 from trac.perm import IPermissionPolicy, PermissionSystem, PermissionError
+
+__all__ = 'ProductPermissionPolicy',
 
 #--------------------------
 # Permission components
