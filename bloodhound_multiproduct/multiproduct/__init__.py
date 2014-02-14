@@ -17,7 +17,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import multiproduct.ticket
 from multiproduct.api import MultiProductSystem
 from multiproduct.product_admin import ProductAdminPanel
+from multiproduct.ticket import *
 from multiproduct.web_ui import ProductModule
