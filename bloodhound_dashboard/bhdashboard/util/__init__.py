@@ -25,18 +25,14 @@ Helper functions and classes.
 """
 
 from functools import update_wrapper
-import inspect
 from pkg_resources import get_distribution
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
-from trac.core import Component, implements, ExtensionPoint
-from trac.util.text import to_unicode
+from trac.core import ExtensionPoint
 from trac.web.api import Request
 from trac.web.chrome import add_link, Chrome
 from trac.web.main import RequestDispatcher
-
-from bhdashboard.api import DashboardSystem, IWidgetProvider, InvalidIdentifier
 
 #------------------------------------------------------
 #    Request handling
@@ -82,55 +78,6 @@ def merge_links(srcreq, dstreq, exclude=None):
             if rel not in exclude:
                 for link in links:
                     add_link(dstreq, rel, **link)
-
-#------------------------------------------------------
-#    Widget helpers
-#------------------------------------------------------
-
-class WidgetBase(Component):
-    """Abstract base class for widgets"""
-
-    implements(IWidgetProvider)
-    abstract = True
-
-    def get_widgets(self):
-        """Yield the name of the widget based on the class name."""
-        name = self.__class__.__name__
-        if name.endswith('Widget'):
-            name = name[:-6]
-        yield name
-
-    def get_widget_description(self, name):
-        """Return the subclass's docstring."""
-        return to_unicode(inspect.getdoc(self.__class__))
-
-    def get_widget_params(self, name):
-        """Return a dictionary containing arguments specification for
-        the widget with specified name.
-        """
-        raise NotImplementedError
-
-    def render_widget(self, context, name, options):
-        """Render widget considering given options."""
-        raise NotImplementedError
-
-    # Helper methods
-    def bind_params(self, name, options, *params):
-        return DashboardSystem(self.env).bind_params(options,
-                self.get_widget_params(name), *params)
-
-def check_widget_name(f):
-    """Decorator used to wrap methods of widget providers so as to ensure
-    widget names will match those listed by `get_widgets` method.
-    """
-    def widget_name_checker(self, name, *args, **kwargs):
-        names = set(self.get_widgets())
-        if name not in names:
-            raise InvalidIdentifier('Widget name MUST match any of ' +
-                        ', '.join(names),
-                    title='Invalid widget identifier')
-        return f(self, name, *args, **kwargs)
-    return widget_name_checker
 
 #------------------------------------------------------
 #    Function decorators and wrappers
