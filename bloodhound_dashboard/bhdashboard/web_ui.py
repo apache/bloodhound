@@ -36,17 +36,16 @@ from genshi.core import Stream
 from trac.core import Component, implements
 from trac.config import Option, IntOption
 from trac.mimeview.api import Context
-from trac.util.translation import _
 from trac.ticket.query import QueryModule
 from trac.ticket.report import ReportModule
 from trac.util.compat import groupby
-from trac.util.translation import _
 from trac.web.api import IRequestHandler, IRequestFilter
 from trac.web.chrome import add_ctxtnav, add_stylesheet, Chrome, \
                             INavigationContributor, ITemplateProvider
 
 from bhdashboard.api import DashboardSystem, InvalidIdentifier
 from bhdashboard import _json
+from bhdashboard.util.translation import _, add_domain
 from multiproduct.env import ProductEnvironment
 
 
@@ -57,9 +56,16 @@ class DashboardModule(Component):
                ITemplateProvider)
 
     mainnav_label = Option('mainnav', 'tickets.label', 'Tickets',
-                           """Dashboard label in mainnav""")
+                           """Dashboard label in mainnav""",
+                           doc_domain='bhdashboard')
     default_widget_height = IntOption('widgets', 'default_height', 320,
-                                      """Default widget height in pixels""")
+                                      """Default widget height in pixels""", 
+                                      doc_domain='bhdashboard')
+
+    def __init__(self, *args, **kwargs):
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(DashboardModule, self).__init__(*args, **kwargs)
 
     # IRequestFilter methods
 
@@ -146,7 +152,7 @@ class DashboardModule(Component):
                 resource_filename('bhdashboard.widgets', 'templates')]
 
     # Temp vars
-    DASHBOARD_SCHEMA = {
+    DASHBOARD_GLOBAL_SCHEMA = DASHBOARD_SCHEMA = {
             'div': [
                     {
                         '_class': 'row',
@@ -202,7 +208,7 @@ class DashboardModule(Component):
                                         '&col=id&col=summary&col=owner'
                                         '&col=status&col=priority&'
                                         'order=priority',
-                                    'title': 'Active Tickets'}}],
+                                    'title': _('Active Tickets')}}],
                             'altlinks': False
                         },
                     'my tickets': {
@@ -216,7 +222,7 @@ class DashboardModule(Component):
                                           '&col=status&col=priority&'
                                           'order=priority&'
                                           'owner=$USER',
-                                    'title': 'My Tickets'}
+                                    'title': _('My Tickets')}
                                 }],
                             'altlinks': False
                         },
@@ -231,7 +237,6 @@ class DashboardModule(Component):
         }
 
     # global dashboard queries: add milestone column, group by product
-    DASHBOARD_GLOBAL_SCHEMA = copy.deepcopy(DASHBOARD_SCHEMA)
     DASHBOARD_GLOBAL_SCHEMA['widgets']['active tickets']['args'][2]['args']['query'] = (
         'status=!closed&group=product&col=id&col=summary&col=owner&col=status&'
         'col=priority&order=priority&col=milestone'
@@ -261,7 +266,7 @@ class DashboardModule(Component):
         """Render widget without failing.
         """
         if wp is None:
-            data = {'msglabel': 'Warning',
+            data = {'msglabel': _('Warning'),
                     'msgbody': _('Unknown widget %(name)s', name=name)}
             return 'widget_alert.html', {'title': '', 'data': data}, ctx
 

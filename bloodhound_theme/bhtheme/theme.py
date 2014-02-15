@@ -32,11 +32,10 @@ from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
 from trac.util.presentation import to_json
-from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
-                             ITemplateProvider, prevnext_nav, Chrome)
+                             ITemplateProvider, prevnext_nav, Chrome, add_script)
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.formatter import format_to_html
 
@@ -48,12 +47,12 @@ from bhdashboard import wiki
 
 from multiproduct.env import ProductEnvironment
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
+from bhtheme.translation import _, add_domain
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
 except ImportError:
     ProductTicketModule = None
-
 
 class BloodhoundTheme(ThemeBase):
     """Look and feel of Bloodhound issue tracker.
@@ -158,20 +157,23 @@ class BloodhoundTheme(ThemeBase):
 
     labels_application_short = Option('labels', 'application_short',
         'Bloodhound', """A short version of application name most commonly
-        displayed in text, titles and labels""")
+        displayed in text, titles and labels""", doc_domain='bhtheme')
 
     labels_application_full = Option('labels', 'application_full',
         'Apache Bloodhound', """This is full name with trade mark and
-        everything, it is currently used in footers and about page only""")
+        everything, it is currently used in footers and about page only""",
+                                     doc_domain='bhtheme')
 
     labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '',
-        """Text to display before full application name in footers""")
+        """Text to display before full application name in footers""",
+                                       doc_domain='bhtheme')
 
     labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '',
-        """Text to display after full application name in footers""")
+        """Text to display after full application name in footers""",
+                                        doc_domain='bhtheme')
 
     labels_footer_right = Option('labels', 'footer_right', '',
-        """Text to use as the right aligned footer""")
+        """Text to use as the right aligned footer""", doc_domain='bhtheme')
 
     _wiki_pages = None
     Chrome.default_html_doctype = DocType.HTML5
@@ -317,6 +319,9 @@ class BloodhoundTheme(ThemeBase):
                                         'true')
             data['bhrelations'] = \
                 self.env.config.getbool('components', 'bhrelations.*', 'false')
+
+        if req.locale is not None:
+            add_script(req, 'theme/bloodhound/%s.js' % req.locale)
 
         return template, data, content_type
 
@@ -493,7 +498,7 @@ class BloodhoundTheme(ThemeBase):
                                'main': {'href': product.href(),
                                         'title': None,
                                         'icon': tag.i(class_='icon-chevron-right'),
-                                        'label': 'Browse'}})
+                                        'label': _('Browse')}})
 
         data['products'] = [product_media_data(icons, product)
                             for product in products]
@@ -508,7 +513,7 @@ class BloodhoundTheme(ThemeBase):
             bm = self.env[BrowserModule]
             if bm and not list(bm.get_navigation_items(req)):
                 yield ('mainnav', 'browser',
-                       tag.a(_('Browse Source'),
+                       tag.a(_('Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
 
 
@@ -517,8 +522,15 @@ class QuickCreateTicketDialog(Component):
 
     qct_fields = ListOption('ticket', 'quick_create_fields',
                             'product, version, type',
-        doc="""Multiple selection fields displayed in create ticket menu""")
+        doc="""Multiple selection fields displayed in create ticket menu""",
+                            doc_domain='bhtheme')
 
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(QuickCreateTicketDialog, self).__init__(*args, **kwargs)
+        
     # IRequestFilter(Interface):
 
     def pre_process_request(self, req, handler):

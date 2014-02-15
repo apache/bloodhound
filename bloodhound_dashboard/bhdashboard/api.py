@@ -37,8 +37,8 @@ from trac.perm import IPermissionRequestor
 from trac.resource import get_resource_url, Resource, resource_exists
 from trac.util.compat import set
 from trac.util.datefmt import parse_date
-from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
+from bhdashboard.util.translation import _
 
 #--------------------------------------
 # Core classes and interfaces
@@ -319,7 +319,7 @@ class InvalidWidgetArgument(WidgetException):
     title = 'Invalid Argument'
 
     def __init__(self, argname, message, title=None, show_traceback=False):
-        message = _("Invalid argument `") + argname + "`. " + message
+        message = _("Invalid argument") + " `" + argname + "`. " + message
         TracError.__init__(self, message, title, show_traceback)
         self.argname = argname
 

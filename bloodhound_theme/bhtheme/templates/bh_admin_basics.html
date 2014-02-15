@@ -22,7 +22,9 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/">
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
   <xi:include href="bh_admin.html" />
   <head>
     <title>Basics</title>
@@ -61,7 +63,7 @@
               <option py:for="tzname in timezones" value="${tzname}"
                       selected="${tzname == default_timezone or None}">${tzname}</option>
             </select>
-            <span py:if="has_pytz is False" class="help-inline">
+            <span py:if="has_pytz is False" class="help-inline" i18n:msg="">
               <span class="label label-info">Note</span>
               Install <code>pytz</code> for a complete list of timezones.
             </span>

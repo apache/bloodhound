@@ -39,14 +39,14 @@ from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
 from trac.util.datefmt import utc
-from trac.util.translation import _, tag_
 from trac.web.chrome import add_stylesheet
 
 from bhdashboard.api import DateField, EnumField, ListField
-from bhdashboard.util import WidgetBase, InvalidIdentifier, \
-                              check_widget_name, dummy_request, \
-                              merge_links, pretty_wrapper, trac_version, \
-                              trac_tags
+from bhdashboard.util import dummy_request, merge_links, pretty_wrapper, \
+                             trac_version, trac_tags
+from bhdashboard.util.widgets import WidgetBase, InvalidIdentifier, \
+                              check_widget_name
+from bhdashboard.util.translation import _, tag_
 
 __metaclass__ = type
 
@@ -77,7 +77,8 @@ class TimelineWidget(WidgetBase):
     """Display activity feed.
     """
     default_count = IntOption('widget_activity', 'limit', 25,
-        """Maximum number of items displayed by default""")
+        """Maximum number of items displayed by default""",
+                              doc_domain='bhdashboard')
 
     event_filters = ExtensionPoint(ITimelineEventsFilter)
 
@@ -149,7 +150,7 @@ class TimelineWidget(WidgetBase):
                 return 'widget_alert.html', {
                     'title':  _("Activity"),
                     'data': {
-                        'msglabel': "Warning",
+                        'msglabel': _("Warning"),
                         'msgbody':
                             tag_("The TimelineWidget is disabled because the "
                                  "Timeline component is not available. "
@@ -210,7 +211,7 @@ class TimelineWidget(WidgetBase):
             data = module.process_request(fakereq)[1]
         except TracError, exc:
             if data is not None:
-                exc.title = data.get('title', 'Activity')
+                exc.title = data.get('title', _('Activity'))
             raise
         else:
             merge_links(srcreq=fakereq, dstreq=req,

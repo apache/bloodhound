@@ -30,12 +30,13 @@ class BaseIndexer(Component):
     This is base class for Bloodhound Search indexers of specific resource
     """
     silence_on_error = BoolOption('bhsearch', 'silence_on_error', "True",
-        """If true, do not throw an exception during indexing a resource""")
+        """If true, do not throw an exception during indexing a resource""",
+                                  doc_domain='bhsearch')
 
     wiki_formatter = ExtensionOption('bhsearch', 'wiki_syntax_formatter',
         ISearchWikiSyntaxFormatter, 'SimpleSearchWikiSyntaxFormatter',
         'Name of the component implementing wiki syntax to text formatter \
-        interface: ISearchWikiSyntaxFormatter.')
+        interface: ISearchWikiSyntaxFormatter.', doc_domain='bhsearch')
 
 
 class BaseSearchParticipant(Component):

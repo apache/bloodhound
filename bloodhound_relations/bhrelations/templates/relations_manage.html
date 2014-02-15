@@ -24,21 +24,22 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhrelations"
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard">
   <xi:include href="layout.html" />
   <xi:include href="widget_macros.html" />
 
   <head>
-    <title py:choose="">Ticket relations for #${ticket.id}</title>
+    <title py:choose="" i18n:msg="ticket_id">Ticket relations for #${ticket.id}</title>
   </head>
 
   <body>
-    <h1>Manage relations for ticket <a href="${href.ticket(ticket.id)}">#$ticket.id</a></h1>
+    <h1 i18n:msg="ticket_id">Manage relations for ticket <a href="${href.ticket(ticket.id)}">#$ticket.id</a></h1>
 
     <div class="row">
       <div class="span8">
         <py:if test='error'>
-          <div class="alert alert-error">
+          <div class="alert alert-error" i18n:msg="error">
             <span class="label label-important">Oops !</span>
             Could not create relation.
             $error

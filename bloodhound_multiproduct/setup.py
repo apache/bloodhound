@@ -34,6 +34,25 @@ if __name__ == '__main__':
             del sys.argv[ac]
             break
 
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'multiproduct': extractors,
+        }
+except ImportError:
+    pass
+
 setup(
     name = 'BloodhoundMultiProduct',
     version = '0.8.0',
@@ -41,8 +60,9 @@ setup(
     author = "Apache Bloodhound",
     license = "Apache License v2",
     url = "https://bloodhound.apache.org/",
-    packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
-    package_data = {'multiproduct' : ['templates/*.html',]},
+    packages = ['multiproduct', 'multiproduct.ticket', 'multiproduct.util',
+                'tests',],
+    package_data = {'multiproduct' : ['templates/*.html','locale/*/LC_MESSAGES/*.mo']},
     install_requires = ['sqlparse'],
     entry_points = {'trac.plugins': [
             'multiproduct.model = multiproduct.model',
@@ -54,5 +74,6 @@ setup(
             'multiproduct.web_ui = multiproduct.web_ui',
         ],},
     test_suite='tests.test_suite',
-    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else ''],
+    **extra
 )

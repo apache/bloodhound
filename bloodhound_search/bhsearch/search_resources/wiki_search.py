@@ -140,19 +140,21 @@ class WikiSearchParticipant(BaseSearchParticipant):
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_facets',
         default=",".join(default_facets),
-        doc="""Default facets applied to search view of specific resource""")
+        doc="""Default facets applied to search view of specific resource""",
+        doc_domain='bhsearch')
 
     default_view = Option(
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_view',
         doc = """If true, show grid as default view for specific resource in
-            Bloodhound Search results""")
+            Bloodhound Search results""", doc_domain='bhsearch')
 
     default_grid_fields = ListOption(
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_grid_fields',
         default = ",".join(default_grid_fields),
-        doc="""Default fields for grid view for specific resource""")
+        doc="""Default fields for grid view for specific resource""",
+        doc_domain='bhsearch')
 
     #ISearchParticipant members
     def get_title(self):

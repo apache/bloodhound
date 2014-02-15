@@ -28,9 +28,9 @@ from genshi.builder import tag
 from trac.core import implements, TracError
 
 from bhdashboard.api import DashboardSystem, InvalidWidgetArgument, JsonField
-from bhdashboard.util import WidgetBase, check_widget_name, \
-                              dummy_request, merge_links, minmax, \
+from bhdashboard.util import dummy_request, merge_links, minmax, \
                               pretty_wrapper, trac_version, trac_tags
+from bhdashboard.util.widgets import WidgetBase, check_widget_name
 from bhdashboard.web_ui import DashboardModule
 
 class ContainerWidget(WidgetBase):

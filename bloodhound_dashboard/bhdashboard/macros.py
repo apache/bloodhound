@@ -21,11 +21,12 @@
 r"""Bloodhound Macros"""
 
 from genshi.builder import tag
-from trac.util.translation import _, cleandoc_
+from trac.util.translation import cleandoc_
 from trac.wiki.api import WikiSystem
 from trac.wiki.macros import WikiMacroBase
 
 from bhdashboard.wiki import GUIDE_NAME
+from bhdashboard.util.translation import _
 
 class UserGuideTocMacro(WikiMacroBase):
     _description = cleandoc_("""Display a Guide table of contents

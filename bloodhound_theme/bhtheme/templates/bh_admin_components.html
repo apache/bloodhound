@@ -23,7 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
   <xi:include href="bh_admin.html" />
   <head>
     <title>Components</title>
@@ -71,7 +72,7 @@
                     class="wikitext trac-resizable"
                     placeholder="Describe this component using WikiFormatting"
                     rows="6" cols="60">$component.description</textarea>
-                <p class="help-block">
+                <p class="help-block" i18n:msg="">
                   <span class="label label-info">Tip</span> you may use
                   <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
                   here

@@ -24,6 +24,7 @@ Render data relevant to automatic ticket preview.
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       py:with="can_append = 'TICKET_APPEND' in perm(ticket.resource);
                has_edit_comment = 'TICKET_EDIT_COMMENT' in perm(ticket.resource);"
       py:strip="">

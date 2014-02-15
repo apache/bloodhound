@@ -23,7 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
   <xi:include href="layout.html" />
 
   <!--! Note: the wiki edit page can be presented according to several modes:
@@ -143,7 +144,7 @@
       <py:choose test="action">
         <py:when test="'collision'">
           <div class="span12">
-            <div class="alert alert-error">
+            <div class="alert alert-error" i18n:msg="">
               <span class="label label-important">Oops !</span>
               Sorry, this page has been modified by somebody else since you started
               editing. Your changes cannot be saved.

@@ -84,9 +84,9 @@ $( function () {
         title : function () {
             ticket = qct_info.ticket;
             if (ticket)
-              title = 'Ticket #' + qct_info.ticket;
+              title = _('Ticket #') + qct_info.ticket;
             else
-              title = 'Error creating ticket';
+              title = _('Error creating ticket');
             return title + ' <a class="close" id="qct-alert-close" ' +
                 'data-dismiss="alert" href="#">&times;</a>'
           },
@@ -175,18 +175,18 @@ $( function () {
                     ticket: ticket.id,
                     product: ticket.product,
                     msg: '<span class="alert alert-success">' +
-                         'Has been created</span> ' +
-                         '<a href="' + ticket.url + '">View / Edit</a>'
+                         _('Has been created') + '</span> ' +
+                         '<a href="' + ticket.url + '">' + _('View / Edit') + '</a>'
                   });
               })
               .error(function(jqXHR, textStatus, errorMsg) {
                   var msg = 'Error:' + errorMsg;
                   if (textStatus === 'timeout')
-                    msg = 'Request timed out';
+                    msg = _('Request timed out');
                   else if (textStatus === 'error')
-                    msg = 'Could not create ticket . Error : ' + errorMsg;
+                    msg = _('Could not create ticket . Error : ') + errorMsg;
                   else if (textStatus === 'abort')
-                    msg = 'Aborted request'
+                    msg = _('Aborted request')
                   qct_alert({ 
                       ticket : null, 
                       msg : '<span class="alert alert-error"' +
@@ -204,19 +204,19 @@ $( function () {
         product_base_url = '';
       $.post(product_base_url + '/qct', $('#qct-inline-form').serialize(),
           function(ticket) {
-            var msg = 'Ticket #' + ticket.id + ' has been created. ';
-            msg += '<a href="' + ticket.url + '">View / Edit</a>';
+            var msg = _('Ticket #') + ticket.id + _(' has been created. ');
+            msg += '<a href="' + ticket.url + '">' + _('View / Edit') + '</a>';
             $('#qct-inline-notice-success span').html(msg);
             $('#qct-inline-notice-success').show({'duration': 400});
           })
           .error(function(jqXHR, textStatus, errorMsg) {
             var msg;
             if (textStatus === 'timeout')
-              msg = 'Request timed out';
+              msg = _('Request timed out');
             else if (textStatus === 'error')
-              msg = 'Could not create ticket. Error : ' + errorMsg;
+              msg = _('Could not create ticket. Error : ') + errorMsg;
             else if (textStatus === 'abort')
-              msg = 'Aborted request';
+              msg = _('Aborted request');
 
             $('#qct-inline-notice-error span').html(msg);
             $('#qct-inline-notice-error').show({'duration': 400});

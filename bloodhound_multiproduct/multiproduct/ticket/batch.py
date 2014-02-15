@@ -18,9 +18,9 @@
 #  under the License.
 
 from trac.ticket.batch import BatchModifyModule
-from trac.util.translation import _
 from trac.web.chrome import add_script_data
 from multiproduct.env import ProductEnvironment
+from multiproduct.util.translation import _
 
 
 class ProductBatchModifyModule(BatchModifyModule):

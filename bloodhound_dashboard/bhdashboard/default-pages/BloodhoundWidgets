@@ -184,7 +184,7 @@ To test the following code, it should be saved in a `timestamp_sample.py` file l
 from datetime import datetime
 # Note: since Trac 0.11, datetime objects are used internally
 
-from bhdashboard.util import WidgetBase
+from bhdashboard.util.widgets import WidgetBase
 
 class TimeStampWidget(WidgetBase):
     """Inserts the current time (in seconds)"""
@@ -241,7 +241,7 @@ To test the following code, you should save it in a `helloworld_sample.py` file 
 
 from genshi.builder import tag
 
-from bhdashboard.util import WidgetBase
+from bhdashboard.util.widgets import WidgetBase
 
 class HelloWorldWidget(WikiWidgetBase):
     """Simple HelloWorld widget.

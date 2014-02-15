@@ -23,6 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       py:strip="">
 
   <py:match path="head" once="true"><head>
@@ -98,7 +100,7 @@
                       method="get">
                   <div class="input-append">
                     <input type="text" class="input-medium" id="q" name="q"
-                        placeholder="Search all products. Try TracLinks."
+                        placeholder="${dgettext('bhtheme', 'Search all products. Try TracLinks.')}"
                         value="${req.search_query}" />
                     <input py:for="name, value in extra_search_fields"
                             type="hidden"
@@ -192,6 +194,8 @@
                             <span class="label label-important">TICKET_CREATE</span>
                             privileges are required to perform this operation.
                             You don't have the required permissions
+			  </p>
+			  <p>
                             <py:choose>
                               <py:when test="req.authname == 'anonymous'">
                                 <br/><br/>
@@ -341,6 +345,8 @@
                     <span class="label label-important">TICKET_CREATE</span>
                     privileges are required to perform this operation.
                     You don't have the required permissions
+		  </p>
+		  <p>
                     <py:choose>
                       <py:when test="req.authname == 'anonymous'">
                         <br/><br/>

@@ -25,6 +25,7 @@ from pkg_resources import resource_filename
 from bhrelations import db_default
 from bhrelations.model import Relation
 from bhrelations.utils import unique
+from bhrelations.utils.translation import _, add_domain
 from multiproduct.api import ISupportMultiProductEnvironment
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
@@ -200,16 +201,21 @@ class RelationsSystem(Component):
         'NoSelfReferenceValidator, ExclusiveValidator, BlockerValidator',
         include_missing=False,
         doc="""Validators used to validate all relations,
-        regardless of their type."""
+        regardless of their type.""",
+        doc_domain='bhrelations'
     )
 
     duplicate_relation_type = Option(
         'bhrelations',
         'duplicate_relation',
         'duplicateof',
-        "Relation type to be used with the resolve as duplicate workflow.")
+        "Relation type to be used with the resolve as duplicate workflow.",
+        doc_domain='bhrelations')
 
     def __init__(self):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
         links, labels, validators, blockers, copy_fields, exclusive = \
             self._parse_config()
         self._links = links

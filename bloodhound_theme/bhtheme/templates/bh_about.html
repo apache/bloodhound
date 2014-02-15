@@ -23,6 +23,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="layout.html" />
   <head>
@@ -47,11 +48,10 @@
       <h1>About ${chrome.labels.application_short}
           ${chrome.labels.application_version}
       </h1>
-      <p>Standing on the shoulders of <a href="http://trac.edgewall.org/">
-        Trac ${trac.version}</a>,
-        <a href="http://incubator.apache.org/bloodhound/">
-        ${chrome.labels.application_full}</a> is a project hosted by the
-        Apache Software Foundation's Incubator project.
+      <p i18n:msg="Trac,Bloodhound">Standing on the shoulders of
+        <a href="http://trac.edgewall.org/">Trac ${trac.version}</a>,
+        <a href="http://incubator.apache.org/bloodhound/">${chrome.labels.application_full}</a>
+        is a project hosted by the Apache Software Foundation's Incubator project.
         <br/>
         Currently, it has three key aims:
         <h4>Multiple Projects</h4>

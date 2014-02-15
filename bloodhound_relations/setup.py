@@ -91,12 +91,15 @@ PKG_INFO = {'bhrelations': ('bhrelations',                     # Package dir
                               '../NOTICE', '../README', '../TESTING_README',
                               'htdocs/*.*', 'htdocs/css/*.css',
                               'htdocs/img/*.*', 'htdocs/js/*.js',
-                              'templates/*', 'default-pages/*'],
+                              'templates/*', 'default-pages/*',
+                              'locale/*/LC_MESSAGES/*.mo'],
                           ),
             'bhrelations.widgets': (
                 'bhrelations/widgets', ['templates/*.html']),
             'bhrelations.tests': (
                 'bhrelations/tests', ['data/*.*']),
+            'bhrelations.utils': (
+                'bhrelations/utils', []),
             }
 
 ENTRY_POINTS = {
@@ -108,6 +111,26 @@ ENTRY_POINTS = {
         'bhrelations.widgets.ticketrelations = bhrelations.widgets.relations',
     ],
 }
+
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'bhrelations': extractors,
+        }
+except ImportError:
+    pass
+
 setup(
     name=DIST_NM,
     version=latest,
@@ -131,5 +154,6 @@ setup(
     classifiers = cats,
     long_description= DESC,
     test_suite='bhrelations.tests.test_suite',
-    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else ''],
+    **extra
     )

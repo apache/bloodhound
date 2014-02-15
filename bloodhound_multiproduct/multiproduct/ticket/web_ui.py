@@ -30,12 +30,12 @@ from trac.ticket.api import TicketSystem
 from trac.resource import Resource, get_resource_shortname, ResourceNotFound
 from trac.search import search_to_sql, shorten_result
 from trac.util.datefmt import from_utimestamp
-from trac.util.translation import _, tag_
 
 from multiproduct.api import MultiProductSystem, PRODUCT_SYNTAX_DELIMITER_RE
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.util import IDENTIFIER
+from multiproduct.util.translation import _, tag_
 from multiproduct.web_ui import ProductModule
 
 

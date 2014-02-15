@@ -53,27 +53,30 @@ class WhooshBackend(Component):
         'whoosh_index_dir',
         default='whoosh_index',
         doc="""Relative path is resolved relatively to the
-        directory of the environment.""")
+        directory of the environment.""", doc_domain='bhsearch')
 
     advanced_security = Option(
         BHSEARCH_CONFIG_SECTION,
         'advanced_security',
         default=False,
-        doc="Check view permission for each document when retrieving results."
+        doc="Check view permission for each document when retrieving results.",
+        doc_domain='bhsearch'
     )
 
     max_fragment_size = IntOption(
         BHSEARCH_CONFIG_SECTION,
         'max_fragment_size',
         default=240,
-        doc="The maximum number of characters allowed in a fragment.")
+        doc="The maximum number of characters allowed in a fragment.",
+        doc_domain='bhsearch')
 
     fragment_surround = IntOption(
         BHSEARCH_CONFIG_SECTION,
         'fragment_surround',
         default=60,
         doc="""The number of extra characters of context to add both before
-        the first matched term and after the last matched term.""")
+        the first matched term and after the last matched term.""",
+        doc_domain='bhsearch')
 
     #This is schema prototype. It will be changed later
     #TODO: add other fields support, add dynamic field support.

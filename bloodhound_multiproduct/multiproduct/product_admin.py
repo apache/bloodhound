@@ -28,7 +28,6 @@ from trac.resource import ResourceNotFound
 from trac.ticket.admin import TicketAdminPanel, _save_config
 from trac.util import getuser, lazy
 from trac.util.text import print_table, to_unicode, printerr, printout
-from trac.util.translation import _, N_, gettext, ngettext
 from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome, add_notice, add_warning
 
@@ -36,6 +35,7 @@ from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.perm import sudo
 from multiproduct.util import ReplacementComponent
+from multiproduct.util.translation import _, N_, gettext, ngettext
 
 import multiproduct.versioncontrol
 import trac.versioncontrol.admin

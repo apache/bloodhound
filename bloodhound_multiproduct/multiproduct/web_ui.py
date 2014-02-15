@@ -21,7 +21,6 @@ import re
 
 from trac.core import Component, TracError, implements
 from trac.resource import Neighborhood, Resource, ResourceNotFound
-from trac.util.translation import _
 from trac.web.api import HTTPNotFound, IRequestHandler, IRequestFilter
 from trac.web.chrome import (
     Chrome, INavigationContributor, add_link, add_notice, add_warning,
@@ -32,7 +31,7 @@ from multiproduct.env import resolve_product_href, lookup_product_env
 from multiproduct.hooks import PRODUCT_RE
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
-
+from multiproduct.util.translation import _
 
 # requests to the following URLs will be skipped in the global scope
 # (no more redirection to default product)

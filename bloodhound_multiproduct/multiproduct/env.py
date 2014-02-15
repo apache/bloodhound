@@ -423,7 +423,7 @@ class ProductEnvironment(Component, ComponentManager):
         This is the base URL that will be used when producing
         documents that will be used outside of the web browsing
         context, like for example when inserting URLs pointing to Trac
-        resources in notification e-mails.""")
+        resources in notification e-mails.""", doc_domain='multiproduct')
 
     @property
     def base_url(self):
@@ -442,7 +442,8 @@ class ProductEnvironment(Component, ComponentManager):
         force Trac to use the `base_url` setting also for
         redirects. This introduces the obvious limitation that this
         environment will only be usable when accessible from that URL,
-        as redirects are frequently used. ''(since 0.10.5)''""")
+        as redirects are frequently used. ''(since 0.10.5)''""",
+                                        doc_domain='multiproduct')
 
     @property
     def project_name(self):
@@ -466,7 +467,8 @@ class ProductEnvironment(Component, ComponentManager):
         return self.parent.project_url
 
     project_admin = Option('project', 'admin', '',
-        """E-Mail address of the product's leader / administrator.""")
+        """E-Mail address of the product's leader / administrator.""",
+                           doc_domain='multiproduct')
 
     @property
     def project_footer(self):
@@ -476,23 +478,24 @@ class ProductEnvironment(Component, ComponentManager):
         return self.parent.project_footer
 
     project_icon = Option('project', 'icon', 'common/trac.ico',
-        """URL of the icon of the product.""")
+        """URL of the icon of the product.""", doc_domain='multiproduct')
 
     log_type = Option('logging', 'log_type', 'inherit',
         """Logging facility to use.
 
         Should be one of (`inherit`, `none`, `file`, `stderr`,
-        `syslog`, `winlog`).""")
+        `syslog`, `winlog`).""", doc_domain='multiproduct')
 
     log_file = Option('logging', 'log_file', 'trac.log',
         """If `log_type` is `file`, this should be a path to the
         log-file.  Relative paths are resolved relative to the `log`
-        directory of the environment.""")
+        directory of the environment.""", doc_domain='multiproduct')
 
     log_level = Option('logging', 'log_level', 'DEBUG',
         """Level of verbosity in log.
 
-        Should be one of (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`).""")
+        Should be one of (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`).""",
+                       doc_domain='multiproduct')
 
     log_format = Option('logging', 'log_format', None,
         """Custom logging format.
@@ -515,7 +518,7 @@ class ProductEnvironment(Component, ComponentManager):
         Example:
         `($(thread)d) Trac[$(basename)s:$(module)s] $(levelname)s: $(message)s`
 
-        ''(since 0.10.5)''""")
+        ''(since 0.10.5)''""", doc_domain='multiproduct')
 
     def __init__(self, env, product, create=False):
         """Initialize the product environment.

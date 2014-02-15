@@ -24,11 +24,12 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Widgets displaying ticket relations.
 """
 
-from trac.util.translation import _
 from trac.ticket.model import Ticket
 
-from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
+from bhdashboard.util import pretty_wrapper
+from bhdashboard.util.widgets import WidgetBase, check_widget_name
 from bhrelations.web_ui import RelationManagementModule
+from bhrelations.utils.translation import _
 
 __metaclass__ = type
 

@@ -20,17 +20,20 @@
 <div id="content" class="product"
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  i18n:domain="bhdashboard">
   <div py:if="product_list" class="row" id="products">
     <py:for each="i, p in zip(colseq, product_list)">
       <div class="span4">
         <div class="well product-well">
-          <h4>
+          <h4 i18n:msg="name,prefix,owner">
             &#9734; <a href="${p.href}">$p.name ($p.prefix)</a>
             <py:if test="p.owner_link">
               <br />
               <small>owned by
-                <a href="$p.owner_link">${authorinfo(p._data['owner']) if p._data['owner'] else _('(nobody)')}</a>
+                <a href="$p.owner_link" py:if="p._data['owner']">${authorinfo(p._data['owner'])}</a>
+                <a href="$p.owner_link" py:if="not p._data['owner']">(nobody)</a>
               </small>
             </py:if>
           </h4>

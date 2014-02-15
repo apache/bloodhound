@@ -33,13 +33,14 @@ from trac.core import implements, TracError
 from trac.mimeview.api import Context
 from trac.resource import Resource, ResourceNotFound
 from trac.ticket.query import Query, QueryModule
-from trac.util.translation import _
 from trac.web.api import RequestDone
 
-from bhdashboard.util import WidgetBase, InvalidIdentifier, \
-                              check_widget_name, dummy_request, \
-                              merge_links, pretty_wrapper, trac_version, \
+from bhdashboard.util import dummy_request, merge_links, \
+                              pretty_wrapper, trac_version, \
                               trac_tags
+from bhdashboard.util.widgets import WidgetBase, InvalidIdentifier, \
+                                      check_widget_name
+from bhdashboard.util.translation import _
 
 from multiproduct.env import ProductEnvironment
 

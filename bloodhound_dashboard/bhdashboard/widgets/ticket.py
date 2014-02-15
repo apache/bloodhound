@@ -35,16 +35,16 @@ from trac.ticket.query import Query
 from trac.ticket.roadmap import apply_ticket_permissions, get_ticket_stats, \
                             ITicketGroupStatsProvider, RoadmapModule
 from trac.util.text import unicode_urlencode
-from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
 
 from bhdashboard.api import DateField, EnumField, InvalidWidgetArgument, \
                             ListField
 from bhdashboard.widgets.query import exec_query
-from bhdashboard.util import WidgetBase, check_widget_name, \
-                            dummy_request, merge_links, minmax, \
+from bhdashboard.util import dummy_request, merge_links, minmax, \
                             pretty_wrapper, resolve_ep_class, \
                             trac_version, trac_tags
+from bhdashboard.util.widgets import WidgetBase, check_widget_name
+from bhdashboard.util.translation import _
 
 from multiproduct.env import Product, ProductEnvironment
 
@@ -106,28 +106,28 @@ class TicketFieldValuesWidget(WidgetBase):
                 self.bind_params(name, options, *params)
 
         field_maps = {'type': {'admin_url': 'type',
-                               'title': 'Types',
+                               'title': _('Types'),
                                },
                       'status': {'admin_url': None,
-                                 'title': 'Statuses',
+                                 'title': _('Statuses'),
                                  },
                       'priority': {'admin_url': 'priority',
-                                   'title': 'Priorities',
+                                   'title': _('Priorities'),
                                    },
                       'milestone': {'admin_url': 'milestones',
-                                    'title': 'Milestones',
+                                    'title': _('Milestones'),
                                     },
                       'component': {'admin_url': 'components',
-                                    'title': 'Components',
+                                    'title': _('Components'),
                                     },
                       'version': {'admin_url': 'versions',
-                                  'title': 'Versions',
+                                  'title': _('Versions'),
                                   },
                       'severity': {'admin_url': 'severity',
-                                   'title': 'Severities',
+                                   'title': _('Severities'),
                                    },
                       'resolution': {'admin_url': 'resolution',
-                                     'title': 'Resolutions',
+                                     'title': _('Resolutions'),
                                      },
                       }
         _field = []
@@ -152,8 +152,7 @@ class TicketFieldValuesWidget(WidgetBase):
                         hint = _('Contact your administrator for further details')
                     return 'widget_alert.html', \
                             {
-                                'title' : Markup(_('%(field)s',
-                                            field=field_maps[fieldnm]['title'])),
+                                'title' : Markup(field_maps[fieldnm]['title']),
                                 'data' : dict(msgtype='info',
                                     msglabel="Note",
                                     msgbody=Markup(_('''No values are

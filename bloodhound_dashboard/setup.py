@@ -94,7 +94,8 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                               '../NOTICE', '../README', '../TESTING_README',
                               'htdocs/*.*', 'htdocs/css/*.css',
                               'htdocs/img/*.*', 'htdocs/js/*.js',
-                              'templates/*', 'default-pages/*'],
+                              'templates/*', 'default-pages/*',
+                              'locale/*/LC_MESSAGES/*.mo'],
                           ),
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
                             # Package data
@@ -107,6 +108,10 @@ PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
             'bhdashboard.tests' : ('bhdashboard/tests',     # Package dir
                             # Package data
                             ['data/**'],
+                         ),
+            'bhdashboard.util' : ('bhdashboard/util',     # Package dir
+                            # Package data
+                            [],
                           ),
             }
 
@@ -124,6 +129,24 @@ ENTRY_POINTS = r"""
                bhdashboard.widgets.timeline = bhdashboard.widgets.timeline
                bhdashboard.wiki = bhdashboard.wiki
                """
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'bhdashboard': extractors,
+        }
+except ImportError:
+    pass
 
 setup(
     name=DIST_NM,
@@ -147,5 +170,6 @@ setup(
                   for p in PKG_INFO.keys()],
     entry_points = ENTRY_POINTS,
     classifiers = cats,
-    long_description= DESC
+    long_description= DESC,
+    **extra
     )

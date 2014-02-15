@@ -36,7 +36,6 @@ from trac.resource import IExternalResourceConnector, IResourceChangeListener,\
                           IResourceManager, ResourceNotFound
 from trac.ticket.api import ITicketFieldProvider, ITicketManipulator
 from trac.util.text import to_unicode, unquote_label, unicode_unquote
-from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider, add_warning
 from trac.web.main import FakePerm, FakeSession
 from trac.wiki.admin import WikiAdmin
@@ -47,6 +46,7 @@ from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER, \
                               using_mysql_backend, using_sqlite_backend
+from multiproduct.util.translation import _, N_, add_domain
 
 __all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER']
 
@@ -83,7 +83,7 @@ class MultiProductSystem(Component):
         'default_product_prefix',
         default='@',
         doc="""Prefix used for default product when migrating single-product
-        installations to multi-product.""")
+        installations to multi-product.""", doc_domain='multiproduct')
 
     default_product = Option('ticket', 'default_product', '',
         """Default product for newly created tickets.""")
@@ -99,13 +99,14 @@ class MultiProductSystem(Component):
         following will be used `products/$(prefix)s`
 
         Note the usage of `$(...)s` instead of `%(...)s` as the later form
-        would be interpreted by the ConfigParser itself. """)
+        would be interpreted by the ConfigParser itself. """,
+                              doc_domain='multiproduct')
 
     product_config_parent = PathOption('inherit', 'multiproduct', '',
         """The path to the configuration file containing the settings shared
         by sibling product environments. By default will inherit
         global environment configuration.
-        """)
+        """, doc_domain='multiproduct')
 
     SCHEMA = [mcls._get_schema()
               for mcls in (Product, ProductResourceMap)]
@@ -121,6 +122,12 @@ class MultiProductSystem(Component):
                       ]
 
     PRODUCT_POPULATE_TABLES = list(set(MIGRATE_TABLES) - set(['wiki']))
+
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(MultiProductSystem, self).__init__(*args, **kwargs)
 
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
@@ -624,7 +631,7 @@ class MultiProductSystem(Component):
     # ITicketFieldProvider methods
     def get_select_fields(self):
         """Product select fields"""
-        return [(35, {'name': 'product', 'label': N_('Product'),
+        return [(35, {'name': 'product', 'label': _('Product'),
                       'cls': Product, 'pk': 'prefix', 'optional': False,
                       'value': self.default_product})]
 
@@ -737,8 +744,8 @@ class MultiProductSystem(Component):
                 # Note: add_warning() is used intead of returning a list of
                 # error tuples, since the latter results in trac rendering
                 # errors (ticket's change.date is not populated)
-                add_warning(req, _('The user "%s" does not exist.' %
-                    ticket['owner']))
+                add_warning(req, _('The user "%s" does not exist.') %
+                    ticket['owner'])
         return []
 
 

@@ -30,7 +30,6 @@ from trac.core import Component, implements, TracError
 from trac.resource import get_resource_url, Resource
 from trac.ticket.model import Ticket
 from trac.util import exception_to_unicode, to_unicode
-from trac.util.translation import _
 from trac.web import IRequestHandler, IRequestFilter
 from trac.web.chrome import ITemplateProvider, add_warning
 
@@ -38,6 +37,7 @@ from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
     TicketRelationsSpecifics, UnknownRelationType, NoSuchTicketError
 from bhrelations.model import Relation
 from bhrelations.validation import ValidationError
+from bhrelations.utils.translation import _
 
 
 class RelationManagementModule(Component):

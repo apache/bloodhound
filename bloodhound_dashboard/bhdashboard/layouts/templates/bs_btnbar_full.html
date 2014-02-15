@@ -22,7 +22,9 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhdashboard">
   <xi:include href="layout.html" />
   <head>
     <title>$title</title>
@@ -31,7 +33,7 @@
   <body>
     <xi:include href="bs_btnbar.html" />
     <div id="ft" class="row">
-      <div id="help" class="span8">
+      <div id="help" class="span8" i18n:msg="">
         <span class="label label-info">Note:</span> See
         <a href="${href.wiki('BloodhoundDashboard')}">BloodhoundDashboard</a>
         for help on using the dashboard.
