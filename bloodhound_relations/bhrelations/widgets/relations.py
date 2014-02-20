@@ -24,6 +24,7 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Widgets displaying ticket relations.
 """
 
+from trac.resource import get_resource_shortname, get_resource_summary
 from trac.ticket.model import Ticket
 
 from bhdashboard.util import pretty_wrapper
@@ -68,6 +69,8 @@ class TicketRelationsWidget(WidgetBase):
             'ticket': ticket,
             'relations': \
                 RelationManagementModule(self.env).get_ticket_relations(ticket),
+            'get_resource_shortname': get_resource_shortname,
+            'get_resource_summary': get_resource_summary,
         }
         return 'widget_relations.html', \
             {'title': title, 'data': data, }, context

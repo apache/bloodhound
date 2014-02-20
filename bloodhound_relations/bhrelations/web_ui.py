@@ -27,7 +27,8 @@ Ticket relations user interface.
 import re
 
 from trac.core import Component, implements, TracError
-from trac.resource import get_resource_url, Resource
+from trac.resource import get_resource_url, Resource, \
+                          get_resource_shortname, get_resource_summary
 from trac.ticket.model import Ticket
 from trac.util import exception_to_unicode, to_unicode
 from trac.web import IRequestHandler, IRequestFilter
@@ -127,6 +128,8 @@ class RelationManagementModule(Component):
             'reltypes': sorted(relsys.get_relation_types().iteritems(),
                 key=lambda x: x[0]),
             'relations': self.get_ticket_relations(ticket),
+            'get_resource_shortname': get_resource_shortname,
+            'get_resource_summary': get_resource_summary,
         })
         return 'relations_manage.html', data, None
 
