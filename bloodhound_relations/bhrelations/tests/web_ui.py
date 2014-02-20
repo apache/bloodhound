@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -17,18 +16,21 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 import unittest
+
+from trac.ticket import Ticket
+from trac.util.datefmt import to_utimestamp
+from trac.web import RequestDone
+from multiproduct.ticket.web_ui import TicketModule
+
 from bhrelations.api import ResourceIdSerializer
 from bhrelations.web_ui import RelationManagementModule
 from bhrelations.tests.base import BaseRelationsTestCase
 
-from multiproduct.ticket.web_ui import TicketModule
-from trac.ticket import Ticket
-from trac.util.datefmt import to_utimestamp
-from trac.web import RequestDone
-
 
 class RelationManagementModuleTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self)
         ticket_id = self._insert_ticket(self.env, "Foo")
@@ -101,12 +103,13 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
         raise Exception()
 
     def process_request(self):
-        url, data, x = RelationManagementModule(self.env).process_request(
-            self.req)
+        url, data, x = \
+            RelationManagementModule(self.env).process_request(self.req)
         return data
 
 
 class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self)
 
@@ -165,8 +168,8 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
 
     def test_post_process_request_can_handle_none_data(self):
         self.req.path_info = '/source'
-        RelationManagementModule(self.env).post_process_request(
-            self.req, '', None, '')
+        RelationManagementModule(self.env).post_process_request(self.req,
+                                                                '', None, '')
 
     def resolve_as_duplicate(self, ticket, duplicate_id):
         self.req.method = 'POST'
@@ -219,8 +222,9 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(RelationManagementModuleTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(RelationManagementModuleTestCase))
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main()
