@@ -342,6 +342,9 @@ ol.arabic     { list-style-type: decimal }
  margin-top: 5px;
  margin-bottom: 5px;
 }
+#qct-more {
+    visibility: hidden;
+}
 
 /*
   workaround for -hidden/-visible buttons in a btn-group, which don't

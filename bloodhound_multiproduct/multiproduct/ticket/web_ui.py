@@ -50,16 +50,11 @@ class ProductTicketModule(TicketModule):
         """Override for TicketModule process_request"""
         ticketid = req.args.get('id')
         productid = req.args.get('productid', '')
-        qct_product = req.args.get('product')  # From QCT form
+
         if not ticketid:
             # if /newticket is executed in global scope (from QCT), redirect
             # the request to /products/<first_product_in_DB>/newticket
-            #
-            # If here from "More fields" link then pass along QCT form fields.
-            # If product arg present then redirect to
-            # /products/<qct_product>/newticket .
-
-            if not productid and not qct_product and \
+            if not productid and \
                     not isinstance(self.env, ProductEnvironment):
                 default_product = self.env.config.get('ticket',
                                                       'default_product')
@@ -67,16 +62,8 @@ class ProductTicketModule(TicketModule):
                 prefixes = [prod.prefix for prod in products]
                 if not default_product or default_product not in prefixes:
                     default_product = products[0].prefix
-                req.redirect(req.href.products(default_product, 'newticket',
-                                               req.args))
-            elif qct_product:
-                # Most likely arrived here via the QCT "More fields" link.
-                # Use <qct_product> to redirect to the appropriate product
-                # scope
+                req.redirect(req.href.products(default_product, 'newticket'))
 
-                req.args.pop('product')  # don't reenter block on redirect.
-                req.redirect(req.href.products(qct_product, 'newticket',
-                                               req.args))
             return self._process_newticket_request(req)
 
         if req.path_info in ('/newticket', '/products'):

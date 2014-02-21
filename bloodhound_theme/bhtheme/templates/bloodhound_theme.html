@@ -122,7 +122,8 @@
                   <option py:for="idx,option in enumerate(field.options)"
                           py:with="description = field.options_desc[idx] if field.options_desc else option"
                           selected="${field.value == option or None}"
-                          value = "$option"
+                          value = "${option.value}"
+                          data-product-new-ticket-url = "${option.product_new_ticket_url}"
                           py:content="description"></option>
                   <optgroup py:for="optgroup in field.optgroups"
                             py:if="optgroup.options"
@@ -176,7 +177,7 @@
                             </div>
 
                             <py:for each="field in qct.hidden_fields">
-                              <input type="hidden" name="field_${field.name}" value="${field.value}" />
+                              <input class="qct-product-scope-extra" type="hidden" name="field_${field.name}" value="${field.value}" />
                             </py:for>
                           </form>
 

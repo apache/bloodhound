@@ -47,6 +47,7 @@ from bhdashboard.web_ui import DashboardModule
 from bhdashboard import wiki
 
 from multiproduct.env import ProductEnvironment
+from multiproduct.model import Product
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
 from bhtheme.translation import _, add_domain
 
@@ -555,7 +556,7 @@ class QuickCreateTicketDialog(Component):
             dum_req.perm = req.perm
             ticket = Ticket(self.env)
             tm._populate(dum_req, ticket, False)
-            all_fields = dict([f['name'], f]
+            all_fields = dict([f['name'], self.add_prod_new_ticket_url(dum_req, f)]
                               for f in tm._prepare_fields(dum_req, ticket)
                               if f['type'] == 'select')
 
@@ -565,13 +566,14 @@ class QuickCreateTicketDialog(Component):
                 product_field['options'] = \
                     [prefix for prefix in product_field['options']
                      if req.perm.has_permission('TICKET_CREATE',
-                                                Neighborhood('product', prefix)
+                                                Neighborhood('product', prefix['value'])
                                                     .child(None, None))]
+
                 if self.env.product and \
                         self.env.product.prefix in product_field['options']:
                     product_field['value'] = self.env.product.prefix
                 product_field['options_desc'] = [
-                    ProductEnvironment.lookup_env(self.env, p).product.name
+                    ProductEnvironment.lookup_env(self.env, p['value']).product.name
                         for p in product_field['options']
                 ]
             else:
@@ -587,8 +589,7 @@ class QuickCreateTicketDialog(Component):
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
                 'hidden_fields': [all_fields[k] for k in all_fields.keys()
-                                  if k not in self.qct_fields]
-            }
+                                  if k not in self.qct_fields] }
         return template, data, content_type
 
     # IRequestHandler methods
@@ -664,6 +665,18 @@ class QuickCreateTicketDialog(Component):
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
+
+    def add_prod_new_ticket_url(self, req, fields):
+        if fields.get('name') == 'product':
+            options_with_attrs = []
+            for option in fields.get('options', []):
+                options_with_attrs.append({
+                    'value': option,
+                    'product_new_ticket_url': \
+                            req.href.products(option, 'newticket')
+                })
+            fields['options'] = options_with_attrs
+        return fields
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
