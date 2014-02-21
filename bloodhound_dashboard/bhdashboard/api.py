@@ -1,6 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-from inspect import isclass
 
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -27,6 +25,7 @@ The core of the dashboard architecture.
 __metaclass__ = type
 
 from datetime import date, time, datetime, timedelta
+from inspect import isclass
 from sys import version_info
 
 from genshi.builder import tag
