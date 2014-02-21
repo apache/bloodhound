@@ -70,8 +70,7 @@
         install_workflow();
         $('#edit-cancel, #edit-cancel-below').click(revert_ticket);
 
-        var modify_elem = $('#modify');
-        modify_elem.parent().hide();
+        $('#modify').parent().hide();
         $('#propertyform .buttons [name="preview"]').hide();
         $('#comment').change(function (e) {
           $('#hidden-comment').val($('#comment').val());
@@ -183,8 +182,7 @@
                 var action = action_ui.find('input[name=action]').val();
                 var newowner = action_ui.find('input[id$=_reassign_owner]').val();
                 var newresolution = action_ui.find('select[id$=_resolution]').val();
-                var newlabel = action_ui.find('label[for^=action_]')
-                    .text();
+                var newlabel = action_ui.find('label[for^=action_]').text();
                 if (action === 'leave')
                   newlabel = newlabel + ' as ' + $('#vc-status a').text();
                 else if (newowner)
