@@ -1384,3 +1384,5 @@ input[type="radio"]:not(:checked) + label span {
  width: 32%;
 }
 /* @end */
+
+#batchmod_action { line-height: 2.75em }

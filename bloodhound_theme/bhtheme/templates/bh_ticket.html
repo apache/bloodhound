@@ -210,13 +210,6 @@
               action_input_trigger.blur(action_click);
               if (action_trigger.attr('checked'))
                 action_click();
-
-              var action_help = action_ui.find('.help-block').detach()
-                  .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
-                  .replace(/^\s$/, '');
-              if (action_help)
-                  $('<i class="icon-info-sign"></i>').appendTo(action_ui)
-                      .attr('title', action_help);
             });
           }
 

@@ -24,18 +24,11 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip="">
   <div py:for="key, label, controls, hints in action_controls">
-      <input type="radio" id="action_$key" name="action" value="$key"
-             checked="${key == action or None}" />
-      <label for="action_$key">$label</label>
-      $controls
-      <div class="help-block" py:if="hints">
-        <p py:for="idx, hint in 
-            enumerate(h for h in hints if h.strip())">
-          <span class="label label-info"
-              py:if="idx == 0">Tip</span>
-          $hint
-        </p>
-      </div>
+    <input type="radio" id="action_$key" name="action" value="$key"
+           checked="${key == action or None}" />
+    <label for="action_$key">$label</label>
+    $controls
+    <i py:if="hints" class="icon-info-sign" title="${'\n'.join(h for h in hints if h.strip())}"></i>
   </div>
 </html>
 
