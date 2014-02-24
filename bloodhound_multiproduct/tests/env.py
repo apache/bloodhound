@@ -38,7 +38,7 @@ from trac.ticket.web_ui import TicketModule
 from trac.util.text import to_unicode
 from trac.web.href import Href
 
-from multiproduct.api import MultiProductSystem
+from multiproduct.api import DB_VERSION, MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 
@@ -232,12 +232,16 @@ class MultiproductTestCase(unittest.TestCase):
         EnvironmentStub.disable_component_in_config(env, ReportModule)
 
         mpsystem = MultiProductSystem(env)
-        try:
-            mpsystem.upgrade_environment(env.db_transaction)
-        except env.db_exc.OperationalError:
-            # Database is upgraded, but database version was deleted.
-            # Complete the upgrade by inserting default product.
-            mpsystem._insert_default_product(env.db_transaction)
+        with env.db_transaction as db:
+            try:
+                mpsystem.upgrade_environment(db)
+            except env.db_exc.OperationalError:
+                # Database is upgraded, but database version was deleted.
+                # Complete the upgrade by inserting default product.
+                mpsystem._insert_default_product(db)
+            finally:
+                # Ensure that multiproduct DB version is set to latest value
+                mpsystem._update_db_version(db, DB_VERSION)
         # assume that the database schema has been upgraded, enable
         # multi-product schema support in environment
         env.enable_multiproduct_schema(True)
