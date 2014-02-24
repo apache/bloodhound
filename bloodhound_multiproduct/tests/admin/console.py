@@ -21,16 +21,17 @@
 
 import os.path
 import sys
-from StringIO import StringIO
 import unittest
+from StringIO import StringIO
 
-from trac.admin.tests.console import load_expected_results, \
-        STRIP_TRAILING_SPACE, TracadminTestCase
+from trac.admin.tests.console import STRIP_TRAILING_SPACE, \
+                                     TracadminTestCase, load_expected_results
 
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 
-class ProductTracadminTestCase(TracadminTestCase, MultiproductTestCase):
+
+class ProductTracAdminTestCase(TracadminTestCase, MultiproductTestCase):
 
     expected_results = load_expected_results(
             os.path.join(os.path.split(__file__)[0], 'console-tests.txt'),
@@ -43,12 +44,12 @@ class ProductTracadminTestCase(TracadminTestCase, MultiproductTestCase):
             self.global_env = self._setup_test_env(
                     enable=('trac.*', 'multiproduct.*'),
                     disable=('trac.tests.*',),
-                )
+            )
             self._upgrade_mp(self.global_env)
             self._setup_test_log(self.global_env)
             self._load_product_from_data(self.global_env, self.default_product)
-            self._env = env = ProductEnvironment(
-                    self.global_env, self.default_product)
+            self._env = env = ProductEnvironment(self.global_env,
+                                                 self.default_product)
             self._load_default_data(env)
         return env
 
@@ -92,8 +93,9 @@ class ProductTracadminTestCase(TracadminTestCase, MultiproductTestCase):
 
 def test_suite():
     return unittest.TestSuite([
-            unittest.makeSuite(ProductTracadminTestCase,'test'),
+            unittest.makeSuite(ProductTracAdminTestCase),
         ])
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
