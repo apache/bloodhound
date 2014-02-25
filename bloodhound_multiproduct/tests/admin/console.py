@@ -61,35 +61,6 @@ class ProductTracAdminTestCase(TracadminTestCase, MultiproductTestCase):
         self.global_env.reset_db()
         self.global_env = self._env = None
 
-    def _execute(self, cmd, strip_trailing_space=True, input=None):
-        _in = sys.stdin
-        _err = sys.stderr
-        _out = sys.stdout
-        try:
-            if input:
-                sys.stdin = StringIO(input.encode('utf-8'))
-                sys.stdin.encoding = 'utf-8' # fake input encoding
-            sys.stderr = sys.stdout = out = StringIO()
-            out.encoding = 'utf-8' # fake output encoding
-            retval = None
-            try:
-                retval = self._admin.onecmd(cmd)
-            except SystemExit:
-                pass
-            value = out.getvalue()
-            if isinstance(value, str): # reverse what print_listing did
-                value = value.decode('utf-8')
-            if retval != 0:
-                self.env.log.debug('trac-admin failure: %s', value)
-            if strip_trailing_space:
-                return retval, STRIP_TRAILING_SPACE.sub('', value)
-            else:
-                return retval, value
-        finally:
-            sys.stdin = _in
-            sys.stderr = _err
-            sys.stdout = _out
-
 
 def test_suite():
     return unittest.TestSuite([
