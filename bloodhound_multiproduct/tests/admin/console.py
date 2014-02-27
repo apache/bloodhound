@@ -22,10 +22,8 @@
 import os.path
 import sys
 import unittest
-from StringIO import StringIO
 
-from trac.admin.tests.console import STRIP_TRAILING_SPACE, \
-                                     TracadminTestCase, load_expected_results
+from trac.admin.tests.console import TracadminTestCase, load_expected_results
 
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
@@ -94,7 +92,7 @@ class ProductTracAdminTestCase(TracadminTestCase, MultiproductTestCase):
 def test_suite():
     return unittest.TestSuite([
             unittest.makeSuite(ProductTracAdminTestCase),
-        ])
+    ])
 
 
 if __name__ == '__main__':
