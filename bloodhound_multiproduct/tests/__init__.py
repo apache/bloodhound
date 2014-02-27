@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,15 +17,17 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import logging
+import sys
 from collections import deque
 from fnmatch import fnmatch
-import sys
-try:
+if sys.version_info < (2, 7):
     import unittest2 as unittest
-except ImportError:
+else:
     import unittest
 
-from pkg_resources import resource_listdir, resource_isdir, resource_exists
+from pkg_resources import resource_exists, resource_filename, \
+                          resource_isdir, resource_listdir
 
 
 class TestLoader(unittest.TestLoader):
@@ -33,7 +36,8 @@ class TestLoader(unittest.TestLoader):
     sortTestMethodsUsing = cmp
     suiteClass = unittest.TestSuite
 
-    def discover_package(self, package_or_requirement, pattern='test*.py', ignore_subpkg_root=True):
+    def discover_package(self, package_or_requirement, pattern='*/test*.py',
+                         ignore_subpkg_root=True, exclude=None):
         """Find and return all test modules from the specified package
         directory, recursing into subdirectories to find them. Only test files
         that match the pattern will be loaded. (Using shell style pattern
@@ -43,17 +47,23 @@ class TestLoader(unittest.TestLoader):
         and registered with `pkg_resources` (e.g. via `setup.py develop`).
 
         If a target test module contains a '__testloader__' attribute then
-        related object will override current loader for every individual 
+        related object will override current loader for every individual
         module across the hierarchy.
         """
         pending = deque([(package_or_requirement, self, True)])
         tests = []
+        log = logging.getLogger('bh.tests')
+        if len(log.handlers) == 0:
+            # Configure logger instance. otherwise messages won't be displayed
+            _configure_logger(log)
         while pending:
             mdlnm, loader, isdir = pending.popleft()
             try:
                 mdl = self._get_module_from_name(mdlnm)
             except (ImportError, ValueError):
-                # Skip packages not having __init__.py
+                # Log import error and skip packages that don't import
+                log.exception('Discovered package %s but import failed',
+                              mdlnm)
                 continue
             loader = getattr(mdl, self.testLoaderAttribute, None) or loader
             if not (isdir and ignore_subpkg_root):
@@ -63,12 +73,18 @@ class TestLoader(unittest.TestLoader):
                     tests.append(loader.loadTestsFromModule(mdl))
             if isdir and resource_exists(mdlnm, '__init__.py'):
                 for fnm in resource_listdir(mdlnm, ''):
-                    if resource_isdir(mdlnm, fnm):
-                        pending.append( (mdlnm + '.' + fnm, loader, True) )
+                    fpath = resource_filename(mdlnm, fnm)
+                    if resource_isdir(mdlnm, fnm) \
+                            and (exclude is None
+                                 or not fnmatch(fpath + '/', exclude)):
+                        pending.append((mdlnm + '.' + fnm, loader, True))
                     elif any(fnm.endswith(ext) for ext in ['.py', '.pyc']) \
-                            and fnmatch(fnm, pattern) and fnm != '__init__.py':
+                            and fnmatch(fpath, pattern) \
+                            and fnm != '__init__.py'\
+                            and (exclude is None
+                                 or not fnmatch(fpath, exclude)):
                         submdlnm = mdlnm + '.' + fnm.rsplit('.', 1)[0]
-                        pending.append( (submdlnm, loader, False) )
+                        pending.append((submdlnm, loader, False))
         return self.suiteClass(tests)
 
     def _get_module_from_name(self, name):
@@ -76,8 +92,17 @@ class TestLoader(unittest.TestLoader):
         return sys.modules[name]
 
 
+def _configure_logger(log):
+    # See logging.basicConfig
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(logging.BASIC_FORMAT, None)
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+
+
 def test_suite():
-    return TestLoader().discover_package('tests', pattern='*.py')
+    return TestLoader().discover_package('tests', pattern='*.py',
+                                         exclude='*/functional/*')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

@@ -1,6 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-from inspect import isclass
 
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -27,6 +25,7 @@ The core of the dashboard architecture.
 __metaclass__ = type
 
 from datetime import date, time, datetime, timedelta
+from inspect import isclass
 from sys import version_info
 
 from genshi.builder import tag
@@ -37,8 +36,8 @@ from trac.perm import IPermissionRequestor
 from trac.resource import get_resource_url, Resource, resource_exists
 from trac.util.compat import set
 from trac.util.datefmt import parse_date
-from trac.util.translation import _
 from trac.web.chrome import add_stylesheet
+from bhdashboard.util.translation import _
 
 #--------------------------------------
 # Core classes and interfaces
@@ -46,11 +45,11 @@ from trac.web.chrome import add_stylesheet
 
 class IWidgetProvider(Interface):
     r"""Extension point interface for components providing widgets.
-    These may be seen as web parts more sophisticated than WikiMacro 
+    These may be seen as web parts more sophisticated than WikiMacro
     as they expose much more meta-data, but more simple than gadgets
     because they belong in the environment and are built on top of Trac
-    architecture. This makes them more suitable to be used in 
-    environments where flexibility and configurability is needed 
+    architecture. This makes them more suitable to be used in
+    environments where flexibility and configurability is needed
     (i.e. dashboards).
     """
     def get_widgets():
@@ -60,7 +59,7 @@ class IWidgetProvider(Interface):
         """Return plain text description of the widget with specified name."""
 
     def get_widget_params(name):
-        """Return a dictionary describing wigdet preference for the widget 
+        """Return a dictionary describing wigdet preference for the widget
         with specified name. Used to customize widget behavior."""
 
     def render_widget(name, context, options):
@@ -88,10 +87,10 @@ class ILayoutProvider(Interface):
     def expand_layout(name, context, options):
         """Provide the information needed to render layout identified by
         `name`.
-        
+
         :param context: rendering context
         :param options: additional options supplied in so as to adapt layout
-                considering data specific to this request. This allows to 
+                considering data specific to this request. This allows to
                 customize (parts of) the layout for a given request.
                 Suported options are :
 
@@ -131,7 +130,7 @@ class DashboardSystem(Component):
                     title='Invalid widget identifier')
 
     def get_widget_params(self, name):
-        """Return a dictionary describing wigdet preference for the widget 
+        """Return a dictionary describing wigdet preference for the widget
         with specified name. Used to customize widget behavior.
         """
         try:
@@ -255,7 +254,7 @@ class DashboardSystem(Component):
 
 
     def bind_params(self, options, spec, *params):
-        """Extract values for widget arguments from `options` and ensure 
+        """Extract values for widget arguments from `options` and ensure
         they are valid and properly formatted.
         """
         # Should this helper function be part of public API ?
@@ -291,18 +290,18 @@ class DashboardSystem(Component):
             raise LookupError(errmsg % (objnm,))
 
     def resolve_layout(self, nm):
-        return self._resolve(nm, 'layout_providers', 
+        return self._resolve(nm, 'layout_providers',
                 lambda _, lp: lp.get_layouts() , "No provider for layout %s")
 
     def resolve_widget(self, nm):
-        return self._resolve(nm, 'widget_providers', 
+        return self._resolve(nm, 'widget_providers',
                 lambda _, wp: wp.get_widgets() , "No provider for widget %s")
 
 #--------------------------------------
 # Exception classes
 #--------------------------------------
 
-# Maybe it is better to move these to a separate file 
+# Maybe it is better to move these to a separate file
 # (if this gets as big as it seems it will be)
 
 class WidgetException(TracError):
@@ -319,7 +318,7 @@ class InvalidWidgetArgument(WidgetException):
     title = 'Invalid Argument'
 
     def __init__(self, argname, message, title=None, show_traceback=False):
-        message = _("Invalid argument `") + argname + "`. " + message
+        message = _("Invalid argument") + " `" + argname + "`. " + message
         TracError.__init__(self, message, title, show_traceback)
         self.argname = argname
 
@@ -383,7 +382,7 @@ class ListField:
             try:
                 return list(value)
             except Exception, exc:
-                raise InvalidWidgetArgument(error=exc, 
+                raise InvalidWidgetArgument(error=exc,
                         title=_('List conversion error'))
 
 class EnumField:
@@ -425,4 +424,3 @@ class JsonField:
             raise TracError('Unable to load library to parse JSON string')
         else:
             return loads(value)
-

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -36,4 +35,3 @@ class BloodhoundSearchAdmin(Component):
         yield ('bhsearch optimize', '',
             'Optimize Bloodhound search index',
             None, BloodhoundSearchApi(self.env).optimize)
-

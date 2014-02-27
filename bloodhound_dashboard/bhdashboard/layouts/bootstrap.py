@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -46,7 +45,7 @@ class BootstrapLayout(Component):
     def get_layout_description(self, name):
         """Return plain text description of the layout with specified name.
         """
-        return { 
+        return {
                 'bootstrap_grid' : "Bootstrap grid system " \
                     "http://twitter.github.com/bootstrap/scaffolding.html#layouts",
                 'bootstrap_btnbar' : "Button toolbar acting as tabs nav"
@@ -95,7 +94,6 @@ class BootstrapLayout(Component):
                     tb.append(last_group)
                 else:
                     last_group.append(
-                            { 'caption' : caption, 'widget' :idx, 
+                            { 'caption' : caption, 'widget' :idx,
                               'id' : uuid4().hex, 'active' : i == active })
         layout_data['ready'] = True
-

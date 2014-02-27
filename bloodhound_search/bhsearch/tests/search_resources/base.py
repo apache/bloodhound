@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -28,12 +27,12 @@ from bhsearch.tests.base import BaseBloodhoundSearchTest
 
 
 class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
+
     def setUp(self):
         super(SimpleSearchWikiSyntaxFormatterTestCase, self).setUp(
             create_req=True,
         )
         self.text_formatter = SimpleSearchWikiSyntaxFormatter(self.env)
-
 
     def test_can_format_header(self):
         wiki_content = """= Header #overview
@@ -64,7 +63,6 @@ class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
     def test_can_format_sample_wiki_link(self):
         self.assertEqual("WikiPage", self._call_format("WikiPage"))
 
-
     def test_can_format_makro(self):
         """
         Makro links must be formatted as text
@@ -79,7 +77,6 @@ class SimpleSearchWikiSyntaxFormatterTestCase(BaseBloodhoundSearchTest):
             "bold, italic, WikiCreole style",
             self._call_format(
                 "**bold**, //italic//, **//WikiCreole style//**"))
-
 
     @unittest.skip("TODO")
     def test_can_format_non_wiki_camel_case(self):

@@ -76,7 +76,7 @@ def ticket_setup(tc):
 PRODUCT_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-link-tests.txt'))
 PRODUCT_ATTACHMENT_LINKS = to_unicode(pkg_resources.resource_string(
-        __name__, 'product-attachment-link-tests.txt')) 
+        __name__, 'product-attachment-link-tests.txt'))
 PRODUCT_SEARCH_LINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-search-link-tests.txt'))
 PRODUCT_TICKET_LINKS = to_unicode(pkg_resources.resource_string(
@@ -96,7 +96,7 @@ PRODUCT_COMMENT_LINKS = to_unicode(pkg_resources.resource_string(
 
 # Compact syntax
 PRODUCT_ATTACHMENT_SHORTLINKS = to_unicode(pkg_resources.resource_string(
-        __name__, 'product-attachment-link-tests.short.txt')) 
+        __name__, 'product-attachment-link-tests.short.txt'))
 PRODUCT_SEARCH_SHORTLINKS = to_unicode(pkg_resources.resource_string(
         __name__, 'product-search-link-tests.short.txt'))
 PRODUCT_TICKET_SHORTLINKS = to_unicode(pkg_resources.resource_string(
@@ -117,7 +117,7 @@ PRODUCT_PREFIXES = MultiproductTestCase.PRODUCT_DATA.keys()
 PRODUCT_PREFIXES.remove(MultiproductTestCase.default_product)
 
 def clear_base_href_setup(tc):
-    tc.global_env.href = Href('/') 
+    tc.global_env.href = Href('/')
     tc.global_env.abs_href = Href('http://www.example.com/')
     if tc.env is not tc.global_env:
         del tc.env.abs_href
@@ -143,7 +143,7 @@ def link_mp_setup(_setup):
 # Product testing contexts explained
 #
 # Product testing contexts are a hack used to hijack the mechanism
-# used by Trac test suite in order to run wiki test cases in product context  
+# used by Trac test suite in order to run wiki test cases in product context
 #
 # title_prefix          : prepend this text to test case summary
 # link_prefix           : used to put link references in given product context
@@ -151,10 +151,10 @@ def link_mp_setup(_setup):
 # path_prefix           : prepended to URLs expanded using `link_prefix`
 # main_product          : prefix identifying the product bound to test case
 #                         `env` attribute
-# setup_product         : optional prefix of the product that will be setup  
+# setup_product         : optional prefix of the product that will be setup
 #                         i.e. the product under test
 # load_products         : optional product prefixes list to load at setup time
-# *_product_name        : target product name (e.g. setup_product_name ) 
+# *_product_name        : target product name (e.g. setup_product_name )
 # *_escaped             : escaped forms used to match output
 TEST_PRODUCT_CONTEXTS = [
                          {'tc_title_prefix' : 'product: links',
@@ -231,14 +231,14 @@ def test_suite():
     suite = unittest.TestSuite()
 
     # Legacy test cases
-    suite.addTest(formatter.test_suite(wikisyntax.SEARCH_TEST_CASES, 
+    suite.addTest(formatter.test_suite(wikisyntax.SEARCH_TEST_CASES,
                                   file=wikisyntax.__file__))
-    suite.addTest(formatter.test_suite(wikisyntax.ATTACHMENT_TEST_CASES, 
+    suite.addTest(formatter.test_suite(wikisyntax.ATTACHMENT_TEST_CASES,
                                   file=wikisyntax.__file__,
                                   context=('wiki', 'WikiStart'),
                                   setup=attachment_setup,
                                   teardown=attachment_teardown))
-    suite.addTest(formatter.test_suite(wikisyntax.EMAIL_TEST_CASE_DEFAULT, 
+    suite.addTest(formatter.test_suite(wikisyntax.EMAIL_TEST_CASE_DEFAULT,
                                   file=wikisyntax.__file__,
                                   context=wikisyntax.email_default_context()))
     suite.addTest(formatter.test_suite(wikisyntax.EMAIL_TEST_CASE_NEVER_OBFUSCATE,
@@ -247,55 +247,55 @@ def test_suite():
                                   setup=wikisyntax.email_never_obfuscate_setup))
 
     # Product wiki syntax
-    suite.addTest(formatter.test_suite(PRODUCT_LINKS, 
+    suite.addTest(formatter.test_suite(PRODUCT_LINKS,
                                   setup=load_products_setup(PRODUCT_PREFIXES),
                                   file=__file__))
-    suite.addTests(formatter.test_suite(PRODUCT_SEARCH_LINKS % ctx, 
+    suite.addTests(formatter.test_suite(PRODUCT_SEARCH_LINKS % ctx,
                                   file=__file__,
                                   setup=clear_base_href_setup,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-    suite.addTests(formatter.test_suite(PRODUCT_ATTACHMENT_LINKS % ctx, 
+    suite.addTests(formatter.test_suite(PRODUCT_ATTACHMENT_LINKS % ctx,
                                   file=__file__,
                                   context=('wiki', 'WikiStart'),
                                   setup=link_mp_setup(attachment_setup),
                                   teardown=attachment_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-    suite.addTests(formatter.test_suite(PRODUCT_TICKET_LINKS % ctx, 
-                                  link_mp_setup(ticket_wikisyntax.ticket_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_TICKET_LINKS % ctx,
+                                  link_mp_setup(ticket_wikisyntax.ticket_setup),
                                   __file__,
                                   # No need to invoke it anymore
                                   # ticket_wikisyntax.ticket_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-    suite.addTests(formatter.test_suite(PRODUCT_TICKET_JIRA % ctx, 
-                                  link_mp_setup(ticket_wikisyntax.ticket_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_TICKET_JIRA % ctx,
+                                  link_mp_setup(ticket_wikisyntax.ticket_setup),
                                   __file__,
                                   # No need to invoke it anymore
                                   # ticket_wikisyntax.ticket_teardown,
                                   mpctx=ctx)
-                   for ctx in TEST_PRODUCT_CONTEXTS 
+                   for ctx in TEST_PRODUCT_CONTEXTS
                    if ctx['path_prefix'])
-    suite.addTests(formatter.test_suite(PRODUCT_REPORT_LINKS % ctx, 
-                                  link_mp_setup(ticket_wikisyntax.report_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_REPORT_LINKS % ctx,
+                                  link_mp_setup(ticket_wikisyntax.report_setup),
                                   __file__,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-    suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_LINKS % ctx, 
+    suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_LINKS % ctx,
                                   link_mp_setup(ticket_wikisyntax.milestone_setup),
-                                  __file__, 
+                                  __file__,
                                   ticket_wikisyntax.milestone_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-    suite.addTests(formatter.test_suite(PRODUCT_QUERY_LINKS % ctx, 
-                                  link_mp_setup(ticket_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_QUERY_LINKS % ctx,
+                                  link_mp_setup(ticket_setup),
                                   __file__,
                                   ticket_wikisyntax.ticket_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS)
-    suite.addTests(formatter.test_suite(PRODUCT_QUERY2_LINKS % ctx, 
-                                  link_mp_setup(ticket_wikisyntax.query2_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_QUERY2_LINKS % ctx,
+                                  link_mp_setup(ticket_wikisyntax.query2_setup),
                                   __file__,
                                   ticket_wikisyntax.query2_teardown,
                                   mpctx=ctx)
@@ -308,39 +308,39 @@ def test_suite():
 
 
     # Compact syntax
-    suite.addTests(formatter.test_suite(PRODUCT_SEARCH_SHORTLINKS % ctx, 
+    suite.addTests(formatter.test_suite(PRODUCT_SEARCH_SHORTLINKS % ctx,
                                   file=__file__,
                                   setup=clear_base_href_setup,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
-    suite.addTests(formatter.test_suite(PRODUCT_ATTACHMENT_SHORTLINKS % ctx, 
+    suite.addTests(formatter.test_suite(PRODUCT_ATTACHMENT_SHORTLINKS % ctx,
                                   file=__file__,
                                   context=('wiki', 'WikiStart'),
                                   setup=link_mp_setup(attachment_setup),
                                   teardown=attachment_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
-    suite.addTests(formatter.test_suite(PRODUCT_TICKET_SHORTLINKS % ctx, 
-                                  link_mp_setup(ticket_wikisyntax.ticket_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_TICKET_SHORTLINKS % ctx,
+                                  link_mp_setup(ticket_wikisyntax.ticket_setup),
                                   __file__,
                                   # No need to invoke it anymore
                                   # ticket_wikisyntax.ticket_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
 
-    suite.addTests(formatter.test_suite(PRODUCT_REPORT_SHORTLINKS % ctx, 
-                                  link_mp_setup(ticket_wikisyntax.report_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_REPORT_SHORTLINKS % ctx,
+                                  link_mp_setup(ticket_wikisyntax.report_setup),
                                   __file__,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
-    suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_SHORTLINKS % ctx, 
+    suite.addTests(formatter.test_suite(PRODUCT_MILESTONE_SHORTLINKS % ctx,
                                   link_mp_setup(ticket_wikisyntax.milestone_setup),
-                                  __file__, 
+                                  __file__,
                                   ticket_wikisyntax.milestone_teardown,
                                   mpctx=ctx)
                    for ctx in TEST_PRODUCT_CONTEXTS_COMPACT)
-    suite.addTests(formatter.test_suite(PRODUCT_QUERY_SHORTLINKS % ctx, 
-                                  link_mp_setup(ticket_setup), 
+    suite.addTests(formatter.test_suite(PRODUCT_QUERY_SHORTLINKS % ctx,
+                                  link_mp_setup(ticket_setup),
                                   __file__,
                                   ticket_wikisyntax.ticket_teardown,
                                   mpctx=ctx)
@@ -361,4 +361,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

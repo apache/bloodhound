@@ -19,23 +19,17 @@
 
 """Tests for Apache(TM) Bloodhound's product environments"""
 
-from inspect import stack
 import os.path
 import shutil
-from sqlite3 import OperationalError
 import sys
 import tempfile
+from inspect import stack
+from tests import unittest
 from types import MethodType
 
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-    from unittest2.case import _AssertRaisesContext
-else:
-    import unittest
-    from unittest.case import _AssertRaisesContext
-
+from trac.admin.api import AdminCommandManager, IAdminCommandProvider
 from trac.config import Option
-from trac.core import Component, ComponentMeta
+from trac.core import Component, ComponentMeta, implements
 from trac.env import Environment
 from trac.test import EnvironmentStub, MockPerm
 from trac.tests.env import EnvironmentTestCase
@@ -44,9 +38,11 @@ from trac.ticket.web_ui import TicketModule
 from trac.util.text import to_unicode
 from trac.web.href import Href
 
-from multiproduct.api import MultiProductSystem
+from multiproduct.api import DB_VERSION, MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
+
+_AssertRaisesContext = unittest.case._AssertRaisesContext
 
 
 class ProductEnvironmentStub(ProductEnvironment):
@@ -93,7 +89,7 @@ class MultiproductTestCase(unittest.TestCase):
                 return _AssertRaisesContext.__exit__(self, exc_type,
                                                      exc_value, tb)
             except self.failureException, exc:
-                msg = self.test_case.exceptFailureMessage 
+                msg = self.test_case.exceptFailureMessage
                 if msg is not None:
                     standardMsg = str(exc)
                     msg = msg % self._tb_locals(tb)
@@ -160,7 +156,7 @@ class MultiproductTestCase(unittest.TestCase):
     # Test setup
 
     def _setup_test_env(self, create_folder=True, path=None, **kwargs):
-        r"""Prepare a new test environment . 
+        r"""Prepare a new test environment .
 
         Optionally set its path to a meaningful location (temp folder
         if `path` is `None`).
@@ -170,20 +166,27 @@ class MultiproductTestCase(unittest.TestCase):
         self.env = env = EnvironmentStub(**kwargs)
         if create_folder:
             if path is None:
-                env.path = tempfile.mkdtemp('bh-product-tempenv')
+                env.path = tempfile.mkdtemp(prefix='bh-tempenv-')
             else:
                 env.path = path
-                if not os.path.exists(path):
-                    os.mkdir(path)
+                if not os.path.exists(env.path):
+                    os.mkdir(env.path)
+            conf_dir = os.path.join(env.path, 'conf')
+            if not os.path.exists(conf_dir):
+                os.mkdir(conf_dir)
         return env
 
     def _setup_test_log(self, env):
         r"""Ensure test product with prefix is loaded
         """
-        logdir = tempfile.gettempdir()
-        logpath = os.path.join(logdir, 'trac-testing.log')
+        if not hasattr(env, 'path') or not env.path:
+            env.path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
+        log_dir = os.path.join(env.path, 'log')
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        log_file = os.path.join(log_dir, 'trac-testing.log')
         config = env.config
-        config.set('logging', 'log_file', logpath)
+        config.set('logging', 'log_file', log_file)
         config.set('logging', 'log_type', 'file')
         config.set('logging', 'log_level', 'DEBUG')
 
@@ -196,7 +199,7 @@ class MultiproductTestCase(unittest.TestCase):
 
         # Clean-up logger instance and associated handler
         # Otherwise large test suites will only result in ERROR eventually
-        # (at least in Unix systems) with messages 
+        # (at least in Unix systems) with messages
         #
         # TracError: Error reading '/path/to/file', make sure it is readable.
         # error: /path/to/: Too many open files
@@ -225,16 +228,20 @@ class MultiproductTestCase(unittest.TestCase):
         r"""Apply multi product upgrades
         """
         # Do not break wiki parser ( see #373 )
-        env.disable_component(TicketModule)
-        env.disable_component(ReportModule)
+        EnvironmentStub.disable_component_in_config(env, TicketModule)
+        EnvironmentStub.disable_component_in_config(env, ReportModule)
 
         mpsystem = MultiProductSystem(env)
-        try:
-            mpsystem.upgrade_environment(env.db_transaction)
-        except OperationalError:
-            # Database is upgraded, but database version was deleted.
-            # Complete the upgrade by inserting default product.
-            mpsystem._insert_default_product(env.db_transaction)
+        with env.db_transaction as db:
+            try:
+                mpsystem.upgrade_environment(db)
+            except env.db_exc.OperationalError:
+                # Database is upgraded, but database version was deleted.
+                # Complete the upgrade by inserting default product.
+                mpsystem._insert_default_product(db)
+            finally:
+                # Ensure that multiproduct DB version is set to latest value
+                mpsystem._update_db_version(db, DB_VERSION)
         # assume that the database schema has been upgraded, enable
         # multi-product schema support in environment
         env.enable_multiproduct_schema(True)
@@ -311,7 +318,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         if self.env is not None:
             try:
                 self.env.reset_db()
-            except OperationalError:
+            except self.env.db_exc.OperationalError:
                 # "Database not found ...",
                 # "OperationalError: no such table: system" or the like
                 pass
@@ -333,7 +340,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
 
         def property_mock(attrnm, expected_self):
             def assertAttrFwd(instance):
-                self.assertIs(instance, expected_self, 
+                self.assertIs(instance, expected_self,
                               "Mismatch in property '%s'" % (attrnm,))
                 raise AttrSuccess
             return property(assertAttrFwd)
@@ -343,7 +350,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             for attrnm in 'system_info_providers secure_cookies ' \
                     'project_admin_trac_url get_system_info get_version ' \
                     'get_templates_dir get_templates_dir get_log_dir ' \
-                    'backup'.split(): 
+                    'backup'.split():
                 original = getattr(Environment, attrnm)
                 if isinstance(original, MethodType):
                     translation = getattr(self.product_env, attrnm)
@@ -388,15 +395,8 @@ class ProductEnvApiTestCase(MultiproductTestCase):
     def test_typecheck(self):
         """Testing env.__init__"""
         self._load_product_from_data(self.env, 'tp2')
-        with self.assertRaises(TypeError) as cm_test:
-            new_env = ProductEnvironment(self.product_env, 'tp2')
-
-        msg = str(cm_test.exception)
-        expected_msg = "Initializer must be called with " \
-                       "trac.env.Environment instance as first argument " \
-                       "(got multiproduct.env.ProductEnvironment instance " \
-                       "instead)"
-        self.assertEqual(msg, expected_msg)
+        env2 = ProductEnvironment(self.product_env, 'tp2')
+        self.assertIs(env2, ProductEnvironment(self.env, 'tp2'))
 
     def test_component_enable(self):
         """Testing env.is_component_enabled"""
@@ -404,6 +404,7 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             pass
         # Let's pretend this was declared elsewhere
         C.__module__ = 'dummy_module'
+        sys.modules['dummy_module'] = sys.modules[__name__]
 
         global_env = self.env
         product_env = self.product_env
@@ -420,6 +421,8 @@ class ProductEnvApiTestCase(MultiproductTestCase):
             expected_rules = {
                 'multiproduct': True,
                 'trac': True,
+                'trac.ticket.report.reportmodule': False,
+                'trac.ticket.web_ui.ticketmodule': False,
                 'trac.db': True,
                 cname: False,
             }
@@ -520,24 +523,24 @@ class ProductEnvApiTestCase(MultiproductTestCase):
         self.assertEquals('value2', product_config['section'].get('key'))
 
     def test_parametric_singleton(self):
-        self.assertIs(self.product_env, 
+        self.assertIs(self.product_env,
                       ProductEnvironment(self.env, self.default_product))
 
         for prefix in self.PRODUCT_DATA:
             if prefix != self.default_product:
                 self._load_product_from_data(self.env, prefix)
 
-        envgen1 = dict([prefix, ProductEnvironment(self.env, prefix)] 
+        envgen1 = dict([prefix, ProductEnvironment(self.env, prefix)]
                        for prefix in self.PRODUCT_DATA)
-        envgen2 = dict([prefix, ProductEnvironment(self.env, prefix)] 
+        envgen2 = dict([prefix, ProductEnvironment(self.env, prefix)]
                        for prefix in self.PRODUCT_DATA)
 
         for prefix, env1 in envgen1.iteritems():
-            self.assertIs(env1, envgen2[prefix], 
+            self.assertIs(env1, envgen2[prefix],
                           "Identity check (by prefix) '%s'" % (prefix,))
 
         for prefix, env1 in envgen1.iteritems():
-            self.assertIs(env1, envgen2[prefix], 
+            self.assertIs(env1, envgen2[prefix],
                           "Identity check (by prefix) '%s'" % (prefix,))
 
         def load_product(prefix):
@@ -552,12 +555,12 @@ class ProductEnvApiTestCase(MultiproductTestCase):
                        for prefix in self.PRODUCT_DATA)
 
         for prefix, env1 in envgen1.iteritems():
-            self.assertIs(env1, envgen3[prefix], 
+            self.assertIs(env1, envgen3[prefix],
                           "Identity check (by product model) '%s'" % (prefix,))
 
 
 class ProductEnvHrefTestCase(MultiproductTestCase):
-    """Assertions for resolution of product environment's base URL 
+    """Assertions for resolution of product environment's base URL
     [https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003 BEP 3]
     """
 
@@ -570,7 +573,6 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
 
     def setUp(self):
         self._mp_setup()
-        self.env.path = '/path/to/env'
         self.env.abs_href = Href('http://globalenv.com/trac.cgi')
         url_pattern = getattr(getattr(self, self._testMethodName).im_func,
                               'product_base_url', '')
@@ -579,11 +581,12 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         self.product_env = ProductEnvironment(self.env, self.default_product)
 
     def tearDown(self):
+        shutil.rmtree(os.path.dirname(self.env.path), ignore_errors=True)
         # Release reference to transient environment mock object
         if self.env is not None:
             try:
                 self.env.reset_db()
-            except OperationalError:
+            except self.env.db_exc.OperationalError:
                 # "Database not found ...",
                 # "OperationalError: no such table: system" or the like
                 pass
@@ -610,8 +613,11 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
     def test_href_inherit_sibling_paths(self):
         """Test product base URL at sibling paths inheriting configuration.
         """
-        self.assertEqual('/trac.cgi/env/tp1', self.product_env.href())
-        self.assertEqual('http://globalenv.com/trac.cgi/env/tp1',
+        self.assertEqual('/trac.cgi/%s/tp1'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.href())
+        self.assertEqual('http://globalenv.com/trac.cgi/%s/tp1'
+                         % os.path.split(self.env.path)[-1],
                          self.product_env.abs_href())
 
     @product_base_url('')
@@ -635,7 +641,9 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         """Test complex product base URL
         """
         self.assertEqual('/bh/tp1', self.product_env.href())
-        self.assertEqual('http://env.tld/bh/tp1', self.product_env.abs_href())
+        self.assertEqual('http://%s.tld/bh/tp1'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
     def test_product_href_uses_multiproduct_product_base_url(self):
@@ -651,7 +659,9 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
         # Product URLs
         self.assertEqual('', self.product_env.base_url)
         self.assertEqual('/', self.product_env.href())
-        self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
+        self.assertEqual('http://tp1.%s.tld'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.abs_href())
 
     @product_base_url('http://$(prefix)s.$(envname)s.tld/')
     def test_product_href_uses_products_base_url(self):
@@ -679,9 +689,138 @@ class ProductEnvHrefTestCase(MultiproductTestCase):
 
         self.assertEqual('', self.product_env.base_url)
         self.assertEqual('/', self.product_env.href())
-        self.assertEqual('http://tp1.env.tld', self.product_env.abs_href())
+        self.assertEqual('http://tp1.%s.tld'
+                         % os.path.split(self.env.path)[-1],
+                         self.product_env.abs_href())
 
     product_base_url = staticmethod(product_base_url)
+
+
+class ProductEnvConfigTestCase(MultiproductTestCase):
+    """Test cases for product environment's configuration
+    """
+
+    class DummyAdminCommand(Component):
+        """Dummy class used for testing purposes
+        """
+        implements(IAdminCommandProvider)
+
+        class DummyException(Exception):
+            pass
+
+        def do_fail(self, *args):
+            raise DummyException(args)
+
+        def get_admin_commands(self):
+            yield "fail", "[ARG]...", "Always fail", None, self.do_fail
+
+
+    def setUp(self):
+        self._mp_setup(create_folder=True)
+        self.global_env = self.env
+        self.env = ProductEnvironment(self.global_env, self.default_product)
+
+        # Random component class
+        self.component_class = self.DummyAdminCommand
+
+    def tearDown(self):
+        if self.global_env is not None:
+            try:
+                self.global_env.reset_db()
+            except self.global_env.db_exc.OperationalError:
+                # "Database not found ...",
+                # "OperationalError: no such table: system" or the like
+                pass
+
+        shutil.rmtree(self.env.path)
+        self.env = self.global_env = None
+
+    def test_regression_bh_539(self):
+        tracadmin = AdminCommandManager(self.env)
+
+        self.assertTrue(self.env[self.component_class] is None,
+                        "Expected component disabled")
+        self.assertFalse(any(isinstance(c, self.component_class)
+                             for c in tracadmin.providers),
+                         "Component erroneously listed in admin cmd providers")
+        self.assertEqual([], tracadmin.get_command_help(args=['fail']))
+
+        # Enable component in both global and product context
+        cmd_args = ['config', 'set', 'components', __name__ + '.*', 'enabled']
+        AdminCommandManager(self.global_env).execute_command(*cmd_args)
+        tracadmin.execute_command(*cmd_args)
+
+        self.assertTrue(self.env[self.component_class] is not None,
+                        "Expected component enabled")
+        self.assertTrue(any(isinstance(c, self.component_class)
+                            for c in tracadmin.providers),
+                        "Component not listed in admin cmd providers")
+        self.assertEqual(1, len(tracadmin.get_command_help(args=['fail'])))
+
+    def test_regression_bh_539_concurrent(self):
+        try:
+            # It is necessary to load another environment object to work around
+            # ProductEnvironment class' parametric singleton constraint
+            old_env = self.env
+            # In-memory DB has to be shared
+            self.global_env.__class__.global_databasemanager = \
+                self.env.global_databasemanager
+            new_global_env = self._setup_test_env(create_folder=True,
+                                                  path=self.global_env.path)
+            self.env = old_env
+            self._setup_test_log(new_global_env)
+
+            # FIXME: EnvironmentStub config is not bound to a real file
+            # ... so let's reuse one config for both envs to simulate that they
+            # are in sync, a condition verified in another test case
+            new_global_env.config = self.global_env.config
+
+            new_env = ProductEnvironment(new_global_env, self.default_product)
+
+            self.assertTrue(new_global_env is not self.global_env)
+            self.assertTrue(new_env is not self.env)
+            self.assertEqual(self.env.path, new_env.path)
+            self.assertEqual(self.env.config._lock_path,
+                             new_env.config._lock_path)
+
+            tracadmin = AdminCommandManager(self.env)
+            new_tracadmin = AdminCommandManager(new_env)
+
+            # Assertions for self.env
+            self.assertTrue(self.env[self.component_class] is None,
+                            "Expected component disabled")
+            self.assertFalse(any(isinstance(c, self.component_class)
+                                 for c in tracadmin.providers),
+                             "Component erroneously listed in admin cmd "
+                             "providers")
+            self.assertEqual([], tracadmin.get_command_help(args=['fail']))
+
+            # Repeat assertions for new_env
+            self.assertTrue(new_env[self.component_class] is None,
+                            "Expected component disabled")
+            self.assertFalse(any(isinstance(c, self.component_class)
+                                 for c in new_tracadmin.providers),
+                             "Component erroneously listed in admin cmd "
+                             "providers")
+            self.assertEqual([], new_tracadmin.get_command_help(args=['fail']))
+
+            # Enable component in both self.global_env and self.env contexts
+            cmd_args = ['config', 'set', 'components',
+                       __name__ + '.*', 'enabled']
+            AdminCommandManager(self.global_env).execute_command(*cmd_args)
+            tracadmin.execute_command(*cmd_args)
+
+            # Assert that changes are auto-magically reflected in new_env
+            self.assertTrue(new_env[self.component_class] is not None,
+                            "Expected component enabled")
+            self.assertTrue(any(isinstance(c, self.component_class)
+                                for c in new_tracadmin.providers),
+                            "Component not listed in admin cmd providers")
+            self.assertEqual(
+                1, len(new_tracadmin.get_command_help(args=['fail'])))
+        finally:
+            self.global_env.__class__.global_databasemanager = None
+            new_global_env = new_env = None
 
 
 def test_suite():
@@ -689,6 +828,7 @@ def test_suite():
         unittest.makeSuite(ProductEnvTestCase, 'test'),
         unittest.makeSuite(ProductEnvApiTestCase, 'test'),
         unittest.makeSuite(ProductEnvHrefTestCase, 'test'),
+        unittest.makeSuite(ProductEnvConfigTestCase, 'test'),
     ])
 
 if __name__ == '__main__':

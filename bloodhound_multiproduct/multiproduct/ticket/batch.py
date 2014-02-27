@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -17,16 +18,17 @@
 #  under the License.
 
 from trac.ticket.batch import BatchModifyModule
-from trac.util.translation import _
 from trac.web.chrome import add_script_data
 from multiproduct.env import ProductEnvironment
+from multiproduct.util.translation import _
 
 
 class ProductBatchModifyModule(BatchModifyModule):
+
     def add_template_data(self, req, data, tickets):
         if isinstance(self.env, ProductEnvironment):
-            super(ProductBatchModifyModule, self).add_template_data(
-                req, data, tickets)
+            super(ProductBatchModifyModule, self).add_template_data(req, data,
+                                                                    tickets)
             return
 
         data['batch_modify'] = True
@@ -39,12 +41,13 @@ class ProductBatchModifyModule(BatchModifyModule):
         data['action_controls'] = []
         global_env = ProductEnvironment.lookup_global_env(self.env)
         cache = {}
-        for k,v in tickets_by_product.iteritems():
-            batchmdl = cache.get(k or '')
-            if batchmdl is None:
+        for k, v in tickets_by_product.iteritems():
+            batch_module = cache.get(k or '')
+            if batch_module is None:
                 env = ProductEnvironment(global_env, k) if k else global_env
-                cache[k] = batchmdl = ProductBatchModifyModule(env)
-            data['action_controls'] += batchmdl._get_action_controls(req, v)
+                cache[k] = batch_module = ProductBatchModifyModule(env)
+            data['action_controls'] += batch_module._get_action_controls(req,
+                                                                         v)
         batch_list_modes = [
             {'name': _("add"), 'value': "+"},
             {'name': _("remove"), 'value': "-"},
@@ -52,7 +55,7 @@ class ProductBatchModifyModule(BatchModifyModule):
             {'name': _("set to"), 'value': "="},
         ]
         add_script_data(req, batch_list_modes=batch_list_modes,
-                             batch_list_properties=self._get_list_fields())
+                        batch_list_properties=self._get_list_fields())
 
 import trac.ticket.batch
 trac.ticket.batch.BatchModifyModule = ProductBatchModifyModule

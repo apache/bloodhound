@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -15,8 +16,6 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-
-"""Bloodhound multiproduct utility APIs"""
 
 from genshi.builder import tag
 
@@ -63,13 +62,13 @@ class ReplacementComponent(Component):
 #--------------------------
 
 class EmbeddedLinkFormatter(LinkFormatter):
-    """Format the inner TracLinks expression corresponding to resources 
+    """Format the inner TracLinks expression corresponding to resources
     in compound links e.g. product:PREFIX:ticket:1 , global:ticket:1
     """
 
     def __init__(self, env, context, parent_match=None):
         """Extend initializer signature to accept parent match
-        
+
         @param parent_match: mapping object containing the following keys
                         - ns : namespace of parent resolver
                         - target : target supplied in to parent resolver
@@ -104,7 +103,7 @@ class EmbeddedLinkFormatter(LinkFormatter):
             if match and not itype in self.wikiparser.helper_patterns:
                 # Check for preceding escape character '!'
                 if match[0] == '!':
-                    # Erroneous expression. Nested link would be escaped 
+                    # Erroneous expression. Nested link would be escaped
                     return tag.a(self.parent_match['label'], class_='missing')
                 if itype in self.wikiparser.external_handlers:
                     #TODO: Important! Add product prefix in label (when needed?)
@@ -146,7 +145,7 @@ def get_db_connector_from_uri(env):
         trac.db.api.DatabaseManager(env).connection_uri
     )
     return connector
-    
+
 def using_sqlite_backend(env):
     return get_db_connector_from_uri(env) == 'sqlite'
 

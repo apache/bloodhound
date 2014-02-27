@@ -50,6 +50,16 @@ $( function () {
     });
 */
 
+    function checkSelections () {
+      return $.inArray('', $('#qct-box select[data-optional=false]').map(function() {
+        return $(this).val();
+      })) == -1;
+    }
+    $('#qct-create').attr("disabled", !checkSelections());
+    $('#qct-box select').change(function () {
+        $('#qct-create').attr("disabled", !checkSelections());
+    });
+
     $('#qct-inline-newticket').click(function() {
       $('#qct-inline-notice-success, #qct-inline-notice-error').hide();
 
@@ -74,14 +84,45 @@ $( function () {
         title : function () {
             ticket = qct_info.ticket;
             if (ticket)
-              title = 'Ticket #' + qct_info.ticket;
+              title = _('Ticket #') + qct_info.ticket;
             else
-              title = 'Error creating ticket';
+              title = _('Error creating ticket');
             return title + ' <a class="close" id="qct-alert-close" ' +
                 'data-dismiss="alert" href="#">&times;</a>'
           },
         content : function () { return qct_info.msg; }
       });
+
+    /** 
+     * POST QCT form fields to full ticket form when "More fields" is clicked
+     */
+    $('#qct-more').click(function(e) {
+        // As we're not creating the ticket, we'll remove hidden fields
+        // that result in unnecessary validation messages.
+        e.preventDefault();
+        $qct_form = $('#qct-form');
+        $qct_form.unbind('submit');
+        new_ticket_url = $qct_form.find(':selected').attr('data-product-new-ticket-url');
+        $qct_form.attr('action', new_ticket_url);
+        $('.qct-product-scope-extra').remove();
+        $qct_form.append('<input type="hidden" value="1" name="preview" />');
+        $qct_form.submit();
+
+    });
+
+    function set_qct_more_visibility(is_visible) {
+        if (is_visible) {
+            $('#qct-more').css('visibility', 'visible');
+        } else {
+            $('#qct-more').css('visibility', 'hidden');
+        }
+    }
+
+    $('#field-product').change(function(e) {
+        set_qct_more_visibility($(this).val());
+    });
+
+    set_qct_more_visibility($('#field-product').val());
 
     $('body').on('click.close', '#qct-alert-close', 
         function (e) { qct_alert_close() });
@@ -89,7 +130,13 @@ $( function () {
     // Display & hide message triggered by quick create box
     function qct_alert(msg) {
       qct_info = msg;
-      jQuery('#qct-newticket').popover('show');
+      var link_content = '#' + qct_info.product + '-' + qct_info.ticket;
+      var link = $(qct_info.msg).filter('a').html(link_content);
+      $('#qct-last').empty()
+                    .append('Last ticket created: ')
+                    .append(link);
+      $('#qct-last-container').show();
+      $('#qct-newticket').popover('show');
       if (qct_timeout)
         clearTimeout(qct_timeout);
       qct_timeout = setTimeout(qct_alert_close, 4000);
@@ -100,9 +147,24 @@ $( function () {
     }
 
     // Clear input controls inside quick create box
+    var timeout;
+    $('#qct-newticket').click(function () {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    });
     function qct_clearui() {
-      $('#qct-form input[name!="__FORM_TOKEN"], #qct-form select, #qct-form textarea').val('');
-      $('#qct-inline-form input[name!="__FORM_TOKEN"], #qct-inline-form select, #qct-inline-form textarea').val('');
+      $('#qct-form input[name!="__FORM_TOKEN"], #qct-form textarea').val('');
+      $('#qct-inline-form input[name!="__FORM_TOKEN"], #qct-inline-form textarea').val('');
+      $('#qct-create').attr("disabled", !checkSelections());
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(function () {
+        $('#qct-form select').val('');
+        $('#qct-inline-form select').val('');
+        $('#qct-create').attr("disabled", !checkSelections());
+      }, 120000);
     }
 
     // We want to submit via #qct-create
@@ -131,19 +193,20 @@ $( function () {
               function(ticket) {
                 qct_alert({
                     ticket: ticket.id,
+                    product: ticket.product,
                     msg: '<span class="alert alert-success">' +
-                         'Has been created</span> ' +
-                         '<a href="' + ticket.url + '">View / Edit</a>'
+                         _('Has been created') + '</span> ' +
+                         '<a href="' + ticket.url + '">' + _('View / Edit') + '</a>'
                   });
               })
               .error(function(jqXHR, textStatus, errorMsg) {
                   var msg = 'Error:' + errorMsg;
                   if (textStatus === 'timeout')
-                    msg = 'Request timed out';
+                    msg = _('Request timed out');
                   else if (textStatus === 'error')
-                    msg = 'Could not create ticket . Error : ' + errorMsg;
+                    msg = _('Could not create ticket . Error : ') + errorMsg;
                   else if (textStatus === 'abort')
-                    msg = 'Aborted request'
+                    msg = _('Aborted request')
                   qct_alert({ 
                       ticket : null, 
                       msg : '<span class="alert alert-error"' +
@@ -161,19 +224,19 @@ $( function () {
         product_base_url = '';
       $.post(product_base_url + '/qct', $('#qct-inline-form').serialize(),
           function(ticket) {
-            var msg = 'Ticket #' + ticket.id + ' has been created. ';
-            msg += '<a href="' + ticket.url + '">View / Edit</a>';
+            var msg = _('Ticket #') + ticket.id + _(' has been created. ');
+            msg += '<a href="' + ticket.url + '">' + _('View / Edit') + '</a>';
             $('#qct-inline-notice-success span').html(msg);
             $('#qct-inline-notice-success').show({'duration': 400});
           })
           .error(function(jqXHR, textStatus, errorMsg) {
             var msg;
             if (textStatus === 'timeout')
-              msg = 'Request timed out';
+              msg = _('Request timed out');
             else if (textStatus === 'error')
-              msg = 'Could not create ticket. Error : ' + errorMsg;
+              msg = _('Could not create ticket. Error : ') + errorMsg;
             else if (textStatus === 'abort')
-              msg = 'Aborted request';
+              msg = _('Aborted request');
 
             $('#qct-inline-notice-error span').html(msg);
             $('#qct-inline-notice-error').show({'duration': 400});
@@ -221,4 +284,3 @@ function setup_sticky_panel(selector) {
       }
     })
 }
-

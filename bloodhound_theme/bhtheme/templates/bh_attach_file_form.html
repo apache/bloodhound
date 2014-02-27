@@ -28,12 +28,13 @@ Arguments:
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       py:if="alist.can_create" method="get" action="${alist.attach_href}"
       id="attachfile" style="display: inline-block">
   <input type="hidden" name="action" value="new" />
-  <div class="btn-group">
-    <button type="submit" class="btn" name="attachfilebutton" id="attachfilebutton">
-      <i class="icon-file"></i> ${value_of('add_button_title', None) or _('Attach file')}
+  <div class="btn-group" py:with="value = value_of('add_button_title', None) or _('Attach file');">
+    <button type="submit" class="btn" value="$value" name="attachfilebutton" id="attachfilebutton">
+      <i class="icon-file"></i> $value
     </button>
   </div>
 </form>

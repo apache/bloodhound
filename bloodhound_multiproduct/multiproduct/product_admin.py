@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,8 +17,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Admin panels for product management"""
-
 from trac.admin.api import IAdminCommandProvider, AdminCommandError,\
     AdminCommandManager
 from trac.admin.console import TracAdmin, TRAC_VERSION
@@ -27,20 +26,20 @@ from trac.config import *
 from trac.perm import PermissionSystem
 from trac.resource import ResourceNotFound
 from trac.ticket.admin import TicketAdminPanel, _save_config
-from trac.util import lazy
+from trac.util import getuser, lazy
 from trac.util.text import print_table, to_unicode, printerr, printout
-from trac.util.translation import _, N_, gettext, ngettext
 from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler
 from trac.web.chrome import Chrome, add_notice, add_warning
 
 from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
 from multiproduct.perm import sudo
+from multiproduct.util import ReplacementComponent
+from multiproduct.util.translation import _, N_, gettext, ngettext
 
 import multiproduct.versioncontrol
 import trac.versioncontrol.admin
 from trac.versioncontrol import DbRepositoryProvider, RepositoryManager
-from multiproduct.util import ReplacementComponent
 
 #--------------------------
 # Product admin panel
@@ -50,8 +49,8 @@ class ProductAdminPanel(TicketAdminPanel):
     """The Product Admin Panel"""
     _type = 'products'
     _label = ('Product','Products')
-    
-    def get_admin_commands(self): 
+
+    def get_admin_commands(self):
         if not isinstance(self.env, ProductEnvironment):
             yield ('product add', '<prefix> <owner> <name>',
                    'Add a new product',
@@ -73,10 +72,10 @@ class ProductAdminPanel(TicketAdminPanel):
         if isinstance(req.perm.env, ProductEnvironment):
             return None
         return super(ProductAdminPanel, self).get_admin_panels(req)
-    
+
     def _render_admin_panel(self, req, cat, page, product):
         req.perm.require('PRODUCT_VIEW')
-        
+
         name = req.args.get('name')
         description = req.args.get('description','')
         prefix = req.args.get('prefix') if product is None else product
@@ -86,7 +85,7 @@ class ProductAdminPanel(TicketAdminPanel):
                       'description':description,
                       'owner':owner,
                       }
-        
+
         # Detail view?
         if product:
             prod = Product(self.env, keys)
@@ -94,12 +93,12 @@ class ProductAdminPanel(TicketAdminPanel):
                 if req.args.get('save'):
                     req.perm.require('PRODUCT_MODIFY')
                     prod.update_field_dict(field_data)
-                    prod.update()
+                    prod.update(req.authname)
                     add_notice(req, _('Your changes have been saved.'))
                     req.redirect(req.href.admin(cat, page))
                 elif req.args.get('cancel'):
                     req.redirect(req.href.admin(cat, page))
-            
+
             Chrome(self.env).add_wiki_toolbars(req)
             data = {'view': 'detail', 'product': prod}
         else:
@@ -127,11 +126,11 @@ class ProductAdminPanel(TicketAdminPanel):
                             raise TracError(_('Invalid product id.'))
                         raise TracError(_("Product %(id)s already exists.",
                                           id=prefix))
-                
+
                 # Remove product
                 elif req.args.get('remove'):
                     raise TracError(_('Product removal is not allowed!'))
-                
+
                 # Set default product
                 elif req.args.get('apply'):
                     prefix = req.args.get('default')
@@ -142,7 +141,14 @@ class ProductAdminPanel(TicketAdminPanel):
                                         prefix)
                         _save_config(self.config, req, self.log)
                         req.redirect(req.href.admin(cat, page))
-            
+
+                # Clear default product
+                elif req.args.get('clear'):
+                    self.log.info("Clearing default product")
+                    self.config.set('ticket', 'default_product', '')
+                    _save_config(self.config, req, self.log)
+                    req.redirect(req.href.admin(cat, page))
+
             products = Product.select(self.env)
             data = {'view': 'list',
                     'products': products,
@@ -181,7 +187,7 @@ class ProductAdminPanel(TicketAdminPanel):
     def _do_product_chown(self, prefix, owner):
         product = self.load_product(prefix)
         product._data['owner'] = owner
-        product.update()
+        product.update(getuser())
 
     def _do_product_list(self):
         if not isinstance(self.env, ProductEnvironment):
@@ -195,7 +201,7 @@ class ProductAdminPanel(TicketAdminPanel):
     def _do_product_rename(self, prefix, newname):
         product = self.load_product(prefix)
         product._data['name'] = newname
-        product.update()
+        product.update(getuser())
 
 
 #--------------------------
@@ -205,8 +211,8 @@ class ProductAdminPanel(TicketAdminPanel):
 class IProductAdminAclContributor(Interface):
     """Interface implemented by components contributing with entries to the
     access control white list in order to enable admin panels in product
-    context. 
-    
+    context.
+
     **Notice** that deny entries configured by users in the blacklist
     (i.e. using TracIni `admin_blacklist` option in `multiproduct` section)
     will override these entries.
@@ -227,7 +233,7 @@ class ProductAdminModule(Component):
 
     acl_contributors = ExtensionPoint(IProductAdminAclContributor)
 
-    raw_blacklist = ListOption('multiproduct', 'admin_blacklist', 
+    raw_blacklist = ListOption('multiproduct', 'admin_blacklist',
         doc="""Do not show any product admin panels in this list even if
         allowed by white list. Value must be a comma-separated list of
         `cat:id` strings respectively identifying the section and identifier
@@ -253,7 +259,7 @@ class ProductAdminModule(Component):
                     else:
                         self.log.warning('Invalid panel %s in white list',
                                          panel_id)
-    
+
             # Blacklist entries will override those in white list
             warnings = []
             for panelref in self.raw_blacklist:
@@ -295,7 +301,7 @@ class ProductAdminModule(Component):
             mgr = self.product_admincmd_mgr(args[0])
             return mgr.complete_command(args[1:])
 
-    GLOBAL_COMMANDS = ('deploy', 'help', 'hotcopy', 'initenv', 'upgrade')
+    GLOBAL_COMMANDS = ('deploy', 'hotcopy', 'initenv', 'upgrade')
 
     def _do_product_admin(self, prefix, *args):
         mgr = self.product_admincmd_mgr(prefix)
@@ -326,7 +332,15 @@ class ProductAdminModule(Component):
                 env = mgr.env
                 TracAdmin.print_doc(TracAdmin.all_docs(env), short=True)
         else:
-            mgr.execute_command(*args)
+            try:
+                mgr.execute_command(*args)
+            except AdminCommandError, e:
+                printerr(_("Error: %(msg)s", msg=to_unicode(e)))
+                if e.show_usage:
+                    print
+                    self._do_product_admin(prefix, 'help', *args[:2])
+            except:
+                raise
 
     # IRequestFilter methods
     def pre_process_request(self, req, handler):
@@ -457,5 +471,3 @@ class ProductRepositoryAdminPanel(ReplacementComponent, trac.versioncontrol.admi
         return 'repository_links.html', data
 
 trac.versioncontrol.admin.RepositoryAdminPanel = ProductRepositoryAdminPanel
-
-

@@ -1,4 +1,6 @@
-
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,7 +18,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""setup for multi product plugin"""
 import sys, codecs
 from pkg_resources import parse_version
 from setuptools import setup
@@ -33,6 +34,25 @@ if __name__ == '__main__':
             del sys.argv[ac]
             break
 
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'multiproduct': extractors,
+        }
+except ImportError:
+    pass
+
 setup(
     name = 'BloodhoundMultiProduct',
     version = '0.8.0',
@@ -40,8 +60,10 @@ setup(
     author = "Apache Bloodhound",
     license = "Apache License v2",
     url = "https://bloodhound.apache.org/",
-    packages = ['multiproduct', 'multiproduct.ticket', 'tests',],
-    package_data = {'multiproduct' : ['templates/*.html',]},
+    packages = ['multiproduct', 'multiproduct.ticket', 'multiproduct.util',
+                'tests',],
+    package_data = {'multiproduct' : ['templates/*.html','locale/*/LC_MESSAGES/*.mo']},
+    install_requires = ['sqlparse'],
     entry_points = {'trac.plugins': [
             'multiproduct.model = multiproduct.model',
             'multiproduct.perm = multiproduct.perm',
@@ -52,6 +74,6 @@ setup(
             'multiproduct.web_ui = multiproduct.web_ui',
         ],},
     test_suite='tests.test_suite',
-    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else ''],
+    **extra
 )
-

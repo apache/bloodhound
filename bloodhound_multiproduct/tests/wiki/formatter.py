@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -44,9 +45,9 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
         if self.context.req:
             self.context.req.session = FakeSession()
         if self.mpctx:
-            candidates = set(self.mpctx.get('load_products', []) + 
+            candidates = set(self.mpctx.get('load_products', []) +
                              [self.mpctx.get('main_product')])
-            candidates -= set([self.default_product, None, 
+            candidates -= set([self.default_product, None,
                               self.mpctx.get('setup_product')])
             for prefix in candidates:
                 self._load_product_from_data(self.env, prefix)
@@ -55,7 +56,7 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
             if prefix is None:
                 self.env = self.global_env
             elif prefix is not NotImplemented \
-                    and (self.env is self.global_env or 
+                    and (self.env is self.global_env or
                          prefix != self.env.product.prefix):
                 self.env = ProductEnvironment(self.global_env, prefix)
             # Enable multi-product components
@@ -120,21 +121,21 @@ class ProductWikiTestCase(formatter.WikiTestCase, MultiproductTestCase):
                  teardown=None, context=None, mpctx=None):
         MultiproductTestCase.__init__(self, 'test')
         self.mpctx = mpctx
-        formatter.WikiTestCase.__init__(self, title, input, correct, file, line, 
+        formatter.WikiTestCase.__init__(self, title, input, correct, file, line,
                 setup, teardown, context)
 
 class ProductOneLinerTestCase(ProductWikiTestCase):
     formatter = formatter.OneLinerTestCase.formatter.im_func
 
 class ProductEscapeNewLinesTestCase(ProductWikiTestCase):
-    generate_opts = formatter.EscapeNewLinesTestCase.generate_opts 
+    generate_opts = formatter.EscapeNewLinesTestCase.generate_opts
     formatter = formatter.EscapeNewLinesTestCase.formatter.im_func
 
 class ProductOutlineTestCase(ProductWikiTestCase):
     formatter = formatter.OutlineTestCase.formatter.im_func
 
 
-def test_suite(data=None, setup=None, file=formatter.__file__, 
+def test_suite(data=None, setup=None, file=formatter.__file__,
         teardown=None, context=None, mpctx=None):
     suite = unittest.TestSuite()
     def add_test_cases(data, filename):
@@ -187,4 +188,3 @@ def test_suite(data=None, setup=None, file=formatter.__file__,
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

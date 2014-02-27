@@ -20,6 +20,8 @@
 <html 
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    i18n:domain="bhdashboard"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
     py:strip="" >
@@ -54,7 +56,7 @@
 
   <!--! Widget markup (py:match) -->
 
-  <div py:def="bhnotfound()" class="alert alert-error">
+  <div py:def="bhnotfound()" class="alert alert-error" i18n:msg="Error">
     <span class="label label-important">Error</span>
     Dashboard data is missing . 
     Is <code>bhdashboard.web_ui.DashboardModule</code> component disabled?

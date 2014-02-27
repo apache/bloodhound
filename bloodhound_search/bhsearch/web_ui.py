@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -35,7 +34,6 @@ from trac.config import OrderedExtensionsOption, ListOption, Option, BoolOption
 from trac.util.presentation import Paginator
 from trac.util.datefmt import format_datetime, user_time
 from trac.web import IRequestHandler, IRequestFilter
-from trac.util.translation import _
 from trac.util.html import find_element
 from trac.web.chrome import (ITemplateProvider,
                              add_link, add_stylesheet, prevnext_nav,
@@ -43,6 +41,7 @@ from trac.web.chrome import (ITemplateProvider,
 from bhsearch.api import (BloodhoundSearchApi, ISearchParticipant, SCORE, ASC,
                           DESC, IndexFields, SortInstruction)
 from bhsearch.utils import get_global_env, using_multiproduct
+from bhsearch.utils.translation import _
 from trac.wiki.formatter import extract_link
 from multiproduct.env import ProductEnvironment
 from multiproduct.web_ui import ProductModule
@@ -245,7 +244,8 @@ class BloodhoundSearchModule(Component):
         'bhsearch',
         'search_participants',
         ISearchParticipant,
-        "TicketSearchParticipant, WikiSearchParticipant"
+        "TicketSearchParticipant, WikiSearchParticipant",
+        include_missing=True
     )
 
     prefix = "all"
@@ -262,44 +262,48 @@ class BloodhoundSearchModule(Component):
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_facets',
         default=",".join([IndexFields.PRODUCT, IndexFields.TYPE]),
-        doc="""Default facets applied to search view of all resources""")
+        doc="""Default facets applied to search view of all resources""",
+        doc_domain='bhsearch')
 
     default_view = Option(
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_view',
         doc="""If true, show grid as default view for specific resource in
-            Bloodhound Search results""")
+            Bloodhound Search results""", doc_domain='bhsearch')
 
     all_grid_fields = ListOption(
         BHSEARCH_CONFIG_SECTION,
         prefix + '_default_grid_fields',
         default=",".join(default_grid_fields),
-        doc="""Default fields for grid view for specific resource""")
+        doc="""Default fields for grid view for specific resource""",
+        doc_domain='bhsearch')
 
     default_search = BoolOption(
         BHSEARCH_CONFIG_SECTION,
         'is_default',
         default=False,
-        doc="""Searching from quicksearch uses bhsearch.""")
+        doc="""Searching from quicksearch uses bhsearch.""",
+        doc_domain='bhsearch')
 
     redirect_enabled = BoolOption(
         BHSEARCH_CONFIG_SECTION,
         'enable_redirect',
         default=False,
-        doc="""Redirect links pointing to trac search to bhsearch""")
+        doc="""Redirect links pointing to trac search to bhsearch""",
+        doc_domain='bhsearch')
 
     global_quicksearch = BoolOption(
         BHSEARCH_CONFIG_SECTION,
         'global_quicksearch',
         default=True,
         doc="""Quicksearch searches all products, even when used
-            in product env.""")
+            in product env.""", doc_domain='bhsearch')
 
     query_suggestions_enabled = BoolOption(
         BHSEARCH_CONFIG_SECTION,
         'query_suggestions',
         default=True,
-        doc="""Display query suggestions."""
+        doc="""Display query suggestions.""", doc_domain='bhsearch'
     )
 
     # IPermissionRequestor methods
@@ -694,7 +698,8 @@ class RequestContext(object):
     def _process_doc(self, doc):
         ui_doc = dict(doc)
         if doc['product']:
-            product_href = ProductEnvironment(self.env, doc['product']).href
+            env = ProductEnvironment(self.env, doc['product'])
+            product_href = ProductEnvironment.resolve_href(env, self.env)
             # pylint: disable=too-many-function-args
             ui_doc["href"] = product_href(doc['type'], doc['id'])
         else:

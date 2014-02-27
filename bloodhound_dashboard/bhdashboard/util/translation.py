@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -16,20 +17,18 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Helper functions for introspection functionality"""
 
-def subclasses(cls):
-    """recursively get subclasses of a class"""
-    for sub in cls.__subclasses__():
-        for subsub in subclasses(sub):
-            yield subsub
-        yield sub
+r"""Project dashboard for Apache(TM) Bloodhound
 
-def get_enabled_component_subclass(env, cls):
-    """if the cls is not enabled, attempts to find a subclass which is"""
-    if env.is_component_enabled(cls):
-        return cls
-    for subcls in subclasses(cls):
-        if env.is_component_enabled(subcls):
-            return subcls
-    return None
+Translation functions and classes.
+"""
+
+from trac.util.translation import domain_functions
+
+#------------------------------------------------------
+#    Internationalization
+#------------------------------------------------------
+
+_, ngettext, tag_, tagn_, gettext, N_, add_domain = \
+   domain_functions('bhdashboard', ('_', 'ngettext', 'tag_', 'tagn_',
+                                'gettext', 'N_', 'add_domain'))

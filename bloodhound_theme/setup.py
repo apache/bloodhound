@@ -21,6 +21,25 @@
 from setuptools import setup
 import sys
 
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'bhtheme': extractors,
+        }
+except ImportError:
+    pass
+
 setup(
   name = 'BloodhoundTheme',
   version = '0.8.0',
@@ -32,7 +51,7 @@ setup(
   packages = ['bhtheme'],
   package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/img/*.*',
                               'htdocs/js/*.js', 'htdocs/css/*.css',
-                              'templates/*.*']},
+                              'templates/*.*',  'locale/*/LC_MESSAGES/*.mo']},
   classifiers = [
       'Framework :: Trac',
     ],
@@ -41,5 +60,6 @@ setup(
   entry_points = {
       'trac.plugins': [
             'bhtheme.theme = bhtheme.theme',
-        ]}
+        ]},
+    **extra
 )

@@ -20,19 +20,21 @@
 <div class="report"
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhdashboard">
   <!--! TODO: Add description icon plus tooltip -->
   <!--! div py:if="description" id="description" xml:space="preserve">
     ${wiki_to_html(context, description)}
   </div -->
   <py:choose test="">
     <div py:when="paginator.has_more_pages">
-      <div class="report-result" style="float: left; margin-right: 1.6em;">
+      <div class="report-result" style="float: left; margin-right: 1.6em;" i18n:msg="displayed_items">
         Results <span class="numresults">(${paginator.displayed_items()})</span>
       </div>
       <xi:include href="page_index.html" />
     </div>
-    <div py:when="numrows" class="numrows">($numrows total rows)</div>
+    <div py:when="numrows" class="numrows" i18n:msg="numrows">($numrows total rows)</div>
   </py:choose>
 
   <py:choose test="">

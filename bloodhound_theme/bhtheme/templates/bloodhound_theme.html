@@ -1,4 +1,4 @@
-<!--
+<!--!
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
   distributed with this work for additional information
@@ -23,6 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       py:strip="">
 
   <py:match path="head" once="true"><head>
@@ -98,7 +100,7 @@
                       method="get">
                   <div class="input-append">
                     <input type="text" class="input-medium" id="q" name="q"
-                        placeholder="Search all products. Try TracLinks."
+                        placeholder="${dgettext('bhtheme', 'Search all products. Try TracLinks.')}"
                         value="${req.search_query}" />
                     <input py:for="name, value in extra_search_fields"
                             type="hidden"
@@ -115,12 +117,13 @@
               <!--! create ticket button + dropdown -->
               <py:def function="field_select(field)">
                 <select id="field-${field.name}" name="field_${field.name}"
-                    class="input-block-level" data-empty="true" data-field="${field.name}">
-                  <option py:if="field.optional"></option>
+                    class="input-block-level" data-field="${field.name}" data-optional="${'true' if field.optional else 'false'}">
+                  <option value="">${'' if field.optional else 'Choose...'}</option>
                   <option py:for="idx,option in enumerate(field.options)"
                           py:with="description = field.options_desc[idx] if field.options_desc else option"
                           selected="${field.value == option or None}"
-                          value = "$option"
+                          value = "${option.value}"
+                          data-product-new-ticket-url = "${option.product_new_ticket_url}"
                           py:content="description"></option>
                   <optgroup py:for="optgroup in field.optgroups"
                             py:if="optgroup.options"
@@ -174,7 +177,7 @@
                             </div>
 
                             <py:for each="field in qct.hidden_fields">
-                              <input type="hidden" name="field_${field.name}" value="${field.value}" />
+                              <input class="qct-product-scope-extra" type="hidden" name="field_${field.name}" value="${field.value}" />
                             </py:for>
                           </form>
 
@@ -183,12 +186,17 @@
                             <a id="qct-more" class="btn btn-link" href="${href.newticket()}">More fields</a>
                             <button id="qct-cancel" class="btn btn-link">Cancel</button>
                           </div>
+                          <div id="qct-last-container" style="display:none">
+                            <small class="pull-right" id="qct-last"></small>&nbsp;
+                          </div>
                         </py:when>
                         <div py:otherwise="" class="alert alert-info">
                           <p>
                             <span class="label label-important">TICKET_CREATE</span>
                             privileges are required to perform this operation.
                             You don't have the required permissions
+			  </p>
+			  <p>
                             <py:choose>
                               <py:when test="req.authname == 'anonymous'">
                                 <br/><br/>
@@ -338,6 +346,8 @@
                     <span class="label label-important">TICKET_CREATE</span>
                     privileges are required to perform this operation.
                     You don't have the required permissions
+		  </p>
+		  <p>
                     <py:choose>
                       <py:when test="req.authname == 'anonymous'">
                         <br/><br/>

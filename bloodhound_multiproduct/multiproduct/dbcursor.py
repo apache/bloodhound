@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -15,6 +16,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 
 import trac.db.util
 from trac.util import concurrency
@@ -157,9 +159,9 @@ class ProductEnvContextManager(object):
 
         :param context: Inner database context (e.g. `QueryContextManager`,
                         `TransactionContextManager` )
-        :param env:     An instance of either `trac.env.Environment` or 
-                        `multiproduct.env.ProductEnvironment` used to 
-                        reduce the scope of database queries. If set 
+        :param env:     An instance of either `trac.env.Environment` or
+                        `multiproduct.env.ProductEnvironment` used to
+                        reduce the scope of database queries. If set
                         to `None` then SQL queries will not be translated,
                         which is equivalent to having direct database access.
         """
@@ -172,7 +174,7 @@ class ProductEnvContextManager(object):
         """
         return BloodhoundConnectionWrapper(self.db_context.__enter__(), self.env)
 
-    def __exit__(self, et, ev, tb): 
+    def __exit__(self, et, ev, tb):
         """Uninstall current product context by restoring the last one;
         then leave the inner database context.
         """

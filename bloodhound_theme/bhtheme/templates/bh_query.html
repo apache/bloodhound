@@ -23,6 +23,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="layout.html" />
   <head>
@@ -251,8 +252,7 @@
           <input py:if="report_resource" type="hidden" name="report" value="$report_resource.id" />
           <input type="hidden" name="order" value="$query.order" />
           <input py:if="query.desc" type="hidden" name="desc" value="1" />
-          <input type="submit" name="update" value="${_('Update')}"
-              class="btn" />
+          <input type="submit" class="btn pull-right" name="update" value="${_('Update')}" />
         </div>
         <hr />
       </form>
@@ -260,9 +260,9 @@
       <div class="span12">
         <xi:include href="widget_query_results.html" />
       </div>
-      <div class="span12">
+      <div py:if="tickets and batch_modify" class="span12">
         <div class="well">
-          <xi:include py:if="batch_modify" href="bh_batch_modify.html" />
+          <xi:include href="bh_batch_modify.html" />
         </div>
       </div>
 

@@ -1,7 +1,3 @@
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
 <!--!
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -21,9 +17,13 @@
   under the License.
 -->
 
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <div xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhdashboard"
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip=""
@@ -57,7 +57,7 @@
         </py:choose>
       </div>
       <div class="$cols_activity hidden-phone">
-        <h2>${_('Activity')}</h2>
+        <h2>${dgettext('bhdashboard', 'Activity')}</h2>
       </div>
     </div>
   </div>

@@ -24,6 +24,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
       py:with="preview_mode = 'preview' in req.args;
           can_append = 'TICKET_APPEND' in perm(ticket.resource);
@@ -57,7 +58,10 @@
     <script type="text/javascript" py:choose="">
       jQuery(document).ready(function($) {
         /* Affixed navbar */
-        $(".local-nav a").click(function() { $($(this).attr('href')).removeClass('collapsed').parent().removeClass("collapsed"); });
+        $(".local-nav a").click(function() {
+          $($(this).attr('href')).removeClass('collapsed')
+                                 .parent().removeClass("collapsed");
+        });
         $('.trac-nav').hide();
         $('.trac-topnav').hide();
 
@@ -66,8 +70,7 @@
         install_workflow();
         $('#edit-cancel, #edit-cancel-below').click(revert_ticket);
 
-        var modify_elem = $('#modify');
-        modify_elem.parent().hide();
+        $('#modify').parent().hide();
         $('#propertyform .buttons [name="preview"]').hide();
         $('#comment').change(function (e) {
           $('#hidden-comment').val($('#comment').val());
@@ -124,8 +127,7 @@
 
           $('#inplace-edit, #vc-status a').hide();
           $('#edit-state-buttons, #edit-state-buttons-below, #edit-workflow-buttons, #edit-comment').show();
-          if (!newticket)
-          {
+          if (!newticket) {
             // disable input controls on all other forms when in modify mode
             $('.activityfeed, .relations, #attachments').css('opacity', '0.3');
             $('form:not("#inplace-propertyform") :input').attr('disabled', 'disabled');
@@ -159,11 +161,7 @@
           e.preventDefault();
         }
 
-        function install_workflow(){
-          <py:if test="bhrelations">
-            var act = $('#action_resolve_resolve_resolution').parent();
-            act.append('<span id="duplicate_id" class="hide">Duplicate ID:&nbsp;<input name="duplicate_id" type="text" class="input-mini" value="${ticket_duplicate_of}"></input></span>');
-          </py:if>
+        function install_workflow() {
           var actions_box = $('#workflow-actions')
               .click(function(e) { e.stopPropagation(); });
           $('#action').children('div').each(function() {
@@ -177,24 +175,13 @@
                 var action = action_ui.find('input[name=action]').val();
                 var newowner = action_ui.find('input[id$=_reassign_owner]').val();
                 var newresolution = action_ui.find('select[id$=_resolution]').val();
-                var newlabel = action_ui.find('label[for^=action_]')
-                    .text();
+                var newlabel = action_ui.find('label[for^=action_]').text();
                 if (action === 'leave')
                   newlabel = newlabel + ' as ' + $('#vc-status a').text();
                 else if (newowner)
                   newlabel = newlabel + ' to ' + newowner;
                 else if (newresolution)
-                {
                   newlabel = newlabel + ' as ' + newresolution;
-                  if (newresolution === 'duplicate')
-                  {
-                    $('#duplicate_id').show();
-                  }
-                  else
-                  {
-                    $('#duplicate_id').hide();
-                  }
-                }
                 $('#submit-action-label').text(newlabel);
 
                 // Enable | disable action controls
@@ -203,20 +190,13 @@
                         .enable($(this).checked());
                     $(this).siblings().filter("*[id]")
                         .enable($(this).checked());
-                  });
+                });
               }
               action_trigger.click(action_click);
               action_select_trigger.change(action_click);
               action_input_trigger.blur(action_click);
               if (action_trigger.attr('checked'))
                 action_click();
-
-              var action_help = action_ui.find('.help-block').detach()
-                  .text().replace(/\s+/g, ' ').replace(/^ Tip /g, 'Tip: ')
-                  .replace(/^\s$/, '');
-              if (action_help)
-                  $('<i class="icon-info-sign"></i>').appendTo(action_ui)
-                      .attr('title', action_help);
             });
           }
 
@@ -288,6 +268,23 @@
           var comment = $("#trac-comment-editor").next("div.comment").html(reply);
           comment.toggle(comment.children().length != 0);
         }, "#changelog .trac-loading");
+
+        // quick hack to set arrow direction on change
+        if (typeof(comments_prefs) !== "undefined") {
+          arrow_dir = {
+            'oldest': function() {
+              $('div#changelog').addClass('downarrow');
+              $('div#changelog').removeClass('uparrow');
+            },
+            'newest': function() {
+              $('div#changelog').addClass('uparrow');
+              $('div#changelog').removeClass('downarrow');
+            },
+          };
+          $('#trac-comments-newest').change(arrow_dir['newest']);
+          $('#trac-comments-oldest').change(arrow_dir['oldest']);
+          arrow_dir[comments_prefs.comments_order]();
+        };
         /*]]>*/
         <py:if test="preview_mode">
         $("#attachments").toggleClass("collapsed");
@@ -695,7 +692,7 @@
               </div>
             </div>
 
-            <div class="$cols_activity">
+            <div>
               <!--! Preview of ticket changes -->
               <div py:if="ticket.exists and can_append" id="ticketchange" class="ticketdraft"
                     style="${'display: none' if not (change_preview.fields or change_preview.comment)
@@ -720,7 +717,7 @@
                     </tr>
                   </table>
                   <p py:if="author_id == 'anonymous'" class="hint">
-                    <i18n:msg>E-mail address and user name can be saved in the <a href="${href.prefs()}">Preferences</a>.</i18n:msg>
+                    <i18n:msg>E-mail address and user name can be saved in the <a href="${href.prefs()}" class="trac-target-new">Preferences</a>.</i18n:msg>
                   </p>
                 </fieldset>
               </div>

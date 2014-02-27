@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -41,4 +40,3 @@ if __name__ == '__main__':
     unittest.main(defaultTest='suite')
 else:
     test_suite = suite()
-

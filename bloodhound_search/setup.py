@@ -92,7 +92,8 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
                               '../NOTICE', '../README', '../TESTING_README',
                               'htdocs/*.*', 'htdocs/css/*.css',
                               'htdocs/img/*.*', 'htdocs/js/*.js',
-                              'templates/*', 'default-pages/*'],
+                              'templates/*', 'default-pages/*',
+                              'locale/*/LC_MESSAGES/*.mo'],
                           ),
             'bhsearch.search_resources' : (
                 'bhsearch/search_resources', # Package dir
@@ -115,6 +116,10 @@ PKG_INFO = {'bhsearch' : ('bhsearch',                     # Package dir
                             # Package data
                             ['data/*.*'],
                           ),
+            'bhsearch.utils' : ('bhsearch/utils',     # Package dir
+                            # Package data
+                            [],
+                          ),
             }
 
 ENTRY_POINTS = {
@@ -136,6 +141,26 @@ ENTRY_POINTS = {
         'bhsearch.whoosh_backend = bhsearch.whoosh_backend',
     ],
     }
+
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'bhsearch': extractors,
+        }
+except ImportError:
+    pass
+
 setup(
     name=DIST_NM,
     version=latest,
@@ -147,7 +172,7 @@ setup(
     install_requires = [
         'setuptools>=0.6b1',
         'Trac>=0.11',
-        'whoosh==2.4.1',
+        'whoosh>=2.5.1',
     ],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),
@@ -160,6 +185,6 @@ setup(
     classifiers = cats,
     long_description= DESC,
     test_suite='bhsearch.tests.test_suite',
-    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else '']
+    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else ''],
+    **extra
     )
-

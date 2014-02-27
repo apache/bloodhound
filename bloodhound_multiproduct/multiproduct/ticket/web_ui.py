@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,8 +17,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-""" Multi product support for tickets."""
-
 import re
 
 from genshi.builder import tag
@@ -31,18 +30,18 @@ from trac.ticket.api import TicketSystem
 from trac.resource import Resource, get_resource_shortname, ResourceNotFound
 from trac.search import search_to_sql, shorten_result
 from trac.util.datefmt import from_utimestamp
-from trac.util.translation import _, tag_
-from trac.wiki.parser import WikiParser
 
 from multiproduct.api import MultiProductSystem, PRODUCT_SYNTAX_DELIMITER_RE
-from multiproduct.env import lookup_product_env, ProductEnvironment
-from multiproduct.util import IDENTIFIER
+from multiproduct.env import ProductEnvironment
 from multiproduct.model import Product
+from multiproduct.util import IDENTIFIER
+from multiproduct.util.translation import _, tag_
 from multiproduct.web_ui import ProductModule
+
 
 class ProductTicketModule(TicketModule):
     """Product Overrides for the TicketModule"""
-    
+
     # IRequestHandler methods
     #def match_request(self, req):
     # override not yet required
@@ -50,13 +49,21 @@ class ProductTicketModule(TicketModule):
     def process_request(self, req):
         """Override for TicketModule process_request"""
         ticketid = req.args.get('id')
-        productid = req.args.get('productid','')
+        productid = req.args.get('productid', '')
+
         if not ticketid:
             # if /newticket is executed in global scope (from QCT), redirect
             # the request to /products/<first_product_in_DB>/newticket
-            if not productid and not isinstance(self.env, ProductEnvironment):
+            if not productid and \
+                    not isinstance(self.env, ProductEnvironment):
+                default_product = self.env.config.get('ticket',
+                                                      'default_product')
                 products = Product.select(self.env, {'fields': ['prefix']})
-                req.redirect(req.href.products(products[0].prefix, 'newticket'))
+                prefixes = [prod.prefix for prod in products]
+                if not default_product or default_product not in prefixes:
+                    default_product = products[0].prefix
+                req.redirect(req.href.products(default_product, 'newticket'))
+
             return self._process_newticket_request(req)
 
         if req.path_info in ('/newticket', '/products'):
@@ -73,27 +80,27 @@ class ProductTicketModule(TicketModule):
         # executed in global scope -> assume ticketid=UID, redirect to product
         with self.env.db_direct_query as db:
             rows = db("""SELECT id,product FROM ticket WHERE uid=%s""",
-                    (ticketid,))
+                      (ticketid,))
             if not rows:
                 msg = "Ticket with uid %(uid)s does not exist."
                 raise ResourceNotFound(_(msg, uid=ticketid),
-                        _("Invalid ticket number"))
+                                       _("Invalid ticket number"))
             tid, prefix = rows[0]
             req.redirect(req.href.products(prefix, 'ticket', tid))
 
     # INavigationContributor methods
-    
+
     #def get_active_navigation_item(self, req):
     # override not yet required
 
     def get_navigation_items(self, req):
         """Overriding TicketModules New Ticket nav item"""
         return
-    
+
     # ISearchSource methods
     #def get_search_filters(self, req):
     # override not yet required
-    
+
     def get_search_results(self, req, terms, filters):
         """Overriding search results for Tickets"""
         if not 'ticket' in filters:
@@ -101,7 +108,7 @@ class ProductTicketModule(TicketModule):
         ticket_realm = Resource('ticket')
         with self.env.db_query as db:
             sql, args = search_to_sql(db, ['summary', 'keywords',
-                                           'description', 'reporter', 'cc', 
+                                           'description', 'reporter', 'cc',
                                            db.cast('id', 'text')], terms)
             sql2, args2 = search_to_sql(db, ['newvalue'], terms)
             sql3, args3 = search_to_sql(db, ['value'], terms)
@@ -110,10 +117,10 @@ class ProductTicketModule(TicketModule):
                 productsql = "product='%s' AND" % req.args.get('product')
             else:
                 productsql = ""
-            
+
             for summary, desc, author, type, tid, ts, status, resolution in \
                     db("""SELECT summary, description, reporter, type, id,
-                                 time, status, resolution 
+                                 time, status, resolution
                           FROM ticket
                           WHERE (%s id IN (
                               SELECT id FROM ticket WHERE %s
@@ -136,11 +143,12 @@ class ProductTicketModule(TicketModule):
                                     summary, status, resolution, type)),
                            from_utimestamp(ts), author,
                            shorten_result(desc, terms))
-        
+
         # Attachments
-        for result in AttachmentModule(self.env).get_search_results(
-            req, ticket_realm, terms):
+        for result in AttachmentModule(self.env) \
+                      .get_search_results(req, ticket_realm, terms):
             yield result
+
 
 class ProductReportModule(ReportModule):
     """Multiproduct replacement for ReportModule"""
@@ -162,9 +170,9 @@ class ProductReportModule(ReportModule):
         # FIXME: yield from
         for s in super(ProductReportModule, self).get_wiki_syntax():
             yield s
-        # Previously unmatched prefix 
-        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}" % 
-                    (IDENTIFIER, PRODUCT_SYNTAX_DELIMITER_RE),
+        # Previously unmatched prefix
+        yield (r"!?\{(?P<prp>%s(?:\s+|(?:%s)))[0-9]+\}"
+               % (IDENTIFIER, PRODUCT_SYNTAX_DELIMITER_RE),
                lambda x, y, z: self._format_link(x, 'report', y[1:-1], y, z))
         # Absolute product report syntax
         yield (r"!?\{(?P<prns>global:|product:%s(?:\s+|:))"
@@ -172,8 +180,8 @@ class ProductReportModule(ReportModule):
                lambda x, y, z: (self._format_mplink(x, 'report', y[1:-1], y, z)))
 
     def _format_link(self, formatter, ns, target, label, fullmatch=None):
-        intertrac = formatter.shorthand_intertrac_helper(ns, target, label,
-                                                         fullmatch)
+        intertrac = \
+            formatter.shorthand_intertrac_helper(ns, target, label, fullmatch)
         if intertrac:
             return intertrac
 
@@ -194,7 +202,7 @@ class ProductReportModule(ReportModule):
             if not prns:
                 # Forwarded from _format_link, inherit current context
                 product_id = fullmatch.group('it_' + ns) or \
-                             fullmatch.group('prp') 
+                             fullmatch.group('prp')
                 if product_id:
                     product_ns = 'product'
                     substeps = [product_id.strip()]
@@ -211,8 +219,8 @@ class ProductReportModule(ReportModule):
             report_id = fullmatch.group('prid') or \
                         re.match(r'^.*?(\d+)$', target).group(1)
             substeps += [ns, report_id]
-            
-            return mpsys._format_link(formatter, product_ns, 
+
+            return mpsys._format_link(formatter, product_ns,
                                       u':'.join(substeps),
                                       label, fullmatch)
         else:

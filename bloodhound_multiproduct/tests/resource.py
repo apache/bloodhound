@@ -17,27 +17,27 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from datetime import datetime
 import os.path
 import shutil
-from StringIO import StringIO
 import tempfile
 import unittest
+from StringIO import StringIO
+from datetime import datetime
 
+import trac.ticket.api
+import trac.ticket.report
+import trac.ticket.roadmap
+import trac.wiki.api
+from trac import resource
 from trac.attachment import Attachment
-from trac import resource 
-import trac.ticket.report       # report resources ?
-import trac.ticket.roadmap      # milestone resources
-import trac.ticket.api          # ticket resources
 from trac.ticket.model import Ticket
-from trac.ticket.tests.api import TicketSystemTestCase 
 from trac.util.datefmt import utc
-import trac.wiki.api            # wiki resources
 from trac.wiki.model import WikiPage
 
 from multiproduct.api import MultiProductSystem
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
+
 
 class ProductResourceTestCase(MultiproductTestCase):
     def setUp(self):
@@ -75,7 +75,7 @@ class ProductAttachmentResourceTestCase(ProductResourceTestCase):
         attachment = Attachment(self.env1, 'ticket', 1)
         attachment.description = 'Product Bar'
         attachment.insert('foo.txt', StringIO(''), 0)
-        self.resource = resource.Resource('ticket', 
+        self.resource = resource.Resource('ticket',
                                           1).child('attachment', 'foo.txt')
 
     def tearDown(self):
@@ -85,31 +85,31 @@ class ProductAttachmentResourceTestCase(ProductResourceTestCase):
     def test_global_neighborhood_attachments(self):
         target = resource.Neighborhood('global', None).child(self.resource)
 
-        self.assertEquals("[global:] Attachment 'foo.txt' in [global:] Ticket #1", 
+        self.assertEquals("[global:] Attachment 'foo.txt' in [global:] Ticket #1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals("[global:] Attachment 'foo.txt' in [global:] Ticket #1", 
+        self.assertEquals("[global:] Attachment 'foo.txt' in [global:] Ticket #1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals("[global:] foo.txt ([global:] Ticket #1)", 
+        self.assertEquals("[global:] foo.txt ([global:] Ticket #1)",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals('Global Bar', 
+        self.assertEquals('Global Bar',
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/attachment/ticket/1/foo.txt', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/attachment/ticket/1/foo.txt',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
     def test_product_neighborhood_attachments(self):
         target = resource.Neighborhood('product', u'xü').child(self.resource)
 
-        self.assertEquals(u"[product:xü] Attachment 'foo.txt' in [product:xü] Ticket #1", 
+        self.assertEquals(u"[product:xü] Attachment 'foo.txt' in [product:xü] Ticket #1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals(u"[product:xü] Attachment 'foo.txt' in [product:xü] Ticket #1", 
+        self.assertEquals(u"[product:xü] Attachment 'foo.txt' in [product:xü] Ticket #1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals(u"[product:xü] foo.txt ([product:xü] Ticket #1)", 
+        self.assertEquals(u"[product:xü] foo.txt ([product:xü] Ticket #1)",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals('Product Bar', 
+        self.assertEquals('Product Bar',
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/attachment/ticket/1/foo.txt', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/attachment/ticket/1/foo.txt',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
 
@@ -119,31 +119,31 @@ class ProductMilestoneResourceTestCase(ProductResourceTestCase):
     def test_global_neighborhood_milestone(self):
         target = resource.Neighborhood('global', None).child(self.resource)
 
-        self.assertEquals("[global:] Milestone milestone1", 
+        self.assertEquals("[global:] Milestone milestone1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals("[global:] Milestone milestone1", 
+        self.assertEquals("[global:] Milestone milestone1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals("milestone1", 
+        self.assertEquals("milestone1",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals("[global:] Milestone milestone1", 
+        self.assertEquals("[global:] Milestone milestone1",
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/milestone/milestone1', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/milestone/milestone1',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
     def test_product_neighborhood_milestone(self):
         target = resource.Neighborhood('product', u'xü').child(self.resource)
 
-        self.assertEquals(u"[product:xü] Milestone milestone1", 
+        self.assertEquals(u"[product:xü] Milestone milestone1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals(u"[product:xü] Milestone milestone1", 
+        self.assertEquals(u"[product:xü] Milestone milestone1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals(u"milestone1", 
+        self.assertEquals(u"milestone1",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals(u"[product:xü] Milestone milestone1", 
+        self.assertEquals(u"[product:xü] Milestone milestone1",
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/milestone/milestone1', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/milestone/milestone1',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
 
@@ -154,31 +154,31 @@ class ProductReportResourceTestCase(ProductResourceTestCase):
     def test_global_neighborhood_report(self):
         target = resource.Neighborhood('global', None).child(self.resource)
 
-        self.assertEquals("[global:] report:1", 
+        self.assertEquals("[global:] report:1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals("[global:] report:1", 
+        self.assertEquals("[global:] report:1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals("[global:] report:1", 
+        self.assertEquals("[global:] report:1",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals('[global:] report:1 at version None', 
+        self.assertEquals('[global:] report:1 at version None',
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/report/1', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/report/1',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
     def test_product_neighborhood_report(self):
         target = resource.Neighborhood('product', u'xü').child(self.resource)
 
-        self.assertEquals(u"[product:xü] report:1", 
+        self.assertEquals(u"[product:xü] report:1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals(u"[product:xü] report:1", 
+        self.assertEquals(u"[product:xü] report:1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals(u"[product:xü] report:1", 
+        self.assertEquals(u"[product:xü] report:1",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals(u"[product:xü] report:1 at version None", 
+        self.assertEquals(u"[product:xü] report:1 at version None",
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/report/1', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/report/1',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
 
@@ -197,16 +197,16 @@ class ProductTicketResourceTestCase(ProductResourceTestCase):
                     type='enhancement', status='new')
         target = nbh.child('ticket', self._new_ticket(self.global_env, data))
 
-        self.assertEquals("[global:] Ticket #1", 
+        self.assertEquals("[global:] Ticket #1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals("[global:] Ticket #1", 
+        self.assertEquals("[global:] Ticket #1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals("[global:] #1", 
+        self.assertEquals("[global:] #1",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals('enhancement: Ticket summary (new)', 
+        self.assertEquals('enhancement: Ticket summary (new)',
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/ticket/1', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/ticket/1',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
     def test_product_neighborhood_ticket(self):
@@ -215,31 +215,17 @@ class ProductTicketResourceTestCase(ProductResourceTestCase):
                     type='task', status='accepted')
         target = nbh.child('ticket', self._new_ticket(self.env1, data))
 
-        self.assertEquals(u"[product:xü] Ticket #1", 
+        self.assertEquals(u"[product:xü] Ticket #1",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals(u"[product:xü] Ticket #1", 
+        self.assertEquals(u"[product:xü] Ticket #1",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals(u"[product:xü] #1", 
+        self.assertEquals(u"[product:xü] #1",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals(u"task: Ticket summary (accepted)", 
+        self.assertEquals(u"task: Ticket summary (accepted)",
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/ticket/1', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/ticket/1',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
-
-
-#class ProductVcsResourceTestCase(ProductResourceTestCase):
-#    def setUp(self):
-#        pass
-#
-#    def tearDown(self):
-#        pass
-#
-#    def test_global_neighborhood_versioncontrol(self):
-#        raise NotImplementedError()
-#
-#    def test_product_neighborhood_versioncontrol(self):
-#        raise NotImplementedError()
 
 
 class ProductWikiResourceTestCase(ProductResourceTestCase):
@@ -269,32 +255,42 @@ class ProductWikiResourceTestCase(ProductResourceTestCase):
     def test_global_neighborhood_wiki(self):
         target = resource.Neighborhood('global', None).child(self.resource)
 
-        self.assertEquals("TestPage", 
+        self.assertEquals("TestPage",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals("TestPage", 
+        self.assertEquals("TestPage",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals("TestPage", 
+        self.assertEquals("TestPage",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals("TestPage", 
+        self.assertEquals("TestPage",
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/wiki/TestPage?version=2', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/wiki/TestPage?version=2',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
 
     def test_product_neighborhood_wiki(self):
         target = resource.Neighborhood('product', u'xü').child(self.resource)
 
-        self.assertEquals(u"TestPage", 
+        self.assertEquals(u"TestPage",
                           resource.get_resource_description(self.env, target))
-        self.assertEquals(u"TestPage", 
+        self.assertEquals(u"TestPage",
                           resource.get_resource_name(self.env, target))
-        self.assertEquals(u"TestPage", 
+        self.assertEquals(u"TestPage",
                           resource.get_resource_shortname(self.env, target))
-        self.assertEquals(u"TestPage", 
+        self.assertEquals(u"TestPage",
                           resource.get_resource_summary(self.env, target))
-        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/wiki/TestPage?version=2', 
-                          resource.get_resource_url(self.env, 
+        self.assertEquals('http://example.org/trac.cgi/products/x%C3%BC/wiki/TestPage?version=2',
+                          resource.get_resource_url(self.env,
                                                     target, self.env.href))
+
+
+class NeighborhoodTestCase(MultiproductTestCase):
+    def setUp(self):
+        self._mp_setup()
+
+    def test_get_known_neighborhoods(self):
+        rsys = resource.ResourceSystem(self.env)
+        self.assertEquals(['global', 'product'],
+                          sorted(rsys.get_known_neighborhoods()))
 
 
 def test_suite():
@@ -303,9 +299,10 @@ def test_suite():
         unittest.makeSuite(ProductMilestoneResourceTestCase, 'test'),
         unittest.makeSuite(ProductReportResourceTestCase, 'test'),
         unittest.makeSuite(ProductTicketResourceTestCase, 'test'),
-#        unittest.makeSuite(ProductVcsResourceTestCase, 'test'),
         unittest.makeSuite(ProductWikiResourceTestCase, 'test'),
+        unittest.makeSuite(NeighborhoodTestCase, 'test'),
     ])
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

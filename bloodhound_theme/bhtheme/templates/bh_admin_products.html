@@ -23,7 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
   <xi:include href="bh_admin.html" />
   <head>
     <title>Products</title>
@@ -77,7 +78,7 @@
                     class="wikitext trac-resizable"
                     placeholder="Describe this product using WikiFormatting"
                     rows="6" cols="60">$product.description</textarea>
-                <p class="help-block">
+                <p class="help-block" i18n:msg="">
                   <span class="label label-info">Tip</span> you may use
                   <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
                   here
@@ -150,9 +151,11 @@
                 </table>
                 <div class="control-group">
                   <input class="btn" type="submit" name="remove"
-                      value="${_('Remove selected items')}" />
+                         value="${_('Remove selected items')}" />
                   <input class="btn" type="submit" name="apply"
-                      value="${_('Apply changes')}" />
+                         value="${_('Apply changes')}" />
+                  <input class="btn" type="submit" name="clear"
+                         value="${_('Clear default')}" />
                 </div>
                 <p class="help-block">
                   <span class="label label-info">Note</span>

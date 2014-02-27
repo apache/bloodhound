@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,16 +17,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""ProductModule
-
-Provides request filtering to capture product related paths
-"""
-
 import re
 
 from trac.core import Component, TracError, implements
 from trac.resource import Neighborhood, Resource, ResourceNotFound
-from trac.util.translation import _
 from trac.web.api import HTTPNotFound, IRequestHandler, IRequestFilter
 from trac.web.chrome import (
     Chrome, INavigationContributor, add_link, add_notice, add_warning,
@@ -36,12 +31,12 @@ from multiproduct.env import resolve_product_href, lookup_product_env
 from multiproduct.hooks import PRODUCT_RE
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
-
+from multiproduct.util.translation import _
 
 # requests to the following URLs will be skipped in the global scope
 # (no more redirection to default product)
 IGNORED_REQUESTS_RE = \
-    re.compile(r'^/(?P<section>milestone|roadmap|diff|search|'
+    re.compile(r'^/(?P<section>milestone|roadmap|search|'
                r'(raw-|zip-)?attachment/(ticket|milestone))(?P<pathinfo>.*)')
 
 class ProductModule(Component):
@@ -53,7 +48,7 @@ class ProductModule(Component):
     def pre_process_request(self, req, handler):
         if not isinstance(self.env, ProductEnvironment) and \
            IGNORED_REQUESTS_RE.match(req.path_info):
-           return None
+            return None
         return handler
 
     def post_process_request(req, template, data, content_type):
@@ -172,7 +167,7 @@ class ProductModule(Component):
             else:
                 req.perm.require('PRODUCT_MODIFY')
                 product.update_field_dict(field_data)
-                product.update()
+                product.update(req.authname)
                 add_notice(req, _('Your changes have been saved.'))
         else:
             req.perm.require('PRODUCT_CREATE')

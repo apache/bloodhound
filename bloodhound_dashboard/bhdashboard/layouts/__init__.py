@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -23,4 +22,3 @@ r"""Project dashboard for Apache(TM) Bloodhound
 
 Available layouts.
 """
-

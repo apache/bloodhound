@@ -1,4 +1,4 @@
-<!--
+<!--!
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
   distributed with this work for additional information
@@ -23,7 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="multiproduct">
   <xi:include href="admin.html" />
   <head>
     <title>Products</title>
@@ -123,6 +124,7 @@ $product.description</textarea>
             <div class="buttons">
               <input type="submit" name="remove" value="${_('Remove selected items')}" />
               <input type="submit" name="apply" value="${_('Apply changes')}" />
+              <input type="submit" name="clear" value="${_('Clear default')}" />
             </div>
             <p class="help">
               You can remove all items from this list to completely hide this

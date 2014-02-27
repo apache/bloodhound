@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -15,8 +16,6 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-
-"""Core components to support multi-product"""
 
 import copy
 import os
@@ -37,16 +36,17 @@ from trac.resource import IExternalResourceConnector, IResourceChangeListener,\
                           IResourceManager, ResourceNotFound
 from trac.ticket.api import ITicketFieldProvider, ITicketManipulator
 from trac.util.text import to_unicode, unquote_label, unicode_unquote
-from trac.util.translation import _, N_
 from trac.web.chrome import ITemplateProvider, add_warning
 from trac.web.main import FakePerm, FakeSession
+from trac.wiki.admin import WikiAdmin
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.parser import WikiParser
 
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.model import Product, ProductResourceMap, ProductSetting
 from multiproduct.util import EmbeddedLinkFormatter, IDENTIFIER, \
-    using_sqlite_backend, using_mysql_backend
+                              using_mysql_backend, using_sqlite_backend
+from multiproduct.util.translation import _, N_, add_domain
 
 __all__ = ['MultiProductSystem', 'PRODUCT_SYNTAX_DELIMITER']
 
@@ -75,7 +75,7 @@ class MultiProductSystem(Component):
 
     implements(IEnvironmentSetupParticipant, IExternalResourceConnector,
                IPermissionRequestor, IResourceChangeListener, IResourceManager,
-               ISupportMultiProductEnvironment, ITemplateProvider, 
+               ISupportMultiProductEnvironment, ITemplateProvider,
                ITicketFieldProvider, IWikiSyntaxProvider, ITicketManipulator)
 
     default_product_prefix = Option(
@@ -83,26 +83,30 @@ class MultiProductSystem(Component):
         'default_product_prefix',
         default='@',
         doc="""Prefix used for default product when migrating single-product
-        installations to multi-product.""")
+        installations to multi-product.""", doc_domain='multiproduct')
+
+    default_product = Option('ticket', 'default_product', '',
+        """Default product for newly created tickets.""")
 
     product_base_url = Option('multiproduct', 'product_base_url', '',
         """A pattern used to generate the base URL of product environments,
         e.g. the use cases listed in bh:wiki:/Proposals/BEP-0003#url-mapping .
-        Both absolute as well as relative URLs are supported. The later 
+        Both absolute as well as relative URLs are supported. The later
         will be resolved with respect to the base URL of the parent global
         environment. The pattern may contain references to $(envname)s,
         $(prefix)s and $(name)s placeholders representing the environment name,
         product prefix and product name respectively . If nothing is set the
         following will be used `products/$(prefix)s`
 
-        Note the usage of `$(...)s` instead of `%(...)s` as the later form 
-        would be interpreted by the ConfigParser itself. """)
+        Note the usage of `$(...)s` instead of `%(...)s` as the later form
+        would be interpreted by the ConfigParser itself. """,
+                              doc_domain='multiproduct')
 
     product_config_parent = PathOption('inherit', 'multiproduct', '',
         """The path to the configuration file containing the settings shared
-        by sibling product environments. By default will inherit 
+        by sibling product environments. By default will inherit
         global environment configuration.
-        """)
+        """, doc_domain='multiproduct')
 
     SCHEMA = [mcls._get_schema()
               for mcls in (Product, ProductResourceMap)]
@@ -118,6 +122,12 @@ class MultiProductSystem(Component):
                       ]
 
     PRODUCT_POPULATE_TABLES = list(set(MIGRATE_TABLES) - set(['wiki']))
+
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(MultiProductSystem, self).__init__(*args, **kwargs)
 
     def get_version(self):
         """Finds the current version of the bloodhound database schema"""
@@ -204,7 +214,7 @@ class MultiProductSystem(Component):
 
     def upgrade_environment(self, db_dummy=None):
         """Installs or updates tables to current version"""
-        self.log.debug("upgrading existing environment for %s plugin." % 
+        self.log.debug("upgrading existing environment for %s plugin." %
                        PLUGIN_NAME)
         db_installed_version = self.get_version()
         with self.env.db_direct_transaction as db:
@@ -582,6 +592,13 @@ class MultiProductSystem(Component):
                     (table[0], ','.join(cols), ','.join(['%s' for c in cols])),
                     rows)
 
+        # Import default pages in product wiki
+        wikiadmin = WikiAdmin(ProductEnvironment(self.env, product.prefix))
+        pages = ('TitleIndex', 'RecentChanges', 'InterTrac', 'InterWiki')
+        for page in pages:
+            filename = resource_filename('trac.wiki', 'default-pages/' + page)
+            wikiadmin.import_page(filename, page)
+
     def resource_changed(self, resource, old_values, context):
         return
 
@@ -614,8 +631,9 @@ class MultiProductSystem(Component):
     # ITicketFieldProvider methods
     def get_select_fields(self):
         """Product select fields"""
-        return [(35, {'name': 'product', 'label': N_('Product'),
-                      'cls': Product, 'pk': 'prefix', 'optional': False})]
+        return [(35, {'name': 'product', 'label': _('Product'),
+                      'cls': Product, 'pk': 'prefix', 'optional': False,
+                      'value': self.default_product})]
 
     def get_radio_fields(self):
         """Product radio fields"""
@@ -661,12 +679,12 @@ class MultiProductSystem(Component):
         elif neighborhood._realm == 'product':
             prefix = neighborhood._id
         else:
-            raise ResourceNotFound(_(u'Unsupported neighborhood %(realm)s', 
+            raise ResourceNotFound(_(u'Unsupported neighborhood %(realm)s',
                                      realm=neighborhood._realm))
         try:
             return lookup_product_env(self.env, prefix)
         except LookupError:
-            raise ResourceNotFound(_(u'Unknown product prefix %(prefix)s', 
+            raise ResourceNotFound(_(u'Unknown product prefix %(prefix)s',
                                      prefix=prefix))
 
     def manager_exists(self, neighborhood):
@@ -680,7 +698,7 @@ class MultiProductSystem(Component):
             if not prefix:
                 # Global environment
                 return True
-            return Product(lookup_product_env(self.env, GLOBAL_PRODUCT), 
+            return Product(lookup_product_env(self.env, GLOBAL_PRODUCT),
                            {'prefix' : prefix})._exists
 
     # IWikiSyntaxProvider methods
@@ -691,25 +709,25 @@ class MultiProductSystem(Component):
         yield (r'(?<!\S)!?(?P<pid>%s)%s(?P<ptarget>%s:(?:%s)|%s|%s(?:%s*%s)?)' %
                     (IDENTIFIER,
                      PRODUCT_SYNTAX_DELIMITER_RE,
-                     WikiParser.LINK_SCHEME, WikiParser.QUOTED_STRING, 
-                     WikiParser.QUOTED_STRING, WikiParser.SHREF_TARGET_FIRST, 
+                     WikiParser.LINK_SCHEME, WikiParser.QUOTED_STRING,
+                     WikiParser.QUOTED_STRING, WikiParser.SHREF_TARGET_FIRST,
                      WikiParser.SHREF_TARGET_MIDDLE, WikiParser.SHREF_TARGET_LAST),
-               lambda f, m, fm : 
-                    self._format_link(f, 'product', 
-                                      '%s:%s' % (fm.group('pid'), 
+               lambda f, m, fm :
+                    self._format_link(f, 'product',
+                                      '%s:%s' % (fm.group('pid'),
                                                  unquote_label(fm.group('ptarget'))),
                                       fm.group(0), fm))
         if self.env[ProductTicketModule] is not None:
             yield (r"(?<!\S)!?(?P<jtp>%s)-(?P<jtt>\d+)(?P<jtf>[?#]\S+)?" %
                         (IDENTIFIER,),
-                   lambda f, m, fm : 
-                        self._format_link(f, 'product', 
-                                          '%s:ticket:%s' % 
-                                                (fm.group('jtp'), 
+                   lambda f, m, fm :
+                        self._format_link(f, 'product',
+                                          '%s:ticket:%s' %
+                                                (fm.group('jtp'),
                                                  fm.group('jtt') +
-                                                 (fm.group('jtf') or '')), 
+                                                 (fm.group('jtf') or '')),
                                           m, fm))
- 
+
     def get_link_resolvers(self):
         yield ('global', self._format_link)
         yield ('product', self._format_link)
@@ -726,8 +744,8 @@ class MultiProductSystem(Component):
                 # Note: add_warning() is used intead of returning a list of
                 # error tuples, since the latter results in trac rendering
                 # errors (ticket's change.date is not populated)
-                add_warning(req, _('The user "%s" does not exist.' %
-                    ticket['owner']))
+                add_warning(req, _('The user "%s" does not exist.') %
+                    ticket['owner'])
         return []
 
 
@@ -740,7 +758,7 @@ class MultiProductSystem(Component):
         env = self.env
         if isinstance(env, ProductEnvironment):
             if (prefix is not None and env.product.prefix == prefix) \
-                    or (prefix is None and env.name == name): 
+                    or (prefix is None and env.name == name):
                 product_env = env
             env = env.parent
         try:
@@ -748,11 +766,11 @@ class MultiProductSystem(Component):
                 if prefix is not None:
                     product_env = ProductEnvironment(env, to_unicode(prefix))
                 else:
-                    product = Product.select(env, 
+                    product = Product.select(env,
                                              where={'name' : to_unicode(name)})
                     if not product:
                         raise LookupError("Missing product")
-                    product_env = ProductEnvironment(env, 
+                    product_env = ProductEnvironment(env,
                                                      to_unicode(product[0]))
         except LookupError:
             pass
@@ -769,7 +787,7 @@ class MultiProductSystem(Component):
                 params.append( ('prefix', prefix) )
             if name:
                 params.append( ('name', name) )
-            return tag.a(label, class_='missing product', 
+            return tag.a(label, class_='missing product',
                     href=env.href('products', params),
                     rel='nofollow')
         return tag.a(label, class_='missing product')
@@ -779,7 +797,7 @@ class MultiProductSystem(Component):
         expr = link.split(':', 1)
         if ns == 'product' and len(expr) == 1:
             # product:prefix form
-            return self._render_link(formatter.context, None, label, 
+            return self._render_link(formatter.context, None, label,
                                      params + fragment, expr[0])
         elif ns == 'global' or (ns == 'product' and expr[0] == ''):
             # global scope
@@ -787,8 +805,8 @@ class MultiProductSystem(Component):
             target_env = self.env.parent \
                             if isinstance(self.env, ProductEnvironment) \
                             else self.env
-            return self._make_sublink(target_env, sublink, formatter, ns, 
-                                      target, label, fullmatch, 
+            return self._make_sublink(target_env, sublink, formatter, ns,
+                                      target, label, fullmatch,
                                       extra=params + fragment)
         else:
             # product:prefix:realm:id:...
@@ -797,15 +815,15 @@ class MultiProductSystem(Component):
                 target_env = lookup_product_env(self.env, prefix)
             except LookupError:
                 return tag.a(label, class_='missing product')
-            # TODO: Check for nested product links 
-            # e.g. product:p1:product:p2:ticket:1 
+            # TODO: Check for nested product links
+            # e.g. product:p1:product:p2:ticket:1
             return self._make_sublink(target_env, sublink, formatter, ns,
                                       target, label, fullmatch,
                                       extra=params + fragment)
 
     FakePermClass = FakePerm
 
-    def _make_sublink(self, env, sublink, formatter, ns, target, label, 
+    def _make_sublink(self, env, sublink, formatter, ns, target, label,
                       fullmatch, extra=''):
         parent_match = {'ns' : ns,
                         'target' : target,
@@ -815,7 +833,7 @@ class MultiProductSystem(Component):
                         'fullmatch' : fullmatch,
                         }
 
-        # Tweak nested context to work in target product/global scope 
+        # Tweak nested context to work in target product/global scope
         subctx = formatter.context.child()
         subctx.href = resolve_product_href(to_env=env, at_env=self.env)
         try:
@@ -833,11 +851,11 @@ class MultiProductSystem(Component):
         subformatter.auto_quote = True
         ctxtag = '[%s] ' % (env.product.prefix,) \
                     if isinstance(env, ProductEnvironment) \
-                    else '<global> ' 
+                    else '<global> '
         subformatter.enhance_link = lambda link : (
-                                link(title=ctxtag + link.attrib.get('title')) 
-                                if isinstance(link, Element) 
-                                    and 'title' in link.attrib 
+                                link(title=ctxtag + link.attrib.get('title'))
+                                if isinstance(link, Element)
+                                    and 'title' in link.attrib
                                 else link)
         link = subformatter.match(sublink + extra)
         if link:
@@ -850,7 +868,7 @@ class MultiProductSystem(Component):
 
 
 PRODUCT_SYNTAX_DELIMITER = MultiProductSystem.short_syntax_delimiter
-PRODUCT_SYNTAX_DELIMITER_RE = ''.join('[%s]' % c 
+PRODUCT_SYNTAX_DELIMITER_RE = ''.join('[%s]' % c
                                       for c in PRODUCT_SYNTAX_DELIMITER)
 
 from multiproduct.env import ProductEnvironment, lookup_product_env, \

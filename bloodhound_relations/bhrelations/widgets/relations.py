@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -24,11 +23,13 @@ r"""Project dashboard for Apache(TM) Bloodhound
 Widgets displaying ticket relations.
 """
 
-from trac.util.translation import _
+from trac.resource import get_resource_shortname, get_resource_summary
 from trac.ticket.model import Ticket
 
-from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
+from bhdashboard.util import pretty_wrapper
+from bhdashboard.util.widgets import WidgetBase, check_widget_name
 from bhrelations.web_ui import RelationManagementModule
+from bhrelations.utils.translation import _
 
 __metaclass__ = type
 
@@ -67,9 +68,10 @@ class TicketRelationsWidget(WidgetBase):
             'ticket': ticket,
             'relations': \
                 RelationManagementModule(self.env).get_ticket_relations(ticket),
+            'get_resource_shortname': get_resource_shortname,
+            'get_resource_summary': get_resource_summary,
         }
         return 'widget_relations.html', \
             {'title': title, 'data': data, }, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-

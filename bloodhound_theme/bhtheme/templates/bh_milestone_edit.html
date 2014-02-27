@@ -23,6 +23,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="layout.html" />
   <head>
@@ -82,7 +83,7 @@
               <label for="description" i18n:msg="">Description</label>
               <p><textarea id="description" name="description" class="wikitext trac-resizable" rows="10" cols="78" placeholder="Describe this milestone using WikiFormatting">
 ${milestone.description}</textarea></p>
-              <p class="help-block pull-right">
+              <p class="help-block pull-right" i18n:msg="">
                 <span class="label label-info">Tip</span>
                 You may use <a tabindex="42"
                      href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -28,9 +27,9 @@ from genshi.builder import tag
 from trac.core import implements, TracError
 
 from bhdashboard.api import DashboardSystem, InvalidWidgetArgument, JsonField
-from bhdashboard.util import WidgetBase, check_widget_name, \
-                              dummy_request, merge_links, minmax, \
+from bhdashboard.util import dummy_request, merge_links, minmax, \
                               pretty_wrapper, trac_version, trac_tags
+from bhdashboard.util.widgets import WidgetBase, check_widget_name
 from bhdashboard.web_ui import DashboardModule
 
 class ContainerWidget(WidgetBase):
@@ -69,7 +68,7 @@ class ContainerWidget(WidgetBase):
                 self.bind_params(name, options, *params)
         lp = dbsys.resolve_layout(layout)
         dbmod = DashboardModule(self.env)
-        layout_data = lp.expand_layout(layout, context, 
+        layout_data = lp.expand_layout(layout, context,
                 { 'schema' : schema, 'embed' : True })
         widgets = dbmod.expand_widget_data(context, schema)
 
@@ -89,4 +88,3 @@ class ContainerWidget(WidgetBase):
                 context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-

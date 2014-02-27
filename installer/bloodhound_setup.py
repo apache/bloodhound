@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -31,16 +31,17 @@ import time
 
 from createdigest import htdigest_create
 
-from trac.util import translation
-from trac.util.translation import _, get_negotiated_locale, has_babel
 LANG = os.environ.get('LANG')
 
 try:
+    from trac.util import translation
+    from trac.util.translation import _, get_negotiated_locale, has_babel
     from trac.admin.console import TracAdmin
     from trac.config import Configuration
 except ImportError, e:
-    print ("Post install setup requires that Bloodhound is properly installed "
-           "Traceback for error follows:\n")
+    print ("Requirements should be installed before running bloodhound_setup.py.\n"
+           "You can install them with the following command:\n"
+           "   pip install -r requirements.txt\n")
     traceback.print_exc()
     sys.exit(1)
 
@@ -70,9 +71,7 @@ BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
                'header_logo': {'src': '',},
                'mainnav': {'roadmap': 'disabled',
                            'search': 'disabled',
-                           'timeline': 'disabled',
-                           'browser.label': 'Source',
-                           'tickets.label': 'Tickets',},
+                           'timeline': 'disabled',},
                'metanav': {'about': 'disabled',},
                'theme': {'theme': 'bloodhound',},
                'trac': {'mainnav': ','.join(['dashboard', 'wiki', 'browser',
@@ -133,6 +132,9 @@ class BloodhoundSetup(object):
             options['envsdir'] = os.path.join('bloodhound',
                                               'environments')
 
+        # Flags used when running the functional test suite
+        self.apply_bhwiki_upgrades = True
+
     def _generate_db_str(self, options):
         """Builds an appropriate db string for trac-admin for sqlite and
         postgres options. Also allows for a user to provide their own db string
@@ -157,16 +159,16 @@ class BloodhoundSetup(object):
     def setup(self, **kwargs):
         """Do the setup. A kwargs dictionary may be passed to override base
         options, potentially allowing for multiple environment creation."""
-        
+
         if has_babel:
             import babel
             try:
-                locale = get_negotiated_locale([LANG]) 
+                locale = get_negotiated_locale([LANG])
                 locale = locale or babel.Locale.default()
             except babel.UnknownLocaleError:
                 pass
             translation.activate(locale)
-        
+
         options = dict(self.options)
         options.update(kwargs)
         if psycopg2 is None and options.get('dbtype') == 'postgres':
@@ -212,14 +214,15 @@ class BloodhoundSetup(object):
         trac = TracAdmin(os.path.abspath(new_env))
         if not trac.env_check():
             try:
-                trac.do_initenv('%(project)s %(db)s '
-                                '%(repo_type)s %(repo_path)s '
-                                '--inherit=%(inherit)s '
-                                '--nowiki'
-                                % options)
+                rv = trac.do_initenv('%(project)s %(db)s '
+                                     '%(repo_type)s %(repo_path)s '
+                                     '--inherit=%(inherit)s '
+                                     '--nowiki'
+                                     % options)
+                if rv == 2:
+                    raise SystemExit
             except SystemExit:
-                print ("Error: Unable to initialise the database"
-                       "Traceback for error is above")
+                print ("Error: Unable to initialise the environment.")
                 return False
         else:
             print ("Warning: Environment already exists at %s." % new_env)
@@ -265,9 +268,12 @@ class BloodhoundSetup(object):
 
         print "Running wiki upgrades"
         bloodhound.onecmd('wiki upgrade')
-        
-        print "Running wiki Bloodhound upgrades"
-        bloodhound.onecmd('wiki bh-upgrade')
+
+        if self.apply_bhwiki_upgrades:
+            print "Running wiki Bloodhound upgrades"
+            bloodhound.onecmd('wiki bh-upgrade')
+        else:
+            print "Skipping Bloodhound wiki upgrades"
 
         print "Loading default product wiki"
         bloodhound.onecmd('product admin %s wiki load %s' %
@@ -278,9 +284,12 @@ class BloodhoundSetup(object):
         bloodhound.onecmd('product admin %s wiki upgrade' %
                           default_product_prefix)
 
-        print "Running default product wiki Bloodhound upgrades"
-        bloodhound.onecmd('product admin %s wiki bh-upgrade' %
-                          default_product_prefix)
+        if self.apply_bhwiki_upgrades:
+            print "Running default product Bloodhound wiki upgrades"
+            bloodhound.onecmd('product admin %s wiki bh-upgrade' %
+                              default_product_prefix)
+        else:
+            print "Skipping default product Bloodhound wiki upgrades"
 
         print """
 You can now start Bloodhound by running:

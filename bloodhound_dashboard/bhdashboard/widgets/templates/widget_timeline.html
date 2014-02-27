@@ -21,6 +21,8 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  i18n:domain="bhdashboard"
   py:with="now = datetime.now(req.tz);
            today = format_date(now);
            yesterday = format_date(now - timedelta(days=1))"
@@ -32,7 +34,7 @@
     <thead>
       <tr>
         <th>
-          ${day}: ${day == today and 'Today' or day == yesterday and 'Yesterday' or None}
+          ${day}: ${day == today and _('Today') or day == yesterday and _('Yesterday') or None}
         </th>
       </tr>
     </thead>
@@ -40,7 +42,7 @@
       <tr py:for="event in events"
         py:with="highlight = precision and precisedate and timedelta(0) &lt;= (event.date - precisedate) &lt; precision">
         <td class="${classes(event.kind, highlight=highlight)}">
-          <dt>
+          <dt i18n:msg="time,event,author">
             <span class="time">${format_time(event.date, str('%H:%M'))}</span>: <a href="${event.render('url', context)}">${event.render('title', context)}</a>
               <py:if test="event.author">by <span class="author">${format_author(event.author)}</span></py:if>
           </dt>

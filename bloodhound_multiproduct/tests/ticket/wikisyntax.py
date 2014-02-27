@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -31,30 +32,29 @@ from tests.wiki import formatter
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(formatter.test_suite(wikisyntax.TICKET_TEST_CASES, 
-                                       wikisyntax.ticket_setup, 
+    suite.addTest(formatter.test_suite(wikisyntax.TICKET_TEST_CASES,
+                                       wikisyntax.ticket_setup,
                                        wikisyntax.__file__,
                                        wikisyntax.ticket_teardown))
-    suite.addTest(formatter.test_suite(wikisyntax.REPORT_TEST_CASES, 
-                                       wikisyntax.report_setup, 
+    suite.addTest(formatter.test_suite(wikisyntax.REPORT_TEST_CASES,
+                                       wikisyntax.report_setup,
                                        wikisyntax.__file__))
-    suite.addTest(formatter.test_suite(wikisyntax.MILESTONE_TEST_CASES, 
+    suite.addTest(formatter.test_suite(wikisyntax.MILESTONE_TEST_CASES,
                                        wikisyntax.milestone_setup,
-                                       wikisyntax.__file__, 
+                                       wikisyntax.__file__,
                                        wikisyntax.milestone_teardown))
-    suite.addTest(formatter.test_suite(wikisyntax.QUERY_TEST_CASES, 
-                                       wikisyntax.ticket_setup, 
+    suite.addTest(formatter.test_suite(wikisyntax.QUERY_TEST_CASES,
+                                       wikisyntax.ticket_setup,
                                        wikisyntax.__file__,
                                        wikisyntax.ticket_teardown))
-    suite.addTest(formatter.test_suite(wikisyntax.QUERY2_TEST_CASES, 
-                                       wikisyntax.query2_setup, 
+    suite.addTest(formatter.test_suite(wikisyntax.QUERY2_TEST_CASES,
+                                       wikisyntax.query2_setup,
                                        wikisyntax.__file__,
                                        wikisyntax.query2_teardown))
-    suite.addTest(formatter.test_suite(wikisyntax.COMMENT_TEST_CASES, 
+    suite.addTest(formatter.test_suite(wikisyntax.COMMENT_TEST_CASES,
                                        file=wikisyntax.__file__))
     return suite
 
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +17,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 from datetime import datetime
-from _sqlite3 import IntegrityError
 import unittest
 from bhrelations.api import TicketRelationsSpecifics
 from bhrelations.tests.mocks import TestRelationChangingListener
@@ -98,7 +96,10 @@ class ApiTestCase(BaseRelationsTestCase):
         with self.env.db_transaction as db:
             db(sql, ["1", "2", "dependson"])
             self.assertRaises(
-                IntegrityError, db, sql, ["1", "2", "dependson"])
+                self.env.db_exc.IntegrityError,
+                db,
+                sql,
+                ["1", "2", "dependson"])
 
     def test_can_add_one_way_relations(self):
         #arrange
@@ -447,17 +448,20 @@ class ApiTestCase(BaseRelationsTestCase):
             self.fail("Could not add valid relation.")
 
     def test_cannot_close_ticket_with_open_children(self):
-        t1 = self._insert_and_load_ticket("1", status='closed')
-        t2 = self._insert_and_load_ticket("2", status='closed')
-        t3 = self._insert_and_load_ticket("3")
+        t1 = self._insert_and_load_ticket("1")                  #     t1
+        t2 = self._insert_and_load_ticket("2", status='closed') #   /  | \
+        t3 = self._insert_and_load_ticket("3")                  #  t2 t3 t4
+        t4 = self._insert_and_load_ticket("4")
         self.relations_system.add(t2, t1, "parent")
         self.relations_system.add(t3, t1, "parent")
+        self.relations_system.add(t4, t1, "parent")
 
+        # A warning is be returned for each open ticket
         self.req.args["action"] = 'resolve'
-        warnings = TicketRelationsSpecifics(self.env).validate_ticket(
-            self.req, t1)
-        #assert
-        self.assertEqual(1, len(list(warnings)))
+        warnings = \
+            TicketRelationsSpecifics(self.env).validate_ticket(self.req, t1)
+
+        self.assertEqual(2, len(list(warnings)))
 
     def test_duplicate_can_only_reference_older_ticket(self):
         t1 = self._insert_and_load_ticket("1")
@@ -495,6 +499,42 @@ class ApiTestCase(BaseRelationsTestCase):
 
         self.relations_system.add(t1, t2, "refersto")
         self.relations_system.add(t2, t1, "refersto")
+
+    def test_can_find_ticket_by_id_from_same_env(self):
+        """ Can find ticket given #id"""
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        t1 = self._insert_and_load_ticket_with_env(p2_env, "T1")
+        trs = TicketRelationsSpecifics(p2_env)
+
+        ticket = trs.find_ticket("#%d" % t1.id)
+
+        self.assertEqual(ticket.id, 1)
+
+    def test_can_find_ticket_by_id_from_different_env(self):
+        """ Can find ticket from different env given #id"""
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        t1 = self._insert_and_load_ticket_with_env(p2_env, "T1")
+        trs = TicketRelationsSpecifics(self.env)
+
+        ticket = trs.find_ticket("#%d" % t1.id)
+
+        self.assertEqual(ticket.id, 1)
+
+    def test_can_find_ticket_by_product_and_id(self):
+        """ Can find ticket given #prefix-id"""
+        product2 = "tp2"
+        self._load_product_from_data(self.global_env, product2)
+        p2_env = ProductEnvironment(self.global_env, product2)
+        t1 = self._insert_and_load_ticket_with_env(p2_env, "T1")
+        trs = TicketRelationsSpecifics(self.env)
+
+        ticket = trs.find_ticket("#%s-%d" % (product2, t1.id))
+
+        self.assertEqual(ticket.id, 1)
 
 
 class RelationChangingListenerTestCase(BaseRelationsTestCase):

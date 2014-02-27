@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -32,12 +33,12 @@ from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
 from trac.util.presentation import to_json
-from trac.util.translation import _
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
-                             ITemplateProvider, prevnext_nav, Chrome)
+                             ITemplateProvider, prevnext_nav, Chrome, add_script)
 from trac.wiki.admin import WikiAdmin
+from trac.wiki.formatter import format_to_html
 
 from themeengine.api import ThemeBase, ThemeEngineSystem
 
@@ -46,13 +47,14 @@ from bhdashboard.web_ui import DashboardModule
 from bhdashboard import wiki
 
 from multiproduct.env import ProductEnvironment
+from multiproduct.model import Product
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
+from bhtheme.translation import _, add_domain
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
 except ImportError:
     ProductTicketModule = None
-
 
 class BloodhoundTheme(ThemeBase):
     """Look and feel of Bloodhound issue tracker.
@@ -127,11 +129,14 @@ class BloodhoundTheme(ThemeBase):
 
         # Version control
         'browser.html': ('bh_browser.html', '_modify_browser'),
+        'changeset.html': ('bh_changeset.html', None),
+        'diff_form.html': ('bh_diff_form.html', None),
         'dir_entries.html': ('bh_dir_entries.html', None),
         'revisionlog.html': ('bh_revisionlog.html', '_modify_browser'),
 
         # Multi Product
         'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
+        'product_list.html': ('bh_product_list.html', '_modify_product_list'),
 
         # General purpose
         'about.html': ('bh_about.html', None),
@@ -151,23 +156,26 @@ class BloodhoundTheme(ThemeBase):
         ("body//table[not(contains(@class, 'table'))]",  # TODO: Accurate ?
          ['table', 'table-condensed']),
     )
-    
-    labels_application_short = Option('labels', 'application_short', 
-        'Bloodhound', """A short version of application name most commonly 
-        displayed in text, titles and labels""")
 
-    labels_application_full = Option('labels', 'application_full', 
-        'Apache Bloodhound', """This is full name with trade mark and 
-        everything, it is currently used in footers and about page only""")
-    
-    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '', 
-        """Text to display before full application name in footers""")
+    labels_application_short = Option('labels', 'application_short',
+        'Bloodhound', """A short version of application name most commonly
+        displayed in text, titles and labels""", doc_domain='bhtheme')
 
-    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '', 
-        """Text to display after full application name in footers""")
-    
+    labels_application_full = Option('labels', 'application_full',
+        'Apache Bloodhound', """This is full name with trade mark and
+        everything, it is currently used in footers and about page only""",
+                                     doc_domain='bhtheme')
+
+    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '',
+        """Text to display before full application name in footers""",
+                                       doc_domain='bhtheme')
+
+    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '',
+        """Text to display after full application name in footers""",
+                                        doc_domain='bhtheme')
+
     labels_footer_right = Option('labels', 'footer_right', '',
-        """Text to use as the right aligned footer""")
+        """Text to use as the right aligned footer""", doc_domain='bhtheme')
 
     _wiki_pages = None
     Chrome.default_html_doctype = DocType.HTML5
@@ -192,8 +200,8 @@ class BloodhoundTheme(ThemeBase):
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
-        """Insert default Bootstrap CSS classes if rendering 
-        legacy templates (i.e. determined by template name prefix) 
+        """Insert default Bootstrap CSS classes if rendering
+        legacy templates (i.e. determined by template name prefix)
         and renames wiki guide links.
         """
         tx = Transformer('body')
@@ -210,12 +218,12 @@ class BloodhoundTheme(ThemeBase):
                 self.log.debug('BH Theme : Inserting class ' + out_classes)
                 return out_classes
             return attr_modifier
-        
+
         # Insert default bootstrap CSS classes if necessary
         for xpath, classes in self.BOOTSTRAP_CSS_DEFAULTS:
             tx = tx.end().select(xpath) \
                 .attr('class', add_classes(classes))
-         
+
         # Rename wiki guide links
         tx = tx.end() \
             .select("body//a[contains(@href,'/wiki/%s')]" % wiki.GUIDE_NAME) \
@@ -226,7 +234,7 @@ class BloodhoundTheme(ThemeBase):
         tx = tx.end() \
             .select("body//div[@class='error']/h1") \
             .map(lambda text: text.replace("Trac", app_short), TEXT)
-                    
+
         return stream | tx
 
     # IRequestFilter methods
@@ -250,22 +258,16 @@ class BloodhoundTheme(ThemeBase):
 
         req.href.wiki = hwiki
 
-        # Move 'admin' entry from mainnav to metanav
-        for i, entry in enumerate(req.chrome['nav']['mainnav']):
-            if entry['name'] == 'admin':
-                req.chrome['nav']['metanav'] \
-                    .append(req.chrome['nav']['mainnav'].pop(i))
-
         return handler
 
     def post_process_request(self, req, template, data, content_type):
         """Post process request filter.
         Removes all trac provided css if required"""
-        
+
         if template is None and data is None and \
                 sys.exc_info() == (None, None, None):
             return template, data, content_type
-        
+
         def is_active_theme():
             is_active = False
             active_theme = ThemeEngineSystem(self.env).theme
@@ -290,9 +292,15 @@ class BloodhoundTheme(ThemeBase):
                 links.get('icon')[0].update(new_icon)
             if links.get('shortcut icon'):
                 links.get('shortcut icon')[0].update(new_icon)
-        
+
         is_active_theme = is_active_theme()
         if self.disable_all_trac_css and is_active_theme:
+            # Move 'admin' entry from mainnav to metanav
+            for i, entry in enumerate(req.chrome['nav'].get('mainnav', [])):
+                if entry['name'] == 'admin':
+                    req.chrome['nav'].setdefault('metanav', []) \
+                       .append(req.chrome['nav']['mainnav'].pop(i))
+
             if self.disable_all_trac_css:
                 stylesheets = links.get('stylesheet', [])
                 if stylesheets:
@@ -313,6 +321,9 @@ class BloodhoundTheme(ThemeBase):
                                         'true')
             data['bhrelations'] = \
                 self.env.config.getbool('components', 'bhrelations.*', 'false')
+
+        if req.locale is not None:
+            add_script(req, 'theme/bloodhound/%s.js' % req.locale)
 
         return template, data, content_type
 
@@ -440,6 +451,60 @@ class BloodhoundTheme(ThemeBase):
         if isinstance(req.perm.env, ProductEnvironment):
             data['resourcepath_template'] = 'bh_path_general.html'
 
+    def _modify_product_list(self, req, template, data, content_type,
+                             is_active):
+        """Transform products list into media list by adding
+        configured product icon as well as further navigation items.
+        """
+        products = data.pop('products')
+        context = data['context']
+        with self.env.db_query as db:
+            icons = db.execute("""
+                SELECT product, value FROM bloodhound_productconfig
+                WHERE product IN (%s) AND section='project' AND
+                option='icon'""" % ', '.join(["%s"] * len(products)),
+                tuple(p.prefix for p in products))
+        icons = dict(icons)
+        data['thumbsize'] = 64
+        # FIXME: Gray icon for missing products
+        no_thumbnail = req.href('chrome/theme/img/bh.ico')
+        product_ctx = lambda item: context.child(item.resource)
+
+        def product_media_data(icons, product):
+            return dict(href=product.href(),
+                        thumb=icons.get(product.prefix, no_thumbnail),
+                        title=product.name,
+                        description=format_to_html(self.env,
+                                                   product_ctx(product),
+                                                   product.description),
+                        links={'extras': (([{'href': req.href.products(
+                                                product.prefix, action='edit'),
+                                             'title': _('Edit product %(prefix)s',
+                                                        prefix=product.prefix),
+                                             'icon': tag.i(class_='icon-edit'),
+                                             'label': _('Edit')},]
+                                           if 'PRODUCT_MODIFY' in req.perm
+                                           else []) +
+                                          [{'href': product.href(),
+                                            'title': _('Home page'),
+                                            'icon': tag.i(class_='icon-home'),
+                                            'label': _('Home')},
+                                           {'href': product.href.dashboard(),
+                                            'title': _('Tickets dashboard'),
+                                            'icon': tag.i(class_='icon-tasks'),
+                                            'label': _('Tickets')},
+                                           {'href': product.href.wiki(),
+                                            'title': _('Wiki'),
+                                            'icon': tag.i(class_='icon-book'),
+                                            'label': _('Wiki')}]),
+                               'main': {'href': product.href(),
+                                        'title': None,
+                                        'icon': tag.i(class_='icon-chevron-right'),
+                                        'label': _('Browse')}})
+
+        data['products'] = [product_media_data(icons, product)
+                            for product in products]
+
     # INavigationContributor methods
 
     def get_active_navigation_item(self, req):
@@ -449,18 +514,25 @@ class BloodhoundTheme(ThemeBase):
         if 'BROWSER_VIEW' in req.perm and 'VERSIONCONTROL_ADMIN' in req.perm:
             bm = self.env[BrowserModule]
             if bm and not list(bm.get_navigation_items(req)):
-                yield ('mainnav', 'browser', 
-                       tag.a(_('Browse Source'),
+                yield ('mainnav', 'browser',
+                       tag.a(_('Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
 
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
-    qct_fields = ListOption('ticket', 'quick_create_fields', 
+    qct_fields = ListOption('ticket', 'quick_create_fields',
                             'product, version, type',
-        doc="""Multiple selection fields displayed in create ticket menu""")
+        doc="""Multiple selection fields displayed in create ticket menu""",
+                            doc_domain='bhtheme')
 
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(QuickCreateTicketDialog, self).__init__(*args, **kwargs)
+        
     # IRequestFilter(Interface):
 
     def pre_process_request(self, req, handler):
@@ -480,21 +552,28 @@ class QuickCreateTicketDialog(Component):
         if (template, data, content_type) != (None,) * 3:  # TODO: Check !
             if data is None:
                 data = {}
-            req = dummy_request(self.env)
+            dum_req = dummy_request(self.env)
+            dum_req.perm = req.perm
             ticket = Ticket(self.env)
-            tm._populate(req, ticket, False)
-            all_fields = dict([f['name'], f]
-                              for f in tm._prepare_fields(req, ticket)
+            tm._populate(dum_req, ticket, False)
+            all_fields = dict([f['name'], self.add_prod_new_ticket_url(dum_req, f)]
+                              for f in tm._prepare_fields(dum_req, ticket)
                               if f['type'] == 'select')
 
             product_field = all_fields.get('product')
             if product_field:
-                if self.env.product:
+                # Filter out products for which user doesn't have TICKET_CREATE
+                product_field['options'] = \
+                    [prefix for prefix in product_field['options']
+                     if req.perm.has_permission('TICKET_CREATE',
+                                                Neighborhood('product', prefix['value'])
+                                                    .child(None, None))]
+
+                if self.env.product and \
+                        self.env.product.prefix in product_field['options']:
                     product_field['value'] = self.env.product.prefix
-                else:
-                    product_field['value'] = product_field['options'][0]
                 product_field['options_desc'] = [
-                    ProductEnvironment.lookup_env(self.env, p).product.name
+                    ProductEnvironment.lookup_env(self.env, p['value']).product.name
                         for p in product_field['options']
                 ]
             else:
@@ -510,8 +589,7 @@ class QuickCreateTicketDialog(Component):
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
                 'hidden_fields': [all_fields[k] for k in all_fields.keys()
-                                  if k not in self.qct_fields]
-            }
+                                  if k not in self.qct_fields] }
         return template, data, content_type
 
     # IRequestHandler methods
@@ -558,7 +636,7 @@ class QuickCreateTicketDialog(Component):
 
     # Public API
     def create(self, req, summary, description, attributes={}, notify=False):
-        """ Create a new ticket, returning the ticket ID. 
+        """ Create a new ticket, returning the ticket ID.
 
         PS: Borrowed from XmlRpcPlugin.
         """
@@ -587,6 +665,18 @@ class QuickCreateTicketDialog(Component):
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
+
+    def add_prod_new_ticket_url(self, req, fields):
+        if fields.get('name') == 'product':
+            options_with_attrs = []
+            for option in fields.get('options', []):
+                options_with_attrs.append({
+                    'value': option,
+                    'product_new_ticket_url': \
+                            req.href.products(option, 'newticket')
+                })
+            fields['options'] = options_with_attrs
+        return fields
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version

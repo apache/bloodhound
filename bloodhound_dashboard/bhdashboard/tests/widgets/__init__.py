@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -17,3 +16,17 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
+import unittest
+
+from bhdashboard.tests.widgets import timeline
+
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(timeline.suite())
+    return suite
+
+
+if __name__ == '__main__':
+    unittest.main(defaultTest='suite')

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -19,10 +18,17 @@
 #  under the License.
 
 
-# Copied from trac/utils.py, ticket-links-trunk branch
-def unique(seq):
-    """Yield unique elements from sequence of hashables, preserving order.
-    (New in 0.13)
-    """
-    seen = set()
-    return (x for x in seq if x not in seen and not seen.add(x))
+r"""Project dashboard for Apache(TM) Bloodhound
+
+Translation functions and classes.
+"""
+
+from trac.util.translation import domain_functions
+
+#------------------------------------------------------
+#    Internationalization
+#------------------------------------------------------
+
+_, ngettext, tag_, tagn_, gettext, N_, add_domain = \
+   domain_functions('multiproduct', ('_', 'ngettext', 'tag_', 'tagn_',
+                                'gettext', 'N_', 'add_domain'))

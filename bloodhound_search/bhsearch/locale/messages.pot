@@ -1,0 +1,227 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+# Translations template for BloodhoundSearchPlugin.
+# Copyright (C) 2014 ORGANIZATION
+# This file is distributed under the same license as the BloodhoundSearchPlugin project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+##, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: BloodhoundSearchPlugin 0.8.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2014-02-15 21:55+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: bhsearch/api.py:248
+msgid "Name of the component implementing Bloodhound Search backend         interface: ISearchBackend."
+msgstr ""
+
+#: bhsearch/api.py:253
+msgid "Name of the component implementing Bloodhound Search query         parser."
+msgstr ""
+
+#: bhsearch/web_ui.py:265
+msgid "Default facets applied to search view of all resources"
+msgstr ""
+
+#: bhsearch/web_ui.py:269 bhsearch/search_resources/changeset_search.py:120
+#: bhsearch/search_resources/milestone_search.py:154
+#: bhsearch/search_resources/ticket_search.py:220
+#: bhsearch/search_resources/wiki_search.py:146
+msgid ""
+"If true, show grid as default view for specific resource in\n"
+"Bloodhound Search results"
+msgstr ""
+
+#: bhsearch/web_ui.py:278 bhsearch/search_resources/changeset_search.py:129
+#: bhsearch/search_resources/milestone_search.py:163
+#: bhsearch/search_resources/ticket_search.py:229
+#: bhsearch/search_resources/wiki_search.py:155
+msgid "Default fields for grid view for specific resource"
+msgstr ""
+
+#: bhsearch/web_ui.py:282
+msgid "Searching from quicksearch uses bhsearch."
+msgstr ""
+
+#: bhsearch/web_ui.py:289
+msgid "Redirect links pointing to trac search to bhsearch"
+msgstr ""
+
+#: bhsearch/web_ui.py:296
+msgid ""
+"Quicksearch searches all products, even when used\n"
+"in product env."
+msgstr ""
+
+#: bhsearch/web_ui.py:303
+msgid "Display query suggestions."
+msgstr ""
+
+#: bhsearch/web_ui.py:510
+#, python-format
+msgid "Unsupported resource type: '%(name)s'"
+msgstr ""
+
+#: bhsearch/web_ui.py:556
+#, python-format
+msgid "Browse repository path %(path)s"
+msgstr ""
+
+#: bhsearch/web_ui.py:739
+msgid "Next Page"
+msgstr ""
+
+#: bhsearch/web_ui.py:743
+msgid "Previous Page"
+msgstr ""
+
+#: bhsearch/web_ui.py:746
+msgid "Previous"
+msgstr ""
+
+#: bhsearch/web_ui.py:746
+msgid "Next"
+msgstr ""
+
+#: bhsearch/web_ui.py:854
+msgid "Global product"
+msgstr ""
+
+#: bhsearch/web_ui.py:857
+msgid "All products"
+msgstr ""
+
+#: bhsearch/whoosh_backend.py:51
+msgid ""
+"Relative path is resolved relatively to the\n"
+"directory of the environment."
+msgstr ""
+
+#: bhsearch/whoosh_backend.py:58
+msgid "Check view permission for each document when retrieving results."
+msgstr ""
+
+#: bhsearch/whoosh_backend.py:66
+msgid "The maximum number of characters allowed in a fragment."
+msgstr ""
+
+#: bhsearch/whoosh_backend.py:73
+msgid ""
+"The number of extra characters of context to add both before\n"
+"the first matched term and after the last matched term."
+msgstr ""
+
+#: bhsearch/search_resources/base.py:32
+msgid "If true, do not throw an exception during indexing a resource"
+msgstr ""
+
+#: bhsearch/search_resources/base.py:36
+msgid "Name of the component implementing wiki syntax to text formatter         interface: ISearchWikiSyntaxFormatter."
+msgstr ""
+
+#: bhsearch/search_resources/changeset_search.py:116
+#: bhsearch/search_resources/milestone_search.py:150
+#: bhsearch/search_resources/ticket_search.py:216
+#: bhsearch/search_resources/wiki_search.py:142
+msgid "Default facets applied to search view of specific resource"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:34 bhsearch/templates/bhsearch.html:37
+msgid "empty"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:45
+msgid "Bloodhound Search Results"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:46
+msgid "Bloodhound Search"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:63
+#, python-format
+msgid "Quickjump to %(name)s"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:89 bhsearch/templates/bhsearch.html:183
+msgid "Did you mean"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:92
+msgid "Results"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:97
+msgid "View as:"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:116
+msgid "(ascending)"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:116
+msgid "(descending)"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:117
+#, python-format
+msgid "Sort by %(col)s %(direction)s"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:141
+msgid "title"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:146
+msgid "View milestone"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:166
+#, python-format
+msgid "By %(author)s"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:181
+msgid "No matches found."
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:191
+msgid "DEBUG INFO:"
+msgstr ""
+
+#: bhsearch/templates/bhsearch.html:196
+msgid ""
+"[1:Note:] See [2:BloodhoundSearch]\n"
+"        for help on searching."
+msgstr ""
+
+#: bhsearch/templates/bhsearch_breadcrumbs.html:28
+msgid "Search"
+msgstr ""
+
+#: bhsearch/templates/bhsearch_breadcrumbs.html:32
+msgid "Selected product"
+msgstr ""
+

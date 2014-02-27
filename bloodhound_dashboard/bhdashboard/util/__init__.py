@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -25,18 +24,14 @@ Helper functions and classes.
 """
 
 from functools import update_wrapper
-import inspect
 from pkg_resources import get_distribution
 from urlparse import urlparse
 from wsgiref.util import setup_testing_defaults
 
-from trac.core import Component, implements, ExtensionPoint
-from trac.util.text import to_unicode
+from trac.core import ExtensionPoint
 from trac.web.api import Request
 from trac.web.chrome import add_link, Chrome
 from trac.web.main import RequestDispatcher
-
-from bhdashboard.api import DashboardSystem, IWidgetProvider, InvalidIdentifier
 
 #------------------------------------------------------
 #    Request handling
@@ -48,7 +43,7 @@ def dummy_request(env, uname=None):
     environ.update({
                 'REQUEST_METHOD' : 'GET',
                 'SCRIPT_NAME' : urlparse(str(env._abs_href())).path,
-                'trac.base_url' : str(env._abs_href()), 
+                'trac.base_url' : str(env._abs_href()),
                 })
     req = Request(environ, lambda *args, **kwds: None)
     # Intercept redirection
@@ -56,7 +51,7 @@ def dummy_request(env, uname=None):
     # Setup user information
     if uname is not None :
         environ['REMOTE_USER'] = req.authname = uname
-    
+
     rd = RequestDispatcher(env)
     chrome = Chrome(env)
     req.callbacks.update({
@@ -84,60 +79,11 @@ def merge_links(srcreq, dstreq, exclude=None):
                     add_link(dstreq, rel, **link)
 
 #------------------------------------------------------
-#    Widget helpers
-#------------------------------------------------------
-
-class WidgetBase(Component):
-    """Abstract base class for widgets"""
-
-    implements(IWidgetProvider)
-    abstract = True
-
-    def get_widgets(self):
-        """Yield the name of the widget based on the class name."""
-        name = self.__class__.__name__
-        if name.endswith('Widget'):
-            name = name[:-6]
-        yield name
-
-    def get_widget_description(self, name):
-        """Return the subclass's docstring."""
-        return to_unicode(inspect.getdoc(self.__class__))
-
-    def get_widget_params(self, name):
-        """Return a dictionary containing arguments specification for
-        the widget with specified name.
-        """
-        raise NotImplementedError
-
-    def render_widget(self, context, name, options):
-        """Render widget considering given options."""
-        raise NotImplementedError
-
-    # Helper methods
-    def bind_params(self, name, options, *params):
-        return DashboardSystem(self.env).bind_params(options, 
-                self.get_widget_params(name), *params)
-
-def check_widget_name(f):
-    """Decorator used to wrap methods of widget providers so as to ensure
-    widget names will match those listed by `get_widgets` method.
-    """
-    def widget_name_checker(self, name, *args, **kwargs):
-        names = set(self.get_widgets())
-        if name not in names: 
-            raise InvalidIdentifier('Widget name MUST match any of ' + 
-                        ', '.join(names), 
-                    title='Invalid widget identifier')
-        return f(self, name, *args, **kwargs)
-    return widget_name_checker
-
-#------------------------------------------------------
 #    Function decorators and wrappers
 #------------------------------------------------------
 
 def pretty_wrapper(wrapped, *decorators):
-    """Apply multiple decorators to a given function and make the result 
+    """Apply multiple decorators to a given function and make the result
     look like wrapped function.
     """
     wrapper = wrapped
@@ -160,7 +106,7 @@ def resolve_ep_class(interface, component, clsnm, **kwargs):
         if 'default' in kwargs:
             return kwargs['default']
         else:
-            raise LookupError('No match found for class %s implementing %s' % 
+            raise LookupError('No match found for class %s implementing %s' %
                     (clsnm, interface) )
 
 #------------------------------------------------------
@@ -197,5 +143,3 @@ def minmax(seq, accessor=lambda x: x):
         if value < minval:
             minval = value
     return dict(min=minval, max=maxval)
-
-

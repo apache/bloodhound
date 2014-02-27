@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -131,7 +130,7 @@ class BaseBloodhoundSearchTest(unittest.TestCase):
         url, data, x = BloodhoundSearchModule(self.env).process_request(
             self.req)
         self.env.log.debug("Received url: %s data: %s", url, data)
-        if data.has_key("results"):
+        if 'results' in data:
             self.env.log.debug("results: %s", data["results"].__dict__)
         return data
 

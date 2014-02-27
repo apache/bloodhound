@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -158,7 +159,7 @@ class ProductMilestoneTestCase(MilestoneTestCase, MultiproductTestCase):
         milestone.update()
 
         self.assertEqual(
-            [('Test', to_utimestamp(t1), to_utimestamp(t2), 'Foo bar', 
+            [('Test', to_utimestamp(t1), to_utimestamp(t2), 'Foo bar',
                     self.default_product)],
             self.env.db_query("SELECT * FROM milestone WHERE name='Test'"))
 
@@ -198,4 +199,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

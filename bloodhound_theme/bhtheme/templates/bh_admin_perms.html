@@ -24,6 +24,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       py:with="can_revoke = 'PERMISSION_REVOKE' in perm">
   <xi:include href="bh_admin.html" />
   <head>
@@ -107,17 +108,18 @@
                   class="${'odd' if idx % 2 else 'even'}">
                 <td>$subject</td>
                 <td>
-                  <py:for each="cnt, (subject,action) in enumerate(perm_group)"
-                          py:with="subject_action='%s:%s' % (unicode_to_base64(subject),
-                                                             unicode_to_base64(action));
-                                   subject_action_id='sa-%d-%d' % (idx, cnt)">
+                  <py:for each="cnt, (subject, action) in enumerate(perm_group)"
+                          py:with="subject_action = '%s:%s' % (unicode_to_base64(subject),
+                                                               unicode_to_base64(action));
+                                   subject_action_id = 'sa-%d-%d' % (idx, cnt)">
                     <!--! base64 make it safe to use ':' as separator when passing
                           both subject and action as one query parameter -->
                     <label for="$subject_action_id" class="checkbox inline">
                       <input py:if="can_revoke" type="checkbox"
                              id="$subject_action_id"
                              name="sel" value="$subject_action" />
-                      $action
+                      <span py:strip="action in actions" class="missing"
+                            title="Action is no longer defined">${action}</span>
                     </label>
                   </py:for>
                 </td>
@@ -126,8 +128,7 @@
           </table>
 
           <h3>Group Membership</h3>
-          <table class="table table-bordered table-striped table-condensed" 
-              id="grouplist">
+          <table class="table table-bordered table-striped table-condensed" id="grouplist">
             <thead>
               <tr><th>Subject</th><th class="full-x">Action</th></tr>
             </thead>
@@ -144,8 +145,7 @@
                     <!--! base64 makes it safe to use ':' as separator when passing
                           both subject and action as one query parameter -->
                     <label for="$subject_action_id" class="checkbox inline">
-                      <input py:if="can_revoke" type="checkbox"
-                             id="$subject_action_id"
+                      <input py:if="can_revoke" type="checkbox" id="$subject_action_id"
                              name="sel" value="$subject_action" />
                       $subject
                     </label>
@@ -158,7 +158,7 @@
           <br/>
           <div class="control-group" py:if="can_revoke">
             <input class="btn" type="submit" name="remove"
-                value="${_('Remove selected items')}" />
+                   value="${_('Remove selected items')}" />
           </div>
         </form>
 
@@ -174,4 +174,3 @@
   </body>
 
 </html>
-

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -17,8 +16,6 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-
-from sqlite3 import OperationalError
 
 from trac.core import Component, implements
 
@@ -42,7 +39,7 @@ class RelationsDocPreprocessor(Component):
             for relation in rls._select_relations(resource_id):
                 relations.extend(self._format_relations(relation))
             doc['relations'] = ','.join(relations)
-        except OperationalError:
+        except self.env.db_exc.OperationalError:
             # If bhrelations and bhsearch are installed at the same time and
             # bhsearch is upgraded before bhrelations, table
             # bloodhound_relations will be missing, thus causing the

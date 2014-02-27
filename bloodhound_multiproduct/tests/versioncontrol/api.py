@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -27,7 +28,7 @@ from trac.versioncontrol.tests.api import ResourceManagerTestCase
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 
-class ProductResourceManagerTestCase(ResourceManagerTestCase, \
+class ProductResourceManagerTestCase(ResourceManagerTestCase,
                                      MultiproductTestCase):
 
     @property
@@ -100,4 +101,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

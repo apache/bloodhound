@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -14,8 +16,6 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-
-"""Bloodhound version control support"""
 
 import os.path
 
@@ -108,4 +108,3 @@ class DbRepositoryProvider(ReplacementComponent, trac.versioncontrol.api.DbRepos
 
 trac.versioncontrol.api.DbRepositoryProvider = DbRepositoryProvider
 trac.versioncontrol.DbRepositoryProvider = DbRepositoryProvider
-

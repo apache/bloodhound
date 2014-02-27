@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -29,11 +28,12 @@ import itertools
 from genshi.builder import tag
 
 from trac.resource import Neighborhood
-from trac.util.translation import _
 from trac.ticket.model import Milestone, Component, Version
 from trac.ticket.query import Query
 
-from bhdashboard.util import WidgetBase, check_widget_name, pretty_wrapper
+from bhdashboard.util import pretty_wrapper
+from bhdashboard.util.widgets import WidgetBase, check_widget_name
+from bhdashboard.util.translation import _
 
 from multiproduct.env import Product, ProductEnvironment
 

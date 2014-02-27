@@ -20,7 +20,10 @@
 <!--! Template snippet for a standard table header for a dirlist -->
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
-    xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    i18n:domain="bhtheme"
+    py:strip="">
   <thead>
     <tr>
       <xi:include href="bh_sortable_th.html" py:with="class_ = 'name'; title = _('Name')"/>

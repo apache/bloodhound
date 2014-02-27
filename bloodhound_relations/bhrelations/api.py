@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -25,6 +24,7 @@ from pkg_resources import resource_filename
 from bhrelations import db_default
 from bhrelations.model import Relation
 from bhrelations.utils import unique
+from bhrelations.utils.translation import _, add_domain
 from multiproduct.api import ISupportMultiProductEnvironment
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
@@ -37,6 +37,7 @@ from trac.db import DatabaseManager
 from trac.resource import (ResourceSystem, Resource, ResourceNotFound,
                            get_resource_shortname, Neighborhood)
 from trac.ticket import Ticket, ITicketManipulator, ITicketChangeListener
+from trac.ticket.api import TicketSystem
 from trac.util.datefmt import utc, to_utimestamp
 from trac.web.chrome import ITemplateProvider
 
@@ -199,16 +200,21 @@ class RelationsSystem(Component):
         'NoSelfReferenceValidator, ExclusiveValidator, BlockerValidator',
         include_missing=False,
         doc="""Validators used to validate all relations,
-        regardless of their type."""
+        regardless of their type.""",
+        doc_domain='bhrelations'
     )
 
     duplicate_relation_type = Option(
         'bhrelations',
         'duplicate_relation',
         'duplicateof',
-        "Relation type to be used with the resolve as duplicate workflow.")
+        "Relation type to be used with the resolve as duplicate workflow.",
+        doc_domain='bhrelations')
 
     def __init__(self):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
         links, labels, validators, blockers, copy_fields, exclusive = \
             self._parse_config()
         self._links = links
@@ -492,10 +498,9 @@ class TicketRelationsSpecifics(Component):
         pass
 
     def ticket_changed(self, ticket, comment, author, old_values):
-        if (
-            self._closed_as_duplicate(ticket) and
-            self.rls.duplicate_relation_type
-        ):
+        if self._closed_as_duplicate(ticket) and \
+                self.rls.duplicate_relation_type and \
+                hasattr(ticket, 'duplicate'): # workaround for comment:5:ticket:710
             try:
                 self.rls.add(ticket, ticket.duplicate,
                              self.rls.duplicate_relation_type,
@@ -522,7 +527,9 @@ class TicketRelationsSpecifics(Component):
         )
 
     def _check_blockers(self, req, ticket):
-        if req.args.get('action') == 'resolve':
+        action = req.args.get('action')
+        operations = self._get_operations_for_action(req, ticket, action)
+        if 'set_resolution' in operations:
             blockers = self.rls.find_blockers(ticket, self.is_blocker)
             if blockers:
                 blockers_str = ', '.join(
@@ -534,18 +541,23 @@ class TicketRelationsSpecifics(Component):
                 yield None, msg
 
     def _check_open_children(self, req, ticket):
-        if req.args.get('action') == 'resolve':
+        action = req.args.get('action')
+        operations = self._get_operations_for_action(req, ticket, action)
+        if 'set_resolution' in operations:
             for relation in [r for r in self.rls.get_relations(ticket)
                              if r['type'] == self.rls.CHILDREN_RELATION_TYPE]:
-                ticket = self._create_ticket_by_full_id(relation['destination'])
-                if ticket['status'] != 'closed':
-                    msg = ("Cannot resolve this ticket because it has open"
+                child_ticket = \
+                    self._create_ticket_by_full_id(relation['destination'])
+                if child_ticket['status'] != 'closed':
+                    msg = ("Cannot resolve this ticket because it has open "
                            "child tickets.")
                     yield None, msg
 
     def _check_duplicate_id(self, req, ticket):
-        if req.args.get('action') == 'resolve':
-            resolution = req.args.get('action_resolve_resolve_resolution')
+        action = req.args.get('action')
+        operations = self._get_operations_for_action(req, ticket, action)
+        if 'set_resolution' in operations:
+            resolution = req.args.get('action_%s_resolve_resolution' % action)
             if resolution == 'duplicate':
                 duplicate_id = req.args.get('duplicate_id')
                 if not duplicate_id:
@@ -559,25 +571,42 @@ class TicketRelationsSpecifics(Component):
                 except NoSuchTicketError:
                     yield None, "Invalid duplicate ticket ID."
 
+    def _get_operations_for_action(self, req, ticket, action):
+        operations = []
+        for controller in TicketSystem(self.env).action_controllers:
+            actions = [a for w, a in
+                       controller.get_ticket_actions(req, ticket) or []]
+            if action in actions:
+                operations += controller.actions[action]['operations']
+        return operations
+
     def find_ticket(self, ticket_spec):
         ticket = None
-        m = re.match(r'#?(?P<tid>\d+)', ticket_spec)
+        m = re.match(r'#?(?:(?P<pid>[^-]+)-)?(?P<tid>\d+)', ticket_spec)
         if m:
+            pid = m.group('pid')
             tid = m.group('tid')
-            try:
-                ticket = Ticket(self.env, tid)
-            except ResourceNotFound:
-                # ticket not found in current product, try all other products
-                for p in Product.select(self.env):
-                    if p.prefix != self.env.product.prefix:
-                        # TODO: check for PRODUCT_VIEW permissions
-                        penv = ProductEnvironment(self.env.parent, p.prefix)
-                        try:
-                            ticket = Ticket(penv, tid)
-                        except ResourceNotFound:
-                            pass
-                        else:
-                            break
+            if pid:
+                try:
+                    env = ProductEnvironment(self.env.parent, pid)
+                    ticket = Ticket(env, tid)
+                except:
+                    pass
+            else:
+                try:
+                    ticket = Ticket(self.env, tid)
+                except ResourceNotFound:
+                    # ticket not found in current product, try all other products
+                    for p in Product.select(self.env):
+                        if p.prefix != self.env.product.prefix:
+                            # TODO: check for PRODUCT_VIEW permissions
+                            penv = ProductEnvironment(self.env.parent, p.prefix)
+                            try:
+                                ticket = Ticket(penv, tid)
+                            except ResourceNotFound:
+                                pass
+                            else:
+                                break
 
         # ticket still not found, use fallback for <prefix>:ticket:<id> syntax
         if ticket is None:

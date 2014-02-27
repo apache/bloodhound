@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -54,11 +55,11 @@ class TestAdminPanel(Component):
             yield 'testcat1', 'Test category 1', 'panel1', 'Test panel 1'
             yield 'testcat1', 'Test category 1', 'panel2', 'Test panel 2'
             yield 'testcat1', 'Test category 1', 'panel3', 'Test panel 3'
-    
+
             yield 'testcat2', 'Test category 2', 'panel1', 'Test panel 1'
             yield 'testcat2', 'Test category 2', 'panel_2', 'Test panel 2'
             yield 'testcat2', 'Test category 2', 'panel-3', 'Test panel 3'
-    
+
             yield 'testcat3', 'Test category 3', 'panel1', 'Test panel 1'
             yield 'testcat3', 'Test category 3', 'panel2', 'Test panel 2'
 
@@ -106,10 +107,10 @@ class BaseProductAdminPanelTestCase(MultiproductTestCase):
     def setUp(self):
         self._mp_setup(enable=[AdminModule, DefaultPermissionPolicy,
                                DefaultPermissionStore, PermissionSystem,
-                               PluginAdminPanel, RequestDispatcher, 
+                               PluginAdminPanel, RequestDispatcher,
                                api.MultiProductSystem,
                                product_admin.ProductAdminModule,
-                               PanelsWhitelist, SectionWhitelist, 
+                               PanelsWhitelist, SectionWhitelist,
                                TestAdminPanel, TestPermissionRequestor])
         self.global_env = self.env
         self.env = ProductEnvironment(self.global_env, self.default_product)
@@ -125,10 +126,10 @@ class BaseProductAdminPanelTestCase(MultiproductTestCase):
 
 
 class ProductAdminSetupTestCase(BaseProductAdminPanelTestCase):
-    ALL_PANELS = [('testcat1', 'panel1'), ('testcat1', 'panel2'), 
-                  ('testcat1', 'panel3'), ('testcat2', 'panel_1'), 
-                  ('testcat2', 'panel-2'), ('testcat2', 'panel3'), 
-                  ('testcat3', 'panel1'), ('testcat3', 'panel2'), 
+    ALL_PANELS = [('testcat1', 'panel1'), ('testcat1', 'panel2'),
+                  ('testcat1', 'panel3'), ('testcat2', 'panel_1'),
+                  ('testcat2', 'panel-2'), ('testcat2', 'panel3'),
+                  ('testcat3', 'panel1'), ('testcat3', 'panel2'),
                   ('general', 'plugin'), ]
 
     def test_init_whitelist(self):
@@ -137,7 +138,7 @@ class ProductAdminSetupTestCase(BaseProductAdminPanelTestCase):
                           ('testcat1', 'panel1') : True,
                           ('testcat1', 'panel3'): True,
                           ('testcat2', 'panel3'): True,
-                          ('general', 'plugin') : True,}, 
+                          ('general', 'plugin') : True,},
                          self.product_admin.acl)
         self.assertTrue(all(not self.global_product_admin._check_panel(c, p)
                             for c, p in self.ALL_PANELS))
@@ -153,9 +154,9 @@ class ProductAdminSetupTestCase(BaseProductAdminPanelTestCase):
         self.assertFalse(self.product_admin._check_panel('other', 'panel'))
 
     def test_init_blacklist(self):
-        self.global_env.config.set('multiproduct', 'admin_blacklist', 
+        self.global_env.config.set('multiproduct', 'admin_blacklist',
                                    'testcat1:panel1,testcat3:panel2')
-        self.env.config.set('multiproduct', 'admin_blacklist', 
+        self.env.config.set('multiproduct', 'admin_blacklist',
                             'testcat1:panel3,testcat3:panel1,testcat2:*')
 
         self.assertEqual(['testcat1:panel1','testcat3:panel2'],
@@ -170,7 +171,7 @@ class ProductAdminSetupTestCase(BaseProductAdminPanelTestCase):
                           ('testcat1', 'panel3'): False,
                           ('testcat2', 'panel3'): True,
                           ('testcat3', 'panel1'): False,
-                          ('general', 'plugin'): True,}, 
+                          ('general', 'plugin'): True,},
                          self.product_admin.acl)
 
         self.assertTrue(all(not self.global_product_admin._check_panel(c, p)
@@ -192,9 +193,9 @@ class ProductAdminDispatchTestCase(BaseProductAdminPanelTestCase):
 
     def setUp(self):
         BaseProductAdminPanelTestCase.setUp(self)
-        self.global_env.config.set('multiproduct', 'admin_blacklist', 
+        self.global_env.config.set('multiproduct', 'admin_blacklist',
                                    'testcat1:panel1,testcat3:panel2')
-        self.env.config.set('multiproduct', 'admin_blacklist', 
+        self.env.config.set('multiproduct', 'admin_blacklist',
                             'testcat1:panel3,testcat3:panel1,testcat2:*')
         global_permsys = PermissionSystem(self.global_env)
         permsys = PermissionSystem(self.env)
@@ -502,4 +503,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

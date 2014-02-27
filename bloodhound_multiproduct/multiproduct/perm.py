@@ -1,5 +1,5 @@
-from functools import wraps
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -19,10 +19,12 @@ from functools import wraps
 
 """Permission components for Bloodhound product environments"""
 
-__all__ = 'ProductPermissionPolicy',
+from functools import wraps
 
 from trac.core import Component, implements
 from trac.perm import IPermissionPolicy, PermissionSystem, PermissionError
+
+__all__ = 'ProductPermissionPolicy',
 
 #--------------------------
 # Permission components
@@ -61,7 +63,7 @@ class SudoPermissionContext(object):
     """Allows a permitted user (by default `PRODUCT_ADMIN`) to execute
     a command as if temporarily granted with `TRAC_ADMIN` or other specific
     permission. There is also support to revoke some actions unconditionally.
-    
+
     These objects will act as context managers wrapping the permissions cache
     of the target request object. Entering the same context more than once
     is not supported and will result in unexpected behavior.
@@ -81,8 +83,8 @@ class SudoPermissionContext(object):
             self._expanded = False
         self._perm = None
         self.req = req
-        self.require_actions = frozenset(('PRODUCT_ADMIN',) if require is None 
-                                         else ([require] 
+        self.require_actions = frozenset(('PRODUCT_ADMIN',) if require is None
+                                         else ([require]
                                                if isinstance(require, basestring)
                                                else require))
 
@@ -170,8 +172,8 @@ class SudoPermissionContext(object):
     def has_permission(self, action, realm_or_resource=None, id=False,
                        version=False):
         return action in self.grant or \
-               (action not in self.revoke and 
-                self.perm.has_permission(action, realm_or_resource, id, 
+               (action not in self.revoke and
+                self.perm.has_permission(action, realm_or_resource, id,
                                          version))
 
     __contains__ = has_permission

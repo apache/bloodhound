@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -25,6 +24,7 @@ from trac.core import (Interface, Component, ExtensionPoint, TracError,
 from trac.env import IEnvironmentSetupParticipant
 from multiproduct.api import ISupportMultiProductEnvironment
 from multiproduct.core import MultiProductExtensionPoint
+from bhsearch.utils.translation import _, add_domain
 
 ASC = "asc"
 DESC = "desc"
@@ -238,19 +238,25 @@ class BloodhoundSearchApi(Component):
     """
     implements(IEnvironmentSetupParticipant, ISupportMultiProductEnvironment)
 
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(BloodhoundSearchApi, self).__init__(*args, **kwargs)
+
     backend = ExtensionOption('bhsearch', 'search_backend',
         ISearchBackend, 'WhooshBackend',
         'Name of the component implementing Bloodhound Search backend \
-        interface: ISearchBackend.')
+        interface: ISearchBackend.', doc_domain='bhsearch')
 
     parser = ExtensionOption('bhsearch', 'query_parser',
         IQueryParser, 'DefaultQueryParser',
         'Name of the component implementing Bloodhound Search query \
-        parser.')
+        parser.', doc_domain='bhsearch')
 
     index_pre_processors = OrderedExtensionsOption(
         'bhsearch', 'index_preprocessors', IDocIndexPreprocessor,
-        ['SecurityPreprocessor'],
+        ['SecurityPreprocessor'], include_missing=True,
     )
     result_post_processors = ExtensionPoint(IResultPostprocessor)
     query_processors = ExtensionPoint(IQueryPreprocessor)

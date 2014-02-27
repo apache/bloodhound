@@ -17,11 +17,8 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Bloodhound product environment and related APIs"""
-
 import os.path
 from urlparse import urlsplit
-from sqlite3 import OperationalError
 
 from trac.config import BoolOption, ConfigSection, Option
 from trac.core import Component, ComponentManager, ExtensionPoint, implements, \
@@ -293,8 +290,8 @@ class EnvironmentStub(trac.test.EnvironmentStub):
 
     @staticmethod
     def enable_component_in_config(env, cls):
-        """Keep track of enabled state in configuration as well 
-        during test runs. This is closer to reality than 
+        """Keep track of enabled state in configuration as well
+        during test runs. This is closer to reality than
         inherited `enable_component` method.
         """
         env.config['components'].set(env._component_name(cls), 'enabled')
@@ -309,8 +306,8 @@ class EnvironmentStub(trac.test.EnvironmentStub):
 
     @staticmethod
     def disable_component_in_config(env, component):
-        """Keep track of disabled state in configuration as well 
-        during test runs. This is closer to reality than 
+        """Keep track of disabled state in configuration as well
+        during test runs. This is closer to reality than
         inherited `disable_component` method.
         """
         if isinstance(component, type):
@@ -324,8 +321,7 @@ class EnvironmentStub(trac.test.EnvironmentStub):
             del env._rules
         except AttributeError:
             pass
-        # FIXME: Shall we ?
-        #env.config.save()
+        env.config.save()
 
     def reset_db(self, default_data=None):
         multiproduct_schema = self._multiproduct_schema_enabled
@@ -344,7 +340,7 @@ class ProductEnvironment(Component, ComponentManager):
 
     Bloodhound encapsulates access to product resources stored inside a
     Trac environment via product environments. They are compatible lightweight
-    irepresentations of top level environment. 
+    irepresentations of top level environment.
 
     Product environments contain among other things:
 
@@ -359,8 +355,17 @@ class ProductEnvironment(Component, ComponentManager):
 
     See https://issues.apache.org/bloodhound/wiki/Proposals/BEP-0003
     """
-    
+
     class __metaclass__(ComponentMeta):
+
+        def select_global_env(f):
+            """Replaces env with env.parent where appropriate"""
+            # Keep the signature of __call__ method
+            def __call__(self, env, *args, **kwargs):
+                g_env = env.parent if isinstance(env,
+                                                 ProductEnvironment) else env
+                return f(self, g_env, *args, **kwargs)
+            return __call__
 
         def product_env_keymap(args, kwds, kwd_mark):
             # Remove meta-reference to self (i.e. product env class)
@@ -377,14 +382,15 @@ class ProductEnvironment(Component, ComponentManager):
                     kwds['product'] = product.prefix
             return default_keymap(args, kwds, kwd_mark)
 
+        @select_global_env
         @lru_cache(maxsize=100, keymap=product_env_keymap)
         def __call__(self, *args, **kwargs):
-            """Return an existing instance of there is a hit 
+            """Return an existing instance if there is a hit
             in the global LRU cache, otherwise create a new instance.
             """
             return ComponentMeta.__call__(self, *args, **kwargs)
 
-        del product_env_keymap
+        del product_env_keymap, select_global_env
 
     implements(trac.env.ISystemInfoProvider, IPermissionRequestor)
 
@@ -393,10 +399,10 @@ class ProductEnvironment(Component, ComponentManager):
 
     @property
     def product_setup_participants(self):
-            return [
-                component for component in self.setup_participants
-                if component not in self.multi_product_support_components
-            ]
+        return [
+            component for component in self.setup_participants
+            if component not in self.multi_product_support_components
+        ]
 
     components_section = ConfigSection('components',
         """This section is used to enable or disable components
@@ -413,11 +419,11 @@ class ProductEnvironment(Component, ComponentManager):
 
     _base_url = Option('trac', 'base_url', '',
         """Reference URL for the Trac deployment.
-        
+
         This is the base URL that will be used when producing
         documents that will be used outside of the web browsing
         context, like for example when inserting URLs pointing to Trac
-        resources in notification e-mails.""")
+        resources in notification e-mails.""", doc_domain='multiproduct')
 
     @property
     def base_url(self):
@@ -427,16 +433,17 @@ class ProductEnvironment(Component, ComponentManager):
         return base_url
 
     _base_url_for_redirect = BoolOption('trac', 'use_base_url_for_redirect',
-            False, 
+            False,
         """Optionally use `[trac] base_url` for redirects.
-        
+
         In some configurations, usually involving running Trac behind
         a HTTP proxy, Trac can't automatically reconstruct the URL
         that is used to access it. You may need to use this option to
         force Trac to use the `base_url` setting also for
         redirects. This introduces the obvious limitation that this
         environment will only be usable when accessible from that URL,
-        as redirects are frequently used. ''(since 0.10.5)''""")
+        as redirects are frequently used. ''(since 0.10.5)''""",
+                                        doc_domain='multiproduct')
 
     @property
     def project_name(self):
@@ -460,7 +467,8 @@ class ProductEnvironment(Component, ComponentManager):
         return self.parent.project_url
 
     project_admin = Option('project', 'admin', '',
-        """E-Mail address of the product's leader / administrator.""")
+        """E-Mail address of the product's leader / administrator.""",
+                           doc_domain='multiproduct')
 
     @property
     def project_footer(self):
@@ -470,23 +478,24 @@ class ProductEnvironment(Component, ComponentManager):
         return self.parent.project_footer
 
     project_icon = Option('project', 'icon', 'common/trac.ico',
-        """URL of the icon of the product.""")
+        """URL of the icon of the product.""", doc_domain='multiproduct')
 
     log_type = Option('logging', 'log_type', 'inherit',
         """Logging facility to use.
 
-        Should be one of (`inherit`, `none`, `file`, `stderr`, 
-        `syslog`, `winlog`).""")
+        Should be one of (`inherit`, `none`, `file`, `stderr`,
+        `syslog`, `winlog`).""", doc_domain='multiproduct')
 
     log_file = Option('logging', 'log_file', 'trac.log',
         """If `log_type` is `file`, this should be a path to the
         log-file.  Relative paths are resolved relative to the `log`
-        directory of the environment.""")
+        directory of the environment.""", doc_domain='multiproduct')
 
     log_level = Option('logging', 'log_level', 'DEBUG',
         """Level of verbosity in log.
 
-        Should be one of (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`).""")
+        Should be one of (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`).""",
+                       doc_domain='multiproduct')
 
     log_format = Option('logging', 'log_format', None,
         """Custom logging format.
@@ -509,7 +518,7 @@ class ProductEnvironment(Component, ComponentManager):
         Example:
         `($(thread)d) Trac[$(basename)s:$(module)s] $(levelname)s: $(message)s`
 
-        ''(since 0.10.5)''""")
+        ''(since 0.10.5)''""", doc_domain='multiproduct')
 
     def __init__(self, env, product, create=False):
         """Initialize the product environment.
@@ -522,7 +531,7 @@ class ProductEnvironment(Component, ComponentManager):
             cls = self.__class__
             raise TypeError("Initializer must be called with " \
                 "trac.env.Environment instance as first argument " \
-                "(got %s instance instead)" % 
+                "(got %s instance instead)" %
                          (cls.__module__ + '.' + cls.__name__, ))
 
         ComponentManager.__init__(self)
@@ -579,14 +588,14 @@ class ProductEnvironment(Component, ComponentManager):
                     (self.__class__.__name__, attrnm))
 
     def __repr__(self):
-        return "<%s %s at %s>" % (self.__class__.__name__, 
+        return "<%s %s at %s>" % (self.__class__.__name__,
                                  repr(self.product.prefix),
                                  hex(id(self)))
 
     @lazy
     def path(self):
-        """The subfolder `./products/<product prefix>` relative to the 
-        top-level directory of the global environment will be the root of 
+        """The subfolder `./products/<product prefix>` relative to the
+        top-level directory of the global environment will be the root of
         product file system area.
         """
         folder = os.path.join(self.parent.path, 'products', self.product.prefix)
@@ -625,8 +634,27 @@ class ProductEnvironment(Component, ComponentManager):
 
     is_component_enabled_local = trac.env.Environment.is_component_enabled.im_func
 
+    def is_enabled(self, cls):
+        """Return whether the given component class is enabled."""
+        modtime = max(self.config.get_lock_file_mtime(),
+                      self.config._lastmtime)
+        if modtime > self._config_mtime:
+            self.enabled.clear()
+            try:
+                del self._rules
+            except AttributeError:
+                pass
+            # FIXME : Improve cache hits by tracking global env last mtime
+            self.parent.enabled.clear()
+            try:
+                del self.parent._rules
+            except AttributeError:
+                pass
+        self._config_mtime = modtime
+        return super(ProductEnvironment, self).is_enabled(cls)
+
     def is_component_enabled(self, cls):
-        """Implemented to only allow activation of components already 
+        """Implemented to only allow activation of components already
         activated in the global environment that are in turn not disabled in
         the configuration.
 
@@ -637,11 +665,11 @@ class ProductEnvironment(Component, ComponentManager):
         the `plugins` directory of the environment.
         """
         if cls is self.__class__:
-            # Prevent lookups in parent env ... will always fail 
+            # Prevent lookups in parent env ... will always fail
             return True
-        # FIXME : Maybe checking for ComponentManager is too drastic 
+        # FIXME : Maybe checking for ComponentManager is too drastic
         elif issubclass(cls, ComponentManager):
-            # Avoid clashes with overridden Environment's options 
+            # Avoid clashes with overridden Environment's options
             return False
         elif self.parent[cls] is None:
             return False
@@ -779,7 +807,7 @@ class ProductEnvironment(Component, ComponentManager):
             del self._log_handler
 
     def create(self, options=[]):
-        """Placeholder for compatibility when trying to create the basic 
+        """Placeholder for compatibility when trying to create the basic
         directory structure of the environment, etc ...
 
         This method does nothing at all.
@@ -797,6 +825,7 @@ class ProductEnvironment(Component, ComponentManager):
         else:
             parents = [self.parent.config]
         self.config = Configuration(self.parent, self.product.prefix, parents)
+        self._config_mtime = 0
         self.setup_log()
 
     def setup_log(self):
@@ -806,18 +835,18 @@ class ProductEnvironment(Component, ComponentManager):
         logfile = self.log_file
         format = self.log_format
 
-        self.parent.log.debug("Log type '%s' for product '%s'", 
+        self.parent.log.debug("Log type '%s' for product '%s'",
                 logtype, self.product.prefix)
 
         # Force logger inheritance on identical configuration
-        if (logtype, logfile, format) == (self.parent.log_type, 
+        if (logtype, logfile, format) == (self.parent.log_type,
                 self.parent.log_file, self.parent.log_format):
             logtype = 'inherit'
 
         if logtype == 'inherit':
             self.log = self.parent.log
             self._log_handler = self.parent._log_handler
-            self.parent.log.warning("Inheriting parent logger for product '%s'",
+            self.parent.log.info("Inheriting parent logger for product '%s'",
                     self.product.prefix)
         else:
             if logtype == 'file' and not os.path.isabs(logfile):
@@ -833,8 +862,8 @@ class ProductEnvironment(Component, ComponentManager):
                 logtype, logfile, self.log_level, logid, format=format)
 
         from trac import core, __version__ as VERSION
-        self.log.info('-' * 32 + 
-                        ' product %s environment startup [Trac %s] ' + 
+        self.log.info('-' * 32 +
+                        ' product %s environment startup [Trac %s] ' +
                         '-' * 32,
                       self.product.prefix,
                       get_pkginfo(core).get('version', VERSION))
@@ -899,7 +928,7 @@ class ProductEnvironment(Component, ComponentManager):
     def lookup_env(cls, env, prefix=None, name=None):
         """Instantiate environment according to product prefix or name
 
-        @throws LookupError if no product matches neither prefix nor name 
+        @throws LookupError if no product matches neither prefix nor name
         """
         if isinstance(env, ProductEnvironment):
             global_env = env.parent
@@ -930,11 +959,11 @@ class ProductEnvironment(Component, ComponentManager):
 
     @classmethod
     def resolve_href(cls, to_env, at_env):
-        """Choose absolute or relative href when generating links to 
+        """Choose absolute or relative href when generating links to
         a product (or global) environment.
 
-        @param at_env:        href expansion is taking place in the 
-                              scope of this environment 
+        @param at_env:        href expansion is taking place in the
+                              scope of this environment
         @param to_env:        generated URLs point to resources in
                               this environment
         """

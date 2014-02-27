@@ -23,7 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    xmlns:i18n="http://genshi.edgewall.org/i18n">
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    i18n:domain="bhtheme">
   <xi:include href="layout.html" />
   <head>
     <title py:choose="len(path_links)">
@@ -139,7 +140,7 @@
       </py:if>
 
       <div py:if="dir" class="span12">
-        <table class="listing dirlist" id="dirlist">
+        <table class="listing dirlist table table-striped table-condensed" id="dirlist">
           <xi:include href="bh_dirlist_thead.html" />
           <tbody>
             <py:if test="'up' in chrome.links">

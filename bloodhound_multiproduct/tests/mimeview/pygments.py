@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -18,19 +19,15 @@
 
 """Tests for Apache(TM) Bloodhound's Pygments renderer in product environments"""
 
-import sys
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+from tests import unittest
 
+from tests.env import MultiproductTestCase
 from trac.mimeview.api import Mimeview
 from trac.mimeview.pygments import PygmentsRenderer
-from trac.mimeview.tests import pygments as test_pygments 
+from trac.mimeview.tests import pygments as test_pygments
 from trac.web.chrome import Chrome
 
 from multiproduct.env import ProductEnvironment
-from tests.env import MultiproductTestCase
 
 have_pygments = False
 
@@ -41,6 +38,7 @@ else:
         test_empty_content = test_extra_mimetypes = test_newline_content = \
         test_python_hello = test_python_hello_mimeview = \
                 lambda self : None
+
 
 class ProductPygmentsRendererTestCase(super_class, MultiproductTestCase):
 
@@ -71,7 +69,7 @@ class ProductPygmentsRendererTestCase(super_class, MultiproductTestCase):
         self.global_env = self._env = None
 
 ProductPygmentsRendererTestCase = unittest.skipUnless(
-        test_pygments.have_pygments, 
+        test_pygments.have_pygments,
         'mimeview/tests/pygments (no pygments installed)'
     )(ProductPygmentsRendererTestCase)
 
@@ -82,4 +80,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

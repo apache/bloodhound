@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -15,8 +16,6 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-
-""" Multi product support for ticket queries."""
 
 from __future__ import with_statement
 
@@ -35,7 +34,6 @@ from trac.ticket.api import TicketSystem
 from trac.ticket.query import Query, QueryModule, TicketQueryMacro, QueryValueError
 from trac.util.datefmt import from_utimestamp, utc, to_timestamp
 from trac.util.text import shorten_line
-from trac.util.translation import _, tag_
 from trac.web import parse_arg_list, arg_list_to_args
 from trac.web.chrome import Chrome, add_stylesheet, add_link, web_context, \
     add_script_data, add_script, add_ctxtnav, add_warning
@@ -43,7 +41,8 @@ from trac.resource import Resource
 
 from multiproduct.dbcursor import GLOBAL_PRODUCT
 from multiproduct.env import lookup_product_env, resolve_product_href, \
-    ProductEnvironment
+                             ProductEnvironment
+from multiproduct.util.translation import _, tag_
 
 
 class ProductQuery(Query):

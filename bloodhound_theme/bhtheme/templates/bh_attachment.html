@@ -24,6 +24,7 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
       py:with="parent = attachments.parent if attachments else attachment.resource.parent">
   <xi:include href="layout.html" />
   <head>
@@ -152,9 +153,9 @@
         </div>
 
         <py:if test="attachment and 'ATTACHMENT_DELETE' in perm(attachment.resource)">
-          <div class="span12">
+          <div class="span12 btn-toolbar">
             <form method="get" action="">
-              <div id="delete control-group">
+              <div id="delete" class="btn-group">
                 <input type="hidden" name="action" value="delete" />
                 <input type="submit" class="btn"
                        value="${_('Delete attachment')}" />

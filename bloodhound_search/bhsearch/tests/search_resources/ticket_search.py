@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -109,6 +108,7 @@ class TicketIndexerTestCase(BaseBloodhoundSearchTest):
         component.name = name
         component.insert()
         return component
+
 
 def suite():
     return unittest.makeSuite(TicketIndexerTestCase, 'test')

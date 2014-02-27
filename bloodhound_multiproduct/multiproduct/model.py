@@ -1,4 +1,5 @@
-
+# -*- coding: UTF-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,7 +17,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-"""Models to support multi-product"""
 from datetime import datetime
 from itertools import izip
 
@@ -74,8 +74,12 @@ class Product(ModelBase):
         now = datetime.now(utc)
         comment = 'Product %s renamed to %s' % (old_name, new_name)
         if old_name != new_name:
+            env = self._env.parent or self._env
+            if self._data['prefix']:
+                from multiproduct.env import ProductEnvironment
+                env = ProductEnvironment(env, self._data['prefix'])
             for t in Product.get_tickets(self._env, self._data['prefix']):
-                ticket = Ticket(self._env, t['id'], db)
+                ticket = Ticket(env, t['id'], db)
                 ticket.save_changes(author, comment, now)
 
     @classmethod
@@ -145,6 +149,6 @@ class ProductSetting(ModelBase):
         """Retrieve configuration sections defined for a product
         """
         # FIXME: Maybe something more ORM-ish should be added in ModelBase
-        return [row[0] for row in env.db_query("""SELECT DISTINCT section 
-                FROM bloodhound_productconfig WHERE product = %s""", 
+        return [row[0] for row in env.db_query("""SELECT DISTINCT section
+                FROM bloodhound_productconfig WHERE product = %s""",
                 (product,))]

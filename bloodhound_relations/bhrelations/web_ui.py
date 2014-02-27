@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -27,10 +26,10 @@ Ticket relations user interface.
 import re
 
 from trac.core import Component, implements, TracError
-from trac.resource import get_resource_url, Resource
+from trac.resource import get_resource_url, Resource, \
+                          get_resource_shortname, get_resource_summary
 from trac.ticket.model import Ticket
 from trac.util import exception_to_unicode, to_unicode
-from trac.util.translation import _
 from trac.web import IRequestHandler, IRequestFilter
 from trac.web.chrome import ITemplateProvider, add_warning
 
@@ -38,6 +37,7 @@ from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
     TicketRelationsSpecifics, UnknownRelationType, NoSuchTicketError
 from bhrelations.model import Relation
 from bhrelations.validation import ValidationError
+from bhrelations.utils.translation import _
 
 
 class RelationManagementModule(Component):
@@ -104,18 +104,18 @@ class RelationManagementModule(Component):
                         data['error'] = _('Unknown relation type.')
                     except ValidationError as ex:
                         data['error'] = ex.message
-
-                # Notify
-                try:
-                    self.notify_relation_changed(dbrel)
-                except Exception, e:
-                    self.log.error("Failure sending notification on"
-                                   "creation of relation: %s",
-                                   exception_to_unicode(e))
-                    add_warning(req, _("The relation has been added, but an "
-                                       "error occurred while sending"
-                                       "notifications: " "%(message)s",
-                                       message=to_unicode(e)))
+                    else:
+                        # Notify
+                        try:
+                            self.notify_relation_changed(dbrel)
+                        except Exception, e:
+                            self.log.error("Failure sending notification on"
+                                           "creation of relation: %s",
+                                           exception_to_unicode(e))
+                            add_warning(req, _("The relation has been added, but an "
+                                               "error occurred while sending"
+                                               "notifications: " "%(message)s",
+                                               message=to_unicode(e)))
 
                 if 'error' in data:
                     data['relation'] = relation
@@ -127,6 +127,8 @@ class RelationManagementModule(Component):
             'reltypes': sorted(relsys.get_relation_types().iteritems(),
                 key=lambda x: x[0]),
             'relations': self.get_ticket_relations(ticket),
+            'get_resource_shortname': get_resource_shortname,
+            'get_resource_summary': get_resource_summary,
         })
         return 'relations_manage.html', data, None
 

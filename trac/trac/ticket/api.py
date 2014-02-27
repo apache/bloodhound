@@ -364,8 +364,9 @@ class TicketSystem(Component):
                 # Fields without possible values are treated as if they didn't
                 # exist
                 continue
-            field.update({'value': getattr(self, 'default_' + name, ''),
-                          'options': options})
+            if 'value' not in field:
+                field['value'] = getattr(self, 'default_' + name, '')
+            field['options'] = options
             fields.append(field)
 
         # Advanced text fields

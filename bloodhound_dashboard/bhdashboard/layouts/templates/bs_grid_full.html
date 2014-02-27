@@ -23,6 +23,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhdashboard"
       py:with="is_global = req.perm.env.product is None">
   <xi:include href="layout.html" />
   <head>
@@ -30,7 +32,7 @@
   </head>
 
   <body>
-    <h2 py:if="not is_global">Dashboard for product <i>${req.perm.env.product.name}</i></h2>
+    <h2 py:if="not is_global" i18n:msg="name">Dashboard for product <i>${req.perm.env.product.name}</i></h2>
 
     <!-- Embedding plugin -->
     <a py:if="not is_global" id="embed-btn" href="#embed-modal" role="button" class="btn" data-toggle="modal">Embed Product</a>
@@ -83,7 +85,7 @@
 
     <xi:include href="bs_grid.html" />
     <div id="ft" class="row">
-      <div id="help" class="span8">
+      <div id="help" class="span8" i18n:msg="">
         <span class="label label-info">Note:</span> See
         <a href="${href.wiki('BloodhoundDashboard')}">BloodhoundDashboard</a>
         for help on using the dashboard.

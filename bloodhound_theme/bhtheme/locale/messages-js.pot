@@ -1,0 +1,86 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+# Translations template for BloodhoundTheme.
+# Copyright (C) 2014 ORGANIZATION
+# This file is distributed under the same license as the BloodhoundTheme
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: BloodhoundTheme 0.8.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2014-01-31 00:36+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: bhtheme/htdocs/js/theme.js:87 bhtheme/htdocs/js/theme.js:207
+msgid "Ticket #"
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:89
+msgid "Error creating ticket"
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:178
+msgid "Has been created"
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:179 bhtheme/htdocs/js/theme.js:208
+msgid "View / Edit"
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:185 bhtheme/htdocs/js/theme.js:215
+msgid "Request timed out"
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:187
+msgid "Could not create ticket . Error : "
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:189 bhtheme/htdocs/js/theme.js:219
+msgid "Aborted request"
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:207
+msgid " has been created. "
+msgstr ""
+
+#: bhtheme/htdocs/js/theme.js:217
+msgid "Could not create ticket. Error : "
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:7
+msgid "Link to this diff"
+msgstr ""
+
+#: bhtheme/templates/bh_wiki_view.html:3
+msgid "Link to this section"
+msgstr ""
+
+#: bhtheme/templates/bh_wiki_view.html:5
+#, python-format
+msgid "Link to #%(id)s"
+msgstr ""
+

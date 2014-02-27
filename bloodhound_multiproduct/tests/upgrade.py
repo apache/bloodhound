@@ -17,17 +17,12 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from sqlite3 import OperationalError
-from contextlib import contextmanager
 import os
 import shutil
-import sys
 import tempfile
 import uuid
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+from contextlib import contextmanager
+from tests import unittest
 
 from trac.attachment import Attachment, AttachmentAdmin
 from trac.core import Component, implements
@@ -57,12 +52,12 @@ TABLES_WITH_PRODUCT_FIELD = (
 
 class EnvironmentUpgradeTestCase(unittest.TestCase):
     def setUp(self, options=()):
-        self.env_path = tempfile.mkdtemp('multiproduct-tempenv')
-        self.env = Environment(self.env_path, create=True, options=options)
+        env_path = tempfile.mkdtemp(prefix='bh-product-tempenv-')
+        self.env = Environment(env_path, create=True, options=options)
         DummyPlugin.version = 1
 
     def tearDown(self):
-        shutil.rmtree(self.env_path)
+        shutil.rmtree(self.env.path)
 
     def test_can_upgrade_environment_with_multi_product_disabled(self):
         self.env.upgrade()
@@ -427,24 +422,24 @@ class EnvironmentUpgradeTestCase(unittest.TestCase):
     def _update_config(self, section, key, value):
         self.env.config.set(section, key, value)
         self.env.config.save()
-        self.env = Environment(self.env_path)
+        self.env = Environment(self.env.path)
 
     def _create_file_with_content(self, content):
         filename = str(uuid.uuid4())[:6]
-        path = os.path.join(self.env_path, filename)
+        path = os.path.join(self.env.path, filename)
         with open(path, 'wb') as f:
             f.write(content)
         return path
 
     @contextmanager
     def assertFailsWithMissingTable(self):
-        with self.assertRaises(OperationalError) as cm:
+        with self.assertRaises(self.env.db_exc.OperationalError) as cm:
             yield
         self.assertIn('no such table', str(cm.exception))
 
     @contextmanager
     def assertFailsWithMissingColumn(self):
-        with self.assertRaises(OperationalError) as cm:
+        with self.assertRaises(self.env.db_exc.OperationalError) as cm:
             yield
         self.assertIn('no such column', str(cm.exception))
 

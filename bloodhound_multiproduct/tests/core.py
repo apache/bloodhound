@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -15,15 +17,12 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import sys
-if sys.version < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+from tests import unittest
 
 from trac.core import Interface, implements, Component
 
 from multiproduct.core import MultiProductExtensionPoint
+
 
 class MultiProductExtensionPointTestCase(unittest.TestCase):
     def setUp(self):

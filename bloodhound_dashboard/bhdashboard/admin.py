@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -31,10 +30,10 @@ from trac.admin.api import IAdminCommandProvider, AdminCommandError
 from trac.core import Component, implements
 from trac.db_default import schema as tracschema
 from trac.util.text import printout
-from trac.util.translation import _
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.model import WikiPage
 from bhdashboard import wiki
+from bhdashboard.util.translation import _
 
 try:
     from multiproduct.model import Product, ProductResourceMap, ProductSetting

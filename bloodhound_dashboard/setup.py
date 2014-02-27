@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -38,7 +39,7 @@ versions = [
     (0, 7, 0),
     (0, 8, 0),
     ]
-    
+
 latest = '.'.join(str(x) for x in versions[-1])
 
 status = {
@@ -54,25 +55,25 @@ dev_status = status["alpha"]
 
 cats = [
       dev_status,
-      "Environment :: Plugins", 
-      "Environment :: Web Environment", 
-      "Framework :: Trac", 
-      "Intended Audience :: Developers", 
-      "Intended Audience :: Information Technology", 
-      "Intended Audience :: Other Audience", 
-      "Intended Audience :: System Administrators", 
-      "License :: Unknown", 
-      "Operating System :: OS Independent", 
-      "Programming Language :: Python", 
-      "Programming Language :: Python :: 2.5", 
+      "Environment :: Plugins",
+      "Environment :: Web Environment",
+      "Framework :: Trac",
+      "Intended Audience :: Developers",
+      "Intended Audience :: Information Technology",
+      "Intended Audience :: Other Audience",
+      "Intended Audience :: System Administrators",
+      "License :: Unknown",
+      "Operating System :: OS Independent",
+      "Programming Language :: Python",
+      "Programming Language :: Python :: 2.5",
       "Programming Language :: Python :: 2.6",
       "Programming Language :: Python :: 2.7",
-      "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries", 
-      "Topic :: Internet :: WWW/HTTP :: HTTP Servers", 
-      "Topic :: Internet :: WWW/HTTP :: WSGI", 
-      "Topic :: Software Development :: Bug Tracking", 
-      "Topic :: Software Development :: Libraries :: Application Frameworks", 
-      "Topic :: Software Development :: Libraries :: Python Modules", 
+      "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries",
+      "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+      "Topic :: Internet :: WWW/HTTP :: WSGI",
+      "Topic :: Software Development :: Bug Tracking",
+      "Topic :: Software Development :: Libraries :: Application Frameworks",
+      "Topic :: Software Development :: Libraries :: Python Modules",
       "Topic :: Software Development :: User Interfaces",
       "Topic :: Software Development :: Widget Sets"
     ]
@@ -90,24 +91,29 @@ finally:
 DIST_NM = 'BloodhoundDashboardPlugin'
 PKG_INFO = {'bhdashboard' : ('bhdashboard',                     # Package dir
                             # Package data
-                            ['../CHANGES', '../TODO', '../COPYRIGHT', 
+                            ['../CHANGES', '../TODO', '../COPYRIGHT',
                               '../NOTICE', '../README', '../TESTING_README',
                               'htdocs/*.*', 'htdocs/css/*.css',
                               'htdocs/img/*.*', 'htdocs/js/*.js',
-                              'templates/*', 'default-pages/*'],
-                          ), 
+                              'templates/*', 'default-pages/*',
+                              'locale/*/LC_MESSAGES/*.mo'],
+                          ),
             'bhdashboard.widgets' : ('bhdashboard/widgets',     # Package dir
                             # Package data
                             ['templates/*', 'htdocs/*.css'],
-                          ), 
+                          ),
             'bhdashboard.layouts' : ('bhdashboard/layouts',     # Package dir
                             # Package data
                             ['templates/*'],
-                          ), 
+                          ),
             'bhdashboard.tests' : ('bhdashboard/tests',     # Package dir
                             # Package data
                             ['data/**'],
-                          ), 
+                         ),
+            'bhdashboard.util' : ('bhdashboard/util',     # Package dir
+                            # Package data
+                            [],
+                          ),
             }
 
 ENTRY_POINTS = r"""
@@ -124,6 +130,24 @@ ENTRY_POINTS = r"""
                bhdashboard.widgets.timeline = bhdashboard.widgets.timeline
                bhdashboard.wiki = bhdashboard.wiki
                """
+extra = {}
+try:
+    from trac.util.dist import get_l10n_js_cmdclass
+    cmdclass = get_l10n_js_cmdclass()
+    if cmdclass:
+        extra['cmdclass'] = cmdclass
+        extractors = [
+            ('**.py',                'trac.dist:extract_python', None),
+            ('**/templates/**.html', 'genshi', None),
+            ('**/templates/**.txt',  'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+        extra['message_extractors'] = {
+            'bhdashboard': extractors,
+        }
+except ImportError:
+    pass
 
 setup(
     name=DIST_NM,
@@ -147,6 +171,6 @@ setup(
                   for p in PKG_INFO.keys()],
     entry_points = ENTRY_POINTS,
     classifiers = cats,
-    long_description= DESC
+    long_description= DESC,
+    **extra
     )
-

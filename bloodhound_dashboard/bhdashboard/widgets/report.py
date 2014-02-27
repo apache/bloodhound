@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #  Licensed to the Apache Software Foundation (ASF) under one
@@ -32,13 +31,14 @@ from trac.core import implements, TracError
 from trac.mimeview.api import Context
 from trac.resource import ResourceNotFound
 from trac.ticket.report import ReportModule
-from trac.util.translation import _
 from trac.web.api import RequestDone
 
-from bhdashboard.util import WidgetBase, InvalidIdentifier, \
-                              check_widget_name, dummy_request, \
-                              merge_links, pretty_wrapper, trac_version, \
+from bhdashboard.util import dummy_request, merge_links, \
+                              pretty_wrapper, trac_version, \
                               trac_tags
+from bhdashboard.util.widgets import WidgetBase, InvalidIdentifier, \
+                               check_widget_name
+from bhdashboard.util.translation import _
 
 class TicketReportWidget(WidgetBase):
     """Display tickets in saved report using a grid
@@ -111,4 +111,3 @@ class TicketReportWidget(WidgetBase):
                     rptctx
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)
-

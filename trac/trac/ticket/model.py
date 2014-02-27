@@ -242,10 +242,16 @@ class Ticket(object):
             if getattr(self.env, '_multiproduct_schema_enabled', False):
                 tkt_id = db.get_last_id(cursor, 'ticket', 'uid')
                 rows = db("""SELECT id FROM ticket WHERE uid=%s""", (tkt_id,))
-                tkt_id = rows[0][0] if rows else -1
+                if len(rows) != 1:
+                    # One row SHOULD always be retrieved, but if it does not
+                    # then insertion MUST fail since the cause may be a bug in 
+                    # BH SQL translator executing previous INSERT without
+                    # product prefix properly setup.
+                    # By raising the error the transaction should be rolled back
+                    raise AssertionError("No ticket id for uid " + str(tkt_id))
+                tkt_id = rows[0][0]
             else:
                 tkt_id = db.get_last_id(cursor, 'ticket')
-
 
             # Insert custom fields
             if custom_fields:
