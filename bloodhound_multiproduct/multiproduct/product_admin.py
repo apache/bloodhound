@@ -332,7 +332,15 @@ class ProductAdminModule(Component):
                 env = mgr.env
                 TracAdmin.print_doc(TracAdmin.all_docs(env), short=True)
         else:
-            mgr.execute_command(*args)
+            try:
+                mgr.execute_command(*args)
+            except AdminCommandError, e:
+                printerr(_("Error: %(msg)s", msg=to_unicode(e)))
+                if e.show_usage:
+                    print
+                    self._do_product_admin(prefix, 'help', *args[:2])
+            except:
+                raise
 
     # IRequestFilter methods
     def pre_process_request(self, req, handler):
