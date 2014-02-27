@@ -61,6 +61,29 @@ class ProductTracAdminTestCase(TracadminTestCase, MultiproductTestCase):
         self.global_env.reset_db()
         self.global_env = self._env = None
 
+    def test_product_help_ok(self):
+        self._admin.env_set('', self.global_env)
+        from trac import __version__
+        test_name = sys._getframe().f_code.co_name
+        expected_results = self.expected_results[test_name] \
+                           % {'version': __version__}
+        rv, output = self._execute('product admin %s help'
+                                   % self.default_product)
+        self.assertEqual(0, rv)
+        self.assertEqual(expected_results, output)
+
+    def test_product_help_version(self):
+        rv, output = self._execute('help version')
+        self.assertEqual(0, rv)
+        expected = self.expected_results[self._testMethodName]
+        self.assertEqual(expected, output)
+
+    def test_product_help_version_add(self):
+        rv, output = self._execute('help version add')
+        self.assertEqual(0, rv)
+        expected = self.expected_results[self._testMethodName]
+        self.assertEqual(expected, output)
+
 
 def test_suite():
     return unittest.TestSuite([
