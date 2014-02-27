@@ -301,7 +301,7 @@ class ProductAdminModule(Component):
             mgr = self.product_admincmd_mgr(args[0])
             return mgr.complete_command(args[1:])
 
-    GLOBAL_COMMANDS = ('deploy', 'help', 'hotcopy', 'initenv', 'upgrade')
+    GLOBAL_COMMANDS = ('deploy', 'hotcopy', 'initenv', 'upgrade')
 
     def _do_product_admin(self, prefix, *args):
         mgr = self.product_admincmd_mgr(prefix)
