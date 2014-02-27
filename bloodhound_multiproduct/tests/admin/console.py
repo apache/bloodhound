@@ -84,6 +84,12 @@ class ProductTracAdminTestCase(TracadminTestCase, MultiproductTestCase):
         expected = self.expected_results[self._testMethodName]
         self.assertEqual(expected, output)
 
+    def test_product_fail_version_add(self):
+        rv, output = self._execute('version add v x y')
+        self.assertEqual(2, rv)
+        expected = self.expected_results[self._testMethodName]
+        self.assertEqual(expected, output)
+
 
 def test_suite():
     return unittest.TestSuite([

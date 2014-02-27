@@ -1127,3 +1127,10 @@ version add <name> [time]
 
     Add version
 
+===== test_product_fail_version_add =====
+Error: Invalid arguments
+
+version add <name> [time]
+
+    Add version
+
