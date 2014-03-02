@@ -171,4 +171,8 @@ class MilestoneSearchParticipant(BaseSearchParticipant):
         #TODO: add better milestone rendering
 
         name = res['hilited_name'] or res['name']
-        return tag(u'[', res['product'], u'] Milestone:', name)
+        product = res.get('product')
+        if product:
+            return tag(u'[', product, u'] Milestone:', name)
+        else:
+            return tag(u'Milestone:', name)

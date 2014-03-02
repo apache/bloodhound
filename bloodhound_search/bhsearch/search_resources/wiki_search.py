@@ -161,4 +161,8 @@ class WikiSearchParticipant(BaseSearchParticipant):
 
     def format_search_results(self, res):
         title = res['hilited_name'] or res['name']
-        return tag('[', res['product'], '] ', title)
+        product = res.get('product')
+        if product:
+            return tag(u'[', product, u'] ', title)
+        else:
+            return tag(title)
