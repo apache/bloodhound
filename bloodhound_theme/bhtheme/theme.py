@@ -47,7 +47,6 @@ from bhdashboard.web_ui import DashboardModule
 from bhdashboard import wiki
 
 from multiproduct.env import ProductEnvironment
-from multiproduct.model import Product
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
 from bhtheme.translation import _, add_domain
 
@@ -532,7 +531,7 @@ class QuickCreateTicketDialog(Component):
         locale_dir = pkg_resources.resource_filename(__name__, 'locale')
         add_domain(self.env.path, locale_dir)
         super(QuickCreateTicketDialog, self).__init__(*args, **kwargs)
-        
+
     # IRequestFilter(Interface):
 
     def pre_process_request(self, req, handler):
@@ -556,26 +555,31 @@ class QuickCreateTicketDialog(Component):
             dum_req.perm = req.perm
             ticket = Ticket(self.env)
             tm._populate(dum_req, ticket, False)
-            all_fields = dict([f['name'], self.add_prod_new_ticket_url(dum_req, f)]
+            all_fields = dict([f['name'], f]
                               for f in tm._prepare_fields(dum_req, ticket)
                               if f['type'] == 'select')
 
             product_field = all_fields.get('product')
             if product_field:
-                # Filter out products for which user doesn't have TICKET_CREATE
-                product_field['options'] = \
-                    [prefix for prefix in product_field['options']
-                     if req.perm.has_permission('TICKET_CREATE',
-                                                Neighborhood('product', prefix['value'])
-                                                    .child(None, None))]
-
+                # When at product scope, set the default selection to the
+                # product at current scope. When at global scope the default
+                # selection is determined by [ticket] default_product
                 if self.env.product and \
                         self.env.product.prefix in product_field['options']:
                     product_field['value'] = self.env.product.prefix
-                product_field['options_desc'] = [
-                    ProductEnvironment.lookup_env(self.env, p['value']).product.name
-                        for p in product_field['options']
-                ]
+                # Transform the options field to dictionary of product
+                # attributes and filter out products for which user doesn't
+                #  have TICKET_CREATE permission
+                product_field['options'] = [
+                    dict(value=p,
+                         new_ticket_url=dum_req.href.products(p, 'newticket'),
+                         description=ProductEnvironment.lookup_env(self.env, p)
+                                                       .product.name
+                    )
+                for p in product_field['options']
+                    if req.perm.has_permission('TICKET_CREATE',
+                                               Neighborhood('product', p)
+                                               .child(None, None))]
             else:
                 msg = _("Missing ticket field '%(field)s'.", field='product')
                 if ProductTicketModule is not None and \
@@ -665,18 +669,6 @@ class QuickCreateTicketDialog(Component):
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
-
-    def add_prod_new_ticket_url(self, req, fields):
-        if fields.get('name') == 'product':
-            options_with_attrs = []
-            for option in fields.get('options', []):
-                options_with_attrs.append({
-                    'value': option,
-                    'product_new_ticket_url': \
-                            req.href.products(option, 'newticket')
-                })
-            fields['options'] = options_with_attrs
-        return fields
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version

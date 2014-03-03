@@ -117,13 +117,15 @@
               <!--! create ticket button + dropdown -->
               <py:def function="field_select(field)">
                 <select id="field-${field.name}" name="field_${field.name}"
-                    class="input-block-level" data-field="${field.name}" data-optional="${'true' if field.optional else 'false'}">
+                        class="input-block-level" data-field="${field.name}"
+                        data-optional="${'true' if field.optional else 'false'}">
                   <option value="">${'' if field.optional else 'Choose...'}</option>
-                  <option py:for="idx,option in enumerate(field.options)"
-                          py:with="description = field.options_desc[idx] if field.options_desc else option"
-                          selected="${field.value == option or None}"
-                          value = "${option.value}"
-                          data-product-new-ticket-url = "${option.product_new_ticket_url}"
+                  <option py:for="option in field.options"
+                          py:with="description = option.description or option;
+                                   value = option.value or option"
+                          selected="${field.value == value or None}"
+                          value = "$value"
+                          data-product-new-ticket-url = "$option.new_ticket_url"
                           py:content="description"></option>
                   <optgroup py:for="optgroup in field.optgroups"
                             py:if="optgroup.options"
