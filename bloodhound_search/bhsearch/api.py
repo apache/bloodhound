@@ -347,7 +347,7 @@ class BloodhoundSearchApi(Component):
                     for doc in docs:
                         self.log.debug(
                             "Indexing document %s:%s/%s" % (
-                                doc['product'],
+                                doc.get('product'),
                                 doc['type'],
                                 doc['id'],
                             )
