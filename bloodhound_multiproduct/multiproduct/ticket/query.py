@@ -72,9 +72,13 @@ class ProductQuery(Query):
         return self.cols
 
     def _get_ticket_href(self, prefix, tid):
-        env = lookup_product_env(self.env, prefix)
-        href = resolve_product_href(env, self.env)
-        return href.ticket(tid)
+        try:
+            env = lookup_product_env(self.env, prefix)
+        except LookupError:
+            return '#invalid-product-' + prefix
+        else:
+            href = resolve_product_href(env, self.env)
+            return href.ticket(tid)
 
     def get_href(self, href, id=None, order=None, desc=None, format=None,
                  max=None, page=None):
