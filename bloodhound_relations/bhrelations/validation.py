@@ -17,8 +17,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from genshi.builder import tag
 from trac.core import Component, implements, TracError
 from trac.resource import get_resource_shortname
+from trac.util.translation import tag_
 
 from bhrelations.api import IRelationValidator, RelationsSystem, \
     ResourceIdSerializer, TicketRelationsSpecifics
@@ -182,10 +184,11 @@ class OneToManyValidator(Validator):
                                                    relation.type)
         if existing_relations:
             raise ValidationError(
-                "%s can only have one %s" % (
-                    relation.source,
-                    self.render_relation_type(relation.type)
-                ))
+                tag_("Resource %(source)s can only have one %(relation)s "
+                     "relation.",
+                     source=tag.em(relation.source),
+                     relation=tag.b(self.render_relation_type(relation.type)))
+            )
 
 
 class ReferencesOlderValidator(Validator):
