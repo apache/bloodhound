@@ -85,6 +85,7 @@ class ProductAdminPanel(TicketAdminPanel):
                       'description':description,
                       'owner':owner,
                       }
+        data = {}
 
         # Detail view?
         if product:
@@ -105,27 +106,38 @@ class ProductAdminPanel(TicketAdminPanel):
             default = self.config.get('ticket', 'default_product')
             if req.method == 'POST':
                 # Add Product
-                if req.args.get('add') and req.args.get('prefix'):
+                if req.args.get('add'):
                     req.perm.require('PRODUCT_CREATE')
-                    if not owner:
-                        add_warning(req, _('All fields are required!'))
-                        req.redirect(req.href.admin(cat, page))
-
-                    try:
-                        prod = Product(self.env, keys)
-                    except ResourceNotFound:
-                        prod = Product(self.env)
-                        prod.update_field_dict(keys)
-                        prod.update_field_dict(field_data)
-                        prod.insert()
-                        add_notice(req, _('The product "%(id)s" has been added.',
-                                          id=prefix))
-                        req.redirect(req.href.admin(cat, page))
+                    if not (prefix and name and owner):
+                        if not prefix:
+                            add_warning(req, _("You must provide a prefix "
+                                               "for the product."))
+                        if not name:
+                            add_warning(req, _("You must provide a name "
+                                               "for the product."))
+                        if not owner:
+                            add_warning(req, _("You must provide an owner "
+                                               "for the product."))
+                        data['prefix'] = prefix
+                        data['name'] = name
+                        data['owner'] = owner
+                        print data
                     else:
-                        if prod.prefix is None:
-                            raise TracError(_('Invalid product id.'))
-                        raise TracError(_("Product %(id)s already exists.",
-                                          id=prefix))
+                        try:
+                            prod = Product(self.env, keys)
+                        except ResourceNotFound:
+                            prod = Product(self.env)
+                            prod.update_field_dict(keys)
+                            prod.update_field_dict(field_data)
+                            prod.insert()
+                            add_notice(req, _('The product "%(id)s" has been '
+                                              'added.', id=prefix))
+                            req.redirect(req.href.admin(cat, page))
+                        else:
+                            if prod.prefix is None:
+                                raise TracError(_('Invalid product id.'))
+                            raise TracError(_("Product %(id)s already exists.",
+                                              id=prefix))
 
                 # Remove product
                 elif req.args.get('remove'):
@@ -149,10 +161,9 @@ class ProductAdminPanel(TicketAdminPanel):
                     _save_config(self.config, req, self.log)
                     req.redirect(req.href.admin(cat, page))
 
-            products = Product.select(self.env)
-            data = {'view': 'list',
-                    'products': products,
-                    'default': default}
+            data['view'] = 'list'
+            data['products'] = Product.select(self.env)
+            data['default'] = default
         if self.config.getbool('ticket', 'restrict_owner'):
             perm = PermissionSystem(self.env)
             def valid_owner(username):

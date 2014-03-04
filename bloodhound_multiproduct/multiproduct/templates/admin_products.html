@@ -86,12 +86,12 @@ $product.description</textarea>
           <fieldset>
             <legend>Add Product:</legend>
             <div class="field">
-              <label>Prefix:<br /><input type="text" name="prefix" /></label>
+              <label>Prefix:<br /><input type="text" name="prefix" value="$prefix" /></label>
             </div>
             <div class="field">
-              <label>Name:<br /><input type="text" name="name" /></label>
+              <label>Name:<br /><input type="text" name="name" value="$name" /></label>
             </div>
-            ${owner_field()}
+            ${owner_field(owner)}
             <div class="buttons">
               <input type="submit" name="add" value="${_('Add')}"/>
             </div>
