@@ -452,9 +452,9 @@ class ApiTestCase(BaseRelationsTestCase):
         t2 = self._insert_and_load_ticket("2", status='closed') #   /  | \
         t3 = self._insert_and_load_ticket("3")                  #  t2 t3 t4
         t4 = self._insert_and_load_ticket("4")
-        self.relations_system.add(t2, t1, "parent")
-        self.relations_system.add(t3, t1, "parent")
-        self.relations_system.add(t4, t1, "parent")
+        self.relations_system.add(t1, t2, "parent")
+        self.relations_system.add(t1, t3, "parent")
+        self.relations_system.add(t1, t4, "parent")
 
         # A warning is be returned for each open ticket
         self.req.args["action"] = 'resolve'

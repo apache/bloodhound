@@ -545,7 +545,7 @@ class TicketRelationsSpecifics(Component):
         operations = self._get_operations_for_action(req, ticket, action)
         if 'set_resolution' in operations:
             for relation in [r for r in self.rls.get_relations(ticket)
-                             if r['type'] == self.rls.CHILDREN_RELATION_TYPE]:
+                             if r['type'] == self.rls.PARENT_RELATION_TYPE]:
                 child_ticket = \
                     self._create_ticket_by_full_id(relation['destination'])
                 if child_ticket['status'] != 'closed':
