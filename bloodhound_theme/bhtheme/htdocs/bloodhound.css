@@ -342,8 +342,10 @@ ol.arabic     { list-style-type: decimal }
  margin-top: 5px;
  margin-bottom: 5px;
 }
-#qct-more {
- visibility: hidden;
+#qct-more.disabled {
+ text-decoration: none;
+ background-color: #fff;
+ color: #333;
 }
 
 /*

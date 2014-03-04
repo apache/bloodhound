@@ -97,7 +97,7 @@ $(function() {
   /**
    * POST QCT form fields to full ticket form when "More fields" is clicked
    */
-  $('#qct-more').click(function(e) {
+  function post_qct_more(e) {
     // As we're not creating the ticket, we'll remove hidden fields
     // that result in unnecessary validation messages.
     e.preventDefault();
@@ -109,21 +109,28 @@ $(function() {
     $qct_form.append('<input type="hidden" value="1" name="preview" />');
     $qct_form.submit();
 
-  });
+  };
 
-  function set_qct_more_visibility(is_visible) {
-    if (is_visible) {
-      $('#qct-more').css('visibility', 'visible');
+  function set_qct_more_enabled(is_enabled) {
+    var qct_more = $('#qct-more');
+    qct_more.unbind('click');
+    if (is_enabled) {
+      qct_more.removeClass('disabled');
+      qct_more.click(post_qct_more);
     } else {
-      $('#qct-more').css('visibility', 'hidden');
+      qct_more.addClass('disabled');
+      qct_more.click(function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // keep #qct-form open
+      });
     }
   }
 
   $('#field-product').change(function(e) {
-    set_qct_more_visibility($(this).val());
+    set_qct_more_enabled($(this).val());
   });
 
-  set_qct_more_visibility($('#field-product').val());
+  set_qct_more_enabled($('#field-product').val());
 
   $('body').on('click.close', '#qct-alert-close',
       function(e) {
