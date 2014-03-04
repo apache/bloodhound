@@ -121,7 +121,6 @@ class ProductAdminPanel(TicketAdminPanel):
                         data['prefix'] = prefix
                         data['name'] = name
                         data['owner'] = owner
-                        print data
                     else:
                         try:
                             prod = Product(self.env, keys)
