@@ -1,3 +1,24 @@
+0.8
+ * i18n internationalization.
+ * Multiproduct support for CommitTicketUpdater.
+ * Quick Create Ticket form sets product based on context and forwards
+   values to the ticket form when "More fields" is selected.
+ * Fixed caching issue that prevented product-scope trac-admin commands
+   from taking effect immediately.
+ * Improved presentation of the Products page.
+ * Improvements to ticket timeline (comments section).
+ * BloodhoundSearch now supports Woosh >= 2.5.1.
+ * Fixed errors in BloodhoundRelations validation logic.
+ * Numerous other important fixes and minor enhancements.
+
+ * Not fixed for this release
+  * New resources do not appear immediately (#613, #614, #620, #681, #719).
+  * Products cannot be deleted (#517).
+  * Duplicate relation is not added when batch modifying tickets (#761).
+  * TicketDeleter component can't be used with BloodhoundTheme (#427).
+  * No product-scope permission checks on the global dashboard (#572).
+  * Inconsistencies in query views when running PostgreSQL (#730).
+
 0.7
  * Duplicate ticket relation is integrated to the ticket workflow.
  * Several fixes for multiproduct installations with products that map to subdomains.
