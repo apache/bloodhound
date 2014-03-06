@@ -33,6 +33,19 @@ except ImportError:
     locale_en = None
 
 
+PARENT = "parent"
+CHILD = "child"
+REFERS_TO = "refersto"
+DEPENDS_ON = "dependson"
+DEPENDENCY_OF = "dependent"
+DUPLICATE_OF = "duplicateof"
+DUPLICATED_BY = "duplicatedby"
+BLOCKED_BY = "blockedby"
+BLOCKS = "blocks"
+MULTIPRODUCT_REL = "mprel"
+MULTIPRODUCT_BACKREL = "mpbackrel"
+
+
 class BaseRelationsTestCase(MultiproductTestCase):
     def setUp(self, enabled=()):
         env = EnvironmentStub(
@@ -46,24 +59,28 @@ class BaseRelationsTestCase(MultiproductTestCase):
         env.config.set('bhrelations', 'duplicate_relation',
                        'duplicateof')
         config_name = RELATIONS_CONFIG_NAME
-        env.config.set(config_name, 'dependency', 'dependson,dependent')
+        env.config.set(config_name, 'dependency',
+                       ','.join([DEPENDS_ON, DEPENDENCY_OF]))
         env.config.set(config_name, 'dependency.validators',
                        'NoCycles,SingleProduct')
         env.config.set(config_name, 'dependson.blocks', 'true')
-        env.config.set(config_name, 'parent_children', 'parent,children')
+        env.config.set(config_name, 'parent_children',
+                       ','.join([PARENT, CHILD]))
         env.config.set(config_name, 'parent_children.validators',
                        'OneToMany,SingleProduct,NoCycles')
         env.config.set(config_name, 'children.label', 'Overridden')
         env.config.set(config_name, 'parent.copy_fields',
                        'summary, foo')
         env.config.set(config_name, 'parent.exclusive', 'true')
-        env.config.set(config_name, 'multiproduct_relation', 'mprel,mpbackrel')
-        env.config.set(config_name, 'oneway', 'refersto')
-        env.config.set(config_name, 'duplicate', 'duplicateof,duplicatedby')
+        env.config.set(config_name, 'multiproduct_relation',
+                       ','.join([MULTIPRODUCT_REL, MULTIPRODUCT_BACKREL]))
+        env.config.set(config_name, 'oneway', REFERS_TO)
+        env.config.set(config_name, 'duplicate',
+                       ','.join([DUPLICATE_OF, DUPLICATED_BY]))
         env.config.set(config_name, 'duplicate.validators', 'ReferencesOlder')
         env.config.set(config_name, 'duplicateof.label', 'is a duplicate of')
         env.config.set(config_name, 'duplicatedby.label', 'duplicates')
-        env.config.set(config_name, 'blocker', 'blockedby,blocks')
+        env.config.set(config_name, 'blocker', ','.join([BLOCKED_BY, BLOCKS]))
         env.config.set(config_name, 'blockedby.blocks', 'true')
 
         self.global_env = env
@@ -105,3 +122,12 @@ class BaseRelationsTestCase(MultiproductTestCase):
 
     def _insert_and_load_ticket_with_env(self, env, summary, **kw):
         return Ticket(env, self._insert_ticket(env, summary, **kw))
+
+    def add_relation(self, source, reltype, destination, *args, **kwargs):
+        return self.relations_system.add(source, destination, reltype, *args, **kwargs)
+
+    def get_relations(self, ticket):
+        return self.relations_system.get_relations(ticket)
+
+    def delete_relation(self, relation):
+        self.relations_system.delete(relation["relation_id"])

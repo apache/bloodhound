@@ -20,7 +20,7 @@ import unittest
 from trac.tests.notification import SMTPServerStore, SMTPThreadedServer
 from trac.ticket.tests.notification import (
     SMTP_TEST_PORT, smtp_address, parse_smtp_message)
-from bhrelations.tests.base import BaseRelationsTestCase
+from bhrelations.tests.base import BaseRelationsTestCase, DEPENDENCY_OF
 from bhrelations.notification import RelationNotifyEmail
 
 
@@ -65,8 +65,7 @@ class NotificationTestCase(BaseRelationsTestCase):
             owner='bob.user@example.net',
             cc='bob.user@example.com, bob.bar@example.org, '
                'bob.bar@example.net')
-        relation = self.relations_system.add(
-            ticket, ticket2, "dependent")
+        relation = self.add_relation(ticket, DEPENDENCY_OF, ticket2)
 
         self.notifier.notify(relation)
 
@@ -93,7 +92,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         ticket = self._insert_and_load_ticket('Foo', reporter='anonymous')
         ticket2 = self._insert_and_load_ticket('Bar', reporter='anonymous')
 
-        relation = self.relations_system.add(ticket, ticket2, "dependent")
+        relation = self.add_relation(ticket, DEPENDENCY_OF, ticket2)
         self.notifier.notify(relation)
 
         sender = self.smtpd.get_sender()
@@ -108,7 +107,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         ticket = self._insert_and_load_ticket('Foo', reporter='anonymous')
         ticket2 = self._insert_and_load_ticket('Bar', reporter='anonymous')
 
-        relation = self.relations_system.add(ticket, ticket2, "dependent")
+        relation = self.add_relation(ticket, DEPENDENCY_OF, ticket2)
         self.notifier.notify(relation)
 
         relations = self.env.db_direct_query(

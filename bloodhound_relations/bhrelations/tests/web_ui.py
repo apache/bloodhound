@@ -19,7 +19,8 @@
 import unittest
 from bhrelations.api import ResourceIdSerializer
 from bhrelations.web_ui import RelationManagementModule
-from bhrelations.tests.base import BaseRelationsTestCase
+from bhrelations.tests.base import BaseRelationsTestCase,\
+    DEPENDS_ON, DUPLICATE_OF
 
 from multiproduct.ticket.web_ui import TicketModule
 from trac.ticket import Ticket
@@ -79,7 +80,7 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
         t2 = self._insert_ticket(self.env, "Bar")
         self.req.args['add'] = True
         self.req.args['dest_tid'] = str(t2)
-        self.req.args['reltype'] = 'dependson'
+        self.req.args['reltype'] = DEPENDS_ON
 
         data = self.process_request()
 
@@ -89,7 +90,7 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
         t2 = self._insert_ticket(self.env, "Bar")
         self.req.args['add'] = True
         self.req.args['dest_tid'] = str(t2)
-        self.req.args['reltype'] = 'dependson'
+        self.req.args['reltype'] = DEPENDS_ON
         rlm = RelationManagementModule(self.env)
         rlm.notify_relation_changed = self._failing_notification
 
@@ -123,16 +124,16 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
         self.assertRaises(RequestDone,
                           self.resolve_as_duplicate,
                           t2, self.get_id(t1))
-        relations = self.relations_system.get_relations(t2)
+        relations = self.get_relations(t2)
         self.assertEqual(len(relations), 1)
         relation = relations[0]
         self.assertEqual(relation['destination_id'], self.get_id(t1))
-        self.assertEqual(relation['type'], 'duplicateof')
+        self.assertEqual(relation['type'], DUPLICATE_OF)
 
     def test_prefills_duplicate_id_if_relation_exists(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
-        self.relations_system.add(t2, t1, 'duplicateof')
+        self.add_relation(t2, DUPLICATE_OF, t1)
         self.req.path_info = '/ticket/%d' % t2.id
 
         data = self.process_request()
@@ -144,7 +145,7 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
     def test_can_set_duplicate_resolution_even_if_relation_exists(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
-        self.relations_system.add(t2, t1, 'duplicateof')
+        self.add_relation(t2, DUPLICATE_OF, t1)
 
         self.assertRaises(RequestDone,
                           self.resolve_as_duplicate,

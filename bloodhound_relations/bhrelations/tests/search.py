@@ -26,7 +26,7 @@ from bhsearch.api import BloodhoundSearchApi
 import bhsearch.query_parser, bhsearch.search_resources.ticket_search, \
     bhsearch.whoosh_backend
 import bhrelations.search
-from bhrelations.tests.base import BaseRelationsTestCase
+from bhrelations.tests.base import BaseRelationsTestCase, DEPENDENCY_OF
 
 
 class SearchIntegrationTestCase(BaseRelationsTestCase):
@@ -44,30 +44,30 @@ class SearchIntegrationTestCase(BaseRelationsTestCase):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
 
-        self.relations_system.add(t1, t2, 'dependent')
+        self.add_relation(t1, DEPENDENCY_OF, t2)
 
-        result = self.search_api.query('dependent:#2')
+        result = self.search_api.query('%s:#2' % DEPENDENCY_OF)
         self.assertEqual(result.hits, 1)
 
     def test_relations_are_indexed_on_deletion(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
 
-        self.relations_system.add(t1, t2, 'dependent')
-        relations = self.relations_system.get_relations(t1)
+        self.add_relation(t1, DEPENDENCY_OF, t2)
+        relations = self.get_relations(t1)
         self.relations_system.delete(relations[0]["relation_id"])
 
-        result = self.search_api.query('dependent:#2')
+        result = self.search_api.query('%s:#2' % DEPENDENCY_OF)
         self.assertEqual(result.hits, 0)
 
     def test_different_types_of_queries(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
 
-        self.relations_system.add(t1, t2, 'dependent')
+        self.add_relation(t1, DEPENDENCY_OF, t2)
 
-        self.assertEqual(self.search_api.query('dependent:#2').hits, 1)
-        self.assertEqual(self.search_api.query('dependent:#tp1-2').hits, 1)
+        self.assertEqual(self.search_api.query('%s:#2' % DEPENDENCY_OF).hits, 1)
+        self.assertEqual(self.search_api.query('%s:#tp1-2' % DEPENDENCY_OF).hits, 1)
 
 
 def suite():
