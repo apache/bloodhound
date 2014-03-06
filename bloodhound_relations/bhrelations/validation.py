@@ -26,6 +26,14 @@ from bhrelations.api import IRelationValidator, RelationsSystem, \
     ResourceIdSerializer, TicketRelationsSpecifics
 
 
+class ValidationError(TracError):
+    """Exception raised when a validator fails."""
+    def __init__(self, message, title=None, show_traceback=False):
+        super(ValidationError, self).__init__(
+            message, title, show_traceback)
+        self.failed_ids = []
+
+
 class Validator(Component):
     implements(IRelationValidator)
 
@@ -231,10 +239,3 @@ class BlockerValidator(Validator):
             error = ValidationError(error)
             error.failed_ids = path
             raise error
-
-
-class ValidationError(TracError):
-    def __init__(self, message, title=None, show_traceback=False):
-        super(ValidationError, self).__init__(
-            message, title, show_traceback)
-        self.failed_ids = []
