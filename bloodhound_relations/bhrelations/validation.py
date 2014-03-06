@@ -186,15 +186,19 @@ class NoSelfReferenceValidator(Validator):
 
 
 class OneToManyValidator(Validator):
+    """Only tree relationships are allowed. A ticket cannot have multiple
+    parents."""
     def validate(self, relation):
         rls = RelationsSystem(self.env)
-        existing_relations = rls._select_relations(relation.source,
-                                                   relation.type)
+        if relation.type != rls.PARENT_RELATION_TYPE:
+            return
+        existing_relations = rls._select_relations(relation.destination,
+                                                   rls.CHILDREN_RELATION_TYPE)
         if existing_relations:
             raise ValidationError(
                 tag_("Resource %(source)s can only have one %(relation)s "
                      "relation.",
-                     source=tag.em(relation.source),
+                     source=tag.em(relation.destination),
                      relation=tag.b(self.render_relation_type(relation.type)))
             )
 

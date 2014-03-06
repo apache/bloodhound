@@ -224,13 +224,13 @@ class ApiTestCase(BaseRelationsTestCase):
         parent2 = self._insert_and_load_ticket("A3")
         #act
         relations_system = self.relations_system
-        relations_system.add(child, parent1, "parent")
+        relations_system.add(parent1, child, 'parent')
         self.assertRaises(
             ValidationError,
             relations_system.add,
-            child,
             parent2,
-            "parent")
+            child,
+            'parent')
 
     def test_can_not_add_more_than_one_parents_via_children(self):
         #arrange
@@ -239,12 +239,12 @@ class ApiTestCase(BaseRelationsTestCase):
         parent2 = self._insert_and_load_ticket("A3")
         #act
         relations_system = self.relations_system
-        relations_system.add(parent1, child, "children")
+        relations_system.add(child, parent1, "children")
         self.assertRaises(
             ValidationError,
             relations_system.add,
-            parent2,
             child,
+            parent2,
             "children")
 
     def test_ticket_can_be_resolved(self):
@@ -254,13 +254,13 @@ class ApiTestCase(BaseRelationsTestCase):
         parent2 = self._insert_and_load_ticket("A3")
         #act
         relations_system = self.relations_system
-        relations_system.add(parent1, child, "children")
-        self.assertRaises(
-            ValidationError,
-            relations_system.add,
-            parent2,
-            child,
-            "children")
+        relations_system.add(child, parent1, "children")
+
+        self.req.args['action'] = 'resolve'
+        warnings = \
+            TicketRelationsSpecifics(self.env).validate_ticket(self.req, child)
+
+        self.assertEqual(0, len(list(warnings)))
 
     def test_can_save_and_load_relation_time(self):
         #arrange
@@ -397,53 +397,53 @@ class ApiTestCase(BaseRelationsTestCase):
 
     def test_cannot_create_other_relations_between_descendants(self):
         t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
-        self.relations_system.add(t4, t2, "parent")  #    t1 -> t2
-        self.relations_system.add(t3, t2, "parent")  #         /  \
-        self.relations_system.add(t2, t1, "parent")  #       t3    t4
+        self.relations_system.add(t2, t4, "parent")  #    t1 -> t2
+        self.relations_system.add(t2, t3, "parent")  #         /  \
+        self.relations_system.add(t1, t2, "parent")  #       t3    t4
 
-        self.assertRaises(
-            ValidationError,
-            self.relations_system.add, t1, t2, "dependent"
-        )
         self.assertRaises(
             ValidationError,
             self.relations_system.add, t2, t1, "dependent"
         )
         self.assertRaises(
             ValidationError,
-            self.relations_system.add, t1, t4, "dependent"
+            self.relations_system.add, t1, t2, "dependent"
         )
         self.assertRaises(
             ValidationError,
-            self.relations_system.add, t3, t1, "dependent"
+            self.relations_system.add, t4, t1, "dependent"
+        )
+        self.assertRaises(
+            ValidationError,
+            self.relations_system.add, t1, t3, "dependent"
         )
         try:
-            self.relations_system.add(t1, t5, "dependent")
-            self.relations_system.add(t3, t4, "dependent")
+            self.relations_system.add(t5, t1,"dependent")
+            self.relations_system.add(t4, t3, "dependent")
         except ValidationError:
             self.fail("Could not add valid relation.")
 
     def test_cannot_add_parent_if_this_would_cause_invalid_relations(self):
         t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
-        self.relations_system.add(t4, t2, "parent")  #    t1 -> t2
-        self.relations_system.add(t3, t2, "parent")  #         /  \
-        self.relations_system.add(t2, t1, "parent")  #       t3    t4    t5
-        self.relations_system.add(t2, t5, "dependent")
+        self.relations_system.add(t2, t4, "parent")  #    t1 -> t2
+        self.relations_system.add(t2, t3, "parent")  #         /  \
+        self.relations_system.add(t1, t2, "parent")  #       t3    t4    t5
+        self.relations_system.add(t5, t2, "dependent")
 
         self.assertRaises(
             ValidationError,
-            self.relations_system.add, t5, t2, "parent"
+            self.relations_system.add, t2, t5, "parent"
         )
         self.assertRaises(
             ValidationError,
-            self.relations_system.add, t5, t3, "parent"
+            self.relations_system.add, t3, t5, "parent"
         )
         self.assertRaises(
             ValidationError,
-            self.relations_system.add, t1, t5, "parent"
+            self.relations_system.add, t5, t1, "parent"
         )
         try:
-            self.relations_system.add(t5, t1, "parent")
+            self.relations_system.add(t1, t5, "parent")
         except ValidationError:
             self.fail("Could not add valid relation.")
 
