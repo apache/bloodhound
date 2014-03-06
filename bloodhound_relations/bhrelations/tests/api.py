@@ -247,6 +247,16 @@ class ApiTestCase(BaseRelationsTestCase):
             parent2,
             "children")
 
+    def test_can_add_more_than_one_child(self):
+        parent = self._insert_and_load_ticket("A1")
+        child1 = self._insert_and_load_ticket("A2")
+        child2 = self._insert_and_load_ticket("A3")
+
+        relations_system = self.relations_system
+        relations_system.add(parent, child1, 'parent')
+        relations_system.add(parent, child2, 'parent')
+
+
     def test_ticket_can_be_resolved(self):
         #arrange
         child = self._insert_and_load_ticket("A1")

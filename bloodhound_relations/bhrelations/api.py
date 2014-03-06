@@ -336,15 +336,19 @@ class RelationsSystem(Component):
         return self._select_relations(resource_full_id)
 
     def _select_relations(
-            self, source, resource_type=None):
+            self, source=None, resource_type=None, destination=None):
         #todo: add optional paging for possible umbrella tickets with
         #a lot of child tickets
-        where = dict(source=source)
+        where = dict()
+        if source:
+            where["source"] = source
         if resource_type:
             where["type"] = resource_type
             order_by = ["destination"]
         else:
             order_by = ["type", "destination"]
+        if destination:
+            where["destination"] = destination
         return Relation.select(
             self.env,
             where=where,
