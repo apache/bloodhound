@@ -7,7 +7,7 @@
    from taking effect immediately.
  * Improved presentation of the Products page.
  * Improvements to ticket timeline (comments section).
- * BloodhoundSearch now supports Woosh >= 2.5.1.
+ * BloodhoundSearch now supports Whoosh >= 2.5.1 (upgraded from 2.4.1).
  * Fixed errors in BloodhoundRelations validation logic.
  * Numerous other important fixes and minor enhancements.
 
