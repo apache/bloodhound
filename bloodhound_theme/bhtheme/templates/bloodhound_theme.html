@@ -25,10 +25,13 @@
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="">
   
-  <py:match path="head" once="true"><head>
-    <title py:with="title = list(select('title/text()'))" py:choose="">
-      <py:when test="title">${title}</py:when>
-      <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
+<py:match path="head" once="true"><head>
+     <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
+     <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
+     <meta py:if="responsive_layout" name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+     <title py:with="title = list(select('title/text()'))" py:choose="">
+       <py:when test="title">${title}</py:when>
+       <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
     </title>
     ${Markup('&lt;!--[if lt IE 7]&gt;')}
     <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
