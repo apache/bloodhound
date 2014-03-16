@@ -39,10 +39,9 @@ try:
     from trac.admin.console import TracAdmin
     from trac.config import Configuration
 except ImportError, e:
-    print ("Requirements should be installed before running bloodhound_setup.py.\n"
-           "You can install them with the following command:\n"
-           "   pip install -r requirements.txt\n")
-    traceback.print_exc()
+    print("Requirements must be installed before running bloodhound_setup.py.\n"
+          "You can install them with the following command:\n"
+          "   pip install -r requirements.txt\n")
     sys.exit(1)
 
 try:
