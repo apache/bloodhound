@@ -45,7 +45,7 @@
     </span>
   </py:def>
 
-  <h3 py:if="heading is not None" style="display: inline;">$heading</h3>
+  <h3 py:if="heading is not None and items" style="display: inline;">$heading</h3>
   <py:if test="_view != view">
     <xi:include href="widget_alert.html"
         py:with="msglabel = 'Warning'; msgbody = 'Unknown view ' + view" />
