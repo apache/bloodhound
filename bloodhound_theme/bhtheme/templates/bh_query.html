@@ -52,10 +52,9 @@
 
   <body>
     <div id="content" class="query row">
-      <span class="span12"><h1>$title <small class="numrows">(${ngettext('%(num)s match', '%(num)s matches', query.num_items)})</small></h1></span>
+      <h1 class="span12">$title <small class="numrows">(${ngettext('%(num)s match', '%(num)s matches', query.num_items)})</small></h1>
 
-      <div py:if="description" id="description" class="span12"
-          xml:space="preserve">
+      <div py:if="description" id="description" class="span12" xml:space="preserve">
         ${wiki_to_html(context.child(report_resource), description)}
       </div>
 
@@ -298,11 +297,11 @@
         </form>
       </div>
 
-      <div class="span12">
-        <div id="help" class="help-block pull-right" i18n:msg="">
-          <span class="label label-info">Note</span> See <a href="${href.wiki('TracQuery')}">TracQuery</a>
-          for help on using queries.
-        </div>
+      <div id="help" class="span12" i18n:msg="">
+        <p class="help-block pull-right">
+          <span class="label label-info">Note</span>
+          See <a href="${href.wiki('TracQuery')}">TracQuery</a> for help on using queries.
+        </p>
       </div>
 
     </div>
