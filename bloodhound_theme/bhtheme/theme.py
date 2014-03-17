@@ -117,7 +117,7 @@ class BloodhoundTheme(ThemeBase):
         'report_edit.html': ('bh_report_edit.html', '_add_products_general_breadcrumb'),
         'report_list.html': ('bh_report_list.html', '_add_products_general_breadcrumb'),
         'report_view.html': ('bh_report_view.html', '_add_products_general_breadcrumb'),
-        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
+        'roadmap.html': ('bh_roadmap.html', '_modify_roadmap_page'),
         'ticket.html': ('bh_ticket.html', '_modify_ticket'),
         'ticket_delete.html': ('bh_ticket_delete.html', None),
         'ticket_preview.html': ('bh_ticket_preview.html', None),
