@@ -190,8 +190,9 @@ class OneToManyValidator(Validator):
     parents."""
     def validate(self, relation):
         rls = RelationsSystem(self.env)
-        existing_relations = rls._select_relations(resource_type=relation.type,
-                                                   destination=relation.destination)
+        existing_relations = \
+            rls._select_relations(resource_type=relation.type,
+                                  destination=relation.destination)
         if existing_relations:
             raise ValidationError(
                 tag_("Another resource is already related to %(destination)s "

@@ -25,19 +25,21 @@ Ticket relations user interface.
 
 import re
 
-from trac.core import Component, implements, TracError
-from trac.resource import get_resource_url, Resource, \
-                          get_resource_shortname, get_resource_summary
+from trac.core import Component, TracError, implements
+from trac.resource import Resource, get_resource_shortname, \
+                          get_resource_summary, get_resource_url
 from trac.ticket.model import Ticket
 from trac.util import exception_to_unicode, to_unicode
-from trac.web import IRequestHandler, IRequestFilter
+from trac.web.api import IRequestFilter, IRequestHandler
 from trac.web.chrome import ITemplateProvider, add_warning
 
-from bhrelations.api import RelationsSystem, ResourceIdSerializer, \
-    TicketRelationsSpecifics, UnknownRelationType, NoSuchTicketError
+from bhrelations.api import NoSuchTicketError, RelationsSystem, \
+                            ResourceIdSerializer, TicketRelationsSpecifics, \
+                            UnknownRelationType
+
 from bhrelations.model import Relation
-from bhrelations.validation import ValidationError
 from bhrelations.utils.translation import _
+from bhrelations.validation import ValidationError
 
 
 class RelationManagementModule(Component):
@@ -95,9 +97,8 @@ class RelationManagementModule(Component):
 
                     try:
                         dbrel = relsys.add(ticket, dest_ticket,
-                            relation['type'],
-                            relation['comment'],
-                            req.authname)
+                                           relation['type'],
+                                           relation['comment'], req.authname)
                     except NoSuchTicketError:
                         data['error'] = _('Invalid ticket ID.')
                     except UnknownRelationType:
@@ -112,9 +113,10 @@ class RelationManagementModule(Component):
                             self.log.error("Failure sending notification on"
                                            "creation of relation: %s",
                                            exception_to_unicode(e))
-                            add_warning(req, _("The relation has been added, but an "
-                                               "error occurred while sending"
-                                               "notifications: " "%(message)s",
+                            add_warning(req, _("The relation has been added, "
+                                               "but an error occurred while "
+                                               "sending notifications: "
+                                               "%(message)s",
                                                message=to_unicode(e)))
 
                 if 'error' in data:
@@ -125,7 +127,7 @@ class RelationManagementModule(Component):
         data.update({
             'ticket': ticket,
             'reltypes': sorted(relsys.get_relation_types().iteritems(),
-                key=lambda x: x[0]),
+                               key=lambda x: x[0]),
             'relations': self.get_ticket_relations(ticket),
             'get_resource_shortname': get_resource_shortname,
             'get_resource_summary': get_resource_summary,
@@ -153,8 +155,8 @@ class RelationManagementModule(Component):
             ticket = data['ticket']
             rls = RelationsSystem(self.env)
             try:
-                resid = ResourceIdSerializer.get_resource_id_from_instance(
-                    self.env, ticket)
+                resid = ResourceIdSerializer \
+                            .get_resource_id_from_instance(self.env, ticket)
             except ValueError:
                 resid = None
 
@@ -174,7 +176,7 @@ class RelationManagementModule(Component):
         trs = TicketRelationsSpecifics(self.env)
         for r in relsys.get_relations(ticket):
             r['desthref'] = get_resource_url(self.env, r['destination'],
-                self.env.href)
+                                             self.env.href)
             r['destticket'] = trs._create_ticket_by_full_id(r['destination'])
             grouped_relations.setdefault(reltypes[r['type']], []).append(r)
         return grouped_relations
@@ -183,10 +185,10 @@ class RelationManagementModule(Component):
         relsys = RelationsSystem(self.env)
         for relid in rellist:
             relation = Relation.load_by_relation_id(self.env, relid)
-            resource = ResourceIdSerializer.get_resource_by_id(
-                relation.destination)
+            resource = \
+                ResourceIdSerializer.get_resource_by_id(relation.destination)
             if 'TICKET_MODIFY' in req.perm(resource):
                 relsys.delete(relid)
             else:
-                add_warning(req,
-                    _('Not enough permissions to remove relation "%s"' % relid))
+                add_warning(req, _('Insufficient permissions to remove '
+                                   'relation "%(relation)s"', relation=relid))
