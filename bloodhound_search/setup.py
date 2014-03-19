@@ -144,8 +144,8 @@ ENTRY_POINTS = {
 
 extra = {}
 try:
-    from trac.util.dist import get_l10n_js_cmdclass
-    cmdclass = get_l10n_js_cmdclass()
+    from trac.util.dist import get_l10n_cmdclass
+    cmdclass = get_l10n_cmdclass()
     if cmdclass:
         extra['cmdclass'] = cmdclass
         extractors = [
