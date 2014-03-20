@@ -219,8 +219,7 @@ class ReferencesOlderValidator(Validator):
 
 class BlockerValidator(Validator):
     def validate(self, relation):
-        """If a path exists from relation's destination to its source,
-         adding the relation will create a cycle.
+        """Prevents adding a cyclical blocker relation.
          """
         rls = RelationsSystem(self.env)
         if not rls.is_blocker(relation.type):
