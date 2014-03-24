@@ -136,6 +136,7 @@ class BloodhoundTheme(ThemeBase):
         # Multi Product
         'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
         'product_list.html': ('bh_product_list.html', '_modify_product_list'),
+        'product_edit.html': ('bh_product_edit.html', '_add_products_general_breadcrumb'),
 
         # General purpose
         'about.html': ('bh_about.html', None),

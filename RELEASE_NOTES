@@ -9,7 +9,7 @@
  * Improvements to ticket timeline (comments section).
  * BloodhoundSearch now supports Whoosh >= 2.5.1 (upgraded from 2.4.1).
  * Fixed errors in BloodhoundRelations validation logic.
- * Bootstrap template for the Roadmap view.
+ * Bootstrap template for the Roadmap and Edit Product views.
  * Bloodhound installer support for MySQL database.
  * Numerous other important fixes and minor enhancements.
 
