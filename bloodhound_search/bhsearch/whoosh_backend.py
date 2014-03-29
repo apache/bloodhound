@@ -18,25 +18,24 @@
 #  under the License.
 
 r"""Whoosh specific backend for Bloodhound Search plugin."""
-from bhsearch import BHSEARCH_CONFIG_SECTION
-from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE, \
-    IDocIndexPreprocessor, IResultPostprocessor, IndexFields, \
-    IQueryPreprocessor
+
 import os
-from bhsearch.search_resources.ticket_search import TicketFields
-from bhsearch.security import SecurityPreprocessor
-from bhsearch.utils import get_global_env
+from datetime import datetime
+
 from trac.core import Component, implements, TracError
 from trac.config import Option, IntOption
-from trac.util.text import empty
 from trac.util.datefmt import utc
-from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
-from whoosh import index, analysis
+
 import whoosh
-import whoosh.highlight
+from whoosh import index, analysis
 from whoosh.collectors import FilterCollector
+from whoosh.fields import Schema, ID, DATETIME, KEYWORD, TEXT
 from whoosh.writing import AsyncWriter
-from datetime import datetime
+
+from bhsearch import BHSEARCH_CONFIG_SECTION
+from bhsearch.api import ISearchBackend, DESC, QueryResult, SCORE
+from bhsearch.security import SecurityPreprocessor
+from bhsearch.utils import get_global_env
 
 UNIQUE_ID = "unique_id"
 
@@ -189,7 +188,6 @@ class WhooshBackend(Component):
                 writer.cancel()
             raise
 
-
     def optimize(self):
         writer = AsyncWriter(self.index)
         writer.commit(optimize=True)
@@ -206,14 +204,14 @@ class WhooshBackend(Component):
     def query(self,
               query,
               query_string=None,
-              sort = None,
-              fields = None,
-              filter = None,
-              facets = None,
-              pagenum = 1,
-              pagelen = 20,
-              highlight = False,
-              highlight_fields = None,
+              sort=None,
+              fields=None,
+              filter=None,
+              facets=None,
+              pagenum=1,
+              pagelen=20,
+              highlight=False,
+              highlight_fields=None,
               context=None):
         # pylint: disable=too-many-locals
         with self.index.searcher() as searcher:
@@ -230,16 +228,16 @@ class WhooshBackend(Component):
             groupedby = facets
 
             query_parameters = dict(
-                query = query,
-                pagenum = pagenum,
-                pagelen = pagelen,
-                sortedby = sortedby,
-                groupedby = groupedby,
+                query=query,
+                pagenum=pagenum,
+                pagelen=pagelen,
+                sortedby=sortedby,
+                groupedby=groupedby,
                 maptype=whoosh.sorting.Count,
-                filter = filter,
+                filter=filter,
             )
             self.env.log.debug("Whoosh query to execute: %s",
-                query_parameters)
+                               query_parameters)
             raw_page = searcher.search_page(**query_parameters)
             results = self._process_results(raw_page,
                                             fields,
