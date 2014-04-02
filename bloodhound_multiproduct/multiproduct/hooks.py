@@ -19,21 +19,21 @@
 
 # these imports monkey patch classes required to enable
 # multi product support
-import multiproduct.env
-import multiproduct.dbcursor
-import multiproduct.versioncontrol
-import multiproduct.ticket.query
-import multiproduct.ticket.batch
 
 import re
 
-from trac.core import TracError
 from trac.hooks import EnvironmentFactoryBase, RequestFactoryBase
-from trac.perm import PermissionCache
 from trac.web.href import Href
 from trac.web.main import RequestWithSession
 
+import multiproduct.env
+import multiproduct.dbcursor
+import multiproduct.ticket.batch
+import multiproduct.ticket.query
+import multiproduct.versioncontrol
+
 PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
+
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
@@ -78,19 +78,9 @@ class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
 
 
 class ProductizedHref(Href):
-    PATHS_NO_TRANSFORM = ['chrome',
-                          'login',
-                          'logout',
-                          'prefs',
-                          'products',
-                          'verify_email',
-                          'reset_password',
-                          'register',
-                          ]
-    STATIC_PREFIXES = ['js/',
-                       'css/',
-                       'img/',
-                       ]
+    PATHS_NO_TRANSFORM = ['chrome', 'login', 'logout', 'prefs', 'products',
+                          'register',  'reset_password', 'verify_email']
+    STATIC_PREFIXES = ['css/', 'img/', 'js/']
 
     def __init__(self, global_href, base):
         self.super = super(ProductizedHref, self)
@@ -120,4 +110,4 @@ class ProductRequestWithSession(RequestWithSession):
 class ProductRequestFactory(RequestFactoryBase):
     def create_request(self, env, environ, start_response):
         return ProductRequestWithSession(env, environ, start_response) \
-            if env else RequestWithSession(environ, start_response)
+               if env else RequestWithSession(environ, start_response)
