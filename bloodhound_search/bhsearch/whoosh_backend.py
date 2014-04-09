@@ -24,6 +24,7 @@ from datetime import datetime
 
 from trac.core import Component, implements, TracError
 from trac.config import Option, IntOption
+from trac.env import ISystemInfoProvider
 from trac.util.datefmt import utc
 
 import whoosh
@@ -44,7 +45,7 @@ class WhooshBackend(Component):
     """
     Implements Whoosh SearchBackend interface
     """
-    implements(ISearchBackend)
+    implements(ISearchBackend, ISystemInfoProvider)
 
     index_dir_setting = Option(
         BHSEARCH_CONFIG_SECTION,
@@ -124,7 +125,13 @@ class WhooshBackend(Component):
         else:
             self.index = None
 
-    #ISearchBackend methods
+    # ISystemInfoProvider methods
+
+    def get_system_info(self):
+        yield 'Whoosh', whoosh.versionstring()
+
+    # ISearchBackend methods
+
     def start_operation(self):
         return self._create_writer()
 
