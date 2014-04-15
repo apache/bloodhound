@@ -383,8 +383,8 @@ def dispatch_request(environ, start_response):
 
     # Load handler for environment lookup and instantiation of request objects
     from trac.hooks import load_bootstrap_handler
-    bootstrap = load_bootstrap_handler(environ['trac.bootstrap_handler'],
-                                       environ.get('wsgi.errors'))
+    bootstrap_ep = environ['trac.bootstrap_handler']
+    bootstrap = load_bootstrap_handler(bootstrap_ep, environ.get('wsgi.errors'))
 
     # Determine the environment
     
@@ -432,7 +432,7 @@ def dispatch_request(environ, start_response):
         try:
             req = bootstrap.create_request(env, environ, start_response) \
                 if env is not None else Request(environ, start_response)
-        except Exception:
+        except Exception, e:
             log = environ.get('wsgi.errors')
             if log:
                 log.write("[FAIL] [Trac] Entry point '%s' "
