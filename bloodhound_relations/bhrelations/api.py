@@ -16,30 +16,34 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import itertools
 
+import itertools
 import re
 from datetime import datetime
 from pkg_resources import resource_filename
-from bhrelations import db_default
-from bhrelations.model import Relation
-from bhrelations.utils import unique
-from bhrelations.utils.translation import _, add_domain
+
+from trac.config import OrderedExtensionsOption, Option
+from trac.core import Component, ExtensionPoint, Interface, TracError, \
+                      implements
+from trac.db import DatabaseManager
+from trac.env import IEnvironmentSetupParticipant
+from trac.resource import Neighborhood, Resource, ResourceNotFound, \
+                          ResourceSystem, get_resource_shortname
+from trac.ticket.api import ITicketChangeListener, ITicketManipulator, \
+                            TicketSystem
+from trac.ticket.model import Ticket
+from trac.util.datefmt import to_utimestamp, utc
+from trac.web.chrome import ITemplateProvider
+
 from multiproduct.api import ISupportMultiProductEnvironment
 from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
 
-from trac.config import OrderedExtensionsOption, Option
-from trac.core import (Component, implements, TracError, Interface,
-                       ExtensionPoint)
-from trac.env import IEnvironmentSetupParticipant
-from trac.db import DatabaseManager
-from trac.resource import (ResourceSystem, Resource, ResourceNotFound,
-                           get_resource_shortname, Neighborhood)
-from trac.ticket import Ticket, ITicketManipulator, ITicketChangeListener
-from trac.ticket.api import TicketSystem
-from trac.util.datefmt import utc, to_utimestamp
-from trac.web.chrome import ITemplateProvider
+from bhrelations import db_default
+from bhrelations.model import Relation
+from bhrelations.utils import unique
+from bhrelations.utils.translation import _, add_domain
+
 
 PLUGIN_NAME = 'Bloodhound Relations Plugin'
 RELATIONS_CONFIG_NAME = 'bhrelations_links'
@@ -114,6 +118,8 @@ class EnvironmentSetup(Component):
     implements(IEnvironmentSetupParticipant, ISupportMultiProductEnvironment,
                ITemplateProvider)
 
+    # IEnvironmentSetupParticipant methods
+
     def environment_created(self):
         self.upgrade_environment(self.env.db_transaction)
 
@@ -123,10 +129,9 @@ class EnvironmentSetup(Component):
 
         db_version = db_default.DB_VERSION
         if db_installed_version > db_version:
-            raise TracError('''Current db version (%d) newer than supported by
-            this version of the %s (%d).''' % (db_installed_version,
-                                               PLUGIN_NAME,
-                                               db_version))
+            raise TracError("""Current db version (%d) newer than supported
+                            by this version of the %s (%d)."""
+                            % (db_installed_version, PLUGIN_NAME, db_version))
         needs_upgrade = db_installed_version < db_version or \
                         not list(self.config.options(RELATIONS_CONFIG_NAME))
         return needs_upgrade
@@ -149,25 +154,21 @@ class EnvironmentSetup(Component):
 
     def _get_version(self, db):
         """Finds the current version of the bloodhound database schema"""
-        rows = db("""
-            SELECT value FROM system WHERE name = %s
-            """, (db_default.DB_SYSTEM_KEY,))
+        rows = db("""SELECT value FROM system WHERE name = %s
+                  """, (db_default.DB_SYSTEM_KEY,))
         return int(rows[0][0]) if rows else -1
 
     def _update_db_version(self, db, version):
         old_version = self._get_version(db)
         if old_version != -1:
-            self.log.info(
-                "Updating %s database schema from version %d to %d",
-                PLUGIN_NAME, old_version, version)
+            self.log.info("Updating %s database schema from version %d to %d",
+                          PLUGIN_NAME, old_version, version)
             db("""UPDATE system SET value=%s
-                      WHERE name=%s""", (version, db_default.DB_SYSTEM_KEY))
+                  WHERE name=%s""", (version, db_default.DB_SYSTEM_KEY))
         else:
-            self.log.info(
-                "Initial %s database schema set to version %d",
-                PLUGIN_NAME, version)
-            db("""
-                INSERT INTO system (name, value) VALUES ('%s','%s')
+            self.log.info("Initial %s database schema set to version %d",
+                          PLUGIN_NAME, version)
+            db("""INSERT INTO system (name, value) VALUES ('%s','%s')
                 """ % (db_default.DB_SYSTEM_KEY, version))
         return version
 
@@ -180,6 +181,7 @@ class EnvironmentSetup(Component):
                 db(statement)
 
     # ITemplateProviderMethods
+
     def get_templates_dirs(self):
         """provide the plugin templates"""
         return [resource_filename(__name__, 'templates')]
@@ -457,9 +459,9 @@ class ResourceIdSerializer(object):
         * resource_full_id: fully qualified resource id in format
         "product:ticket:123". In case of global environment it is ":ticket:123"
         """
-        nbhprefix, realm, resource_id = cls.split_full_id(resource_full_id)
-        if nbhprefix:
-            neighborhood = Neighborhood('product', nbhprefix)
+        nbh_prefix, realm, resource_id = cls.split_full_id(resource_full_id)
+        if nbh_prefix:
+            neighborhood = Neighborhood('product', nbh_prefix)
             return neighborhood.child(realm, id=resource_id)
         else:
             return Resource(realm, id=resource_id)
@@ -483,10 +485,10 @@ class ResourceIdSerializer(object):
         if ticket.id is None:
             raise ValueError("Cannot get resource id for ticket "
                              "that does not exist yet.")
-        nbhprefix = ticket["product"]
+        nbh_prefix = ticket["product"]
 
         resource_full_id = cls.RESOURCE_ID_DELIMITER.join(
-            (nbhprefix, resource.realm, unicode(resource.id))
+            (nbh_prefix, resource.realm, unicode(resource.id))
         )
         return resource_full_id
 
@@ -504,7 +506,7 @@ class TicketRelationsSpecifics(Component):
     def ticket_changed(self, ticket, comment, author, old_values):
         if self._closed_as_duplicate(ticket) and \
                 self.rls.duplicate_relation_type and \
-                hasattr(ticket, 'duplicate'): # workaround for comment:5:ticket:710
+                hasattr(ticket, 'duplicate'):  # workaround for comment:5:ticket:710
             try:
                 self.rls.add(ticket, ticket.duplicate,
                              self.rls.duplicate_relation_type,
@@ -604,7 +606,8 @@ class TicketRelationsSpecifics(Component):
                     for p in Product.select(self.env):
                         if p.prefix != self.env.product.prefix:
                             # TODO: check for PRODUCT_VIEW permissions
-                            penv = ProductEnvironment(self.env.parent, p.prefix)
+                            penv = ProductEnvironment(self.env.parent,
+                                                      p.prefix)
                             try:
                                 ticket = Ticket(penv, tid)
                             except ResourceNotFound:
@@ -637,8 +640,8 @@ class TicketRelationsSpecifics(Component):
 
     def _get_env_for_resource(self, resource):
         if hasattr(resource, "neighborhood"):
-            env = ResourceSystem(self.env).load_component_manager(
-                resource.neighborhood)
+            env = ResourceSystem(self.env). \
+                    load_component_manager(resource.neighborhood)
         else:
             env = self.env
         return env
@@ -677,12 +680,12 @@ class TicketChangeRecordUpdater(Component):
                 )
 
     def _get_ticket_id_and_product(self, resource_full_id):
-        nbhprefix, realm, resource_id = ResourceIdSerializer.split_full_id(
-            resource_full_id)
+        nbh_prefix, realm, resource_id = \
+            ResourceIdSerializer.split_full_id(resource_full_id)
         ticket_id = None
         if realm == "ticket":
             ticket_id = int(resource_id)
-        return ticket_id, nbhprefix
+        return ticket_id, nbh_prefix
 
     def _add_ticket_change_record(
             self, db, relation, relation_system, is_delete, when_ts):

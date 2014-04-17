@@ -46,6 +46,7 @@ class RelationManagementModule(Component):
     implements(IRequestFilter, IRequestHandler, ITemplateProvider)
 
     # IRequestHandler methods
+
     def match_request(self, req):
         match = re.match(r'/ticket/([0-9]+)/relations/*$', req.path_info)
         if not match:
@@ -139,6 +140,7 @@ class RelationManagementModule(Component):
         RelationNotifyEmail(self.env).notify(relation)
 
     # ITemplateProvider methods
+
     def get_htdocs_dirs(self):
         return []
 
@@ -147,6 +149,7 @@ class RelationManagementModule(Component):
         return [resource_filename('bhrelations', 'templates')]
 
     # IRequestFilter methods
+
     def pre_process_request(self, req, handler):
         return handler
 
@@ -168,7 +171,8 @@ class RelationManagementModule(Component):
                         duplicate_relations[0].destination
         return template, data, content_type
 
-    # utility functions
+    # Public methods
+
     def get_ticket_relations(self, ticket):
         grouped_relations = {}
         relsys = RelationsSystem(self.env)

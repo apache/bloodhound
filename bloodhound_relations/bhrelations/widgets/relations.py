@@ -42,23 +42,22 @@ class TicketRelationsWidget(WidgetBase):
         the widget with specified name.
         """
         return {
-                'tid' : {
-                        'desc' : """Source ticket id""",
-                        'type' : int
-                    },
+                'tid': {
+                    'desc': """Source ticket id""",
+                    'type': int
+                },
 
-                'max' : {
-                        'desc' : """Limit the number of relations displayed""",
-                        'type' : int
-                    },
-            }
+                'max': {
+                    'desc': """Limit the number of relations displayed""",
+                    'type': int
+                },
+        }
 
     get_widget_params = pretty_wrapper(get_widget_params, check_widget_name)
 
     def render_widget(self, name, context, options):
         """Gather list of relations and render data in compact view
         """
-        req = context.req
         title = _('Related tickets')
         params = ('tid', 'max')
         tid, max_ = self.bind_params(name, options, *params)
@@ -71,7 +70,9 @@ class TicketRelationsWidget(WidgetBase):
             'get_resource_shortname': get_resource_shortname,
             'get_resource_summary': get_resource_summary,
         }
-        return 'widget_relations.html', \
-            {'title': title, 'data': data, }, context
+        return 'widget_relations.html', {
+            'title': title,
+            'data': data,
+        }, context
 
     render_widget = pretty_wrapper(render_widget, check_widget_name)

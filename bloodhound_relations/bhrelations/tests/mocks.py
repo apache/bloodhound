@@ -16,8 +16,10 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-from bhrelations.api import IRelationChangingListener
+
 from trac.core import Component, implements
+
+from bhrelations.api import IRelationChangingListener
 
 
 class TestRelationChangingListener(Component):

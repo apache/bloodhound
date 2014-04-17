@@ -16,9 +16,10 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 from trac.notification import NotifyEmail
-from trac.ticket.notification import (get_ticket_notification_recipients,
-                                      TicketNotifyEmail)
+from trac.ticket.notification import TicketNotifyEmail, \
+                                     get_ticket_notification_recipients
 from trac.util.datefmt import from_utimestamp
 from trac.web.chrome import Chrome
 
@@ -67,7 +68,7 @@ class RelationNotifyEmail(TicketNotifyEmail):
         to, cc = [], []
         for resource in (source, destination):
             if resource.realm == 'ticket':
-                (torecipients, ccrecipients, reporter, owner) = \
+                torecipients, ccrecipients, reporter, owner = \
                     get_ticket_notification_recipients(self.env, self.config,
                     resource.id, [])
                 to.extend(torecipients)

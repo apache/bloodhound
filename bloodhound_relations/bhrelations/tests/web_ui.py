@@ -16,19 +16,23 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
-from bhrelations.api import ResourceIdSerializer
-from bhrelations.web_ui import RelationManagementModule
-from bhrelations.tests.base import BaseRelationsTestCase,\
-    DEPENDS_ON, DUPLICATE_OF
 
-from multiproduct.ticket.web_ui import TicketModule
+import unittest
+
 from trac.ticket import Ticket
 from trac.util.datefmt import to_utimestamp
 from trac.web import RequestDone
 
+from bhrelations.api import ResourceIdSerializer
+from bhrelations.tests.base import DEPENDS_ON, DUPLICATE_OF, \
+                                   BaseRelationsTestCase
+from bhrelations.web_ui import RelationManagementModule
+
+from multiproduct.ticket.web_ui import TicketModule
+
 
 class RelationManagementModuleTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self)
         ticket_id = self._insert_ticket(self.env, "Foo")
@@ -94,7 +98,7 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
         rlm = RelationManagementModule(self.env)
         rlm.notify_relation_changed = self._failing_notification
 
-        url, data, x = rlm.process_request(self.req)
+        rlm.process_request(self.req)
         self.assertEqual(len(self.req.chrome['warnings']), 1)
 
     def _failing_notification(self, relation):
@@ -107,6 +111,7 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
 
 
 class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self)
 
@@ -165,8 +170,8 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
 
     def test_post_process_request_can_handle_none_data(self):
         self.req.path_info = '/source'
-        RelationManagementModule(self.env).post_process_request(
-            self.req, '', None, '')
+        RelationManagementModule(self.env).post_process_request(self.req, '',
+                                                                None, '')
 
     def resolve_as_duplicate(self, ticket, duplicate_id):
         self.req.method = 'POST'
@@ -219,8 +224,9 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(RelationManagementModuleTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(RelationManagementModuleTestCase))
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main()

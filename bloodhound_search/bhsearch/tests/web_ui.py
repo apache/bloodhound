@@ -909,8 +909,8 @@ class RequestParametersTest(unittest.TestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(WebUiTestCaseWithWhoosh, 'test'))
-    test_suite.addTest(unittest.makeSuite(RequestParametersTest, 'test'))
+    test_suite.addTest(unittest.makeSuite(WebUiTestCaseWithWhoosh))
+    test_suite.addTest(unittest.makeSuite(RequestParametersTest))
     return test_suite
 
 if __name__ == '__main__':

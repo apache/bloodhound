@@ -565,8 +565,8 @@ class WhooshFunctionalityTestCase(unittest.TestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(WhooshBackendTestCase, 'test'))
-    test_suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(WhooshBackendTestCase))
+    test_suite.addTest(unittest.makeSuite(WhooshFunctionalityTestCase))
     return test_suite
 
 if __name__ == '__main__':

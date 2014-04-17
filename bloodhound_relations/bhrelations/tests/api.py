@@ -16,19 +16,23 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-from datetime import datetime
+
 import unittest
+from datetime import datetime
+
+from trac.core import TracError
+from trac.ticket.model import Ticket
+from trac.util.datefmt import utc
+
+from multiproduct.env import ProductEnvironment
 
 from bhrelations.api import TicketRelationsSpecifics
 from bhrelations.tests.mocks import TestRelationChangingListener
 from bhrelations.validation import ValidationError
-from bhrelations.tests.base import BaseRelationsTestCase, PARENT, CHILD, \
-    DEPENDS_ON, DEPENDENCY_OF, BLOCKS, BLOCKED_BY, REFERS_TO, DUPLICATE_OF, \
-    MULTIPRODUCT_REL
-from multiproduct.env import ProductEnvironment
-from trac.ticket.model import Ticket
-from trac.core import TracError
-from trac.util.datefmt import utc
+from bhrelations.tests.base import BaseRelationsTestCase, BLOCKED_BY, \
+                                   BLOCKS, CHILD, DEPENDENCY_OF, DEPENDS_ON, \
+                                   DUPLICATE_OF, MULTIPRODUCT_REL, PARENT, \
+                                   REFERS_TO
 
 
 class ApiTestCase(BaseRelationsTestCase):
@@ -364,9 +368,9 @@ class ApiTestCase(BaseRelationsTestCase):
 
     def test_cannot_create_other_relations_between_descendants(self):
         t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
-        self.add_relation(t1, PARENT, t2)  #    t1 -> t2
-        self.add_relation(t2, PARENT, t3)  #         /  \
-        self.add_relation(t2, PARENT, t4)  #       t3    t4
+        self.add_relation(t1, PARENT, t2)   #    t1 -> t2
+        self.add_relation(t2, PARENT, t3)   #         /  \
+        self.add_relation(t2, PARENT, t4)   #       t3    t4
 
         self.assertRaises(
             ValidationError,
@@ -396,9 +400,9 @@ class ApiTestCase(BaseRelationsTestCase):
 
     def test_cannot_add_parent_if_this_would_cause_invalid_relations(self):
         t1, t2, t3, t4, t5 = map(self._insert_and_load_ticket, "12345")
-        self.add_relation(t1, PARENT, t2)  #    t1 -> t2
-        self.add_relation(t2, PARENT, t3)  #         /  \
-        self.add_relation(t2, PARENT, t4)  #       t3    t4    t5
+        self.add_relation(t1, PARENT, t2)   #    t1 -> t2
+        self.add_relation(t2, PARENT, t3)   #         /  \
+        self.add_relation(t2, PARENT, t4)   #       t3    t4    t5
         self.add_relation(t2, DEPENDS_ON, t5)
 
         self.assertRaises(
@@ -422,9 +426,9 @@ class ApiTestCase(BaseRelationsTestCase):
             self.fail("Could not add valid relation.")
 
     def test_cannot_close_ticket_with_open_children(self):
-        t1 = self._insert_and_load_ticket("1")  #     t1
-        t2 = self._insert_and_load_ticket("2", status='closed')  #   /  | \
-        t3 = self._insert_and_load_ticket("3")  #  t2 t3 t4
+        t1 = self._insert_and_load_ticket("1")                    #     t1
+        t2 = self._insert_and_load_ticket("2", status='closed')   #   /  |  \
+        t3 = self._insert_and_load_ticket("3")                    #  t2 t3  t4
         t4 = self._insert_and_load_ticket("4")
         self.add_relation(t1, PARENT, t2)
         self.add_relation(t1, PARENT, t3)
@@ -599,7 +603,7 @@ class TicketChangeRecordUpdaterTestCase(BaseRelationsTestCase):
 
         if ticket_id:
             sql = """SELECT time, author, field, oldvalue, newvalue
-                    FROM ticket_change WHERE ticket=%s"""
+                     FROM ticket_change WHERE ticket=%s"""
             print "db_transaction select by ticket_id result:"
             with self.env.db_transaction:
                 for row in self.env.db_query(sql, (ticket_id, )):
@@ -608,11 +612,9 @@ class TicketChangeRecordUpdaterTestCase(BaseRelationsTestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(ApiTestCase, 'test'))
-    test_suite.addTest(unittest.makeSuite(
-        RelationChangingListenerTestCase, 'test'))
-    test_suite.addTest(unittest.makeSuite(
-        TicketChangeRecordUpdaterTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(ApiTestCase))
+    test_suite.addTest(unittest.makeSuite(RelationChangingListenerTestCase))
+    test_suite.addTest(unittest.makeSuite(TicketChangeRecordUpdaterTestCase))
     return test_suite
 
 

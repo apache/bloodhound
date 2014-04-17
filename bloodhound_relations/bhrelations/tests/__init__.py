@@ -17,11 +17,6 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-# import sys
-# if sys.version < (2, 7):
-#     import unittest2 as unittest
-# else:
-#     import unittest
 import unittest
 
 from bhrelations.tests import api, notification, search, validation, web_ui
@@ -35,6 +30,7 @@ def suite():
     test_suite.addTest(validation.suite())
     test_suite.addTest(web_ui.suite())
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

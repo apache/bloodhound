@@ -84,7 +84,7 @@ class QuerySuggestionTestCase(BaseBloodhoundSearchTest):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(QuerySuggestionTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(QuerySuggestionTestCase))
     return test_suite
 
 if __name__ == '__main__':

@@ -18,16 +18,17 @@
 #  under the License.
 
 from tests.env import MultiproductTestCase
-from multiproduct.env import ProductEnvironment
-from bhrelations.api import RelationsSystem, EnvironmentSetup, \
-    RELATIONS_CONFIG_NAME
 from trac.test import EnvironmentStub, Mock, MockPerm
 from trac.ticket import Ticket
 from trac.util.datefmt import utc
 
+from multiproduct.env import ProductEnvironment
+
+from bhrelations.api import EnvironmentSetup, RelationsSystem, \
+                            RELATIONS_CONFIG_NAME
+
 try:
     from babel import Locale
-
     locale_en = Locale.parse('en_US')
 except ImportError:
     locale_en = None
@@ -124,7 +125,8 @@ class BaseRelationsTestCase(MultiproductTestCase):
         return Ticket(env, self._insert_ticket(env, summary, **kw))
 
     def add_relation(self, source, reltype, destination, *args, **kwargs):
-        return self.relations_system.add(source, destination, reltype, *args, **kwargs)
+        return self.relations_system.add(source, destination, reltype,
+                                         *args, **kwargs)
 
     def get_relations(self, ticket):
         return self.relations_system.get_relations(ticket)

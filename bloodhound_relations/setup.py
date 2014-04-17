@@ -41,14 +41,14 @@ versions = [
 latest = '.'.join(str(x) for x in versions[-1])
 
 status = {
-            'planning' :  "Development Status :: 1 - Planning",
-            'pre-alpha' : "Development Status :: 2 - Pre-Alpha",
-            'alpha' :     "Development Status :: 3 - Alpha",
-            'beta' :      "Development Status :: 4 - Beta",
-            'stable' :    "Development Status :: 5 - Production/Stable",
-            'mature' :    "Development Status :: 6 - Mature",
-            'inactive' :  "Development Status :: 7 - Inactive"
-         }
+    'planning' :  "Development Status :: 1 - Planning",
+    'pre-alpha' : "Development Status :: 2 - Pre-Alpha",
+    'alpha' :     "Development Status :: 3 - Alpha",
+    'beta' :      "Development Status :: 4 - Beta",
+    'stable' :    "Development Status :: 5 - Production/Stable",
+    'mature' :    "Development Status :: 6 - Mature",
+    'inactive' :  "Development Status :: 7 - Inactive"
+    }
 dev_status = status["alpha"]
 
 cats = [
