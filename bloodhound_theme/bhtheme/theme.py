@@ -673,3 +673,273 @@ class QuickCreateTicketDialog(Component):
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
+
+# AutocompleteUsers and KeywordSuggestModule components basic structure is taken from
+# AutocompleteUsers plugin and KeywordSuggestModule of Trac
+# https://trac-hacks.org/wiki/AutocompleteUsersPlugin
+# http://trac-hacks.org/wiki/KeywordSuggestPlugin
+
+USER = 0;
+NAME = 1;
+EMAIL = 2  # indices
+
+
+class AutocompleteUsers(Component):
+    implements(IRequestFilter, IRequestHandler,
+               ITemplateProvider, ITemplateStreamFilter)
+
+    selectfields = ListOption('autocomplete', 'fields', default='',
+                              doc='select fields to transform to autocomplete text boxes')
+
+    # IRequestHandler methods
+
+    def match_request(self, req):
+        return req.path_info.rstrip('/') == '/user_list'
+
+    def process_request(self, req):
+
+        subjects = ['admin','adam','test','user1']
+        if req.args.get('users', '1') == '1':
+            users = self._get_users(req)
+            subjects = ['%s|%s|%s' % (user[USER],
+                                      user[EMAIL] and '&lt;%s&gt; ' % user[EMAIL] or '',
+                                      user[NAME])
+                        for value, user in users]  # value unused (placeholder needed for sorting)
+
+        if req.args.get('groups'):
+            groups = self._get_groups(req)
+            if groups:
+                subjects.extend(['%s||group' % group for group in groups])
+        respond_str = "["
+        for user in subjects:
+            respond_str = respond_str +'"'+str(user)+'"'+','
+        respond_str = respond_str[:-1]
+        respond_str = respond_str + "]"
+
+        resppondStr='\n'.join(subjects).encode('utf-8');
+
+        req.send(respond_str, 'text/plain')
+
+    # ITemplateProvider methods
+
+    def get_htdocs_dirs(self):
+        from pkg_resources import resource_filename
+
+        return [('autocompleteusers', resource_filename(__name__, 'htdocs'))]
+
+    def get_templates_dirs(self):
+        return []
+
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        if template in ('ticket.html', 'admin_perms.html', 'query.html'):
+            add_stylesheet(req, 'autocompleteusers/css/jquery-ui-1.8.16.custom.css')
+            add_script(req, 'autocompleteusers/js/jquery-ui-1.8.16.custom.min.js')
+            add_script(req, 'autocompleteusers/js/format_item.js')
+            if template == 'query.html':
+                add_script(req, 'autocompleteusers/js/autocomplete_query.js')
+
+        return template, data, content_type
+
+    # ITemplateStreamFilter methods
+
+    def filter_stream(self, req, method, filename, stream, data):
+        if filename == 'bh_ticket.html':
+            fields = [field['name'] for field in data['ticket'].fields
+                      if field['type'] == 'select']
+            fields = set(sum([fnmatch.filter(fields, pattern)
+                              for pattern in self.selectfields], []))
+
+        js = ""
+
+        if filename == 'bh_ticket.html':
+
+            restrict_owner = self.env.config.getbool('ticket', 'restrict_owner')
+
+            js = """jQuery(document).ready(function($) {
+
+                        $( "#field-cc" ).autocomplete({
+                            source: "user_list"
+                            multiple: true,
+                            formatItem: formatItem,
+                            delay: 100
+                        });
+                    });"""
+            if not restrict_owner:
+                js = """jQuery(document).ready(function($) {
+
+                        $( "#field-cc" ).autocomplete({
+                            source: "user_list",
+                            multiple: true,
+                            formatItem: formatItem,
+                            delay: 100
+                        });
+                        $( "#field-reporter" ).autocomplete({
+                            source: "user_list",
+                            formatItem: formatItem
+                        });
+                    });"""
+
+        elif filename == 'bh_admin_perms.html':
+
+            js = """$(document).ready(function () {
+
+                      $("#gp_subject").autocomplete( {
+                        source: "perm/user_list",
+                        formatItem: formatItem
+                      });
+                      $("#sg_subject").autocomplete( {
+                        source: "user_list?groups=1",
+                        formatItem: formatItem
+                      });
+                      $("#sg_group").autocomplete({
+                        source: "perm/user_list?groups=1&users=0",
+                        formatItem: formatItem
+                      });
+                    });"""
+
+        stream = stream | Transformer('.//head').append(tag.script(Markup(js),
+                                                                   type='text/javascript'))
+
+        return stream
+
+
+    # Private methods
+
+    def _get_groups(self, req):
+        # Returns a list of groups by filtering users with session data
+        # from the list of all subjects. This has the caveat of also
+        # returning users without session data, but there currently seems
+        # to be no other way to handle this.
+        query = req.args.get('term', '').lower()
+        db = self.env.get_db_cnx()
+        cursor = db.cursor()
+        cursor.execute("""SELECT DISTINCT username FROM permission""")
+        usernames = [user[0] for user in self.env.get_known_users()]
+        return sorted([row[0] for row in cursor if not row[0] in usernames
+        and row[0].lower().startswith(query)])
+
+    def _get_users(self, req):
+        # instead of known_users, could be
+        # perm = PermissionSystem(self.env)
+        # owners = perm.get_users_with_permission('TICKET_MODIFY')
+        # owners.sort()
+        # see: http://trac.edgewall.org/browser/trunk/trac/ticket/default_workflow.py#L232
+
+        query = req.args.get('term', '').lower()
+
+        # user names, email addresses, full names
+        users = []
+        for user_data in self.env.get_known_users():
+            user_data = [user is not None and Chrome(self.env).format_author(req, user) or ''
+                         for user in user_data]
+            for index, field in enumerate((USER, EMAIL, NAME)):  # ordered by how they appear
+                value = user_data[field].lower()
+
+                if value.startswith(query):
+                    users.append((2 - index, user_data))  # 2-index is the sort key
+                    break
+                if field == NAME:
+                    lastnames = value.split()[1:]
+                    if sum(name.startswith(query) for name in lastnames):
+                        users.append((2 - index, user_data))  # 2-index is the sort key
+                        break
+
+        return sorted(users)
+
+# component to suggest keywords
+
+
+class KeywordSuggestModule(Component):
+    implements(IRequestFilter, ITemplateProvider, ITemplateStreamFilter)
+
+    field_opt = Option('keywordsuggest', 'field', 'keywords',
+                       """Field to which the drop-down list should be attached.""")
+
+    keywords_opt = ListOption('keywordsuggest', 'keywords', '', ',',
+                              doc="A list of comma separated values available for input.")
+
+    # IRequestFilter methods
+    def pre_process_request(self, req, handler):
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        if req.path_info.startswith('/ticket/') or \
+                req.path_info.startswith('/newticket') or \
+                (req.path_info.startswith('/wiki/')):
+                add_script(req, 'keywordssuggest/js/bootstrap-tagsinput.js')
+                add_stylesheet(req, 'keywordssuggest/css/bootstrap-tagsinput.css')
+
+        return template, data, content_type
+
+    # ITemplateStreamFilter methods
+    def filter_stream(self, req, method, filename, stream, data):
+
+        if not (filename == 'bh_ticket.html' or
+                    (filename == 'bh_wiki_edit.html')):
+            return stream
+
+        keywords = self._get_keywords_string(req)
+        if not keywords:
+            self.log.debug("""
+                No keywords found. KeywordSuggestPlugin is disabled.""")
+            return stream
+
+        js = """jQuery(document).ready(function($) {
+                    var keywords =  %(keywords)s
+
+
+                    $('%(field)s').tagsinput({
+                        typeahead: {
+                            source: keywords
+                            }
+                        });
+                });"""
+
+        # inject transient part of javascript directly into ticket.html template
+        if req.path_info.startswith('/ticket/') or \
+                req.path_info.startswith('/newticket'):
+            js_ticket = js % {'field': '#field-' + self.field_opt,
+                              'keywords': keywords
+                              }
+            stream = stream | Transformer('.//head').append \
+                (tag.script(Markup(js_ticket),
+                            type='text/javascript'))
+
+        return stream
+
+    # ITemplateProvider methods
+    def get_htdocs_dirs(self):
+        from pkg_resources import resource_filename
+
+        return [('keywordssuggest', resource_filename(__name__, 'htdocs'))]
+
+    def get_templates_dirs(self):
+        from pkg_resources import resource_filename
+
+        return [resource_filename(__name__, 'htdocs')]
+
+    # Private methods
+    def _get_keywords_string(self, req):
+        # get keywords from db
+        db = self.env.get_db_cnx()
+        cursor = db.cursor()
+        cursor.execute("""SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null""")
+        keywords = []
+        for row in cursor:
+            if not row[0] == '':
+                row_val = str(row[0]).split(',')
+                for val in row_val:
+                    keywords.append(val.strip())
+        # sort keywords according to frequency of occurrence
+        if keywords:
+            keyword_dic = Counter(keywords)
+            keywords = sorted(keyword_dic, key=lambda key: -keyword_dic[key])
+        else:
+            keywords = ''
+
+        return keywords
