@@ -19,8 +19,12 @@
 
 import sys
 
+from collections import Counter
+
+import fnmatch
+
 from genshi.builder import tag
-from genshi.core import TEXT
+from genshi.core import TEXT, Markup
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
 
@@ -887,7 +891,6 @@ class KeywordSuggestModule(Component):
         if not keywords:
             self.log.debug("""
                 No keywords found. KeywordSuggestPlugin is disabled.""")
-            return stream
 
         js = """jQuery(document).ready(function($) {
                     var keywords =  %(keywords)s
