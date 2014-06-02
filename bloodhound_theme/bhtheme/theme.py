@@ -28,6 +28,7 @@ from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
 from trac.resource import get_resource_url, Neighborhood, Resource
+from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
@@ -517,6 +518,21 @@ class BloodhoundTheme(ThemeBase):
                 yield ('mainnav', 'browser',
                        tag.a(_('Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
+
+class QCTSelectFieldUpdate(Component):
+    implements(IRequestHandler)
+
+    def match_request(self, req):
+        return req.path_info == '/update-menus'
+
+    def process_request(self, req):
+        product = req.args.get('product')
+        fields_to_update = req.args.get('fields_to_update[]');
+        env = ProductEnvironment(self.env.parent, req.args.get('product'))
+        ticket_fields = TicketSystem(env).get_ticket_fields()
+        data = dict([f['name'], f['options']]  for f in ticket_fields
+            if f['type'] == 'select' and f['name'] in fields_to_update)
+        req.send(to_json(data), 'application/json')
 
 
 class QuickCreateTicketDialog(Component):
