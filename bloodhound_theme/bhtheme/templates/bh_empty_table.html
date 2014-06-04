@@ -1,0 +1,151 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!--!
+		Render an empty table to enter batch of data to create tickets.
+		
+		
+       groups    - a dict, where:
+                     key       - is the value shared by all results in this group
+                     value     - is the list of corresponding tickets
+
+       headers   - a sequence of header structure:
+                     .name     - field name for this header
+                     .label    - what to display for this header
+
+       fields    - dict of field name to field structure:
+                     .label    - field label
+
+       query     - the actual Query instance used to perform the query
+
+-->
+<div xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:py="http://genshi.edgewall.org/"
+     xmlns:i18n="http://genshi.edgewall.org/i18n"
+     xmlns:xi="http://www.w3.org/2001/XInclude">
+  <div py:if="paginator.has_more_pages">
+    <div class="report-result" style="float: left; margin-right: 1.6em;">
+      Results <span class="numresults">(${paginator.displayed_items()})</span>
+    </div>
+    <xi:include py:if="paginator.show_index" href="page_index.html" />
+  </div>
+  <py:def function="group_heading(groupname, results, is_first=False)">
+    <div class="report-result" py:if="groupname is not None"
+        style="${'border: 1px #DDDDDD solid; border-bottom: none; font-weight: bold; padding: 4px 5px;' if is_first else None}"
+        i18n:msg="grouplabel, groupname, count"
+        py:with="grouplabel = fields[query.group].label;
+                 groupname = authorinfo(groupname) if query.group in ['owner', 'reporter'] else (groupname or _('None'));
+                 count = ngettext('%(num)s match', '%(num)s', len(results))">
+      Batch Create ${count} Tickets
+    </div>
+  </py:def>
+  
+  <style>
+    .table-bordered.query thead:first-child tr:first-child th:first-child, 
+    .table-bordered.query tbody:first-child tr:first-child td:first-child {
+      border-top-left-radius: 0px;
+    }
+  </style>
+  ${group_heading(*groups[0], is_first=True) if groups else None}
+  <table class="listing tickets table table-bordered table-condensed query"
+      style="border-radius: 0px 0px 4px 4px">
+    <tr class="trac-columns">
+		<py:for each="header in headers">
+			<py:if test="header.name not in 'ticket' and header.name not in 'id'">
+				<th class="$header.name${(' desc' if query.desc else ' asc') if query.order == header.name else ''}" py:with="label=header.label">
+					${label}
+				</th>
+			</py:if>
+		</py:for>
+    </tr>
+
+    <py:for each="group_index, (groupname, results) in enumerate(groups)">
+      
+      <tbody>
+        
+        <py:for each="idx, result in enumerate(results)">
+          <py:with vars="ticket_context = context.child('ticket', result.id)">
+            <py:if test="'TICKET_VIEW' in perm(ticket_context.resource)">
+				
+              <tr class="${'odd' if idx % 2 else 'even'} prio${result.priority_value}${
+                ' added' if 'added' in result else ''}${
+                ' changed' if 'changed' in result else ''}${
+                ' removed' if 'removed' in result else ''}">
+                <py:for each="idx, header in enumerate(headers)" py:choose="">
+				
+                  <py:with vars="name = header.name; value = result[name]">                    
+						<py:if test="name not in 'ticket' and name not in 'id'">
+							<td py:otherwise="" class="$name" py:choose="">
+								<input type='text' py:when="name == 'summary'"></input>
+								<py:when test="name == 'status'">
+									<select>
+										<option value="accepted">accepted</option>
+										<option value="assigned">assigned</option>
+										<option value="closed">closed</option>
+										<option selected="selected" value="new">new</option>
+										<option value="reopened">reopened</option>
+									</select>
+								</py:when>
+								<py:when test="name == 'priority'">
+									<select>
+										<option value="blocker">blocker</option>
+										<option value="critical">critical</option>
+										<option selected="selected" value="major">major</option>
+										<option value="minor">minor</option>
+										<option value="trivial">trivial</option>
+									</select>
+								</py:when>
+								<py:when test="name == 'type'">
+									<select>
+										<option value="defect">defect</option>
+										<option value="enhancement">enhancement</option>
+										<option selected="selected" value="task">task</option>
+									</select>
+								</py:when>
+								<py:when test="name == 'product'">
+									<select>
+										<option selected="selected" value="null"></option>
+										<option value="default">Default</option>
+									</select>
+								</py:when>
+								<input type='text' py:when="name == 'owner'"></input>
+								<input type='text' py:when="name == 'reporter'"></input>
+								<input type='text' py:when="name == 'cc'"></input>
+								<input type='text' py:when="name == 'milestone'"></input>
+								<input type='text' py:when="name == 'keywords'"></input>
+							</td>
+						</py:if>
+					</py:with>
+                </py:for>
+              </tr>
+			  
+            </py:if>
+          </py:with>
+        </py:for>
+        <tr py:if="group_index == len(groups)-1 and last_group_is_partial">
+          <td colspan="${len(headers)}">
+            <i>(more results for this group on next page)</i>
+          </td>
+        </tr>
+      </tbody>
+    </py:for>
+  </table>
+  <xi:include py:if="paginator.show_index" href="page_index.html" />
+</div>
+
