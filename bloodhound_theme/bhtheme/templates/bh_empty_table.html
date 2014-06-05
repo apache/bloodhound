@@ -52,7 +52,7 @@
         py:with="grouplabel = fields[query.group].label;
                  groupname = authorinfo(groupname) if query.group in ['owner', 'reporter'] else (groupname or _('None'));
                  count = ngettext('%(num)s match', '%(num)s', len(results))">
-      Batch Create ${count} Tickets
+      Batch Create ${count}+8 Tickets
     </div>
   </py:def>
   
@@ -79,17 +79,13 @@
       
       <tbody>
         
-        <py:for each="idx, result in enumerate(results)">
-          <py:with vars="ticket_context = context.child('ticket', result.id)">
-            <py:if test="'TICKET_VIEW' in perm(ticket_context.resource)">
-				
-              <tr class="${'odd' if idx % 2 else 'even'} prio${result.priority_value}${
-                ' added' if 'added' in result else ''}${
-                ' changed' if 'changed' in result else ''}${
-                ' removed' if 'removed' in result else ''}">
+        <py:for each="num in range(0,10)">
+			
+          
+              <tr>
                 <py:for each="idx, header in enumerate(headers)" py:choose="">
 				
-                  <py:with vars="name = header.name; value = result[name]">                    
+                  <py:with vars="name = header.name; value = ''">                    
 						<py:if test="name not in 'ticket' and name not in 'id'">
 							<td py:otherwise="" class="$name" py:choose="">
 								<input type='text' py:when="name == 'summary'"></input>
@@ -135,8 +131,7 @@
                 </py:for>
               </tr>
 			  
-            </py:if>
-          </py:with>
+            
         </py:for>
         <tr py:if="group_index == len(groups)-1 and last_group_is_partial">
           <td colspan="${len(headers)}">
