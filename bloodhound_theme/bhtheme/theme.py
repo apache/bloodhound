@@ -705,23 +705,14 @@ class AutocompleteUsers(Component):
         subjects = ['admin','adam','test','user1']
         if req.args.get('users', '1') == '1':
             users = self._get_users(req)
-            subjects = ['%s|%s|%s' % (user[USER],
-                                      user[EMAIL] and '&lt;%s&gt; ' % user[EMAIL] or '',
-                                      user[NAME])
-                        for value, user in users]  # value unused (placeholder needed for sorting)
+            subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
+                                      user[EMAIL] and '<%s>' % user[EMAIL] or '',
+                                      user[NAME] and '%s' % user[NAME] or '',
+                                        user[USER])
+                            for value, user in users]  # value unused (placeholder needed for sorting)
 
-        if req.args.get('groups'):
-            groups = self._get_groups(req)
-            if groups:
-                subjects.extend(['%s||group' % group for group in groups])
-        respond_str = "["
-        for user in subjects:
-            respond_str = respond_str +'"'+str(user)+'"'+','
-        respond_str = respond_str[:-1]
-        respond_str = respond_str + "]"
-
-        resppondStr='\n'.join(subjects).encode('utf-8');
-
+        respond_str = ','.join(subjects).encode('utf-8')
+        respond_str = '[' + respond_str + ']'
         req.send(respond_str, 'text/plain')
 
     # ITemplateProvider methods
@@ -787,26 +778,48 @@ class AutocompleteUsers(Component):
                             formatItem: formatItem
                         });
                     });"""
+            stream = stream | Transformer('.//head').append(tag.script(Markup(js),
+                                                                   type='text/javascript'))
 
         elif filename == 'bh_admin_perms.html':
+            users = self._get_users(req)
+            subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
+                                      user[EMAIL] and '<%s>' % user[EMAIL] or '',
+                                      user[NAME] and '%s' % user[NAME] or '',
+                                        user[USER])
+                            for value, user in users]  # value unused (placeholder needed for sorting)
+
+            groups = self._get_groups(req)
+            if groups:
+                subjects_groups = ['{"label":"%s||group","value":"%s"}' % (group, group) for group in groups]
+                subjects.extend(subjects_groups)
+
+                respond_str_subjects = ','.join(subjects).encode('utf-8')
+                respond_str_subjects = '[' + respond_str_subjects + ']'
+
+                respond_str_groups = ','.join(subjects_groups).encode('utf-8')
+                respond_str_groups = '[' + respond_str_groups + ']'
 
             js = """$(document).ready(function () {
-
+                    var subjects =  %(subject)s
+                    var groups =  %(group)s
                       $("#gp_subject").autocomplete( {
-                        source: "perm/user_list",
+                        source: subjects,
                         formatItem: formatItem
                       });
                       $("#sg_subject").autocomplete( {
-                        source: "user_list?groups=1",
+                        source: subjects,
                         formatItem: formatItem
                       });
                       $("#sg_group").autocomplete({
-                        source: "perm/user_list?groups=1&users=0",
+                        source: groups,
                         formatItem: formatItem
                       });
                     });"""
-
-        stream = stream | Transformer('.//head').append(tag.script(Markup(js),
+            js_ticket = js % {'subject': respond_str_subjects,
+                                'group': respond_str_groups
+                              }
+            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket),
                                                                    type='text/javascript'))
 
         return stream
@@ -874,7 +887,7 @@ class KeywordSuggestModule(Component):
     def post_process_request(self, req, template, data, content_type):
         if req.path_info.startswith('/ticket/') or \
                 req.path_info.startswith('/newticket') or \
-                (req.path_info.startswith('/wiki/')):
+                (req.path_info.startswith('/query')):
                 add_script(req, 'keywordssuggest/js/bootstrap-tagsinput.js')
                 add_stylesheet(req, 'keywordssuggest/css/bootstrap-tagsinput.css')
 
@@ -884,31 +897,94 @@ class KeywordSuggestModule(Component):
     def filter_stream(self, req, method, filename, stream, data):
 
         if not (filename == 'bh_ticket.html' or
-                    (filename == 'bh_wiki_edit.html')):
+                    (filename == 'bh_query.html')):
             return stream
 
         keywords = self._get_keywords_string(req)
         if not keywords:
             self.log.debug("""
                 No keywords found. KeywordSuggestPlugin is disabled.""")
+            keywords = []
 
-        js = """jQuery(document).ready(function($) {
-                    var keywords =  %(keywords)s
+        if filename == 'bh_ticket.html':
+            js = """jQuery(document).ready(function($) {
+                        var keywords =  %(keywords)s
 
 
-                    $('%(field)s').tagsinput({
-                        typeahead: {
-                            source: keywords
+                        $('%(field)s').tagsinput({
+                            typeahead: {
+                                source: keywords
+                                }
+                            });
+                    });"""
+
+        if filename == 'bh_query.html':
+            js = """$(document).ready(function ($) {
+                          function addAutocompleteBehavior() {
+                            var filters = $('#filters');
+                            var contains = $.contains // jQuery 1.4+
+                              || function (container, contained) {
+                              while (contained !== null) {
+                                if (container === contained)
+                                  return true;
+                                contained = contained.parentNode;
+                              }
+                              return false;
+                            };
+                            var listener = function (event) {
+                              var target = event.target || event.srcElement;
+                              filters.each(function () {
+                                if (contains(this, target)) {
+                                  var input = $(this).find('input:text').filter(function () {
+                                    return target === this;
+                                  });
+                                  var name = input.attr('name');
+                                  if (input.attr('autocomplete') !== 'off' &&
+                                    /^(?:[0-9]+_)?(?:keywords)$/.test(name)) {
+                                    input.tagsinput({
+                                        typeahead: {
+                                            source: %(keywords)s
+                                            }
+                                        });
+                                    input.focus(); // XXX Workaround for Trac 0.12.2 and jQuery 1.4.2
+                                  }
+                                }
+                              });
+                            };
+                            if ($.fn.on) {
+                              // delegate method is available in jQuery 1.7+
+                              filters.on('focusin', 'input:text', listener);
                             }
-                        });
+                            else if ($.fn.delegate) {
+                              // delegate method is available in jQuery 1.4.2+
+                              filters.delegate('input:text', 'focus', listener);
+                            }
+                            else if (window.addEventListener) {
+                              // use capture=true cause focus event doesn't bubble in the default
+                              filters.each(function () {
+                                this.addEventListener('focus', listener, true);
+                              });
+                            }
+                            else {
+                              // focusin event bubbles, the event is avialable for IE only
+                              filters.each(function () {
+                                this.attachEvent('onfocusin', listener);
+                              });
+                            }
+                          }
+                          addAutocompleteBehavior();
                 });"""
-
         # inject transient part of javascript directly into ticket.html template
         if req.path_info.startswith('/ticket/') or \
                 req.path_info.startswith('/newticket'):
             js_ticket = js % {'field': '#field-' + self.field_opt,
                               'keywords': keywords
                               }
+            stream = stream | Transformer('.//head').append \
+                (tag.script(Markup(js_ticket),
+                            type='text/javascript'))
+        if req.path_info.startswith('/query'):
+            js_ticket = js % {'keywords': keywords}
             stream = stream | Transformer('.//head').append \
                 (tag.script(Markup(js_ticket),
                             type='text/javascript'))
@@ -928,10 +1004,14 @@ class KeywordSuggestModule(Component):
 
     # Private methods
     def _get_keywords_string(self, req):
+
         # get keywords from db
         db = self.env.get_db_cnx()
         cursor = db.cursor()
-        cursor.execute("""SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null""")
+        product = self.env.product._data['prefix']
+        sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null AND t.product ='%s'""" % product
+
+        cursor.execute(sql)
         keywords = []
         for row in cursor:
             if not row[0] == '':
