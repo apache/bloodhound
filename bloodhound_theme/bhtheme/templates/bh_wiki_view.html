@@ -143,6 +143,12 @@
                 <button class="btn" type="submit" name="rename_page_button">${_('Rename page')}</button>
               </div>
             </form>
+			<form method="get" style="display:inline" action="${href.query()}" id="batchcreate">
+              <input type="hidden" name="actionticketbatchcreate" value="rename" />
+              <div class="btn-group">
+                <button class="btn" type="submit" name="batchcreate">${_('Batch Create')}</button>
+              </div>
+            </form>
             <form method="get" style="display:inline" action="${href.wiki(page.name)}" py:if="page.exists and delete_perm">
               <input type="hidden" name="action" value="delete" />
               <input type="hidden" name="version" value="$page.version" />
