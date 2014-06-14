@@ -8,39 +8,36 @@
   <field name="_root_" type="string" indexed="true" stored="false"/>
 
   <!-- BH fields -->
-  <field name="unique_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
   <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+  <field name="unique_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
   <field name="type" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="product" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="milestone" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="time" type="date" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="due" type="date" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="completed" type="date" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="author" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="component" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="resolution" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="keywords" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="summary" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="content" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="changes" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="owner" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="repository" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="revision" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="message" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="required_permission" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="name" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="query_suggestion_basket" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field name="relations" type="lowercase" indexed="true" stored="true" required="true" multiValued="false"/>
-  <field/>
-
-
-  <field name="name" type="text_general" indexed="true" stored="true"/>
+  <field name="product" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="milestone" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="time" type="date" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="due" type="date" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="completed" type="date" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="author" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="component" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="status" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="resolution" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="keywords" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="summary" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="content" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="changes" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="owner" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="repository" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="revision" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="message" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="required_permission" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="name" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
+  <field name="_stored_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+  <!-- <field name="query_suggestion_basket" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/> -->
+  <!-- <field name="relations" type="lowercase" indexed="true" stored="true" required="true" multiValued="false"/> -->
 </fields>
 
 <uniqueKey>unique_id</uniqueKey>
 
-<copyField source="name" dest="text"/>
+<!-- <copyField source="name" dest="text"/> -->
 
 <types>
   <!-- Field type definitions -->
@@ -60,13 +57,16 @@
       <filter class="solr.LowerCaseFilterFactory"/>
     </analyzer>
   </fieldType>
+
   <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+
   <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
-  <analyzer>
-    <tokenizer class="solr.KeywordTokenizerFactory"/>
-    <filter class="solr.LowerCaseFilterFactory" />
-  </analyzer>
-</fieldType>
+    <analyzer>
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory" />
+    </analyzer>
+  </fieldType>
+</types>
 
 </schema>
 

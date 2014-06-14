@@ -1,17 +1,34 @@
-"""setup for embeddable objects plugin"""
-from setuptools import setup
+from setuptools import setup, find_packages
+
+PKG_INFO = {'bhsolr': ['htdocs/*.*', 'templates/*', 'schemadoc/*.xml'],
+            'bhsolr.search_resources' : [],
+            }
+
+
+
+ENTRY_POINTS = {
+          'trac.plugins': [
+          'bhsolr.web_ui = bhsolr.web_ui',
+          'bhsolr.api = bhsolr.api',
+          'bhsolr.solr = bhsolr.solr',
+          'bhsolr.solr_backend = bhsolr.solr_backend',
+          'bhsolr.search_resources.ticket_search = bhsolr.search_resources.ticket_search',
+          'bhsolr.search_resources.milestone_search = bhsolr.search_resources.milestone_search',
+          'bhsolr.search_resources.changeset_search = bhsolr.search_resources.changeset_search',
+          'bhsolr.search_resources.wiki_search = bhsolr.search_resources.wiki_search'
+      ],}
 
 setup(
-    name = 'BloodhoundSolrPlugin',
-    version = '0.1',
-    description = "Apache Solr support for Apache(TM) Bloodhound.",
-    author = "Apache Bloodhound",
-    license = "Apache License v2",
-    url = "http://bloodhound.apache.org/",
-    packages = ['bhsolr',],
-    package_data = {'bhsolr' : []},
-    entry_points = {'trac.plugins': ['bhsolr.index = bhsolr.index'],},
-    test_suite='bhsorl.tests.test_suite',
+  name = 'BloodhoundSolrPlugin',
+  version = '0.1',
+  description = "Apache Solr support for Apache(TM) Bloodhound.",
+  author = "Apache Bloodhound",
+  license = "Apache License v2",
+  url = "http://bloodhound.apache.org/",
+  # package_dir = PKG_INFO,
+  packages = find_packages(),
+  package_data = PKG_INFO,
+  include_package_data=True,
+  entry_points = ENTRY_POINTS,
+  test_suite='bhsolr.tests.test_suite',
 )
-
-

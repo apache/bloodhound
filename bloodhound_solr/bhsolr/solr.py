@@ -3,8 +3,8 @@ from httplib2 import Http
 
 class Solr():
 
-  def __init__(self, solr_url, schema_file):
-  """ Creates a SolrInterface object with the solr server url and a custom schema
+  def __init__(self, solr_url):
+    """ Creates a SolrInterface object with the solr server url and a custom schema
       file"""
     self.solr_url = solr_url
-    self.solr_interface = SolrInterface(url=solr_url, schemadoc=schema_file)
+    self.solr_interface = SolrInterface(url=solr_url)
