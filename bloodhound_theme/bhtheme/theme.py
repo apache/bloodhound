@@ -698,11 +698,10 @@ class AutocompleteUsers(Component):
     # IRequestHandler methods
 
     def match_request(self, req):
-        return req.path_info.rstrip('/') == '/user_list'
+        return req.path_info.rstrip('/') == '/user_list' or req.path_info.rstrip('/') == '/ticket/user_list'
 
     def process_request(self, req):
 
-        subjects = ['admin','adam','test','user1']
         if req.args.get('users', '1') == '1':
             users = self._get_users(req)
             subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
@@ -754,30 +753,54 @@ class AutocompleteUsers(Component):
         if filename == 'bh_ticket.html':
 
             restrict_owner = self.env.config.getbool('ticket', 'restrict_owner')
+            if req.path_info.startswith('/ticket/'):
+                js = """$(document).bind('DOMSubtreeModified', function (){
+                            $( "#field-cc" ).autocomplete({
+                                source: "user_list"
+                                multiple: true,
+                                formatItem: formatItem,
+                                delay: 100
+                            });
+                        });"""
+                if not restrict_owner:
+                    js = """$(document).bind('DOMSubtreeModified', function (){
 
-            js = """jQuery(document).ready(function($) {
+                            $( "#field-cc" ).autocomplete({
+                                source: "user_list",
+                                multiple: true,
+                                formatItem: formatItem,
+                                delay: 100
+                            });
+                            $( "#field-reporter" ).autocomplete({
+                                source: "user_list",
+                                formatItem: formatItem
+                            });
+                        });"""
+            else:
 
-                        $( "#field-cc" ).autocomplete({
-                            source: "user_list"
-                            multiple: true,
-                            formatItem: formatItem,
-                            delay: 100
-                        });
-                    });"""
-            if not restrict_owner:
                 js = """jQuery(document).ready(function($) {
 
-                        $( "#field-cc" ).autocomplete({
-                            source: "user_list",
-                            multiple: true,
-                            formatItem: formatItem,
-                            delay: 100
-                        });
-                        $( "#field-reporter" ).autocomplete({
-                            source: "user_list",
-                            formatItem: formatItem
-                        });
-                    });"""
+                            $( "#field-cc" ).autocomplete({
+                                source: "user_list"
+                                multiple: true,
+                                formatItem: formatItem,
+                                delay: 100
+                            });
+                        });"""
+                if not restrict_owner:
+                    js = """jQuery(document).ready(function($) {
+
+                            $( "#field-cc" ).autocomplete({
+                                source: "user_list",
+                                multiple: true,
+                                formatItem: formatItem,
+                                delay: 100
+                            });
+                            $( "#field-reporter" ).autocomplete({
+                                source: "user_list",
+                                formatItem: formatItem
+                            });
+                        });"""
             stream = stream | Transformer('.//head').append(tag.script(Markup(js),
                                                                    type='text/javascript'))
 
@@ -907,16 +930,30 @@ class KeywordSuggestModule(Component):
             keywords = []
 
         if filename == 'bh_ticket.html':
-            js = """jQuery(document).ready(function($) {
+            if req.path_info.startswith('/ticket/'):
+                js = """
+                jQuery(document).ready(function($) {
+                $('#field-keywords').bind('DOMSubtreeModified', function (){
                         var keywords =  %(keywords)s
-
-
                         $('%(field)s').tagsinput({
                             typeahead: {
                                 source: keywords
                                 }
                             });
-                    });"""
+                            });
+                    });
+                    """
+            else:
+                js = """jQuery(document).ready(function($) {
+                            var keywords =  %(keywords)s
+
+
+                            $('%(field)s').tagsinput({
+                                typeahead: {
+                                    source: keywords
+                                    }
+                                });
+                        });"""
 
         if filename == 'bh_query.html':
             js = """$(document).ready(function ($) {
