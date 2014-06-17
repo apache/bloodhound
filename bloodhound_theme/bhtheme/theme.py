@@ -17,7 +17,9 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import re
 import sys
+from datetime import datetime
 
 from genshi.builder import tag
 from genshi.core import TEXT
@@ -27,16 +29,20 @@ from genshi.output import DocType
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
+from trac.perm import IPermissionRequestor
 from trac.resource import get_resource_url, Neighborhood, Resource
+from trac.ticket import TicketSystem
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
+from trac.util.datefmt import utc
 from trac.util.presentation import to_json
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
                              ITemplateProvider, prevnext_nav, Chrome, add_script)
+from trac.web.main import IRequestHandler
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.formatter import format_to_html
 
@@ -613,11 +619,19 @@ class QuickCreateTicketDialog(Component):
         try:
             tm = self._get_ticket_module()
             req.perm.require('TICKET_CREATE')
-            summary = req.args.pop('field_summary', '')
-            desc = ""
-            attrs = dict([k[6:], v] for k, v in req.args.iteritems()
+            if 'field_summary' in req.args:
+                summary = req.args.pop('field_summary', '')
+                desc = ""
+                attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
-            product, tid = self.create(req, summary, desc, attrs, True)
+
+                product, tid = self.create(req, summary, desc, attrs, True)
+            elif 'field_summary' not in req.args:
+                attrs = dict([k[6:], v] for k, v in req.args.iteritems()
+                         if k.startswith('field_'))
+                #new_tkts variable will contain the tickets that have been created as a batch
+                #that information will be used to load the resultant query table
+                product, tid, new_tkts = self.batch_create(req, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
@@ -670,6 +684,44 @@ class QuickCreateTicketDialog(Component):
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
+    # Public API
+    def batch_create(self, req, attributes={}, notify=False):
+        """ Create batch of tickets, returning created tickets.
+
+        """
+        num_of_tkts = attributes.__len__()/4
+        for i in range(0,num_of_tkts):
+            if 'product'+str(i) in attributes:
+                env = self.env.parent or self.env
+                if attributes['product'+str(i)]:
+                    env = ProductEnvironment(env, attributes['product'+str(i)])
+            else:
+                env = self.env
+            description = attributes.pop('description'+str(i))
+            status = attributes.pop('status'+str(i))
+            summary = attributes.pop('summary'+str(i))
+            product = attributes.pop('product'+str(i))
+
+            t = Ticket(env)
+            t['summary'] = summary
+            t['description'] = description
+            t['reporter'] = req.authname
+            t['status'] = status
+            t['resolution'] = ''
+            t['product'] = product
+            t.insert()
+
+            if notify:
+                try:
+                    tn = TicketNotifyEmail(env)
+                    tn.notify(t, newticket=True)
+                except Exception, e:
+                    self.log.exception("Failure sending notification on creation "
+                                   "of ticket #%s: %s" % (t.id, e))
+        prev_max=t._get_max_ticket_id()[0][0]-num_of_tkts
+        created_tickets = t._get_tickets_by_id(prev_max+1)
+        return t['product'], t.id, created_tickets
+
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
