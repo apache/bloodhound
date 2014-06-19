@@ -25,6 +25,8 @@ from genshi.builder import tag
 from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
+from genshi.core import Markup
+from genshi import HTML
 
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
@@ -619,19 +621,11 @@ class QuickCreateTicketDialog(Component):
         try:
             tm = self._get_ticket_module()
             req.perm.require('TICKET_CREATE')
-            if 'field_summary' in req.args:
-                summary = req.args.pop('field_summary', '')
-                desc = ""
-                attrs = dict([k[6:], v] for k, v in req.args.iteritems()
+            summary = req.args.pop('field_summary', '')
+            desc = ""
+            attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
-
-                product, tid = self.create(req, summary, desc, attrs, True)
-            elif 'field_summary' not in req.args:
-                attrs = dict([k[6:], v] for k, v in req.args.iteritems()
-                         if k.startswith('field_'))
-                #new_tkts variable will contain the tickets that have been created as a batch
-                #that information will be used to load the resultant query table
-                product, tid, new_tkts = self.batch_create(req, attrs, True)
+            product, tid = self.create(req, summary, desc, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
@@ -684,10 +678,282 @@ class QuickCreateTicketDialog(Component):
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
+
+from pkg_resources import get_distribution
+application_version = get_distribution('BloodhoundTheme').version
+
+################################################################################################################
+
+class BatchCreateTicketDialog(Component):
+    implements(IRequestFilter, IRequestHandler, ITemplateStreamFilter)
+    bct_fields = ListOption('ticket', 'batch_create_fields',
+                            'product, version, type',
+        doc="""Multiple selection fields displayed in create ticket menu""",
+                            doc_domain='bhtheme')
+
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        super(BatchCreateTicketDialog, self).__init__(*args, **kwargs)
+
+    # IRequestFilter(Interface):
+
+    def pre_process_request(self, req, handler):
+        """Nothing to do.
+        """
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """Append necessary ticket data
+        """
+        try:
+            tm = self._get_ticket_module()
+        except TracError:
+            # no ticket module so no create ticket button
+            return template, data, content_type
+
+        if (template, data, content_type) != (None,) * 3:  # TODO: Check !
+            if data is None:
+                data = {}
+            dum_req = dummy_request(self.env)
+            dum_req.perm = req.perm
+            ticket = Ticket(self.env)
+            tm._populate(dum_req, ticket, False)
+            all_fields = dict([f['name'], f]
+                              for f in tm._prepare_fields(dum_req, ticket)
+                              if f['type'] == 'select')
+
+            product_field = all_fields.get('product')
+            if product_field:
+                # When at product scope, set the default selection to the
+                # product at current scope. When at global scope the default
+                # selection is determined by [ticket] default_product
+                if self.env.product and \
+                        self.env.product.prefix in product_field['options']:
+                    product_field['value'] = self.env.product.prefix
+                # Transform the options field to dictionary of product
+                # attributes and filter out products for which user doesn't
+                #  have TICKET_CREATE permission
+                product_field['options'] = [
+                    dict(value=p,
+                         new_ticket_url=dum_req.href.products(p, 'newticket'),
+                         description=ProductEnvironment.lookup_env(self.env, p)
+                                                       .product.name
+                    )
+                for p in product_field['options']
+                    if req.perm.has_permission('TICKET_CREATE',
+                                               Neighborhood('product', p)
+                                               .child(None, None))]
+            else:
+                msg = _("Missing ticket field '%(field)s'.", field='product')
+                if ProductTicketModule is not None and \
+                        self.env[ProductTicketModule] is not None:
+                    # Display warning alert to users
+                    add_warning(req, msg)
+                else:
+                    # Include message in logs since this might be a failure
+                    self.log.warning(msg)
+            data['bct'] = {
+                'fields': [all_fields[k] for k in self.bct_fields
+                           if k in all_fields],
+                'hidden_fields': [all_fields[k] for k in all_fields.keys()
+                                  if k not in self.bct_fields] }
+        return template, data, content_type
+
+    # IRequestHandler methods
+
+    def match_request(self, req):
+        """Handle requests sent to /bct
+        """
+        m = PRODUCT_RE.match(req.path_info)
+        return req.path_info == '/bct' or \
+            (m and m.group('pathinfo').strip('/') == 'bct')
+
+    def process_request(self, req):
+
+        self.log.debug("BatchCreateTicketsModule: process_request entered")
+        """Forward new ticket request to `trac.ticket.web_ui.TicketModule`
+        but return plain text suitable for AJAX requests.
+        """
+        try:
+            tm = self._get_ticket_module()
+            req.perm.require('TICKET_CREATE')
+
+            attrs = dict([k[6:], v] for k, v in req.args.iteritems()
+                         if k.startswith('field_'))
+            #new_tkts variable will contain the tickets that have been created as a batch
+            #that information will be used to load the resultant query table
+            product, tid, new_tkts = self.batch_create(req, attrs, True)
+        except Exception, exc:
+            self.log.exception("BH: Batch create tickets failed %s" % (exc,))
+            req.send(str(exc), 'plain/text', 500)
+        else:
+            tres = Neighborhood('product', product)('ticket', tid)
+            href = req.href
+            req.send(to_json({'product': product, 'id': tid,
+                              'url': get_resource_url(self.env, tres, href)}),
+                     'application/json')
+
+    def _get_ticket_module(self):
+        ptm = None
+        if ProductTicketModule is not None:
+            ptm = self.env[ProductTicketModule]
+        tm = self.env[TicketModule]
+        if not (tm is None) ^ (ptm is None):
+            raise TracError('Unable to load TicketModule (disabled)?')
+        if tm is None:
+            tm = ptm
+        return tm
+
+    #Template Stream Filter methods
+    def filter_stream(self, req, method, filename, stream, data):
+        #headers = {'summary':'Summary','description':'Description','product':'Product','status':'Status','priority':'Priority','type':'Type','owner':'Owner','cc':'Cc','keywords':'Keywords','milestone':'Milestone'}
+        headers = {'summary':'Summary','description':'Description','product':'Product','status':'Status'}
+        xpath = '//div[@id="content"]'
+        div = tag.div(class_="span12", id="batch_create_empty_table")
+        text = tag.text("Batch Create Tickets")
+        h1 = tag.h1(text)
+        div.append(h1)
+        form = tag.form(id="qct-form", name="bct", method="post", action=req.href()+"/bct")
+        table = tag.table(class_="listing tickets table table-bordered table-condensed query", style="border-radius: 0px 0px 4px 4px")
+        tr = tag.tr(class_="trac-columns")
+        for header in sorted(headers):
+            font = tag.font(color="#1975D1")
+            text = tag.text(headers[header])
+            font.append(text)
+            th = tag.th(font)
+            tr.append(th)
+        table.append(tr)
+        tbody = tag.tbody()
+        for num in range(0,5):
+            tr_rows = tag.tr()
+            for header in sorted(headers):
+                if header == "summary":
+                    td_row = tag.td()
+                    input_summary = tag.input(type="text", id = "field-summary"+str(num), class_="input-block-level", name="field_summary"+str(num))
+                    td_row.append(input_summary)
+                    tr_rows.append(td_row)
+                elif header == "description":
+                    td_row = tag.td()
+                    input_description = tag.textarea(id = "field-description"+str(num), name="field_description"+str(num), class_="input-block-level", rows="1", cols="28")
+                    td_row.append(input_description)
+                    tr_rows.append(td_row)
+                elif header == "status":
+                    td_row = tag.td()
+                    input_status = tag.select(id = "field-status"+str(num), name="field_status"+str(num))
+                    option = tag.option(value="accepted")
+                    text = tag.text("accepted")
+                    option.append(text)
+                    input_status.append(option)
+                    option = tag.option(value="assigned")
+                    text = tag.text("assigned")
+                    option.append(text)
+                    input_status.append(option)
+                    option = tag.option(value="closed")
+                    text = tag.text("closed")
+                    option.append(text)
+                    input_status.append(option)
+                    option = tag.option(value="new", selected="selected")
+                    text = tag.text("new")
+                    option.append(text)
+                    input_status.append(option)
+                    option = tag.option(value="reopened")
+                    text = tag.text("reopened")
+                    option.append(text)
+                    input_status.append(option)
+                    td_row.append(input_status)
+                    tr_rows.append(td_row)
+                elif header == "priority":
+                    td_row = tag.td()
+                    input_priority = tag.select(id = "field-priority"+str(num), name="field_priority"+str(num))
+                    option = tag.option(value="blocker")
+                    text = tag.text("blocker")
+                    option.append(text)
+                    input_priority.append(option)
+                    option = tag.option(value="critical")
+                    text = tag.text("critical")
+                    option.append(text)
+                    input_priority.append(option)
+                    option = tag.option(value="major")
+                    text = tag.text("major")
+                    option.append(text)
+                    input_priority.append(option)
+                    option = tag.option(value="minor", selected="selected")
+                    text = tag.text("minor")
+                    option.append(text)
+                    input_priority.append(option)
+                    option = tag.option(value="trivial")
+                    text = tag.text("trivial")
+                    option.append(text)
+                    input_priority.append(option)
+                    td_row.append(input_priority)
+                    tr_rows.append(td_row)
+                elif header=="type":
+                    td_row = tag.td()
+                    input_type = tag.select(id = "field-type"+str(num), name="field_type"+str(num))
+                    option = tag.option(value="defect")
+                    text = tag.text("defect")
+                    option.append(text)
+                    input_type.append(option)
+                    option = tag.option(value="enhancement")
+                    text = tag.text("enhancement")
+                    option.append(text)
+                    input_type.append(option)
+                    option = tag.option(value="task", selected="selected")
+                    text = tag.text("task")
+                    option.append(text)
+                    input_type.append(option)
+                    td_row.append(input_type)
+                    tr_rows.append(td_row)
+                elif header == "product":
+                    td_row = tag.td()
+                    input_product = tag.select(id = "field-product"+str(num), name="field_product"+str(num))
+                    option = tag.option(value="")
+                    text = tag.text("Choose...")
+                    option.append(text)
+                    input_product.append(option)
+                    option = tag.option(value="@")
+                    text = tag.text("Default")
+                    option.append(text)
+                    input_product.append(option)
+                    td_row.append(input_product)
+                    tr_rows.append(td_row)
+                elif header == "owner":
+                    td_row = tag.td()
+                    input_owner = tag.input(type="text", id = "field-owner"+str(num), class_="input-block-level", name="field_owner"+str(num))
+                    td_row.append(input_owner)
+                    tr_rows.append(td_row)
+                elif header == "cc":
+                    td_row = tag.td()
+                    input_cc = tag.input(type="text", id = "field-cc"+str(num), class_="input-block-level", name="field_cc"+str(num))
+                    td_row.append(input_cc)
+                    tr_rows.append(td_row)
+                elif header == "milestone":
+                    td_row = tag.td()
+                    input_cc = tag.input(type="text", id = "field-milestone"+str(num), class_="input-block-level", name="field_milestone"+str(num))
+                    td_row.append(input_cc)
+                    tr_rows.append(td_row)
+                elif header == "keywords":
+                    td_row = tag.td()
+                    input_cc = tag.input(type="text", id = "field-keywords"+str(num), class_="input-block-level", name="field_keywords"+str(num))
+                    td_row.append(input_cc)
+                    tr_rows.append(td_row)
+            tbody.append(tr_rows)
+        table.append(tbody)
+        form.append(table)
+        div_button = tag.div(class_="btn-group pull-right")
+        input_button = tag.input(type="submit", class_="btn pull-right", name="save", value="save")
+        div_button.append(input_button)
+        form.append(div_button)
+        div.append(form)
+        div.append("\n")
+        stream |= Transformer(xpath).append(div)
+        return stream
+
     # Public API
     def batch_create(self, req, attributes={}, notify=False):
         """ Create batch of tickets, returning created tickets.
-
         """
         num_of_tkts = attributes.__len__()/4
         for i in range(0,num_of_tkts):
@@ -722,6 +988,3 @@ class QuickCreateTicketDialog(Component):
         created_tickets = t._get_tickets_by_id(prev_max+1)
         return t['product'], t.id, created_tickets
 
-
-from pkg_resources import get_distribution
-application_version = get_distribution('BloodhoundTheme').version

@@ -126,8 +126,27 @@ $(function() {
     }
   }
 
+  // Update QCT select fields on product change.
   $('#field-product').change(function(e) {
     set_qct_more_enabled($(this).val());
+    $qct_form = $('#qct-form');
+    var product = $qct_form.find('#field-product').val()
+    if(product) {
+      var form_token = $qct_form.find('input[name="__FORM_TOKEN"]').val();
+      var fields_to_update = ['version', 'type'];
+      $.post('update-menus', { product: product, __FORM_TOKEN: form_token,
+          fields_to_update: fields_to_update }).done(function(data) {
+        $.each(data, function(i, v) {
+          $field = $('#field-' + i);
+          $field.empty();
+          $field.append('<option value="">Choose...</option>');
+          $.each(v, function(i, v) {
+            $field.append('<option value="' + v + '">' + v + '</option>');
+          });
+
+        });
+      });
+    }
   });
 
   set_qct_more_enabled($('#field-product').val());
