@@ -17,7 +17,13 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import unittest
 from tests import TestLoader
 
+
 def test_suite():
-    return TestLoader().discover_package(__name__, pattern='*.py')
+    return TestLoader().discover_package(__package__, pattern='*.py')
+
+
+if __name__ == '__main__':
+    unittest.main(defaultTest='test_suite')

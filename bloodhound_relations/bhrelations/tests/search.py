@@ -16,6 +16,7 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 import shutil
 import tempfile
 import unittest
@@ -24,12 +25,13 @@ from bhsearch.api import BloodhoundSearchApi
 
 # TODO: Figure how to get trac to load components from these modules
 import bhsearch.query_parser, bhsearch.search_resources.ticket_search, \
-    bhsearch.whoosh_backend
+       bhsearch.whoosh_backend
 import bhrelations.search
-from bhrelations.tests.base import BaseRelationsTestCase
+from bhrelations.tests.base import BaseRelationsTestCase, DEPENDENCY_OF
 
 
 class SearchIntegrationTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self, enabled=['bhsearch.*'])
         self.global_env.path = tempfile.mkdtemp('bhrelations-tempenv')
@@ -44,36 +46,39 @@ class SearchIntegrationTestCase(BaseRelationsTestCase):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
 
-        self.relations_system.add(t1, t2, 'dependent')
+        self.add_relation(t1, DEPENDENCY_OF, t2)
 
-        result = self.search_api.query('dependent:#2')
+        result = self.search_api.query('%s:#2' % DEPENDENCY_OF)
         self.assertEqual(result.hits, 1)
 
     def test_relations_are_indexed_on_deletion(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
 
-        self.relations_system.add(t1, t2, 'dependent')
-        relations = self.relations_system.get_relations(t1)
+        self.add_relation(t1, DEPENDENCY_OF, t2)
+        relations = self.get_relations(t1)
         self.relations_system.delete(relations[0]["relation_id"])
 
-        result = self.search_api.query('dependent:#2')
+        result = self.search_api.query('%s:#2' % DEPENDENCY_OF)
         self.assertEqual(result.hits, 0)
 
     def test_different_types_of_queries(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
 
-        self.relations_system.add(t1, t2, 'dependent')
+        self.add_relation(t1, DEPENDENCY_OF, t2)
 
-        self.assertEqual(self.search_api.query('dependent:#2').hits, 1)
-        self.assertEqual(self.search_api.query('dependent:#tp1-2').hits, 1)
+        self.assertEqual(self.search_api.query('%s:#2'
+                                               % DEPENDENCY_OF).hits, 1)
+        self.assertEqual(self.search_api.query('%s:#tp1-2'
+                                               % DEPENDENCY_OF).hits, 1)
 
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(SearchIntegrationTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(SearchIntegrationTestCase))
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main()

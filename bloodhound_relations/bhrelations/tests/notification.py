@@ -16,15 +16,18 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 import unittest
+
 from trac.tests.notification import SMTPServerStore, SMTPThreadedServer
-from trac.ticket.tests.notification import (
-    SMTP_TEST_PORT, smtp_address, parse_smtp_message)
-from bhrelations.tests.base import BaseRelationsTestCase
+from trac.ticket.tests.notification import SMTP_TEST_PORT, smtp_address
+
+from bhrelations.tests.base import DEPENDENCY_OF, BaseRelationsTestCase
 from bhrelations.notification import RelationNotifyEmail
 
 
 class NotificationTestCase(BaseRelationsTestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.smtpd = CustomSMTPThreadedServer(SMTP_TEST_PORT)
@@ -54,7 +57,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         """To/Cc recipients"""
         ticket = self._insert_and_load_ticket(
             'Foo',
-            reporter= '"Joe User" < joe.user@example.org >',
+            reporter='"Joe User" < joe.user@example.org >',
             owner='joe.user@example.net',
             cc='joe.user@example.com, joe.bar@example.org, '
                'joe.bar@example.net'
@@ -65,8 +68,7 @@ class NotificationTestCase(BaseRelationsTestCase):
             owner='bob.user@example.net',
             cc='bob.user@example.com, bob.bar@example.org, '
                'bob.bar@example.net')
-        relation = self.relations_system.add(
-            ticket, ticket2, "dependent")
+        relation = self.add_relation(ticket, DEPENDENCY_OF, ticket2)
 
         self.notifier.notify(relation)
 
@@ -93,7 +95,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         ticket = self._insert_and_load_ticket('Foo', reporter='anonymous')
         ticket2 = self._insert_and_load_ticket('Bar', reporter='anonymous')
 
-        relation = self.relations_system.add(ticket, ticket2, "dependent")
+        relation = self.add_relation(ticket, DEPENDENCY_OF, ticket2)
         self.notifier.notify(relation)
 
         sender = self.smtpd.get_sender()
@@ -108,7 +110,7 @@ class NotificationTestCase(BaseRelationsTestCase):
         ticket = self._insert_and_load_ticket('Foo', reporter='anonymous')
         ticket2 = self._insert_and_load_ticket('Bar', reporter='anonymous')
 
-        relation = self.relations_system.add(ticket, ticket2, "dependent")
+        relation = self.add_relation(ticket, DEPENDENCY_OF, ticket2)
         self.notifier.notify(relation)
 
         relations = self.env.db_direct_query(
@@ -151,8 +153,9 @@ class CustomSMTPThreadedServer(SMTPThreadedServer):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(NotificationTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(NotificationTestCase))
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main()

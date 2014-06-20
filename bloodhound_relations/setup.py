@@ -41,14 +41,14 @@ versions = [
 latest = '.'.join(str(x) for x in versions[-1])
 
 status = {
-            'planning' :  "Development Status :: 1 - Planning",
-            'pre-alpha' : "Development Status :: 2 - Pre-Alpha",
-            'alpha' :     "Development Status :: 3 - Alpha",
-            'beta' :      "Development Status :: 4 - Beta",
-            'stable' :    "Development Status :: 5 - Production/Stable",
-            'mature' :    "Development Status :: 6 - Mature",
-            'inactive' :  "Development Status :: 7 - Inactive"
-         }
+    'planning' :  "Development Status :: 1 - Planning",
+    'pre-alpha' : "Development Status :: 2 - Pre-Alpha",
+    'alpha' :     "Development Status :: 3 - Alpha",
+    'beta' :      "Development Status :: 4 - Beta",
+    'stable' :    "Development Status :: 5 - Production/Stable",
+    'mature' :    "Development Status :: 6 - Mature",
+    'inactive' :  "Development Status :: 7 - Inactive"
+    }
 dev_status = status["alpha"]
 
 cats = [
@@ -115,8 +115,8 @@ ENTRY_POINTS = {
 
 extra = {}
 try:
-    from trac.util.dist import get_l10n_js_cmdclass
-    cmdclass = get_l10n_js_cmdclass()
+    from trac.util.dist import get_l10n_cmdclass
+    cmdclass = get_l10n_cmdclass()
     if cmdclass:
         extra['cmdclass'] = cmdclass
         extractors = [
@@ -140,10 +140,6 @@ setup(
     license = "Apache License v2",
     url = "https://bloodhound.apache.org/",
     requires = ['trac'],
-    install_requires = [
-        'setuptools>=0.6b1',
-        'Trac>=0.11',
-    ],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),
     package_data = dict([p, i[1]] for p, i in PKG_INFO.iteritems()),

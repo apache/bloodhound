@@ -42,7 +42,7 @@ class SecurityPreprocessor(Component):
             self._required_permissions[doc_type] = permission
 
     def check_permission(self, doc, context):
-        product, doctype, id = doc['product'], doc['type'], doc['id']
+        product, doctype, id = doc.get('product'), doc['type'], doc['id']
         username = context.req.authname
         env = self.env
         if product:

@@ -255,8 +255,8 @@ class PostgreSQLConnection(ConnectionWrapper):
 
     def update_sequence(self, cursor, table, column='id'):
         cursor.execute("""
-            SELECT setval('"%s_%s_seq"', (SELECT MAX(id) FROM %s))
-            """ % (table, column, table))
+            SELECT setval('"%s_%s_seq"', (SELECT MAX(%s) FROM %s))
+            """ % (table, column, column, table))
 
     def cursor(self):
         return IterableCursor(self.cnx.cursor(), self.log)

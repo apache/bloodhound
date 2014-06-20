@@ -16,10 +16,11 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 import unittest
 
-from bhrelations.validation import Validator
 from bhrelations.tests.base import BaseRelationsTestCase
+from bhrelations.validation import Validator
 
 
 class GraphFunctionsTestCase(BaseRelationsTestCase):
@@ -45,55 +46,34 @@ class GraphFunctionsTestCase(BaseRelationsTestCase):
         self.validator = Validator(self.env)
 
     def test_find_path(self):
-        self.assertEqual(
-            self.validator._find_path(u'A', u'E', u'p'),
-            [u'A', u'C', u'E'])
-        self.assertEqual(
-            self.validator._find_path(u'A', u'G', u'p'),
-            [u'A', u'C', u'E', u'F', u'G'])
-        self.assertEqual(
-            self.validator._find_path(u'H', u'D', u'p'),
-            [u'H', u'C', u'D'])
-        self.assertEqual(
-            self.validator._find_path(u'E', u'A', u'p'),
-            None)
-        self.assertEqual(
-            self.validator._find_path(u'B', u'D', u'p'),
-            None)
+        self.assertEqual(self.validator._find_path(u'A', u'E', u'p'),
+                         [u'A', u'C', u'E'])
+        self.assertEqual(self.validator._find_path(u'A', u'G', u'p'),
+                         [u'A', u'C', u'E', u'F', u'G'])
+        self.assertEqual(self.validator._find_path(u'H', u'D', u'p'),
+                         [u'H', u'C', u'D'])
+        self.assertEqual(self.validator._find_path(u'E', u'A', u'p'), None)
+        self.assertEqual(self.validator._find_path(u'B', u'D', u'p'), None)
 
     def test_descendants(self):
-        self.assertEqual(
-            self.validator._descendants(u'B', u'p'),
-            set()
-        )
-        self.assertEqual(
-            self.validator._descendants(u'E', u'p'),
-            set([u'F', u'G'])
-        )
-        self.assertEqual(
-            self.validator._descendants(u'H', u'p'),
-            set([u'C', u'D', u'E', u'F', u'G'])
-        )
+        self.assertEqual(self.validator._descendants(u'B', u'p'), set())
+        self.assertEqual(self.validator._descendants(u'E', u'p'),
+                         set([u'F', u'G']))
+        self.assertEqual(self.validator._descendants(u'H', u'p'),
+                         set([u'C', u'D', u'E', u'F', u'G']))
 
     def test_ancestors(self):
-        self.assertEqual(
-            self.validator._ancestors(u'B', u'p'),
-            set([u'A'])
-        )
-        self.assertEqual(
-            self.validator._ancestors(u'E', u'p'),
-            set([u'A', u'C', u'H'])
-        )
-        self.assertEqual(
-            self.validator._ancestors(u'H', u'p'),
-            set()
-        )
+        self.assertEqual(self.validator._ancestors(u'B', u'p'), set([u'A']))
+        self.assertEqual(self.validator._ancestors(u'E', u'p'),
+                         set([u'A', u'C', u'H']))
+        self.assertEqual(self.validator._ancestors(u'H', u'p'), set())
 
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(GraphFunctionsTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(GraphFunctionsTestCase))
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main()

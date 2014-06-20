@@ -28,6 +28,7 @@ from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
 from trac.resource import get_resource_url, Neighborhood, Resource
+from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
@@ -47,7 +48,6 @@ from bhdashboard.web_ui import DashboardModule
 from bhdashboard import wiki
 
 from multiproduct.env import ProductEnvironment
-from multiproduct.model import Product
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
 from bhtheme.translation import _, add_domain
 
@@ -118,7 +118,7 @@ class BloodhoundTheme(ThemeBase):
         'report_edit.html': ('bh_report_edit.html', '_add_products_general_breadcrumb'),
         'report_list.html': ('bh_report_list.html', '_add_products_general_breadcrumb'),
         'report_view.html': ('bh_report_view.html', '_add_products_general_breadcrumb'),
-        'roadmap.html': ('roadmap.html', '_modify_roadmap_page'),
+        'roadmap.html': ('bh_roadmap.html', '_modify_roadmap_page'),
         'ticket.html': ('bh_ticket.html', '_modify_ticket'),
         'ticket_delete.html': ('bh_ticket_delete.html', None),
         'ticket_preview.html': ('bh_ticket_preview.html', None),
@@ -137,6 +137,7 @@ class BloodhoundTheme(ThemeBase):
         # Multi Product
         'product_view.html': ('bh_product_view.html', '_add_products_general_breadcrumb'),
         'product_list.html': ('bh_product_list.html', '_modify_product_list'),
+        'product_edit.html': ('bh_product_edit.html', '_add_products_general_breadcrumb'),
 
         # General purpose
         'about.html': ('bh_about.html', None),
@@ -518,6 +519,21 @@ class BloodhoundTheme(ThemeBase):
                        tag.a(_('Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
 
+class QCTSelectFieldUpdate(Component):
+    implements(IRequestHandler)
+
+    def match_request(self, req):
+        return req.path_info == '/update-menus'
+
+    def process_request(self, req):
+        product = req.args.get('product')
+        fields_to_update = req.args.get('fields_to_update[]');
+        env = ProductEnvironment(self.env.parent, req.args.get('product'))
+        ticket_fields = TicketSystem(env).get_ticket_fields()
+        data = dict([f['name'], f['options']]  for f in ticket_fields
+            if f['type'] == 'select' and f['name'] in fields_to_update)
+        req.send(to_json(data), 'application/json')
+
 
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
@@ -532,7 +548,7 @@ class QuickCreateTicketDialog(Component):
         locale_dir = pkg_resources.resource_filename(__name__, 'locale')
         add_domain(self.env.path, locale_dir)
         super(QuickCreateTicketDialog, self).__init__(*args, **kwargs)
-        
+
     # IRequestFilter(Interface):
 
     def pre_process_request(self, req, handler):
@@ -556,26 +572,31 @@ class QuickCreateTicketDialog(Component):
             dum_req.perm = req.perm
             ticket = Ticket(self.env)
             tm._populate(dum_req, ticket, False)
-            all_fields = dict([f['name'], self.add_prod_new_ticket_url(dum_req, f)]
+            all_fields = dict([f['name'], f]
                               for f in tm._prepare_fields(dum_req, ticket)
                               if f['type'] == 'select')
 
             product_field = all_fields.get('product')
             if product_field:
-                # Filter out products for which user doesn't have TICKET_CREATE
-                product_field['options'] = \
-                    [prefix for prefix in product_field['options']
-                     if req.perm.has_permission('TICKET_CREATE',
-                                                Neighborhood('product', prefix['value'])
-                                                    .child(None, None))]
-
+                # When at product scope, set the default selection to the
+                # product at current scope. When at global scope the default
+                # selection is determined by [ticket] default_product
                 if self.env.product and \
                         self.env.product.prefix in product_field['options']:
                     product_field['value'] = self.env.product.prefix
-                product_field['options_desc'] = [
-                    ProductEnvironment.lookup_env(self.env, p['value']).product.name
-                        for p in product_field['options']
-                ]
+                # Transform the options field to dictionary of product
+                # attributes and filter out products for which user doesn't
+                #  have TICKET_CREATE permission
+                product_field['options'] = [
+                    dict(value=p,
+                         new_ticket_url=dum_req.href.products(p, 'newticket'),
+                         description=ProductEnvironment.lookup_env(self.env, p)
+                                                       .product.name
+                    )
+                for p in product_field['options']
+                    if req.perm.has_permission('TICKET_CREATE',
+                                               Neighborhood('product', p)
+                                               .child(None, None))]
             else:
                 msg = _("Missing ticket field '%(field)s'.", field='product')
                 if ProductTicketModule is not None and \
@@ -665,18 +686,6 @@ class QuickCreateTicketDialog(Component):
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
-
-    def add_prod_new_ticket_url(self, req, fields):
-        if fields.get('name') == 'product':
-            options_with_attrs = []
-            for option in fields.get('options', []):
-                options_with_attrs.append({
-                    'value': option,
-                    'product_new_ticket_url': \
-                            req.href.products(option, 'newticket')
-                })
-            fields['options'] = options_with_attrs
-        return fields
 
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version

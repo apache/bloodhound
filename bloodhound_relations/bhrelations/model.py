@@ -17,9 +17,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from bhdashboard.model import ModelBase
 from trac.resource import Resource
 from trac.util.datefmt import to_utimestamp, from_utimestamp
+
+from bhdashboard.model import ModelBase
 
 
 class Relation(ModelBase):

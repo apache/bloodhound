@@ -20,29 +20,22 @@
 
 import os
 import pkg_resources
+import shutil
 import sys
-import traceback
-
-import ConfigParser
+from createdigest import htdigest_create
 from getpass import getpass
 from optparse import OptionParser
-import shutil
-import time
-
-from createdigest import htdigest_create
-
-LANG = os.environ.get('LANG')
 
 try:
-    from trac.util import translation
-    from trac.util.translation import _, get_negotiated_locale, has_babel
     from trac.admin.console import TracAdmin
     from trac.config import Configuration
+    from trac.util import translation
+    from trac.util.translation import _, get_negotiated_locale, has_babel
 except ImportError, e:
-    print ("Requirements should be installed before running bloodhound_setup.py.\n"
-           "You can install them with the following command:\n"
-           "   pip install -r requirements.txt\n")
-    traceback.print_exc()
+    print("Requirements must be installed before running "
+          "bloodhound_setup.py.\n"
+          "You can install them with the following command:\n"
+          "   pip install -r requirements.txt\n")
     sys.exit(1)
 
 try:
@@ -50,8 +43,16 @@ try:
 except ImportError:
     psycopg2 = None
 
+try:
+    import MySQLdb as mysqldb
+except ImportError:
+    mysqldb = None
+
+LANG = os.environ.get('LANG')
+
 MAXBACKUPNUMBER = 64  # Max attempts to create backup file
 
+SUPPORTED_DBTYPES = ('sqlite', 'postgres', 'mysql')
 DEFAULT_DB_USER = 'bloodhound'
 DEFAULT_DB_NAME = 'bloodhound'
 DEFAULT_ADMIN_USER = 'admin'
@@ -137,23 +138,27 @@ class BloodhoundSetup(object):
 
     def _generate_db_str(self, options):
         """Builds an appropriate db string for trac-admin for sqlite and
-        postgres options. Also allows for a user to provide their own db string
-        to allow database initialisation beyond these."""
-        dbdata = {'user': options.get('dbuser'),
+        postgres options. Also allows for a user to provide their own db
+        string to allow database initialisation beyond these."""
+        dbdata = {'type': options.get('dbtype', 'sqlite'),
+                  'user': options.get('dbuser'),
                   'pass': options.get('dbpass'),
                   'host': options.get('dbhost', 'localhost'),
-                  'port': options.get('dbport', '5432'),
+                  'port': options.get('dbport'),
                   'name': options.get('dbname', 'bloodhound'),
                   }
 
         db = options.get('dbstring')
         if db is None:
-            dbtype = options.get('dbtype', 'sqlite')
-            if (dbtype == 'postgres' and dbdata['user'] is not None
-                                     and dbdata['pass'] is not None):
-                db = 'postgres://%(user)s:%(pass)s@%(host)s:%(port)s/%(name)s'
+            if dbdata['type'] in ('postgres', 'mysql') \
+                    and dbdata['user'] is not None \
+                    and dbdata['pass'] is not None:
+                if dbdata['port'] is not None:
+                    db = '%(type)s://%(user)s:%(pass)s@%(host)s:%(port)s/%(name)s'
+                else:  # no port specified = default port
+                    db = '%(type)s://%(user)s:%(pass)s@%(host)s/%(name)s'
             else:
-                db = 'sqlite:%s' % os.path.join('db', '%(name)s.db')
+                db = '%%(type)s:%s' % os.path.join('db', '%(name)s.db')
         return db % dbdata
 
     def setup(self, **kwargs):
@@ -173,6 +178,9 @@ class BloodhoundSetup(object):
         options.update(kwargs)
         if psycopg2 is None and options.get('dbtype') == 'postgres':
             print "psycopg2 needs to be installed to initialise a postgresql db"
+            return False
+        elif mysqldb is None and options.get('dbtype') == 'mysql':
+            print "MySQLdb needs to be installed to initialise a mysql db"
             return False
 
         environments_path = options['envsdir']
@@ -304,7 +312,8 @@ And point your browser at http://localhost:8000/%s
         """Writes or updates a config file. A list of dictionaries is used so
         that options for different aspects of the configuration can be kept
         separate while being able to update the same sections. Note that the
-        result is order dependent where two dictionaries update the same option.
+        result is order dependent where two dictionaries update the same
+        option.
         """
         config = Configuration(filepath)
         file_changed = False
@@ -355,7 +364,7 @@ def handle_options():
                       help='Set the directory to contain environments',
                       default=os.path.join('bloodhound', 'environments'))
     parser.add_option('-d', '--database-type', dest='dbtype',
-                      help="Specify as either 'postgres' or 'sqlite'",
+                      help="Specify as either 'sqlite', 'postgres' or 'mysql'",
                       default='')
     parser.add_option('--database-string', dest='dbstring',
                       help=('Advanced: provide a custom database string, '
@@ -365,15 +374,15 @@ def handle_options():
                       help='Specify the database name',
                       default='bloodhound')
     parser.add_option('-u', '--user', dest='dbuser',
-                      help='Specify the db user (required for postgres)',
+                      help='Specify the db user (required for postgres and mysql)',
                       default='')
     parser.add_option('-p', '--password', dest='dbpass',
-                      help='Specify the db password (option for postgres)')
+                      help='Specify the db password (required for postgres and mysql)')
     parser.add_option('--database-host', dest='dbhost',
-                      help='Specify the database host (optional for postgres)',
+                      help='Specify the database host (optional for postgres and mysql)',
                       default='localhost')
     parser.add_option('--database-port', dest='dbport',
-                      help='Specify the database port (optional for postgres)',
+                      help='Specify the database port (optional for postgres and mysql)',
                       default='5432')
 
     # Account Manager Options
@@ -420,28 +429,33 @@ def handle_options():
             password2 = getpass('Please reenter the password: ')
             if password1 and password1 == password2:
                 return password1
-        print "Passwords did not match. Quitting."
+        print "Passwords did not match. Quiting."
         sys.exit(1)
 
-    if options.dbtype.lower() not in ['postgres','sqlite']:
-        answer = ask_question('''
-This installer is able to install Apache Bloodhound with either SQLite or
-PostgreSQL databases. SQLite is an easier option for installing Bloodhound as
-SQLite is usually built into Python and also requires no special permissions to
-run. However, PostgreSQL is generally expected to be more robust for production
-use.
-Do you want to install to a PostgreSQL database [%s]: ''', default='Y/n')
+    if options.dbtype.lower() not in SUPPORTED_DBTYPES:
+        answer = ask_question("""
+This installer is able to install Apache Bloodhound with either SQLite,
+PostgreSQL or MySQL databases. SQLite is an easier option for installing
+Bloodhound as SQLite support is built into Python and requires no special
+permissions to run. However, PostgreSQL and MySQL are generally expected to
+be more robust for production use.
+What type of database do you want to instant to (%s)?
+[%%s]: """ % '/'.join(SUPPORTED_DBTYPES), default='sqlite')
         answer = answer.lower()
-        options.dbtype = 'postgres' if answer not in ['n','no'] else 'sqlite'
+        if answer in SUPPORTED_DBTYPES:
+            options.dbtype = answer
+        else:
+            print "Unrecognized dbtype \"%s\". Quiting." % answer
+            sys.exit(1)
     else:
         options.dbtype = options.dbtype.lower()
 
-    if options.dbtype == 'postgres':
+    if options.dbtype in ('postgres','mysql'):
         if not options.dbuser:
             options.dbuser = ask_question("""
-For PostgreSQL you need to have PostgreSQL installed and you need to have
-created a database user to connect to the database with. Setting this up may
-require admin access rights to the server.
+For PostgreSQL/MySQL you need to have PostgreSQL/MySQL installed and you need
+to have created a database user to connect to the database with. Setting this 
+up may require admin access rights to the server.
 DB user name [%s]: """, DEFAULT_DB_USER)
 
         if not options.dbpass:
@@ -449,10 +463,9 @@ DB user name [%s]: """, DEFAULT_DB_USER)
 
         if not options.dbname:
             options.dbname = ask_question("""
-For PostgreSQL setup, you need to specify a database that you have created for
-Bloodhound to use. This installer currently assumes that this database will be
-empty.
-DB name [%s]: """, DEFAULT_DB_NAME)
+For PostgreSQL/MySQL setup, you need to specify a database that you have
+created for Bloodhound to use. This installer currently assumes that this
+database will be empty. DB name [%s]: """, DEFAULT_DB_NAME)
     if not options.adminuser:
         options.adminuser = ask_question("""
 Please supply a username for the admin user [%s]: """, DEFAULT_ADMIN_USER)
@@ -460,6 +473,7 @@ Please supply a username for the admin user [%s]: """, DEFAULT_ADMIN_USER)
         options.adminpass = ask_password(options.adminuser)
 
     return options
+
 
 if __name__ == '__main__':
     options = handle_options()

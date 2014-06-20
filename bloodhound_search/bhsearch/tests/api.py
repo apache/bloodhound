@@ -18,12 +18,14 @@
 #  under the License.
 import shutil
 
-from bhsearch.api import BloodhoundSearchApi, ASC, SortInstruction
+from bhsearch.api import BloodhoundSearchApi, ASC, SortInstruction, IIndexParticipant, IndexFields
 from bhsearch.query_parser import DefaultQueryParser
+from bhsearch.search_resources.base import BaseIndexer
 from bhsearch.search_resources.ticket_search import TicketSearchParticipant
 from bhsearch.tests import unittest
 from bhsearch.tests.base import BaseBloodhoundSearchTest
 from bhsearch.whoosh_backend import WhooshBackend
+from trac.core import implements, ComponentMeta
 
 
 class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
@@ -130,6 +132,28 @@ class ApiQueryWithWhooshTestCase(BaseBloodhoundSearchTest):
         results = self.search_api.query("type:wiki")
 
         self.assertEqual(results.hits, 2)
+
+    def test_upgrade_index_with_no_product(self):
+        """See #773"""
+
+        class NoProductIndexer(BaseIndexer):
+            implements(IIndexParticipant)
+
+            def get_entries_for_index(self):
+                yield {
+                    IndexFields.TYPE: 'noproduct',
+                    IndexFields.ID: '1'
+                }
+
+        self.search_api.rebuild_index()
+
+        self.unregister(NoProductIndexer)
+
+    @staticmethod
+    def unregister(component):
+        ComponentMeta._components.remove(component)
+        for interface in component.__dict__.get('_implements', ()):
+            ComponentMeta._registry.get(interface).remove(component)
 
 #TODO: check this later
 #    @unittest.skip("Check with Whoosh community")

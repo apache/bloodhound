@@ -697,7 +697,7 @@ class RequestContext(object):
 
     def _process_doc(self, doc):
         ui_doc = dict(doc)
-        if doc['product']:
+        if doc.get('product'):
             env = ProductEnvironment(self.env, doc['product'])
             product_href = ProductEnvironment.resolve_href(env, self.env)
             # pylint: disable=too-many-function-args

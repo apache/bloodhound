@@ -16,18 +16,23 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
-import unittest
-from bhrelations.api import ResourceIdSerializer
-from bhrelations.web_ui import RelationManagementModule
-from bhrelations.tests.base import BaseRelationsTestCase
 
-from multiproduct.ticket.web_ui import TicketModule
+import unittest
+
 from trac.ticket import Ticket
 from trac.util.datefmt import to_utimestamp
 from trac.web import RequestDone
 
+from bhrelations.api import ResourceIdSerializer
+from bhrelations.tests.base import DEPENDS_ON, DUPLICATE_OF, \
+                                   BaseRelationsTestCase
+from bhrelations.web_ui import RelationManagementModule
+
+from multiproduct.ticket.web_ui import TicketModule
+
 
 class RelationManagementModuleTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self)
         ticket_id = self._insert_ticket(self.env, "Foo")
@@ -79,7 +84,7 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
         t2 = self._insert_ticket(self.env, "Bar")
         self.req.args['add'] = True
         self.req.args['dest_tid'] = str(t2)
-        self.req.args['reltype'] = 'dependson'
+        self.req.args['reltype'] = DEPENDS_ON
 
         data = self.process_request()
 
@@ -89,11 +94,11 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
         t2 = self._insert_ticket(self.env, "Bar")
         self.req.args['add'] = True
         self.req.args['dest_tid'] = str(t2)
-        self.req.args['reltype'] = 'dependson'
+        self.req.args['reltype'] = DEPENDS_ON
         rlm = RelationManagementModule(self.env)
         rlm.notify_relation_changed = self._failing_notification
 
-        url, data, x = rlm.process_request(self.req)
+        rlm.process_request(self.req)
         self.assertEqual(len(self.req.chrome['warnings']), 1)
 
     def _failing_notification(self, relation):
@@ -106,6 +111,7 @@ class RelationManagementModuleTestCase(BaseRelationsTestCase):
 
 
 class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
+
     def setUp(self):
         BaseRelationsTestCase.setUp(self)
 
@@ -123,16 +129,16 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
         self.assertRaises(RequestDone,
                           self.resolve_as_duplicate,
                           t2, self.get_id(t1))
-        relations = self.relations_system.get_relations(t2)
+        relations = self.get_relations(t2)
         self.assertEqual(len(relations), 1)
         relation = relations[0]
         self.assertEqual(relation['destination_id'], self.get_id(t1))
-        self.assertEqual(relation['type'], 'duplicateof')
+        self.assertEqual(relation['type'], DUPLICATE_OF)
 
     def test_prefills_duplicate_id_if_relation_exists(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
-        self.relations_system.add(t2, t1, 'duplicateof')
+        self.add_relation(t2, DUPLICATE_OF, t1)
         self.req.path_info = '/ticket/%d' % t2.id
 
         data = self.process_request()
@@ -144,7 +150,7 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
     def test_can_set_duplicate_resolution_even_if_relation_exists(self):
         t1 = self._insert_and_load_ticket("Foo")
         t2 = self._insert_and_load_ticket("Bar")
-        self.relations_system.add(t2, t1, 'duplicateof')
+        self.add_relation(t2, DUPLICATE_OF, t1)
 
         self.assertRaises(RequestDone,
                           self.resolve_as_duplicate,
@@ -164,8 +170,8 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
 
     def test_post_process_request_can_handle_none_data(self):
         self.req.path_info = '/source'
-        RelationManagementModule(self.env).post_process_request(
-            self.req, '', None, '')
+        RelationManagementModule(self.env).post_process_request(self.req, '',
+                                                                None, '')
 
     def resolve_as_duplicate(self, ticket, duplicate_id):
         self.req.method = 'POST'
@@ -218,8 +224,9 @@ class ResolveTicketIntegrationTestCase(BaseRelationsTestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(RelationManagementModuleTestCase, 'test'))
+    test_suite.addTest(unittest.makeSuite(RelationManagementModuleTestCase))
     return test_suite
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -105,16 +105,17 @@
                   <label class="control-label" for="prefix">Prefix:</label>
                   <div class="controls">
                     <input type="text" id="prefix" class="input-large"
-                           name="prefix" />
+                           name="prefix" value="$prefix" />
                   </div>
                 </div>
                 <div class="control-group">
                   <label class="control-label" for="name">Name:</label>
                   <div class="controls">
-                    <input type="text" id="name" class="input-large" name="name" />
+                    <input type="text" id="name" class="input-large"
+                           name="name" value="$name" />
                   </div>
                 </div>
-                ${owner_field()}
+                ${owner_field(owner)}
                 <div class="control-group">
                   <input type="submit" class="btn" name="add"
                          value="${_('Add')}" />

@@ -132,8 +132,8 @@ ENTRY_POINTS = r"""
                """
 extra = {}
 try:
-    from trac.util.dist import get_l10n_js_cmdclass
-    cmdclass = get_l10n_js_cmdclass()
+    from trac.util.dist import get_l10n_cmdclass
+    cmdclass = get_l10n_cmdclass()
     if cmdclass:
         extra['cmdclass'] = cmdclass
         extractors = [
@@ -158,10 +158,6 @@ setup(
     url = "https://bloodhound.apache.org/",
     requires = ['trac'],
     tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
-    install_requires = [
-        'setuptools>=0.6b1',
-        'Trac>=0.11',
-    ],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),
     package_data = dict([p, i[1]] for p, i in PKG_INFO.iteritems()),

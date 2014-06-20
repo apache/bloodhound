@@ -392,10 +392,10 @@ class SecurityFilterTests(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(MultiProductSecurityTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(MultiProductSecurityTestCase))
     if configobj:
-        suite.addTest(unittest.makeSuite(AuthzSecurityTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(SecurityFilterTests, 'test'))
+        suite.addTest(unittest.makeSuite(AuthzSecurityTestCase))
+    suite.addTest(unittest.makeSuite(SecurityFilterTests))
     return suite
 
 if __name__ == '__main__':

@@ -518,7 +518,7 @@ class ResourceSystem(Component):
         """Return a list of all the realm names of neighborhoods."""
         realms = []
         for connector in self.resource_connectors:
-            for realm in manager.get_supported_neighborhoods() or []:
+            for realm in connector.get_supported_neighborhoods() or []:
                 realms.append(realm)
         return realms
 

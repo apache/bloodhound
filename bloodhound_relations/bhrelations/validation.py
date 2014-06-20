@@ -17,11 +17,21 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from genshi.builder import tag
 from trac.core import Component, implements, TracError
 from trac.resource import get_resource_shortname
+from trac.util.translation import tag_
 
 from bhrelations.api import IRelationValidator, RelationsSystem, \
     ResourceIdSerializer, TicketRelationsSpecifics
+
+
+class ValidationError(TracError):
+    """Exception raised when a validator fails."""
+    def __init__(self, message, title=None, show_traceback=False):
+        super(ValidationError, self).__init__(
+            message, title, show_traceback)
+        self.failed_ids = []
 
 
 class Validator(Component):
@@ -176,16 +186,20 @@ class NoSelfReferenceValidator(Validator):
 
 
 class OneToManyValidator(Validator):
+    """Only tree relationships are allowed. A ticket cannot have multiple
+    parents."""
     def validate(self, relation):
         rls = RelationsSystem(self.env)
-        existing_relations = rls._select_relations(relation.source,
-                                                   relation.type)
+        existing_relations = \
+            rls._select_relations(resource_type=relation.type,
+                                  destination=relation.destination)
         if existing_relations:
             raise ValidationError(
-                "%s can only have one %s" % (
-                    relation.source,
-                    self.render_relation_type(relation.type)
-                ))
+                tag_("Another resource is already related to %(destination)s "
+                     "with %(relation)s relation.",
+                     destination=tag.em(relation.destination),
+                     relation=tag.b(self.render_relation_type(relation.type)))
+            )
 
 
 class ReferencesOlderValidator(Validator):
@@ -205,8 +219,7 @@ class ReferencesOlderValidator(Validator):
 
 class BlockerValidator(Validator):
     def validate(self, relation):
-        """If a path exists from relation's destination to its source,
-         adding the relation will create a cycle.
+        """Prevents adding a cyclical blocker relation.
          """
         rls = RelationsSystem(self.env)
         if not rls.is_blocker(relation.type):
@@ -228,10 +241,3 @@ class BlockerValidator(Validator):
             error = ValidationError(error)
             error.failed_ids = path
             raise error
-
-
-class ValidationError(TracError):
-    def __init__(self, message, title=None, show_traceback=False):
-        super(ValidationError, self).__init__(
-            message, title, show_traceback)
-        self.failed_ids = []
