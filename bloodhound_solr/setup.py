@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-PKG_INFO = {'bhsolr': ['htdocs/*.*', 'templates/*', 'schemadoc/*.xml'],
+PKG_INFO = {'bhsolr': ['schemadoc/*.xml'],
             'bhsolr.search_resources' : [],
             }
 
@@ -8,9 +8,9 @@ PKG_INFO = {'bhsolr': ['htdocs/*.*', 'templates/*', 'schemadoc/*.xml'],
 
 ENTRY_POINTS = {
           'trac.plugins': [
-          'bhsolr.web_ui = bhsolr.web_ui',
           'bhsolr.api = bhsolr.api',
           'bhsolr.solr = bhsolr.solr',
+          'bhsolr.admin = bhsolr.admin',
           'bhsolr.solr_backend = bhsolr.solr_backend',
           'bhsolr.search_resources.ticket_search = bhsolr.search_resources.ticket_search',
           'bhsolr.search_resources.milestone_search = bhsolr.search_resources.milestone_search',
