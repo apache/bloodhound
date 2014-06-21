@@ -685,7 +685,8 @@ application_version = get_distribution('BloodhoundTheme').version
 ################################################################################################################
 
 class BatchCreateTicketDialog(Component):
-    implements(IRequestFilter, IRequestHandler, ITemplateStreamFilter)
+    implements(IRequestFilter, IRequestHandler, ITemplateStreamFilter, IPermissionRequestor)
+
     bct_fields = ListOption('ticket', 'batch_create_fields',
                             'product, version, type',
         doc="""Multiple selection fields displayed in create ticket menu""",
@@ -696,6 +697,10 @@ class BatchCreateTicketDialog(Component):
         locale_dir = pkg_resources.resource_filename(__name__, 'locale')
         add_domain(self.env.path, locale_dir)
         super(BatchCreateTicketDialog, self).__init__(*args, **kwargs)
+
+    # IPermissionRequestor methods
+    def get_permission_actions(self):
+        return ['TICKET_BATCH_CREATE']
 
     # IRequestFilter(Interface):
 
@@ -778,7 +783,7 @@ class BatchCreateTicketDialog(Component):
         """
         try:
             tm = self._get_ticket_module()
-            req.perm.require('TICKET_CREATE')
+            req.perm.require('TICKET_BATCH_CREATE')
 
             attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
@@ -808,9 +813,11 @@ class BatchCreateTicketDialog(Component):
 
     #Template Stream Filter methods
     def filter_stream(self, req, method, filename, stream, data):
-        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission('TICKET_ADMIN') or req.perm.has_permission('TICKET_CREATE')):
+        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission('TICKET_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
+            #(req.perm.has_permission('TICKET_ADMIN') or req.perm.has_permission('TICKET_CREATE')
             #headers = {'summary':'Summary','description':'Description','product':'Product','status':'Status','priority':'Priority','type':'Type','owner':'Owner','cc':'Cc','keywords':'Keywords','milestone':'Milestone'}
             headers = {'summary':'Summary','description':'Description','product':'Product','status':'Status'}
+            products = self.env.db_query("SELECT * FROM bloodhound_product")
             xpath = '//div[@id="content"]'
             div = tag.div(class_="span12", id="batch_create_empty_table")
             text = tag.text("Batch Create Tickets")
@@ -841,70 +848,36 @@ class BatchCreateTicketDialog(Component):
                         td_row.append(input_description)
                         tr_rows.append(td_row)
                     elif header == "status":
+                        statuses = ["accepted", "assigned", "closed", "new", "reopened"]
                         td_row = tag.td()
                         input_status = tag.select(id = "field-status"+str(num), name="field_status"+str(num))
-                        option = tag.option(value="accepted")
-                        text = tag.text("accepted")
-                        option.append(text)
-                        input_status.append(option)
-                        option = tag.option(value="assigned")
-                        text = tag.text("assigned")
-                        option.append(text)
-                        input_status.append(option)
-                        option = tag.option(value="closed")
-                        text = tag.text("closed")
-                        option.append(text)
-                        input_status.append(option)
-                        option = tag.option(value="new", selected="selected")
-                        text = tag.text("new")
-                        option.append(text)
-                        input_status.append(option)
-                        option = tag.option(value="reopened")
-                        text = tag.text("reopened")
-                        option.append(text)
-                        input_status.append(option)
+                        for status in statuses:
+                            option = tag.option(value=str(status))
+                            text = tag.text(str(status))
+                            option.append(text)
+                            input_status.append(option)
                         td_row.append(input_status)
                         tr_rows.append(td_row)
                     elif header == "priority":
+                        priorities = ["blocker", "critical", "major", "minor", "trivial"]
                         td_row = tag.td()
                         input_priority = tag.select(id = "field-priority"+str(num), name="field_priority"+str(num))
-                        option = tag.option(value="blocker")
-                        text = tag.text("blocker")
-                        option.append(text)
-                        input_priority.append(option)
-                        option = tag.option(value="critical")
-                        text = tag.text("critical")
-                        option.append(text)
-                        input_priority.append(option)
-                        option = tag.option(value="major")
-                        text = tag.text("major")
-                        option.append(text)
-                        input_priority.append(option)
-                        option = tag.option(value="minor", selected="selected")
-                        text = tag.text("minor")
-                        option.append(text)
-                        input_priority.append(option)
-                        option = tag.option(value="trivial")
-                        text = tag.text("trivial")
-                        option.append(text)
-                        input_priority.append(option)
+                        for priority in priorities:
+                            option = tag.option(value=str(priority))
+                            text = tag.text(str(priority))
+                            option.append(text)
+                            input_priority.append(option)
                         td_row.append(input_priority)
                         tr_rows.append(td_row)
                     elif header=="type":
+                        types = ["defect", "enhancement", "task"]
                         td_row = tag.td()
                         input_type = tag.select(id = "field-type"+str(num), name="field_type"+str(num))
-                        option = tag.option(value="defect")
-                        text = tag.text("defect")
-                        option.append(text)
-                        input_type.append(option)
-                        option = tag.option(value="enhancement")
-                        text = tag.text("enhancement")
-                        option.append(text)
-                        input_type.append(option)
-                        option = tag.option(value="task", selected="selected")
-                        text = tag.text("task")
-                        option.append(text)
-                        input_type.append(option)
+                        for type in types:
+                            option = tag.option(value=str(type))
+                            text = tag.text(str(type))
+                            option.append(text)
+                            input_type.append(option)
                         td_row.append(input_type)
                         tr_rows.append(td_row)
                     elif header == "product":
@@ -914,10 +887,11 @@ class BatchCreateTicketDialog(Component):
                         text = tag.text("Choose...")
                         option.append(text)
                         input_product.append(option)
-                        option = tag.option(value="@")
-                        text = tag.text("Default")
-                        option.append(text)
-                        input_product.append(option)
+                        for product in products:
+                            option = tag.option(value=str(product[0]))
+                            text = tag.text(str(product[1]))
+                            option.append(text)
+                            input_product.append(option)
                         td_row.append(input_product)
                         tr_rows.append(td_row)
                     elif header == "owner":
@@ -985,7 +959,7 @@ class BatchCreateTicketDialog(Component):
                 except Exception, e:
                     self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
-        prev_max=t._get_max_ticket_id()[0][0]-num_of_tkts
-        created_tickets = t._get_tickets_by_id(prev_max+1)
+        start_id = self.env.db_query("SELECT MAX(uid) FROM ticket")[0][0] - num_of_tkts
+        created_tickets = self.env.db_query("SELECT * FROM ticket WHERE uid>%s"%start_id)
         return t['product'], t.id, created_tickets
 
