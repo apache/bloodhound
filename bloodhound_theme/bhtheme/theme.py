@@ -800,6 +800,7 @@ class BatchCreateTicketDialog(Component):
                               'url': get_resource_url(self.env, tres, href)}),
                      'application/json')
 
+
     def _get_ticket_module(self):
         ptm = None
         if ProductTicketModule is not None:
@@ -813,124 +814,29 @@ class BatchCreateTicketDialog(Component):
 
     #Template Stream Filter methods
     def filter_stream(self, req, method, filename, stream, data):
-        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission('TICKET_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
-            #(req.perm.has_permission('TICKET_ADMIN') or req.perm.has_permission('TICKET_CREATE')
-            #headers = {'summary':'Summary','description':'Description','product':'Product','status':'Status','priority':'Priority','type':'Type','owner':'Owner','cc':'Cc','keywords':'Keywords','milestone':'Milestone'}
-            headers = {'summary':'Summary','description':'Description','product':'Product','status':'Status'}
+        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission('TRAC_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
+            add_script(req,'theme/js/batchcreate.js')
+            xpath = '//form[@id=modifypage]'
             products = self.env.db_query("SELECT * FROM bloodhound_product")
-            xpath = '//div[@id="content"]'
-            div = tag.div(class_="span12", id="batch_create_empty_table")
-            text = tag.text("Batch Create Tickets")
-            h1 = tag.h1(text)
-            div.append(h1)
-            form = tag.form(id="qct-form", name="bct", method="post", action=req.href()+"/bct")
-            table = tag.table(class_="listing tickets table table-bordered table-condensed query", style="border-radius: 0px 0px 4px 4px")
-            tr = tag.tr(class_="trac-columns")
-            for header in sorted(headers):
-                font = tag.font(color="#1975D1")
-                text = tag.text(headers[header])
-                font.append(text)
-                th = tag.th(font)
-                tr.append(th)
-            table.append(tr)
-            tbody = tag.tbody()
-            for num in range(0,5):
-                tr_rows = tag.tr()
-                for header in sorted(headers):
-                    if header == "summary":
-                        td_row = tag.td()
-                        input_summary = tag.input(type="text", id = "field-summary"+str(num), class_="input-block-level", name="field_summary"+str(num))
-                        td_row.append(input_summary)
-                        tr_rows.append(td_row)
-                    elif header == "description":
-                        td_row = tag.td()
-                        input_description = tag.textarea(id = "field-description"+str(num), name="field_description"+str(num), class_="input-block-level", rows="1", cols="28")
-                        td_row.append(input_description)
-                        tr_rows.append(td_row)
-                    elif header == "status":
-                        statuses = ["accepted", "assigned", "closed", "new", "reopened"]
-                        td_row = tag.td()
-                        input_status = tag.select(id = "field-status"+str(num), name="field_status"+str(num))
-                        for status in statuses:
-                            option = tag.option(value=str(status))
-                            text = tag.text(str(status))
-                            option.append(text)
-                            input_status.append(option)
-                        td_row.append(input_status)
-                        tr_rows.append(td_row)
-                    elif header == "priority":
-                        priorities = ["blocker", "critical", "major", "minor", "trivial"]
-                        td_row = tag.td()
-                        input_priority = tag.select(id = "field-priority"+str(num), name="field_priority"+str(num))
-                        for priority in priorities:
-                            option = tag.option(value=str(priority))
-                            text = tag.text(str(priority))
-                            option.append(text)
-                            input_priority.append(option)
-                        td_row.append(input_priority)
-                        tr_rows.append(td_row)
-                    elif header=="type":
-                        types = ["defect", "enhancement", "task"]
-                        td_row = tag.td()
-                        input_type = tag.select(id = "field-type"+str(num), name="field_type"+str(num))
-                        for type in types:
-                            option = tag.option(value=str(type))
-                            text = tag.text(str(type))
-                            option.append(text)
-                            input_type.append(option)
-                        td_row.append(input_type)
-                        tr_rows.append(td_row)
-                    elif header == "product":
-                        td_row = tag.td()
-                        input_product = tag.select(id = "field-product"+str(num), name="field_product"+str(num))
-                        option = tag.option(value="")
-                        text = tag.text("Choose...")
-                        option.append(text)
-                        input_product.append(option)
-                        for product in products:
-                            option = tag.option(value=str(product[0]))
-                            text = tag.text(str(product[1]))
-                            option.append(text)
-                            input_product.append(option)
-                        td_row.append(input_product)
-                        tr_rows.append(td_row)
-                    elif header == "owner":
-                        td_row = tag.td()
-                        input_owner = tag.input(type="text", id = "field-owner"+str(num), class_="input-block-level", name="field_owner"+str(num))
-                        td_row.append(input_owner)
-                        tr_rows.append(td_row)
-                    elif header == "cc":
-                        td_row = tag.td()
-                        input_cc = tag.input(type="text", id = "field-cc"+str(num), class_="input-block-level", name="field_cc"+str(num))
-                        td_row.append(input_cc)
-                        tr_rows.append(td_row)
-                    elif header == "milestone":
-                        td_row = tag.td()
-                        input_cc = tag.input(type="text", id = "field-milestone"+str(num), class_="input-block-level", name="field_milestone"+str(num))
-                        td_row.append(input_cc)
-                        tr_rows.append(td_row)
-                    elif header == "keywords":
-                        td_row = tag.td()
-                        input_cc = tag.input(type="text", id = "field-keywords"+str(num), class_="input-block-level", name="field_keywords"+str(num))
-                        td_row.append(input_cc)
-                        tr_rows.append(td_row)
-                tbody.append(tr_rows)
-            table.append(tbody)
-            form.append(table)
-            div_button = tag.div(class_="btn-group pull-right")
-            input_button = tag.input(type="submit", class_="btn pull-right", name="save", value="save")
-            div_button.append(input_button)
-            form.append(div_button)
-            div.append(form)
-            div.append("\n")
-            stream |= Transformer(xpath).append(div)
+            form = tag.form(method="get", style="display:inline", id="batchcreate")
+            div = tag.div(class_="btn-group")
+            span = tag.span(class_="input-group-btn")
+            button = tag.button(class_="btn btn-default", type="button", onclick="Javascript:emptyTable("+to_json(products)+","+to_json(req.href()+"/bct")+","+to_json(str(req.environ["HTTP_COOKIE"]))+")")
+            input = tag.input(id="numOfRows",type="text", style="width:110px;", class_="form-control", placeholder="How many tickets?")
+            text = tag.text("Batch Create")
+            button.append(text)
+            span.append(button)
+            span.append(input)
+            div.append(span)
+            form.append(div)
+            stream |= Transformer(xpath).append(form)
         return stream
 
     # Public API
     def batch_create(self, req, attributes={}, notify=False):
         """ Create batch of tickets, returning created tickets.
         """
-        num_of_tkts = attributes.__len__()/4
+        num_of_tkts = attributes.__len__()/5
         for i in range(0,num_of_tkts):
             if 'product'+str(i) in attributes:
                 env = self.env.parent or self.env
@@ -942,6 +848,7 @@ class BatchCreateTicketDialog(Component):
             status = attributes.pop('status'+str(i))
             summary = attributes.pop('summary'+str(i))
             product = attributes.pop('product'+str(i))
+            priority = attributes.pop('priority'+str(i))
 
             t = Ticket(env)
             t['summary'] = summary
@@ -950,6 +857,7 @@ class BatchCreateTicketDialog(Component):
             t['status'] = status
             t['resolution'] = ''
             t['product'] = product
+            t['priority'] = priority
             t.insert()
 
             if notify:
