@@ -683,8 +683,8 @@ application_version = get_distribution('BloodhoundTheme').version
 # https://trac-hacks.org/wiki/AutocompleteUsersPlugin
 # http://trac-hacks.org/wiki/KeywordSuggestPlugin
 
-USER = 0;
-NAME = 1;
+USER = 0
+NAME = 1
 EMAIL = 2  # indices
 
 
@@ -698,17 +698,27 @@ class AutocompleteUsers(Component):
     # IRequestHandler methods
 
     def match_request(self, req):
+        """Handle requests sent to /user_list and /ticket/user_list
+        """
         return req.path_info.rstrip('/') == '/user_list' or req.path_info.rstrip('/') == '/ticket/user_list'
 
     def process_request(self, req):
-
+        """send plain text list of users (username,email and name)
+        email is shown if the EMAIL_VIEW permission is presented.
+        """
         if req.args.get('users', '1') == '1':
             users = self._get_users(req)
-            subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
-                                      user[EMAIL] and '<%s>' % user[EMAIL] or '',
-                                      user[NAME] and '%s' % user[NAME] or '',
-                                        user[USER])
-                            for value, user in users]  # value unused (placeholder needed for sorting)
+            if req.perm.has_permission('EMAIL_VIEW'):
+                subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
+                                          user[EMAIL] and '<%s>' % user[EMAIL] or '',
+                                          user[NAME] and '%s' % user[NAME] or '',
+                                            user[USER])
+                                for value, user in users]  # value unused (placeholder needed for sorting)
+            else:
+                subjects = ['{"label":"%s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
+                                          user[NAME] and '%s' % user[NAME] or '',
+                                            user[USER])
+                                for value, user in users]  # value unused (placeholder needed for sorting)
 
         respond_str = ','.join(subjects).encode('utf-8')
         respond_str = '[' + respond_str + ']'
@@ -730,6 +740,8 @@ class AutocompleteUsers(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
+        """add the necessary javascript and css files to ticket,permission and query page
+        """
         if template in ('ticket.html', 'admin_perms.html', 'query.html'):
             add_stylesheet(req, 'autocompleteusers/css/jquery-ui-1.8.16.custom.css')
             add_script(req, 'autocompleteusers/js/jquery-ui-1.8.16.custom.min.js')
@@ -742,6 +754,8 @@ class AutocompleteUsers(Component):
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
+        """add the  autocomplete jQuery function to the ticket and permission pages
+        """
         if filename == 'bh_ticket.html':
             fields = [field['name'] for field in data['ticket'].fields
                       if field['type'] == 'select']
@@ -855,6 +869,8 @@ class AutocompleteUsers(Component):
         # from the list of all subjects. This has the caveat of also
         # returning users without session data, but there currently seems
         # to be no other way to handle this.
+        """return list of groups
+        """
         query = req.args.get('term', '').lower()
         db = self.env.get_db_cnx()
         cursor = db.cursor()
@@ -869,7 +885,8 @@ class AutocompleteUsers(Component):
         # owners = perm.get_users_with_permission('TICKET_MODIFY')
         # owners.sort()
         # see: http://trac.edgewall.org/browser/trunk/trac/ticket/default_workflow.py#L232
-
+        """return list of users
+        """
         query = req.args.get('term', '').lower()
 
         # user names, email addresses, full names
@@ -908,6 +925,8 @@ class KeywordSuggestModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
+        """add the necessary javascript and css files
+        """
         if req.path_info.startswith('/ticket/') or \
                 req.path_info.startswith('/newticket') or \
                 (req.path_info.startswith('/query')):
@@ -918,6 +937,8 @@ class KeywordSuggestModule(Component):
 
     # ITemplateStreamFilter methods
     def filter_stream(self, req, method, filename, stream, data):
+        """add the jQuery tagsinput function to ticket and query pages
+        """
 
         if not (filename == 'bh_ticket.html' or
                     (filename == 'bh_query.html')):
@@ -1041,7 +1062,9 @@ class KeywordSuggestModule(Component):
 
     # Private methods
     def _get_keywords_string(self, req):
-
+        """return a list of keywords relevant to the product in the frequency of usage
+        """
+        #currently all the keywords are taken through the db query and then sort them according to there frequency
         # get keywords from db
         db = self.env.get_db_cnx()
         cursor = db.cursor()
