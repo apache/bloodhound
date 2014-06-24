@@ -9,7 +9,6 @@ PKG_INFO = {'bhsolr': ['schemadoc/*.xml'],
 ENTRY_POINTS = {
           'trac.plugins': [
           'bhsolr.api = bhsolr.api',
-          'bhsolr.solr = bhsolr.solr',
           'bhsolr.admin = bhsolr.admin',
           'bhsolr.solr_backend = bhsolr.solr_backend',
           'bhsolr.search_resources.ticket_search = bhsolr.search_resources.ticket_search',
@@ -25,7 +24,7 @@ setup(
   author = "Apache Bloodhound",
   license = "Apache License v2",
   url = "http://bloodhound.apache.org/",
-  # package_dir = PKG_INFO,
+  requires = ['trac', 'lxml', 'sunburnt', 'httplib2'],
   packages = find_packages(),
   package_data = PKG_INFO,
   include_package_data=True,
