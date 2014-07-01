@@ -789,17 +789,20 @@ class BatchCreateTicketDialog(Component):
                          if k.startswith('field_'))
             #new_tkts variable will contain the tickets that have been created as a batch
             #that information will be used to load the resultant query table
-            product, tid, new_tkts = self.batch_create(req, attrs, True)
+            product, tid, new_tkts,num_of_tkts = self.batch_create(req, attrs, True)
+            # product, tid = self.batch_create(req, attrs, True)
         except Exception, exc:
             self.log.exception("BH: Batch create tickets failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
         else:
-            tres = Neighborhood('product', product)('ticket', tid)
-            href = req.href
-            req.send(to_json({'product': product, 'id': tid,
-                              'url': get_resource_url(self.env, tres, href)}),
-                     'application/json')
-
+            tkt_list=[]
+            tkt_dict={}
+            for i in range(0,num_of_tkts):
+                tres = Neighborhood('product', new_tkts[i].values['product'])('ticket', tid-num_of_tkts+i+1)
+                href = req.href
+                tkt_list.append(to_json({'product': new_tkts[i].values['product'], 'id': tid-num_of_tkts+i+1, 'url': get_resource_url(self.env, tres, href), 'summary': new_tkts[i].values['summary'] ,'status': new_tkts[i].values['status'],'priority': new_tkts[i].values['priority'],'description': new_tkts[i].values['description']}))
+            tkt_dict["tickets"]=tkt_list
+            req.send(to_json(tkt_dict), 'application/json')
 
     def _get_ticket_module(self):
         ptm = None
@@ -821,7 +824,7 @@ class BatchCreateTicketDialog(Component):
             form = tag.form(method="get", style="display:inline", id="batchcreate")
             div = tag.div(class_="btn-group")
             span = tag.span(class_="input-group-btn")
-            button = tag.button(class_="btn btn-default", type="button", onclick="Javascript:emptyTable("+to_json(products)+","+to_json(req.href()+"/bct")+","+to_json(str(req.environ["HTTP_COOKIE"]))+")")
+            button = tag.button(id="bct-button", class_="btn btn-default", type="button", onclick="Javascript:emptyTable("+to_json(products)+","+to_json(req.href()+"/bct")+","+to_json(str(req.environ["HTTP_COOKIE"]))+")")
             input = tag.input(id="numOfRows",type="text", style="width:110px;", class_="form-control", placeholder="How many tickets?")
             text = tag.text("Batch Create")
             button.append(text)
@@ -837,7 +840,9 @@ class BatchCreateTicketDialog(Component):
         """ Create batch of tickets, returning created tickets.
         """
         num_of_tkts = attributes.__len__()/5
+        created_tickets = []
         for i in range(0,num_of_tkts):
+
             if 'product'+str(i) in attributes:
                 env = self.env.parent or self.env
                 if attributes['product'+str(i)]:
@@ -859,6 +864,7 @@ class BatchCreateTicketDialog(Component):
             t['product'] = product
             t['priority'] = priority
             t.insert()
+            created_tickets.append(t)
 
             if notify:
                 try:
@@ -867,7 +873,8 @@ class BatchCreateTicketDialog(Component):
                 except Exception, e:
                     self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
-        start_id = self.env.db_query("SELECT MAX(uid) FROM ticket")[0][0] - num_of_tkts
-        created_tickets = self.env.db_query("SELECT * FROM ticket WHERE uid>%s"%start_id)
-        return t['product'], t.id, created_tickets
+        # start_id = self.env.db_query("SELECT MAX(uid) FROM ticket")[0][0] - num_of_tkts
+        # created_tickets = self.env.db_query("SELECT * FROM ticket WHERE uid>%s"%start_id)
+        # return t['product'], t.id, created_tickets
+        return t['product'], t.id, created_tickets, num_of_tkts
 

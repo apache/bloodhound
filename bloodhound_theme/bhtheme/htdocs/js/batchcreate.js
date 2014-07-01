@@ -4,7 +4,7 @@ function emptyTable(products,href,token) {
 	if(numOfRows != "" && document.getElementById("empty-table") == null){
 	var contentDiv = document.getElementById("content");
 	//var headers = {"summary":"Summary","description":"Description","product":"Product","status":"Status","priority":"Priority","type":"Types","owner":"Owner","cc":"Cc","milestone":"Milestone","keywords":"Keywords"}
-        var headers = {"summary":"Summary","description":"Description","product":"Product","status":"Status","priority":"Priority"}
+    var headers = {"summary":"Summary","description":"Description","product":"Product","status":"Status","priority":"Priority"}
 	statuses = ["accepted", "assigned", "closed", "new", "reopened"];
 	priorities = ["blocker", "critical", "major", "minor", "trivial"];
 	types = ["defect", "enhancement", "task"];
@@ -20,7 +20,6 @@ function emptyTable(products,href,token) {
 	form.setAttribute("id","bct-form");
 	form.setAttribute("name","bct");
 	form.setAttribute("method","post");
-	form.setAttribute("action",href);
 	
 	var div_token = document.createElement("div");
 	var form_token_val = document.createElement("input");
@@ -180,25 +179,107 @@ function emptyTable(products,href,token) {
     submit_button = document.createElement("button");
 	submit_button.setAttribute("class","btn pull-right");
 	submit_button.setAttribute("type","button");
-	submit_button.setAttribute("onclick","submitForm()");
+	submit_button.setAttribute("onclick","submit_btn_action()");
+	submit_button.setAttribute("id","bct-create");
+	submit_button.setAttribute("data-target",href);
 	submit_button.appendChild(document.createTextNode("save"));
-	form.appendChild(submit_button);
+	form.appendChild(submit_button);	
+	
+	cancle_button = document.createElement("button");
+	cancle_button.setAttribute("class","btn pull-right");
+	cancle_button.setAttribute("type","button");
+	cancle_button.setAttribute("onclick","deleteForm()");
+	cancle_button.appendChild(document.createTextNode("cancel"));
+	form.appendChild(cancle_button);
+	
 	div.appendChild(form);
 	contentDiv.appendChild(div);
 	}
 
-    //var rowCount = table.rows.length;
-    //var row = table.insertRow(rowCount);
 }
 
 function submitForm(){
 	document.getElementById("bct-form").submit();
 }
- 
-//function deleteRow(obj) {
-      
-//    var index = obj.parentNode.parentNode.rowIndex;
-//    var table = document.getElementById("myTableData");
-//    table.deleteRow(index);
-    
-//}
+
+function removeBatchCreate(){
+	document.getElementById("bct-button").remove();
+	document.getElementById("numOfRows").remove();
+}
+
+function deleteForm(){
+	document.getElementById("empty-table").remove();
+}
+
+//$('#bct-create').click(
+function submit_btn_action() {
+        // data-target is the base url for the product in current scope
+	var product_base_url = $('#bct-create').attr('data-target');
+    if (product_base_url === '/')
+        product_base_url = '';
+        $.post(product_base_url , $('#bct-form').serialize(),
+        function(ticket) {
+			deleteForm();
+			removeBatchCreate();
+			
+			var headers = {"id":"Ticket","summary":"Summary","product":"Product","status":"Status"}
+			var contentDiv = document.getElementById("content");
+			var div = document.createElement("div");
+			div.setAttribute("class","span12");
+			var h2 = document.createElement("h2");
+			h2.appendChild(document.createTextNode("Created Tickets"));
+			div.appendChild(h2);
+			var table = document.createElement("table");
+			table.setAttribute("class","listing tickets table table-bordered table-condensed query");
+			table.setAttribute("style","border-radius: 0px 0px 4px 4px");
+			tr = document.createElement("tr");
+			tr.setAttribute("class","trac-columns");
+			
+			for (header in headers){
+				th = document.createElement("th");
+				font = document.createElement("font");
+				font.setAttribute("color","#1975D1");
+				font.appendChild(document.createTextNode(headers[header]))
+				th = document.createElement("th");
+				th.appendChild(font);
+				tr.appendChild(th);
+			}
+			table.appendChild(tr);
+			
+			for ( i=0 ; i<Object.keys(ticket.tickets).length ; i++ ){
+				tr = document.createElement("tr");
+				for (j=0;j<4;j++){
+					if(j==0){
+						td = document.createElement("td");
+						a = document.createElement("a");
+						tkt = JSON.parse(ticket.tickets[i]);
+						a.setAttribute("href",tkt.url);
+						a.appendChild(document.createTextNode("#"+tkt.id));
+						td.appendChild(a);
+					}
+					else if(j==1){
+						td = document.createElement("td");
+						a = document.createElement("a");
+						tkt = JSON.parse(ticket.tickets[i]);
+						a.setAttribute("href",tkt.url);
+						a.appendChild(document.createTextNode(tkt.summary));
+						td.appendChild(a);
+					}
+					else if(j==2){
+						td = document.createElement("td");
+						tkt = JSON.parse(ticket.tickets[i]);
+						td.appendChild(document.createTextNode(tkt.product));
+					}
+					else if(j==3){
+						td = document.createElement("td");
+						tkt = JSON.parse(ticket.tickets[i]);
+						td.appendChild(document.createTextNode(tkt.status));
+					}
+					tr.appendChild(td);
+				}
+				table.appendChild(tr);
+			}
+			div.appendChild(table);
+			contentDiv.appendChild(div);     
+        });
+}
