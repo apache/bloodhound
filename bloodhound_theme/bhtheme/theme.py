@@ -27,6 +27,8 @@ from genshi.builder import tag
 from genshi.core import TEXT, Markup
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
+from bhsearch.api import BloodhoundSearchApi
+from bhsearch.web_ui import RequestContext
 
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
@@ -1086,3 +1088,60 @@ class KeywordSuggestModule(Component):
             keywords = ''
 
         return keywords
+
+# component to find duplicate tickets
+#DuplicateTicketSearch component basic structure is taken from trac DuplicateTicketSearch plugin
+#https://trac-hacks.org/wiki/DuplicateTicketSearchPlugin
+class DuplicateTicketSearch(Component):
+    implements(ITemplateProvider, ITemplateStreamFilter,IRequestHandler)
+
+    # ITemplateProvider methods
+
+    def get_htdocs_dirs(self):
+        from pkg_resources import resource_filename
+        return [('duplicateticketsearch', resource_filename(__name__, 'htdocs'))]
+
+    def get_templates_dirs(self):
+        return []
+
+
+    # ITemplateStreamFilter methods
+
+    def filter_stream(self, req, method, filename, stream, data):
+
+        if filename == 'bh_ticket.html':
+            ticket = data.get('ticket')
+            if ticket and not ticket.id:   # only add for new tickets
+                add_script(req, 'duplicateticketsearch/js/DupeSearch.js')
+
+        return stream
+
+        # IRequestHandler methods
+
+    def match_request(self, req):
+        """Handle requests sent to /user_list and /ticket/user_list
+        """
+        return req.path_info.rstrip('/') == '/duplicate_ticket_search'
+
+    def process_request(self, req):
+        product = self.env.product._data['prefix']
+        query_result = BloodhoundSearchApi(self.env).query(
+            req.args.get('q'),
+            pagenum=1,
+            pagelen=10,
+            filter=['type:"ticket"', 'product:"'+product+'"'],
+            highlight=True,
+        )
+        ticket_list = []
+        cnt = 0
+        for ticket in query_result.docs:
+            ticket_list.append(to_json({'summary': query_result.highlighting[cnt]['summary'], 'description': query_result.highlighting[cnt]['content'],'type':ticket['type'] ,'status':ticket['status'] , 'owner':ticket['author'] ,'date':ticket['time'].strftime('%m/%d/%Y') ,'url': ticket['id']}))
+            cnt+1
+        str_list = '['+','.join(ticket_list)+']'
+
+        req.send(str_list, 'application/json')
+
+
+
+
+
