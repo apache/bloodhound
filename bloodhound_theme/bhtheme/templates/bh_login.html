@@ -58,14 +58,14 @@
           <label for="user" class="control-label">Username:</label>
           <div class="controls">
             <input type="text" id="user" name="user" class="textwidget"
-                size="20" placeholder="User name" />
+                size="20" placeholder="${_('User name')}" />
           </div>
         </div>
         <div class="textbox control-group">
           <label for="password" class="control-label">Password:</label>
           <div class="controls">
             <input type="password" id="password" name="password"
-                class="textwidget" size="20" placeholder="Password"/>
+                class="textwidget" size="20" placeholder="${_('Password')}"/>
             <div id="login_options" class="central"
                  py:if="reset_password_enabled and login_opt_list != True">
               

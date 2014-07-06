@@ -68,7 +68,7 @@
                   <input id="username" type="text"
                          class="textwidget input-medium no-add-on"
                          name="username"
-                         value="${acctmgr.username}" placeholder="e.g. myuser" />
+                         value="${acctmgr.username}" placeholder="${_('e.g. myuser')}" />
                 </label>
               </div>
               <div class="field">
@@ -79,10 +79,10 @@
                     </span>
                     <input py:when="create_enabled or password_change_enabled"
                            type="password" class="textwidget input-medium"
-                           name="password" placeholder="Type your password" />
+                           name="password" placeholder="${_('Type your password')}" />
                     <input py:otherwise=""
                            type="password" class="textwidget input-medium"
-                           name="password" placeholder="Type your password"
+                           name="password" placeholder="${_('Type your password')}"
                            disabled="disabled" />
                   </div>
                 </label>
@@ -95,10 +95,10 @@
                     </span>
                     <input py:when="create_enabled or password_change_enabled"
                            type="password" class="textwidget input-medium"
-                           name="password_confirm" placeholder="Must match password" />
+                           name="password_confirm" placeholder="${_('Must match password')}" />
                     <input py:otherwise=""
                            type="password" class="textwidget input-medium"
-                           name="password_confirm" placeholder="Must match password"
+                           name="password_confirm" placeholder="${_('Must match password')}"
                            disabled="disabled" />
                   </div>
                 </label>
@@ -107,7 +107,7 @@
                 <label>Pre-/Surname (Nickname):<br />
                   <input type="text" class="textwidget input-medium no-add-on"
                          name="name" value="${acctmgr.name}"
-                         placeholder="e.g. John Smith" />
+                         placeholder="${_('e.g. John Smith')}" />
                 </label>
               </div>
               <div class="field">
@@ -118,7 +118,7 @@
                     </span>
                     <input type="text" class="textwidget input-medium"
                            name="email" value="${acctmgr.email}"
-                           placeholder="user@domain.com" />
+                           placeholder="${_('user@domain.com')}" />
                   </div>
                 </label>
               </div>

@@ -62,7 +62,7 @@
                   <div class="controls">
                     <input type="text" id="username" name="username"
                           class="textwidget input-large no-add-on"
-                          value="${acctmgr.username}" placeholder="e.g. newuser"/>
+                          value="${acctmgr.username}" placeholder="${_('e.g. newuser')}"/>
                   </div>
               </div>
               <div class="control-group">
@@ -74,7 +74,7 @@
                     </span>
                     <input type="password" name="password" id="password"
                            class="textwidget input-large"
-                           placeholder="Better use letters and numbers" />
+                           placeholder="${_('Better use letters and numbers')}" />
                     </div>
                 </div>
               </div>
@@ -87,7 +87,7 @@
                     </span>
                     <input type="password" name="password_confirm"
                            id="pasword_confirm" class="textwidget input-large"
-                           placeholder="Must match password" />
+                           placeholder="${_('Must match password')}" />
                   </div>
                 </div>
               </div>
@@ -100,7 +100,7 @@
                     </span>
                     <input type="text" name="email" value="${acctmgr.email}"
                            class="textwidget input-large" id="email"
-                           placeholder="user@domain.com" />
+                           placeholder="${_('user@domain.com')}" />
                   </div>
                   <p class="help-block">
                     <span class="label label-info">Notice</span>
@@ -137,7 +137,7 @@
                   <input type="text" name="name" id="name"
                          class="textwidget input-large"
                          value="${acctmgr.name}"
-                         placeholder="e.g. John Smith" />
+                         placeholder="${_('e.g. John Smith')}" />
                 </div>
               </div>
               <div py:if="not verify_account_enabled" class="control-group">
@@ -149,7 +149,7 @@
                     </span>
                     <input type="text" name="email" value="${acctmgr.email}"
                            class="textwidget input-large"
-                           placeholder="user@domain.com" />
+                           placeholder="${_('user@domain.com')}" />
                     <p py:if="reset_password_enabled" class="help-block">
                       <span class="label label-info">Notice</span>
                       Entering your email address
