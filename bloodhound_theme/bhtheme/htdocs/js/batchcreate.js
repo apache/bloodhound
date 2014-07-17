@@ -100,7 +100,7 @@ function emptyTable(products,href,token) {
 				td_row.appendChild(input_priority);
 				tr_rows.appendChild(td_row);
 			}
-			else if (header == "type") {
+			/*else if (header == "type") {
 				td_row = document.createElement("td");
 				input_type = document.createElement("select");
 				input_type.setAttribute("id","field-type"+i);
@@ -114,7 +114,7 @@ function emptyTable(products,href,token) {
 				}
 				td_row.appendChild(input_type);
 				tr_rows.appendChild(td_row);
-			}
+			}*/
 			else if (header == "product") {
 				td_row = document.createElement("td");
 				field_product = document.createElement("select");
@@ -130,7 +130,7 @@ function emptyTable(products,href,token) {
 				td_row.appendChild(field_product);
 				tr_rows.appendChild(td_row);
 			}
-			else if (header == "owner"){
+			/*else if (header == "owner"){
 				td_row = document.createElement("td");
 				input_owner = document.createElement("input");
 				input_owner.setAttribute("type","text");
@@ -139,8 +139,8 @@ function emptyTable(products,href,token) {
 				input_owner.setAttribute("name","field_owner"+i);
 				td_row.appendChild(input_owner);
 				tr_rows.appendChild(td_row);
-			}
-			else if (header == "cc"){
+			}*/
+			/*else if (header == "cc"){
 				td_row = document.createElement("td");
 				input_cc = document.createElement("input");
 				input_cc.setAttribute("type","text");
@@ -149,8 +149,8 @@ function emptyTable(products,href,token) {
 				input_cc.setAttribute("name","field_cc"+i);
 				td_row.appendChild(input_cc);
 				tr_rows.appendChild(td_row);
-			}
-			else if (header == "milestone"){
+			}*/
+			/*else if (header == "milestone"){
 				td_row = document.createElement("td");
 				input_milestone = document.createElement("input");
 				input_milestone.setAttribute("type","text");
@@ -159,8 +159,8 @@ function emptyTable(products,href,token) {
 				input_milestone.setAttribute("name","field_milestone"+i);
 				td_row.appendChild(input_milestone);
 				tr_rows.appendChild(td_row);
-			}
-			else if (header == "keywords"){
+			}*/
+			/*else if (header == "keywords"){
 				td_row = document.createElement("td");
 				input_keywords = document.createElement("input");
 				input_keywords.setAttribute("type","text");
@@ -169,7 +169,7 @@ function emptyTable(products,href,token) {
 				input_keywords.setAttribute("name","field_keywords"+i);
 				td_row.appendChild(input_keywords);
 				tr_rows.appendChild(td_row);
-			}
+			}*/
 		}
 		tbody.appendChild(tr_rows);
 	}
@@ -211,9 +211,8 @@ function deleteForm(){
 	document.getElementById("empty-table").remove();
 }
 
-//$('#bct-create').click(
 function submit_btn_action() {
-        // data-target is the base url for the product in current scope
+    // data-target is the base url for the product in current scope
 	var product_base_url = $('#bct-create').attr('data-target');
     if (product_base_url === '/')
         product_base_url = '';

@@ -17,33 +17,33 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import re
 import sys
-from datetime import datetime
 
 from genshi.builder import tag
 from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
-from genshi.core import Markup
-from genshi import HTML
 
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
 from trac.perm import IPermissionRequestor
 from trac.resource import get_resource_url, Neighborhood, Resource
-from trac.ticket import TicketSystem
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
-from trac.util.datefmt import utc
 from trac.util.presentation import to_json
 from trac.versioncontrol.web_ui.browser import BrowserModule
-from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
-from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
-                             ITemplateProvider, prevnext_nav, Chrome, add_script)
+from trac.web.api import IRequestFilter, ITemplateStreamFilter
+from trac.web.chrome import (
+    add_stylesheet,
+    add_warning,
+    INavigationContributor,
+    ITemplateProvider,
+    prevnext_nav,
+    Chrome,
+    add_script)
 from trac.web.main import IRequestHandler
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.formatter import format_to_html
@@ -63,7 +63,9 @@ try:
 except ImportError:
     ProductTicketModule = None
 
+
 class BloodhoundTheme(ThemeBase):
+
     """Look and feel of Bloodhound issue tracker.
     """
     template = htdocs = css = screenshot = disable_trac_css = True
@@ -166,24 +168,34 @@ class BloodhoundTheme(ThemeBase):
     )
 
     labels_application_short = Option('labels', 'application_short',
-        'Bloodhound', """A short version of application name most commonly
+                                      'Bloodhound', """A short version of application name most commonly
         displayed in text, titles and labels""", doc_domain='bhtheme')
 
     labels_application_full = Option('labels', 'application_full',
-        'Apache Bloodhound', """This is full name with trade mark and
+                                     'Apache Bloodhound', """This is full name with trade mark and
         everything, it is currently used in footers and about page only""",
                                      doc_domain='bhtheme')
 
-    labels_footer_left_prefix = Option('labels', 'footer_left_prefix', '',
+    labels_footer_left_prefix = Option(
+        'labels',
+        'footer_left_prefix',
+        '',
         """Text to display before full application name in footers""",
-                                       doc_domain='bhtheme')
+        doc_domain='bhtheme')
 
-    labels_footer_left_postfix = Option('labels', 'footer_left_postfix', '',
+    labels_footer_left_postfix = Option(
+        'labels',
+        'footer_left_postfix',
+        '',
         """Text to display after full application name in footers""",
-                                        doc_domain='bhtheme')
+        doc_domain='bhtheme')
 
-    labels_footer_right = Option('labels', 'footer_right', '',
-        """Text to use as the right aligned footer""", doc_domain='bhtheme')
+    labels_footer_right = Option(
+        'labels',
+        'footer_right',
+        '',
+        """Text to use as the right aligned footer""",
+        doc_domain='bhtheme')
 
     _wiki_pages = None
     Chrome.default_html_doctype = DocType.HTML5
@@ -353,7 +365,13 @@ class BloodhoundTheme(ThemeBase):
 
     # Request modifiers
 
-    def _modify_search_data(self, req, template, data, content_type, is_active):
+    def _modify_search_data(
+            self,
+            req,
+            template,
+            data,
+            content_type,
+            is_active):
         """Insert breadcumbs and context navigation items in search web UI
         """
         if is_active:
@@ -387,7 +405,7 @@ class BloodhoundTheme(ThemeBase):
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
-        #add a creation event to the changelog if the ticket exists
+        # add a creation event to the changelog if the ticket exists
         ticket = data['ticket']
         if ticket.exists:
             data['changes'] = [{'comment': '',
@@ -399,7 +417,7 @@ class BloodhoundTheme(ThemeBase):
                                 'date': ticket['time'],
                                 },
                                ] + data['changes']
-        #and set default order
+        # and set default order
         if not req.session.get('ticket_comments_order'):
             req.session['ticket_comments_order'] = 'newest'
 
@@ -422,7 +440,13 @@ class BloodhoundTheme(ThemeBase):
             if mname:
                 data['milestone'] = Milestone(self.env, mname)
 
-    def _modify_admin_breadcrumb(self, req, template, data, content_type, is_active):
+    def _modify_admin_breadcrumb(
+            self,
+            req,
+            template,
+            data,
+            content_type,
+            is_active):
         # override 'normal' product list with the admin one
 
         def admin_url(prefix):
@@ -471,7 +495,7 @@ class BloodhoundTheme(ThemeBase):
                 SELECT product, value FROM bloodhound_productconfig
                 WHERE product IN (%s) AND section='project' AND
                 option='icon'""" % ', '.join(["%s"] * len(products)),
-                tuple(p.prefix for p in products))
+                               tuple(p.prefix for p in products))
         icons = dict(icons)
         data['thumbsize'] = 64
         # FIXME: Gray icon for missing products
@@ -486,29 +510,29 @@ class BloodhoundTheme(ThemeBase):
                                                    product_ctx(product),
                                                    product.description),
                         links={'extras': (([{'href': req.href.products(
-                                                product.prefix, action='edit'),
-                                             'title': _('Edit product %(prefix)s',
-                                                        prefix=product.prefix),
-                                             'icon': tag.i(class_='icon-edit'),
-                                             'label': _('Edit')},]
-                                           if 'PRODUCT_MODIFY' in req.perm
-                                           else []) +
-                                          [{'href': product.href(),
-                                            'title': _('Home page'),
-                                            'icon': tag.i(class_='icon-home'),
-                                            'label': _('Home')},
-                                           {'href': product.href.dashboard(),
-                                            'title': _('Tickets dashboard'),
-                                            'icon': tag.i(class_='icon-tasks'),
-                                            'label': _('Tickets')},
-                                           {'href': product.href.wiki(),
-                                            'title': _('Wiki'),
-                                            'icon': tag.i(class_='icon-book'),
-                                            'label': _('Wiki')}]),
-                               'main': {'href': product.href(),
-                                        'title': None,
-                                        'icon': tag.i(class_='icon-chevron-right'),
-                                        'label': _('Browse')}})
+                            product.prefix, action='edit'),
+                            'title': _('Edit product %(prefix)s',
+                                       prefix=product.prefix),
+                            'icon': tag.i(class_='icon-edit'),
+                            'label': _('Edit')}, ]
+                            if 'PRODUCT_MODIFY' in req.perm
+                            else []) +
+                            [{'href': product.href(),
+                              'title': _('Home page'),
+                              'icon': tag.i(class_='icon-home'),
+                              'label': _('Home')},
+                             {'href': product.href.dashboard(),
+                              'title': _('Tickets dashboard'),
+                              'icon': tag.i(class_='icon-tasks'),
+                              'label': _('Tickets')},
+                             {'href': product.href.wiki(),
+                              'title': _('Wiki'),
+                              'icon': tag.i(class_='icon-book'),
+                              'label': _('Wiki')}]),
+                'main': {'href': product.href(),
+                         'title': None,
+                         'icon': tag.i(class_='icon-chevron-right'),
+                         'label': _('Browse')}})
 
         data['products'] = [product_media_data(icons, product)
                             for product in products]
@@ -530,10 +554,12 @@ class BloodhoundTheme(ThemeBase):
 class QuickCreateTicketDialog(Component):
     implements(IRequestFilter, IRequestHandler)
 
-    qct_fields = ListOption('ticket', 'quick_create_fields',
-                            'product, version, type',
+    qct_fields = ListOption(
+        'ticket',
+        'quick_create_fields',
+        'product, version, type',
         doc="""Multiple selection fields displayed in create ticket menu""",
-                            doc_domain='bhtheme')
+        doc_domain='bhtheme')
 
     def __init__(self, *args, **kwargs):
         import pkg_resources
@@ -584,8 +610,8 @@ class QuickCreateTicketDialog(Component):
                          new_ticket_url=dum_req.href.products(p, 'newticket'),
                          description=ProductEnvironment.lookup_env(self.env, p)
                                                        .product.name
-                    )
-                for p in product_field['options']
+                         )
+                    for p in product_field['options']
                     if req.perm.has_permission('TICKET_CREATE',
                                                Neighborhood('product', p)
                                                .child(None, None))]
@@ -602,7 +628,7 @@ class QuickCreateTicketDialog(Component):
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
                 'hidden_fields': [all_fields[k] for k in all_fields.keys()
-                                  if k not in self.qct_fields] }
+                                  if k not in self.qct_fields]}
         return template, data, content_type
 
     # IRequestHandler methods
@@ -626,7 +652,7 @@ class QuickCreateTicketDialog(Component):
             attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
             product, tid = self.create(req, summary, desc, attrs, True)
-        except Exception, exc:
+        except Exception as exc:
             self.log.exception("BH: Quick create ticket failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
         else:
@@ -674,7 +700,7 @@ class QuickCreateTicketDialog(Component):
             try:
                 tn = TicketNotifyEmail(env)
                 tn.notify(t, newticket=True)
-            except Exception, e:
+            except Exception as e:
                 self.log.exception("Failure sending notification on creation "
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
@@ -682,15 +708,20 @@ class QuickCreateTicketDialog(Component):
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
 
-################################################################################################################
 
 class BatchCreateTicketDialog(Component):
-    implements(IRequestFilter, IRequestHandler, ITemplateStreamFilter, IPermissionRequestor)
+    implements(
+        IRequestFilter,
+        IRequestHandler,
+        ITemplateStreamFilter,
+        IPermissionRequestor)
 
-    bct_fields = ListOption('ticket', 'batch_create_fields',
-                            'product, version, type',
+    bct_fields = ListOption(
+        'ticket',
+        'batch_create_fields',
+        'product, version, type',
         doc="""Multiple selection fields displayed in create ticket menu""",
-                            doc_domain='bhtheme')
+        doc_domain='bhtheme')
 
     def __init__(self, *args, **kwargs):
         import pkg_resources
@@ -745,8 +776,8 @@ class BatchCreateTicketDialog(Component):
                          new_ticket_url=dum_req.href.products(p, 'newticket'),
                          description=ProductEnvironment.lookup_env(self.env, p)
                                                        .product.name
-                    )
-                for p in product_field['options']
+                         )
+                    for p in product_field['options']
                     if req.perm.has_permission('TICKET_CREATE',
                                                Neighborhood('product', p)
                                                .child(None, None))]
@@ -763,7 +794,7 @@ class BatchCreateTicketDialog(Component):
                 'fields': [all_fields[k] for k in self.bct_fields
                            if k in all_fields],
                 'hidden_fields': [all_fields[k] for k in all_fields.keys()
-                                  if k not in self.bct_fields] }
+                                  if k not in self.bct_fields]}
         return template, data, content_type
 
     # IRequestHandler methods
@@ -787,21 +818,41 @@ class BatchCreateTicketDialog(Component):
 
             attrs = dict([k[6:], v] for k, v in req.args.iteritems()
                          if k.startswith('field_'))
-            #new_tkts variable will contain the tickets that have been created as a batch
-            #that information will be used to load the resultant query table
-            product, tid, new_tkts,num_of_tkts = self.batch_create(req, attrs, True)
+            # new_tkts variable will contain the tickets that have been created as a batch
+            # that information will be used to load the resultant query table
+            product, tid, new_tkts, num_of_tkts = self.batch_create(
+                req, attrs, True)
             # product, tid = self.batch_create(req, attrs, True)
-        except Exception, exc:
+        except Exception as exc:
             self.log.exception("BH: Batch create tickets failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
         else:
-            tkt_list=[]
-            tkt_dict={}
-            for i in range(0,num_of_tkts):
-                tres = Neighborhood('product', new_tkts[i].values['product'])('ticket', tid-num_of_tkts+i+1)
+            tkt_list = []
+            tkt_dict = {}
+            for i in range(0, num_of_tkts):
+                tres = Neighborhood(
+                    'product',
+                    new_tkts[i].values['product'])(
+                    'ticket',
+                    tid -
+                    num_of_tkts +
+                    i +
+                    1)
                 href = req.href
-                tkt_list.append(to_json({'product': new_tkts[i].values['product'], 'id': tid-num_of_tkts+i+1, 'url': get_resource_url(self.env, tres, href), 'summary': new_tkts[i].values['summary'] ,'status': new_tkts[i].values['status'],'priority': new_tkts[i].values['priority'],'description': new_tkts[i].values['description']}))
-            tkt_dict["tickets"]=tkt_list
+                tkt_list.append(
+                    to_json(
+                        {
+                            'product': new_tkts[i].values['product'],
+                            'id': tid - num_of_tkts + i + 1,
+                            'url': get_resource_url(
+                                self.env,
+                                tres,
+                                href),
+                            'summary': new_tkts[i].values['summary'],
+                            'status': new_tkts[i].values['status'],
+                            'priority': new_tkts[i].values['priority'],
+                            'description': new_tkts[i].values['description']}))
+            tkt_dict["tickets"] = tkt_list
             req.send(to_json(tkt_dict), 'application/json')
 
     def _get_ticket_module(self):
@@ -815,21 +866,44 @@ class BatchCreateTicketDialog(Component):
             tm = ptm
         return tm
 
-    #Template Stream Filter methods
+    # Template Stream Filter methods
     def filter_stream(self, req, method, filename, stream, data):
-        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission('TRAC_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
-            add_script(req,'theme/js/batchcreate.js')
+        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission(
+                'TRAC_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
+            add_script(req, 'theme/js/batchcreate.js')
             xpath = '//form[@id=modifypage]'
             products = self.env.db_query("SELECT * FROM bloodhound_product")
-            form = tag.form(method="get", style="display:inline", id="batchcreate")
-            div = tag.div(class_="btn-group")
+            form = tag.form(
+                method="get",
+                style="display:inline",
+                id="batchcreate")
+            div = tag.div(style="display:inline-block;position:relative;")
             span = tag.span(class_="input-group-btn")
-            button = tag.button(id="bct-button", class_="btn btn-default", type="button", onclick="Javascript:emptyTable("+to_json(products)+","+to_json(req.href()+"/bct")+","+to_json(str(req.environ["HTTP_COOKIE"]))+")")
-            input = tag.input(id="numOfRows",type="text", style="width:110px;", class_="form-control", placeholder="How many tickets?")
+            input = tag.input(
+                id="numOfRows",
+                type="text",
+                style="width:200px;padding-right:30px;",
+                class_="form-control",
+                placeholder="How many tickets?")
+            button = tag.button(
+                id="bct-button",
+                style="background-color:transparent;border:0;position:absolute;right:0;top:0;margin-top: 0px;height:29px;background-color:#5C85FF;color:white",
+                type="button",
+                onclick="Javascript:emptyTable(" +
+                to_json(products) +
+                "," +
+                to_json(
+                    req.href() +
+                    "/bct") +
+                "," +
+                to_json(
+                    str(
+                        req.environ["HTTP_COOKIE"])) +
+                ")")
             text = tag.text("Batch Create")
             button.append(text)
-            span.append(button)
             span.append(input)
+            span.append(button)
             div.append(span)
             form.append(div)
             stream |= Transformer(xpath).append(form)
@@ -839,21 +913,25 @@ class BatchCreateTicketDialog(Component):
     def batch_create(self, req, attributes={}, notify=False):
         """ Create batch of tickets, returning created tickets.
         """
-        num_of_tkts = attributes.__len__()/5
+        num_of_tkts = attributes.__len__() / 5
         created_tickets = []
-        for i in range(0,num_of_tkts):
+        for i in range(0, num_of_tkts):
 
-            if 'product'+str(i) in attributes:
+            if 'product' + str(i) in attributes:
                 env = self.env.parent or self.env
-                if attributes['product'+str(i)]:
-                    env = ProductEnvironment(env, attributes['product'+str(i)])
+                if attributes['product' + str(i)]:
+                    env = ProductEnvironment(
+                        env,
+                        attributes[
+                            'product' +
+                            str(i)])
             else:
                 env = self.env
-            description = attributes.pop('description'+str(i))
-            status = attributes.pop('status'+str(i))
-            summary = attributes.pop('summary'+str(i))
-            product = attributes.pop('product'+str(i))
-            priority = attributes.pop('priority'+str(i))
+            description = attributes.pop('description' + str(i))
+            status = attributes.pop('status' + str(i))
+            summary = attributes.pop('summary' + str(i))
+            product = attributes.pop('product' + str(i))
+            priority = attributes.pop('priority' + str(i))
 
             t = Ticket(env)
             t['summary'] = summary
@@ -870,11 +948,12 @@ class BatchCreateTicketDialog(Component):
                 try:
                     tn = TicketNotifyEmail(env)
                     tn.notify(t, newticket=True)
-                except Exception, e:
-                    self.log.exception("Failure sending notification on creation "
-                                   "of ticket #%s: %s" % (t.id, e))
+                except Exception as e:
+                    self.log.exception(
+                        "Failure sending notification on creation "
+                        "of ticket #%s: %s" %
+                        (t.id, e))
         # start_id = self.env.db_query("SELECT MAX(uid) FROM ticket")[0][0] - num_of_tkts
         # created_tickets = self.env.db_query("SELECT * FROM ticket WHERE uid>%s"%start_id)
         # return t['product'], t.id, created_tickets
         return t['product'], t.id, created_tickets, num_of_tkts
-
