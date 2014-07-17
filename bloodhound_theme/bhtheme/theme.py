@@ -19,6 +19,7 @@
 
 import sys
 
+from trac.util.datefmt import format_datetime, user_time
 from collections import Counter
 
 import fnmatch
@@ -42,7 +43,7 @@ from trac.util.presentation import to_json
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
-                             ITemplateProvider, prevnext_nav, Chrome, add_script)
+                             ITemplateProvider, prevnext_nav, Chrome, add_script, add_script_data)
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.formatter import format_to_html
 
@@ -694,8 +695,8 @@ class AutocompleteUsers(Component):
     implements(IRequestFilter, IRequestHandler,
                ITemplateProvider, ITemplateStreamFilter)
 
-    selectfields = ListOption('autocomplete', 'fields', default='',
-                              doc='select fields to transform to autocomplete text boxes')
+    select_fields = ListOption('autocomplete', 'fields', default='',
+                               doc='select fields to transform to autocomplete text boxes')
 
     # IRequestHandler methods
 
@@ -711,16 +712,15 @@ class AutocompleteUsers(Component):
         if req.args.get('users', '1') == '1':
             users = self._get_users(req)
             if req.perm.has_permission('EMAIL_VIEW'):
-                subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
-                                          user[EMAIL] and '<%s>' % user[EMAIL] or '',
-                                          user[NAME] and '%s' % user[NAME] or '',
-                                            user[USER])
-                                for value, user in users]  # value unused (placeholder needed for sorting)
+                subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or
+                                                                   '', user[EMAIL] and '<%s>' % user[EMAIL] or
+                                                                   '', user[NAME] and '%s' % user[NAME] or
+                                                                   '', user[USER])
+                            for value, user in users]
             else:
-                subjects = ['{"label":"%s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
-                                          user[NAME] and '%s' % user[NAME] or '',
-                                            user[USER])
-                                for value, user in users]  # value unused (placeholder needed for sorting)
+                subjects = ['{"label":"%s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '', user[NAME] and
+                                                                '%s' % user[NAME] or'', user[USER])
+                            for value, user in users]
 
         respond_str = ','.join(subjects).encode('utf-8')
         respond_str = '[' + respond_str + ']'
@@ -730,7 +730,6 @@ class AutocompleteUsers(Component):
 
     def get_htdocs_dirs(self):
         from pkg_resources import resource_filename
-
         return [('autocompleteusers', resource_filename(__name__, 'htdocs'))]
 
     def get_templates_dirs(self):
@@ -750,7 +749,6 @@ class AutocompleteUsers(Component):
             add_script(req, 'autocompleteusers/js/format_item.js')
             if template == 'query.html':
                 add_script(req, 'autocompleteusers/js/autocomplete_query.js')
-
         return template, data, content_type
 
     # ITemplateStreamFilter methods
@@ -762,7 +760,7 @@ class AutocompleteUsers(Component):
             fields = [field['name'] for field in data['ticket'].fields
                       if field['type'] == 'select']
             fields = set(sum([fnmatch.filter(fields, pattern)
-                              for pattern in self.selectfields], []))
+                              for pattern in self.select_fields], []))
 
         js = ""
 
@@ -770,7 +768,7 @@ class AutocompleteUsers(Component):
 
             restrict_owner = self.env.config.getbool('ticket', 'restrict_owner')
             if req.path_info.startswith('/ticket/'):
-                js = """$(document).bind('DOMSubtreeModified', function (){
+                js = """jQuery(document).bind('DOMSubtreeModified', function (){
                             $( "#field-cc" ).autocomplete({
                                 source: "user_list"
                                 multiple: true,
@@ -779,7 +777,7 @@ class AutocompleteUsers(Component):
                             });
                         });"""
                 if not restrict_owner:
-                    js = """$(document).bind('DOMSubtreeModified', function (){
+                    js = """jQuery(document).bind('DOMSubtreeModified', function (){
 
                             $( "#field-cc" ).autocomplete({
                                 source: "user_list",
@@ -817,16 +815,14 @@ class AutocompleteUsers(Component):
                                 formatItem: formatItem
                             });
                         });"""
-            stream = stream | Transformer('.//head').append(tag.script(Markup(js),
-                                                                   type='text/javascript'))
+            stream = stream | Transformer('.//head').append(tag.script(Markup(js), type='text/javascript'))
 
         elif filename == 'bh_admin_perms.html':
             users = self._get_users(req)
-            subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '',
-                                      user[EMAIL] and '<%s>' % user[EMAIL] or '',
-                                      user[NAME] and '%s' % user[NAME] or '',
-                                        user[USER])
-                            for value, user in users]  # value unused (placeholder needed for sorting)
+            subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '', user[EMAIL] and
+                                                               '<%s>' % user[EMAIL] or '', user[NAME] and
+                                                               '%s' % user[NAME] or '', user[USER])
+                        for value, user in users]
 
             groups = self._get_groups(req)
             if groups:
@@ -839,7 +835,7 @@ class AutocompleteUsers(Component):
                 respond_str_groups = ','.join(subjects_groups).encode('utf-8')
                 respond_str_groups = '[' + respond_str_groups + ']'
 
-            js = """$(document).ready(function () {
+            js = """jQuery(document).ready(function () {
                     var subjects =  %(subject)s
                     var groups =  %(group)s
                       $("#gp_subject").autocomplete( {
@@ -855,14 +851,11 @@ class AutocompleteUsers(Component):
                         formatItem: formatItem
                       });
                     });"""
-            js_ticket = js % {'subject': respond_str_subjects,
-                                'group': respond_str_groups
+            js_ticket = js % {'subject': respond_str_subjects, 'group': respond_str_groups
                               }
-            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket),
-                                                                   type='text/javascript'))
 
+            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket), type='text/javascript'))
         return stream
-
 
     # Private methods
 
@@ -877,9 +870,10 @@ class AutocompleteUsers(Component):
         db = self.env.get_db_cnx()
         cursor = db.cursor()
         cursor.execute("""SELECT DISTINCT username FROM permission""")
-        usernames = [user[0] for user in self.env.get_known_users()]
-        return sorted([row[0] for row in cursor if not row[0] in usernames
-        and row[0].lower().startswith(query)])
+        user_names = [user[0] for user in self.env.get_known_users()]
+        return sorted([row[0]
+                       for row in cursor
+                       if not row[0] in user_names and row[0].lower().startswith(query)])
 
     def _get_users(self, req):
         # instead of known_users, could be
@@ -929,8 +923,7 @@ class KeywordSuggestModule(Component):
     def post_process_request(self, req, template, data, content_type):
         """add the necessary javascript and css files
         """
-        if req.path_info.startswith('/ticket/') or \
-                req.path_info.startswith('/newticket') or \
+        if req.path_info.startswith('/ticket/') or req.path_info.startswith('/newticket') or \
                 (req.path_info.startswith('/query')):
                 add_script(req, 'keywordssuggest/js/bootstrap-tagsinput.js')
                 add_stylesheet(req, 'keywordssuggest/css/bootstrap-tagsinput.css')
@@ -942,8 +935,7 @@ class KeywordSuggestModule(Component):
         """add the jQuery tagsinput function to ticket and query pages
         """
 
-        if not (filename == 'bh_ticket.html' or
-                    (filename == 'bh_query.html')):
+        if not (filename == 'bh_ticket.html' or (filename == 'bh_query.html')):
             return stream
 
         keywords = self._get_keywords_string(req)
@@ -970,7 +962,6 @@ class KeywordSuggestModule(Component):
                 js = """jQuery(document).ready(function($) {
                             var keywords =  %(keywords)s
 
-
                             $('%(field)s').tagsinput({
                                 typeahead: {
                                     source: keywords
@@ -979,7 +970,7 @@ class KeywordSuggestModule(Component):
                         });"""
 
         if filename == 'bh_query.html':
-            js = """$(document).ready(function ($) {
+            js = """jQuery(document).ready(function ($) {
                           function addAutocompleteBehavior() {
                             var filters = $('#filters');
                             var contains = $.contains // jQuery 1.4+
@@ -1040,14 +1031,10 @@ class KeywordSuggestModule(Component):
             js_ticket = js % {'field': '#field-' + self.field_opt,
                               'keywords': keywords
                               }
-            stream = stream | Transformer('.//head').append \
-                (tag.script(Markup(js_ticket),
-                            type='text/javascript'))
+            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket), type='text/javascript'))
         if req.path_info.startswith('/query'):
             js_ticket = js % {'keywords': keywords}
-            stream = stream | Transformer('.//head').append \
-                (tag.script(Markup(js_ticket),
-                            type='text/javascript'))
+            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket), type='text/javascript'))
 
         return stream
 
@@ -1070,16 +1057,18 @@ class KeywordSuggestModule(Component):
         # get keywords from db
         db = self.env.get_db_cnx()
         cursor = db.cursor()
-        product = self.env.product._data['prefix']
-        sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null AND t.product ='%s'""" % product
-
-        cursor.execute(sql)
         keywords = []
-        for row in cursor:
-            if not row[0] == '':
-                row_val = str(row[0]).split(',')
-                for val in row_val:
-                    keywords.append(val.strip())
+        if self.env.product is not None:
+            product = self.env.product._data['prefix']
+            sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null AND t.product ='%s'""" % product
+
+            cursor.execute(sql)
+
+            for row in cursor:
+                if not row[0] == '':
+                    row_val = str(row[0]).split(',')
+                    for val in row_val:
+                        keywords.append(val.strip())
         # sort keywords according to frequency of occurrence
         if keywords:
             keyword_dic = Counter(keywords)
@@ -1092,8 +1081,10 @@ class KeywordSuggestModule(Component):
 # component to find duplicate tickets
 #DuplicateTicketSearch component basic structure is taken from trac DuplicateTicketSearch plugin
 #https://trac-hacks.org/wiki/DuplicateTicketSearchPlugin
+
+
 class DuplicateTicketSearch(Component):
-    implements(ITemplateProvider, ITemplateStreamFilter,IRequestHandler)
+    implements(ITemplateProvider, ITemplateStreamFilter, IRequestHandler)
 
     # ITemplateProvider methods
 
@@ -1104,10 +1095,10 @@ class DuplicateTicketSearch(Component):
     def get_templates_dirs(self):
         return []
 
-
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
+        add_script(req, 'duplicateticketsearch/js/popoverDupSearch.js')
 
         if filename == 'bh_ticket.html':
             ticket = data.get('ticket')
@@ -1116,7 +1107,7 @@ class DuplicateTicketSearch(Component):
 
         return stream
 
-        # IRequestHandler methods
+    # IRequestHandler methods
 
     def match_request(self, req):
         """Handle requests sent to /user_list and /ticket/user_list
@@ -1124,22 +1115,77 @@ class DuplicateTicketSearch(Component):
         return req.path_info.rstrip('/') == '/duplicate_ticket_search'
 
     def process_request(self, req):
-        product = self.env.product._data['prefix']
-        query_result = BloodhoundSearchApi(self.env).query(
-            req.args.get('q'),
-            pagenum=1,
-            pagelen=10,
-            filter=['type:"ticket"', 'product:"'+product+'"'],
-            highlight=True,
-        )
-        ticket_list = []
-        cnt = 0
-        for ticket in query_result.docs:
-            ticket_list.append(to_json({'summary': query_result.highlighting[cnt]['summary'], 'description': query_result.highlighting[cnt]['content'],'type':ticket['type'] ,'status':ticket['status'] , 'owner':ticket['author'] ,'date':ticket['time'].strftime('%m/%d/%Y') ,'url': ticket['id']}))
-            cnt+1
+        terms = req.args.get('q').split(' ')
+
+        with self.env.db_direct_query as db:
+            sql, args = self._search_to_sql(db, ['summary', 'keywords', 'description'], terms)
+            sql2, args2 = self._search_to_sql(db, ['newvalue'], terms)
+            sql3, args3 = self._search_to_sql(db, ['value'], terms)
+            if self.env.product is not None:
+                product_sql = "product='%s' AND" % self.env.product._data['prefix']
+            else:
+                product_sql = ""
+            ticket_list = []
+            ticket_list_value = []
+            for summary, desc, author, type, tid, ts, status, resolution in \
+                    db("""SELECT summary, description, reporter, type, id,
+                                 time, status, resolution
+                          FROM ticket
+                          WHERE (%s id IN (
+                              SELECT id FROM ticket WHERE %s
+                            UNION
+                              SELECT ticket FROM ticket_change
+                              WHERE field='comment' AND %s
+                            UNION
+                              SELECT ticket FROM ticket_custom WHERE %s
+                          ))
+                          """ % (product_sql, sql, sql2, sql3),
+                       args + args2 + args3):
+
+                summary_term_count = 0
+                summary_list = summary.split(' ')
+                for s in summary_list:
+                    for t in terms:
+                        if s.lower() == t.lower():
+                            summary = summary.replace(s,'<em>'+t+'</em>')
+                            summary_term_count += 1
+                            break
+
+                ticket_list.append(to_json({'summary': summary, 'description': desc, 'type': type, 'status': status,
+                                            'owner': author, 'date': user_time(req, format_datetime, ts), 'url': tid}))
+                ticket_list_value.append(summary_term_count)
+        ticket_list = [x for (y, x) in sorted(zip(ticket_list_value, ticket_list))]
         str_list = '['+','.join(ticket_list)+']'
 
         req.send(str_list, 'application/json')
+
+    # Private methods
+
+    def _search_to_sql(self, db, columns, terms):
+        """Convert a search query into an SQL WHERE clause and corresponding
+        parameters.
+
+        The result is returned as an `(sql, params)` tuple.
+        """
+        assert columns and terms
+
+        likes = ['%s %s' % (i, db.like()) for i in columns]
+        c = ' OR '.join(likes)
+        sql = '(' + ') OR ('.join([c] * len(terms)) + ')'
+        args = []
+        for t in terms:
+            args.extend(['%' + db.like_escape(t) + '%'] * len(columns))
+        return sql, tuple(args)
+
+
+
+
+
+
+
+
+
+
 
 
 
