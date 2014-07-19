@@ -365,6 +365,8 @@ class ProductEnvironment(Component, ComponentManager):
                 g_env = env.parent if isinstance(env,
                                                  ProductEnvironment) else env
                 return f(self, g_env, *args, **kwargs)
+            __call__.clear = f.clear
+
             return __call__
 
         def product_env_keymap(args, kwds, kwd_mark):
@@ -396,6 +398,10 @@ class ProductEnvironment(Component, ComponentManager):
 
     setup_participants = ExtensionPoint(trac.env.IEnvironmentSetupParticipant)
     multi_product_support_components = ExtensionPoint(ISupportMultiProductEnvironment)
+
+    @classmethod
+    def clear_env_cache(cls):
+        cls.__metaclass__.__call__.clear()
 
     @property
     def product_setup_participants(self):
