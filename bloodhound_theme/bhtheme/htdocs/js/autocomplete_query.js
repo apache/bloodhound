@@ -1,8 +1,7 @@
 $(document).ready(function ($) {
   function addAutocompleteBehavior() {
     var filters = $('#filters');
-    var contains = $.contains // jQuery 1.4+
-      || function (container, contained) {
+    var contains =  function (container, contained) {
       while (contained !== null) {
         if (container === contained)
           return true;
@@ -22,7 +21,6 @@ $(document).ready(function ($) {
             /^(?:[0-9]+_)?(?:owner|reporter|cc)$/.test(name)) {
             input.autocomplete( {source:"user_list",formatItem: formatItem,
               multiple: /cc$/.test(name)});
-            input.focus(); // XXX Workaround for Trac 0.12.2 and jQuery 1.4.2
           }
         }
       });
@@ -30,10 +28,6 @@ $(document).ready(function ($) {
     if ($.fn.on) {
       // delegate method is available in jQuery 1.7+
       filters.on('focusin', 'input:text', listener);
-    }
-    else if ($.fn.delegate) {
-      // delegate method is available in jQuery 1.4.2+
-      filters.delegate('input:text', 'focus', listener);
     }
     else if (window.addEventListener) {
       // use capture=true cause focus event doesn't bubble in the default

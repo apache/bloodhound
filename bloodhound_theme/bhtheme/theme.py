@@ -744,8 +744,10 @@ class AutocompleteUsers(Component):
         """add the necessary javascript and css files to ticket,permission and query page
         """
         if template in ('ticket.html', 'admin_perms.html', 'query.html'):
-            add_stylesheet(req, 'autocompleteusers/css/jquery-ui-1.8.16.custom.css')
-            add_script(req, 'autocompleteusers/js/jquery-ui-1.8.16.custom.min.js')
+            # add_stylesheet(req, 'autocompleteusers/css/jquery-ui-1.8.16.custom.css')
+            # add_script(req, 'autocompleteusers/js/jquery-ui-1.8.16.custom.min.js')
+            chrome = Chrome(self.env)
+            chrome.add_jquery_ui(req)
             add_script(req, 'autocompleteusers/js/format_item.js')
             if template == 'query.html':
                 add_script(req, 'autocompleteusers/js/autocomplete_query.js')
@@ -762,99 +764,28 @@ class AutocompleteUsers(Component):
             fields = set(sum([fnmatch.filter(fields, pattern)
                               for pattern in self.select_fields], []))
 
-        js = ""
-
         if filename == 'bh_ticket.html':
 
             restrict_owner = self.env.config.getbool('ticket', 'restrict_owner')
-            if req.path_info.startswith('/ticket/'):
-                js = """jQuery(document).bind('DOMSubtreeModified', function (){
-                            $( "#field-cc" ).autocomplete({
-                                source: "user_list"
-                                multiple: true,
-                                formatItem: formatItem,
-                                delay: 100
-                            });
-                        });"""
-                if not restrict_owner:
-                    js = """jQuery(document).bind('DOMSubtreeModified', function (){
-
-                            $( "#field-cc" ).autocomplete({
-                                source: "user_list",
-                                multiple: true,
-                                formatItem: formatItem,
-                                delay: 100
-                            });
-                            $( "#field-reporter" ).autocomplete({
-                                source: "user_list",
-                                formatItem: formatItem
-                            });
-                        });"""
-            else:
-
-                js = """jQuery(document).ready(function($) {
-
-                            $( "#field-cc" ).autocomplete({
-                                source: "user_list"
-                                multiple: true,
-                                formatItem: formatItem,
-                                delay: 100
-                            });
-                        });"""
-                if not restrict_owner:
-                    js = """jQuery(document).ready(function($) {
-
-                            $( "#field-cc" ).autocomplete({
-                                source: "user_list",
-                                multiple: true,
-                                formatItem: formatItem,
-                                delay: 100
-                            });
-                            $( "#field-reporter" ).autocomplete({
-                                source: "user_list",
-                                formatItem: formatItem
-                            });
-                        });"""
-            stream = stream | Transformer('.//head').append(tag.script(Markup(js), type='text/javascript'))
+            add_script(req, 'autocompleteusers/js/autocompleteuser_ticket.js')
+            if not restrict_owner:
+                add_script(req, 'autocompleteusers/js/autocompleteuser_ticket_owner.js')
 
         elif filename == 'bh_admin_perms.html':
             users = self._get_users(req)
-            subjects = ['{"label":"%s %s %s","value":"%s"}' % (user[USER] and '%s' % user[USER] or '', user[EMAIL] and
-                                                               '<%s>' % user[EMAIL] or '', user[NAME] and
-                                                               '%s' % user[NAME] or '', user[USER])
-                        for value, user in users]
+            subjects = [{"label": "%s %s %s" % (user[USER] and '%s' % user[USER] or '', user[EMAIL] and
+                                                '<%s>' % user[EMAIL] or '', user[NAME] and '%s' % user[NAME] or
+                                                ''), "value":"%s" % user[USER]} for value, user in users]
 
             groups = self._get_groups(req)
             if groups:
-                subjects_groups = ['{"label":"%s||group","value":"%s"}' % (group, group) for group in groups]
+                subjects_groups = [{"label": "%s||group" % group, "value": "%s" % group} for group in groups]
                 subjects.extend(subjects_groups)
 
-                respond_str_subjects = ','.join(subjects).encode('utf-8')
-                respond_str_subjects = '[' + respond_str_subjects + ']'
+            add_script(req, 'autocompleteusers/js/autocompleteuser_admin_perm.js')
+            data = {'subjects': subjects, 'groups': subjects_groups}
+            add_script_data(req, data)
 
-                respond_str_groups = ','.join(subjects_groups).encode('utf-8')
-                respond_str_groups = '[' + respond_str_groups + ']'
-
-            js = """jQuery(document).ready(function () {
-                    var subjects =  %(subject)s
-                    var groups =  %(group)s
-                      $("#gp_subject").autocomplete( {
-                        source: subjects,
-                        formatItem: formatItem
-                      });
-                      $("#sg_subject").autocomplete( {
-                        source: subjects,
-                        formatItem: formatItem
-                      });
-                      $("#sg_group").autocomplete({
-                        source: groups,
-                        formatItem: formatItem
-                      });
-                    });"""
-            js_ticket = js % {'subject': respond_str_subjects, 'group': respond_str_groups
-                              }
-
-            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket), type='text/javascript'))
         return stream
 
     # Private methods
@@ -923,8 +854,7 @@ class KeywordSuggestModule(Component):
     def post_process_request(self, req, template, data, content_type):
         """add the necessary javascript and css files
         """
-        if req.path_info.startswith('/ticket/') or req.path_info.startswith('/newticket') or \
-                (req.path_info.startswith('/query')):
+        if req.path_info.startswith('/ticket/') or req.path_info.startswith('/newticket') or (req.path_info.startswith('/query')):
                 add_script(req, 'keywordssuggest/js/bootstrap-tagsinput.js')
                 add_stylesheet(req, 'keywordssuggest/css/bootstrap-tagsinput.css')
 
@@ -1060,15 +990,18 @@ class KeywordSuggestModule(Component):
         keywords = []
         if self.env.product is not None:
             product = self.env.product._data['prefix']
-            sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null AND t.product ='%s'""" % product
+            product_sql = " AND t.product = '%s'" % product
+        else:
+            product_sql = ""
+        sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null%s""" % product_sql
 
-            cursor.execute(sql)
+        cursor.execute(sql)
 
-            for row in cursor:
-                if not row[0] == '':
-                    row_val = str(row[0]).split(',')
-                    for val in row_val:
-                        keywords.append(val.strip())
+        for row in cursor:
+            if not row[0] == '':
+                row_val = str(row[0]).split(',')
+                for val in row_val:
+                    keywords.append(val.strip())
         # sort keywords according to frequency of occurrence
         if keywords:
             keyword_dic = Counter(keywords)
@@ -1079,8 +1012,8 @@ class KeywordSuggestModule(Component):
         return keywords
 
 # component to find duplicate tickets
-#DuplicateTicketSearch component basic structure is taken from trac DuplicateTicketSearch plugin
-#https://trac-hacks.org/wiki/DuplicateTicketSearchPlugin
+# DuplicateTicketSearch component basic structure is taken from trac DuplicateTicketSearch plugin
+# https://trac-hacks.org/wiki/DuplicateTicketSearchPlugin
 
 
 class DuplicateTicketSearch(Component):
