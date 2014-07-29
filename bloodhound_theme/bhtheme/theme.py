@@ -69,7 +69,7 @@ class BloodhoundTheme(ThemeBase):
     disable_all_trac_css = True
     BLOODHOUND_KEEP_CSS = set(
         (
-            'diff.css', 'code.css'
+            'diff.css', 'code.css', 'jquery-ui.css'
         )
     )
     BLOODHOUND_TEMPLATE_MAP = {
@@ -873,8 +873,10 @@ class KeywordSuggestModule(Component):
             self.log.debug("""
                 No keywords found. KeywordSuggestPlugin is disabled.""")
             keywords = []
-
+        # data = {'keywords': keywords}
+        # add_script_data(req, data)
         if filename == 'bh_ticket.html':
+            # add_script(req, 'keywordssuggest/js/keywordsuggest_ticket.js')
             if req.path_info.startswith('/ticket/'):
                 js = """
                 jQuery(document).ready(function($) {

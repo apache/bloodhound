@@ -32,7 +32,7 @@ jQuery(document).ready(function() {
 						// no dupe tickets
 						duplicate_eticket_list_div.slideUp();
 					} else {
-						html = '<h5>Possible related tickets:</h5><ul id="results">'
+						html = '<h5>Possible related tickets:</h5><ul id="results" style="display:none; list-style-type: none">'
 						tickets = tickets.reverse();
 
 						for (var i = 0; i < tickets.length && i < max_tickets; i++) {

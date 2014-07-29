@@ -1,5 +1,5 @@
 jQuery(document).ready(function() {
-
+     var bloodhoundBase = getBaseUrl();
 	$('input#field-summary.input-block-level').blur(function() {
 		var text = $('input#field-summary.input-block-level').val();
 		if (text.length > 0) {
@@ -14,7 +14,7 @@ jQuery(document).ready(function() {
 			dupelicate_ticket_list_div.html(html).slideDown();
 
 			$.ajax({
-				url:'duplicate_ticket_search',
+				url:bloodhoundBase.url+'duplicate_ticket_search',
                 data:{q:text},
 				type:'GET',
 				success: function(data, status) {
@@ -31,7 +31,7 @@ jQuery(document).ready(function() {
 						// no dupe tickets
 						dupelicate_ticket_list_div.slideUp();
 					} else {
-						html = '<h5>Possible related tickets:</h5><ul style="display:none;">';
+						html = '<h5>Possible related tickets:</h5><ul id="results" style="display:none; list-style-type: none">';
 						//tickets = tickets.reverse();
 
 						for (var i = 0; i < tickets.length && i < max_tickets; i++) {
@@ -68,6 +68,29 @@ jQuery(document).ready(function() {
 
 	function htmlencode(text) {
 		return $('<div/>').text(text).html().replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+	}
+    	function getBaseUrl() {
+		// returns the base URL to bloodhound, based on guesses.
+		var returnVal = { url:null, ticket:null };
+		var urlRegex = /^.+?(?=\/newticket.*|\/ticket\/(\d+).*|\/ticket.*)/i;
+		var match = urlRegex.exec(location.href);
+		if (match) {
+			if (match[1]) {
+				// also have a ticket number
+				returnVal.ticket = match[1];
+			}
+			returnVal.url = match[0] + (match[0].match('/$') ? '' : '/');
+		} else {
+			//check whether the url is base url, if base url add ending '/'
+            var urlRegex1 = /^.+?(?=\/.*)/i;
+            var match1 = urlRegex1.exec(location.pathname);
+            if(match1){
+                returnVal.url = ''
+            }else{
+                returnVal.url = location.href + (location.href.match('/$') ? '' : '/') ;
+            }
+		}
+		return returnVal;
 	}
 });
 
