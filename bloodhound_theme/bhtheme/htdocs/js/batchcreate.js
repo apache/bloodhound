@@ -175,7 +175,26 @@ function emptyTable(products,href,token) {
 	}
 	table.appendChild(tbody);
 	form.appendChild(table);
+
+	remove_row_button = document.createElement("button");
+	remove_row_button.setAttribute("class","btn pull-right");
+	remove_row_button.setAttribute("type","button");
+	remove_row_button.setAttribute("onclick","remove_row_btn_action()");
+	remove_row_button.setAttribute("id","bct-rmv-empty-row");
+	remove_row_button.appendChild(document.createTextNode("-"));
+	form.appendChild(remove_row_button);
 	
+	add_row_button = document.createElement("button");
+	add_row_button.setAttribute("class","btn pull-right");
+	add_row_button.setAttribute("type","button");
+	add_row_button.addEventListener("click", function(event) {
+  		add_row_btn_action(products);
+  		event.preventDefault();
+	});
+	add_row_button.setAttribute("id","bct-add-empty-row");
+	add_row_button.appendChild(document.createTextNode("+"));
+	form.appendChild(add_row_button);	
+
     submit_button = document.createElement("button");
 	submit_button.setAttribute("class","btn pull-right");
 	submit_button.setAttribute("type","button");
@@ -281,4 +300,145 @@ function submit_btn_action() {
 			div.appendChild(table);
 			contentDiv.appendChild(div);     
         });
+}
+
+function add_row_btn_action(products){
+	// alert("1");
+
+	var headers = {"summary":"Summary","description":"Description","product":"Product","status":"Status","priority":"Priority"}
+	var statuses = ["accepted", "assigned", "closed", "new", "reopened"];
+	var priorities = ["blocker", "critical", "major", "minor", "trivial"];
+	var types = ["defect", "enhancement", "task"];
+
+    tr_rows = document.createElement("tr");
+
+    for (header in headers){
+		if (header == "summary"){
+				td_row = document.createElement("td");
+				input_summary = document.createElement("input");
+				input_summary.setAttribute("type","text");
+				input_summary.setAttribute("id","field-summary"+i);
+				input_summary.setAttribute("class","input-block-level");
+				input_summary.setAttribute("name","field_summary"+i);
+				td_row.appendChild(input_summary);
+				tr_rows.appendChild(td_row);
+			}
+			else if (header == "description") {
+				td_row = document.createElement("td");
+				input_description = document.createElement("textarea");
+				input_description.setAttribute("id","field-description"+i);
+				input_description.setAttribute("class","input-block-level");
+				input_description.setAttribute("name","field_description"+i);
+				input_description.setAttribute("rows","2");
+				input_description.setAttribute("cols","28");
+				td_row.appendChild(input_description);
+				tr_rows.appendChild(td_row);
+			}
+			else if (header == "status") {
+				td_row = document.createElement("td");
+				input_status = document.createElement("select");
+				input_status.setAttribute("id","field-status"+i);
+				input_status.setAttribute("class","input-block-level");
+				input_status.setAttribute("name","field_status"+i);
+				for (status in statuses){
+					option = document.createElement("option");
+					option.setAttribute("value",statuses[status]);
+					option.appendChild(document.createTextNode(statuses[status]));
+					input_status.appendChild(option);
+				}
+				td_row.appendChild(input_status);
+				tr_rows.appendChild(td_row);
+			}
+			else if (header == "priority") {
+				td_row = document.createElement("td");
+				input_priority = document.createElement("select");
+				input_priority.setAttribute("id","field-priority"+i);
+				input_priority.setAttribute("class","input-block-level");
+				input_priority.setAttribute("name","field_priority"+i);
+				for (priority in priorities){
+					option = document.createElement("option");
+					option.setAttribute("value",priorities[priority]);
+					option.appendChild(document.createTextNode(priorities[priority]));
+					input_priority.appendChild(option);
+				}
+				td_row.appendChild(input_priority);
+				tr_rows.appendChild(td_row);
+			}
+			/*else if (header == "type") {
+				td_row = document.createElement("td");
+				input_type = document.createElement("select");
+				input_type.setAttribute("id","field-type"+i);
+				input_type.setAttribute("class","input-block-level");
+				input_type.setAttribute("name","field_type"+i);
+				for (type in types){
+					option = document.createElement("option");
+					option.setAttribute("value",types[type]);
+					option.appendChild(document.createTextNode(types[type]));
+					input_type.appendChild(option);
+				}
+				td_row.appendChild(input_type);
+				tr_rows.appendChild(td_row);
+			}*/
+			else if (header == "product") {
+				td_row = document.createElement("td");
+				field_product = document.createElement("select");
+				field_product.setAttribute("id","field-product"+i);
+				field_product.setAttribute("class","input-block-level");
+				field_product.setAttribute("name","field_product"+i);
+				for (product in products){
+					option = document.createElement("option");
+					option.setAttribute("value",(products[product])[0]);
+					option.appendChild(document.createTextNode((products[product])[1]));
+					field_product.appendChild(option);
+				}
+				td_row.appendChild(field_product);
+				tr_rows.appendChild(td_row);
+			}
+			/*else if (header == "owner"){
+				td_row = document.createElement("td");
+				input_owner = document.createElement("input");
+				input_owner.setAttribute("type","text");
+				input_owner.setAttribute("id","field-owner"+i);
+				input_owner.setAttribute("class","input-block-level");
+				input_owner.setAttribute("name","field_owner"+i);
+				td_row.appendChild(input_owner);
+				tr_rows.appendChild(td_row);
+			}*/
+			/*else if (header == "cc"){
+				td_row = document.createElement("td");
+				input_cc = document.createElement("input");
+				input_cc.setAttribute("type","text");
+				input_cc.setAttribute("id","field-cc"+i);
+				input_cc.setAttribute("class","input-block-level");
+				input_cc.setAttribute("name","field_cc"+i);
+				td_row.appendChild(input_cc);
+				tr_rows.appendChild(td_row);
+			}*/
+			/*else if (header == "milestone"){
+				td_row = document.createElement("td");
+				input_milestone = document.createElement("input");
+				input_milestone.setAttribute("type","text");
+				input_milestone.setAttribute("id","field-milestone"+i);
+				input_milestone.setAttribute("class","input-block-level");
+				input_milestone.setAttribute("name","field_milestone"+i);
+				td_row.appendChild(input_milestone);
+				tr_rows.appendChild(td_row);
+			}*/
+			/*else if (header == "keywords"){
+				td_row = document.createElement("td");
+				input_keywords = document.createElement("input");
+				input_keywords.setAttribute("type","text");
+				input_keywords.setAttribute("id","field-keywords"+i);
+				input_keywords.setAttribute("class","input-block-level");
+				input_keywords.setAttribute("name","field_keywords"+i);
+				td_row.appendChild(input_keywords);
+				tr_rows.appendChild(td_row);
+			}*/
+
+	}
+	document.getElementById("empty-table").childNodes[1].childNodes[1].childNodes[1].appendChild(tr_rows);
+}
+
+function remove_row_btn_action(){
+	document.getElementById("empty-table").childNodes[1].childNodes[1].childNodes[1].lastChild.remove();
 }
