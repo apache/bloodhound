@@ -692,8 +692,7 @@ EMAIL = 2  # indices
 
 
 class AutocompleteUsers(Component):
-    implements(IRequestFilter, IRequestHandler,
-               ITemplateProvider, ITemplateStreamFilter)
+    implements(IRequestFilter, IRequestHandler, ITemplateStreamFilter)
 
     select_fields = ListOption('autocomplete', 'fields', default='',
                                doc='select fields to transform to autocomplete text boxes')
@@ -726,15 +725,6 @@ class AutocompleteUsers(Component):
         respond_str = '[' + respond_str + ']'
         req.send(respond_str, 'text/plain')
 
-    # ITemplateProvider methods
-
-    def get_htdocs_dirs(self):
-        from pkg_resources import resource_filename
-        return [('autocompleteusers', resource_filename(__name__, 'htdocs'))]
-
-    def get_templates_dirs(self):
-        return []
-
     # IRequestFilter methods
 
     def pre_process_request(self, req, handler):
@@ -744,13 +734,11 @@ class AutocompleteUsers(Component):
         """add the necessary javascript and css files to ticket,permission and query page
         """
         if template in ('ticket.html', 'admin_perms.html', 'query.html'):
-            # add_stylesheet(req, 'autocompleteusers/css/jquery-ui-1.8.16.custom.css')
-            # add_script(req, 'autocompleteusers/js/jquery-ui-1.8.16.custom.min.js')
             chrome = Chrome(self.env)
             chrome.add_jquery_ui(req)
-            add_script(req, 'autocompleteusers/js/format_item.js')
+            add_script(req, 'theme/js/format_item.js')
             if template == 'query.html':
-                add_script(req, 'autocompleteusers/js/autocomplete_query.js')
+                add_script(req, 'theme/js/autocomplete_query.js')
         return template, data, content_type
 
     # ITemplateStreamFilter methods
@@ -767,9 +755,9 @@ class AutocompleteUsers(Component):
         if filename == 'bh_ticket.html':
 
             restrict_owner = self.env.config.getbool('ticket', 'restrict_owner')
-            add_script(req, 'autocompleteusers/js/autocompleteuser_ticket.js')
+            add_script(req, 'theme/js/autocompleteuser_ticket.js')
             if not restrict_owner:
-                add_script(req, 'autocompleteusers/js/autocompleteuser_ticket_owner.js')
+                add_script(req, 'theme/js/autocompleteuser_ticket_owner.js')
 
         elif filename == 'bh_admin_perms.html':
             users = self._get_users(req)
@@ -782,7 +770,7 @@ class AutocompleteUsers(Component):
                 subjects_groups = [{"label": "%s||group" % group, "value": "%s" % group} for group in groups]
                 subjects.extend(subjects_groups)
 
-            add_script(req, 'autocompleteusers/js/autocompleteuser_admin_perm.js')
+            add_script(req, 'theme/js/autocompleteuser_admin_perm.js')
             data = {'subjects': subjects, 'groups': subjects_groups}
             add_script_data(req, data)
 
@@ -839,7 +827,7 @@ class AutocompleteUsers(Component):
 
 
 class KeywordSuggestModule(Component):
-    implements(IRequestFilter, ITemplateProvider, ITemplateStreamFilter)
+    implements(IRequestFilter, ITemplateStreamFilter)
 
     field_opt = Option('keywordsuggest', 'field', 'keywords',
                        """Field to which the drop-down list should be attached.""")
@@ -855,8 +843,8 @@ class KeywordSuggestModule(Component):
         """add the necessary javascript and css files
         """
         if req.path_info.startswith('/ticket/') or req.path_info.startswith('/newticket') or (req.path_info.startswith('/query')):
-                add_script(req, 'keywordssuggest/js/bootstrap-tagsinput.js')
-                add_stylesheet(req, 'keywordssuggest/css/bootstrap-tagsinput.css')
+                add_script(req, 'theme/js/bootstrap-tagsinput.js')
+                add_stylesheet(req, 'theme/css/bootstrap-tagsinput.css')
 
         return template, data, content_type
 
@@ -876,7 +864,7 @@ class KeywordSuggestModule(Component):
         # data = {'keywords': keywords}
         # add_script_data(req, data)
         if filename == 'bh_ticket.html':
-            # add_script(req, 'keywordssuggest/js/keywordsuggest_ticket.js')
+            # add_script(req, 'theme/js/keywordsuggest_ticket.js')
             if req.path_info.startswith('/ticket/'):
                 js = """
                 jQuery(document).ready(function($) {
@@ -970,17 +958,6 @@ class KeywordSuggestModule(Component):
 
         return stream
 
-    # ITemplateProvider methods
-    def get_htdocs_dirs(self):
-        from pkg_resources import resource_filename
-
-        return [('keywordssuggest', resource_filename(__name__, 'htdocs'))]
-
-    def get_templates_dirs(self):
-        from pkg_resources import resource_filename
-
-        return [resource_filename(__name__, 'htdocs')]
-
     # Private methods
     def _get_keywords_string(self, req):
         """return a list of keywords relevant to the product in the frequency of usage
@@ -1019,26 +996,17 @@ class KeywordSuggestModule(Component):
 
 
 class DuplicateTicketSearch(Component):
-    implements(ITemplateProvider, ITemplateStreamFilter, IRequestHandler)
-
-    # ITemplateProvider methods
-
-    def get_htdocs_dirs(self):
-        from pkg_resources import resource_filename
-        return [('duplicateticketsearch', resource_filename(__name__, 'htdocs'))]
-
-    def get_templates_dirs(self):
-        return []
+    implements(ITemplateStreamFilter, IRequestHandler)
 
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
-        add_script(req, 'duplicateticketsearch/js/popoverDupSearch.js')
+        add_script(req, 'theme/js/popoverDupSearch.js')
 
         if filename == 'bh_ticket.html':
             ticket = data.get('ticket')
             if ticket and not ticket.id:   # only add for new tickets
-                add_script(req, 'duplicateticketsearch/js/DupeSearch.js')
+                add_script(req, 'theme/js/DupeSearch.js')
 
         return stream
 
