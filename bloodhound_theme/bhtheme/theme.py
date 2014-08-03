@@ -691,6 +691,7 @@ class QuickCreateTicketDialog(Component):
 from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
 
+
 class BatchCreateTicketDialog(Component):
     implements(
         IRequestFilter,
@@ -802,7 +803,7 @@ class BatchCreateTicketDialog(Component):
                          if k.startswith('field_'))
             # new_tkts variable will contain the tickets that have been created as a batch
             # that information will be used to load the resultant query table
-            product, tid, new_tkts, num_of_tkts = self.batch_create(
+            product, tid, new_tkts = self.batch_create(
                 req, attrs, True)
             # product, tid = self.batch_create(req, attrs, True)
         except Exception as exc:
@@ -811,6 +812,7 @@ class BatchCreateTicketDialog(Component):
         else:
             tkt_list = []
             tkt_dict = {}
+            num_of_tkts = len(new_tkts)
             for i in range(0, num_of_tkts):
                 tres = Neighborhood(
                     'product',
@@ -832,6 +834,8 @@ class BatchCreateTicketDialog(Component):
                                 href),
                             'summary': new_tkts[i].values['summary'],
                             'status': new_tkts[i].values['status'],
+                            'milestone': new_tkts[i].values['milestone'],
+                            'component': new_tkts[i].values['component'],
                             'priority': new_tkts[i].values['priority'],
                             'description': new_tkts[i].values['description']}))
             tkt_dict["tickets"] = tkt_list
@@ -850,11 +854,19 @@ class BatchCreateTicketDialog(Component):
 
     # Template Stream Filter methods
     def filter_stream(self, req, method, filename, stream, data):
-        if (filename == 'bh_wiki_view.html') and (req.perm.has_permission(
-                'TRAC_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
+        if (self.env.product is not None) and (filename == 'bh_wiki_view.html') and (
+                req.perm.has_permission('TRAC_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
             add_script(req, 'theme/js/batchcreate.js')
             xpath = '//form[@id=modifypage]'
-            products = self.env.db_query("SELECT * FROM bloodhound_product")
+
+            product_id = str(self.env.product.resource.id)
+
+            product_name = self.env.db_query(
+                "SELECT * FROM bloodhound_product WHERE prefix=%s", (product_id,))
+            milestones = self.env.db_query(
+                "SELECT * FROM milestone WHERE product=%s", (product_id,))
+            components = self.env.db_query(
+                "SELECT * FROM component WHERE product=%s", (product_id,))
             form = tag.form(
                 method="get",
                 style="display:inline",
@@ -872,7 +884,11 @@ class BatchCreateTicketDialog(Component):
                 style="background-color:transparent;border:0;position:absolute;right:0;top:0;margin-top: 0px;height:29px;background-color:#5C85FF;color:white",
                 type="button",
                 onclick="Javascript:emptyTable(" +
-                to_json(products) +
+                to_json(product_name) +
+                "," +
+                to_json(milestones) +
+                "," +
+                to_json(components) +
                 "," +
                 to_json(
                     req.href() +
@@ -895,9 +911,15 @@ class BatchCreateTicketDialog(Component):
     def batch_create(self, req, attributes={}, notify=False):
         """ Create batch of tickets, returning created tickets.
         """
-        num_of_tkts = attributes.__len__() / 5
+        num_of_tkts = attributes.__len__() / 6
         created_tickets = []
-        for i in range(0, num_of_tkts):
+        loop_condition = True
+        i = -1
+
+        while loop_condition:
+            i += 1
+            if 'summary' + str(i) not in attributes:
+                continue
 
             if 'product' + str(i) in attributes:
                 env = self.env.parent or self.env
@@ -909,11 +931,18 @@ class BatchCreateTicketDialog(Component):
                             str(i)])
             else:
                 env = self.env
+
+            if attributes.get('summary' + str(i)) == "":
+                num_of_tkts -= 1
+                continue
+
             description = attributes.pop('description' + str(i))
-            status = attributes.pop('status' + str(i))
+            status = 'new'
             summary = attributes.pop('summary' + str(i))
             product = attributes.pop('product' + str(i))
             priority = attributes.pop('priority' + str(i))
+            milestone = attributes.pop('milestone' + str(i))
+            component = attributes.pop('component' + str(i))
 
             t = Ticket(env)
             t['summary'] = summary
@@ -923,6 +952,8 @@ class BatchCreateTicketDialog(Component):
             t['resolution'] = ''
             t['product'] = product
             t['priority'] = priority
+            t['milestone'] = milestone
+            t['component'] = component
             t.insert()
             created_tickets.append(t)
 
@@ -935,7 +966,8 @@ class BatchCreateTicketDialog(Component):
                         "Failure sending notification on creation "
                         "of ticket #%s: %s" %
                         (t.id, e))
-        # start_id = self.env.db_query("SELECT MAX(uid) FROM ticket")[0][0] - num_of_tkts
-        # created_tickets = self.env.db_query("SELECT * FROM ticket WHERE uid>%s"%start_id)
-        # return t['product'], t.id, created_tickets
-        return t['product'], t.id, created_tickets, num_of_tkts
+            num_of_tkts -= 1
+            if num_of_tkts <= 0:
+                loop_condition = False
+
+        return t['product'], t.id, created_tickets
