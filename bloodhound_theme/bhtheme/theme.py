@@ -19,8 +19,9 @@
 
 import sys
 
+import re
+
 from trac.util.datefmt import format_datetime, user_time
-from collections import Counter
 
 import fnmatch
 
@@ -28,8 +29,6 @@ from genshi.builder import tag
 from genshi.core import TEXT, Markup
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
-from bhsearch.api import BloodhoundSearchApi
-from bhsearch.web_ui import RequestContext
 
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
@@ -861,8 +860,7 @@ class KeywordSuggestModule(Component):
             self.log.debug("""
                 No keywords found. KeywordSuggestPlugin is disabled.""")
             keywords = []
-        # data = {'keywords': keywords}
-        # add_script_data(req, data)
+
         if filename == 'bh_ticket.html':
             # add_script(req, 'theme/js/keywordsuggest_ticket.js')
             if req.path_info.startswith('/ticket/'):
@@ -890,70 +888,16 @@ class KeywordSuggestModule(Component):
                         });"""
 
         if filename == 'bh_query.html':
-            js = """jQuery(document).ready(function ($) {
-                          function addAutocompleteBehavior() {
-                            var filters = $('#filters');
-                            var contains = $.contains // jQuery 1.4+
-                              || function (container, contained) {
-                              while (contained !== null) {
-                                if (container === contained)
-                                  return true;
-                                contained = contained.parentNode;
-                              }
-                              return false;
-                            };
-                            var listener = function (event) {
-                              var target = event.target || event.srcElement;
-                              filters.each(function () {
-                                if (contains(this, target)) {
-                                  var input = $(this).find('input:text').filter(function () {
-                                    return target === this;
-                                  });
-                                  var name = input.attr('name');
-                                  if (input.attr('autocomplete') !== 'off' &&
-                                    /^(?:[0-9]+_)?(?:keywords)$/.test(name)) {
-                                    input.tagsinput({
-                                        typeahead: {
-                                            source: %(keywords)s
-                                            }
-                                        });
-                                    input.focus(); // XXX Workaround for Trac 0.12.2 and jQuery 1.4.2
-                                  }
-                                }
-                              });
-                            };
-                            if ($.fn.on) {
-                              // delegate method is available in jQuery 1.7+
-                              filters.on('focusin', 'input:text', listener);
-                            }
-                            else if ($.fn.delegate) {
-                              // delegate method is available in jQuery 1.4.2+
-                              filters.delegate('input:text', 'focus', listener);
-                            }
-                            else if (window.addEventListener) {
-                              // use capture=true cause focus event doesn't bubble in the default
-                              filters.each(function () {
-                                this.addEventListener('focus', listener, true);
-                              });
-                            }
-                            else {
-                              // focusin event bubbles, the event is avialable for IE only
-                              filters.each(function () {
-                                this.attachEvent('onfocusin', listener);
-                              });
-                            }
-                          }
-                          addAutocompleteBehavior();
-                });"""
+            data = {'keywords': keywords}
+            add_script_data(req, data)
+            add_script(req, 'theme/js/keywordsuggest_query.js')
+
         # inject transient part of javascript directly into ticket.html template
         if req.path_info.startswith('/ticket/') or \
                 req.path_info.startswith('/newticket'):
             js_ticket = js % {'field': '#field-' + self.field_opt,
                               'keywords': keywords
                               }
-            stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket), type='text/javascript'))
-        if req.path_info.startswith('/query'):
-            js_ticket = js % {'keywords': keywords}
             stream = stream | Transformer('.//head').append(tag.script(Markup(js_ticket), type='text/javascript'))
 
         return stream
@@ -964,29 +908,30 @@ class KeywordSuggestModule(Component):
         """
         #currently all the keywords are taken through the db query and then sort them according to there frequency
         # get keywords from db
-        db = self.env.get_db_cnx()
-        cursor = db.cursor()
         keywords = []
-        if self.env.product is not None:
-            product = self.env.product._data['prefix']
-            product_sql = " AND t.product = '%s'" % product
-        else:
-            product_sql = ""
-        sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null%s""" % product_sql
+        with self.env.db_direct_query as db:
+            cursor = db.cursor()
 
-        cursor.execute(sql)
+            if self.env.product is not None:
+                product = self.env.product._data['prefix']
+                product_sql = " AND t.product = '%s'" % product
+            else:
+                product_sql = ""
+            sql = """SELECT t.keywords FROM ticket AS t WHERE t.keywords IS NOT null%s""" % product_sql
 
-        for row in cursor:
-            if not row[0] == '':
-                row_val = str(row[0]).split(',')
-                for val in row_val:
-                    keywords.append(val.strip())
-        # sort keywords according to frequency of occurrence
-        if keywords:
-            keyword_dic = Counter(keywords)
-            keywords = sorted(keyword_dic, key=lambda key: -keyword_dic[key])
-        else:
-            keywords = ''
+            cursor.execute(sql)
+
+            for row in cursor:
+                if not row[0] == '':
+                    row_val = str(row[0]).split(',')
+                    for val in row_val:
+                        keywords.append(val.strip())
+            # sort keywords according to frequency of occurrence
+            if keywords:
+                keyword_dic = {keyword: keywords.count(keyword) for keyword in keywords}
+                keywords = sorted(keyword_dic, key=lambda key: -keyword_dic[key])
+            else:
+                keywords = ''
 
         return keywords
 
@@ -1001,6 +946,7 @@ class DuplicateTicketSearch(Component):
     # ITemplateStreamFilter methods
 
     def filter_stream(self, req, method, filename, stream, data):
+
         add_script(req, 'theme/js/popoverDupSearch.js')
 
         if filename == 'bh_ticket.html':
@@ -1015,15 +961,17 @@ class DuplicateTicketSearch(Component):
     def match_request(self, req):
         """Handle requests sent to /user_list and /ticket/user_list
         """
-        return req.path_info.rstrip('/') == '/duplicate_ticket_search'
+        return re.match('.*/duplicate_ticket_search$', req.path_info)
 
     def process_request(self, req):
-        terms = req.args.get('q').split(' ')
+
+        terms = self._terms_to_search(req)
+        term_split = req.args.get('q').split(' ')
 
         with self.env.db_direct_query as db:
-            sql, args = self._search_to_sql(db, ['summary', 'keywords', 'description'], terms)
-            sql2, args2 = self._search_to_sql(db, ['newvalue'], terms)
-            sql3, args3 = self._search_to_sql(db, ['value'], terms)
+            sql, args = self._sql_to_search(db, ['summary', 'keywords', 'description'], terms)
+            sql2, args2 = self._sql_to_search(db, ['newvalue'], terms)
+            sql3, args3 = self._sql_to_search(db, ['value'], terms)
             if self.env.product is not None:
                 product_sql = "product='%s' AND" % self.env.product._data['prefix']
             else:
@@ -1048,9 +996,9 @@ class DuplicateTicketSearch(Component):
                 summary_term_count = 0
                 summary_list = summary.split(' ')
                 for s in summary_list:
-                    for t in terms:
+                    for t in term_split:
                         if s.lower() == t.lower():
-                            summary = summary.replace(s,'<em>'+t+'</em>')
+                            summary = summary.replace(s, '<em>'+t+'</em>')
                             summary_term_count += 1
                             break
 
@@ -1064,7 +1012,7 @@ class DuplicateTicketSearch(Component):
 
     # Private methods
 
-    def _search_to_sql(self, db, columns, terms):
+    def _sql_to_search(self, db, columns, terms):
         """Convert a search query into an SQL WHERE clause and corresponding
         parameters.
 
@@ -1080,17 +1028,22 @@ class DuplicateTicketSearch(Component):
             args.extend(['%' + db.like_escape(t) + '%'] * len(columns))
         return sql, tuple(args)
 
+    def _terms_to_search(self, req):
+        """Convert a search query into different terms to search.
 
+        The result is returned as a list of terms.
+        """
+        search_string = req.args.get('q')
+        terms = [search_string]
+        temp_string = search_string
+        search_string_split = search_string.split(' ')
 
+        for i in range(len(search_string_split)-3):
+            search_string = re.sub('^'+search_string_split[i]+' ', '', search_string)
+            terms.append(search_string)
+        search_string = temp_string
+        for i in reversed(xrange(3, len(search_string_split))):
+            search_string = re.sub(' '+search_string_split[i]+'$', '', search_string)
+            terms.append(search_string)
 
-
-
-
-
-
-
-
-
-
-
-
+        return terms
