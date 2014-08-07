@@ -8,9 +8,10 @@ PKG_INFO = {'bhsolr': ['schemadoc/*.xml'],
 
 ENTRY_POINTS = {
           'trac.plugins': [
-          'bhsolr.api = bhsolr.api',
           'bhsolr.admin = bhsolr.admin',
-          'bhsolr.solr_backend = bhsolr.solr_backend',
+          'bhsolr.schema = bhsolr.schema',
+          'bhsolr.backend = bhsolr.backend',
+          'bhsolr.web_ui = bhsolr.web_ui',
           'bhsolr.search_resources.ticket_search = bhsolr.search_resources.ticket_search',
           'bhsolr.search_resources.milestone_search = bhsolr.search_resources.milestone_search',
           'bhsolr.search_resources.changeset_search = bhsolr.search_resources.changeset_search',

@@ -11,6 +11,9 @@ from datetime import datetime
 from sunburnt import SolrInterface
 from contextlib import contextmanager
 from math import ceil
+import re
+import pkg_resources
+from bhsolr.schema import SolrSchema
 
 UNIQUE_ID = "unique_id"
 
@@ -44,18 +47,18 @@ class SolrBackend(Component):
 
 
   def __init__(self):
-    # resource_filename = pkg_resources.resource_filename
-    # path = resource_filename(__name__, "schemadoc") # TODO: Use absolute path of schema
-    self.solr_interface = SolrInterface(str(self.server_url))
-    self.field_boosts = DefaultQueryParser(self.env).field_boosts
-
+    resource_filename = pkg_resources.resource_filename
+    path = resource_filename(__name__, "schemadoc")
+    file_obj = open(path + "/schema.xml")
+    # print SolrSchema(self.env).getInstance(self.env).path
+    # file_obj = open(SolrSchema.getInstance(self.env).path)
+    self.solr_interface = SolrInterface(str(self.server_url), schemadoc=file_obj)
 
   def add_doc(self, doc, operation_context=None):
     self._reformat_doc(doc)
     doc[UNIQUE_ID] = self._create_unique_id(doc.get("product", ''),
                                             doc["type"],
                                             doc["id"])
-    print doc["type"]
     self.solr_interface.add(doc)
     self.solr_interface.commit()
 
@@ -72,17 +75,27 @@ class SolrBackend(Component):
             facets = None, pagenum = 1, pagelen = 20, highlight = False,
             highlight_fields = None, context = None):
 
-    final_query_chain = self._create_query_chain(query)
+    if not query_string:
+      query_string = "*.*"
+
+    final_query_chain = self._create_query_chain(query, query_string)
     solr_query = self.solr_interface.query(final_query_chain)
     faceted_solr_query = solr_query.facet_by(facets)
-    highlighted_solr_query = faceted_solr_query.highlight(HIGHLIGHTABLE_FIELDS)
-    paginated_solr_query = highlighted_solr_query.paginate(rows=20000)
+    self.highlighted_solr_query = faceted_solr_query.highlight(HIGHLIGHTABLE_FIELDS)
 
+    start = 0 if pagenum == 1 else pagelen * pagenum
+
+    paginated_solr_query = self.highlighted_solr_query.paginate(start=start, rows=pagelen)
     results = paginated_solr_query.execute()
+    mlt = self.query_more_like_this(paginated_solr_query, fields="type", mindf=1, mintf=1)
 
-    return self._create_query_result(results, fields, pagenum, pagelen)
+    return self._create_query_result(results, fields, pagenum, pagelen, mlt)
 
-  def _create_query_result(self, results, fields, pagenum, pagelen):
+  def query_more_like_this(self, query_chain, **kwargs):
+    mlt_results = query_chain.mlt(**kwargs).execute().more_like_these
+    return mlt_results
+
+  def _create_query_result(self, results, fields, pagenum, pagelen, mlt):
     total_num, total_page_count, page_num, offset = \
                 self._prepare_query_result_attributes(results, pagenum, pagelen)
 
@@ -96,7 +109,7 @@ class SolrBackend(Component):
     highlighting = []
 
     for retrieved_record in results:
-      result_doc = self._process_record(fields, retrieved_record)
+      result_doc = self._process_record(fields, retrieved_record, mlt)
       docs.append(result_doc)
 
       result_highlights = dict(retrieved_record['solr_highlights'])
@@ -107,8 +120,10 @@ class SolrBackend(Component):
 
     return query_results
 
-  def _create_query_chain(self, query):
-    tokens = set([token.text for token in query.all_tokens()])
+  def _create_query_chain(self, query, query_string):
+    matches = re.findall(re.compile(r'([\w\*]+)'), query_string)
+    tokens = set([match for match in matches])
+
     final_query_chain = None
     for token in tokens:
       token_query_chain = self._search_fields_for_token(token)
@@ -119,9 +134,9 @@ class SolrBackend(Component):
 
     return final_query_chain
 
-  def _process_record(self, fields, retrieved_record):
-    result_doc = dict()
 
+  def _process_record(self, fields, retrieved_record, mlt):
+    result_doc = dict()
     if fields:
       for field in fields:
         if field in retrieved_record:
@@ -131,17 +146,17 @@ class SolrBackend(Component):
         result_doc[key] = value
 
     for key, value in result_doc.iteritems():
-      result_doc[key] = self._from_solr_format(value)
+      result_doc[key] = self._from_whoosh_format(value)
 
     return result_doc
 
-  def _from_solr_format(self, value):
+  def _from_whoosh_format(self, value):
     if isinstance(value, datetime):
       value = utc.localize(value)
     return value
 
   def _prepare_query_result_attributes(self, results, pagenum, pagelen):
-    results_total_num = len(results)
+    results_total_num = self.highlighted_solr_query.execute().result.numFound
     total_page_count = int(ceil(results_total_num / pagelen))
     pagenum = min(total_page_count, pagenum)
 
@@ -163,7 +178,9 @@ class SolrBackend(Component):
 
   def _search_fields_for_token(self, token):
     query_chain = None
-    for field, boost in self.field_boosts.iteritems():
+    field_boosts = DefaultQueryParser(self.env).field_boosts
+
+    for field, boost in field_boosts.iteritems():
       if field != 'query_suggestion_basket' and field != 'relations':
         field_token_dict = {field: token}
         if query_chain == None:
@@ -182,9 +199,9 @@ class SolrBackend(Component):
       elif isinstance(value, basestring) and value == "":
         del doc[key]
       else:
-        doc[key] = self._to_solr_format(value)
+        doc[key] = self._to_whoosh_format(value)
 
-  def _to_solr_format(self, value):
+  def _to_whoosh_format(self, value):
     if isinstance(value, basestring):
       value = unicode(value)
     elif isinstance(value, datetime):
@@ -207,5 +224,6 @@ class SolrBackend(Component):
 
   def getInstance(self):
     return self.solr_interface
+
 
 

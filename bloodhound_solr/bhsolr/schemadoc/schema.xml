@@ -8,8 +8,8 @@
   <field name="_root_" type="string" indexed="true" stored="false"/>
 
   <!-- BH fields -->
-  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
   <field name="unique_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
   <field name="type" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
   <field name="product" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
   <field name="milestone" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
@@ -31,13 +31,11 @@
   <field name="required_permission" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
   <field name="name" type="text_general" indexed="true" stored="true" required="false" multiValued="false"/>
   <field name="_stored_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-  <!-- <field name="query_suggestion_basket" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/> -->
-  <!-- <field name="relations" type="lowercase" indexed="true" stored="true" required="true" multiValued="false"/> -->
+  <field name="relations" type="lowercase" indexed="true" stored="true" required="true" multiValued="false"/>
+  <field name="query_suggestion_basket" type="text_general" indexed="true" stored="true" required="true" multiValued="false"/>
 </fields>
 
 <uniqueKey>unique_id</uniqueKey>
-
-<!-- <copyField source="name" dest="text"/> -->
 
 <types>
   <!-- Field type definitions -->
@@ -69,4 +67,3 @@
 </types>
 
 </schema>
-
