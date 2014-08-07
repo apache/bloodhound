@@ -506,16 +506,15 @@ class MultiProductSystem(Component):
 
     def _enable_multiproduct_hooks(self):
         # enable multi product hooks in environment configuration
-        import multiproduct.hooks
-        import inspect
 
         config_update = False
-        hook_path = os.path.realpath(inspect.getsourcefile(multiproduct.hooks))
         if not 'environment_factory' in self.env.config['trac']:
-            self.env.config['trac'].set('environment_factory', hook_path)
+            self.env.config['trac'].set('environment_factory',
+                                        'multiproduct.hooks.MultiProductEnvironmentFactory')
             config_update = True
         if not 'request_factory' in self.env.config['trac']:
-            self.env.config['trac'].set('request_factory', hook_path)
+            self.env.config['trac'].set('request_factory',
+                                        'multiproduct.hooks.ProductRequestFactory')
             config_update = True
         if config_update:
             self.log.info(
