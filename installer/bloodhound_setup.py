@@ -237,16 +237,10 @@ class BloodhoundSetup(object):
             self.writeconfig(tracini, [{'inherit': {'file': baseini},},])
 
         base_config = dict(BASE_CONFIG)
-        environment_factory_path = os.path.abspath(
-                                      os.path.normpath(
-                                          os.path.join(options['sourcedir'],
-                                                               'bloodhound_multiproduct/multiproduct/hooks.py')))
-        request_factory_path = os.path.abspath(
-                                   os.path.normpath(
-                                       os.path.join(options['sourcedir'],
-                                                            'bloodhound_multiproduct/multiproduct/hooks.py')))
-        base_config['trac']['environment_factory'] = environment_factory_path
-        base_config['trac']['request_factory'] = request_factory_path
+        base_config['trac']['environment_factory'] = \
+            'multiproduct.hooks.MultiProductEnvironmentFactory'
+        base_config['trac']['request_factory'] = \
+            'multiproduct.hooks.ProductRequestFactory'
         if default_product_prefix != '@':
             base_config['multiproduct'] = dict(
                 default_product_prefix=default_product_prefix
