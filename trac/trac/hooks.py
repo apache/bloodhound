@@ -87,12 +87,10 @@ def install_global_hooks():
 
 
 def environment_factory(env):
-    print load_class(env.config.get('trac', 'environment_factory'))
     return load_class(env.config.get('trac', 'environment_factory'))
 
 
 def request_factory(env):
-    print load_class(env.config.get('trac', 'request_factory'))
     return load_class(env.config.get('trac', 'request_factory'))
 
 
