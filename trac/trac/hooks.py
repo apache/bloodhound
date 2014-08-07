@@ -34,7 +34,7 @@ class EnvironmentFactoryBase(object):
 
     @abc.abstractmethod
     def open_environment(self, environ, env_path, global_env, use_cache=False):
-        raise NotImplementedError("Must override method 'open_environment'")
+        pass
 
 
 class RequestFactoryBase(object):
