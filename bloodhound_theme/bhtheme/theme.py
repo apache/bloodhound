@@ -18,6 +18,7 @@
 #  under the License.
 
 import sys
+import re
 
 from genshi.builder import tag
 from genshi.core import TEXT
@@ -34,6 +35,7 @@ from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule
 from trac.util.compat import set
 from trac.util.presentation import to_json
+from trac.util.translation import cleandoc_
 from trac.versioncontrol.web_ui.browser import BrowserModule
 from trac.web.api import IRequestFilter, ITemplateStreamFilter
 from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor,
@@ -51,6 +53,7 @@ from bhdashboard import wiki
 from multiproduct.env import ProductEnvironment
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
 from bhtheme.translation import _, add_domain
+from trac.wiki.macros import WikiMacroBase
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
@@ -692,12 +695,20 @@ from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
 
 
-class BatchCreateTicketDialog(Component):
+class BatchCreateTicketsMacro(WikiMacroBase):
     implements(
         IRequestFilter,
         IRequestHandler,
         ITemplateStreamFilter,
         IPermissionRequestor)
+    _description = cleandoc_(
+        """Batch Create Tickets macro.
+
+    This macro can be used to create batch oftickets at once. Use the following syntax.
+    BatchCreateTickets[[10]]
+    You can replace the argument(10 in the above exaple) to change the number of tickets that you are going to create.
+
+    """)
 
     bct_fields = ListOption(
         'ticket',
@@ -710,17 +721,85 @@ class BatchCreateTicketDialog(Component):
         import pkg_resources
         locale_dir = pkg_resources.resource_filename(__name__, 'locale')
         add_domain(self.env.path, locale_dir)
-        super(BatchCreateTicketDialog, self).__init__(*args, **kwargs)
+        self.rows = 0
+        self.rqst = None
+        self.file = None
+        super(BatchCreateTicketsMacro, self).__init__(*args, **kwargs)
 
     # IPermissionRequestor methods
     def get_permission_actions(self):
         return ['TICKET_BATCH_CREATE']
 
-    # IRequestFilter(Interface):
+    def expand_macro(self, formatter, name, args):
+        """Set the number of rows for empty ticket table to be generated.
+        Return none as the template will not changed at this point.
 
+        `name` is the actual name of the macro. (here it'll be
+        `'BatchCreateTickets'`),
+        `args` is the text enclosed in parenthesis at the call of the macro.
+          Note that if there are ''no'' parenthesis (like in, e.g.
+          [[BatchCreateTickets]]), then `args` is `None` and its not a valid argument.
+          Or if the argument is not a valid type(like in, e.g.
+          [[BatchCreateTickets("Hello")]] "Hello" is a string which can't be parsed to an integer)
+          then the bh will raise an error.
+        """
+        self.rows = args
+        if (
+                self.env.product is not None) and (
+                self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None) and (
+                self.rqst.perm.has_permission('TRAC_ADMIN') or self.rqst.perm.has_permission('TICKET_BATCH_CREATE')):
+            add_script(self.rqst, 'theme/js/batchcreate.js')
+            product_id = str(self.env.product.resource.id)
+            product_name = self.env.db_query(
+                "SELECT * FROM bloodhound_product WHERE prefix=%s", (product_id,))
+            milestones = self.env.db_query(
+                "SELECT * FROM milestone WHERE product=%s", (product_id,))
+            components = self.env.db_query(
+                "SELECT * FROM component WHERE product=%s", (product_id,))
+            form = tag.form(
+                method="get",
+                style="display:inline",
+                id="batchcreate")
+            div = tag.div(
+                style="display:inline-block;position:relative;left: -30px;",
+                id="div-empty-table")
+            span = tag.span(class_="input-group-btn")
+            style1 = tag.style(
+                id="js-caller",
+                onload="Javascript:emptyTable(" +
+                to_json(str(self.rows)) +
+                "," +
+                to_json(product_name) +
+                "," +
+                to_json(milestones) +
+                "," +
+                to_json(components) +
+                "," +
+                to_json(
+                    self.rqst.href() +
+                    "/bct") +
+                "," +
+                to_json(
+                    str(
+                        self.rqst.environ["HTTP_COOKIE"])) +
+                ")")
+            span.append(style1)
+            div.append(span)
+            form.append(div)
+            try:
+                int(self.rows)
+            except TracError:
+                print "Enter  a valid argument (integer) to the BatchCreateTickets macro."
+
+            return form
+        else:
+            return None
+
+    # IRequestFilter(Interface):
     def pre_process_request(self, req, handler):
         """Nothing to do.
         """
+        self.rqst = req
         return handler
 
     def post_process_request(self, req, template, data, content_type):
@@ -805,7 +884,6 @@ class BatchCreateTicketDialog(Component):
             # that information will be used to load the resultant query table
             product, tid, new_tkts = self.batch_create(
                 req, attrs, True)
-            # product, tid = self.batch_create(req, attrs, True)
         except Exception as exc:
             self.log.exception("BH: Batch create tickets failed %s" % (exc,))
             req.send(str(exc), 'plain/text', 500)
@@ -838,7 +916,23 @@ class BatchCreateTicketDialog(Component):
                             'component': new_tkts[i].values['component'],
                             'priority': new_tkts[i].values['priority'],
                             'description': new_tkts[i].values['description']}))
+
             tkt_dict["tickets"] = tkt_list
+
+            """Editing the wiki content"""
+            max_uid = self.env.db_query("SELECT MAX(uid) FROM ticket")
+            max_time = self.env.db_query("SELECT MAX(time) FROM wiki")
+            wiki_content = self.env.db_query(
+                "SELECT * FROM wiki WHERE time==%s", (max_time[0][0],))
+            wiki_string = wiki_content[0][5]
+            pattern = '\[\[BatchCreateTickets\([0-9]+\)\]\]'
+            l = re.search(pattern, wiki_string)
+            l1 = str(wiki_string[l.regs[0][0]:l.regs[0][1]])
+            updated_wiki_content = wiki_string.replace(
+                l1, "[[CreatedTickets(" + str(max_uid[0][0] - num_of_tkts) + "," + str(max_uid[0][0]) + ")]]")
+            with self.env.db_transaction as db:
+                db("UPDATE wiki SET text=%s WHERE time=%s",
+                   (updated_wiki_content, max_time[0][0]))
             req.send(to_json(tkt_dict), 'application/json')
 
     def _get_ticket_module(self):
@@ -854,57 +948,7 @@ class BatchCreateTicketDialog(Component):
 
     # Template Stream Filter methods
     def filter_stream(self, req, method, filename, stream, data):
-        if (self.env.product is not None) and (filename == 'bh_wiki_view.html') and (
-                req.perm.has_permission('TRAC_ADMIN') or req.perm.has_permission('TICKET_BATCH_CREATE')):
-            add_script(req, 'theme/js/batchcreate.js')
-            xpath = '//form[@id=modifypage]'
-
-            product_id = str(self.env.product.resource.id)
-
-            product_name = self.env.db_query(
-                "SELECT * FROM bloodhound_product WHERE prefix=%s", (product_id,))
-            milestones = self.env.db_query(
-                "SELECT * FROM milestone WHERE product=%s", (product_id,))
-            components = self.env.db_query(
-                "SELECT * FROM component WHERE product=%s", (product_id,))
-            form = tag.form(
-                method="get",
-                style="display:inline",
-                id="batchcreate")
-            div = tag.div(style="display:inline-block;position:relative;")
-            span = tag.span(class_="input-group-btn")
-            input = tag.input(
-                id="numOfRows",
-                type="text",
-                style="width:200px;padding-right:30px;",
-                class_="form-control",
-                placeholder="How many tickets?")
-            button = tag.button(
-                id="bct-button",
-                style="background-color:transparent;border:0;position:absolute;right:0;top:0;margin-top: 0px;height:29px;background-color:#5C85FF;color:white",
-                type="button",
-                onclick="Javascript:emptyTable(" +
-                to_json(product_name) +
-                "," +
-                to_json(milestones) +
-                "," +
-                to_json(components) +
-                "," +
-                to_json(
-                    req.href() +
-                    "/bct") +
-                "," +
-                to_json(
-                    str(
-                        req.environ["HTTP_COOKIE"])) +
-                ")")
-            text = tag.text("Batch Create")
-            button.append(text)
-            span.append(input)
-            span.append(button)
-            div.append(span)
-            form.append(div)
-            stream |= Transformer(xpath).append(form)
+        self.file = filename
         return stream
 
     # Public API
@@ -917,6 +961,9 @@ class BatchCreateTicketDialog(Component):
         i = -1
 
         while loop_condition:
+            if num_of_tkts <= 0:
+                loop_condition = False
+                break
             i += 1
             if 'summary' + str(i) not in attributes:
                 continue
@@ -967,7 +1014,100 @@ class BatchCreateTicketDialog(Component):
                         "of ticket #%s: %s" %
                         (t.id, e))
             num_of_tkts -= 1
-            if num_of_tkts <= 0:
-                loop_condition = False
-
         return t['product'], t.id, created_tickets
+
+
+class CreatedTicketsMacro(WikiMacroBase):
+    implements(ITemplateStreamFilter)
+    _description = cleandoc_(
+        """Created Tickets macro.
+
+    This macro can be used to display the data of batch of tickets as a table within the wiki text. Use the following syntax.
+    CreatedTickets[[10,12]]
+    Arguments for the macro should be the starting id and the end id of the ticket sequence.
+
+    This is originally implemented as a part of the BatchCreateTickets macro. Though it can be intentionally use as a separate macro.
+    """)
+
+    def __init__(self, *args, **kwargs):
+        import pkg_resources
+        locale_dir = pkg_resources.resource_filename(__name__, 'locale')
+        add_domain(self.env.path, locale_dir)
+        self.rqst = None
+        self.file = None
+        super(CreatedTicketsMacro, self).__init__(*args, **kwargs)
+
+    # Template Stream Filter methods
+    def filter_stream(self, req, method, filename, stream, data):
+        self.rqst = req
+        self.file = filename
+        return stream
+
+    def expand_macro(self, formatter, name, args):
+        """Set the number of rows for empty ticket table to be generated.
+        Return none as the template will not changed at this point.
+
+        `name` is the actual name of the macro. (here it'll be
+        `'BatchCreateTickets'`),
+        `args` is the text enclosed in parenthesis at the call of the macro.
+          Note that if there are ''no'' parenthesis (like in, e.g.
+          [[BatchCreateTickets]]), then `args` is `None` and its not a valid argument.
+          Or if the argument is not a valid type(like in, e.g.
+          [[BatchCreateTickets("Hello")]] "Hello" is a string which can't be parsed to an integer)
+          then the bh will raise an error.
+        """
+        if self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None:
+            start_id = int(args.split(',')[0])
+            end_id = int(args.split(',')[1])
+
+            display_tickets = self.env.db_query(
+                "SELECT id,summary,product,status,milestone,component FROM ticket WHERE uid>=%s and uid<=%s",
+                (start_id +
+                 1,
+                 end_id),
+            )
+            display_tickets_list = []
+            display_tickets_dict = {}
+            for i in range(0, end_id - start_id):
+                tres = Neighborhood(
+                    'product',
+                    display_tickets[i][2])(
+                    'ticket',
+                    display_tickets[i][0])
+                href = self.rqst.href
+                display_tickets_list.append(
+                    to_json(
+                        {
+                            'product': display_tickets[i][2],
+                            'id': display_tickets[i][0],
+                            'url': get_resource_url(
+                                self.env,
+                                tres,
+                                href),
+                            'summary': display_tickets[i][1],
+                            'status': display_tickets[i][3],
+                            'milestone': display_tickets[i][4],
+                            'component': display_tickets[i][5]
+                        }))
+            display_tickets_dict["tickets"] = display_tickets_list
+
+            add_script(self.rqst, 'theme/js/batchcreate.js')
+            form = tag.form(
+                method="get",
+                style="display:inline",
+                id="batchcreate")
+            div = tag.div(
+                style="display:inline-block;position:relative;left: -30px;",
+                id="div-created-ticket-table")
+            span = tag.span(class_="input-group-btn")
+            body = tag.body(
+                id="js-caller",
+                onload="Javascript:display_created_tickets(" +
+                to_json(display_tickets_dict) +
+                ")")
+            span.append(body)
+            div.append(span)
+            form.append(div)
+            return form
+        else:
+            return None

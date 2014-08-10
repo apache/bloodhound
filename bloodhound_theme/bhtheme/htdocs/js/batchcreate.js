@@ -1,25 +1,21 @@
-function emptyTable(product,milestones,components,href,token) {
-
-	var numOfRows = document.getElementById("numOfRows").value;
-	var created_rows = document.getElementById("numOfRows").value;
+function emptyTable(numOfRows,product,milestones,components,href,token) {
+	created_rows=numOfRows;
 	form_token = token.split(";")[0].split("=")[1];
 	if(numOfRows == ""){
 		alert("Enter the ticket batch size.")
 	}
 	else if(numOfRows != "" && document.getElementById("empty-table") == null){
-	var contentDiv = document.getElementById("content");
-	//var headers = {"summary":"Summary","description":"Description","product":"Product","status":"Status","priority":"Priority","type":"Types","owner":"Owner","cc":"Cc","milestone":"Milestone","keywords":"Keywords"}
+	var contentDiv = document.getElementById("div-empty-table");
     var headers = {"ticket":"","summary":"Summary","description":"Description","product":"Product","priority":"Priority","milestone":"Milestone","component":"Component"}
-	//statuses = ["new", "accepted", "assigned", "closed", "reopened"];
 	priorities = ["blocker", "critical", "major", "minor", "trivial"];
 	types = ["defect", "enhancement", "task"];
 	
 	var div = document.createElement("div");
 	div.setAttribute("class","span12");
 	div.setAttribute("id","empty-table");
-	var h2 = document.createElement("h2");
-	h2.appendChild(document.createTextNode("Batch Create Tickets"));
-	div.appendChild(h2);
+	var h5 = document.createElement("h5");
+	h5.appendChild(document.createTextNode("Batch Create Tickets"));
+	div.appendChild(h5);
 	
 	var form = document.createElement("form");
 	form.setAttribute("id","bct-form");
@@ -85,21 +81,6 @@ function emptyTable(product,milestones,components,href,token) {
 				td_row.appendChild(input_description);
 				tr_rows.appendChild(td_row);
 			}
-			/*else if (header == "status") {
-				td_row = document.createElement("td");
-				input_status = document.createElement("select");
-				input_status.setAttribute("id","field-status"+i);
-				input_status.setAttribute("class","input-block-level");
-				input_status.setAttribute("name","field_status"+i);
-				for (status in statuses){
-					option = document.createElement("option");
-					option.setAttribute("value",statuses[status]);
-					option.appendChild(document.createTextNode(statuses[status]));
-					input_status.appendChild(option);
-				}
-				td_row.appendChild(input_status);
-				tr_rows.appendChild(td_row);
-			}*/
 			else if (header == "priority") {
 				td_row = document.createElement("td");
 				input_priority = document.createElement("select");
@@ -115,21 +96,6 @@ function emptyTable(product,milestones,components,href,token) {
 				td_row.appendChild(input_priority);
 				tr_rows.appendChild(td_row);
 			}
-			/*else if (header == "type") {
-				td_row = document.createElement("td");
-				input_type = document.createElement("select");
-				input_type.setAttribute("id","field-type"+i);
-				input_type.setAttribute("class","input-block-level");
-				input_type.setAttribute("name","field_type"+i);
-				for (type in types){
-					option = document.createElement("option");
-					option.setAttribute("value",types[type]);
-					option.appendChild(document.createTextNode(types[type]));
-					input_type.appendChild(option);
-				}
-				td_row.appendChild(input_type);
-				tr_rows.appendChild(td_row);
-			}*/
 			else if (header == "product") {
 				td_row = document.createElement("td");
 				field_product = document.createElement("select");
@@ -145,26 +111,6 @@ function emptyTable(product,milestones,components,href,token) {
 				td_row.appendChild(field_product);
 				tr_rows.appendChild(td_row);
 			}
-			/*else if (header == "owner"){
-				td_row = document.createElement("td");
-				input_owner = document.createElement("input");
-				input_owner.setAttribute("type","text");
-				input_owner.setAttribute("id","field-owner"+i);
-				input_owner.setAttribute("class","input-block-level");
-				input_owner.setAttribute("name","field_owner"+i);
-				td_row.appendChild(input_owner);
-				tr_rows.appendChild(td_row);
-			}*/
-			/*else if (header == "cc"){
-				td_row = document.createElement("td");
-				input_cc = document.createElement("input");
-				input_cc.setAttribute("type","text");
-				input_cc.setAttribute("id","field-cc"+i);
-				input_cc.setAttribute("class","input-block-level");
-				input_cc.setAttribute("name","field_cc"+i);
-				td_row.appendChild(input_cc);
-				tr_rows.appendChild(td_row);
-			}*/
 			else if (header == "milestone"){
 				td_row = document.createElement("td");
 				field_milestone = document.createElement("select");
@@ -195,16 +141,6 @@ function emptyTable(product,milestones,components,href,token) {
 				td_row.appendChild(field_component);
 				tr_rows.appendChild(td_row);
 			}
-			/*else if (header == "keywords"){
-				td_row = document.createElement("td");
-				input_keywords = document.createElement("input");
-				input_keywords.setAttribute("type","text");
-				input_keywords.setAttribute("id","field-keywords"+i);
-				input_keywords.setAttribute("class","input-block-level");
-				input_keywords.setAttribute("name","field_keywords"+i);
-				td_row.appendChild(input_keywords);
-				tr_rows.appendChild(td_row);
-			}*/
 		}
 		tbody.appendChild(tr_rows);
 	}
@@ -283,11 +219,6 @@ function submitForm(){
 	document.getElementById("bct-form").submit();
 }
 
-function removeBatchCreate(){
-	document.getElementById("bct-button").remove();
-	document.getElementById("numOfRows").remove();
-}
-
 function deleteForm(){
 	document.getElementById("empty-table").remove();
 }
@@ -300,15 +231,14 @@ function submit_btn_action() {
         $.post(product_base_url , $('#bct-form').serialize(),
         function(ticket) {
 			deleteForm();
-			removeBatchCreate();
 
 			var headers = {"ticket":"Ticket","summary":"Summary","product":"Product","status":"Status","milestone":"Milestone","component":"Component"}
-			var contentDiv = document.getElementById("content");
+			var contentDiv = document.getElementById("div-empty-table");
 			var div = document.createElement("div");
 			div.setAttribute("class","span12");
-			var h2 = document.createElement("h2");
-			h2.appendChild(document.createTextNode("Created Tickets"));
-			div.appendChild(h2);
+			var h5 = document.createElement("h5");
+			h5.appendChild(document.createTextNode("Created Tickets"));
+			div.appendChild(h5);
 			var table = document.createElement("table");
 			table.setAttribute("class","listing tickets table table-bordered table-condensed query");
 			table.setAttribute("style","border-radius: 0px 0px 4px 4px");
@@ -415,21 +345,6 @@ function add_row_btn_action(product,milestones,components,i){
 			td_row.appendChild(input_description);
 			tr_rows.appendChild(td_row);
 		}
-		/*else if (header == "status") {
-			td_row = document.createElement("td");
-			input_status = document.createElement("select");
-			input_status.setAttribute("id","field-status"+i);
-			input_status.setAttribute("class","input-block-level");
-			input_status.setAttribute("name","field_status"+i);
-			for (status in statuses){
-				option = document.createElement("option");
-				option.setAttribute("value",statuses[status]);
-				option.appendChild(document.createTextNode(statuses[status]));
-				input_status.appendChild(option);
-			}
-			td_row.appendChild(input_status);
-			tr_rows.appendChild(td_row);
-		}*/
 		else if (header == "priority") {
 			td_row = document.createElement("td");
 			input_priority = document.createElement("select");
@@ -505,3 +420,74 @@ function remove_row_btn_action(numOfRows){
 	}
 	return cnt;
 }
+
+function display_created_tickets(ticket) {
+	var headers = {"ticket":"Ticket","summary":"Summary","product":"Product","status":"Status","milestone":"Milestone","component":"Component"}
+	var contentDiv = document.getElementById("div-created-ticket-table");
+	var div = document.createElement("div");
+	div.setAttribute("class","span12");
+	var h5 = document.createElement("h5");
+	h5.appendChild(document.createTextNode("Created Tickets"));
+	div.appendChild(h5);
+	var table = document.createElement("table");
+	table.setAttribute("class","listing tickets table table-bordered table-condensed query");
+	table.setAttribute("style","border-radius: 0px 0px 4px 4px");
+	tr = document.createElement("tr");
+	tr.setAttribute("class","trac-columns");
+			
+	for (header in headers){
+		th = document.createElement("th");
+		font = document.createElement("font");
+		font.setAttribute("color","#1975D1");
+		font.appendChild(document.createTextNode(headers[header]))
+		th = document.createElement("th");
+		th.appendChild(font);
+		tr.appendChild(th);
+	}
+	table.appendChild(tr);
+	for ( i=0 ; i<Object.keys(ticket.tickets).length ; i++ ){
+		tr = document.createElement("tr");
+		for (j=0;j<6;j++){
+			if(j==0){
+				td = document.createElement("td");
+				a = document.createElement("a");
+				tkt = JSON.parse(ticket.tickets[i]);
+				a.setAttribute("href",tkt.url);
+				a.appendChild(document.createTextNode("#"+tkt.id));
+				td.appendChild(a);
+			}
+			else if(j==1){
+				td = document.createElement("td");
+				a = document.createElement("a");
+				tkt = JSON.parse(ticket.tickets[i]);
+				a.setAttribute("href",tkt.url);
+				a.appendChild(document.createTextNode(tkt.summary));
+				td.appendChild(a);
+			}
+			else if(j==2){
+				td = document.createElement("td");
+				tkt = JSON.parse(ticket.tickets[i]);
+				td.appendChild(document.createTextNode(tkt.product));
+			}
+			else if(j==3){
+				td = document.createElement("td");
+				tkt = JSON.parse(ticket.tickets[i]);
+				td.appendChild(document.createTextNode(tkt.status));
+			}
+			else if(j==4){
+				td = document.createElement("td");
+				tkt = JSON.parse(ticket.tickets[i]);
+				td.appendChild(document.createTextNode(tkt.milestone));
+			}
+			else if(j==5){
+				td = document.createElement("td");
+				tkt = JSON.parse(ticket.tickets[i]);
+				td.appendChild(document.createTextNode(tkt.component));
+			}
+			tr.appendChild(td);
+		}
+		table.appendChild(tr);
+	}
+	div.appendChild(table);
+	contentDiv.appendChild(div);     
+ }
