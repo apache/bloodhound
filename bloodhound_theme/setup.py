@@ -56,6 +56,7 @@ setup(
       'Framework :: Trac',
     ],
   install_requires = ['BloodhoundDashboardPlugin', 'TracThemeEngine'],
+  test_suite = 'bhtheme.tests.suite',
   tests_require = ['unittest2'] if sys.version_info < (2, 7) else [],
   entry_points = {
       'trac.plugins': [
