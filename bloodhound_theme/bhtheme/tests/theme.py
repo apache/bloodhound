@@ -63,12 +63,17 @@ class ThemeTestCase(unittest.TestCase):
         for dir in self.bhtheme.get_templates_dirs():
             self.assertIn(dir, chrome.get_all_templates_dirs())
 
-    def test_get_users(self):
+    def test_get_groups(self):
 
-        self.req.args['term'] = 'adm'
-        test_users = ['key1', 'key2', 'key3']
-
-        users = self.autocompleteuser_component._get_users(self.req)
+        self.req.args['term'] = 'de'
+        test_users = [u'dev']
+        self.env.db_transaction.executemany(
+            "INSERT INTO permission VALUES (%s,%s)",
+            [('dev', 'WIKI_MODIFY'),
+             ('dev', 'REPORT_ADMIN'),
+             ('admin', 'REPORT_ADMIN')])
+        gona=self.env.get_known_users()
+        users = self.autocompleteuser_component._get_groups(self.req)
         self.assertEqual(test_users, users)
 
     def test_get_keywords_string(self):
