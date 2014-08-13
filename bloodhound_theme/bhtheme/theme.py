@@ -702,11 +702,25 @@ class BatchCreateTicketsMacro(WikiMacroBase):
         ITemplateStreamFilter,
         IPermissionRequestor)
     _description = cleandoc_(
-        """Batch Create Tickets macro.
+        """
+	Helps to create batch of tickets at once.
 
-    This macro can be used to create batch oftickets at once. Use the following syntax.
-    BatchCreateTickets[[10]]
-    You can replace the argument(10 in the above exaple) to change the number of tickets that you are going to create.
+	This macro accepts only one argument, which should be an integer value equal to the number of tickets that is going to 		create as a batch.
+
+	Example:
+	{{{
+    		BatchCreateTickets[[5]]    # This will create an empty table with 5 rows. 
+	}}}
+
+	The empty table which will be created will contain the following tickets fields.
+	* `Summary` //(This field is mandatory.)//
+	* `Description`
+	* `Product`
+	* `Priority`
+	* `Milestone`
+	* `Component`
+
+	`BatchCreateTickets` has also make it possible to increase or decrease the size of the empty table created. After filling 	the appropriate ticket fields you can create that batch of tickets and will be able to view the details of the created 		tickets as a ticket table.
 
     """)
 
@@ -744,11 +758,15 @@ class BatchCreateTicketsMacro(WikiMacroBase):
           then the bh will raise an error.
         """
         self.rows = args
+        # check the permission conditions and allow the feature only on wiki formatted pages.
         if (
                 self.env.product is not None) and (
                 self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None) and (
                 self.rqst.perm.has_permission('TRAC_ADMIN') or self.rqst.perm.has_permission('TICKET_BATCH_CREATE')):
             add_script(self.rqst, 'theme/js/batchcreate.js')
+
+            # generate the required data to be parsed to the js functions too create the empty ticket table.
+
             product_id = str(self.env.product.resource.id)
             product_name = self.env.db_query(
                 "SELECT * FROM bloodhound_product WHERE prefix=%s", (product_id,))
@@ -764,6 +782,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                 style="display:inline-block;position:relative;left: -30px;",
                 id="div-empty-table")
             span = tag.span(class_="input-group-btn")
+            # pass the relevant arguments to the js function as JSON parameters.
             style1 = tag.style(
                 id="js-caller",
                 onload="Javascript:emptyTable(" +
@@ -919,12 +938,18 @@ class BatchCreateTicketsMacro(WikiMacroBase):
 
             tkt_dict["tickets"] = tkt_list
 
-            """Editing the wiki content"""
+            """Editing the wiki content
+            After creating the tickets successfully the feature requires to display the details of the created tickets
+            within the wiki.
+            To do that at this point the wiki content will be updated.
+            ie. [[BatchCreateTickets(x)]] to [[CreatedTickets(start id,end id)]]
+            """
             max_uid = self.env.db_query("SELECT MAX(uid) FROM ticket")
             max_time = self.env.db_query("SELECT MAX(time) FROM wiki")
             wiki_content = self.env.db_query(
                 "SELECT * FROM wiki WHERE time==%s", (max_time[0][0],))
             wiki_string = wiki_content[0][5]
+            # regex pattern of the macro declaration.
             pattern = '\[\[BatchCreateTickets\([0-9]+\)\]\]'
             l = re.search(pattern, wiki_string)
             l1 = str(wiki_string[l.regs[0][0]:l.regs[0][1]])
@@ -933,6 +958,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             with self.env.db_transaction as db:
                 db("UPDATE wiki SET text=%s WHERE time=%s",
                    (updated_wiki_content, max_time[0][0]))
+            # send the HTTP POST request
             req.send(to_json(tkt_dict), 'application/json')
 
     def _get_ticket_module(self):
@@ -946,7 +972,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             tm = ptm
         return tm
 
-    # Template Stream Filter methods
+    # ITemplateStreamFilter methods
     def filter_stream(self, req, method, filename, stream, data):
         self.file = filename
         return stream
@@ -959,12 +985,13 @@ class BatchCreateTicketsMacro(WikiMacroBase):
         created_tickets = []
         loop_condition = True
         i = -1
-
+        # iterate data row by row and create tickets using those user filled data fields.
         while loop_condition:
             if num_of_tkts <= 0:
                 loop_condition = False
                 break
             i += 1
+
             if 'summary' + str(i) not in attributes:
                 continue
 
@@ -978,7 +1005,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                             str(i)])
             else:
                 env = self.env
-
+            # If the summary field of a particular data row is empty skip creating that ticket.
             if attributes.get('summary' + str(i)) == "":
                 num_of_tkts -= 1
                 continue
@@ -991,6 +1018,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             milestone = attributes.pop('milestone' + str(i))
             component = attributes.pop('component' + str(i))
 
+            # Create the tickets using extracted data.
             t = Ticket(env)
             t['summary'] = summary
             t['description'] = description
@@ -1001,6 +1029,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             t['priority'] = priority
             t['milestone'] = milestone
             t['component'] = component
+            # Insert the data into the DB.
             t.insert()
             created_tickets.append(t)
 
@@ -1020,13 +1049,15 @@ class BatchCreateTicketsMacro(WikiMacroBase):
 class CreatedTicketsMacro(WikiMacroBase):
     implements(ITemplateStreamFilter)
     _description = cleandoc_(
-        """Created Tickets macro.
+        """
+	Helps to generate a ticket table within the wiki.
 
-    This macro can be used to display the data of batch of tickets as a table within the wiki text. Use the following syntax.
-    CreatedTickets[[10,12]]
-    Arguments for the macro should be the starting id and the end id of the ticket sequence.
+	You can use this macro in order to display the details of a batch of tickets. `CreatedTickets` macro takes exactly two 		integer arguments. The arguments defines the range of the tickets that will be displayed in the ticket table.
 
-    This is originally implemented as a part of the BatchCreateTickets macro. Though it can be intentionally use as a separate macro.
+	Example:
+	{{{
+	    CreatedTickets[[10,15]]    # This will create a ticket table with tickets which has id's between 10 and 15. 
+	}}}
     """)
 
     def __init__(self, *args, **kwargs):
@@ -1057,6 +1088,7 @@ class CreatedTicketsMacro(WikiMacroBase):
           then the bh will raise an error.
         """
         if self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None:
+            # Extract the macro arguments.
             start_id = int(args.split(',')[0])
             end_id = int(args.split(',')[1])
 
@@ -1091,6 +1123,7 @@ class CreatedTicketsMacro(WikiMacroBase):
                         }))
             display_tickets_dict["tickets"] = display_tickets_list
 
+            # Send the ticket data to be displayed on the ticket table as JSON parameters.
             add_script(self.rqst, 'theme/js/batchcreate.js')
             form = tag.form(
                 method="get",

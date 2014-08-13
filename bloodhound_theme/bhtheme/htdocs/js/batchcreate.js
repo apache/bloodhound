@@ -1,4 +1,9 @@
 function emptyTable(numOfRows,product,milestones,components,href,token) {
+    /*
+    This function will be invoked from the BatchCreateTickets wiki macro.
+    The wiki macro will send the relevant details to create the empty ticket table within the wiki.
+    Then this function will generate the empty ticket table containing appropriate number of rows to enter ticket data.
+     */
 	created_rows=numOfRows;
 	form_token = token.split(";")[0].split("=")[1];
 	if(numOfRows == ""){
@@ -220,10 +225,19 @@ function submitForm(){
 }
 
 function deleteForm(){
+    /*
+    This function will invoke when the user clicks on cancel button under the empty table.
+    Then this function will remove the empty table from the wiki.
+     */
 	document.getElementById("empty-table").remove();
 }
 
 function submit_btn_action() {
+    /*
+    This function will send a HTTP POST request to the backend.
+    The form containing the empty table and its data will be submitted.
+    Then the empty table will be replaced with the ticket table containing details of the created tickets.
+     */
     // data-target is the base url for the product in current scope
 	var product_base_url = $('#bct-create').attr('data-target');
     if (product_base_url === '/')
@@ -305,7 +319,10 @@ function submit_btn_action() {
 }
 
 function add_row_btn_action(product,milestones,components,i){
-
+    /*
+    This function will be called when the users add a new row to the empty table.
+    The new empty row will be always appended to the end row of the empty table.
+     */
 	var headers = {"ticket":"","summary":"Summary","description":"Description","product":"Product","priority":"Priority","milestone":"Milestone","component":"Component"}
 	//var statuses = ["new", "accepted", "assigned", "closed", "reopened"];
 	var priorities = ["blocker", "critical", "major", "minor", "trivial"];
@@ -410,6 +427,9 @@ function add_row_btn_action(product,milestones,components,i){
 }
 
 function remove_row_btn_action(numOfRows){
+    /*
+    This function will be called when the user removes a table row of the empty table.
+     */
 	var cnt=0;
 	for(var i=0;i<parseInt(numOfRows)-parseInt(cnt);i++){
 		if(document.getElementById("empty-table").childNodes[1].childNodes[1].childNodes[1].childNodes[i].childNodes[0].childNodes[0].checked){
@@ -422,6 +442,11 @@ function remove_row_btn_action(numOfRows){
 }
 
 function display_created_tickets(ticket) {
+    /*
+    Take ticket data sent through the CreatedTickets wiki macro and display those data as a ticket table within the wiki.
+    This function will create a div element containing the ticket table data and append that div to div with
+    "div-created-ticket-table".
+     */
 	var headers = {"ticket":"Ticket","summary":"Summary","product":"Product","status":"Status","milestone":"Milestone","component":"Component"}
 	var contentDiv = document.getElementById("div-created-ticket-table");
 	var div = document.createElement("div");
