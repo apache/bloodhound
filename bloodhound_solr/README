@@ -1,0 +1,29 @@
+= Plugin to add Apache Solr as a search alternative for Apache Bloodhound =
+
+== Description ==
+
+The plugin enhances Apache Bloodhound with Apache Solr functionality, namely
+it allows using Apache Solr as a search alternative.
+
+== Dependencies ==
+
+This plugin depends on the following components to be installed:
+
+  - [http:trac.edgewall.org Trac]  ,,Since version ''' 1.0 ''',, .
+  - [http://lucene.apache.org/solr/index.html Apache Solr] ,,Version ''' 4.7.2 ''',, .
+  - [http://lxml.de/ Lxml]
+  - [https://github.com/tow/sunburnt Sunburnt] ,,Since version '''0.6''',, .
+  - [https://code.google.com/p/httplib2/ Httplib2]
+
+
+== Latest Version ==
+
+
+== Installation ==
+
+
+== Licensing ==
+
+
+== Contacts ==
+

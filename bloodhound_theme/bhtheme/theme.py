@@ -353,6 +353,7 @@ class BloodhoundTheme(ThemeBase):
             req.search_query = data.get('query')
             # Context nav
             prevnext_nav(req, _('Previous'), _('Next'))
+        self._add_more_like_this(req, template, data, content_type, is_active)
         # Breadcrumbs nav
         data['resourcepath_template'] = 'bh_path_search.html'
 
@@ -450,6 +451,11 @@ class BloodhoundTheme(ThemeBase):
                                          content_type, is_active):
         if isinstance(req.perm.env, ProductEnvironment):
             data['resourcepath_template'] = 'bh_path_general.html'
+
+    def _add_more_like_this(self, req, template, data,
+                                         content_type, is_active):
+        """Adds a template for displaying More Like This results."""
+        data['resourcepath_template'] = 'bh_more_like_this.html'
 
     def _modify_product_list(self, req, template, data, content_type,
                              is_active):

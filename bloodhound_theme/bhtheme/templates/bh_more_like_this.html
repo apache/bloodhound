@@ -1,0 +1,32 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+
+  <body>
+    <div class="panel-group" id="accordion${doc.unique_id}">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a class="btn" data-toggle="collapse" data-parent="#accordion${doc.unique_id}" href="#collapse${hexdigest}">
+              More Like This
+            </a>
+          </h4>
+        </div>
+        <div id="collapse${hexdigest}" class="panel-collapse collapse out">
+          <div class="panel-body">
+            <dl>
+              <py:for each="result in doc_mlt">
+                <dt><a href="${result.href}">${result.title}</a></dt>
+              </py:for>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

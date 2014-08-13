@@ -338,7 +338,7 @@ class BloodhoundSearchModule(Component):
         # compatibility with legacy search
         req.search_query = request_context.parameters.query
 
-        query_result = BloodhoundSearchApi(self.env).query(
+        query_result, mlt, hexdigests = BloodhoundSearchApi(self.env).query(
             request_context.parameters.query,
             pagenum=request_context.page,
             pagelen=request_context.pagelen,
@@ -349,6 +349,11 @@ class BloodhoundSearchModule(Component):
             highlight=True,
             context=request_context,
         )
+
+        # Needed for showing More Like This results in Genshi
+        # templates.
+        request_context.data['mlt'] = mlt
+        request_context.data['hexdigests'] = hexdigests
 
         request_context.process_results(query_result)
         return self._return_data(req, request_context.data)

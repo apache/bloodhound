@@ -319,13 +319,20 @@ class BloodhoundSearchApi(Component):
         for query_processor in self.query_processors:
             query_processor.query_pre_process(query_parameters, context)
 
-        query_result = self.backend.query(**query_parameters)
+        # Compatibility with both Solr and Whoosh backends.
+        mlt = None
+        hexdigests = None
+
+        if self.backend.__class__.__name__ == 'SolrBackend':
+            query_result, mlt, hexdigests = self.backend.query(**query_parameters)
+        else:
+            query_result = self.backend.query(**query_parameters)
 
         for post_processor in self.result_post_processors:
             post_processor.post_process(query_result)
 
         query_result.debug["api_parameters"] = query_parameters
-        return query_result
+        return query_result, mlt, hexdigests
 
     def start_operation(self):
         return self.backend.start_operation()

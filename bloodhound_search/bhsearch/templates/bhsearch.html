@@ -166,6 +166,10 @@
                       <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
                       <span class="date">${result.date}</span>
                     </dd>
+                    <!-- Include the template that displays More Like This results for each result (only for when Solr backend is being used, not Whoosh). -->
+                    <dd py:if="mlt and hexdigests">
+                      <xi:include py:with="doc = result; doc_mlt = mlt[result.unique_id]; hexdigest = hexdigests[result.unique_id];" href="bh_more_like_this.html" />
+                    </dd>
                   </py:for>
                 </dl>
               </py:if>
