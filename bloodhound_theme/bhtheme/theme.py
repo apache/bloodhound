@@ -745,11 +745,11 @@ class AutocompleteUsers(Component):
     def filter_stream(self, req, method, filename, stream, data):
         """add the  autocomplete jQuery function to the ticket and permission pages
         """
-        if filename == 'bh_ticket.html':
-            fields = [field['name'] for field in data['ticket'].fields
-                      if field['type'] == 'select']
-            fields = set(sum([fnmatch.filter(fields, pattern)
-                              for pattern in self.select_fields], []))
+        # if filename == 'bh_ticket.html':
+        #     fields = [field['name'] for field in data['ticket'].fields
+        #               if field['type'] == 'select']
+        #     fields = set(sum([fnmatch.filter(fields, pattern)
+        #                       for pattern in self.select_fields], []))
 
         if filename == 'bh_ticket.html':
 
@@ -760,6 +760,7 @@ class AutocompleteUsers(Component):
 
         elif filename == 'bh_admin_perms.html':
             users = self._get_users(req)
+            # subjects are put into a dictionary so in javascript show all user, email and name and use only the username
             subjects = [{"label": "%s %s %s" % (user[USER] and '%s' % user[USER] or '', user[EMAIL] and
                                                 '<%s>' % user[EMAIL] or '', user[NAME] and '%s' % user[NAME] or
                                                 ''), "value":"%s" % user[USER]} for value, user in users]
@@ -808,7 +809,7 @@ class AutocompleteUsers(Component):
         for user_data in self.env.get_known_users():
             user_data = [user is not None and Chrome(self.env).format_author(req, user) or ''
                          for user in user_data]
-            for index, field in enumerate((USER, EMAIL, NAME)):  # ordered by how they appear
+            for index, field in enumerate((EMAIL, NAME, USER)):  # ordered by how they appear
                 value = user_data[field].lower()
 
                 if value.startswith(query):
@@ -862,6 +863,9 @@ class KeywordSuggestModule(Component):
             keywords = []
 
         if filename == 'bh_ticket.html':
+            # currently use the inline javascript adding as
+            # it will not if use separate js fills to keywords suggest in ticket page
+            # Latter need to change to add to a separate js file the following.
             # add_script(req, 'theme/js/keywordsuggest_ticket.js')
             if req.path_info.startswith('/ticket/'):
                 js = """
@@ -870,6 +874,7 @@ class KeywordSuggestModule(Component):
                         var keywords =  %(keywords)s
                         $('%(field)s').tagsinput({
                             typeahead: {
+                                minLength: 0,
                                 source: keywords
                                 }
                             });
@@ -882,6 +887,7 @@ class KeywordSuggestModule(Component):
 
                             $('%(field)s').tagsinput({
                                 typeahead: {
+                                    minLength: 0,
                                     source: keywords
                                     }
                                 });
@@ -906,12 +912,11 @@ class KeywordSuggestModule(Component):
     def _get_keywords_string(self, req):
         """return a list of keywords relevant to the product in the frequency of usage
         """
-        #currently all the keywords are taken through the db query and then sort them according to there frequency
-        # get keywords from db
+        # currently all the keywords are taken through the db query and then sort them according to there frequency
         keywords = []
         with self.env.db_direct_query as db:
             cursor = db.cursor()
-
+        # find the product and get the sql where clause. If not in product environment get a empty string
             if self.env.product is not None:
                 product = self.env.product._data['prefix']
                 product_sql = " AND t.product = '%s'" % product
@@ -944,9 +949,11 @@ class DuplicateTicketSearch(Component):
     implements(ITemplateStreamFilter, IRequestHandler)
 
     # ITemplateStreamFilter methods
-
     def filter_stream(self, req, method, filename, stream, data):
-
+        """add the jQuery and javascript functions which need to show duplicate tickets
+         to all the pages which has the create ticket capability
+        """
+        # javascript for popup
         add_script(req, 'theme/js/popoverDupSearch.js')
 
         if filename == 'bh_ticket.html':
@@ -959,12 +966,15 @@ class DuplicateTicketSearch(Component):
     # IRequestHandler methods
 
     def match_request(self, req):
-        """Handle requests sent to /user_list and /ticket/user_list
+        """Handle requests sent to */duplicate_ticket_search
+        (this can be ticket page or any other page)
         """
         return re.match('.*/duplicate_ticket_search$', req.path_info)
 
     def process_request(self, req):
-
+        """find and send the potential duplicate ticket data (summary, description, type, status, author, date, ticket
+        id (to get ticket url)) in JSON format.
+        """
         terms = self._terms_to_search(req)
         term_split = req.args.get('q').split(' ')
 
@@ -972,12 +982,18 @@ class DuplicateTicketSearch(Component):
             sql, args = self._sql_to_search(db, ['summary', 'keywords', 'description'], terms)
             sql2, args2 = self._sql_to_search(db, ['newvalue'], terms)
             sql3, args3 = self._sql_to_search(db, ['value'], terms)
+
+            # find the product and return sql where clause to find related to product
+            # if not in a product environment return empty string
             if self.env.product is not None:
                 product_sql = "product='%s' AND" % self.env.product._data['prefix']
             else:
                 product_sql = ""
+
             ticket_list = []
             ticket_list_value = []
+
+            # search tickets from ticket,ticket_change, and ticket_custom tables.
             for summary, desc, author, type, tid, ts, status, resolution in \
                     db("""SELECT summary, description, reporter, type, id,
                                  time, status, resolution
@@ -995,13 +1011,15 @@ class DuplicateTicketSearch(Component):
 
                 summary_term_count = 0
                 summary_list = summary.split(' ')
+
+                # find the matched terms and highlight them
                 for s in summary_list:
                     for t in term_split:
                         if s.lower() == t.lower():
                             summary = summary.replace(s, '<em>'+t+'</em>')
                             summary_term_count += 1
                             break
-
+                # convert searched tickets to JSON objects
                 ticket_list.append(to_json({'summary': summary, 'description': desc, 'type': type, 'status': status,
                                             'owner': author, 'date': user_time(req, format_datetime, ts), 'url': tid}))
                 ticket_list_value.append(summary_term_count)
@@ -1019,7 +1037,7 @@ class DuplicateTicketSearch(Component):
         The result is returned as an `(sql, params)` tuple.
         """
         assert columns and terms
-
+        # this is taken from the trac search to get sql where clauses
         likes = ['%s %s' % (i, db.like()) for i in columns]
         c = ' OR '.join(likes)
         sql = '(' + ') OR ('.join([c] * len(terms)) + ')'
@@ -1033,15 +1051,20 @@ class DuplicateTicketSearch(Component):
 
         The result is returned as a list of terms.
         """
+        # currently search terms are find removing one word at time until 3 words remain.
+        # This seem to give the best result so far, but need to change this to advance method
+        # It may possible to use Solr search to replace this
         search_string = req.args.get('q')
         terms = [search_string]
         temp_string = search_string
         search_string_split = search_string.split(' ')
 
+        # remove elements form beginning of the search term
         for i in range(len(search_string_split)-3):
             search_string = re.sub('^'+search_string_split[i]+' ', '', search_string)
             terms.append(search_string)
         search_string = temp_string
+        # remove elements form ene of the search term
         for i in reversed(xrange(3, len(search_string_split))):
             search_string = re.sub(' '+search_string_split[i]+'$', '', search_string)
             terms.append(search_string)

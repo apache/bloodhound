@@ -63,18 +63,33 @@ class ThemeTestCase(unittest.TestCase):
         for dir in self.bhtheme.get_templates_dirs():
             self.assertIn(dir, chrome.get_all_templates_dirs())
 
+    def test_get_users(self):
+
+        self.req.args['term'] = 'us'
+        self.env.known_users = [['user1', 'test', 'test@test.com'], ['test', 'user2', 'test@test.com'],
+                                ['test', 'test', 'user3@test.com'], ['test', 'test', 'test@test.com']]
+        #output need to sort in the user, name, email order
+        # ( where user has the search term it has order 0,
+        # name has search term it has order 1 or if email has search term order 2
+        test_users = [(0, ['user1', 'test', 'test@test.com']), (1, ['test', 'user2', 'test@test.com']),
+                      (2, ['test', 'test', 'user3@test.com'])]
+        users = self.autocompleteuser_component._get_users(self.req)
+        self.assertEqual(test_users, users)
+
     def test_get_groups(self):
 
         self.req.args['term'] = 'de'
-        test_users = [u'dev']
+        self.env.known_users = [['deave', 'deave', 'deave@test.com']]
+        test_groups = [u'dev']  # groups need have only the groups and not users
         self.env.db_transaction.executemany(
             "INSERT INTO permission VALUES (%s,%s)",
             [('dev', 'WIKI_MODIFY'),
              ('dev', 'REPORT_ADMIN'),
-             ('admin', 'REPORT_ADMIN')])
-        gona=self.env.get_known_users()
-        users = self.autocompleteuser_component._get_groups(self.req)
-        self.assertEqual(test_users, users)
+             ('admin', 'REPORT_ADMIN'),
+                ('deave', 'REPORT_ADMIN')])
+
+        groups = self.autocompleteuser_component._get_groups(self.req)
+        self.assertEqual(test_groups, groups)
 
     def test_get_keywords_string(self):
         test_keywords = ['key1', 'key2', 'key3']
