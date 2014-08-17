@@ -1,0 +1,149 @@
+= Plugin to add Apache Solr as a search alternative for Apache Bloodhound
+
+== Description
+
+The plugin enhances Apache Bloodhound with Apache Solr functionality, namely
+it allows using Apache Solr as a search alternative.
+
+== Dependencies
+
+This plugin depends on the following components to be installed:
+
+  - [http://trac.edgewall.org Trac]  ,,Since version ''' 1.0 ''',, .
+  - [http://lucene.apache.org/solr/index.html Apache Solr] ,,Version '''
+  4.7.2 ''',, .
+  - [http://lxml.de/ Lxml]
+  - [https://github.com/tow/sunburnt Sunburnt] ,,Since version '''0.6''',, .
+  - [https://code.google.com/p/httplib2/ Httplib2]
+
+
+== Latest Version
+The latest version of the source code for the plugin can be found
+[https://svn.apache.org/repos/asf/bloodhound/branches/bep_0014_solr/ here].
+
+== Installation
+
+== Apache Solr
+This plugin has been tested with Apache Solr, '''version 4.7.2.'''[[BR]]
+
+Before proceeding to install Apache Solr, you need to have '''Java 1.7''' or
+greater installed.
+
+Apache Solr can be downloaded from
+[http://www.apache.org/dyn/closer.cgi/lucene/solr here].[[BR]]
+
+Once you've downloaded Apache Solr, unzip it in your chosen directory and
+navigate (in a terminal) to the
+
+{{{
+<path_to_solr_dir>/example directory
+}}}
+
+The Solr Server can be started by issuing the following command:
+[[BR]]
+
+'''On UNIX''':
+{{{
+java -jar start.jar
+}}}
+
+
+'''On Windows''':
+{{{
+java -Dsolr.solr.home=<path_to_solr_dir> -jar start.jar
+}}}
+
+
+You can test whether this worked by loading
+{{{
+http://localhost:8983/solr/
+}}}
+
+in your browser.
+
+== Bloodhound Solr plugin
+Once downloaded, the plugin should be placed in the directory where you have
+installed your Bloodhound instance (e.g. /home/bloodhound).
+[[BR]]
+
+You should then make the following changes in the base.ini file:
+
+Under the '''[bhsearch]''' section, add the following:
+
+{{{
+search_backend = SolrBackend
+solr_server_url = http://localhost:8983/solr/
+}}}
+
+
+Under the '''[components]''' section, add the following:
+
+{{{
+bhsolr.* = enabled
+}}}
+
+
+'''Note:''' For compatibility with Apache Solr, you should choose a default
+field to be used when
+no query is specified. This can be updated in the '''solrconfig.xml''' file
+found at:
+
+{{{
+<your_solr_directory>/libexec/example/solr/collection1/conf
+}}}
+
+Search for the request handler having the name set to ''''/select'''', and
+modify the line
+
+{{{
+       <str name="df">text</str>
+}}}
+to
+{{{
+       <str name="df">your_chosen_default_field</str>
+}}}
+
+Make sure your chosen default field exists in the Bloodhound schema (see below
+the existing fields in the Bloodhound schema).[[BR]]
+Current Bloodhound schema: '''unique_id''', '''id''', '''type''',
+'''product''', '''milestone''', '''time''', '''due''', '''completed''',
+'''author''', '''component''', '''status''', '''resolution''', '''keywords''',
+'''summary''', '''content''', '''changes''', '''owner''', '''repository''',
+'''revision''', '''message''', '''required_permission''', '''name''',
+'''query_suggestion_basket''', '''relations'''.
+
+Once all these steps have been accomplished, install the Bloodhound Solr
+plugin as described
+[http://trac.edgewall.org/wiki/TracPlugins#InstallingaTracplugin here].
+
+The next and final step is to generate the '''schema.xml''' file to be used
+with your Solr instance. From the '''bloodhound/installer''' directory,
+issue the following '''trac-admin''' command:
+
+{{{
+trac-admin <path_to_your_bloodhound_environment> bhsolr generate_schema
+<path_to_your_solr_directory>/libexec/example/solr/collection1/conf
+}}}
+
+'''Note:''' Make sure your Bloodhound environment is activated and your Solr
+server is running. Also, if you don't provide the path to where the schema
+should be generated, the program will generate in your current working
+directory.
+
+In order for Solr to use the newly generated schema, you need to restart your
+Solr server.
+
+At this point you should be able to use Apache Solr as a search platform for
+Bloodhound.
+
+== Licensing
+
+The plugin is licensed under the [http://www.apache.org/licenses/LICENSE-2.0
+Apache License] ,,Version '''2.0''',, .
+
+== Bug / feature requests
+
+Existing bugs and feature requests for the Bloodhound Solr plugin are
+[query:status=new|assigned|reopened&keywords=~bep-0014 here].
+If you have any issues, please create a
+[/newticket?keywords=bep-0014 new ticket].

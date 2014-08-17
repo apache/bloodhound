@@ -17,16 +17,35 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+
+"""
+Module holding the implementation of the IAdminCommandProvider
+interface, so that a new trac-admin command is available to be used.
+"""
+
 from trac.core import Component, implements
 from trac.admin import IAdminCommandProvider
 from bhsolr.schema import SolrSchema
 
 class BloodhoundSolrAdmin(Component):
-
     implements(IAdminCommandProvider)
 
-    # IAdminCommandProvider methods
+    """Class implementing the IAdminCommandProvider.
+
+    Provide a new trac-admin command, suitable for use with the
+    Bloodhound Solr plugin.
+    """
+
     def get_admin_commands(self):
+        """Generate a new trac-admin command.
+
+        Create a trac-admin command for generating a schema.xml file.
+        Yields a touple containing the command name for generating a
+        Solr schema, the argument description (i.e. the path to where
+        the Solr schema should be generated, a help text and the
+        callback function that generates the Solr schema.
+        """
+
         yield ('bhsolr generate_schema', '<path>',
                'Generate Solr schema',
                None, SolrSchema(self.env).generate_schema)

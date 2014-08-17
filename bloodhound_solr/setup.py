@@ -21,10 +21,9 @@ from setuptools import setup, find_packages
 
 
 PKG_INFO = {
-    'bhsolr': ['../README', '../TESTING_README'],
+    'bhsolr': ['../README.wiki', '../TESTING_README'],
     'bhsolr.search_resources' : [],
-    'bhsolr.tests': ['*.*'],
-    'bhsolr.tests.search_resources': ['*.*'],
+    'bhsolr.tests': ['*.*', 'data/*.*'],
     }
 
 
