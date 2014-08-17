@@ -709,7 +709,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
 
 	Example:
 	{{{
-    		BatchCreateTickets[[5]]    # This will create an empty table with 5 rows. 
+    		[[BatchCreateTickets(5)]]    # This will create an empty table with 5 rows.
 	}}}
 
 	The empty table which will be created will contain the following tickets fields.
@@ -938,28 +938,34 @@ class BatchCreateTicketsMacro(WikiMacroBase):
 
             tkt_dict["tickets"] = tkt_list
 
-            """Editing the wiki content
+            self._update_wiki_content(num_of_tkts)
+
+            # send the HTTP POST request
+            req.send(to_json(tkt_dict), 'application/json')
+
+    # Public API
+    def _update_wiki_content(self, num_of_tkts):
+        """Editing the wiki content
             After creating the tickets successfully the feature requires to display the details of the created tickets
             within the wiki.
             To do that at this point the wiki content will be updated.
             ie. [[BatchCreateTickets(x)]] to [[CreatedTickets(start id,end id)]]
             """
-            max_uid = self.env.db_query("SELECT MAX(uid) FROM ticket")
-            max_time = self.env.db_query("SELECT MAX(time) FROM wiki")
-            wiki_content = self.env.db_query(
-                "SELECT * FROM wiki WHERE time==%s", (max_time[0][0],))
-            wiki_string = wiki_content[0][5]
-            # regex pattern of the macro declaration.
-            pattern = '\[\[BatchCreateTickets\([0-9]+\)\]\]'
-            l = re.search(pattern, wiki_string)
-            l1 = str(wiki_string[l.regs[0][0]:l.regs[0][1]])
-            updated_wiki_content = wiki_string.replace(
-                l1, "[[CreatedTickets(" + str(max_uid[0][0] - num_of_tkts) + "," + str(max_uid[0][0]) + ")]]")
-            with self.env.db_transaction as db:
-                db("UPDATE wiki SET text=%s WHERE time=%s",
-                   (updated_wiki_content, max_time[0][0]))
-            # send the HTTP POST request
-            req.send(to_json(tkt_dict), 'application/json')
+        max_uid = self.env.db_query("SELECT MAX(uid) FROM ticket")
+        max_time = self.env.db_query("SELECT MAX(time) FROM wiki")
+        wiki_content = self.env.db_query(
+            "SELECT * FROM wiki WHERE time==%s", (max_time[0][0],))
+        wiki_string = wiki_content[0][5]
+        # regex pattern of the macro declaration.
+        pattern = '\[\[BatchCreateTickets\([0-9]+\)\]\]'
+        l = re.search(pattern, wiki_string)
+        l1 = str(wiki_string[l.regs[0][0]:l.regs[0][1]])
+        updated_wiki_content = wiki_string.replace(
+            l1, "[[CreatedTickets(" + str(max_uid[0][0] - num_of_tkts) + "," + str(max_uid[0][0]) + ")]]")
+        with self.env.db_transaction as db:
+            db("UPDATE wiki SET text=%s WHERE time=%s",
+               (updated_wiki_content, max_time[0][0]))
+        return None
 
     def _get_ticket_module(self):
         ptm = None
@@ -1056,7 +1062,7 @@ class CreatedTicketsMacro(WikiMacroBase):
 
 	Example:
 	{{{
-	    CreatedTickets[[10,15]]    # This will create a ticket table with tickets which has id's between 10 and 15. 
+	    [[CreatedTickets(10,15)]]    # This will create a ticket table with tickets which has id's between 10 and 15.
 	}}}
     """)
 
