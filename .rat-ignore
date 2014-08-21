@@ -1,4 +1,5 @@
 .rat-ignore
+.gitignore
 **/CHANGES
 **/MANIFEST.in
 **/TESTING_README
