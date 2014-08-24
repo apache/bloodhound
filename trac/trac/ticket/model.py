@@ -109,20 +109,6 @@ class Ticket(object):
             if default:
                 self.values.setdefault(field['name'], default)
 
-    def _get_max_ticket_id(self):
-        return self.env.db_query("SELECT MAX(id) FROM ticket")
-
-    def _get_tickets_by_id(self, tkt_id):
-        #this method returns standard ticket fields of all the tickets which have a ticket id over the parameter id value
-        row = None
-        if self.id>=tkt_id:
-            # Fetch the standard ticket fields
-            return self.env.db_query("SELECT %s FROM ticket WHERE id>=%%s" %
-                                        ','.join(self.std_fields), (tkt_id,))
-        else:
-            raise ResourceNotFound(_("Ticket %(id)s does not exist.",
-                                    id=self.id), _("Invalid ticket number"))
-
     def _fetch_ticket(self, tkt_id):
         row = None
         if self.id_is_valid(tkt_id):
