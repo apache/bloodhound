@@ -23,7 +23,7 @@ import unittest
 import shutil
 import os
 from tempfile import mkdtemp, NamedTemporaryFile
-from bloodhound_setup import backupfile, BloodhoundSetup
+from bhsetup.bloodhound_setup import backupfile, BloodhoundSetup
 from functools import partial
 
 class BackupfileTest(unittest.TestCase):
