@@ -23,18 +23,22 @@ from hashlib import md5
 import new
 import mimetypes
 import os
+import re
 import socket
 from StringIO import StringIO
 import sys
 import urlparse
 
+from genshi.builder import Fragment
 from trac.core import Interface, TracError
+from trac.perm import PermissionError
 from trac.util import get_last_traceback, unquote
 from trac.util.datefmt import http_date, localtz
-from trac.util.text import empty, to_unicode
+from trac.util.text import empty, exception_to_unicode, to_unicode
 from trac.util.translation import _
 from trac.web.href import Href
 from trac.web.wsgi import _FileWrapper
+
 
 class IAuthenticator(Interface):
     """Extension point interface for components that can provide the name
@@ -129,7 +133,7 @@ HTTP_STATUS = dict([(code, reason.title()) for code, (reason, description)
 class HTTPException(Exception):
 
     def __init__(self, detail, *args):
-        if isinstance(detail, TracError):
+        if isinstance(detail, (TracError, PermissionError)):
             self.detail = detail.message
             self.reason = detail.title
         else:
@@ -138,6 +142,35 @@ class HTTPException(Exception):
             self.detail = self.detail % args
         Exception.__init__(self, '%s %s (%s)' % (self.code, self.reason,
                                                  self.detail))
+
+    @property
+    def message(self):
+        # The message is based on the e.detail, which can be an Exception
+        # object, but not a TracError one: when creating HTTPException,
+        # a TracError.message is directly assigned to e.detail
+        if isinstance(self.detail, Exception): # not a TracError or PermissionError
+            message = exception_to_unicode(self.detail)
+        elif isinstance(self.detail, Fragment): # TracError or PermissionError markup
+            message = self.detail
+        else:
+            message = to_unicode(self.detail)
+        return message
+
+    @property
+    def title(self):
+        try:
+            # We first try to get localized error messages here, but we
+            # should ignore secondary errors if the main error was also
+            # due to i18n issues
+            title = _("Error")
+            if self.reason:
+                if title.lower() in self.reason.lower():
+                    title = self.reason
+                else:
+                    title = _("Error: %(message)s", message=self.reason)
+        except Exception:
+            title = "Error"
+        return title
 
     @classmethod
     def subclass(cls, name, code):
@@ -243,6 +276,10 @@ class RequestDone(Exception):
     """Marker exception that indicates whether request processing has completed
     and a response was sent.
     """
+    iterable = None
+
+    def __init__(self, iterable=None):
+        self.iterable = iterable
 
 
 class Cookie(SimpleCookie):
@@ -356,7 +393,9 @@ class Request(object):
 
         Will be `None` if the user has not logged in using HTTP authentication.
         """
-        return self.environ.get('REMOTE_USER')
+        user = self.environ.get('REMOTE_USER')
+        if user is not None:
+            return to_unicode(user)
 
     @property
     def scheme(self):
@@ -405,11 +444,12 @@ class Request(object):
         `value` must either be an `unicode` string or can be converted to one
         (e.g. numbers, ...)
         """
-        if name.lower() == 'content-type':
+        lower_name = name.lower()
+        if lower_name == 'content-type':
             ctpos = value.find('charset=')
             if ctpos >= 0:
                 self._outcharset = value[ctpos + 8:].strip()
-        elif name.lower() == 'content-length':
+        elif lower_name == 'content-length':
             self._content_length = int(value)
         self._outheaders.append((name, unicode(value).encode('utf-8')))
 
@@ -442,7 +482,7 @@ class Request(object):
             extra = m.hexdigest()
         etag = 'W/"%s/%s/%s"' % (self.authname, http_date(datetime), extra)
         inm = self.get_header('If-None-Match')
-        if (not inm or inm != etag):
+        if not inm or inm != etag:
             self.send_header('ETag', etag)
         else:
             self.send_response(304)
@@ -472,10 +512,12 @@ class Request(object):
             scheme, host = urlparse.urlparse(self.base_url)[:2]
             url = urlparse.urlunparse((scheme, host, url, None, None, None))
 
-        # Workaround #10382, IE6+ bug when post and redirect with hash
-        if status == 303 and '#' in url and \
-                ' MSIE ' in self.environ.get('HTTP_USER_AGENT', ''):
-            url = url.replace('#', '#__msie303:')
+        # Workaround #10382, IE6-IE9 bug when post and redirect with hash
+        if status == 303 and '#' in url:
+            match = re.search(' MSIE ([0-9]+)',
+                              self.environ.get('HTTP_USER_AGENT', ''))
+            if match and int(match.group(1)) < 10:
+                url = url.replace('#', '#__msie303:')
 
         self.send_header('Location', url)
         self.send_header('Content-Type', 'text/plain')
@@ -601,25 +643,29 @@ class Request(object):
     def write(self, data):
         """Write the given data to the response body.
 
-        `data` *must* be a `str` string, encoded with the charset
-        which has been specified in the ''Content-Type'' header
-        or 'utf-8' otherwise.
+        *data* **must** be a `str` string, encoded with the charset
+        which has been specified in the ``'Content-Type'`` header
+        or UTF-8 otherwise.
 
-        Note that the ''Content-Length'' header must have been specified.
-        Its value either corresponds to the length of `data`, or, if there
-        are multiple calls to `write`, to the cumulated length of the `data`
-        arguments.
+        Note that when the ``'Content-Length'`` header is specified,
+        its value either corresponds to the length of *data*, or, if
+        there are multiple calls to `write`, to the cumulative length
+        of the *data* arguments.
         """
         if not self._write:
             self.end_headers()
-        if not hasattr(self, '_content_length'):
-            raise RuntimeError("No Content-Length header set")
         if isinstance(data, unicode):
             raise ValueError("Can't send unicode content")
         try:
             self._write(data)
         except (IOError, socket.error), e:
             if e.args[0] in (errno.EPIPE, errno.ECONNRESET, 10053, 10054):
+                raise RequestDone
+            # Note that mod_wsgi raises an IOError with only a message
+            # if the client disconnects
+            if 'mod_wsgi.version' in self.environ and \
+               e.args[0] in ('failed to write data',
+                             'client connection closed'):
                 raise RequestDone
             raise
 
@@ -700,7 +746,7 @@ class Request(object):
             # server name and port
             default_port = {'http': 80, 'https': 443}
             if self.server_port and self.server_port != \
-                   default_port[self.scheme]:
+                    default_port[self.scheme]:
                 host = '%s:%d' % (self.server_name, self.server_port)
             else:
                 host = self.server_name

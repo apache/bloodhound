@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2012-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <form xmlns="http://www.w3.org/1999/xhtml"
      xmlns:py="http://genshi.edgewall.org/"
      xmlns:i18n="http://genshi.edgewall.org/i18n"
@@ -12,7 +22,7 @@
         <label for="batchmod_value_comment">Comment:</label>
       </th>
       <td class="fullrow"><textarea
-          id="batchmod_value_comment" name="batchmod_value_comment" cols="70" rows="5"/>
+          id="batchmod_value_comment" name="batchmod_value_comment" class="trac-fullwidth" cols="70" rows="5"/>
       </td>
     </tr>
 
@@ -54,7 +64,7 @@
   <div>
     <input type="hidden" name="selected_tickets" value=""/>
     <input type="hidden" name="query_href" value="${query_href}"/>
-    <input type="submit" id="batchmod_submit" name="batchmod_submit" value="${_('Change tickets')}" />
+    <input type="submit" id="batchmod_submit" name="batchmod_submit" class="trac-disable-on-submit" value="${_('Change tickets')}" />
   </div>
 
 </fieldset>

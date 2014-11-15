@@ -524,6 +524,12 @@ class Ticket(object):
 
         self._fetch_ticket(self.id)
 
+        changes = dict((field, (oldvalue, newvalue))
+                       for field, oldvalue, newvalue in fields)
+        for listener in TicketSystem(self.env).change_listeners:
+            if hasattr(listener, 'ticket_change_deleted'):
+                listener.ticket_change_deleted(self, cdate, changes)
+
     def modify_comment(self, cdate, author, comment, when=None):
         """Modify a ticket comment specified by its date, while keeping a
         history of edits.
@@ -548,8 +554,8 @@ class Ticket(object):
             # Find the next edit number
             fields = db("""SELECT field FROM ticket_change
                            WHERE ticket=%%s AND time=%%s AND field %s
-                           """ % db.like(),
-                           (self.id, ts, db.like_escape('_comment') + '%'))
+                           """ % db.prefix_match(),
+                           (self.id, ts, db.prefix_match_value('_comment')))
             rev = max(int(field[8:]) for field, in fields) + 1 if fields else 0
             db("""INSERT INTO ticket_change
                     (ticket,time,author,field,oldvalue,newvalue)
@@ -563,8 +569,8 @@ class Ticket(object):
                 for old_author, in db("""
                         SELECT author FROM ticket_change
                         WHERE ticket=%%s AND time=%%s AND NOT field %s LIMIT 1
-                        """ % db.like(),
-                        (self.id, ts, db.like_escape('_') + '%')):
+                        """ % db.prefix_match(),
+                        (self.id, ts, db.prefix_match_value('_'))):
                     db("""INSERT INTO ticket_change
                             (ticket,time,author,field,oldvalue,newvalue)
                           VALUES (%s,%s,%s,'comment','',%s)
@@ -579,6 +585,12 @@ class Ticket(object):
                (when_ts, self.id))
 
         self.values['changetime'] = when
+
+        old_comment = old_comment or ''
+        for listener in TicketSystem(self.env).change_listeners:
+            if hasattr(listener, 'ticket_comment_modified'):
+                listener.ticket_comment_modified(self, cdate, author, comment,
+                                                 old_comment)
 
     def get_comment_history(self, cnum=None, cdate=None, db=None):
         """Retrieve the edit history of a comment identified by its number or
@@ -607,8 +619,8 @@ class Ticket(object):
                 for author0, last_comment in db("""
                         SELECT author, newvalue FROM ticket_change
                         WHERE ticket=%%s AND time=%%s AND NOT field %s LIMIT 1
-                        """ % db.like(),
-                        (self.id, ts0, db.like_escape('_') + '%')):
+                        """ % db.prefix_match(),
+                        (self.id, ts0, db.prefix_match_value('_'))):
                     break
                 else:
                     return
@@ -617,8 +629,8 @@ class Ticket(object):
             rows = db("""SELECT field, author, oldvalue, newvalue
                          FROM ticket_change
                          WHERE ticket=%%s AND time=%%s AND field %s
-                         """ % db.like(),
-                         (self.id, ts0, db.like_escape('_comment') + '%'))
+                         """ % db.prefix_match(),
+                         (self.id, ts0, db.prefix_match_value('_comment')))
             rows = sorted((int(field[8:]), author, old, new)
                           for field, author, old, new in rows)
             history = []
@@ -670,8 +682,8 @@ class Ticket(object):
                 for author, in db("""
                         SELECT author FROM ticket_change
                         WHERE ticket=%%s AND time=%%s AND NOT field %s LIMIT 1
-                        """ % db.like(),
-                        (self.id, ts, db.like_escape('_') + '%')):
+                        """ % db.prefix_match(),
+                        (self.id, ts, db.prefix_match_value('_'))):
                     break
             return (ts, author, comment)
 
@@ -1040,23 +1052,20 @@ class Milestone(object):
     def delete(self, retarget_to=None, author=None, db=None):
         """Delete the milestone.
 
+        :since 1.0.2: the `retarget_to` and `author` parameters are
+                      deprecated and will be removed in Trac 1.3.1. Tickets
+                      should be moved to another milestone by calling
+                      `move_tickets` before `delete`.
+
         :since 1.0: the `db` parameter is no longer needed and will be removed
         in version 1.1.1
         """
         with self.env.db_transaction as db:
             self.env.log.info("Deleting milestone %s", self.name)
             db("DELETE FROM milestone WHERE name=%s", (self.name,))
-
-            # Retarget/reset tickets associated with this milestone
-            now = datetime.now(utc)
-            tkt_ids = [int(row[0]) for row in
-                       db("SELECT id FROM ticket WHERE milestone=%s",
-                          (self.name,))]
-            for tkt_id in tkt_ids:
-                ticket = Ticket(self.env, tkt_id, db)
-                ticket['milestone'] = retarget_to
-                comment = "Milestone %s deleted" % self.name # don't translate
-                ticket.save_changes(author, comment, now)
+            Attachment.delete_all(self.env, 'milestone', self.name)
+            # Don't translate ticket comment (comment:40:ticket:5658)
+            self.move_tickets(retarget_to, author, "Milestone deleted")
             self._old['name'] = None
             del self.cache.milestones
             TicketSystem(self.env).reset_ticket_fields()
@@ -1088,7 +1097,7 @@ class Milestone(object):
             listener.milestone_created(self)
         ResourceSystem(self.env).resource_created(self)
 
-    def update(self, db=None):
+    def update(self, db=None, author=None):
         """Update the milestone.
 
         :since 1.0: the `db` parameter is no longer needed and will be removed
@@ -1100,33 +1109,65 @@ class Milestone(object):
 
         old = self._old.copy()
         with self.env.db_transaction as db:
-            old_name = old['name']
-            self.env.log.info("Updating milestone '%s'", self.name)
+            if self.name != old['name']:
+                # Update milestone field in tickets
+                self.move_tickets(self.name, author, "Milestone renamed")
+                TicketSystem(self.env).reset_ticket_fields()
+                # Reparent attachments
+                Attachment.reparent_all(self.env, 'milestone', old['name'],
+                                        'milestone', self.name)
+
+            self.env.log.info("Updating milestone '%s'", old['name'])
             db("""UPDATE milestone
                   SET name=%s, due=%s, completed=%s, description=%s
                   WHERE name=%s
                   """, (self.name, to_utimestamp(self.due),
                         to_utimestamp(self.completed),
-                        self.description, old_name))
+                        self.description, old['name']))
             self.checkin()
-
-            if self.name != old_name:
-                # Update milestone field in tickets
-                self.env.log.info("Updating milestone field of all tickets "
-                                  "associated with milestone '%s'", self.name)
-                db("UPDATE ticket SET milestone=%s WHERE milestone=%s",
-                   (self.name, old_name))
-                TicketSystem(self.env).reset_ticket_fields()
-
-                # Reparent attachments
-                Attachment.reparent_all(self.env, 'milestone', old_name,
-                                        'milestone', self.name)
 
         old_values = dict((k, v) for k, v in old.iteritems()
                           if getattr(self, k) != v)
         for listener in TicketSystem(self.env).milestone_change_listeners:
             listener.milestone_changed(self, old_values)
         ResourceSystem(self.env).resource_changed(self, old_values)
+
+    def move_tickets(self, new_milestone, author, comment=None,
+                     exclude_closed=False):
+        """Move tickets associated with this milestone to another
+        milestone.
+
+        :param new_milestone: milestone to which the tickets are moved
+        :param author: author of the change
+        :param comment: comment that is inserted into moved tickets. The
+                        string should not be translated.
+        :param exclude_closed: whether tickets with status closed should be
+                               excluded
+
+        :return: a list of ids of tickets that were moved
+        """
+        # Check if milestone exists, but if the milestone is being renamed
+        # the new milestone won't exist in the cache yet so skip the test
+        if new_milestone and new_milestone != self.name:
+            if not self.cache.fetchone(new_milestone):
+                raise ResourceNotFound(
+                    _("Milestone %(name)s does not exist.",
+                      name=new_milestone), _("Invalid milestone name"))
+        now = datetime.now(utc)
+        with self.env.db_transaction as db:
+            sql = "SELECT id FROM ticket WHERE milestone=%s"
+            if exclude_closed:
+                sql += " AND status != 'closed'"
+            tkt_ids = [int(row[0]) for row in db(sql, (self._old['name'],))]
+            if tkt_ids:
+                self.env.log.info("Moving tickets associated with milestone "
+                                  "'%s' to milestone '%s'", self._old['name'],
+                                  new_milestone)
+                for tkt_id in tkt_ids:
+                    ticket = Ticket(self.env, tkt_id)
+                    ticket['milestone'] = new_milestone
+                    ticket.save_changes(author, comment, now)
+        return tkt_ids
 
     @classmethod
     def select(cls, env, include_completed=True, db=None):

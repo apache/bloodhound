@@ -1,4 +1,23 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2004-2013 Edgewall Software
+# Copyright (C) 2004 Dmitry Yusupov <dmitry_yus@yahoo.com>
+# Copyright (C) 2004 Mark Rowe <mrowe@bluewire.net.nz>
+# Copyright (C) 2005 Bill Soudan <bill@soudan.net>
+# Copyright (C) 2005 Florent Guillaume <fg@nuxeo.com>
+# Copyright (C) 2005 Jeroen Ruigrok van der Werven <asmodai@in-nomine.org>
+# Copyright (C) 2010 Jeff Moreland <hou5e@hotmail.com>
+#
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
 
 """
 Import a Bugzilla items into a Trac database.
@@ -9,17 +28,7 @@ Requires:  Trac 0.9b1 from http://trac.edgewall.org/
            or PostGreSQL 8.4 from http://www.postgresql.org/
            or SQLite 3 from http://www.sqlite.org/
 
-Thanks:    Mark Rowe <mrowe@bluewire.net.nz>
-            for original TracDatabase class
-
-Copyright 2004, Dmitry Yusupov <dmitry_yus@yahoo.com>
-
-Many enhancements, Bill Soudan <bill@soudan.net>
-Other enhancements, Florent Guillaume <fg@nuxeo.com>
-Reworked, Jeroen Ruigrok van der Werven <asmodai@in-nomine.org>
-Jeff Moreland <hou5e@hotmail.com>
-
-$Id: bugzilla2trac.py 11490 2013-01-13 15:18:06Z rblank $
+$Id: bugzilla2trac.py 12500 2014-02-12 20:54:59Z rjollos $
 """
 
 from __future__ import with_statement
@@ -230,7 +239,7 @@ sys.setdefaultencoding('latin1')
 # mapping, just return string, otherwise return value
 class FieldTranslator(dict):
     def __getitem__(self, item):
-        if not dict.has_key(self, item):
+        if item not in self:
             return item
 
         return dict.__getitem__(self, item)
@@ -243,8 +252,8 @@ class TracDatabase(object):
         self.loginNameCache = {}
         self.fieldNameCache = {}
         from trac.db.api import DatabaseManager
-	self.using_postgres = \
-                DatabaseManager(self.env).connection_uri.startswith("postgres:")
+        self.using_postgres = \
+            DatabaseManager(self.env).connection_uri.startswith("postgres:")
 
     def hasTickets(self):
         return int(self.env.db_query("SELECT count(*) FROM ticket")[0][0] > 0)
@@ -335,7 +344,7 @@ class TracDatabase(object):
             if BUG_NO_RE.search(desc):
                 desc = re.sub(BUG_NO_RE, BUG_NO_REPL, desc)
 
-        if PRIORITIES_MAP.has_key(priority):
+        if priority in PRIORITIES_MAP:
             priority = PRIORITIES_MAP[priority]
 
         print "  inserting ticket %s -- %s" % (id, summary)
@@ -377,7 +386,7 @@ class TracDatabase(object):
         comment = value
 
         if PREFORMAT_COMMENTS:
-          comment = '{{{\n%s\n}}}' % comment
+            comment = '{{{\n%s\n}}}' % comment
 
         if REPLACE_BUG_NO:
             if BUG_NO_RE.search(comment):
@@ -393,15 +402,15 @@ class TracDatabase(object):
     def addTicketChange(self, ticket, time, author, field, oldvalue, newvalue):
 
         if field == "owner":
-            if LOGIN_MAP.has_key(oldvalue):
+            if oldvalue in LOGIN_MAP:
                 oldvalue = LOGIN_MAP[oldvalue]
-            if LOGIN_MAP.has_key(newvalue):
+            if newvalue in LOGIN_MAP:
                 newvalue = LOGIN_MAP[newvalue]
 
         if field == "priority":
-            if PRIORITIES_MAP.has_key(oldvalue.lower()):
+            if oldvalue.lower() in PRIORITIES_MAP:
                 oldvalue = PRIORITIES_MAP[oldvalue.lower()]
-            if PRIORITIES_MAP.has_key(newvalue.lower()):
+            if newvalue.lower() in PRIORITIES_MAP:
                 newvalue = PRIORITIES_MAP[newvalue.lower()]
 
         # Doesn't make sense if we go from highest -> highest, for example.
@@ -720,7 +729,7 @@ def convert(_db, _host, _user, _password, _env, _force):
                     ignore = True
 
             if ignore:
-                    continue
+                continue
 
             trac.addTicketComment(ticket=bugid,
                 time = desc['bug_when'],
@@ -824,19 +833,19 @@ def convert(_db, _host, _user, _password, _env, _force):
 
             # Bugzilla splits large summary changes into two records.
             for oldChange in ticketChanges:
-              if (field_name == "summary"
-                  and oldChange['field'] == ticketChange['field']
-                  and oldChange['time'] == ticketChange['time']
-                  and oldChange['author'] == ticketChange['author']):
-                  oldChange['oldvalue'] += " " + ticketChange['oldvalue']
-                  oldChange['newvalue'] += " " + ticketChange['newvalue']
-                  break
-              # cc and attachments.isobsolete sometime appear
-              # in different activities with same time
-              if ((field_name == "cc" or field_name == "attachments.isobsolete") \
-                  and oldChange['time'] == ticketChange['time']):
-                  oldChange['newvalue'] += ", " + ticketChange['newvalue']
-                  break
+                if (field_name == "summary"
+                    and oldChange['field'] == ticketChange['field']
+                    and oldChange['time'] == ticketChange['time']
+                    and oldChange['author'] == ticketChange['author']):
+                    oldChange['oldvalue'] += " " + ticketChange['oldvalue']
+                    oldChange['newvalue'] += " " + ticketChange['newvalue']
+                    break
+                # cc and attachments.isobsolete sometime appear
+                # in different activities with same time
+                if ((field_name == "cc" or field_name == "attachments.isobsolete") \
+                    and oldChange['time'] == ticketChange['time']):
+                    oldChange['newvalue'] += ", " + ticketChange['newvalue']
+                    break
             else:
                 ticketChanges.append (ticketChange)
 
@@ -895,7 +904,7 @@ def convert(_db, _host, _user, _password, _env, _force):
         users = ()
     htpasswd = file("htpasswd", 'w')
     for user in users:
-        if LOGIN_MAP.has_key(user['login_name']):
+        if user['login_name'] in LOGIN_MAP:
             login = LOGIN_MAP[user['login_name']]
         else:
             login = user['login_name']
@@ -939,36 +948,36 @@ def main():
     global BZ_DB, BZ_HOST, BZ_USER, BZ_PASSWORD, TRAC_ENV, TRAC_CLEAN
     global SEVERITIES, PRIORITIES, PRIORITIES_MAP
     if len (sys.argv) > 1:
-    	if sys.argv[1] in ['--help','help'] or len(sys.argv) < 4:
-    	    usage()
-    	iter = 1
-    	while iter < len(sys.argv):
-    	    if sys.argv[iter] in ['--db'] and iter+1 < len(sys.argv):
-    	        BZ_DB = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-h', '--host'] and iter+1 < len(sys.argv):
-    	        BZ_HOST = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-u', '--user'] and iter+1 < len(sys.argv):
-    	        BZ_USER = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-p', '--passwd'] and iter+1 < len(sys.argv):
-    	        BZ_PASSWORD = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['--tracenv'] and iter+1 < len(sys.argv):
-    	        TRAC_ENV = sys.argv[iter+1]
-    	        iter = iter + 1
-    	    elif sys.argv[iter] in ['-c', '--clean']:
-    	        TRAC_CLEAN = 1
+        if sys.argv[1] in ['--help','help'] or len(sys.argv) < 4:
+            usage()
+        iter = 1
+        while iter < len(sys.argv):
+            if sys.argv[iter] in ['--db'] and iter+1 < len(sys.argv):
+                BZ_DB = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-h', '--host'] and iter+1 < len(sys.argv):
+                BZ_HOST = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-u', '--user'] and iter+1 < len(sys.argv):
+                BZ_USER = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-p', '--passwd'] and iter+1 < len(sys.argv):
+                BZ_PASSWORD = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['--tracenv'] and iter+1 < len(sys.argv):
+                TRAC_ENV = sys.argv[iter+1]
+                iter = iter + 1
+            elif sys.argv[iter] in ['-c', '--clean']:
+                TRAC_CLEAN = 1
             elif sys.argv[iter] in ['-n', '--noseverities']:
                 # treat Bugzilla severites as Trac priorities
                 PRIORITIES = SEVERITIES
                 SEVERITIES = []
                 PRIORITIES_MAP = {}
-    	    else:
-    	        print "Error: unknown parameter: " + sys.argv[iter]
-    	        sys.exit(0)
-    	    iter = iter + 1
+            else:
+                print "Error: unknown parameter: " + sys.argv[iter]
+                sys.exit(0)
+            iter = iter + 1
 
     convert(BZ_DB, BZ_HOST, BZ_USER, BZ_PASSWORD, TRAC_ENV, TRAC_CLEAN)
 

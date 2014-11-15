@@ -28,8 +28,7 @@ from trac.resource import ResourceNotFound
 from trac.util import Ranges
 from trac.util.text import to_unicode, wrap
 from trac.util.translation import _
-from trac.versioncontrol.api import (RepositoryManager, Changeset,
-                                     NoSuchChangeset)
+from trac.versioncontrol.api import Changeset, RepositoryManager
 from trac.versioncontrol.web_ui.changeset import ChangesetModule
 from trac.versioncontrol.web_ui.util import *
 from trac.web import IRequestHandler
@@ -90,8 +89,12 @@ class LogModule(Component):
         reponame, repos, path = rm.get_repository_by_path(path)
 
         if not repos:
-            raise ResourceNotFound(_("Repository '%(repo)s' not found",
-                                   repo=reponame))
+            if path == '/':
+                raise TracError(_("No repository specified and no default"
+                                  " repository configured."))
+            else:
+                raise ResourceNotFound(_("Repository '%(repo)s' not found",
+                                         repo=reponame or path.strip('/')))
 
         if reponame != repos.reponame:  # Redirect alias
             qs = req.query_string
@@ -106,11 +109,11 @@ class LogModule(Component):
         revranges = None
         if revs:
             try:
-                revranges = Ranges(revs)
+                revranges = self._normalize_ranges(repos, path, revs)
                 rev = revranges.b
             except ValueError:
                 pass
-        rev = unicode(repos.normalize_rev(rev))
+        rev = repos.normalize_rev(rev)
         display_rev = repos.display_rev
 
         # The `history()` method depends on the mode:
@@ -139,25 +142,27 @@ class LogModule(Component):
                         node_history = list(node.get_history(2))
                         p, rev, chg = node_history[0]
                         if repos.rev_older_than(rev, a):
-                            break # simply skip, no separator
+                            break  # simply skip, no separator
                         if 'CHANGESET_VIEW' in req.perm(cset_resource(id=rev)):
                             if expected_next_item:
                                 # check whether we're continuing previous range
                                 np, nrev, nchg = expected_next_item
-                                if rev != nrev: # no, we need a separator
+                                if rev != nrev:  # no, we need a separator
                                     yield (np, nrev, None)
                             yield node_history[0]
-                        prevpath = node_history[-1][0] # follow copy
-                        b = repos.previous_rev(rev)
                         if len(node_history) > 1:
                             expected_next_item = node_history[-1]
+                            prevpath = expected_next_item[0]  # follow copy
+                            b = expected_next_item[1]
                         else:
                             expected_next_item = None
+                            break  # no more older revisions
                 if expected_next_item:
                     yield (expected_next_item[0], expected_next_item[1], None)
         else:
             show_graph = path == '/' and not verbose \
                          and not repos.has_linear_changesets
+
             def history():
                 node = get_existing_node(req, repos, path, rev)
                 for h in node.get_history():
@@ -192,7 +197,7 @@ class LogModule(Component):
                     break
                 elif mode == 'path_history':
                     depth -= 1
-            if old_chg is None: # separator entry
+            if old_chg is None:  # separator entry
                 stop_limit = limit
             else:
                 count += 1
@@ -200,13 +205,15 @@ class LogModule(Component):
             if count >= stop_limit:
                 break
             previous_path = old_path
-        if info == []:
+        if not info:
             node = get_existing_node(req, repos, path, rev)
             if repos.rev_older_than(stop_rev, node.created_rev):
                 # FIXME: we should send a 404 error here
                 raise TracError(_("The file or directory '%(path)s' doesn't "
-                    "exist at revision %(rev)s or at any previous revision.",
-                    path=path, rev=display_rev(rev)), _('Nonexistent path'))
+                                  "exist at revision %(rev)s or at any "
+                                  "previous revision.", path=path,
+                                  rev=display_rev(rev)),
+                                _('Nonexistent path'))
 
         # Generate graph data
         graph = {}
@@ -231,7 +238,7 @@ class LogModule(Component):
             return req.href.log(repos.reponame or None, path, **params)
 
         if format in ('rss', 'changelog'):
-            info = [i for i in info if i['change']] # drop separators
+            info = [i for i in info if i['change']]  # drop separators
             if info and count > limit:
                 del info[-1]
         elif info and count >= limit:
@@ -245,8 +252,9 @@ class LogModule(Component):
                 older_revisions_href = make_log_href(next_path, rev=next_rev,
                                                      revs=next_revranges)
                 add_link(req, 'next', older_revisions_href,
-                    _('Revision Log (restarting at %(path)s, rev. %(rev)s)',
-                    path=next_path, rev=display_rev(next_rev)))
+                         _('Revision Log (restarting at %(path)s, rev. '
+                           '%(rev)s)', path=next_path,
+                           rev=display_rev(next_rev)))
             # only show fully 'limit' results, use `change == None` as a marker
             info[-1]['change'] = None
 
@@ -275,11 +283,11 @@ class LogModule(Component):
             'reponame': repos.reponame or None, 'repos': repos,
             'path': path, 'rev': rev, 'stop_rev': stop_rev,
             'display_rev': display_rev, 'revranges': revranges,
-            'mode': mode, 'verbose': verbose, 'limit' : limit,
+            'mode': mode, 'verbose': verbose, 'limit': limit,
             'items': info, 'changes': changes, 'extra_changes': extra_changes,
             'graph': graph,
-            'wiki_format_messages':
-            self.config['changeset'].getbool('wiki_format_messages')
+            'wiki_format_messages': self.config['changeset']
+                                    .getbool('wiki_format_messages')
         }
 
         if format == 'changelog':
@@ -294,8 +302,8 @@ class LogModule(Component):
         item_ranges = []
         range = []
         for item in info:
-            if item['change'] is None: # separator
-                if range: # start new range
+            if item['change'] is None:  # separator
+                if range:  # start new range
                     range.append(item)
                     item_ranges.append(range)
                     range = []
@@ -320,7 +328,8 @@ class LogModule(Component):
                  'application/rss+xml', 'rss')
         changelog_href = make_log_href(path, format='changelog', revs=revs,
                                        stop_rev=stop_rev)
-        add_link(req, 'alternate', changelog_href, _('ChangeLog'), 'text/plain')
+        add_link(req, 'alternate', changelog_href, _('ChangeLog'),
+                 'text/plain')
 
         add_ctxtnav(req, _('View Latest Revision'),
                     href=req.href.browser(repos.reponame or None, path))
@@ -388,23 +397,27 @@ class LogModule(Component):
                     repos = rm.get_repository(reponame)
 
             if repos:
-                revranges = None
-                if any(c for c in ':-,' if c in revs):
-                    revranges = self._normalize_ranges(repos, path, revs)
-                    revs = None
                 if 'LOG_VIEW' in formatter.perm:
+                    revranges = None
+                    if any(c in revs for c in ':-,'):
+                        try:
+                            # try to parse into integer rev ranges
+                            revranges = Ranges(revs.replace(':', '-'),
+                                               reorder=True)
+                            revs = str(revranges)
+                        except ValueError:
+                            revranges = self._normalize_ranges(repos, path,
+                                                               revs)
                     if revranges:
                         href = formatter.href.log(repos.reponame or None,
                                                   path or '/',
-                                                  revs=str(revranges))
+                                                  revs=revs)
                     else:
-                        try:
-                            rev = repos.normalize_rev(revs)
-                        except NoSuchChangeset:
-                            rev = None
+                        repos.normalize_rev(revs)  # verify revision
                         href = formatter.href.log(repos.reponame or None,
-                                                  path or '/', rev=rev)
-                    if query and (revranges or revs):
+                                                  path or '/',
+                                                  rev=revs or None)
+                    if query and '?' in href:
                         query = '&' + query[1:]
                     return tag.a(label, class_='source',
                                  href=href + query + fragment)
@@ -420,17 +433,22 @@ class LogModule(Component):
     LOG_LINK_RE = re.compile(r"([^@:]*)[@:]%s?" % REV_RANGE)
 
     def _normalize_ranges(self, repos, path, revs):
-        ranges = revs.replace(':', '-')
         try:
             # fast path; only numbers
-            return Ranges(ranges, reorder=True)
+            return Ranges(revs.replace(':', '-'), reorder=True)
         except ValueError:
             # slow path, normalize each rev
-            splitted_ranges = re.split(r'([-,])', ranges)
+            ranges = []
+            for range in revs.split(','):
+                try:
+                    a, b = range.replace(':', '-').split('-')
+                    range = (a, b)
+                except ValueError:
+                    range = (range,)
+                ranges.append('-'.join(str(repos.normalize_rev(r))
+                                       for r in range))
+            ranges = ','.join(ranges)
             try:
-                revs = [repos.normalize_rev(r) for r in splitted_ranges[::2]]
-            except NoSuchChangeset:
+                return Ranges(ranges)
+            except ValueError:
                 return None
-            seps = splitted_ranges[1::2] + ['']
-            ranges = ''.join([str(rev)+sep for rev, sep in zip(revs, seps)])
-            return Ranges(ranges)

@@ -82,6 +82,13 @@ span:target {
 
 /* Forms */
 input, textarea, select { margin: 2px }
+/* Avoid respect to system font settings for controls on Firefox, #11607 */
+input, select, button {
+ font-family: Arial,Verdana,'Bitstream Vera Sans',Helvetica,sans-serif;
+ font-size: 100%;
+}
+/* Avoid to inherit white-space of its parent element for IE 11, #11376 */
+textarea { white-space: pre-wrap }
 input, select { vertical-align: middle }
 input[type=button], input[type=submit], input[type=reset], button {
  *overflow: visible; /* Workaround too much margin on button in IE7 */
@@ -176,6 +183,14 @@ input[type=button].trac-delete:hover,
 input[type=submit].trac-delete:hover {
  color: #e31313;
 }
+textarea.trac-fullwidth, input.trac-fullwidth {
+ -moz-box-sizing: border-box;
+ box-sizing: border-box;
+ margin-left: 0;
+ margin-right: 0;
+ width: 100%;
+}
+textarea.trac-fullwidth { padding: 2px; }
 
 /* Header */
 #header hr { display: none }
@@ -225,6 +240,26 @@ input[type=submit].trac-delete:hover {
 #metanav {
  padding-top: .3em;
 }
+#metanav form.trac-logout {
+ display: inline;
+ margin: 0;
+ padding: 0;
+}
+#metanav form.trac-logout button {
+ margin: 0;
+ padding: 0;
+ border: 0;
+ outline: 0;
+ background: transparent;
+ font-family: inherit;
+ font-size: 100%;
+ color: #b00;
+ border-bottom: 1px dotted #bbb;
+ cursor: pointer;
+}
+#metanav form.trac-logout button::-moz-focus-inner { border: 0; padding: 0 }
+#metanav form.trac-logout button:hover { background-color: #eee; color: #555 }
+#metanav form.trac-logout button:active { position: static }
 
 /* Main navigation bar */
 #mainnav {
@@ -311,7 +346,7 @@ input[type=submit].trac-delete:hover {
  text-align: center;
 }
 #altlinks h3 { font-size: 12px; letter-spacing: normal; margin: 0 }
-#altlinks ul { list-style: none; margin: 0; }
+#altlinks ul { list-style: none; margin: 0; padding: 0 }
 #altlinks li {
  border-right: 1px solid #d7d7d7;
  display: inline;
@@ -473,6 +508,11 @@ a.trac-diff:after { content: "∆" }
 div.compact > p:first-child { margin-top: 0 }
 div.compact > p:last-child { margin-bottom: 0 }
 
+/* Styles related to RTL support */
+.rtl { direction: rtl; }
+.rtl div.wiki-toc { float: left; }
+.rtl .wiki-toc ul ul, .wiki-toc ol ol { padding-right: 1.2em }
+
 a.missing:link, a.missing:visited, a.missing, span.missing,
 a.forbidden, span.forbidden { color: #998 }
 a.missing:hover { color: #000 }
@@ -532,10 +572,11 @@ table.wiki th {
  padding: .1em .25em;
  background-color: #f7f7f7;
 }
+table.wiki tbody tr.even { background-color: #fcfcfc }
+table.wiki tbody tr.odd { background-color: #f7f7f7 }
 
 .wikitoolbar {
  margin-top: 0.3em;
- margin-left: 2px;
  border: solid #d7d7d7;
  border-width: 1px 1px 1px 0;
  height: 18px;
@@ -566,7 +607,7 @@ table.wiki th {
 .wikitoolbar a#img { background-position: 0 -128px }
 
 /* Textarea resizer */
-div.trac-resizable { display: table; width: 1px }
+div.trac-resizable { display: table; width: 100% }
 div.trac-resizable > div { display: table-cell }
 div.trac-resizable textarea { display: block; margin-bottom: 0 }
 div.trac-grip {
@@ -649,7 +690,7 @@ table.listing tbody td a:hover, table.listing tbody th a:hover {
 table.listing tbody tr { border-top: 1px solid #ddd }
 table.listing tbody tr.even { background-color: #fcfcfc }
 table.listing tbody tr.odd { background-color: #f7f7f7 }
-table.listing tbody tr:hover { background: #eed !important }
+table.listing tbody tr:hover td { background: #eed !important }
 table.listing tbody tr.focus { background: #ddf !important }
 
 table.listing pre { white-space: pre-wrap }

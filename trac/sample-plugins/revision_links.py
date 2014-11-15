@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2007-2013 Edgewall Software
+# Copyright (C) 2007 Christian Boos <cboos@edgewall.org>
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
+
 """Sample Wiki syntax extension plugin."""
 
 from genshi.builder import tag
@@ -8,8 +22,8 @@ from trac.versioncontrol.api import NoSuchChangeset, RepositoryManager
 from trac.versioncontrol.web_ui import ChangesetModule
 from trac.wiki.api import IWikiSyntaxProvider
 
-revision = "$Rev: 11490 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/revision_links.py $"
+revision = "$Rev: 12500 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.2/sample-plugins/revision_links.py $"
 
 class RevisionLinks(Component):
     """Adds a few more ways to refer to changesets."""
@@ -53,4 +67,3 @@ class RevisionLinks(Component):
             pass
         return tag.a(label, class_="missing changeset", rel="nofollow",
                      href=formatter.href.changeset(rev))
-

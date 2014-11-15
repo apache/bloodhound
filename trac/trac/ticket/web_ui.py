@@ -38,20 +38,18 @@ from trac.ticket.api import TicketSystem, ITicketManipulator
 from trac.ticket.model import Milestone, Ticket, group_milestones
 from trac.ticket.notification import TicketNotifyEmail
 from trac.timeline.api import ITimelineEventProvider
-from trac.util import as_bool, as_int, get_reporter_id
+from trac.util import as_bool, as_int, get_reporter_id, lazy
 from trac.util.datefmt import (
     format_datetime, from_utimestamp, to_utimestamp, utc
 )
+from trac.util.html import to_fragment
 from trac.util.text import (
-    exception_to_unicode, empty, obfuscate_email_address, shorten_line,
-    to_unicode
+    exception_to_unicode, empty, obfuscate_email_address, shorten_line
 )
 from trac.util.presentation import separated
-from trac.util.translation import _, tag_, tagn_, N_, gettext, ngettext
+from trac.util.translation import _, tag_, tagn_, N_, ngettext
 from trac.versioncontrol.diff import get_diff_options, diff_blocks
-from trac.web import (
-    IRequestHandler, RequestDone, arg_list_to_args, parse_arg_list
-)
+from trac.web import IRequestHandler, arg_list_to_args, parse_arg_list
 from trac.web.chrome import (
     Chrome, INavigationContributor, ITemplateProvider,
     add_ctxtnav, add_link, add_notice, add_script, add_script_data,
@@ -77,12 +75,14 @@ class TicketModule(Component):
         open / close operations (''since 0.9'').""")
 
     max_description_size = IntOption('ticket', 'max_description_size', 262144,
-        """Don't accept tickets with a too big description.
-        (''since 0.11'').""")
+        """Maximum allowed description size in characters.
+        (//since 0.11//).""")
 
     max_comment_size = IntOption('ticket', 'max_comment_size', 262144,
-        """Don't accept tickets with a too big comment.
-        (''since 0.11.2'')""")
+        """Maximum allowed comment size in characters. (//since 0.11.2//).""")
+
+    max_summary_size = IntOption('ticket', 'max_summary_size', 262144,
+        """Maximum allowed summary size in characters. (//since 1.0.2//).""")
 
     timeline_newticket_formatter = Option('timeline', 'newticket_formatter',
                                           'oneliner',
@@ -123,11 +123,11 @@ class TicketModule(Component):
             return getattr(TicketSystem(self.env), name)
         raise AttributeError("TicketModule has no attribute '%s'" % name)
 
-    @property
+    @lazy
     def must_preserve_newlines(self):
         preserve_newlines = self.preserve_newlines
         if preserve_newlines == 'default':
-            preserve_newlines = self.env.get_version(initial=True) >= 21 # 0.11
+            preserve_newlines = self.env.database_initial_version >= 21 # 0.11
         return as_bool(preserve_newlines)
 
     # IContentConverter methods
@@ -296,7 +296,7 @@ class TicketModule(Component):
                     FROM ticket_change tc
                         INNER JOIN ticket t ON t.id = tc.ticket
                             AND tc.time>=%s AND tc.time<=%s
-                    ORDER BY tc.time
+                    ORDER BY tc.time, tc.ticket
                     """ % (ts_start, ts_stop)):
                 if not (oldvalue or newvalue):
                     # ignore empty change corresponding to custom field
@@ -307,7 +307,7 @@ class TicketModule(Component):
                         ev = produce_event(data, status, fields, comment,
                                            cid)
                         if ev:
-                             yield (ev, data[1])
+                            yield (ev, data[1])
                     status, fields, comment, cid = 'edit', {}, '', None
                     data = (id, t, author, type, summary, None)
                 if field == 'comment':
@@ -1130,7 +1130,7 @@ class TicketModule(Component):
         for f in fields:
             name = f['name']
             value = ticket.values.get(name, '')
-            if name in ('cc', 'reporter'):
+            if name in ('cc', 'owner', 'reporter'):
                 value = Chrome(self.env).format_emails(context, value, ' ')
             elif name in ticket.time_fields:
                 value = format_datetime(value, '%Y-%m-%d %H:%M:%S',
@@ -1241,8 +1241,9 @@ class TicketModule(Component):
                 value = ticket[name]
                 if value:
                     if value not in field['options']:
-                        add_warning(req, '"%s" is not a valid value for '
-                                    'the %s field.' % (value, name))
+                        add_warning(req, _('"%(value)s" is not a valid value '
+                                           'for the %(name)s field.',
+                                           value=value, name=name))
                         valid = False
                 elif not field.get('optional', False):
                     add_warning(req, _("field %(name)s must be set",
@@ -1263,6 +1264,13 @@ class TicketModule(Component):
                                num=self.max_comment_size))
             valid = False
 
+        # Validate summary length
+        if len(ticket['summary']) > self.max_summary_size:
+            add_warning(req, _("Ticket summary is too long (must be less "
+                               "than %(num)s characters)",
+                               num=self.max_summary_size))
+            valid = False
+
         # Validate comment numbering
         try:
             # replyto must be 'description' or a number
@@ -1278,9 +1286,9 @@ class TicketModule(Component):
             for field, message in manipulator.validate_ticket(req, ticket):
                 valid = False
                 if field:
-                    add_warning(req, _("The ticket field '%(field)s' is "
-                                       "invalid: %(message)s",
-                                       field=field, message=message))
+                    add_warning(req, tag_("The ticket field '%(field)s'"
+                                          " is invalid: %(message)s",
+                                          field=field, message=message))
                 else:
                     add_warning(req, message)
         return valid
@@ -1295,9 +1303,9 @@ class TicketModule(Component):
         except Exception, e:
             self.log.error("Failure sending notification on creation of "
                     "ticket #%s: %s", ticket.id, exception_to_unicode(e))
-            add_warning(req, _("The ticket has been created, but an error "
-                               "occurred while sending notifications: "
-                               "%(message)s", message=to_unicode(e)))
+            add_warning(req, tag_("The ticket has been created, but an error "
+                                  "occurred while sending notifications: "
+                                  "%(message)s", message=to_fragment(e)))
 
         # Redirect the user to the newly created ticket or add attachment
         ticketref=tag.a('#', ticket.id, href=req.href.ticket(ticket.id))
@@ -1341,7 +1349,7 @@ class TicketModule(Component):
                 add_warning(req, tag_("The %(change)s has been saved, but an "
                                       "error occurred while sending "
                                       "notifications: %(message)s",
-                                      change=change, message=to_unicode(e)))
+                                      change=change, message=to_fragment(e)))
                 fragment = ''
 
         # After saving the changes, apply the side-effects.
@@ -1401,6 +1409,9 @@ class TicketModule(Component):
 
     def _query_link(self, req, name, value, text=None):
         """Return a link to /query with the appropriate name and value"""
+        from trac.ticket.query import QueryModule
+        if not self.env.is_component_enabled(QueryModule):
+            return text or value
         default_query = self.ticketlink_query.lstrip('?')
         args = arg_list_to_args(parse_arg_list(default_query))
         args[name] = value
@@ -1410,7 +1421,9 @@ class TicketModule(Component):
 
     def _query_link_words(self, context, name, value):
         """Splits a list of words and makes a query link to each separately"""
-        if not isinstance(value, basestring): # None or other non-splitable
+        from trac.ticket.query import QueryModule
+        if not (isinstance(value, basestring) and  # None or other non-splitable
+                self.env.is_component_enabled(QueryModule)):
             return value
         default_query = self.ticketlink_query.startswith('?') and \
                         self.ticketlink_query[1:] or self.ticketlink_query

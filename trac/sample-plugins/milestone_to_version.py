@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2009-2013 Edgewall Software
+# Copyright (C) 2009 Remy Blank <remy.blank@pobox.com>
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
+
 import re
 
 from trac.config import Option
@@ -6,8 +20,8 @@ from trac.resource import ResourceNotFound
 from trac.ticket.api import IMilestoneChangeListener
 from trac.ticket.model import Version
 
-revision = "$Rev: 11490 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/milestone_to_version.py $"
+revision = "$Rev: 12164 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.2/sample-plugins/milestone_to_version.py $"
 
 
 class MilestoneToVersion(Component):

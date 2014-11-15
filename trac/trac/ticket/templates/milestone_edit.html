@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -26,13 +36,14 @@
           var retarget = $("#retarget");
           retarget.enable(checked);
           $("#target").enable(checked && retarget.checked());
+          $("#retarget-comment").enable(checked && retarget.checked());
         }
         $("#completed").click(updateCompletedDate);
         updateCompletedDate();
         $("#retarget").click(function(){
           $("#target").enable(this.checked);
+          $("#retarget-comment").enable(this.checked);
         });
-        $("#name").get(0).focus()
         $("#duedate").datetimepicker();
         $("#completeddate").datetimepicker();
       });
@@ -51,7 +62,8 @@
           <input type="hidden" name="id" value="${milestone.name}" />
           <input type="hidden" name="action" value="edit" />
           <label>Name of the milestone:<br />
-            <input type="text" id="name" name="name" size="32" value="${milestone.name or req.args.get('name')}" />
+            <input type="text" id="name" name="name" class="trac-autofocus" size="32"
+                   value="${milestone.name or req.args.get('name')}" />
           </label>
         </div>
         <fieldset>
@@ -91,20 +103,28 @@
                           value="${milestone.name}" py:content="milestone.name"></option>
                 </optgroup>
               </select>
+              <br/>
+              <label for="retarget-comment">Comment:</label>
+              <!--! Don't translate ticket comment (comment:40:ticket:5658) -->
+              <input type="text" id="retarget-comment" name="comment" size="40"
+                     value="Ticket retargeted after milestone closed" />
             </py:if>
           </div>
         </fieldset>
         <div class="field">
           <fieldset>
-            <label for="description" i18n:msg="">Description (you may use <a tabindex="42"
-                   href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here):</label>
-            <p><textarea id="description" name="description" class="wikitext trac-resizable" rows="10" cols="78">
+            <label for="description" i18n:msg="">
+              Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
+            </label>
+            <p><textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable" rows="10" cols="78">
 ${milestone.description}</textarea></p>
           </fieldset>
         </div>
         <div class="buttons" py:choose="milestone.exists">
-          <input py:when="True" type="submit" value="${_('Submit changes')}" />
-          <input py:otherwise="" type="submit" value="${_('Add milestone')}" />
+          <input py:when="True" type="submit" name="save"
+                 value="${_('Submit changes')}" class="trac-disable-on-submit" />
+          <input py:otherwise="" type="submit" name="add"
+                 value="${_('Add milestone')}" />
           <input type="submit" name="cancel" value="${_('Cancel')}" />
         </div>
       </form>

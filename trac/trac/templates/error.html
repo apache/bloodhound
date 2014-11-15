@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -39,7 +49,9 @@
        $("#traceback pre").hide();
        $("#tbtoggle").parent().show();
 
-       $("#systeminfo").append("<tr><th>jQuery</th><td>" + $().jquery + "</td></tr>");
+       $("#systeminfo").append("<tr><th>jQuery</th><td>"+$().jquery+"</td></tr>" +
+                               "<tr><th>jQuery UI</th><td>"+$.ui.version+"</td></tr>" +
+                               "<tr><th>jQuery Timepicker</th><td>"+$.timepicker.version+"</td></tr>");
        $("#systeminfo").before("<p>User Agent: <tt>" + navigator.userAgent + "</tt></p>");
       });
     /*]]>*/</script>
@@ -48,7 +60,9 @@
         $("form.newticket textarea").each(function() {
           $(this).val($(this).val()
                              .replace(/#USER_AGENT#/m, navigator.userAgent)
-                             .replace(/#JQUERY#/m, $().jquery));
+                             .replace(/#JQUERY#/m, $().jquery)
+                             .replace(/#JQUERYUI#/m, $.ui.version)
+                             .replace(/#JQUERYTP#/m, $.timepicker.version));
         });
       });
     /*]]>*/</script>
@@ -58,6 +72,7 @@
     <input type="hidden" name="reporter" value="${get_reporter_id(req)}" />
     <input py:if="url == trac.homepage.strip('/')" type="hidden" name="version"
            value="${trac.version.split('-', 1)[0] if 'dev' in trac.version else trac.version}" />
+    <input type="hidden" name="$arg" value="$value" py:for="arg, value in tracker_args.iteritems()" />
     <input type="hidden" name="summary" value="$message" />
     <textarea name="description" rows="3" cols="10">
 ${description_en if url else description}</textarea>
@@ -72,7 +87,7 @@ ${description_en if url else description}</textarea>
         <py:when test="'TracError'">
           <h1>$title</h1>
           <py:choose test="">
-            <p py:when="istext(message)" class="message">$message</p>
+            <p py:when="not find_element(message, tag='p')" class="message">$message</p>
             <py:otherwise>$message</py:otherwise>
           </py:choose>
         </py:when>
@@ -97,13 +112,17 @@ ${description_en if url else description}</textarea>
               <p>The action that triggered the error was:</p>
               <pre>${req.method}: ${req.path_info}</pre>
             </py:when>
-            <py:otherwise>
-              <form class="newticket" method="get" action="${project.admin_href.newticket()}#">
+            <py:otherwise py:choose="">
+              <p py:when="not project.admin_href or project.admin_trac_url == '.'">
+                This is probably a local installation issue.
+              </p>
+              <form py:otherwise=""
+                    class="newticket" method="get" action="${project.admin_href.newticket()}#">
                 <p>This is probably a local installation issue.
-                  <py:if test="project.admin_href and project.admin_trac_url != '.'"><i18n:msg params="create">
+                  <i18n:msg params="create">
                     You should ${create_ticket()} a ticket at the admin Trac to report
                     the issue.
-                  </i18n:msg></py:if>
+                  </i18n:msg>
                 </p>
               </form>
               <h2>Found a bug in Trac?</h2>
@@ -139,7 +158,7 @@ ${description_en if url else description}</textarea>
                     <li class="frame" py:for="idx, frame in enumerate(frames)">
                       <a href="#frame${idx}" id="frame${idx}"><span i18n:msg="file, line, function" py:strip="">
                         <span class="file">File "${frame.filename}",
-                        line <b>${frame.lineno + 1}</b>, in</span>
+                        line <strong>${frame.lineno + 1}</strong>, in</span>
                         <var>${frame.function}</var></span>
                       </a>
                       <div py:if="frame.line" class="source" style="display: none">

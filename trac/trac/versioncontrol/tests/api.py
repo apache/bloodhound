@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright (C) 2007-2013 Edgewall Software
 # Copyright (C) 2007 CommProve, Inc. <eli.carter@commprove.com>
 # All rights reserved.
 #
@@ -27,40 +28,40 @@ class ApiTestCase(unittest.TestCase):
                                     None)
 
     def test_raise_NotImplementedError_close(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.close)
+        self.assertRaises(NotImplementedError, self.repo_base.close)
 
     def test_raise_NotImplementedError_get_changeset(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.get_changeset, 1)
+        self.assertRaises(NotImplementedError, self.repo_base.get_changeset, 1)
 
     def test_raise_NotImplementedError_get_node(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.get_node, 'path')
+        self.assertRaises(NotImplementedError, self.repo_base.get_node, 'path')
 
     def test_raise_NotImplementedError_get_oldest_rev(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.get_oldest_rev)
+        self.assertRaises(NotImplementedError, self.repo_base.get_oldest_rev)
 
     def test_raise_NotImplementedError_get_youngest_rev(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.get_youngest_rev)
+        self.assertRaises(NotImplementedError, self.repo_base.get_youngest_rev)
 
     def test_raise_NotImplementedError_previous_rev(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.previous_rev, 1)
+        self.assertRaises(NotImplementedError, self.repo_base.previous_rev, 1)
 
     def test_raise_NotImplementedError_next_rev(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.next_rev, 1)
+        self.assertRaises(NotImplementedError, self.repo_base.next_rev, 1)
 
     def test_raise_NotImplementedError_rev_older_than(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.rev_older_than, 1, 2)
+        self.assertRaises(NotImplementedError, self.repo_base.rev_older_than, 1, 2)
 
     def test_raise_NotImplementedError_get_path_history(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.get_path_history, 'path')
+        self.assertRaises(NotImplementedError, self.repo_base.get_path_history, 'path')
 
     def test_raise_NotImplementedError_normalize_path(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.normalize_path, 'path')
+        self.assertRaises(NotImplementedError, self.repo_base.normalize_path, 'path')
 
     def test_raise_NotImplementedError_normalize_rev(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.normalize_rev, 1)
+        self.assertRaises(NotImplementedError, self.repo_base.normalize_rev, 1)
 
     def test_raise_NotImplementedError_get_changes(self):
-        self.failUnlessRaises(NotImplementedError, self.repo_base.get_changes, 'path', 1, 'path', 2)
+        self.assertRaises(NotImplementedError, self.repo_base.get_changes, 'path', 1, 'path', 2)
 
 
 class ResourceManagerTestCase(unittest.TestCase):
@@ -110,13 +111,19 @@ class ResourceManagerTestCase(unittest.TestCase):
         self.assertEqual('/trac.cgi/browser/testrepo',
                          get_resource_url(self.env, res, self.env.href))
 
+        res = Resource('repository', '')  # default repository
+        self.assertEqual('Default repository',
+                         get_resource_description(self.env, res))
+        self.assertEqual('/trac.cgi/browser',
+                         get_resource_url(self.env, res, self.env.href))
+
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ApiTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(ResourceManagerTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(ApiTestCase))
+    suite.addTest(unittest.makeSuite(ResourceManagerTestCase))
     return suite
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(defaultTest='suite')

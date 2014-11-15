@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -11,38 +21,45 @@
   </head>
 
   <body>
-    <div id="content" class="report">
+    <div id="content" class="report edit"
+         py:with="new_report = action == 'new'">
 
-      <h1>${_('New Report') if action == 'new' else report.title}</h1>
-      <form action="${href.report(report.id)}" method="post" id="edit_report">
-        <div>
+      <h1 py:choose="">
+        <py:when test="new_report">New Report</py:when>
+        <py:otherwise>$report.title</py:otherwise>
+      </h1>
+      <form id="edit_report" method="post" action="${href.report(report.id)}">
+        <fieldset>
+          <legend py:choose="">
+            <py:when test="new_report">Create Report:</py:when>
+            <py:otherwise>Modify Report:</py:otherwise>
+          </legend>
           <input type="hidden" name="action" value="$action" />
           <div class="field">
-            <label for="title">Report Title:</label><br />
-            <input type="text" id="title" name="title" value="$report.title" size="50"/><br />
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" class="trac-fullwidth trac-autofocus" value="$report.title" />
           </div>
           <div class="field">
             <label for="description" i18n:msg="">
               Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
             </label>
-            <br />
-            <textarea id="description" name="description" class="wikitext trac-resizable" rows="10" cols="78">
+            <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable" rows="10" cols="78">
 $report.description</textarea>
           </div>
           <div class="field">
             <div class="system-message" py:if="error">
               <strong>Error:</strong> $error
             </div>
-            <label for="query" i18n:msg="">Query for Report: (can be either SQL or, if starting with <tt>query:</tt>,
+            <label for="query" i18n:msg="">Query: (can be either SQL or, if starting with <tt>query:</tt>,
               a <a tabindex="42" href="${href.wiki('TracQuery') + '#QueryLanguage'}">TracQuery</a> expression)
-            </label><br />
-            <textarea id="query" name="query" class="trac-resizable" cols="85" rows="20">
+            </label>
+            <textarea id="query" name="query" class="trac-fullwidth trac-resizable" rows="20" cols="78">
 $report.sql</textarea>
           </div>
-          <div class="buttons">
-            <input type="submit" value="${_('Save report')}"/>
-            <input type="submit" name="cancel" value="${_('Cancel')}"/>
-          </div>
+        </fieldset>
+        <div class="buttons">
+          <input type="submit" class="trac-disable-on-submit" value="${_('Save report')}" />
+          <input type="submit" name="cancel" value="${_('Cancel')}" />
         </div>
       </form>
 

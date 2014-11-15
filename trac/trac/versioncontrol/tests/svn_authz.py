@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2010 Edgewall Software
+# Copyright (C) 2005-2013 Edgewall Software
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -390,12 +390,10 @@ unknown = r
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(AuthzParserTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(AuthzSourcePolicyTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(AuthzParserTestCase))
+    suite.addTest(unittest.makeSuite(AuthzSourcePolicyTestCase))
     return suite
 
 
 if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
-
+    unittest.main(defaultTest='suite')

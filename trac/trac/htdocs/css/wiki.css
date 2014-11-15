@@ -50,15 +50,11 @@
 #edit fieldset { margin-left: 1px; margin-right: 1px }
 #edit #text {
  clear: both;
- margin-left: -1px;
- margin-right: -1px;
- padding: 0;
- width: 100%;
  min-height: 10em;
  resize: vertical;
 }
-#edit .wikitoolbar { float: left; margin-left: -1px }
-#edit div.trac-resizable { clear: both; width: 100% }
+#edit .wikitoolbar { float: left }
+#edit div.trac-resizable { clear: both }
 #edit + #info { margin-top: 1em }
 #edit + #attachments { margin-top: 1.5em }
 #changeinfo { padding: .5em }
@@ -117,11 +113,6 @@ div.trac-modifiedby span.trac-print { display: none; }
  div.trac-modifiedby span { display: none; }
  div.trac-modifiedby span.trac-print { display: block; }
 }
-
-/* Styles related to RTL support */
-.rtl { direction: rtl; }
-.rtl div.wiki-toc { float: left; }
-.rtl .wiki-toc ul ul, .wiki-toc ol ol { padding-right: 1.2em }
 
 /* TracIni default value */
 div.tracini td.default { font-size: 90% }

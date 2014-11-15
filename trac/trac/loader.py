@@ -182,7 +182,10 @@ def get_plugin_info(env, include_core=False):
                 version = (getattr(module, 'version', '') or
                            getattr(module, 'revision', ''))
                 # special handling for "$Rev$" strings
-                version = version.replace('$', '').replace('Rev: ', 'r')
+                if version != '$Rev$':
+                    version = version.replace('$', '').replace('Rev: ', 'r')
+                else:  # keyword hasn't been expanded
+                    version = ''
             plugins[dist.project_name] = {
                 'name': dist.project_name, 'version': version,
                 'path': dist.location, 'plugin_filename': plugin_filename,
@@ -239,7 +242,7 @@ def match_plugins_to_frames(plugins, frames):
                 pass    # Metadata not found
 
     for plugin in plugins:
-        base, ext = os.path.splitext(plugin['path'])
+        base, ext = os.path.splitext(plugin['path'].replace('\\', '/'))
         if ext == '.egg' and egg_frames:
             find_egg_frame_index(plugin)
         else:

@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2009-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -26,12 +36,13 @@
         </label>
         <input type="checkbox" name="sidebyside" id="sidebyside" checked="$sidebyside" />
       </div>
-      <p><textarea id="text" class="wikitext${' trac-resizable' if not sidebyside else None}"
+      <p><textarea id="text" class="${classes('wikitext', 'trac-autofocus', 'trac-fullwidth',
+                                              'trac-resizable' if not sidebyside else None)}"
                    name="text" cols="80" rows="$edit_rows">
 $page.text</textarea>
       </p>
       <div id="help" i18n:msg="">
-        <b>Note:</b> See <a href="${href.wiki('WikiFormatting')}">WikiFormatting</a> and
+        <strong>Note:</strong> See <a href="${href.wiki('WikiFormatting')}">WikiFormatting</a> and
         <a href="${href.wiki('TracWiki')}">TracWiki</a> for help on editing wiki content.
       </div>
     </fieldset>
@@ -43,7 +54,7 @@ $page.text</textarea>
             <input id="author" type="text" name="author" size="30" value="$author" />
           </label>
           <p py:if="author == 'anonymous'" class="hint">
-            <i18n:msg>E-mail address and user name can be saved in the <a href="${href.prefs()}">Preferences</a>.</i18n:msg>
+            <i18n:msg>E-mail address and user name can be saved in the <a href="${href.prefs()}" class="trac-target-new">Preferences</a>.</i18n:msg>
           </p>
         </div>
         <div class="field">
@@ -68,7 +79,7 @@ $page.text</textarea>
       <py:otherwise>
         <input type="submit" name="preview" value="${_('Preview Page')}" accesskey="p" />&nbsp;
         <input type="submit" name="diff" value="${_('Review Changes')}" accesskey="r" />&nbsp;
-        <input type="submit" id="save" name="save" value="${_('Submit changes')}" />&nbsp;
+        <input type="submit" id="save" name="save" class="trac-disable-on-submit" value="${_('Submit changes')}" />&nbsp;
       </py:otherwise>
       <input type="submit" name="cancel" value="${_('Cancel')}" />
     </div>

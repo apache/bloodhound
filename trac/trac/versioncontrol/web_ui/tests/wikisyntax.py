@@ -1,12 +1,25 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2006-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
 
 import unittest
 
 from trac.test import Mock
-from trac.versioncontrol import NoSuchChangeset, NoSuchNode
 from trac.versioncontrol.api import *
 from trac.versioncontrol.web_ui import *
 from trac.wiki.tests import formatter
+
+
+YOUNGEST_REV = 200
 
 
 def _get_changeset(rev):
@@ -15,14 +28,18 @@ def _get_changeset(rev):
     else:
         raise NoSuchChangeset(rev)
 
+
 def _normalize_rev(rev):
+    if rev is None or rev in ('', 'head'):
+        return YOUNGEST_REV
     try:
-        return int(rev)
+        nrev = int(rev)
+        if nrev <= YOUNGEST_REV:
+            return nrev
     except ValueError:
-        if rev == 'head':
-            return '200'
-        else:
-            raise NoSuchChangeset(rev)
+        pass
+    raise NoSuchChangeset(rev)
+
 
 def _get_node(path, rev=None):
     if path == 'foo':
@@ -34,11 +51,13 @@ def _get_node(path, rev=None):
         return Mock(path=path, rev=rev, isfile=True,
                     is_viewable=lambda resource: True)
 
+
 def _get_repository(reponame):
-    return Mock(reponame=reponame, youngest_rev='200',
+    return Mock(reponame=reponame, youngest_rev=YOUNGEST_REV,
                 get_changeset=_get_changeset,
                 normalize_rev=_normalize_rev,
                 get_node=_get_node)
+
 
 def repository_setup(tc):
     setattr(tc.env, 'get_repository', _get_repository)
@@ -177,24 +196,47 @@ LOG_TEST_CASES = u"""
 ============================== log: link resolver
 log:@12
 log:trunk
+log:trunk@head
 log:trunk@12
 log:trunk@12:23
 log:trunk@12-23
 log:trunk:12:23
 log:trunk:12-23
+log:trunk@12:head
 log:trunk:12-head
-log:trunk:12@23 (bad, but shouldn't error out)
+log:trunk:12@23
 ------------------------------
 <p>
 <a class="source" href="/log/?rev=12">log:@12</a>
 <a class="source" href="/log/trunk">log:trunk</a>
+<a class="source" href="/log/trunk?rev=head">log:trunk@head</a>
 <a class="source" href="/log/trunk?rev=12">log:trunk@12</a>
 <a class="source" href="/log/trunk?revs=12-23">log:trunk@12:23</a>
 <a class="source" href="/log/trunk?revs=12-23">log:trunk@12-23</a>
 <a class="source" href="/log/trunk?revs=12-23">log:trunk:12:23</a>
 <a class="source" href="/log/trunk?revs=12-23">log:trunk:12-23</a>
-<a class="source" href="/log/trunk?revs=12-200">log:trunk:12-head</a>
-<a class="source" href="/log/trunk">log:trunk:12@23</a> (bad, but shouldn't error out)
+<a class="source" href="/log/trunk?revs=12%3Ahead">log:trunk@12:head</a>
+<a class="source" href="/log/trunk?revs=12-head">log:trunk:12-head</a>
+<a class="missing source" title="No changeset 12@23 in the repository">log:trunk:12@23</a>
+</p>
+------------------------------
+============================== log: link resolver with missing revisions
+log:@4242
+log:@4242-4243
+log:@notfound
+log:@deadbeef:deadbef0
+log:trunk@4243
+log:trunk@notfound
+[4242:4243]
+------------------------------
+<p>
+<a class="missing source" title="No changeset 4242 in the repository">log:@4242</a>
+<a class="source" href="/log/?revs=4242-4243">log:@4242-4243</a>
+<a class="missing source" title="No changeset notfound in the repository">log:@notfound</a>
+<a class="missing source" title="No changeset deadbeef in the repository">log:@deadbeef:deadbef0</a>
+<a class="missing source" title="No changeset 4243 in the repository">log:trunk@4243</a>
+<a class="missing source" title="No changeset notfound in the repository">log:trunk@notfound</a>
+<a class="source" href="/log/?revs=4242-4243">[4242:4243]</a>
 </p>
 ------------------------------
 ============================== log: link resolver + query
@@ -212,6 +254,21 @@ log:trunk@12?limit=10
 <a class="source" href="/log/trunk?rev=12&amp;limit=10">log:trunk@12?limit=10</a>
 <a class="source" href="/log/?revs=10-20&amp;verbose=yes&amp;format=changelog">[10:20?verbose=yes&amp;format=changelog]</a>
 <a class="source" href="/log/trunk?revs=10-20&amp;verbose=yes&amp;format=changelog">[10:20/trunk?verbose=yes&amp;format=changelog]</a>
+</p>
+------------------------------
+============================== log: link resolver + invalid ranges
+log:@10-20-30
+log:@10,20-30,40-50-60
+log:@10:20:30
+[10-20-30]
+[10:20:30]
+------------------------------
+<p>
+<a class="missing source" title="No changeset 10-20-30 in the repository">log:@10-20-30</a>
+<a class="missing source" title="No changeset 40-50-60 in the repository">log:@10,20-30,40-50-60</a>
+<a class="missing source" title="No changeset 10:20:30 in the repository">log:@10:20:30</a>
+[10-20-30]
+[10:20:30]
 </p>
 ------------------------------
 ============================== Multiple Log ranges

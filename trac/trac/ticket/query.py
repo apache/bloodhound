@@ -32,14 +32,15 @@ from trac.db import get_column_names
 from trac.mimeview.api import IContentConverter, Mimeview
 from trac.resource import Resource
 from trac.ticket.api import TicketSystem
-from trac.ticket.model import Milestone, group_milestones, Ticket
+from trac.ticket.model import Milestone, group_milestones
 from trac.util import Ranges, as_bool
+from trac.util.compat import any
 from trac.util.datefmt import format_date, format_datetime, from_utimestamp, \
                               parse_date, to_timestamp, to_utimestamp, utc, \
                               user_time
 from trac.util.presentation import Paginator
 from trac.util.text import empty, shorten_line, quote_query_string
-from trac.util.translation import _, tag_, cleandoc_
+from trac.util.translation import _, tag_, cleandoc_, ngettext
 from trac.web import arg_list_to_args, parse_arg_list, IRequestHandler
 from trac.web.href import Href
 from trac.web.chrome import (INavigationContributor, Chrome,
@@ -434,11 +435,12 @@ class Query(object):
 
         enum_columns = ('resolution', 'priority', 'severity')
         # Build the list of actual columns to query
-        cols = self.cols[:]
+        cols = []
         def add_cols(*args):
             for col in args:
                 if not col in cols:
                     cols.append(col)
+        add_cols(*self.cols)  # remove duplicated cols
         if self.group and not self.group in cols:
             add_cols(self.group)
         if self.rows:
@@ -456,14 +458,20 @@ class Query(object):
                                          if c not in custom_fields]))
         sql.append(",priority.value AS priority_value")
         for k in [db.quote(k) for k in cols if k in custom_fields]:
-            sql.append(",%s.value AS %s" % (k, k))
-        sql.append("\nFROM ticket AS t")
+            sql.append(",t.%s AS %s" % (k, k))
 
-        # Join with ticket_custom table as necessary
-        for k in [k for k in cols if k in custom_fields]:
-            qk = db.quote(k)
-            sql.append("\n  LEFT OUTER JOIN ticket_custom AS %s ON " \
-                       "(id=%s.ticket AND %s.name='%s')" % (qk, qk, qk, k))
+        # Use subquery of ticket_custom table as necessary
+        if any(k in custom_fields for k in cols):
+            sql.append('\nFROM (\n  SELECT ' +
+                       ','.join('t.%s AS %s' % (c, c)
+                                for c in cols if c not in custom_fields))
+            sql.extend(",\n  (SELECT c.value FROM ticket_custom c "
+                       "WHERE c.ticket=t.id AND c.name='%s') AS %s"
+                       % (k, db.quote(k))
+                       for k in cols if k in custom_fields)
+            sql.append("\n  FROM ticket AS t) AS t")
+        else:
+            sql.append("\nFROM ticket AS t")
 
         # Join with the enum table for proper sorting
         for col in [c for c in enum_columns
@@ -490,7 +498,7 @@ class Query(object):
             if name not in custom_fields:
                 col = 't.' + name
             else:
-                col = '%s.value' % db.quote(name)
+                col = 't.' + db.quote(name)
             value = value[len(mode) + neg:]
 
             if name in self.time_fields:
@@ -579,11 +587,11 @@ class Query(object):
                         if a == b:
                             ids.append(str(a))
                         else:
-                            id_clauses.append('id BETWEEN %s AND %s')
+                            id_clauses.append('t.id BETWEEN %s AND %s')
                             args.append(a)
                             args.append(b)
                     if ids:
-                        id_clauses.append('id IN (%s)' % (','.join(ids)))
+                        id_clauses.append('t.id IN (%s)' % (','.join(ids)))
                     if id_clauses:
                         clauses.append('%s(%s)' % ('NOT 'if neg else '',
                                                    ' OR '.join(id_clauses)))
@@ -592,7 +600,7 @@ class Query(object):
                     if k not in custom_fields:
                         col = 't.' + k
                     else:
-                        col = '%s.value' % db.quote(k)
+                        col = 't.' + db.quote(k)
                     clauses.append("COALESCE(%s,'') %sIN (%s)"
                                    % (col, 'NOT ' if neg else '',
                                       ','.join(['%s' for val in v])))
@@ -633,7 +641,7 @@ class Query(object):
             if name in enum_columns:
                 col = name + '.value'
             elif name in custom_fields:
-                col = '%s.value' % db.quote(name)
+                col = 't.' + db.quote(name)
             else:
                 col = 't.' + name
             desc = ' DESC' if desc else ''
@@ -716,11 +724,17 @@ class Query(object):
         cols = self.get_columns()
         labels = TicketSystem(self.env).get_ticket_field_labels()
         wikify = set(f['name'] for f in self.fields
-                     if f['type'] == 'text' and f.get('format') == 'wiki')
+                     if f['type'] == 'text' and
+                        f.get('format') == 'wiki')
+        wikifyblock = set(f['name'] for f in self.fields
+                          if f['type'] == 'textarea' and
+                             f.get('format') == 'wiki')
+        wikifyblock.add('description')
 
         headers = [{
             'name': col, 'label': labels.get(col, _('Ticket')),
             'wikify': col in wikify,
+            'wikifyblock': col in wikifyblock,
             'href': self.get_href(context.href, order=col,
                                   desc=(col == self.order and not self.desc))
         } for col in cols]
@@ -872,7 +886,8 @@ class QueryModule(Component):
     def get_navigation_items(self, req):
         from trac.ticket.report import ReportModule
         if 'TICKET_VIEW' in req.perm and \
-                not self.env.is_component_enabled(ReportModule):
+                not (self.env.is_component_enabled(ReportModule) and
+                     'REPORT_VIEW' in req.perm):
             yield ('mainnav', 'tickets',
                    tag.a(_('View Tickets'), href=req.href.query()))
 
@@ -883,6 +898,9 @@ class QueryModule(Component):
 
     def process_request(self, req):
         req.perm.assert_permission('TICKET_VIEW')
+        report_id = req.args.get('report')
+        if report_id:
+            req.perm('report', report_id).assert_permission('REPORT_VIEW')
 
         constraints = self._get_constraints(req)
         args = req.args
@@ -937,7 +955,7 @@ class QueryModule(Component):
         max = args.get('max')
         if max is None and format in ('csv', 'tab'):
             max = 0 # unlimited unless specified explicitly
-        query = Query(self.env, req.args.get('report'),
+        query = Query(self.env, report_id,
                       constraints, cols, args.get('order'),
                       'desc' in args, args.get('group'),
                       'groupdesc' in args, 'verbose' in args,
@@ -1151,7 +1169,7 @@ class QueryModule(Component):
                 values = []
                 for col in cols:
                     value = result[col]
-                    if col in ('cc', 'reporter'):
+                    if col in ('cc', 'owner', 'reporter'):
                         value = Chrome(self.env).format_emails(
                                     context.child(ticket), value)
                     elif col in query.time_fields:
@@ -1215,7 +1233,7 @@ class TicketQueryMacro(WikiMacroBase):
     can be included in field values by escaping them with a backslash (`\`).
 
     Groups of field constraints to be OR-ed together can be separated by a
-    litteral `or` argument.
+    literal `or` argument.
 
     In addition to filters, several other named parameters can be used
     to control how the results are presented. All of them are optional.
@@ -1252,6 +1270,9 @@ class TicketQueryMacro(WikiMacroBase):
 
     The `rows` parameter can be used to specify which field(s) should
     be viewed as a row, e.g. `rows=description|summary`
+
+    The `col` parameter can be used to specify which fields should
+    be viewed as columns. For '''table''' format only.
 
     For compatibility with Trac 0.10, if there's a last positional parameter
     given to the macro, it will be used to specify the `format`.
@@ -1313,8 +1334,10 @@ class TicketQueryMacro(WikiMacroBase):
 
         if format == 'count':
             cnt = query.count(req)
-            return tag.span(cnt, title='%d tickets for which %s' %
-                            (cnt, query_string), class_='query_count')
+            title = ngettext("%(num)d ticket for which %(query)s",
+                             "%(num)d tickets for which %(query)s",
+                             cnt, query=query_string)
+            return tag.span(cnt, title=title, class_='query_count')
 
         tickets = query.execute(req)
 
@@ -1336,14 +1359,21 @@ class TicketQueryMacro(WikiMacroBase):
             add_stylesheet(req, 'common/css/roadmap.css')
 
             def query_href(extra_args, group_value = None):
-                q = Query.from_string(self.env, query_string)
+                q = query_string + ''.join('&%s=%s' % (kw, v)
+                                           for kw in extra_args
+                                           if kw not in ['group', 'status']
+                                           for v in extra_args[kw])
+                q = Query.from_string(self.env, q)
+                args = {}
                 if q.group:
-                    extra_args[q.group] = group_value
-                    q.group = None
+                    args[q.group] = group_value
+                q.group = extra_args.get('group')
+                if 'status' in extra_args:
+                    args['status'] = extra_args['status']
                 for constraint in q.constraints:
-                    constraint.update(extra_args)
+                    constraint.update(args)
                 if not q.constraints:
-                    q.constraints.append(extra_args)
+                    q.constraints.append(args)
                 return q.get_href(formatter.context)
             chrome = Chrome(self.env)
             tickets = apply_ticket_permissions(self.env, req, tickets)

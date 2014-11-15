@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2006-2009 Edgewall Software
+# Copyright (C) 2006-2013 Edgewall Software
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -23,7 +23,8 @@ try:
 except ImportError:
     have_pygments = False
 
-from trac.mimeview.api import Mimeview, RenderingContext
+import trac.tests.compat
+from trac.mimeview.api import Mimeview
 if have_pygments:
     from trac.mimeview.pygments import PygmentsRenderer
 from trac.test import EnvironmentStub, Mock
@@ -56,8 +57,8 @@ class PygmentsRendererTestCase(unittest.TestCase):
         #print "\nR: " + repr(result)
         expected, result = expected.splitlines(), result.splitlines()
         for exp, res in zip(expected, result):
-            self.assertEquals(exp, res)
-        self.assertEquals(len(expected), len(result))
+            self.assertEqual(exp, res)
+        self.assertEqual(len(expected), len(result))
 
     def test_python_hello(self):
         """
@@ -108,7 +109,7 @@ def hello():
         pygments when rendering empty files.
         """
         result = self.pygments.render(self.context, 'text/x-python', '')
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
     def test_extra_mimetypes(self):
         """
@@ -126,7 +127,7 @@ def hello():
 def suite():
     suite = unittest.TestSuite()
     if have_pygments:
-        suite.addTest(unittest.makeSuite(PygmentsRendererTestCase, 'test'))
+        suite.addTest(unittest.makeSuite(PygmentsRendererTestCase))
     else:
         print 'SKIP: mimeview/tests/pygments (no pygments installed)'
     return suite

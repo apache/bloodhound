@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2010-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -38,8 +48,8 @@
             </p>
           </div>
           <div class="buttons">
+            <input type="submit" class="trac-disable-on-submit" value="${_('Delete ticket')}"/>
             <input type="submit" name="cancel" value="${_('Cancel')}"/>
-            <input type="submit" value="${_('Delete ticket')}"/>
           </div>
         </form>
       </py:when>
@@ -62,8 +72,8 @@
                This is an irreversible operation.</p>
           </div>
           <div class="buttons">
+            <input type="submit" class="trac-disable-on-submit" value="${_('Delete comment')}"/>
             <input type="submit" name="cancel" value="${_('Cancel')}"/>
-            <input type="submit" value="${_('Delete comment')}"/>
           </div>
         </form>
       </py:otherwise>

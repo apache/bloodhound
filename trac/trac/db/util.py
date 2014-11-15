@@ -15,11 +15,18 @@
 #
 # Author: Christopher Lenz <cmlenz@gmx.de>
 
+import re
+
+_sql_escape_percent_re = re.compile("""
+    '(?:[^']+|'')*' |
+    `(?:[^`]+|``)*` |
+    "(?:[^"]+|"")*" """, re.VERBOSE)
+
 
 def sql_escape_percent(sql):
-    import re
-    return re.sub("'((?:[^']|(?:''))*)'",
-                  lambda m: m.group(0).replace('%', '%%'), sql)
+    def repl(match):
+        return match.group(0).replace('%', '%%')
+    return _sql_escape_percent_re.sub(repl, sql)
 
 
 class IterableCursor(object):
@@ -118,7 +125,7 @@ class ConnectionWrapper(object):
         """
         dql = self.check_select(query)
         cursor = self.cnx.cursor()
-        cursor.execute(query, params)
+        cursor.execute(query, params if params is not None else [])
         rows = cursor.fetchall() if dql else None
         cursor.close()
         return rows

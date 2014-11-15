@@ -1,13 +1,26 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2007-2013 Edgewall Software
+# Copyright (C) 2007 Eli Carter <retracile@gmail.com>
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
+
 from genshi.builder import tag
 
-from trac.core import implements,Component
+from trac.core import Component, implements
+from trac.perm import IPermissionRequestor
 from trac.ticket.api import ITicketActionController
 from trac.ticket.default_workflow import ConfigurableTicketWorkflow
-from trac.perm import IPermissionRequestor
-from trac.config import Option, ListOption
 
-revision = "$Rev: 11490 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/workflow/CodeReview.py $"
+revision = "$Rev: 12731 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.2/sample-plugins/workflow/CodeReview.py $"
 
 class CodeReviewActionController(Component):
     """Support for simple code reviews.

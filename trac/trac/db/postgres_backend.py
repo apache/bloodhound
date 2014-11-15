@@ -22,7 +22,7 @@ from trac.core import *
 from trac.config import Option
 from trac.db.api import IDatabaseConnector, _parse_db_str
 from trac.db.util import ConnectionWrapper, IterableCursor
-from trac.util import get_pkginfo
+from trac.util import get_pkginfo, lazy
 from trac.util.compat import close_fds
 from trac.util.text import empty, exception_to_unicode, to_unicode
 from trac.util.translation import _
@@ -231,12 +231,46 @@ class PostgreSQLConnection(ConnectionWrapper):
             cnx.rollback()
         ConnectionWrapper.__init__(self, cnx, log)
 
+    def cursor(self):
+        return IterableCursor(self.cnx.cursor(), self.log)
+
     def cast(self, column, type):
         # Temporary hack needed for the union of selects in the search module
         return 'CAST(%s AS %s)' % (column, _type_map.get(type, type))
 
     def concat(self, *args):
         return '||'.join(args)
+
+    def drop_table(self, table):
+        if (self._version or '').startswith(('8.0.', '8.1.')):
+            cursor = self.cursor()
+            cursor.execute("""SELECT table_name FROM information_schema.tables
+                              WHERE table_schema=current_schema()
+                              AND table_name=%s""", (table,))
+            for row in cursor:
+                if row[0] == table:
+                    self.execute("DROP TABLE " + self.quote(table))
+                    break
+        else:
+            self.execute("DROP TABLE IF EXISTS " + self.quote(table))
+
+    def get_column_names(self, table):
+        rows = self.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_schema=%s AND table_name=%s
+            """, (self.schema, table))
+        return [row[0] for row in rows]
+
+    def get_last_id(self, cursor, table, column='id'):
+        cursor.execute("SELECT CURRVAL(%s)",
+                       (self.quote(self._sequence_name(table, column)),))
+        return cursor.fetchone()[0]
+
+    def get_table_names(self):
+        rows = self.execute("""
+            SELECT table_name FROM information_schema.tables
+            WHERE table_schema=%s""", (self.schema,))
+        return [row[0] for row in rows]
 
     def like(self):
         """Return a case-insensitive LIKE clause."""
@@ -245,19 +279,31 @@ class PostgreSQLConnection(ConnectionWrapper):
     def like_escape(self, text):
         return _like_escape_re.sub(r'/\1', text)
 
+    def prefix_match(self):
+        """Return a case sensitive prefix-matching operator."""
+        return "LIKE %s ESCAPE '/'"
+
+    def prefix_match_value(self, prefix):
+        """Return a value for case sensitive prefix-matching operator."""
+        return self.like_escape(prefix) + '%'
+
     def quote(self, identifier):
         """Return the quoted identifier."""
         return '"%s"' % identifier.replace('"', '""')
 
-    def get_last_id(self, cursor, table, column='id'):
-        cursor.execute("""SELECT CURRVAL('"%s_%s_seq"')""" % (table, column))
-        return cursor.fetchone()[0]
-
     def update_sequence(self, cursor, table, column='id'):
-        cursor.execute("""
-            SELECT setval('"%s_%s_seq"', (SELECT MAX(%s) FROM %s))
-            """ % (table, column, column, table))
+        cursor.execute("SELECT SETVAL(%%s, (SELECT MAX(%s) FROM %s))"
+                       % (self.quote(column), self.quote(table)),
+                       (self.quote(self._sequence_name(table, column)),))
 
-    def cursor(self):
-        return IterableCursor(self.cnx.cursor(), self.log)
+    def _sequence_name(self, table, column):
+        return '%s_%s_seq' % (table, column)
 
+    @lazy
+    def _version(self):
+        cursor = self.cursor()
+        cursor.execute('SELECT version()')
+        for version, in cursor:
+            # retrieve "8.1.23" from "PostgreSQL 8.1.23 on ...."
+            if version.startswith('PostgreSQL '):
+                return version.split(' ', 2)[1]

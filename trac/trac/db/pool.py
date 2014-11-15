@@ -26,7 +26,7 @@ from trac.util.text import exception_to_unicode
 from trac.util.translation import _
 
 
-class TimeoutError(Exception):
+class TimeoutError(TracError):
     """Exception raised by the connection pool when no connection has become
     available after a given timeout."""
 
@@ -93,7 +93,7 @@ class ConnectionPoolBackend(object):
         deferred = num == 1 and isinstance(cnx, tuple)
         err = None
         if deferred:
-            # Potentially lenghty operations must be done without lock held
+            # Potentially lengthy operations must be done without lock held
             op, cnx = cnx
             try:
                 if op == 'ping':
@@ -214,4 +214,3 @@ class ConnectionPool(object):
 
     def shutdown(self, tid=None):
         _backend.shutdown(tid)
-

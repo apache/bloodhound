@@ -1,7 +1,21 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2007-2013 Edgewall Software
+# Copyright (C) 2007 Christian Boos <cboos@edgewall.org>
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
+
 """Example macro."""
 
-revision = "$Rev: 11490 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/HelloWorld.py $"
+revision = "$Rev: 12412 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.2/sample-plugins/HelloWorld.py $"
 
 #
 # The following shows the code for macro, old-style.
@@ -12,6 +26,7 @@ url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/H
 # ---- (ignore in your own macro) ----
 # --
 from trac.util import escape
+from trac.util.translation import cleandoc_
 
 def execute(hdf, txt, env):
     # Currently hdf is set only when the macro is called
@@ -49,16 +64,16 @@ class HelloWorldMacro(WikiMacroBase):
     the !MacroList macro (usually used in the TracWikiMacros page).
     """)
 
-    def expand_macro(self, formatter, name, args):
+    def expand_macro(self, formatter, name, content):
         """Return some output that will be displayed in the Wiki content.
 
         `name` is the actual name of the macro (no surprise, here it'll be
         `'HelloWorld'`),
-        `args` is the text enclosed in parenthesis at the call of the macro.
-          Note that if there are ''no'' parenthesis (like in, e.g.
-          [[HelloWorld]]), then `args` is `None`.
+        `content` is the text enclosed in parenthesis at the call of the
+          macro. Note that if there are ''no'' parenthesis (like in, e.g.
+          [[HelloWorld]]), then `content` is `None`.
         """
-        return 'Hello World, args = ' + unicode(args)
+        return 'Hello World, content = ' + unicode(content)
 
     # Note that there's no need to HTML escape the returned data,
     # as the template engine (Genshi) will do it for us.

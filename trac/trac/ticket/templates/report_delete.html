@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -12,14 +22,14 @@
 
   <body>
     <div id="content" class="report">
-      <h1>$report.title</h1>
+      <h1>{$report.id} $report.title</h1>
       <form action="${href.report()}" method="post">
         <p><strong>Are you sure you want to delete this report?</strong></p>
         <div class="buttons">
           <input type="hidden" name="id" value="$report.id"/>
           <input type="hidden" name="action" value="delete" />
+          <input type="submit" class="trac-disable-on-submit" value="${_('Delete report')}"/>
           <input type="submit" name="cancel" value="${_('Cancel')}"/>
-          <input type="submit" value="${_('Delete report')}"/>
         </div>
       </form>
 

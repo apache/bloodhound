@@ -24,7 +24,7 @@ from trac.config import ConfigSection, ListOption, Option
 from trac.core import *
 from trac.resource import IResourceManager, Resource, ResourceNotFound
 from trac.util.concurrency import threading
-from trac.util.text import printout, to_unicode
+from trac.util.text import printout, to_unicode, exception_to_unicode
 from trac.util.translation import _
 from trac.web.api import IRequestFilter
 
@@ -250,9 +250,18 @@ class DbRepositoryProvider(Component):
         """Modify attributes of a repository."""
         if is_default(reponame):
             reponame = ''
+        new_reponame = changes.get('name', reponame)
+        if is_default(new_reponame):
+            new_reponame = ''
         rm = RepositoryManager(self.env)
         with self.env.db_transaction as db:
             id = rm.get_repository_id(reponame)
+            if reponame != new_reponame:
+                if db("""SELECT id FROM repository WHERE name='name' AND
+                         value=%s""", (new_reponame,)):
+                    raise TracError(_('The repository "%(name)s" already '
+                                      'exists.',
+                                      name=new_reponame or '(default)'))
             for (k, v) in changes.iteritems():
                 if k not in self.repository_attrs:
                     continue
@@ -353,7 +362,22 @@ class RepositoryManager(Component):
                         _("Can't synchronize with repository \"%(name)s\" "
                           "(%(error)s). Look in the Trac log for more "
                           "information.", name=reponame or '(default)',
-                          error=to_unicode(e.message)))
+                          error=to_unicode(e)))
+                except Exception, e:
+                    add_warning(req,
+                        _("Failed to sync with repository \"%(name)s\": "
+                          "%(error)s; repository information may be out of "
+                          "date. Look in the Trac log for more information "
+                          "including mitigation strategies.",
+                          name=reponame or '(default)', error=to_unicode(e)))
+                    self.log.error(
+                        "Failed to sync with repository \"%s\"; You may be "
+                        "able to reduce the impact of this issue by "
+                        "configuring [trac] repository_sync_per_request; see "
+                        "http://trac.edgewall.org/wiki/TracRepositoryAdmin"
+                        "#ExplicitSync for more detail: %s",
+                        reponame or '(default)',
+                        exception_to_unicode(e, traceback=True))
                 self.log.info("Synchronized '%s' repository in %0.2f seconds",
                               reponame or '(default)', time.time() - start)
         return handler
@@ -400,6 +424,8 @@ class RepositoryManager(Component):
             return _('%(kind)s %(id)s%(at_version)s%(in_repo)s',
                      kind=kind, id=id, at_version=version, in_repo=in_repo)
         elif resource.realm == 'repository':
+            if not resource.id:
+                return _("Default repository")
             return _("Repository %(repo)s", repo=resource.id)
 
     def get_resource_url(self, resource, href, **kwargs):
@@ -502,8 +528,8 @@ class RepositoryManager(Component):
 
         This will create and save a new id if none is found.
 
-        \note: this should probably be renamed as we're dealing
-               exclusively with *db* repository ids here.
+        Note: this should probably be renamed as we're dealing
+              exclusively with *db* repository ids here.
         """
         with self.env.db_transaction as db:
             for id, in db(
@@ -631,8 +657,8 @@ class RepositoryManager(Component):
         The supported events are the names of the methods defined in the
         `IRepositoryChangeListener` interface.
         """
-        self.log.debug("Event %s on %s for changesets %r",
-                       event, reponame, revs)
+        self.log.debug("Event %s on repository '%s' for changesets %r",
+                       event, reponame or '(default)', revs)
 
         # Notify a repository by name, and all repositories with the same
         # base, or all repositories by base or by repository dir
@@ -667,8 +693,12 @@ class RepositoryManager(Component):
                         repos.sync_changeset(rev)
                         changeset = repos.get_changeset(rev)
                     except NoSuchChangeset:
+                        self.log.debug(
+                            "No changeset '%s' found in repository '%s'. "
+                            "Skipping subscribers for event %s",
+                            rev, repos.reponame or '(default)', event)
                         continue
-                self.log.debug("Event %s on %s for revision %s",
+                self.log.debug("Event %s on repository '%s' for revision '%s'",
                                event, repos.reponame or '(default)', rev)
                 for listener in self.change_listeners:
                     getattr(listener, event)(repos, changeset, *args)
@@ -997,6 +1027,23 @@ class Node(object):
         The returned object must support a `read([len])` method.
         """
         raise NotImplementedError
+
+    def get_processed_content(self, keyword_substitution=True, eol_hint=None):
+        """Return a stream for reading the content of the node, with some
+        standard processing applied.
+
+        :param keyword_substitution: if `True`, meta-data keywords
+            present in the content like ``$Rev$`` are substituted
+            (which keyword are substituted and how they are
+            substituted is backend specific)
+
+        :param eol_hint: which style of line ending is expected if
+            `None` was explicitly specified for the file itself in
+            the version control backend (for example in Subversion,
+            if it was set to ``'native'``).  It can be `None`,
+            ``'LF'``, ``'CR'`` or ``'CRLF'``.
+        """
+        return self.get_content()
 
     def get_entries(self):
         """Generator that yields the immediate child entries of a directory.

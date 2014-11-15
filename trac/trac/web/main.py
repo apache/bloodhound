@@ -28,7 +28,7 @@ from pprint import pformat, pprint
 import re
 import sys
 
-from genshi.builder import Fragment, tag
+from genshi.builder import tag
 from genshi.output import DocType
 from genshi.template import TemplateLoader
 
@@ -41,14 +41,14 @@ from trac.loader import get_plugin_info, match_plugins_to_frames
 from trac.perm import PermissionCache, PermissionError
 from trac.resource import ResourceNotFound
 from trac.util import arity, get_frame_info, get_last_traceback, hex_entropy, \
-                      read_file, safe_repr, translation
+                      read_file, safe_repr, translation, warn_setuptools_issue
 from trac.util.concurrency import threading
 from trac.util.datefmt import format_datetime, localtz, timezone, user_time
 from trac.util.text import exception_to_unicode, shorten_line, to_unicode
 from trac.util.translation import _, get_negotiated_locale, has_babel, \
                                   safefmt, tag_
 from trac.web.api import *
-from trac.web.chrome import Chrome
+from trac.web.chrome import Chrome, add_notice, add_warning
 from trac.web.href import Href
 from trac.web.session import Session
 
@@ -132,11 +132,18 @@ class RequestDispatcher(Component):
 
     def authenticate(self, req):
         for authenticator in self.authenticators:
-            authname = authenticator.authenticate(req)
+            try:
+                authname = authenticator.authenticate(req)
+            except TracError, e:
+                self.log.error("Can't authenticate using %s: %s",
+                               authenticator.__class__.__name__,
+                               exception_to_unicode(e, traceback=True))
+                add_warning(req, _("Authentication error. "
+                                   "Please contact your administrator."))
+                break  # don't fallback to other authenticators
             if authname:
                 return authname
-        else:
-            return 'anonymous'
+        return 'anonymous'
 
     def dispatch(self, req):
         """Find a registered handler that matches the request and let
@@ -175,8 +182,8 @@ class RequestDispatcher(Component):
                             chosen_handler = self.default_handler
                     # pre-process any incoming request, whether a handler
                     # was found or not
-                    chosen_handler = self._pre_process_request(req,
-                                                            chosen_handler)
+                    chosen_handler = \
+                        self._pre_process_request(req, chosen_handler)
                 except TracError, e:
                     raise HTTPInternalError(e)
                 if not chosen_handler:
@@ -249,7 +256,7 @@ class RequestDispatcher(Component):
                                    exception_to_unicode(e, traceback=True))
                 raise err[0], err[1], err[2]
         except PermissionError, e:
-            raise HTTPForbidden(to_unicode(e))
+            raise HTTPForbidden(e)
         except ResourceNotFound, e:
             raise HTTPNotFound(e)
         except TracError, e:
@@ -277,7 +284,8 @@ class RequestDispatcher(Component):
             default = self.env.config.get('trac', 'default_language', '')
             negotiated = get_negotiated_locale([preferred, default] +
                                                req.languages)
-            self.log.debug("Negotiated locale: %s -> %s", preferred, negotiated)
+            self.log.debug("Negotiated locale: %s -> %s", preferred,
+                           negotiated)
             return negotiated
 
     def _get_lc_time(self, req):
@@ -306,7 +314,7 @@ class RequestDispatcher(Component):
         If the the user does not have a `trac_form_token` cookie a new
         one is generated.
         """
-        if req.incookie.has_key('trac_form_token'):
+        if 'trac_form_token' in req.incookie:
             return req.incookie['trac_form_token'].value
         else:
             req.outcookie['trac_form_token'] = hex_entropy(24)
@@ -340,6 +348,8 @@ class RequestDispatcher(Component):
                 f.post_process_request(req, *(None,)*extra_arg_count)
         return resp
 
+
+_warn_setuptools = False
 _slashes_re = re.compile(r'/+')
 
 
@@ -349,6 +359,11 @@ def dispatch_request(environ, start_response):
     :param environ: the WSGI environment dict
     :param start_response: the WSGI callback for starting the response
     """
+
+    global _warn_setuptools
+    if _warn_setuptools is False:
+        _warn_setuptools = True
+        warn_setuptools_issue(out=environ.get('wsgi.errors'))
 
     # SCRIPT_URL is an Apache var containing the URL before URL rewriting
     # has been applied, so we can use it to reconstruct logical SCRIPT_NAME
@@ -467,7 +482,7 @@ def _dispatch_request(req, env, env_error):
 
     # fixup env.abs_href if `[trac] base_url` was not specified
     if env and not env.abs_href.base:
-        env._abs_href = req.abs_href
+        env.abs_href = req.abs_href
 
     try:
         if not env and env_error:
@@ -475,12 +490,12 @@ def _dispatch_request(req, env, env_error):
         try:
             dispatcher = RequestDispatcher(env)
             dispatcher.dispatch(req)
-        except RequestDone:
-            pass
-        resp = req._response or []
+        except RequestDone, req_done:
+            resp = req_done.iterable
+        resp = resp or req._response or []
     except HTTPException, e:
         _send_user_error(req, env, e)
-    except Exception, e:
+    except Exception:
         send_internal_error(env, req, sys.exc_info())
     return resp
 
@@ -489,39 +504,18 @@ def _send_user_error(req, env, e):
     # See trac/web/api.py for the definition of HTTPException subclasses.
     if env:
         env.log.warn('[%s] %s' % (req.remote_addr, exception_to_unicode(e)))
-    try:
-        # We first try to get localized error messages here, but we
-        # should ignore secondary errors if the main error was also
-        # due to i18n issues
-        title = _('Error')
-        if e.reason:
-            if title.lower() in e.reason.lower():
-                title = e.reason
-            else:
-                title = _('Error: %(message)s', message=e.reason)
-    except Exception:
-        title = 'Error'
-    # The message is based on the e.detail, which can be an Exception
-    # object, but not a TracError one: when creating HTTPException,
-    # a TracError.message is directly assigned to e.detail
-    if isinstance(e.detail, Exception): # not a TracError
-        message = exception_to_unicode(e.detail)
-    elif isinstance(e.detail, Fragment): # markup coming from a TracError
-        message = e.detail
-    else:
-        message = to_unicode(e.detail)
-    data = {'title': title, 'type': 'TracError', 'message': message,
+    data = {'title': e.title, 'type': 'TracError', 'message': e.message,
             'frames': [], 'traceback': None}
     if e.code == 403 and req.authname == 'anonymous':
         # TRANSLATOR: ... not logged in, you may want to 'do so' now (link)
         do_so = tag.a(_("do so"), href=req.href.login())
-        req.chrome['notices'].append(
-            tag_("You are currently not logged in. You may want to "
-                 "%(do_so)s now.", do_so=do_so))
+        add_notice(req, tag_("You are currently not logged in. You may want "
+                             "to %(do_so)s now.", do_so=do_so))
     try:
         req.send_error(sys.exc_info(), status=e.code, env=env, data=data)
     except RequestDone:
         pass
+
 
 def send_internal_error(env, req, exc_info):
     if env:
@@ -539,6 +533,7 @@ def send_internal_error(env, req, exc_info):
         pass
 
     tracker = default_tracker
+    tracker_args = {}
     if has_admin and not isinstance(exc_info[1], MemoryError):
         # Collect frame and plugin information
         frames = get_frame_info(exc_info[2])
@@ -558,13 +553,18 @@ def send_internal_error(env, req, exc_info):
                     tracker = info['trac']
                 elif info.get('home_page', '').startswith(th):
                     tracker = th
+                    plugin_name = info.get('home_page', '').rstrip('/') \
+                                                           .split('/')[-1]
+                    tracker_args = {'component': plugin_name}
 
     def get_description(_):
         if env and has_admin:
             sys_info = "".join("|| '''`%s`''' || `%s` ||\n"
                                % (k, v.replace('\n', '` [[br]] `'))
                                for k, v in env.get_systeminfo())
-            sys_info += "|| '''`jQuery`''' || `#JQUERY#` ||\n"
+            sys_info += "|| '''`jQuery`''' || `#JQUERY#` ||\n" \
+                        "|| '''`jQuery UI`''' || `#JQUERYUI#` ||\n" \
+                        "|| '''`jQuery Timepicker`''' || `#JQUERYTP#` ||\n"
             enabled_plugins = "".join("|| '''`%s`''' || `%s` ||\n"
                                       % (p['name'], p['version'] or _('N/A'))
                                       for p in plugins)
@@ -608,9 +608,10 @@ User agent: `#USER_AGENT#`
             'traceback': traceback, 'frames': frames,
             'shorten_line': shorten_line, 'repr': safe_repr,
             'plugins': plugins, 'faulty_plugins': faulty_plugins,
-            'tracker': tracker,
+            'tracker': tracker, 'tracker_args': tracker_args,
             'description': description, 'description_en': description_en}
 
+    Chrome(env).add_jquery_ui(req)
     try:
         req.send_error(exc_info, status=500, env=env, data=data)
     except RequestDone:
@@ -702,7 +703,7 @@ def get_environments(environ, warn=False):
         paths = [path[:-1] for path in paths if path[-1] == '/'
                  and not any(fnmatch.fnmatch(path[:-1], pattern)
                              for pattern in ignore_patterns)]
-        env_paths.extend(os.path.join(env_parent_dir, project) \
+        env_paths.extend(os.path.join(env_parent_dir, project)
                          for project in paths)
     envs = {}
     for env_path in env_paths:

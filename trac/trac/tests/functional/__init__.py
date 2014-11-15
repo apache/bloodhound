@@ -1,4 +1,17 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2008-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
 """functional_tests
 
 While unittests work well for testing facets of an implementation, they fail to
@@ -42,17 +55,19 @@ Requirements:
  - lxml for XHTML validation (optional)
 """
 
+import exceptions
 import os
+import shutil
 import signal
+import stat
 import sys
 import time
-import shutil
-import stat
 import unittest
-import exceptions
+from datetime import datetime, timedelta
 
 import trac
-from trac.tests.functional.compat import close_fds, rmtree
+from trac.tests.compat import rmtree
+from trac.util.compat import close_fds
 
 # Handle missing twill so we can print a useful 'SKIP'
 # message.  We import subprocess first to allow customizing it on Windows
@@ -60,7 +75,7 @@ from trac.tests.functional.compat import close_fds, rmtree
 # is allowed to load first, its (unmodified) copy will always be loaded.
 import subprocess
 
-from better_twill import twill, b, tc, ConnectError
+from trac.tests.functional.better_twill import twill, b, tc, ConnectError
 
 try:
     # This is the first indicator of whether the subversion bindings are
@@ -70,11 +85,15 @@ try:
 except ImportError:
     has_svn = False
 
-from datetime import datetime, timedelta
+try:
+    from configobj import ConfigObj
+except ImportError:
+    ConfigObj = None
+    print "SKIP: fine-grained permission tests (ConfigObj not installed)"
 
+from trac.test import TestSetup, TestCaseSetup
 from trac.tests.contentgen import random_sentence, random_page, random_word, \
     random_unique_camel
-from trac.test import TestSetup, TestCaseSetup
 
 internal_error = 'Trac detected an internal error:'
 
@@ -112,14 +131,23 @@ if twill:
             subdirectory 'testenv<portnum>'.
             """
             if port is None:
-                port = 8000 + os.getpid() % 1000
-                dirname = "testenv"
+                try:
+                    port = int(os.getenv('TRAC_TEST_PORT'))
+                except (TypeError, ValueError):
+                    pass
+
+            env_path = os.getenv('TRAC_TEST_ENV_PATH')
+            if not env_path:
+                env_name = 'testenv%s' % (port or '')
+                env_path = os.path.join(trac_source_tree, env_name)
             else:
-                dirname = "testenv%s" % port
-            dirname = os.path.join(trac_source_tree, dirname)
+                env_path += str(port or '')
+
+            if port is None:
+                port = 8000 + os.getpid() % 1000
 
             baseurl = "http://127.0.0.1:%s" % port
-            self._testenv = self.env_class(dirname, port, baseurl)
+            self._testenv = self.env_class(env_path, port, baseurl)
             self._testenv.start()
             self._tester = self.tester_class(baseurl)
             self.fixture = (self._testenv, self._tester)
@@ -137,10 +165,16 @@ if twill:
 
     class FunctionalTwillTestCaseSetup(FunctionalTestCaseSetup):
         failureException = twill.errors.TwillAssertionError
+
 else:
     # We're going to have to skip the functional tests
+    class FunctionalTestSuite(TestSetup):
+        def __init__(self):
+            raise ImportError("Twill not installed")
+
     class FunctionalTwillTestCaseSetup:
         pass
+
     class FunctionalTestCaseSetup:
         pass
 
@@ -151,15 +185,33 @@ def regex_owned_by(username):
     return '(Owned by:(<[^>]*>|\\n| )*%s)' % username
 
 
+def functionalSuite():
+    suite = FunctionalTestSuite()
+    return suite
+
+
 def suite():
-    if twill:
-        from trac.tests.functional.testcases import suite
-        suite = suite()
-    else:
-        diagnostic = "SKIP: functional tests"
-        if not twill:
-            diagnostic += " (no twill installed)"
-        print diagnostic
+    try:
+        suite = functionalSuite()
+        import trac.tests.functional.testcases
+        trac.tests.functional.testcases.functionalSuite(suite)
+        import trac.versioncontrol.tests
+        trac.versioncontrol.tests.functionalSuite(suite)
+        import trac.ticket.tests
+        trac.ticket.tests.functionalSuite(suite)
+        import trac.prefs.tests
+        trac.prefs.tests.functionalSuite(suite)
+        import trac.wiki.tests
+        trac.wiki.tests.functionalSuite(suite)
+        import trac.timeline.tests
+        trac.timeline.tests.functionalSuite(suite)
+        import trac.admin.tests
+        trac.admin.tests.functionalSuite(suite)
+        # The db tests should be last since the backup test occurs there.
+        import trac.db.tests
+        trac.db.tests.functionalSuite(suite)
+    except ImportError, e:
+        print("SKIP: functional tests (%s)" % e)
         # No tests to run, provide an empty suite.
         suite = unittest.TestSuite()
     return suite

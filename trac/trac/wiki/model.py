@@ -39,7 +39,7 @@ class WikiPage(object):
             name = self.resource.id
         else:
             if version:
-                version = int(version) # must be a number or None
+                version = int(version)  # must be a number or None
             self.resource = Resource('wiki', name, version)
         self.name = name
         if name:
@@ -84,7 +84,8 @@ class WikiPage(object):
         :since 1.0: the `db` parameter is no longer needed and will be removed
         in version 1.1.1
         """
-        assert self.exists, "Cannot delete non-existent page"
+        if not self.exists:
+            raise TracError(_("Cannot delete non-existent page"))
 
         with self.env.db_transaction as db:
             if version is None:
@@ -186,9 +187,10 @@ class WikiPage(object):
     def rename(self, new_name):
         """Rename wiki page in-place, keeping the history intact.
         Renaming a page this way will eventually leave dangling references
-        to the old page - which litterally doesn't exist anymore.
+        to the old page - which literally doesn't exist anymore.
         """
-        assert self.exists, "Cannot rename non-existent page"
+        if not self.exists:
+            raise TracError(_("Cannot rename non-existent page"))
 
         if not validate_page_name(new_name):
             raise TracError(_("Invalid Wiki page name '%(name)s'",
@@ -209,8 +211,8 @@ class WikiPage(object):
             Attachment.reparent_all(self.env, 'wiki', old_name, 'wiki',
                                     new_name)
 
-        self.name = new_name
-        self.env.log.info('Renamed page %s to %s', old_name, new_name)
+        self.name = self.resource.id = new_name
+        self.env.log.info("Renamed page %s to %s", old_name, new_name)
 
         for listener in WikiSystem(self.env).change_listeners:
             if hasattr(listener, 'wiki_page_renamed'):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012 Edgewall Software
+# Copyright (C) 2012-2013 Edgewall Software
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -13,12 +13,13 @@
 
 import unittest
 
-from tracopt.versioncontrol.git.tests import PyGIT
+from tracopt.versioncontrol.git.tests import PyGIT, git_fs
 
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(PyGIT.suite())
+    suite.addTest(git_fs.suite())
     return suite
 
 

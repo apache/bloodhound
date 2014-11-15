@@ -1,11 +1,25 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2007-2013 Edgewall Software
+# Copyright (C) 2007 Eli Carter <retracile@gmail.com>
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
+
 from genshi.builder import tag
 
 from trac.core import Component, implements
 from trac.ticket.api import ITicketActionController, TicketSystem
 from trac.perm import IPermissionRequestor
 
-revision = "$Rev: 11075 $"
-url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.1/sample-plugins/workflow/StatusFixer.py $"
+revision = "$Rev: 12164 $"
+url = "$URL: http://svn.edgewall.org/repos/trac/tags/trac-1.0.2/sample-plugins/workflow/StatusFixer.py $"
 
 class StatusFixerActionController(Component):
     """Provides the admin with a way to correct a ticket's status.

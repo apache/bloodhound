@@ -1,3 +1,16 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2005-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
 from __future__ import with_statement
 
 from Cookie import SimpleCookie as Cookie
@@ -5,6 +18,7 @@ import time
 from datetime import datetime
 import unittest
 
+import trac.tests.compat
 from trac.test import EnvironmentStub, Mock
 from trac.web.session import DetachedSession, Session, PURGE_AGE, \
                              UPDATE_INTERVAL, SessionAdmin
@@ -88,8 +102,8 @@ class SessionTestCase(unittest.TestCase):
         req = Mock(authname='anonymous', base_path='/', incookie=incookie,
                    outcookie=outcookie)
         session = Session(self.env, req)
-        self.assertEquals('123456', session.sid)
-        self.failIf(outcookie.has_key('trac_session'))
+        self.assertEqual('123456', session.sid)
+        self.assertNotIn('trac_session', outcookie)
 
     def test_authenticated_session(self):
         """
@@ -105,7 +119,7 @@ class SessionTestCase(unittest.TestCase):
         self.assertEqual('john', session.sid)
         session['foo'] = 'bar'
         session.save()
-        self.assertEquals(0, outcookie['trac_session']['expires'])
+        self.assertEqual(0, outcookie['trac_session']['expires'])
 
     def test_session_promotion(self):
         """
@@ -351,7 +365,7 @@ class SessionTestCase(unittest.TestCase):
         req = Mock(authname='anonymous', base_path='/', incookie=incookie,
                    outcookie=Cookie())
         session = Session(self.env, req)
-        self.assert_('foo' not in session)
+        self.assertTrue('foo' not in session)
         session['foo'] = 'baz'
         session.save()
 
@@ -572,8 +586,8 @@ class SessionTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(SessionTestCase, 'test')
+    return unittest.makeSuite(SessionTestCase)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(defaultTest='suite')

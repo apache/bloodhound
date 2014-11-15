@@ -1,23 +1,37 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2005-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
 from __future__ import with_statement
 
 from datetime import datetime, timedelta
-import os.path
 from StringIO import StringIO
 import tempfile
 import shutil
 import unittest
 
+import trac.tests.compat
 from trac import core
 from trac.attachment import Attachment
 from trac.core import TracError, implements
 from trac.resource import ResourceNotFound
+from trac.test import EnvironmentStub
 from trac.ticket.model import (
     Ticket, Component, Milestone, Priority, Type, Version
 )
+from trac.ticket.roadmap import MilestoneModule
 from trac.ticket.api import (
     IMilestoneChangeListener, ITicketChangeListener, TicketSystem
 )
-from trac.test import EnvironmentStub
 from trac.tests.resource import TestResourceChangeListener
 from trac.util.datefmt import from_utimestamp, to_utimestamp, utc
 
@@ -40,6 +54,36 @@ class TestTicketChangeListener(core.Component):
     def ticket_deleted(self, ticket):
         self.action = 'deleted'
         self.ticket = ticket
+
+    # the listener has no ticket_comment_modified and ticket_change_deleted
+
+
+class TestTicketChangeListener_2(core.Component):
+    implements(ITicketChangeListener)
+
+    def ticket_created(self, ticket):
+        pass
+
+    def ticket_changed(self, ticket, comment, author, old_values):
+        pass
+
+    def ticket_deleted(self, ticket):
+        pass
+
+    def ticket_comment_modified(self, ticket, cdate, author, comment,
+                                old_comment):
+        self.action = 'comment_modified'
+        self.ticket = ticket
+        self.cdate = cdate
+        self.author = author
+        self.comment = comment
+        self.old_comment = old_comment
+
+    def ticket_change_deleted(self, ticket, cdate, changes):
+        self.action = 'change_deleted'
+        self.ticket = ticket
+        self.cdate = cdate
+        self.changes = changes
 
 
 class TicketTestCase(unittest.TestCase):
@@ -118,9 +162,9 @@ class TicketTestCase(unittest.TestCase):
         log = ticket3.get_changelog()
         self.assertEqual(len(log), 3)
         ok_vals = ['foo', 'summary', 'comment']
-        self.failUnless(log[0][2] in ok_vals)
-        self.failUnless(log[1][2] in ok_vals)
-        self.failUnless(log[2][2] in ok_vals)
+        self.assertIn(log[0][2], ok_vals)
+        self.assertIn(log[1][2], ok_vals)
+        self.assertIn(log[2][2], ok_vals)
 
     def test_create_ticket_5(self):
         ticket3 = self._modify_a_ticket()
@@ -157,7 +201,7 @@ class TicketTestCase(unittest.TestCase):
         ticket.save_changes()
 
         for change in ticket.get_changelog():
-            self.assertEqual(None, change[1])
+            self.assertIsNone(change[1])
 
     def test_comment_with_whitespace_only_is_not_saved(self):
         ticket = Ticket(self.env)
@@ -310,7 +354,7 @@ class TicketTestCase(unittest.TestCase):
         self.assertEqual('john', ticket['reporter'])
 
         # An unknown field
-        assert ticket['bar'] is None
+        self.assertIsNone(ticket['bar'])
 
         # Custom field
         self.assertEqual('bar', ticket['foo'])
@@ -599,6 +643,19 @@ class TicketCommentEditTestCase(TicketCommentTestCase):
             self.assertEqual((i, t[i], 'joe (%d)' % i,
                              'Comment 1 (%d)' % i), history[i])
 
+    def test_change_listener_comment_modified(self):
+        listener = TestTicketChangeListener_2(self.env)
+        ticket = Ticket(self.env, self.id)
+        ticket.modify_comment(cdate=self.t2, author='jack',
+                              comment='New Comment 2', when=datetime.now(utc))
+
+        self.assertEqual('comment_modified', listener.action)
+        self.assertEqual(ticket, listener.ticket)
+        self.assertEqual(self.t2, listener.cdate)
+        self.assertEqual('jack', listener.author)
+        self.assertEqual('New Comment 2', listener.comment)
+        self.assertEqual('Comment 2', listener.old_comment)
+
 
 class TicketCommentDeleteTestCase(TicketCommentTestCase):
 
@@ -632,8 +689,8 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
         ticket.delete_change(cnum=4, when=t)
         self.assertEqual('a, b', ticket['keywords'])
         self.assertEqual('change3', ticket['foo'])
-        self.assertEqual(None, ticket.get_change(cnum=4))
-        self.assertNotEqual(None, ticket.get_change(cnum=3))
+        self.assertIsNone(ticket.get_change(cnum=4))
+        self.assertIsNotNone(ticket.get_change(cnum=3))
         self.assertEqual(t, ticket.time_changed)
 
     def test_delete_last_comment_when_custom_field_gone(self):
@@ -651,13 +708,13 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
         ticket.delete_change(cnum=4, when=t)
         self.assertEqual('a, b', ticket['keywords'])
         # 'foo' is no longer defined for the ticket
-        self.assertEqual(None, ticket['foo'])
+        self.assertIsNone(ticket['foo'])
         # however, 'foo=change3' is still in the database
         self.assertEqual([('change3',)], self.env.db_query("""
             SELECT value FROM ticket_custom WHERE ticket=%s AND name='foo'
             """, (self.id,)))
-        self.assertEqual(None, ticket.get_change(cnum=4))
-        self.assertNotEqual(None, ticket.get_change(cnum=3))
+        self.assertIsNone(ticket.get_change(cnum=4))
+        self.assertIsNotNone(ticket.get_change(cnum=3))
         self.assertEqual(t, ticket.time_changed)
 
     def test_delete_last_comment_by_date(self):
@@ -668,8 +725,8 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
         ticket.delete_change(cdate=self.t4, when=t)
         self.assertEqual('a, b', ticket['keywords'])
         self.assertEqual('change3', ticket['foo'])
-        self.assertEqual(None, ticket.get_change(cdate=self.t4))
-        self.assertNotEqual(None, ticket.get_change(cdate=self.t3))
+        self.assertIsNone(ticket.get_change(cdate=self.t4))
+        self.assertIsNotNone(ticket.get_change(cdate=self.t3))
         self.assertEqual(t, ticket.time_changed)
 
     def test_delete_mid_comment(self):
@@ -680,7 +737,7 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
             foo=dict(author='joe', old='change3', new='change4'))
         t = datetime.now(utc)
         ticket.delete_change(cnum=3, when=t)
-        self.assertEqual(None, ticket.get_change(cnum=3))
+        self.assertIsNone(ticket.get_change(cnum=3))
         self.assertEqual('a', ticket['keywords'])
         self.assertChange(ticket, 4, self.t4, 'joe',
             comment=dict(author='joe', old='4', new='Comment 4'),
@@ -696,7 +753,7 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
             foo=dict(author='joe', old='change3', new='change4'))
         t = datetime.now(utc)
         ticket.delete_change(cdate=self.t3, when=t)
-        self.assertEqual(None, ticket.get_change(cdate=self.t3))
+        self.assertIsNone(ticket.get_change(cdate=self.t3))
         self.assertEqual('a', ticket['keywords'])
         self.assertChange(ticket, 4, self.t4, 'joe',
             comment=dict(author='joe', old='4', new='Comment 4'),
@@ -718,7 +775,7 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
             keywords=dict(author='joe', old='1, 2', new='a'),
             foo=dict(author='joe', old='change3', new='change4'))
         ticket.delete_change(3)
-        self.assertEqual(None, ticket.get_change(3))
+        self.assertIsNone(ticket.get_change(3))
         self.assertEqual('a', ticket['keywords'])
         self.assertChange(ticket, 4, self.t4, 'joe',
             comment=dict(author='joe', old='4', new='Comment 4'),
@@ -734,6 +791,25 @@ class TicketCommentDeleteTestCase(TicketCommentTestCase):
         ticket.delete_change(1, when=t)
         self.assertEqual(t, ticket.time_changed)
 
+    def test_ticket_change_deleted(self):
+        listener = TestTicketChangeListener_2(self.env)
+        ticket = Ticket(self.env, self.id)
+
+        ticket.delete_change(cdate=self.t3, when=datetime.now(utc))
+        self.assertEqual('change_deleted', listener.action)
+        self.assertEqual(ticket, listener.ticket)
+        self.assertEqual(self.t3, listener.cdate)
+        self.assertEqual(dict(keywords=('a, b, c', 'a, b'),
+                              foo=('change2', 'change3')),
+                         listener.changes)
+
+        ticket.delete_change(cnum=2, when=datetime.now(utc))
+        self.assertEqual('change_deleted', listener.action)
+        self.assertEqual(ticket, listener.ticket)
+        self.assertEqual(self.t2, listener.cdate)
+        self.assertEqual(dict(owner=('john', 'jack'),
+                              foo=('change 1', 'change2')),
+                         listener.changes)
 
 class EnumTestCase(unittest.TestCase):
 
@@ -752,14 +828,14 @@ class EnumTestCase(unittest.TestCase):
         prio = Priority(self.env)
         prio.name = 'foo'
         prio.insert()
-        self.assertEqual(True, prio.exists)
+        self.assertTrue(prio.exists)
 
     def test_priority_insert_with_value(self):
         prio = Priority(self.env)
         prio.name = 'bar'
         prio.value = 100
         prio.insert()
-        self.assertEqual(True, prio.exists)
+        self.assertTrue(prio.exists)
 
     def test_priority_update(self):
         prio = Priority(self.env, 'major')
@@ -772,7 +848,7 @@ class EnumTestCase(unittest.TestCase):
         prio = Priority(self.env, 'major')
         self.assertEqual('3', prio.value)
         prio.delete()
-        self.assertEqual(False, prio.exists)
+        self.assertFalse(prio.exists)
         self.assertRaises(TracError, Priority, self.env, 'major')
         prio = Priority(self.env, 'minor')
         self.assertEqual('3', prio.value)
@@ -807,8 +883,9 @@ class MilestoneTestCase(unittest.TestCase):
 
     def setUp(self):
         self.env = EnvironmentStub(default_data=True)
-        self.env.path = os.path.join(tempfile.gettempdir(), 'trac-tempenv')
-        os.mkdir(self.env.path)
+        self.env.path = tempfile.mkdtemp(prefix='trac-tempenv-')
+        self.created_at = datetime(2001, 1, 1, tzinfo=utc)
+        self.updated_at = self.created_at + timedelta(seconds=1)
 
     def tearDown(self):
         shutil.rmtree(self.env.path)
@@ -820,12 +897,25 @@ class MilestoneTestCase(unittest.TestCase):
             setattr(milestone, k, v)
         return milestone
 
+    def _insert_ticket(self, when=None, **kwargs):
+        ticket = Ticket(self.env)
+        for name, value in kwargs.iteritems():
+            ticket[name] = value
+        ticket.insert(when or self.created_at)
+        return ticket
+
+    def _update_ticket(self, ticket, author=None, comment=None, when=None,
+                       **kwargs):
+        for name, value in kwargs.iteritems():
+            ticket[name] = value
+        ticket.save_changes(author, comment, when or self.updated_at)
+
     def test_new_milestone(self):
         milestone = Milestone(self.env)
-        self.assertEqual(False, milestone.exists)
-        self.assertEqual(None, milestone.name)
-        self.assertEqual(None, milestone.due)
-        self.assertEqual(None, milestone.completed)
+        self.assertFalse(milestone.exists)
+        self.assertIsNone(milestone.name)
+        self.assertIsNone(milestone.due)
+        self.assertIsNone(milestone.completed)
         self.assertEqual('', milestone.description)
 
     def test_new_milestone_empty_name(self):
@@ -834,20 +924,20 @@ class MilestoneTestCase(unittest.TestCase):
         milestone being correctly detected as non-existent.
         """
         milestone = Milestone(self.env, '')
-        self.assertEqual(False, milestone.exists)
-        self.assertEqual(None, milestone.name)
-        self.assertEqual(None, milestone.due)
-        self.assertEqual(None, milestone.completed)
+        self.assertFalse(milestone.exists)
+        self.assertIsNone(milestone.name)
+        self.assertIsNone(milestone.due)
+        self.assertIsNone(milestone.completed)
         self.assertEqual('', milestone.description)
 
     def test_existing_milestone(self):
         self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
 
         milestone = Milestone(self.env, 'Test')
-        self.assertEqual(True, milestone.exists)
+        self.assertTrue(milestone.exists)
         self.assertEqual('Test', milestone.name)
-        self.assertEqual(None, milestone.due)
-        self.assertEqual(None, milestone.completed)
+        self.assertIsNone(milestone.due)
+        self.assertIsNone(milestone.completed)
         self.assertEqual('', milestone.description)
 
     def test_create_and_update_milestone(self):
@@ -868,35 +958,119 @@ class MilestoneTestCase(unittest.TestCase):
             WHERE name='Test'
             """))
 
+    def test_move_tickets(self):
+        self.env.db_transaction.executemany(
+            "INSERT INTO milestone (name) VALUES (%s)",
+            [('Test',), ('Testing',)])
+        tkt1 = self._insert_ticket(status='new', summary='Foo',
+                                   milestone='Test')
+        tkt2 = self._insert_ticket(status='new', summary='Bar',
+                                   milestone='Test')
+        self._update_ticket(tkt2, status='closed', resolution='fixed')
+        milestone = Milestone(self.env, 'Test')
+        milestone.move_tickets('Testing', 'anonymous', 'Move tickets')
+
+        tkt1 = Ticket(self.env, tkt1.id)
+        tkt2 = Ticket(self.env, tkt2.id)
+        self.assertEqual('Testing', tkt1['milestone'])
+        self.assertEqual('Testing', tkt2['milestone'])
+        self.assertEqual(tkt1['changetime'], tkt2['changetime'])
+        self.assertNotEqual(self.updated_at, tkt1['changetime'])
+
+    def test_move_tickets_exclude_closed(self):
+        self.env.db_transaction.executemany(
+            "INSERT INTO milestone (name) VALUES (%s)",
+            [('Test',), ('Testing',)])
+        tkt1 = self._insert_ticket(status='new', summary='Foo',
+                                   milestone='Test')
+        tkt2 = self._insert_ticket(status='new', summary='Bar',
+                                   milestone='Test')
+        self._update_ticket(tkt2, status='closed', resolution='fixed')
+        milestone = Milestone(self.env, 'Test')
+        milestone.move_tickets('Testing', 'anonymous', 'Move tickets',
+                               exclude_closed=True)
+
+        tkt1 = Ticket(self.env, tkt1.id)
+        tkt2 = Ticket(self.env, tkt2.id)
+        self.assertEqual('Testing', tkt1['milestone'])
+        self.assertEqual('Test', tkt2['milestone'])
+        self.assertNotEqual(self.updated_at, tkt1['changetime'])
+        self.assertEqual(self.updated_at, tkt2['changetime'])
+
+    def test_move_tickets_target_doesnt_exist(self):
+        self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
+        tkt1 = self._insert_ticket(status='new', summary='Foo',
+                                   milestone='Test')
+        tkt2 = self._insert_ticket(status='new', summary='Bar',
+                                   milestone='Test')
+        milestone = Milestone(self.env, 'Test')
+        self.assertRaises(ResourceNotFound, milestone.move_tickets,
+                          'Testing', 'anonymous')
+
+        tkt1 = Ticket(self.env, tkt1.id)
+        tkt2 = Ticket(self.env, tkt2.id)
+        self.assertEqual('Test', tkt1['milestone'])
+        self.assertEqual('Test', tkt2['milestone'])
+        self.assertNotEqual(self.updated_at, tkt1['changetime'])
+        self.assertNotEqual(self.updated_at, tkt2['changetime'])
+
     def test_create_milestone_without_name(self):
         milestone = Milestone(self.env)
         self.assertRaises(TracError, milestone.insert)
 
     def test_delete_milestone(self):
         self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
-
+        tkt1 = self._insert_ticket(status='new', summary='Foo',
+                                   milestone='Test')
+        tkt2 = self._insert_ticket(status='new', summary='Bar',
+                                   milestone='Test')
+        self._update_ticket(tkt2, status='closed', resolution='fixed')
         milestone = Milestone(self.env, 'Test')
         milestone.delete()
-        self.assertEqual(False, milestone.exists)
+        self.assertFalse(milestone.exists)
         self.assertEqual([],
             self.env.db_query("SELECT * FROM milestone WHERE name='Test'"))
 
-    def test_delete_milestone_retarget_tickets(self):
-        self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
+        tkt1 = Ticket(self.env, tkt1.id)
+        tkt2 = Ticket(self.env, tkt2.id)
+        self.assertEqual('', tkt1['milestone'])
+        self.assertEqual('', tkt2['milestone'])
+        self.assertEqual(tkt1['changetime'], tkt2['changetime'])
+        self.assertNotEqual(self.updated_at, tkt1['changetime'])
 
-        tkt1 = Ticket(self.env)
-        tkt1.populate({'summary': 'Foo', 'milestone': 'Test'})
-        tkt1.insert()
-        tkt2 = Ticket(self.env)
-        tkt2.populate({'summary': 'Bar', 'milestone': 'Test'})
-        tkt2.insert()
+    def test_delete_milestone_with_attachment(self):
+        milestone = Milestone(self.env)
+        milestone.name = 'MilestoneWithAttachment'
+        milestone.insert()
+        
+        attachment = Attachment(self.env, 'milestone', milestone.name)
+        attachment.insert('foo.txt', StringIO(), 0, 1)
 
-        milestone = Milestone(self.env, 'Test')
-        milestone.delete(retarget_to='Other')
+        milestone.delete()
         self.assertEqual(False, milestone.exists)
 
-        self.assertEqual('Other', Ticket(self.env, tkt1.id)['milestone'])
-        self.assertEqual('Other', Ticket(self.env, tkt2.id)['milestone'])
+        attachments = Attachment.select(self.env, 'milestone', milestone.name)
+        self.assertRaises(StopIteration, attachments.next)
+
+    def test_delete_milestone_retarget_tickets(self):
+        self.env.db_transaction.executemany(
+            "INSERT INTO milestone (name) VALUES (%s)",
+            [('Test',), ('Other',)])
+        tkt1 = self._insert_ticket(status='new', summary='Foo',
+                                   milestone='Test')
+        tkt2 = self._insert_ticket(status='new', summary='Bar',
+                                   milestone='Test')
+        self._update_ticket(tkt2, status='closed', resolution='fixed')
+        milestone = Milestone(self.env, 'Test')
+        milestone.delete(retarget_to='Other')
+        self.assertFalse(milestone.exists)
+
+        tkt1 = Ticket(self.env, tkt1.id)
+        tkt2 = Ticket(self.env, tkt2.id)
+        self.assertEqual('Other', tkt1['milestone'])
+        self.assertEqual('Other', tkt2['milestone'])
+        self.assertEqual(tkt1['changetime'], tkt2['changetime'])
+        self.assertNotEqual(self.updated_at, tkt1['changetime'])
 
     def test_update_milestone(self):
         self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
@@ -920,23 +1094,6 @@ class MilestoneTestCase(unittest.TestCase):
         milestone.name = None
         self.assertRaises(TracError, milestone.update)
 
-    def test_update_milestone_update_tickets(self):
-        self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
-
-        tkt1 = Ticket(self.env)
-        tkt1.populate({'summary': 'Foo', 'milestone': 'Test'})
-        tkt1.insert()
-        tkt2 = Ticket(self.env)
-        tkt2.populate({'summary': 'Bar', 'milestone': 'Test'})
-        tkt2.insert()
-
-        milestone = Milestone(self.env, 'Test')
-        milestone.name = 'Testing'
-        milestone.update()
-
-        self.assertEqual('Testing', Ticket(self.env, tkt1.id)['milestone'])
-        self.assertEqual('Testing', Ticket(self.env, tkt2.id)['milestone'])
-
     def test_rename_milestone(self):
         milestone = Milestone(self.env)
         milestone.name = 'OldName'
@@ -958,6 +1115,24 @@ class MilestoneTestCase(unittest.TestCase):
         self.assertEqual('foo.txt', attachments.next().filename)
         self.assertRaises(StopIteration, attachments.next)
 
+    def test_rename_milestone_retarget_tickets(self):
+        self.env.db_transaction("INSERT INTO milestone (name) VALUES ('Test')")
+        tkt1 = self._insert_ticket(status='new', summary='Foo',
+                                   milestone='Test')
+        tkt2 = self._insert_ticket(status='new', summary='Bar',
+                                   milestone='Test')
+        self._update_ticket(tkt2, status='closed', resolution='fixed')
+        milestone = Milestone(self.env, 'Test')
+        milestone.name = 'Testing'
+        milestone.update()
+
+        tkt1 = Ticket(self.env, tkt1.id)
+        tkt2 = Ticket(self.env, tkt2.id)
+        self.assertEqual('Testing', tkt1['milestone'])
+        self.assertEqual('Testing', tkt2['milestone'])
+        self.assertEqual(tkt1['changetime'], tkt2['changetime'])
+        self.assertNotEqual(self.updated_at, tkt1['changetime'])
+
     def test_select_milestones(self):
         self.env.db_transaction.executemany(
             "INSERT INTO milestone (name) VALUES (%s)",
@@ -965,9 +1140,9 @@ class MilestoneTestCase(unittest.TestCase):
 
         milestones = list(Milestone.select(self.env))
         self.assertEqual('1.0', milestones[0].name)
-        assert milestones[0].exists
+        self.assertTrue(milestones[0].exists)
         self.assertEqual('2.0', milestones[1].name)
-        assert milestones[1].exists
+        self.assertTrue(milestones[1].exists)
 
     def test_change_listener_created(self):
         listener = TestMilestoneChangeListener(self.env)
@@ -999,10 +1174,10 @@ class MilestoneTestCase(unittest.TestCase):
         listener = TestMilestoneChangeListener(self.env)
         milestone = self._create_milestone(name='Milestone 1')
         milestone.insert()
-        self.assertEqual(True, milestone.exists)
+        self.assertTrue(milestone.exists)
         milestone.delete()
         self.assertEqual('Milestone 1', milestone.name)
-        self.assertEqual(False, milestone.exists)
+        self.assertFalse(milestone.exists)
         self.assertEqual('deleted', listener.action)
         self.assertEqual(milestone, listener.milestone)
 
@@ -1180,13 +1355,13 @@ class TicketResourceChangeListenerTestCase(
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TicketTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(TicketCommentEditTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(TicketCommentDeleteTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(EnumTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(MilestoneTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(ComponentTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(VersionTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(TicketTestCase))
+    suite.addTest(unittest.makeSuite(TicketCommentEditTestCase))
+    suite.addTest(unittest.makeSuite(TicketCommentDeleteTestCase))
+    suite.addTest(unittest.makeSuite(EnumTestCase))
+    suite.addTest(unittest.makeSuite(MilestoneTestCase))
+    suite.addTest(unittest.makeSuite(ComponentTestCase))
+    suite.addTest(unittest.makeSuite(VersionTestCase))
     suite.addTest(unittest.makeSuite(
         ComponentResourceChangeListenerTestCase, 'test'))
     suite.addTest(unittest.makeSuite(

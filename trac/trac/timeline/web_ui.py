@@ -326,11 +326,11 @@ class TimelineModule(Component):
                 elif len(time) >= 2:
                     precision = 'hours'
             try:
-                return self.get_timeline_link(formatter.req,
-                                              parse_date(path, utc),
-                                              label, precision, query, fragment)
+                dt = parse_date(path, utc, locale='iso8601', hint='iso8601')
+                return self.get_timeline_link(formatter.req, dt, label,
+                                              precision, query, fragment)
             except TracError, e:
-                return tag.a(label, title=to_unicode(e.message),
+                return tag.a(label, title=to_unicode(e),
                              class_='timeline missing')
         yield ('timeline', link_resolver)
 
@@ -395,7 +395,7 @@ class TimelineModule(Component):
                        name=tag.tt(ep.__class__.__name__),
                        kinds=', '.join('"%s"' % ep_kinds[f] for f in
                                        current_filters & ep_filters)),
-                  tag.b(exception_to_unicode(exc)), class_='message'),
+                  tag.strong(exception_to_unicode(exc)), class_='message'),
             tag.p(tag_("You may want to see the %(other_events)s from the "
                        "Timeline or notify your Trac administrator about the "
                        "error (detailed information was written to the log).",

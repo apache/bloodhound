@@ -1,3 +1,16 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2004-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
 from trac.versioncontrol import diff
 
 import unittest
@@ -159,55 +172,55 @@ class DiffTestCase(unittest.TestCase):
         """Make sure that the escape calls leave quotes along, we don't need
         to escape them."""
         changes = diff.diff_blocks(['ab'], ['a"b'])
-        self.assertEquals(len(changes), 1)
+        self.assertEqual(len(changes), 1)
         blocks = changes[0]
-        self.assertEquals(len(blocks), 1)
+        self.assertEqual(len(blocks), 1)
         block = blocks[0]
-        self.assertEquals(block['type'], 'mod')
-        self.assertEquals(str(block['base']['lines'][0]), 'a<del></del>b')
-        self.assertEquals(str(block['changed']['lines'][0]), 'a<ins>"</ins>b')
+        self.assertEqual(block['type'], 'mod')
+        self.assertEqual(str(block['base']['lines'][0]), 'a<del></del>b')
+        self.assertEqual(str(block['changed']['lines'][0]), 'a<ins>"</ins>b')
 
     def test_whitespace_marked_up1(self):
         """Regression test for #5795"""
         changes = diff.diff_blocks(['*a'], [' *a'])
         block = changes[0][0]
-        self.assertEquals(block['type'], 'mod')
-        self.assertEquals(str(block['base']['lines'][0]), '<del></del>*a')
-        self.assertEquals(str(block['changed']['lines'][0]),
-                          '<ins>&nbsp;</ins>*a')
+        self.assertEqual(block['type'], 'mod')
+        self.assertEqual(str(block['base']['lines'][0]), '<del></del>*a')
+        self.assertEqual(str(block['changed']['lines'][0]),
+                         '<ins>&nbsp;</ins>*a')
 
     def test_whitespace_marked_up2(self):
         """Related to #5795"""
         changes = diff.diff_blocks(['   a'], ['   b'])
         block = changes[0][0]
-        self.assertEquals(block['type'], 'mod')
-        self.assertEquals(str(block['base']['lines'][0]),
-                          '&nbsp; &nbsp;<del>a</del>')
-        self.assertEquals(str(block['changed']['lines'][0]),
-                          '&nbsp; &nbsp;<ins>b</ins>')
+        self.assertEqual(block['type'], 'mod')
+        self.assertEqual(str(block['base']['lines'][0]),
+                         '&nbsp; &nbsp;<del>a</del>')
+        self.assertEqual(str(block['changed']['lines'][0]),
+                         '&nbsp; &nbsp;<ins>b</ins>')
 
     def test_whitespace_marked_up3(self):
         """Related to #5795"""
         changes = diff.diff_blocks(['a   '], ['b   '])
         block = changes[0][0]
-        self.assertEquals(block['type'], 'mod')
-        self.assertEquals(str(block['base']['lines'][0]),
-                          '<del>a</del>&nbsp; &nbsp;')
-        self.assertEquals(str(block['changed']['lines'][0]),
-                          '<ins>b</ins>&nbsp; &nbsp;')
+        self.assertEqual(block['type'], 'mod')
+        self.assertEqual(str(block['base']['lines'][0]),
+                         '<del>a</del>&nbsp; &nbsp;')
+        self.assertEqual(str(block['changed']['lines'][0]),
+                         '<ins>b</ins>&nbsp; &nbsp;')
 
     def test_expandtabs_works_right(self):
         """Regression test for #4557"""
         changes = diff.diff_blocks(['aa\tb'], ['aaxb'])
         block = changes[0][0]
-        self.assertEquals(block['type'], 'mod')
-        self.assertEquals(str(block['base']['lines'][0]),
-                          'aa<del>&nbsp; &nbsp; &nbsp; </del>b')
-        self.assertEquals(str(block['changed']['lines'][0]),
-                          'aa<ins>x</ins>b')
+        self.assertEqual(block['type'], 'mod')
+        self.assertEqual(str(block['base']['lines'][0]),
+                         'aa<del>&nbsp; &nbsp; &nbsp; </del>b')
+        self.assertEqual(str(block['changed']['lines'][0]),
+                         'aa<ins>x</ins>b')
 
 def suite():
-    return unittest.makeSuite(DiffTestCase, 'test')
+    return unittest.makeSuite(DiffTestCase)
 
 if __name__ == '__main__':
     unittest.main()

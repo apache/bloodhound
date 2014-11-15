@@ -14,6 +14,8 @@
 #
 # Author: Christopher Lenz <cmlenz@gmx.de>
 
+from __future__ import with_statement
+
 from fnmatch import fnmatchcase
 from itertools import groupby
 import inspect
@@ -71,7 +73,7 @@ class WikiMacroBase(Component):
     def parse_macro(self, parser, name, content):
         raise NotImplementedError
 
-    def expand_macro(self, formatter, name, content):
+    def expand_macro(self, formatter, name, content, args=None):
         raise NotImplementedError(
             "pre-0.11 Wiki macro %s by provider %s no longer supported" %
             (name, self.__class__))
@@ -327,8 +329,9 @@ class RecentChangesMacro(WikiMacroBase):
                         max(time) AS max_time FROM wiki"""
         args = []
         if prefix:
-            sql += " WHERE name LIKE %s"
-            args.append(prefix + '%')
+            with self.env.db_query as db:
+                sql += " WHERE name %s" % db.prefix_match()
+                args.append(db.prefix_match_value(prefix))
         sql += " GROUP BY name ORDER BY max_time DESC"
         if limit:
             sql += " LIMIT %s"
@@ -355,8 +358,9 @@ class RecentChangesMacro(WikiMacroBase):
 
         items_per_date = (
             (date, (tag.li(tag.a(page, href=formatter.href.wiki(name)),
-                           tag.small(' (', tag.a('diff', href=diff_href), ')')
-                           if diff_href else None, '\n')
+                           tag.small(' (', tag.a(_("diff"), href=diff_href),
+                                     ')') if diff_href else None,
+                           '\n')
                     for page, name, version, diff_href in entries))
             for date, entries in entries_per_date)
 
@@ -477,21 +481,22 @@ class ImageMacro(WikiMacroBase):
 
     Examples:
     {{{
-        [[Image(photo.jpg)]]                           # simplest
-        [[Image(photo.jpg, 120px)]]                    # with image width size
-        [[Image(photo.jpg, right)]]                    # aligned by keyword
-        [[Image(photo.jpg, nolink)]]                   # without link to source
-        [[Image(photo.jpg, align=right)]]              # aligned by attribute
+    [[Image(photo.jpg)]]               # simplest
+    [[Image(photo.jpg, 120px)]]        # with image width size
+    [[Image(photo.jpg, right)]]        # aligned by keyword
+    [[Image(photo.jpg, nolink)]]       # without link to source
+    [[Image(photo.jpg, align=right)]]  # aligned by attribute
     }}}
 
-    You can use image from other page, other ticket or other module.
+    You can use an image from a wiki page, ticket or other module.
     {{{
-        [[Image(OtherPage:foo.bmp)]]    # if current module is wiki
-        [[Image(base/sub:bar.bmp)]]     # from hierarchical wiki page
-        [[Image(#3:baz.bmp)]]           # if in a ticket, point to #3
-        [[Image(ticket:36:boo.jpg)]]
-        [[Image(source:/images/bee.jpg)]] # straight from the repository!
-        [[Image(htdocs:foo/bar.png)]]   # image file in project htdocs dir.
+    [[Image(OtherPage:foo.bmp)]]    # from a wiki page
+    [[Image(base/sub:bar.bmp)]]     # from hierarchical wiki page
+    [[Image(#3:baz.bmp)]]           # from another ticket
+    [[Image(ticket:36:boo.jpg)]]    # from another ticket (long form)
+    [[Image(source:/img/bee.jpg)]]  # from the repository
+    [[Image(htdocs:foo/bar.png)]]   # from project htdocs dir
+    [[Image(shared:foo/bar.png)]]   # from shared htdocs dir (since 1.0.2)
     }}}
 
     ''Adapted from the Image.py macro created by Shun-ichi Goto
@@ -500,6 +505,8 @@ class ImageMacro(WikiMacroBase):
 
     def is_inline(self, content):
         return True
+
+    _split_filespec_re = re.compile(r''':(?!(?:[^"':]|[^"']:[^'"])+["'])''')
 
     def expand_macro(self, formatter, name, content):
         # args will be null if the macro is called without parenthesis.
@@ -534,7 +541,7 @@ class ImageMacro(WikiMacroBase):
         except Exception:
             browser_links = []
         while args:
-            arg = args.pop(0).strip()
+            arg = stripws(args.pop(0))
             if size_re.match(arg):
                 # 'width' keyword
                 attr['width'] = arg
@@ -578,7 +585,8 @@ class ImageMacro(WikiMacroBase):
                         attr[str(key)] = val # will be used as a __call__ kwd
 
         # parse filespec argument to get realm and id if contained.
-        parts = filespec.split(':')
+        parts = [i.strip('''['"]''')
+                 for i in self._split_filespec_re.split(filespec)]
         url = raw_url = desc = None
         attachment = None
         if (parts and parts[0] in ('http', 'https', 'ftp')): # absolute
@@ -625,6 +633,9 @@ class ImageMacro(WikiMacroBase):
                     id = id[1:]
                 elif id == 'htdocs':
                     raw_url = url = formatter.href.chrome('site', filename)
+                    desc = os.path.basename(filename)
+                elif id == 'shared':
+                    raw_url = url = formatter.href.chrome('shared', filename)
                     desc = os.path.basename(filename)
                 else:
                     realm = 'wiki'
@@ -732,10 +743,10 @@ class TracIniMacro(WikiMacroBase):
     options whose section and name start with the filters are output.
     """)
 
-    def expand_macro(self, formatter, name, args):
+    def expand_macro(self, formatter, name, content):
         from trac.config import ConfigSection, Option
         section_filter = key_filter = ''
-        args, kw = parse_args(args)
+        args, kw = parse_args(content)
         if args:
             section_filter = args.pop(0).strip()
         if args:
@@ -761,19 +772,11 @@ class TracIniMacro(WikiMacroBase):
 
         def default_cell(option):
             default = option.default
-            if default is True:
-                default = 'true'
-            elif default is False:
-                default = 'false'
-            elif default == 0:
-                default = '0.0' if isinstance(default, float) else '0'
-            elif default:
-                default = ', '.join(to_unicode(val) for val in default) \
-                          if isinstance(default, (list, tuple)) \
-                          else to_unicode(default)
+            if default is not None and default != '':
+                return tag.td(tag.code(option.dumps(default)),
+                              class_='default')
             else:
                 return tag.td(_("(no default)"), class_='nodefault')
-            return tag.td(tag.code(default), class_='default')
 
         return tag.div(class_='tracini')(
             (tag.h3(tag.code('[%s]' % section), id='%s-section' % section),
@@ -782,9 +785,11 @@ class TracIniMacro(WikiMacroBase):
                  tag.tr(tag.td(tag.tt(option.name)),
                         tag.td(format_to_oneliner(
                             self.env, formatter.context, getdoc(option))),
-                        default_cell(option))
-                 for option in sorted(options.get(section, {}).itervalues(),
-                                      key=lambda o: o.name)
+                        default_cell(option),
+                        class_='odd' if idx % 2 else 'even')
+                 for idx, option in \
+                    enumerate(sorted(options.get(section, {}).itervalues(),
+                                     key=lambda o: o.name))
                  if option.name.startswith(key_filter))))
             for section, section_doc in sorted(sections.iteritems()))
 
@@ -798,11 +803,11 @@ class KnownMimeTypesMacro(WikiMacroBase):
     Can be given an optional argument which is interpreted as mime-type filter.
     """)
 
-    def expand_macro(self, formatter, name, args):
+    def expand_macro(self, formatter, name, content):
         from trac.mimeview.api import Mimeview
         mime_map = Mimeview(self.env).mime_map
         mime_type_filter = ''
-        args, kw = parse_args(args)
+        args, kw = parse_args(content)
         if args:
             mime_type_filter = args.pop(0).strip().rstrip('*')
 
@@ -865,7 +870,7 @@ class TracGuideTocMacro(WikiMacroBase):
            ('TracNotification',             'Notification'),
           ]
 
-    def expand_macro(self, formatter, name, args):
+    def expand_macro(self, formatter, name, content):
         curpage = formatter.resource.id
 
         # scoped TOC (e.g. TranslateRu/TracGuide or 0.11/TracGuide ...)

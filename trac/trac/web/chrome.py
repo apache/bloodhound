@@ -48,8 +48,8 @@ from trac.core import *
 from trac.env import IEnvironmentSetupParticipant, ISystemInfoProvider
 from trac.mimeview.api import RenderingContext, get_mimetype
 from trac.resource import *
-from trac.util import compat, get_reporter_id, presentation, get_pkginfo, \
-                      pathjoin, translation
+from trac.util import compat, get_reporter_id, html, presentation, \
+                      get_pkginfo, pathjoin, translation
 from trac.util.html import escape, plaintext
 from trac.util.text import pretty_size, obfuscate_email_address, \
                            shorten_line, unicode_quote_plus, to_unicode, \
@@ -135,42 +135,30 @@ def add_stylesheet(req, filename, mimetype='text/css', media=None):
     """Add a link to a style sheet to the chrome info so that it gets included
     in the generated HTML page.
 
-    If the filename is absolute (i.e. starts with a slash), the generated link
-    will be based off the application root path. If it is relative, the link
-    will be based off the `/chrome/` path.
+    If `filename` is a network-path reference (i.e. starts with a protocol
+    or `//`), the return value will not be modified. If `filename` is absolute
+    (i.e. starts with `/`), the generated link will be based off the
+    application root path. If it is relative, the link will be based off the
+    `/chrome/` path.
     """
-    if filename.startswith(('http://', 'https://')):
-        href = filename
-    elif filename.startswith('common/') and 'htdocs_location' in req.chrome:
-        href = Href(req.chrome['htdocs_location'])(filename[7:])
-    else:
-        href = req.href
-        if not filename.startswith('/'):
-            href = href.chrome
-        href = href(filename)
+    href = _chrome_resource_path(req, filename)
     add_link(req, 'stylesheet', href, mimetype=mimetype, media=media)
 
 def add_script(req, filename, mimetype='text/javascript', charset='utf-8',
                ie_if=None):
     """Add a reference to an external javascript file to the template.
 
-    If the filename is absolute (i.e. starts with a slash), the generated link
-    will be based off the application root path. If it is relative, the link
-    will be based off the `/chrome/` path.
+    If `filename` is a network-path reference (i.e. starts with a protocol
+    or `//`), the return value will not be modified. If `filename` is absolute
+    (i.e. starts with `/`), the generated link will be based off the
+    application root path. If it is relative, the link will be based off the
+    `/chrome/` path.
     """
     scriptset = req.chrome.setdefault('scriptset', set())
     if filename in scriptset:
         return False # Already added that script
 
-    if filename.startswith(('http://', 'https://')):
-        href = filename
-    elif filename.startswith('common/') and 'htdocs_location' in req.chrome:
-        href = Href(req.chrome['htdocs_location'])(filename[7:])
-    else:
-        href = req.href
-        if not filename.startswith('/'):
-            href = href.chrome
-        href = href(filename)
+    href = _chrome_resource_path(req, filename)
     script = {'href': href, 'type': mimetype, 'charset': charset,
               'prefix': Markup('<!--[if %s]>' % ie_if) if ie_if else None,
               'suffix': Markup('<![endif]-->') if ie_if else None}
@@ -190,7 +178,7 @@ def add_script_data(req, data={}, **kwargs):
     script_data.update(kwargs)
 
 def add_javascript(req, filename):
-    """:deprecated: use `add_script` instead."""
+    """:deprecated: since 0.10, use `add_script` instead."""
     add_script(req, filename, mimetype='text/javascript')
 
 def add_warning(req, msg, *args):
@@ -286,6 +274,8 @@ def web_context(req, resource=None, id=False, version=False, parent=False,
                      name)
     :return: a new rendering context
     :rtype: `RenderingContext`
+
+    :since: version 1.0
     """
     if req:
         href = req.abs_href if absurls else req.href
@@ -309,6 +299,24 @@ def auth_link(req, link):
     if req.authname != 'anonymous':
         return req.href.login(referer=link)
     return link
+
+
+def _chrome_resource_path(req, filename):
+    """Get the path for a chrome resource given its `filename`.
+
+    If `filename` is a network-path reference (i.e. starts with a protocol
+    or `//`), the return value will not be modified. If `filename` is absolute
+    (i.e. starts with `/`), the generated link will be based off the
+    application root path. If it is relative, the link will be based off the
+    `/chrome/` path.
+    """
+    if filename.startswith(('http://', 'https://', '//')):
+        return filename
+    elif filename.startswith('common/') and 'htdocs_location' in req.chrome:
+        return Href(req.chrome['htdocs_location'])(filename[7:])
+    else:
+        href = req.href if filename.startswith('/') else req.href.chrome
+        return href(filename)
 
 
 def _save_messages(req, url, permanent):
@@ -475,6 +483,10 @@ class Chrome(Component):
         """Make `<textarea>` fields resizable. Requires !JavaScript.
         (''since 0.12'')""")
 
+    wiki_toolbars = BoolOption('trac', 'wiki_toolbars', 'true',
+        """Add a simple toolbar on top of Wiki `<textarea>`s.
+        (''since 1.0.2'')""")
+
     auto_preview_timeout = FloatOption('trac', 'auto_preview_timeout', 2.0,
         """Inactivity timeout in seconds after which the automatic wiki preview
         triggers an update. This option can contain floating-point values. The
@@ -491,8 +503,8 @@ class Chrome(Component):
 
     templates = None
 
-    # default doctype for 'text/html' output
-    default_html_doctype = DocType.XHTML_STRICT
+    # DocType for 'text/html' output
+    html_doctype = DocType.XHTML_STRICT
 
     # A dictionary of default context data for templates
     _default_context_data = {
@@ -505,6 +517,7 @@ class Chrome(Component):
         'dgettext': translation.dgettext,
         'dngettext': translation.dngettext,
         'first_last': presentation.first_last,
+        'find_element': html.find_element,
         'get_reporter_id': get_reporter_id,
         'gettext': translation.gettext,
         'group': presentation.group,
@@ -606,11 +619,13 @@ class Chrome(Component):
         for provider in self.template_providers:
             for dir in [os.path.normpath(dir[1]) for dir
                         in provider.get_htdocs_dirs() or []
-                        if dir[0] == prefix]:
+                        if dir[0] == prefix and dir[1]]:
                 dirs.append(dir)
                 path = os.path.normpath(os.path.join(dir, filename))
-                assert os.path.commonprefix([dir, path]) == dir
-                if os.path.isfile(path):
+                if os.path.commonprefix([dir, path]) != dir:
+                    raise TracError(_("Invalid chrome path %(path)s.",
+                                      path=filename))
+                elif os.path.isfile(path):
                     req.send_file(path, get_mimetype(path))
 
         self.log.warning('File %s not found in any of %s', filename, dirs)
@@ -679,7 +694,7 @@ class Chrome(Component):
            getattr(handler.__class__, 'jquery_noconflict', False):
             add_script(req, 'common/js/noconflict.js')
         add_script(req, 'common/js/babel.js')
-        if req.locale is not None:
+        if req.locale is not None and str(req.locale) != 'en_US':
             add_script(req, 'common/js/messages/%s.js' % req.locale)
         add_script(req, 'common/js/trac.js')
         add_script(req, 'common/js/search.js')
@@ -864,7 +879,14 @@ class Chrome(Component):
                 format = req.session.get('dateinfo',
                                          self.default_dateinfo_format)
             if format == 'absolute':
-                label = absolute
+                if dateonly:
+                    label = absolute
+                elif req.lc_time == 'iso8601':
+                    label = _("at %(iso8601)s", iso8601=absolute)
+                else:
+                    label = _("on %(date)s at %(time)s",
+                              date=user_time(req, format_date, date),
+                              time=user_time(req, format_time, date))
                 title = _("%(relativetime)s ago", relativetime=relative)
             else:
                 label = _("%(relativetime)s ago", relativetime=relative) \
@@ -952,9 +974,10 @@ class Chrome(Component):
         """Render the `filename` using the `data` for the context.
 
         The `content_type` argument is used to choose the kind of template
-        used (`NewTextTemplate` if `'text/plain'`, `MarkupTemplate` otherwise),
-        and tweak the rendering process. Doctype for `'text/html'` can be
-        specified by setting the default_html_doctype (default is XHTML Strict)
+        used (`NewTextTemplate` if `'text/plain'`, `MarkupTemplate`
+        otherwise), and tweak the rendering process. Doctype for `'text/html'`
+        can be specified by setting the `html_doctype` attribute (default
+        is `XHTML_STRICT`)
 
         When `fragment` is specified, the (filtered) Genshi stream is
         returned.
@@ -994,8 +1017,9 @@ class Chrome(Component):
             stream.render('text', out=buffer, encoding='utf-8')
             return buffer.getvalue()
 
-        doctype = {'text/html': Chrome.default_html_doctype}.get(content_type)
-        if doctype:
+        doctype = None
+        if content_type == 'text/html':
+            doctype = self.html_doctype
             if req.form_token:
                 stream |= self._add_form_token(req.form_token)
             if not int(req.session.get('accesskeys', 0)):
@@ -1102,7 +1126,8 @@ class Chrome(Component):
 
     def add_wiki_toolbars(self, req):
         """Add wiki toolbars to `<textarea class="wikitext">` fields."""
-        add_script(req, 'common/js/wikitoolbar.js')
+        if self.wiki_toolbars:
+            add_script(req, 'common/js/wikitoolbar.js')
         self.add_textarea_grips(req)
 
     def add_auto_preview(self, req):
@@ -1129,8 +1154,10 @@ class Chrome(Component):
             'first_week_day': get_first_week_day_jquery_ui(req),
             'timepicker_separator': 'T' if is_iso8601 else ' ',
             'show_timezone': is_iso8601,
+            # default timezone must be included
             'timezone_list': get_timezone_list_jquery_ui() \
-                             if is_iso8601 else [],
+                             if is_iso8601 \
+                             else [{'value': 'Z', 'label': '+00:00'}],
             'timezone_iso8601': is_iso8601,
         })
         add_script(req, 'common/js/jquery-ui-i18n.js')
@@ -1170,4 +1197,3 @@ class Chrome(Component):
     def _stream_location(self, stream):
         for kind, data, pos in stream:
             return pos
-

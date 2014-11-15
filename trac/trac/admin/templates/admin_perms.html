@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -13,7 +23,7 @@
   <body>
     <h2>Manage Permissions and Groups</h2>
 
-    <py:if test="'PERMISSION_GRANT' in perm">
+    <py:if test="'PERMISSION_GRANT' in perm('admin', 'general/perm')">
       <form id="addperm" class="addnew" method="post" action="">
         <fieldset>
           <legend>Grant Permission:</legend>
@@ -22,13 +32,14 @@
           </div>
           <div class="field">
             <label>Action:
-              <select id="action" name="action">
-                <option py:for="action in sorted(actions)">$action</option>
+              <select id="action" name="action"
+                      py:with="allowed_actions = [a for a in actions if a in perm]">
+                <option py:for="action in sorted(allowed_actions)">$action</option>
               </select>
             </label>
           </div>
           <div class="buttons">
-            <input type="submit" name="add" value="${_('Add')}" />
+            <input type="submit" name="add" class="trac-disable-on-submit" value="${_('Add')}" />
           </div>
           <p class="help">
             Grant permission for an action to a subject, which can be either a user
@@ -47,7 +58,7 @@
             <label>Group: <input id="sg_group" type="text" name="group" /></label>
           </div>
           <div class="buttons">
-            <input type="submit" name="add" value="${_('Add')}"/>
+            <input type="submit" name="add" class="trac-disable-on-submit" value="${_('Add')}"/>
           </div>
           <p class="help">
             Add a user or group to an existing permission group.
@@ -56,7 +67,7 @@
       </form>
     </py:if>
 
-    <form id="revokeform" method="post" action="" py:with="can_revoke = 'PERMISSION_REVOKE' in perm">
+    <form id="revokeform" method="post" action="" py:with="can_revoke = 'PERMISSION_REVOKE' in perm('admin', 'general/perm')">
       <h3>Permissions</h3>
       <table class="listing" id="permlist">
         <thead>
@@ -67,14 +78,18 @@
               class="${'odd' if idx % 2 else 'even'}">
             <td>$subject</td>
             <td>
-              <label py:for="subject, action in perm_group">
+              <label py:for="subject, action in perm_group"
+                     py:with="invalid = action not in actions; has_perm = action in perm">
                 <!--! base64 makes it safe to use ':' as separator when passing
                       both subject and action as one query parameter -->
                 <input py:if="can_revoke" type="checkbox" name="sel"
+                       title="${_('You don\'t have permission to revoke this action')
+                                if not has_perm else None}"
                        value="${'%s:%s' % (unicode_to_base64(subject),
-                                           unicode_to_base64(action))}"/>
-                <span py:strip="action in actions" class="missing"
-                      title="Action is no longer defined">${action}</span>
+                                           unicode_to_base64(action))}"
+                       disabled="${'disabled' if not has_perm else None}" />
+                <span class="${classes(missing=invalid)}"
+                      title="${_('%(action)s is no longer defined', action=action) if invalid else action}">${action}</span>
               </label>
             </td>
           </tr>

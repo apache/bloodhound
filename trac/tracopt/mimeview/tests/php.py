@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C)2006-2009 Edgewall Software
+# Copyright (C) 2006-2013 Edgewall Software
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -140,8 +140,8 @@ def suite():
     suite = unittest.TestSuite()
     php = locate("php")
     if php:
-        suite.addTest(unittest.makeSuite(PhpDeuglifierTestCase, 'test'))
-        suite.addTest(unittest.makeSuite(PhpRendererTestCase, 'test'))
+        suite.addTest(unittest.makeSuite(PhpDeuglifierTestCase))
+        suite.addTest(unittest.makeSuite(PhpRendererTestCase))
     else:
         print("SKIP: tracopt/mimeview/tests/php.py (php cli binary, 'php', "
               "not found)")

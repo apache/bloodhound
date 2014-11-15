@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -59,7 +69,7 @@
             <input type="hidden" name="action" value="new" />
             <input type="hidden" name="realm" value="$parent.realm" />
             <input type="hidden" name="id" value="$parent.id" />
-            <input type="submit" value="${_('Add attachment')}" />
+            <input type="submit" class="trac-disable-on-submit" value="${_('Add attachment')}" />
             <input type="submit" name="cancel" value="${_('Cancel')}" />
           </div>
         </form>
@@ -73,8 +83,8 @@
           <form method="post" action="">
             <div id="delete">
               <input type="hidden" name="action" value="delete" />
+              <input type="submit" class="trac-disable-on-submit" value="${_('Delete attachment')}" />
               <input type="submit" name="cancel" value="${_('Cancel')}" />
-              <input type="submit" value="${_('Delete attachment')}" />
             </div>
           </form>
         </div>
@@ -83,7 +93,6 @@
       <py:when test="'list'">
         <h1><a href="${url_of(parent)}">${name_of(parent)}</a></h1>
         <py:with vars="context = context.child(parent)">
-          <?python add_button_title = _('Attach another file') ?>
           <xi:include href="list_of_attachments.html" py:with="alist = attachments"/>
         </py:with>
       </py:when>

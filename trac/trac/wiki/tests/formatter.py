@@ -1,3 +1,16 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2004-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
 import difflib
 import os
 import re
@@ -14,7 +27,7 @@ except ImportError:
 
 from datetime import datetime
 
-from trac.core import *
+from trac.core import Component, TracError, implements
 from trac.test import Mock, MockPerm, EnvironmentStub, locale_en
 from trac.util.datefmt import utc
 from trac.util.html import html
@@ -88,6 +101,14 @@ class WikiProcessorSampleMacro(WikiMacroBase):
                 ''.join('<dt>%s</dt><dd>%s</dd>' % kv for kv in args.items()) \
                 + content
 
+class ValueErrorWithUtf8Macro(WikiMacroBase):
+    def expand_macro(self, formatter, name, content, args):
+        raise ValueError(content.encode('utf-8'))
+
+class TracErrorWithUnicodeMacro(WikiMacroBase):
+    def expand_macro(self, formatter, name, content, args):
+        raise TracError(unicode(content))
+
 class SampleResolver(Component):
     """A dummy macro returning a div block, used by the unit test."""
 
@@ -126,6 +147,7 @@ class WikiTestCase(unittest.TestCase):
         self._teardown = teardown
 
         req = Mock(href=Href('/'), abs_href=Href('http://www.example.com/'),
+                   chrome={}, session={},
                    authname='anonymous', perm=MockPerm(), tz=utc, args={},
                    locale=locale_en, lc_time=locale_en)
         if context:
@@ -182,7 +204,7 @@ class WikiTestCase(unittest.TestCase):
         v = v.replace('\r', '').replace(u'\u200b', '') # FIXME: keep ZWSP
         v = strip_line_ws(v, leading=False)
         try:
-            self.assertEquals(self.correct, v)
+            self.assertEqual(self.correct, v)
         except AssertionError, e:
             msg = to_unicode(e)
             match = re.match(r"u?'(.*)' != u?'(.*)'", msg)

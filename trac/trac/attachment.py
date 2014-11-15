@@ -38,7 +38,7 @@ from trac.mimeview import *
 from trac.perm import PermissionError, IPermissionPolicy
 from trac.resource import *
 from trac.search import search_to_sql, shorten_result
-from trac.util import content_disposition, get_reporter_id
+from trac.util import content_disposition, create_zipinfo, get_reporter_id
 from trac.util.compat import sha1
 from trac.util.datefmt import format_datetime, from_utimestamp, \
                               to_datetime, to_utimestamp, utc
@@ -93,8 +93,9 @@ class IAttachmentManipulator(Interface):
         attachment. Therefore, a return value of ``[]`` means
         everything is OK."""
 
+
 class ILegacyAttachmentPolicyDelegate(Interface):
-    """Interface that can be used by plugins to seemlessly participate
+    """Interface that can be used by plugins to seamlessly participate
        to the legacy way of checking for attachment permissions.
 
        This should no longer be necessary once it becomes easier to
@@ -310,6 +311,12 @@ class Attachment(object):
             t = to_datetime(t, utc)
         self.date = t
 
+        parent_resource = self.resource.parent
+        if not resource_exists(self.env, parent_resource):
+            raise ResourceNotFound(
+                _("%(parent)s doesn't exist, can't create attachment",
+                  parent=get_resource_name(self.env, parent_resource)))
+
         # Make sure the path to the attachment is inside the environment
         # attachments directory
         attachments_dir = os.path.join(os.path.normpath(self.env.path),
@@ -340,7 +347,6 @@ class Attachment(object):
         for listener in AttachmentModule(self.env).change_listeners:
             listener.attachment_added(self)
         ResourceSystem(self.env).resource_created(self)
-
 
     @classmethod
     def select(cls, env, parent_realm, parent_id, db=None):
@@ -377,7 +383,8 @@ class Attachment(object):
                 os.rmdir(attachment_dir)
             except OSError, e:
                 env.log.error("Can't delete attachment directory %s: %s",
-                    attachment_dir, exception_to_unicode(e, traceback=True))
+                              attachment_dir,
+                              exception_to_unicode(e, traceback=True))
 
     @classmethod
     def reparent_all(cls, env, parent_realm, parent_id, new_realm, new_id):
@@ -393,7 +400,8 @@ class Attachment(object):
                 os.rmdir(attachment_dir)
             except OSError, e:
                 env.log.error("Can't delete attachment directory %s: %s",
-                    attachment_dir, exception_to_unicode(e, traceback=True))
+                              attachment_dir,
+                              exception_to_unicode(e, traceback=True))
 
     def open(self):
         path = self.path
@@ -436,8 +444,7 @@ class AttachmentModule(Component):
     CHUNK_SIZE = 4096
 
     max_size = IntOption('attachment', 'max_size', 262144,
-        """Maximum allowed file size (in bytes) for ticket and wiki
-        attachments.""")
+        """Maximum allowed file size (in bytes) for attachments.""")
 
     max_zip_size = IntOption('attachment', 'max_zip_size', 2097152,
         """Maximum allowed total size (in bytes) for an attachment list to be
@@ -499,6 +506,10 @@ class AttachmentModule(Component):
                 parent_id, filename = path[:last_slash], path[last_slash + 1:]
 
         parent = parent_realm(id=parent_id)
+        if not resource_exists(self.env, parent):
+            raise ResourceNotFound(
+                _("Parent resource %(parent)s doesn't exist",
+                  parent=get_resource_name(self.env, parent)))
 
         # Link the attachment page to parent resource
         parent_name = get_resource_name(self.env, parent)
@@ -695,10 +706,6 @@ class AttachmentModule(Component):
     def _do_save(self, req, attachment):
         req.perm(attachment.resource).require('ATTACHMENT_CREATE')
         parent_resource = attachment.resource.parent
-        if not resource_exists(self.env, parent_resource):
-            raise ResourceNotFound(
-                _("%(parent)s doesn't exist, can't create attachment",
-                  parent=get_resource_name(self.env, parent_resource)))
 
         if 'cancel' in req.args:
             req.redirect(get_resource_url(self.env, parent_resource, req.href))
@@ -764,7 +771,7 @@ class AttachmentModule(Component):
             try:
                 old_attachment = Attachment(self.env,
                                             attachment.resource(id=filename))
-                if not (req.authname and req.authname != 'anonymous' \
+                if not (req.authname and req.authname != 'anonymous'
                         and old_attachment.author == req.authname) \
                    and 'ATTACHMENT_DELETE' \
                                         not in req.perm(attachment.resource):
@@ -774,7 +781,7 @@ class AttachmentModule(Component):
                         "attachments requires ATTACHMENT_DELETE permission.",
                         name=filename))
                 if (not attachment.description.strip() and
-                    old_attachment.description):
+                        old_attachment.description):
                     attachment.description = old_attachment.description
                 old_attachment.delete()
             except TracError:
@@ -806,7 +813,7 @@ class AttachmentModule(Component):
     def _render_form(self, req, attachment):
         req.perm(attachment.resource).require('ATTACHMENT_CREATE')
         return {'mode': 'new', 'author': get_reporter_id(req),
-            'attachment': attachment, 'max_size': self.max_size}
+                'attachment': attachment, 'max_size': self.max_size}
 
     def _download_as_zip(self, req, parent, attachments=None):
         if attachments is None:
@@ -823,19 +830,14 @@ class AttachmentModule(Component):
         req.send_header('Content-Disposition',
                         content_disposition('inline', filename))
 
-        from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+        from zipfile import ZipFile, ZIP_DEFLATED
 
         buf = StringIO()
         zipfile = ZipFile(buf, 'w', ZIP_DEFLATED)
         for attachment in attachments:
-            zipinfo = ZipInfo()
-            zipinfo.filename = attachment.filename.encode('utf-8')
-            zipinfo.flag_bits |= 0x800 # filename is encoded with utf-8
-            zipinfo.date_time = attachment.date.utctimetuple()[:6]
-            zipinfo.compress_type = ZIP_DEFLATED
-            if attachment.description:
-                zipinfo.comment = attachment.description.encode('utf-8')
-            zipinfo.external_attr = 0644 << 16L # needed since Python 2.5
+            zipinfo = create_zipinfo(attachment.filename,
+                                     mtime=attachment.date,
+                                     comment=attachment.description)
             try:
                 with attachment.open() as fd:
                     zipfile.writestr(zipinfo, fd.read())
@@ -999,7 +1001,7 @@ class LegacyAttachmentPolicy(Component):
         else:
             for d in self.delegates:
                 decision = d.check_attachment_permission(action, username,
-                        resource, perm)
+                                                         resource, perm)
                 if decision is not None:
                     return decision
 
@@ -1113,4 +1115,3 @@ class AttachmentAdmin(Component):
             finally:
                 if destination is not None:
                     output.close()
-

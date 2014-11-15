@@ -1,8 +1,24 @@
-from trac.test import EnvironmentStub
-from trac.ticket.roadmap import *
-from trac.core import ComponentManager
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2006-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
 
 import unittest
+
+from trac.core import ComponentManager
+from trac.test import EnvironmentStub, Mock, MockPerm
+from trac.tests.contentgen import random_sentence
+from trac.ticket.roadmap import *
+from trac.web.tests.api import RequestHandlerPermissionsTestCaseBase
+
 
 class TicketGroupStatsTestCase(unittest.TestCase):
 
@@ -10,53 +26,53 @@ class TicketGroupStatsTestCase(unittest.TestCase):
         self.stats = TicketGroupStats('title', 'units')
 
     def test_init(self):
-        self.assertEquals('title', self.stats.title, 'title incorrect')
-        self.assertEquals('units', self.stats.unit, 'unit incorrect')
-        self.assertEquals(0, self.stats.count, 'count not zero')
-        self.assertEquals(0, len(self.stats.intervals), 'intervals not empty')
+        self.assertEqual('title', self.stats.title, 'title incorrect')
+        self.assertEqual('units', self.stats.unit, 'unit incorrect')
+        self.assertEqual(0, self.stats.count, 'count not zero')
+        self.assertEqual(0, len(self.stats.intervals), 'intervals not empty')
 
     def test_add_iterval(self):
         self.stats.add_interval('intTitle', 3, {'k1': 'v1'}, 'css', 0)
         self.stats.refresh_calcs()
-        self.assertEquals(3, self.stats.count, 'count not incremented')
+        self.assertEqual(3, self.stats.count, 'count not incremented')
         int = self.stats.intervals[0]
-        self.assertEquals('intTitle', int['title'], 'title incorrect')
-        self.assertEquals(3, int['count'], 'count incorrect')
-        self.assertEquals({'k1': 'v1'}, int['qry_args'], 'query args incorrect')
-        self.assertEquals('css', int['css_class'], 'css class incorrect')
-        self.assertEquals(100, int['percent'], 'percent incorrect')
+        self.assertEqual('intTitle', int['title'], 'title incorrect')
+        self.assertEqual(3, int['count'], 'count incorrect')
+        self.assertEqual({'k1': 'v1'}, int['qry_args'], 'query args incorrect')
+        self.assertEqual('css', int['css_class'], 'css class incorrect')
+        self.assertEqual(100, int['percent'], 'percent incorrect')
         self.stats.add_interval('intTitle', 3, {'k1': 'v1'}, 'css', 0)
         self.stats.refresh_calcs()
-        self.assertEquals(50, int['percent'], 'percent not being updated')
+        self.assertEqual(50, int['percent'], 'percent not being updated')
 
     def test_add_interval_no_prog(self):
         self.stats.add_interval('intTitle', 3, {'k1': 'v1'}, 'css', 0)
         self.stats.add_interval('intTitle', 5, {'k1': 'v1'}, 'css', 0)
         self.stats.refresh_calcs()
         interval = self.stats.intervals[1]
-        self.assertEquals(0, self.stats.done_count, 'count added for no prog')
-        self.assertEquals(0, self.stats.done_percent, 'percent incremented')
+        self.assertEqual(0, self.stats.done_count, 'count added for no prog')
+        self.assertEqual(0, self.stats.done_percent, 'percent incremented')
 
     def test_add_interval_prog(self):
         self.stats.add_interval('intTitle', 3, {'k1': 'v1'}, 'css', 0)
         self.stats.add_interval('intTitle', 1, {'k1': 'v1'}, 'css', 1)
         self.stats.refresh_calcs()
-        self.assertEquals(4, self.stats.count, 'count not incremented')
-        self.assertEquals(1, self.stats.done_count, 'count not added to prog')
-        self.assertEquals(25, self.stats.done_percent, 'done percent not incr')
+        self.assertEqual(4, self.stats.count, 'count not incremented')
+        self.assertEqual(1, self.stats.done_count, 'count not added to prog')
+        self.assertEqual(25, self.stats.done_percent, 'done percent not incr')
 
     def test_add_interval_fudging(self):
         self.stats.add_interval('intTitle', 3, {'k1': 'v1'}, 'css', 0)
         self.stats.add_interval('intTitle', 5, {'k1': 'v1'}, 'css', 1)
         self.stats.refresh_calcs()
-        self.assertEquals(8, self.stats.count, 'count not incremented')
-        self.assertEquals(5, self.stats.done_count, 'count not added to prog')
-        self.assertEquals(62, self.stats.done_percent,
-                          'done percnt not fudged downward')
-        self.assertEquals(62, self.stats.intervals[1]['percent'],
-                          'interval percent not fudged downward')
-        self.assertEquals(38, self.stats.intervals[0]['percent'],
-                          'interval percent not fudged upward')
+        self.assertEqual(8, self.stats.count, 'count not incremented')
+        self.assertEqual(5, self.stats.done_count, 'count not added to prog')
+        self.assertEqual(62, self.stats.done_percent,
+                         'done percnt not fudged downward')
+        self.assertEqual(62, self.stats.intervals[1]['percent'],
+                         'interval percent not fudged downward')
+        self.assertEqual(38, self.stats.intervals[0]['percent'],
+                         'interval percent not fudged upward')
 
 
 class DefaultTicketGroupStatsProviderTestCase(unittest.TestCase):
@@ -96,43 +112,116 @@ class DefaultTicketGroupStatsProviderTestCase(unittest.TestCase):
         self.env.reset_db()
 
     def test_stats(self):
-        self.assertEquals(self.stats.title, 'ticket status', 'title incorrect')
-        self.assertEquals(self.stats.unit, 'tickets', 'unit incorrect')
-        self.assertEquals(2, len(self.stats.intervals), 'more than 2 intervals')
+        self.assertEqual(self.stats.title, 'ticket status', 'title incorrect')
+        self.assertEqual(self.stats.unit, 'tickets', 'unit incorrect')
+        self.assertEqual(2, len(self.stats.intervals), 'more than 2 intervals')
 
     def test_closed_interval(self):
         closed = self.stats.intervals[0]
-        self.assertEquals('closed', closed['title'], 'closed title incorrect')
-        self.assertEquals('closed', closed['css_class'], 'closed class incorrect')
-        self.assertEquals(True, closed['overall_completion'],
-                          'closed should contribute to overall completion')
-        self.assertEquals({'status': ['closed'], 'group': ['resolution']},
-                          closed['qry_args'], 'qry_args incorrect')
-        self.assertEquals(1, closed['count'], 'closed count incorrect')
-        self.assertEquals(33, closed['percent'], 'closed percent incorrect')
+        self.assertEqual('closed', closed['title'], 'closed title incorrect')
+        self.assertEqual('closed', closed['css_class'], 'closed class incorrect')
+        self.assertTrue(closed['overall_completion'],
+                        'closed should contribute to overall completion')
+        self.assertEqual({'status': ['closed'], 'group': ['resolution']},
+                         closed['qry_args'], 'qry_args incorrect')
+        self.assertEqual(1, closed['count'], 'closed count incorrect')
+        self.assertEqual(33, closed['percent'], 'closed percent incorrect')
 
     def test_open_interval(self):
         open = self.stats.intervals[1]
-        self.assertEquals('active', open['title'], 'open title incorrect')
-        self.assertEquals('open', open['css_class'], 'open class incorrect')
-        self.assertEquals(False, open['overall_completion'],
-                          "open shouldn't contribute to overall completion")
-        self.assertEquals({'status':
-                           [u'assigned', u'new', u'accepted', u'reopened']},
-                          open['qry_args'], 'qry_args incorrect')
-        self.assertEquals(2, open['count'], 'open count incorrect')
-        self.assertEquals(67, open['percent'], 'open percent incorrect')
+        self.assertEqual('active', open['title'], 'open title incorrect')
+        self.assertEqual('open', open['css_class'], 'open class incorrect')
+        self.assertFalse(open['overall_completion'],
+                         "open shouldn't contribute to overall completion")
+        self.assertEqual({'status':
+                          [u'assigned', u'new', u'accepted', u'reopened']},
+                         open['qry_args'], 'qry_args incorrect')
+        self.assertEqual(2, open['count'], 'open count incorrect')
+        self.assertEqual(67, open['percent'], 'open percent incorrect')
+
+
+class MilestoneModuleTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.env = EnvironmentStub()
+        self.req = Mock(href=self.env.href, perm=MockPerm())
+        self.mmodule = MilestoneModule(self.env)
+        self.terms = ['MilestoneAlpha', 'MilestoneBeta', 'MilestoneGamma']
+        for term in self.terms + [' '.join(self.terms)]:
+            m = Milestone(self.env)
+            m.name = term
+            m.due = datetime.now(utc)
+            m.description = random_sentence()
+            m.insert()
+
+    def tearDown(self):
+        self.env.reset_db()
+
+    def test_get_search_filters(self):
+        filters = self.mmodule.get_search_filters(self.req)
+        filters = list(filters)
+        self.assertEqual(1, len(filters))
+        self.assertEqual(2, len(filters[0]))
+        self.assertEqual('milestone', filters[0][0])
+        self.assertEqual('Milestones', filters[0][1])
+
+    def test_get_search_results_milestone_not_in_filters(self):
+        results = self.mmodule.get_search_results(self.req, self.terms, [])
+        self.assertEqual([], list(results))
+
+    def test_get_search_results_matches_all_terms(self):
+        milestone = Milestone(self.env, ' '.join(self.terms))
+        results = self.mmodule.get_search_results(self.req, self.terms,
+                                                  ['milestone'])
+        results = list(results)
+        self.assertEqual(1, len(results))
+        self.assertEqual(5, len(results[0]))
+        self.assertEqual('/trac.cgi/milestone/' +
+                         milestone.name.replace(' ', '%20'),
+                         results[0][0])
+        self.assertEqual('Milestone ' + milestone.name, results[0][1])
+        self.assertEqual(milestone.due, results[0][2])
+        self.assertEqual('', results[0][3])
+        self.assertEqual(milestone.description, results[0][4])
+
+
+class MilestoneModulePermissionsTestCase(RequestHandlerPermissionsTestCaseBase):
+
+    def setUp(self):
+        super(MilestoneModulePermissionsTestCase, self).setUp(MilestoneModule)
+
+    def test_milestone_notfound_with_milestone_create(self):
+        self.grant_perm('anonymous', 'MILESTONE_VIEW')
+        self.grant_perm('anonymous', 'MILESTONE_CREATE')
+
+        req = self.create_request(path_info='/milestone/milestone5')
+        res = self.process_request(req)
+
+        self.assertEqual('milestone_edit.html', res[0])
+        self.assertEqual('milestone5', res[1]['milestone'].name)
+        self.assertEqual("Milestone milestone5 does not exist. You can"
+                         " create it here.", req.chrome['notices'][0])
+
+    def test_milestone_notfound_without_milestone_create(self):
+        self.grant_perm('anonymous', 'MILESTONE_VIEW')
+
+        req = self.create_request(path_info='/milestone/milestone5')
+
+        self.assertRaises(ResourceNotFound, self.process_request, req)
 
 
 def in_tlist(ticket, list):
     return len([t for t in list if t['id'] == ticket.id]) > 0
 
+
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TicketGroupStatsTestCase, 'test'))
-    suite.addTest(unittest.makeSuite(DefaultTicketGroupStatsProviderTestCase,
-                                      'test'))
+    suite.addTest(unittest.makeSuite(TicketGroupStatsTestCase))
+    suite.addTest(unittest.makeSuite(DefaultTicketGroupStatsProviderTestCase))
+    suite.addTest(unittest.makeSuite(MilestoneModuleTestCase))
+    suite.addTest(unittest.makeSuite(MilestoneModulePermissionsTestCase))
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

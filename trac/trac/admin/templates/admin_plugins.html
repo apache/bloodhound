@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2006-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -54,7 +64,7 @@
   </head>
 
   <body>
-    <h2>Manage Plugins</h2>
+    <h2>Manage Plugins <span class="trac-count">(${len(plugins)})</span></h2>
 
     <form id="addplug" class="addnew" method="post" enctype="multipart/form-data" action="">
       <fieldset>
@@ -65,8 +75,8 @@
           </label>
         </div>
         <div class="buttons">
-          <input type="submit" name="install" value="${_('Install')}"
-                 disabled="${readonly or None}" />
+          <input type="submit" name="install" class="trac-disable-on-submit"
+                 value="${_('Install')}" disabled="${readonly or None}" />
         </div>
         <p class="help" py:choose="readonly">
           <py:when test="True">
@@ -80,7 +90,7 @@
       </fieldset>
     </form>
 
-    <form py:for="idx, plugin in enumerate(plugins)" method="post" action="">
+    <form py:for="idx, plugin in enumerate(plugins)" id="edit-plugin-${plugin.name.lower()}" method="post" action="">
       <div class="plugin" id="trac-plugin-${plugin.name}">
         <h3 class="foldable">${plugin.name} ${plugin.version}</h3>
         <!--! FIXME: Plugin uninstall disabled as it is unreliable (#3545)
@@ -148,7 +158,7 @@
                 </p>
                 <div py:if="module.description" xml:space="preserve">${safe_wiki_to_html(context, module.description)}</div>
               </td>
-              <td class="sel"></td>
+              <td class="sel trac-module"></td>
             </tr>
             <tr py:for="component_name, component in sorted(module.components.iteritems())">
               <td py:with="show_doc = show == plugin.name or show == component.full_name" id="trac-comp-${component.full_name}"
@@ -164,7 +174,7 @@
                 </p>
                 <div py:if="component.description" xml:space="preserve">${safe_wiki_to_html(context, component.description)}</div>
               </td>
-              <td class="sel">
+              <td class="sel trac-component">
                 <input py:if="not component.required" type="hidden" name="component"
                        value="${module_name}.${component_name}" />
                 <input type="checkbox" name="enable"

@@ -1,17 +1,26 @@
-<!--!
-       groups    - a dict, where:
-                     key       - is the value shared by all results in this group
-                     value     - is the list of corresponding tickets
+<!--!  Copyright (C) 2006-2014 Edgewall Software
 
-       headers   - a sequence of header structure:
-                     .name     - field name for this header
-                     .label    - what to display for this header
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
 
-       fields    - dict of field name to field structure:
-                     .label    - field label
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
 
-       query     - the actual Query instance used to perform the query
+Arguments:
+ - groups    - a dict, where:
+                key       - is the value shared by all results in this group
+                value     - is the list of corresponding tickets
 
+ - headers   - a sequence of header structure:
+                .name     - field name for this header
+                .label    - what to display for this header
+
+ - fields    - dict of field name to field structure:
+                .label    - field label
+
+ - query     - the actual Query instance used to perform the query
 -->
 <div xmlns="http://www.w3.org/1999/xhtml"
      xmlns:py="http://genshi.edgewall.org/"
@@ -74,7 +83,8 @@
                   <py:with vars="name = header.name; value = result[name]">
                     <td py:when="name == 'id'" class="id"><a href="$result.href" title="View ticket"
                         class="${classes(closed=result.status == 'closed')}">#$result.id</a></td>
-                    <td py:otherwise="" class="$name" py:choose="">
+                    <td py:otherwise="" class="$name"
+                        xml:space="${'preserve' if header.wikifyblock else None}" py:choose="">
                       <a py:when="name == 'summary'" href="$result.href" title="View ticket">$value</a>
                       <py:when test="isinstance(value, datetime)">${pretty_dateinfo(value, dateonly=True)}</py:when>
                       <py:when test="name == 'reporter'">${authorinfo(value)}</py:when>
@@ -82,6 +92,7 @@
                       <py:when test="name == 'owner' and value">${authorinfo(value)}</py:when>
                       <py:when test="name == 'milestone'"><a py:if="value" title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
                       <py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>
+                      <py:when test="header.wikifyblock">${wiki_to_html(ticket_context, value)}</py:when>
                       <py:otherwise>$value</py:otherwise>
                     </td>
                   </py:with>

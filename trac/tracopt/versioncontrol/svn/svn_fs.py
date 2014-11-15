@@ -47,11 +47,15 @@ Warning:
   those properties...
 """
 
+from __future__ import with_statement
+
 import os.path
+import re
 import weakref
 import posixpath
+from urllib import quote
 
-from trac.config import ListOption
+from trac.config import ListOption, ChoiceOption
 from trac.core import *
 from trac.env import ISystemInfoProvider
 from trac.versioncontrol import Changeset, Node, Repository, \
@@ -59,19 +63,25 @@ from trac.versioncontrol import Changeset, Node, Repository, \
                                 NoSuchChangeset, NoSuchNode
 from trac.versioncontrol.cache import CachedRepository
 from trac.util import embedded_numbers
+from trac.util.concurrency import threading
 from trac.util.text import exception_to_unicode, to_unicode
 from trac.util.translation import _
-from trac.util.datefmt import from_utimestamp
+from trac.util.datefmt import from_utimestamp, to_datetime, utc
 
 
 application_pool = None
+application_pool_lock = threading.Lock()
 
 
 def _import_svn():
-    global fs, repos, core, delta, _kindmap
+    global fs, repos, core, delta, _kindmap, _svn_uri_canonicalize
     from svn import fs, repos, core, delta
     _kindmap = {core.svn_node_dir: Node.DIRECTORY,
                 core.svn_node_file: Node.FILE}
+    try:
+        _svn_uri_canonicalize = core.svn_uri_canonicalize  # Subversion 1.7+
+    except AttributeError:
+        _svn_uri_canonicalize = lambda v: v
     # Protect svn.core methods from GC
     Pool.apr_pool_clear = staticmethod(core.apr_pool_clear)
     Pool.apr_pool_destroy = staticmethod(core.apr_pool_destroy)
@@ -150,19 +160,21 @@ class Pool(object):
         """Create a new memory pool"""
 
         global application_pool
-        self._parent_pool = parent_pool or application_pool
 
-        # Create pool
-        if self._parent_pool:
-            self._pool = core.svn_pool_create(self._parent_pool())
-        else:
-            # If we are an application-level pool,
-            # then initialize APR and set this pool
-            # to be the application-level pool
-            core.apr_initialize()
-            application_pool = self
+        with application_pool_lock:
+            self._parent_pool = parent_pool or application_pool
 
-            self._pool = core.svn_pool_create(None)
+            # Create pool
+            if self._parent_pool:
+                self._pool = core.svn_pool_create(self._parent_pool())
+            else:
+                # If we are an application-level pool,
+                # then initialize APR and set this pool
+                # to be the application-level pool
+                core.apr_initialize()
+                self._pool = core.svn_pool_create(None)
+                application_pool = self
+
         self._mark_valid()
 
     def __call__(self):
@@ -265,6 +277,17 @@ class SubversionConnector(Component):
         Example: `/tags/*, /projectAlpha/tags/A-1.0, /projectAlpha/tags/A-v1.1`
         """)
 
+    eol_style = ChoiceOption(
+        'svn', 'eol_style', ['native', 'LF', 'CRLF', 'CR'], doc=
+        """End-of-Line character sequences when `svn:eol-style` property is
+        `native`.
+
+        If `native` (the default), substitute with the native EOL marker on
+        the server. Otherwise, if `LF`, `CRLF` or `CR`, substitute with the
+        specified EOL marker.
+
+        (''since 1.0.2'')""")
+
     error = None
 
     def __init__(self):
@@ -307,6 +330,7 @@ class SubversionConnector(Component):
         'direct-svnfs'.
         """
         params.update(tags=self.tags, branches=self.branches)
+        params.setdefault('eol_style', self.eol_style)
         repos = SubversionRepository(dir, params, self.log)
         if type != 'direct-svnfs':
             repos = SvnCachedRepository(self.env, repos, self.log)
@@ -328,7 +352,8 @@ class SubversionRepository(Repository):
         else: # note that this should usually not happen (unicode arg expected)
             path_utf8 = to_unicode(path).encode('utf-8')
 
-        path_utf8 = os.path.normpath(path_utf8).replace('\\', '/')
+        path_utf8 = core.svn_path_canonicalize(
+                                os.path.normpath(path_utf8).replace('\\', '/'))
         self.path = path_utf8.decode('utf-8')
 
         root_path_utf8 = repos.svn_repos_find_root_path(path_utf8, self.pool())
@@ -361,7 +386,8 @@ class SubversionRepository(Repository):
         assert self.scope[0] == '/'
         # we keep root_path_utf8 for  RA
         ra_prefix = 'file:///' if os.name == 'nt' else 'file://'
-        self.ra_url_utf8 = ra_prefix + root_path_utf8
+        self.ra_url_utf8 = _svn_uri_canonicalize(ra_prefix +
+                                                 quote(root_path_utf8))
         self.clear()
 
     def clear(self, youngest_rev=None):
@@ -475,7 +501,7 @@ class SubversionRepository(Repository):
         specifications. No revision given means use the latest.
         """
         path = path or ''
-        if path and path[-1] == '/':
+        if path and path != '/' and path[-1] == '/':
             path = path[:-1]
         rev = self.normalize_rev(rev) or self.youngest_rev
         return SubversionNode(path, rev, self, self.pool)
@@ -492,6 +518,18 @@ class SubversionRepository(Repository):
                 break
             revs.append(r)
         return revs
+
+    def _get_changed_revs(self, node_infos):
+        path_revs = {}
+        for node, first in node_infos:
+            path = node.path
+            revs = []
+            for p, r, chg in node.get_history():
+                if p != path or r < first:
+                    break
+                revs.append(r)
+            path_revs[path] = revs
+        return path_revs
 
     def _history(self, path, start, end, pool):
         """`path` is a unicode path in the scope.
@@ -640,14 +678,6 @@ class SubversionRepository(Repository):
 
         (wraps ``repos.svn_repos_dir_delta``)
         """
-        def key(value):
-            return value[1].path if value[1] is not None else value[0].path
-        return iter(sorted(self._get_changes(old_path, old_rev, new_path,
-                                             new_rev, ignore_ancestry),
-                           key=key))
-
-    def _get_changes(self, old_path, old_rev, new_path, new_rev,
-                     ignore_ancestry):
         old_node = new_node = None
         old_rev = self.normalize_rev(old_rev)
         new_rev = self.normalize_rev(new_rev)
@@ -688,8 +718,12 @@ class SubversionRepository(Repository):
                                       entry_props,
                                       ignore_ancestry,
                                       subpool())
-            for path, kind, change in editor.deltas:
-                path = _from_svn(path)
+            # sort deltas by path before creating `SubversionNode`s to reduce
+            # memory usage (#10978)
+            deltas = sorted(((_from_svn(path), kind, change)
+                             for path, kind, change in editor.deltas),
+                            key=lambda entry: entry[0])
+            for path, kind, change in deltas:
                 old_node = new_node = None
                 if change != Changeset.ADD:
                     old_node = self.get_node(posixpath.join(old_path, path),
@@ -753,13 +787,15 @@ class SubversionNode(Node):
         """Retrieve raw content as a "read()"able object."""
         if self.isdir:
             return None
-        pool = Pool(self.pool)
-        s = core.Stream(fs.file_contents(self.root, self._scoped_path_utf8,
-                                         pool()))
-        # The stream object needs to reference the pool to make sure the pool
-        # is not destroyed before the former.
-        s._pool = pool
-        return s
+        return FileContentStream(self)
+
+    def get_processed_content(self, keyword_substitution=True, eol_hint=None):
+        """Retrieve processed content as a "read()"able object."""
+        if self.isdir:
+            return None
+        eol_style = self.repos.params.get('eol_style') if eol_hint is None \
+            else eol_hint
+        return FileContentStream(self, keyword_substitution, eol_style)
 
     def get_entries(self):
         """Yield `SubversionNode` corresponding to entries in this directory.
@@ -811,7 +847,10 @@ class SubversionNode(Node):
                 rev = _svn_rev(self.rev)
                 start = _svn_rev(0)
                 file_url_utf8 = posixpath.join(self.repos.ra_url_utf8,
-                                               self._scoped_path_utf8)
+                                               quote(self._scoped_path_utf8))
+                # svn_client_blame2() requires a canonical uri since
+                # Subversion 1.7 (#11167)
+                file_url_utf8 = _svn_uri_canonicalize(file_url_utf8)
                 self.repos.log.info('opening ra_local session to %r',
                                     file_url_utf8)
                 from svn import client
@@ -1006,7 +1045,7 @@ class SubversionChangeset(Changeset):
                 action = Changeset.EDIT
                 # identify the most interesting base_path/base_rev
                 # in terms of last changed information (see r2562)
-                if revroots.has_key(base_rev):
+                if base_rev in revroots:
                     b_root = revroots[base_rev]
                 else:
                     b_root = fs.revision_root(self.fs_ptr, base_rev, pool())
@@ -1094,3 +1133,186 @@ def DiffChangeEditor():
 
     return DiffChangeEditor()
 
+
+class FileContentStream(object):
+
+    KEYWORD_GROUPS = {
+        'rev': ['LastChangedRevision', 'Rev', 'Revision'],
+        'date': ['LastChangedDate', 'Date'],
+        'author': ['LastChangedBy', 'Author'],
+        'url': ['HeadURL', 'URL'],
+        'id': ['Id'],
+        'header': ['Header'],
+        }
+    KEYWORDS = reduce(set.union, map(set, KEYWORD_GROUPS.values()))
+    NATIVE_EOL = '\r\n' if os.name == 'nt' else '\n'
+    NEWLINES = {'LF': '\n', 'CRLF': '\r\n', 'CR': '\r', 'native': NATIVE_EOL}
+    KEYWORD_MAX_SIZE = 256
+    CHUNK_SIZE = 4096
+
+    keywords_re = None
+    native_eol = None
+    newline = '\n'
+
+    def __init__(self, node, keyword_substitution=None, eol=None):
+        self.translated = ''
+        self.buffer = ''
+        self.repos = node.repos
+        self.node = node
+        self.fs_ptr = node.fs_ptr
+        self.pool = Pool()
+        # Note: we _must_ use a detached pool here, as the lifetime of
+        # this object can exceed those of the node or even the repository
+        if keyword_substitution:
+            keywords = (node._get_prop(core.SVN_PROP_KEYWORDS) or '').split()
+            self.keywords = self._get_keyword_values(set(keywords) &
+                                                 set(self.KEYWORDS))
+            self.keywords_re = self._build_keywords_re(self.keywords)
+        if self.NEWLINES.get(eol, '\n') != '\n' and \
+           node._get_prop(core.SVN_PROP_EOL_STYLE) == 'native':
+            self.native_eol = True
+            self.newline = self.NEWLINES[eol]
+        self.stream = core.Stream(fs.file_contents(node.root,
+                                                   node._scoped_path_utf8,
+                                                   self.pool()))
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        self.stream = None
+        self.fs_ptr = None
+        if self.pool:
+            self.pool.destroy()
+            self.pool = None
+
+    def read(self, n=None):
+        if self.stream is None:
+            raise ValueError('I/O operation on closed file')
+        if self.keywords_re is None and not self.native_eol:
+            return self._read_dumb(self.stream, n)
+        else:
+            return self._read_substitute(self.stream, n)
+
+    def _get_revprop(self, name):
+        return fs.revision_prop(self.fs_ptr, self.node.rev, name, self.pool())
+
+    def _get_keyword_values(self, keywords):
+        if not keywords:
+            return None
+
+        node = self.node
+        mtime = to_datetime(node.last_modified, utc)
+        shortdate = mtime.strftime('%Y-%m-%d %H:%M:%SZ')
+        created_rev = unicode(node.created_rev)
+        # Note that the `to_unicode` has a small probability to mess-up binary
+        # properties, see #4321.
+        author = to_unicode(self._get_revprop(core.SVN_PROP_REVISION_AUTHOR))
+        url = node.repos.get_path_url(node.path, node.rev) or node.path
+        data = {
+            'rev': created_rev, 'author': author, 'url': url,
+            'date': mtime.strftime('%Y-%m-%d %H:%M:%S +0000 (%a, %d %b %Y)'),
+            'id': ' '.join((posixpath.basename(node.path), created_rev,
+                            shortdate, author)),
+            'header': ' '.join((url, created_rev, shortdate, author)),
+            }
+        values = {}
+        for name, aliases in self.KEYWORD_GROUPS.iteritems():
+            if any(kw for kw in aliases if kw in keywords):
+                for kw in aliases:
+                    values[kw] = data[name]
+        if values:
+            return dict((key, value.encode('utf-8'))
+                        for key, value in values.iteritems())
+        else:
+            return None
+
+    def _build_keywords_re(self, keywords):
+        if keywords:
+            return re.compile("""
+                [$]
+                (?P<keyword>%s)
+                (?P<rest>
+                    (?: :[ ][^$\r\n]+?[ ]
+                    |   ::[ ][^$\r\n]+?[ #]
+                    )
+                )?
+                [$]""" % '|'.join(keywords),
+                re.VERBOSE)
+        else:
+            return None
+
+    def _read_dumb(self, stream, n):
+        return stream.read(n)
+
+    def _read_substitute(self, stream, n):
+        if n is None:
+            n = -1
+
+        buffer = self.buffer
+        translated = self.translated
+        while True:
+            if 0 <= n <= len(translated):
+                self.buffer = buffer
+                self.translated = translated[n:]
+                return translated[:n]
+
+            if len(buffer) < self.KEYWORD_MAX_SIZE:
+                buffer += stream.read(self.CHUNK_SIZE) or ''
+                if not buffer:
+                    self.buffer = buffer
+                    self.translated = ''
+                    return translated
+
+            # search first "$" character
+            pos = buffer.find('$') if self.keywords_re else -1
+            if pos == -1:
+                translated += self._translate_newline(buffer)
+                buffer = ''
+                continue
+            if pos > 0:
+                # move to the first "$" character
+                translated += self._translate_newline(buffer[:pos])
+                buffer = buffer[pos:]
+
+            match = None
+            while True:
+                # search second "$" character
+                pos = buffer.find('$', 1)
+                if pos == -1:
+                    translated += self._translate_newline(buffer)
+                    buffer = ''
+                    break
+                if pos < self.KEYWORD_MAX_SIZE:
+                    match = self.keywords_re.match(buffer)
+                    if match:
+                        break  # found "$Keyword$" in the first 255 bytes
+                # move to the second "$" character
+                translated += self._translate_newline(buffer[:pos])
+                buffer = buffer[pos:]
+            if pos == -1 or not match:
+                continue
+
+            # move to the next character of the second "$" character
+            pos += 1
+            translated += self._translate_keyword(buffer[:pos], match)
+            buffer = buffer[pos:]
+            continue
+
+    def _translate_newline(self, data):
+        if self.native_eol:
+            data = data.replace('\n', self.newline)
+        return data
+
+    def _translate_keyword(self, buffer, match):
+        keyword = match.group('keyword')
+        value = self.keywords.get(keyword)
+        if value is None:
+            return buffer
+        rest = match.group('rest')
+        if rest is None or not rest.startswith('::'):
+            return '$%s: %s $' % (keyword, value)
+        elif len(rest) - 4 >= len(value):
+            return '$%s:: %-*s $' % (keyword, len(rest) - 4, value)
+        else:
+            return '$%s:: %s#$' % (keyword, value[:len(rest) - 4])

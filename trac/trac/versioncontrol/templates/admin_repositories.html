@@ -1,3 +1,13 @@
+<!--!  Copyright (C) 2009-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+-->
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -11,7 +21,7 @@
   </head>
 
   <body py:with="sorted_repos = sorted(repositories.iteritems(), key=lambda item: item[0].lower())">
-    <h2>Manage Repositories</h2>
+    <h2>Manage Repositories <span py:if="view == 'list'" class="trac-count">(${len(repositories)})</span></h2>
 
     <py:def function="type_field(editable, multiline=False, selected=None)">
       <div class="field">
@@ -39,7 +49,8 @@
 
     <py:choose test="view">
       <form py:when="'detail'" py:with="info = repositories[reponame]" class="mod" id="trac-modrepos" method="post" action="">
-        <fieldset py:choose="" py:with="readonly = not info.editable or None">
+        <fieldset py:choose="" py:with="disabled = 'disabled' if not info.editable else None;
+                                        readonly = 'readonly' if not info.editable else None">
           <legend py:when="info.editable">Modify Repository:</legend>
           <legend py:otherwise="">View Repository:</legend>
           <p py:if="not info.editable" class="hint" i18n:msg=""><strong>Note:</strong>
@@ -47,7 +58,8 @@
             and cannot be edited on this page.
           </p>
           <div class="field">
-            <label>Name:<br/><input type="text" name="name" value="$info.name" readonly="$readonly"/></label>
+            <label>Name:<br/><input type="text" name="name" class="trac-autofocus"
+                                    value="$info.name" readonly="$readonly" /></label>
           </div>
           <py:choose>
             <py:when test="'alias' in info">
@@ -64,25 +76,26 @@
             </py:otherwise>
           </py:choose>
           <div class="field">
-            <label><input type="checkbox" name="hidden" value="1" checked="${info.hidden or None}" disabled="$readonly"/>
+            <label><input type="checkbox" name="hidden" value="1" checked="${info.hidden or None}"
+                          disabled="${not info.editable or None}"/>
               Hide from repository index
             </label>
           </div>
           <div class="field">
             <fieldset>
               <label for="description" i18n:msg="">
-                Description (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here):
+                Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
               </label>
               <p>
-                <textarea id="description" name="description" class="wikitext trac-resizable"
+                <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
                           rows="6" cols="60" readonly="$readonly">
 $info.description</textarea>
               </p>
             </fieldset>
           </div>
           <div class="buttons">
+            <input py:if="info.editable" type="submit" name="save" class="trac-disable-on-submit" value="${_('Save')}"/>
             <input type="submit" name="cancel" value="${_('Cancel')}"/>
-            <input py:if="info.editable" type="submit" name="save" value="${_('Save')}"/>
           </div>
         </fieldset>
       </form>
@@ -99,7 +112,7 @@ $info.description</textarea>
               <label>Directory: <input type="text" name="dir"/></label>
             </div>
             <div class="buttons">
-              <input type="submit" name="add_repos" value="${_('Add')}"/>
+              <input type="submit" name="add_repos" class="trac-disable-on-submit" value="${_('Add')}"/>
             </div>
           </fieldset>
         </form>
@@ -113,12 +126,12 @@ $info.description</textarea>
             </div>
             ${alias_field(True)}
             <div class="buttons">
-              <input type="submit" name="add_alias" value="${_('Add')}"/>
+              <input type="submit" name="add_alias" class="trac-disable-on-submit" value="${_('Add')}"/>
             </div>
           </fieldset>
         </form>
 
-        <form id="trac-repository_table" method="post" action="">
+        <form py:if="sorted_repos" id="trac-repository_table" method="post" action="">
           <table class="listing" id="trac-reposlist">
             <thead>
               <tr><th class="sel">&nbsp;</th>
@@ -142,7 +155,7 @@ $info.description</textarea>
           </table>
           <div class="buttons">
             <input type="submit" name="refresh" value="${_('Refresh')}"/>
-            <input type="submit" name="remove" value="${_('Remove selected items')}"/>
+            <input type="submit" name="remove" class="trac-disable-on-submit" value="${_('Remove selected items')}"/>
           </div>
         </form>
       </py:otherwise>

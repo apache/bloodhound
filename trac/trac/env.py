@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2003-2011 Edgewall Software
+# Copyright (C) 2003-2014 Edgewall Software
 # Copyright (C) 2003-2007 Jonas Borgström <jonas@edgewall.com>
 # All rights reserved.
 #
@@ -27,7 +27,8 @@ from urlparse import urlsplit
 from trac import db_default
 from trac.admin import AdminCommandError, IAdminCommandProvider
 from trac.cache import CacheManager
-from trac.config import *
+from trac.config import BoolOption, ConfigSection, Configuration, Option, \
+                        PathOption
 from trac.core import Component, ComponentManager, implements, Interface, \
                       ExtensionPoint, TracError
 from trac.db.api import (DatabaseManager, QueryContextManager,
@@ -276,7 +277,6 @@ class Environment(Component, ComponentManager):
 
         self.path = path
         self.systeminfo = []
-        self._href = self._abs_href = None
 
         if create:
             self.create(options)
@@ -328,17 +328,14 @@ class Environment(Component, ComponentManager):
             name = name_or_class.__module__ + '.' + name_or_class.__name__
         return name.lower()
 
-    @property
+    @lazy
     def _component_rules(self):
-        try:
-            return self._rules
-        except AttributeError:
-            self._rules = {}
-            for name, value in self.components_section.options():
-                if name.endswith('.*'):
-                    name = name[:-2]
-                self._rules[name.lower()] = value.lower() in ('enabled', 'on')
-            return self._rules
+        _rules = {}
+        for name, value in self.components_section.options():
+            if name.endswith('.*'):
+                name = name[:-2]
+            _rules[name.lower()] = value.lower() in ('enabled', 'on')
+        return _rules
 
     def is_component_enabled(self, cls):
         """Implemented to only allow activation of components that are
@@ -375,8 +372,10 @@ class Environment(Component, ComponentManager):
                 break
             cname = cname[:idx]
 
-        # By default, all components in the trac package are enabled
-        return component_name.startswith('trac.') or None
+        # By default, all components in the trac package except
+        # trac.test are enabled
+        return component_name.startswith('trac.') and \
+               not component_name.startswith('trac.test.') or None
 
     def enable_component(self, cls):
         """Enable a component or module."""
@@ -396,7 +395,8 @@ class Environment(Component, ComponentManager):
     def get_db_cnx(self):
         """Return a database connection from the connection pool
 
-        :deprecated: Use :meth:`db_transaction` or :meth:`db_query` instead
+        :deprecated: Use :meth:`db_transaction` or :meth:`db_query` instead.
+                     Removed in Trac 1.1.2.
 
         `db_transaction` for obtaining the `db` database connection
         which can be used for performing any query
@@ -437,13 +437,21 @@ class Environment(Component, ComponentManager):
         return DatabaseManager(self).get_exceptions()
 
     def with_transaction(self, db=None):
-        """Decorator for transaction functions :deprecated:"""
+        """Decorator for transaction functions.
+
+        :deprecated: Use the query and transaction context managers instead.
+                     Will be removed in Trac 1.3.1.
+        """
         return with_transaction(self, db)
 
     def get_read_db(self):
-        """Return a database connection for read purposes :deprecated:
+        """Return a database connection for read purposes.
 
-        See `trac.db.api.get_read_db` for detailed documentation."""
+        See `trac.db.api.get_read_db` for detailed documentation.
+
+        :deprecated: Use :meth:`db_query` instead.
+                     Will be removed in Trac 1.3.1.
+        """
         return DatabaseManager(self).get_connection(readonly=True)
 
     @property
@@ -585,6 +593,25 @@ class Environment(Component, ComponentManager):
         # Create the database
         DatabaseManager(self).init_db()
 
+    @lazy
+    def database_version(self):
+        """Returns the current version of the database.
+
+        :since 1.0.2:
+        """
+        return self.get_version()
+
+    @lazy
+    def database_initial_version(self):
+        """Returns the version of the database at the time of creation.
+
+        In practice, for database created before 0.11, this will
+        return `False` which is "older" than any db version number.
+
+        :since 1.0.2:
+        """
+        return self.get_version(initial=True)
+
     def get_version(self, db=None, initial=False):
         """Return the current version of the database.  If the
         optional argument `initial` is set to `True`, the version of
@@ -597,11 +624,16 @@ class Environment(Component, ComponentManager):
 
         :since 1.0: deprecation warning: the `db` parameter is no
                     longer used and will be removed in version 1.1.1
+
+        :since 1.0.2: The lazily-evaluated attributes `database_version` and
+                      `database_initial_version` should be used instead. This
+                      method will be renamed to a private method in
+                      release 1.3.1.
         """
         rows = self.db_query("""
                 SELECT value FROM system WHERE name='%sdatabase_version'
                 """ % ('initial_' if initial else ''))
-        return rows and int(rows[0][0])
+        return int(rows[0][0]) if rows else False
 
     def setup_config(self):
         """Load the configuration file."""
@@ -715,26 +747,24 @@ class Environment(Component, ComponentManager):
                 participant.upgrade_environment(db)
             # Database schema may have changed, so close all connections
             DatabaseManager(self).shutdown()
+        del self.database_version
         return True
 
-    @property
+    @lazy
     def href(self):
         """The application root path"""
-        if not self._href:
-            self._href = Href(urlsplit(self.abs_href.base)[2])
-        return self._href
+        return Href(urlsplit(self.abs_href.base).path)
 
-    @property
+    @lazy
     def abs_href(self):
         """The application URL"""
-        if not self._abs_href:
-            if not self.base_url:
-                self.log.warn("base_url option not set in configuration, "
-                              "generated links may be incorrect")
-                self._abs_href = Href('')
-            else:
-                self._abs_href = Href(self.base_url)
-        return self._abs_href
+        if not self.base_url:
+            self.log.warn("base_url option not set in configuration, "
+                          "generated links may be incorrect")
+            _abs_href = Href('')
+        else:
+            _abs_href = Href(self.base_url)
+        return _abs_href
 
 
 class EnvironmentSetup(Component):
@@ -756,7 +786,7 @@ class EnvironmentSetup(Component):
         self._update_sample_config()
 
     def environment_needs_upgrade(self, db):
-        dbver = self.env.get_version(db)
+        dbver = self.env.database_version
         if dbver == db_default.db_version:
             return False
         elif dbver > db_default.db_version:
@@ -770,7 +800,7 @@ class EnvironmentSetup(Component):
         upgrades/dbN.py, where 'N' is the version number (int).
         """
         cursor = db.cursor()
-        dbver = self.env.get_version()
+        dbver = self.env.database_version
         for i in range(dbver + 1, db_default.db_version + 1):
             name  = 'db%i' % i
             try:
@@ -794,9 +824,8 @@ class EnvironmentSetup(Component):
         if not os.path.isfile(filename):
             return
         config = Configuration(filename)
-        for section, default_options in config.defaults().iteritems():
-            for name, value in default_options.iteritems():
-                config.set(section, name, value)
+        for (section, name), option in Option.get_registry().iteritems():
+            config.set(section, name, option.dumps(option.default))
         try:
             config.save()
             self.log.info("Wrote sample configuration file with the new "

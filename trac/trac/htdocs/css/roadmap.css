@@ -55,11 +55,8 @@ p.percent {
  font-style: italic;
  margin: 0 0 1em 0;
 }
-.milestone .description { margin-left: 1em }
-
-/* Styles for the milestone view */
-.milestone .date { color: #888; font-style: italic; margin: 0 }
 .milestone .description { margin: 1em 0 2em }
+
 #stats {
  float: right;
  margin: 0 1em 2em 2em;
@@ -98,6 +95,3 @@ p.percent {
 #edit .field { margin: 0.5em 0 }
 #edit label { padding-left: .2em }
 #edit fieldset { margin-left: 1px; margin-right: 1px }
-#edit textarea#description { margin-left: -1px; margin-right: -1px; padding: 0; width: 100% }
-#edit .wikitoolbar { margin-left: -1px }
-#edit div.trac-resizable { width: 100% }

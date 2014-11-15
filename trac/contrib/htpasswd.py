@@ -1,11 +1,26 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2008-2013 Edgewall Software
+# Copyright (C) 2008 Eli Carter
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.com/license.html.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/.
+
 """Replacement for htpasswd"""
-# Original author: Eli Carter
 
 import os
 import sys
 import random
 from optparse import OptionParser
+
+from trac.util.compat import wait_for_file_mtime_change
 
 # We need a crypt module, but Windows doesn't have one by default.  Try to find
 # one, and tell the user if we can't.
@@ -51,6 +66,7 @@ class HtpasswdFile:
 
     def save(self):
         """Write the htpasswd file to disk"""
+        wait_for_file_mtime_change(self.filename)
         open(self.filename, 'w').writelines(["%s:%s\n" % (entry[0], entry[1])
                                              for entry in self.entries])
 
@@ -71,8 +87,9 @@ class HtpasswdFile:
 
 
 def main():
-    """%prog [-c] -b filename username password
-    Create or update an htpasswd file"""
+    """
+        %prog -b[c] filename username password
+        %prog -D filename username"""
     # For now, we only care about the use cases that affect tests/functional.py
     parser = OptionParser(usage=main.__doc__)
     parser.add_option('-b', action='store_true', dest='batch', default=False,
@@ -93,8 +110,8 @@ def main():
         sys.stderr.write(parser.get_usage())
         sys.exit(1)
 
-    if not options.batch:
-        syntax_error("Only batch mode is supported\n")
+    if not (options.batch or options.delete_user):
+        syntax_error("Only batch and delete modes are supported\n")
 
     # Non-option arguments
     if len(args) < 2:

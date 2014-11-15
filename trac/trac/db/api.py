@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C)2005-2009 Edgewall Software
+# Copyright (C)2005-2014 Edgewall Software
 # Copyright (C) 2005 Christopher Lenz <cmlenz@gmx.de>
 # All rights reserved.
 #
@@ -22,6 +22,7 @@ import urllib
 
 from trac.config import BoolOption, IntOption, Option
 from trac.core import *
+from trac.db.schema import Table
 from trac.util.concurrency import ThreadLocal
 from trac.util.text import unicode_passwd
 from trac.util.translation import _
@@ -61,9 +62,9 @@ def with_transaction(env, db=None):
 
     :deprecated: This decorator is in turn deprecated in favor of
                  context managers now that python 2.4 support has been
-                 dropped. Use instead the new context manager,
-                 `QueryContextManager` and
-                 `TransactionContextManager`, which makes for much
+                 dropped. It will be removed in Trac 1.3.1. Use instead
+                 the new context managers, `QueryContextManager` and
+                 `TransactionContextManager`, which make for much
                  simpler to write code:
 
     >>> def api_method(p1, p2):
@@ -250,10 +251,35 @@ class DatabaseManager(Component):
         args['schema'] = schema
         connector.init_db(**args)
 
+    def create_tables(self, schema):
+        """Create the specified tables.
+
+        :param schema: an iterable of table objects.
+
+        :since: version 1.0.2
+        """
+        connector = self.get_connector()[0]
+        with self.env.db_transaction as db:
+            for table in schema:
+                for sql in connector.to_sql(table):
+                    db(sql)
+
+    def drop_tables(self, schema):
+        """Drop the specified tables.
+
+        :param schema: an iterable of `Table` objects or table names.
+
+        :since: version 1.0.2
+        """
+        with self.env.db_transaction as db:
+            for table in schema:
+                table_name = table.name if isinstance(table, Table) else table
+                db.drop_table(table_name)
+
     def get_connection(self, readonly=False):
         """Get a database connection from the pool.
 
-        If `readonly` is `True`, the returned connection will purposedly
+        If `readonly` is `True`, the returned connection will purposely
         lack the `rollback` and `commit` methods.
         """
         if not self._cnx_pool:
@@ -287,7 +313,7 @@ class DatabaseManager(Component):
                 backup_dir = os.path.join(self.env.path, backup_dir)
             db_str = self.config.get('trac', 'database')
             db_name, db_path = db_str.split(":", 1)
-            dest_name = '%s.%i.%d.bak' % (db_name, self.env.get_version(),
+            dest_name = '%s.%i.%d.bak' % (db_name, self.env.database_version,
                                           int(time.time()))
             dest = os.path.join(backup_dir, dest_name)
         else:

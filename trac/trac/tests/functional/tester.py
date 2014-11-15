@@ -1,18 +1,33 @@
-#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2008-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
 """The :class:`FunctionalTester` object provides a higher-level interface to
 working with a Trac environment to make test cases more succinct.
 """
 
+import re
+
 from trac.tests.functional import internal_error
 from trac.tests.functional.better_twill import tc, b
 from trac.tests.contentgen import random_page, random_sentence, random_word, \
-    random_unique_camel
-from trac.util.text import unicode_quote
+                                  random_unique_camel
+from trac.util.text import to_utf8, unicode_quote
 
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
+
 
 class FunctionalTester(object):
     """Provides a library of higher-level operations for interacting with a
@@ -34,10 +49,11 @@ class FunctionalTester(object):
 
     def login(self, username):
         """Login as the given user"""
+        username = to_utf8(username)
         tc.add_auth("", self.url, username, username)
         self.go_to_front()
         tc.find("Login")
-        tc.follow("Login")
+        tc.follow(r"\bLogin\b")
         # We've provided authentication info earlier, so this should
         # redirect back to the base url.
         tc.find("logged in as %s" % username)
@@ -47,8 +63,9 @@ class FunctionalTester(object):
 
     def logout(self):
         """Logout"""
-        tc.follow("Logout")
+        tc.submit('logout', 'logout')
         tc.notfind(internal_error)
+        tc.notfind('logged in as')
 
     def create_ticket(self, summary=None, info=None):
         """Create a new (random) ticket in the test environment.  Returns
@@ -63,10 +80,10 @@ class FunctionalTester(object):
         `summary` and `description` default to randomly-generated values.
         """
         self.go_to_front()
-        tc.follow('New Ticket')
+        tc.follow(r"\bNew Ticket\b")
         tc.notfind(internal_error)
-        if summary == None:
-            summary = random_sentence(4)
+        if summary is None:
+            summary = random_sentence(5)
         tc.formvalue('propertyform', 'field_summary', summary)
         tc.formvalue('propertyform', 'field_description', random_page())
         if info:
@@ -75,16 +92,11 @@ class FunctionalTester(object):
         tc.submit('submit')
         # we should be looking at the newly created ticket
         tc.url(self.url + '/ticket/%s' % (self.ticketcount + 1))
+        tc.notfind(internal_error)
         # Increment self.ticketcount /after/ we've verified that the ticket
         # was created so a failure does not trigger spurious later
         # failures.
         self.ticketcount += 1
-
-        # verify the ticket creation event shows up in the timeline
-        self.go_to_timeline()
-        tc.formvalue('prefs', 'ticket', True)
-        tc.submit()
-        tc.find('Ticket.*#%s.*created' % self.ticketcount)
 
         return self.ticketcount
 
@@ -94,50 +106,90 @@ class FunctionalTester(object):
         tc.submit()
         tc.notfind(internal_error)
 
-    def go_to_front(self):
-        """Go to the Trac front page"""
-        tc.go(self.url)
-        tc.url(self.url)
+    def go_to_url(self, url):
+        tc.go(url)
+        tc.url(re.escape(url))
         tc.notfind(internal_error)
 
-    def go_to_ticket(self, ticketid):
-        """Surf to the page for the given ticket ID.  Assumes ticket
-        exists."""
-        ticket_url = self.url + "/ticket/%s" % ticketid
-        tc.go(ticket_url)
-        tc.url(ticket_url)
+    def go_to_front(self):
+        """Go to the Trac front page"""
+        self.go_to_url(self.url)
 
-    def go_to_wiki(self, name):
-        """Surf to the page for the given wiki page."""
+    def go_to_ticket(self, ticketid=None):
+        """Surf to the page for the given ticket ID, or to the NewTicket page
+        if `ticketid` is not specified or is `None`. If `ticketid` is
+        specified, it assumes the ticket exists."""
+        if ticketid is not None:
+            ticket_url = self.url + '/ticket/%s' % ticketid
+        else:
+            ticket_url = self.url + '/newticket'
+        self.go_to_url(ticket_url)
+        tc.url(ticket_url + '$')
+
+    def go_to_wiki(self, name, version=None):
+        """Surf to the wiki page. By default this will be the latest version
+        of the page.
+
+        :param name: name of the wiki page.
+        :param version: version of the wiki page.
+        """
         # Used to go based on a quickjump, but if the wiki pagename isn't
         # camel case, that won't work.
         wiki_url = self.url + '/wiki/%s' % name
-        tc.go(wiki_url)
-        tc.url(wiki_url)
+        if version:
+            wiki_url += '?version=%s' % version
+        self.go_to_url(wiki_url)
 
     def go_to_timeline(self):
         """Surf to the timeline page."""
         self.go_to_front()
-        tc.follow('Timeline')
+        tc.follow(r"\bTimeline\b")
         tc.url(self.url + '/timeline')
+
+    def go_to_view_tickets(self, href='report'):
+        """Surf to the View Tickets page. By default this will be the Reports
+        page, but 'query' can be specified for the `href` argument to support
+        non-default configurations."""
+        self.go_to_front()
+        tc.follow(r"\bView Tickets\b")
+        tc.url(self.url + '/' + href.lstrip('/'))
 
     def go_to_query(self):
         """Surf to the custom query page."""
         self.go_to_front()
-        tc.follow('View Tickets')
-        tc.follow('Custom Query')
+        tc.follow(r"\bView Tickets\b")
+        tc.follow(r"\bCustom Query\b")
         tc.url(self.url + '/query')
 
-    def go_to_admin(self):
-        """Surf to the webadmin page."""
+    def go_to_admin(self, panel_label=None):
+        """Surf to the webadmin page. Continue surfing to a specific
+        admin page if `panel_label` is specified."""
         self.go_to_front()
-        tc.follow('\\bAdmin\\b')
+        tc.follow(r"\bAdmin\b")
+        tc.url(self.url + '/admin')
+        if panel_label is not None:
+            tc.follow(r"\b%s\b" % panel_label)
 
     def go_to_roadmap(self):
         """Surf to the roadmap page."""
         self.go_to_front()
-        tc.follow('\\bRoadmap\\b')
+        tc.follow(r"\bRoadmap\b")
         tc.url(self.url + '/roadmap')
+
+    def go_to_milestone(self, name):
+        """Surf to the specified milestone page. Assumes milestone exists."""
+        self.go_to_roadmap()
+        tc.follow(r"\bMilestone: %s\b" % name)
+        tc.url(self.url + '/milestone/%s' % name)
+
+    def go_to_preferences(self, panel_label=None):
+        """Surf to the preferences page. Continue surfing to a specific
+        preferences panel if `panel_label` is specified."""
+        self.go_to_front()
+        tc.follow(r"\bPreferences\b")
+        tc.url(self.url + '/prefs')
+        if panel_label is not None:
+            tc.follow(r"\b%s\b" % panel_label)
 
     def add_comment(self, ticketid, comment=None):
         """Adds a comment to the given ticket ID, assumes ticket exists."""
@@ -152,35 +204,16 @@ class FunctionalTester(object):
         tc.url(self.url + '/ticket/%s(?:#comment:.*)?$' % ticketid)
         return comment
 
-    def attach_file_to_ticket(self, ticketid, data=None, tempfilename=None,
+    def attach_file_to_ticket(self, ticketid, data=None, filename=None,
                               description=None, replace=False,
                               content_type=None):
         """Attaches a file to the given ticket id, with random data if none is
         provided.  Assumes the ticket exists.
         """
-        if data is None:
-            data = random_page()
-        if description is None:
-            description = random_sentence()
-        if tempfilename is None:
-            tempfilename = random_word()
-
         self.go_to_ticket(ticketid)
-        # set the value to what it already is, so that twill will know we
-        # want this form.
-        tc.formvalue('attachfile', 'action', 'new')
-        tc.submit()
-        tc.url(self.url + "/attachment/ticket/" \
-               "%s/\\?action=new&attachfilebutton=Attach\\+file" % ticketid)
-        fp = StringIO(data)
-        tc.formfile('attachment', 'attachment', tempfilename,
-                    content_type=content_type, fp=fp)
-        tc.formvalue('attachment', 'description', description)
-        if replace:
-            tc.formvalue('attachment', 'replace', True)
-        tc.submit()
-        tc.url(self.url + '/attachment/ticket/%s/$' % ticketid)
-        return tempfilename
+        return self._attach_file_to_resource('ticket', ticketid, data,
+                                             filename, description,
+                                             replace, content_type)
 
     def clone_ticket(self, ticketid):
         """Create a clone of the given ticket id using the clone button."""
@@ -194,57 +227,66 @@ class FunctionalTester(object):
         tc.url(self.url + "/ticket/%s" % self.ticketcount)
         return self.ticketcount
 
-    def create_wiki_page(self, page, content=None):
-        """Creates the specified wiki page, with random content if none is
-        provided.
+    def create_wiki_page(self, name=None, content=None, comment=None):
+        """Creates a wiki page, with a random unique CamelCase name if none
+        is provided, random content if none is provided and a random comment
+        if none is provided.  Returns the name of the wiki page.
         """
-        if content == None:
+        if name is None:
+            name = random_unique_camel()
+        if content is None:
             content = random_page()
-        page_url = self.url + "/wiki/" + page
-        tc.go(page_url)
-        tc.url(page_url)
-        tc.find("The page %s does not exist." % page)
-        tc.formvalue('modifypage', 'action', 'edit')
-        tc.submit()
-        tc.url(page_url + '\\?action=edit')
+        self.go_to_wiki(name)
+        tc.find("The page %s does not exist." % name)
 
-        tc.formvalue('edit', 'text', content)
-        tc.submit('save')
-        tc.url(page_url+'$')
+        self.edit_wiki_page(name, content, comment)
 
         # verify the event shows up in the timeline
         self.go_to_timeline()
         tc.formvalue('prefs', 'wiki', True)
         tc.submit()
-        tc.find(page + ".*created")
+        tc.find(name + ".*created")
 
-    def attach_file_to_wiki(self, name, data=None, tempfilename=None):
+        self.go_to_wiki(name)
+
+        return name
+
+    def edit_wiki_page(self, name, content=None, comment=None):
+        """Edits a wiki page, with random content is none is provided.
+        and a random comment if none is provided. Returns the content.
+        """
+        if content is None:
+            content = random_page()
+        if comment is None:
+            comment = random_sentence()
+        self.go_to_wiki(name)
+        tc.formvalue('modifypage', 'action', 'edit')
+        tc.submit()
+        tc.formvalue('edit', 'text', content)
+        tc.formvalue('edit', 'comment', comment)
+        tc.submit('save')
+        page_url = self.url + '/wiki/%s' % name
+        tc.url(page_url+'$')
+
+        return content
+
+    def attach_file_to_wiki(self, name, data=None, filename=None,
+                            description=None, replace=False,
+                            content_type=None):
         """Attaches a file to the given wiki page, with random content if none
         is provided.  Assumes the wiki page exists.
         """
-        if data == None:
-            data = random_page()
-        if tempfilename is None:
-            tempfilename = random_word()
+
         self.go_to_wiki(name)
-        # set the value to what it already is, so that twill will know we
-        # want this form.
-        tc.formvalue('attachfile', 'action', 'new')
-        tc.submit()
-        tc.url(self.url + "/attachment/wiki/" \
-               "%s/\\?action=new&attachfilebutton=Attach\\+file" % name)
-        fp = StringIO(data)
-        tc.formfile('attachment', 'attachment', tempfilename, fp=fp)
-        tc.formvalue('attachment', 'description', random_sentence())
-        tc.submit()
-        tc.url(self.url + '/attachment/wiki/%s/$' % name)
-        return tempfilename
+        return self._attach_file_to_resource('wiki', name, data,
+                                             filename, description,
+                                             replace, content_type)
 
     def create_milestone(self, name=None, due=None):
         """Creates the specified milestone, with a random name if none is
         provided.  Returns the name of the milestone.
         """
-        if name == None:
+        if name is None:
             name = random_unique_camel()
         milestone_url = self.url + "/admin/ticket/milestones"
         tc.go(milestone_url)
@@ -260,32 +302,51 @@ class FunctionalTester(object):
         tc.find(name)
 
         # Make sure it's on the roadmap.
-        tc.follow('Roadmap')
+        tc.follow(r"\bRoadmap\b")
         tc.url(self.url + "/roadmap")
         tc.find('Milestone:.*%s' % name)
-        tc.follow(name)
+        tc.follow(r"\b%s\b" % name)
         tc.url('%s/milestone/%s' % (self.url, unicode_quote(name)))
         if not due:
             tc.find('No date set')
 
         return name
 
-    def create_component(self, name=None, user=None):
+    def attach_file_to_milestone(self, name, data=None, filename=None,
+                                 description=None, replace=False,
+                                 content_type=None):
+        """Attaches a file to the given milestone, with random content if none
+        is provided.  Assumes the milestone exists.
+        """
+
+        self.go_to_milestone(name)
+        return self._attach_file_to_resource('milestone', name, data,
+                                             filename, description,
+                                             replace, content_type)
+
+    def create_component(self, name=None, owner=None, description=None):
         """Creates the specified component, with a random camel-cased name if
         none is provided.  Returns the name."""
-        if name == None:
+        if name is None:
             name = random_unique_camel()
         component_url = self.url + "/admin/ticket/components"
         tc.go(component_url)
         tc.url(component_url)
         tc.formvalue('addcomponent', 'name', name)
-        if user != None:
-            tc.formvalue('addcomponent', 'owner', user)
+        if owner is not None:
+            tc.formvalue('addcomponent', 'owner', owner)
         tc.submit()
         # Verify the component appears in the component list
         tc.url(component_url)
         tc.find(name)
         tc.notfind(internal_error)
+        if description is not None:
+            tc.follow(r"\b%s\b" % name)
+            tc.formvalue('modcomp', 'description', description)
+            tc.submit('save')
+            tc.url(component_url)
+            tc.find("Your changes have been saved.")
+            tc.notfind(internal_error)
         # TODO: verify the component shows up in the newticket page
         return name
 
@@ -294,7 +355,7 @@ class FunctionalTester(object):
         ``severity``, etc). If no name is given, a unique random word is used.
         The name is returned.
         """
-        if name == None:
+        if name is None:
             name = random_unique_camel()
         priority_url = self.url + "/admin/ticket/" + kind
         tc.go(priority_url)
@@ -326,12 +387,12 @@ class FunctionalTester(object):
         """Create a new version.  The name defaults to a random camel-cased
         word if not provided."""
         version_admin = self.url + "/admin/ticket/versions"
-        if name == None:
+        if name is None:
             name = random_unique_camel()
         tc.go(version_admin)
         tc.url(version_admin)
         tc.formvalue('addversion', 'name', name)
-        if releasetime != None:
+        if releasetime is not None:
             tc.formvalue('addversion', 'time', releasetime)
         tc.submit()
         tc.url(version_admin)
@@ -342,7 +403,7 @@ class FunctionalTester(object):
     def create_report(self, title, query, description):
         """Create a new report with the given title, query, and description"""
         self.go_to_front()
-        tc.follow('View Tickets')
+        tc.follow(r"\bView Tickets\b")
         tc.formvalue('create_report', 'action', 'new') # select the right form
         tc.submit()
         tc.find('New Report')
@@ -364,3 +425,29 @@ class FunctionalTester(object):
         tc.formvalue('propertyform', 'milestone', milestone)
         tc.submit('submit')
         # TODO: verify the change occurred.
+
+    def _attach_file_to_resource(self, realm, name, data=None,
+                                 filename=None, description=None,
+                                 replace=False, content_type=None):
+        """Attaches a file to a resource. Assumes the resource exists and
+           has already been navigated to."""
+
+        if data is None:
+            data = random_page()
+        if description is None:
+            description = random_sentence()
+        if filename is None:
+            filename = random_word()
+
+        tc.submit('attachfilebutton', 'attachfile')
+        tc.url(self.url + r'/attachment/%s/%s/\?action=new$' % (realm, name))
+        fp = StringIO(data)
+        tc.formfile('attachment', 'attachment', filename,
+                    content_type=content_type, fp=fp)
+        tc.formvalue('attachment', 'description', description)
+        if replace:
+            tc.formvalue('attachment', 'replace', True)
+        tc.submit()
+        tc.url(self.url + r'/attachment/%s/%s/$' % (realm, name))
+
+        return filename

@@ -28,34 +28,10 @@ from threading import Lock
 import time
 import weakref
 
+from trac.util import terminate
+from trac.util.text import to_unicode
 
 __all__ = ['GitError', 'GitErrorSha', 'Storage', 'StorageFactory']
-
-
-def terminate(process):
-    """Python 2.5 compatibility method.
-    os.kill is not available on Windows before Python 2.7.
-    In Python 2.6 subprocess.Popen has a terminate method.
-    (It also seems to have some issues on Windows though.)
-    """
-
-    def terminate_win(process):
-        import ctypes
-        PROCESS_TERMINATE = 1
-        handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE,
-                                                    False,
-                                                    process.pid)
-        ctypes.windll.kernel32.TerminateProcess(handle, -1)
-        ctypes.windll.kernel32.CloseHandle(handle)
-
-    def terminate_nix(process):
-        import os
-        import signal
-        return os.kill(process.pid, signal.SIGTERM)
-
-    if sys.platform == 'win32':
-        return terminate_win(process)
-    return terminate_nix(process)
 
 
 class GitError(Exception):
@@ -95,12 +71,29 @@ def parse_commit(raw):
     return '\n'.join(lines), props
 
 
+_unquote_re = re.compile(r'\\(?:[abtnvfr"\\]|[0-7]{3})')
+_unquote_chars = {'a': '\a', 'b': '\b', 't': '\t', 'n': '\n', 'v': '\v',
+                  'f': '\f', 'r': '\r', '"': '"', '\\': '\\'}
+
+
+def _unquote(path):
+    if path.startswith('"') and path.endswith('"'):
+        def replace(match):
+            s = match.group(0)[1:]
+            if len(s) == 3:
+                return chr(int(s, 8))  # \ooo
+            return _unquote_chars[s]
+        path = _unquote_re.sub(replace, path[1:-1])
+    return path
+
+
 class GitCore(object):
     """Low-level wrapper around git executable"""
 
-    def __init__(self, git_dir=None, git_bin='git'):
+    def __init__(self, git_dir=None, git_bin='git', log=None):
         self.__git_bin = git_bin
         self.__git_dir = git_dir
+        self.__log = log
 
     def __repr__(self):
         return '<GitCore bin="%s" dir="%s">' % (self.__git_bin,
@@ -132,7 +125,10 @@ class GitCore(object):
         p = self.__pipe(git_cmd, stdout=PIPE, stderr=PIPE, *cmd_args)
 
         stdout_data, stderr_data = p.communicate()
-        #TODO, do something with p.returncode, e.g. raise exception
+        if self.__log and (p.returncode != 0 or stderr_data):
+            self.__log.debug('%s exits with %d, dir: %r, args: %s %r, '
+                             'stderr: %r', self.__git_bin, p.returncode,
+                             self.__git_dir, git_cmd, cmd_args, stderr_data)
 
         return stdout_data
 
@@ -201,21 +197,23 @@ class StorageFactory(object):
         self.logger = log
 
         with StorageFactory.__dict_lock:
+            if weak:
+                # remove additional reference which is created
+                # with non-weak argument
+                try:
+                    del StorageFactory.__dict_nonweak[repo]
+                except KeyError:
+                    pass
+
             try:
                 i = StorageFactory.__dict[repo]
             except KeyError:
                 i = Storage(repo, log, git_bin, git_fs_encoding)
                 StorageFactory.__dict[repo] = i
 
-                # create or remove additional reference depending on 'weak'
-                # argument
-                if weak:
-                    try:
-                        del StorageFactory.__dict_nonweak[repo]
-                    except KeyError:
-                        pass
-                else:
-                    StorageFactory.__dict_nonweak[repo] = i
+            # create additional reference depending on 'weak' argument
+            if not weak:
+                StorageFactory.__dict_nonweak[repo] = i
 
         self.__inst = i
         self.__repo = repo
@@ -227,12 +225,18 @@ class StorageFactory(object):
                              self.__repo))
         return self.__inst
 
+    @classmethod
+    def _clean(cls):
+        """For testing purpose only"""
+        with StorageFactory.__dict_lock:
+            cls.__dict.clear()
+            cls.__dict_nonweak.clear()
+
 
 class Storage(object):
     """High-level wrapper around GitCore with in-memory caching"""
 
     __SREV_MIN = 4 # minimum short-rev length
-
 
     class RevCache(tuple):
         """RevCache(youngest_rev, oldest_rev, rev_dict, tag_set, srev_dict,
@@ -383,18 +387,29 @@ class Storage(object):
 
         # simple sanity checking
         __git_file_path = partial(os.path.join, git_dir)
-        if not all(map(os.path.exists,
-                       map(__git_file_path,
-                           ['HEAD','objects','refs']))):
-            self.logger.error("GIT control files missing in '%s'" % git_dir)
-            if os.path.exists(__git_file_path('.git')):
-                self.logger.error("entry '.git' found in '%s'"
-                                  " -- maybe use that folder instead..."
+        control_files = ['HEAD', 'objects', 'refs']
+        control_files_exist = \
+            lambda p: all(map(os.path.exists, map(p, control_files)))
+        if not control_files_exist(__git_file_path):
+            __git_file_path = partial(os.path.join, git_dir, '.git')
+            if os.path.exists(__git_file_path()) and \
+                    control_files_exist(__git_file_path):
+                git_dir = __git_file_path()
+            else:
+                self.logger.error("GIT control files missing in '%s'"
                                   % git_dir)
-            raise GitError("GIT control files not found, maybe wrong "
-                           "directory?")
+                raise GitError("GIT control files not found, maybe wrong "
+                               "directory?")
+        # at least, check that the HEAD file is readable
+        head_file = os.path.join(git_dir, 'HEAD')
+        try:
+            with open(head_file, 'rb') as f:
+                pass
+        except IOError, e:
+            raise GitError("Make sure the Git repository '%s' is readable: %s"
+                           % (git_dir, to_unicode(e)))
 
-        self.repo = GitCore(git_dir, git_bin=git_bin)
+        self.repo = GitCore(git_dir, git_bin=git_bin, log=log)
 
         self.logger.debug("PyGIT.Storage instance %d constructed" % id(self))
 
@@ -410,24 +425,28 @@ class Storage(object):
     #
 
     # called by Storage.sync()
-    def __rev_cache_sync(self, youngest_rev=None):
+    def __rev_cache_sync(self):
         """invalidates revision db cache if necessary"""
+
+        branches = self._get_branches()
 
         with self.__rev_cache_lock:
             need_update = False
-            if self.__rev_cache:
-                last_youngest_rev = self.__rev_cache.youngest_rev
-                if last_youngest_rev != youngest_rev:
-                    self.logger.debug("invalidated caches (%s != %s)"
-                                      % (last_youngest_rev, youngest_rev))
-                    need_update = True
-            else:
+            if not self.__rev_cache:
                 need_update = True # almost NOOP
+            elif branches != self.__rev_cache.branch_dict:
+                self.logger.debug('invalidated caches for %d cause repository '
+                                  'has been changed', id(self))
+                need_update = True
 
             if need_update:
                 self.__rev_cache = None
-
             return need_update
+
+    def invalidate_rev_cache(self):
+        with self.__rev_cache_lock:
+            self.__rev_cache = None
+            self.logger.debug('invalidated caches for %d', id(self))
 
     def get_rev_cache(self):
         """Retrieve revision cache
@@ -463,7 +482,7 @@ class Storage(object):
                                 for k, v in self._get_branches()]
                 head_revs = set(v for _, v in new_branches)
 
-                rev = ord_rev = 0
+                rev = ord_rev = None
                 for ord_rev, revs in enumerate(
                                         self.repo.rev_list('--parents',
                                                            '--topo-order',
@@ -565,8 +584,12 @@ class Storage(object):
         """
 
         result = []
-        for e in self.repo.branch('-v', '--no-abbrev').splitlines():
-            bname, bsha = e[1:].strip().split()[:2]
+        for e in self.repo.branch('-v', '--no-abbrev').rstrip('\n') \
+                                                      .split('\n'):
+            tokens = e[1:].strip().split()[:2]
+            if len(tokens) != 2:
+                continue
+            bname, bsha = tokens
             if e.startswith('*'):
                 result.insert(0, (bname, bsha))
             else:
@@ -640,8 +663,8 @@ class Storage(object):
     def get_commit_encoding(self):
         if self.commit_encoding is None:
             self.commit_encoding = \
-                self.repo.repo_config("--get", "i18n.commitEncoding") \
-                    .strip() or 'utf-8'
+                self.repo.config('--get', 'i18n.commitEncoding').strip() or \
+                'utf-8'
 
         return self.commit_encoding
 
@@ -812,7 +835,7 @@ class Storage(object):
             raise GitErrorSha
 
         with self.__commit_msg_lock:
-            if self.__commit_msg_cache.has_key(commit_id):
+            if commit_id in self.__commit_msg_cache:
                 # cache hit
                 result = self.__commit_msg_cache[commit_id]
                 return result[0], dict(result[1])
@@ -882,15 +905,14 @@ class Storage(object):
         return self.get_commits().iterkeys()
 
     def sync(self):
-        rev = self.repo.rev_list('--max-count=1', '--topo-order', '--all') \
-                       .strip()
-        return self.__rev_cache_sync(rev)
+        return self.__rev_cache_sync()
 
     @contextmanager
     def get_historian(self, sha, base_path):
         p = []
         change = {}
         next_path = []
+        base_path = self._fs_from_unicode(base_path)
 
         def name_status_gen():
             p[:] = [self.repo.log_pipe('--pretty=format:%n%H',
@@ -904,6 +926,8 @@ class Storage(object):
                     if l == '\n':
                         break
                     _, path = l.rstrip('\n').split('\t', 1)
+                    # git-log without -z option quotes each pathname
+                    path = _unquote(path)
                     while path not in change:
                         change[path] = old_sha
                         if next_path == [path]:
@@ -921,6 +945,7 @@ class Storage(object):
         gen = name_status_gen()
 
         def historian(path):
+            path = self._fs_from_unicode(path)
             try:
                 return change[path]
             except KeyError:
@@ -936,34 +961,32 @@ class Storage(object):
     def last_change(self, sha, path, historian=None):
         if historian is not None:
             return historian(path)
-        return self.repo.rev_list('--max-count=1',
-                                  sha, '--',
-                                  self._fs_from_unicode(path)).strip() or None
+        tmp = self.history(sha, path, limit=1)
+        return tmp[0] if tmp else None
 
     def history(self, sha, path, limit=None):
         if limit is None:
             limit = -1
 
-        tmp = self.repo.rev_list('--max-count=%d' % limit, str(sha), '--',
-                                 self._fs_from_unicode(path))
-
-        return [ rev.strip() for rev in tmp.splitlines() ]
+        args = ['--max-count=%d' % limit, str(sha)]
+        if path:
+            args.extend(('--', self._fs_from_unicode(path)))
+        tmp = self.repo.rev_list(*args)
+        return [rev.strip() for rev in tmp.splitlines()]
 
     def history_timerange(self, start, stop):
+        # retrieve start <= committer-time < stop,
+        # see CachedRepository.get_changesets()
         return [ rev.strip() for rev in \
-                     self.repo.rev_list('--reverse',
+                     self.repo.rev_list('--date-order',
                                         '--max-age=%d' % start,
-                                        '--min-age=%d' % stop,
+                                        '--min-age=%d' % (stop - 1),
                                         '--all').splitlines() ]
 
     def rev_is_anchestor_of(self, rev1, rev2):
         """return True if rev2 is successor of rev1"""
 
-        rev1 = rev1.strip()
-        rev2 = rev2.strip()
-
         rev_dict = self.get_commits()
-
         return (rev2 in rev_dict and
                 rev2 in self.children_recursive(rev1, rev_dict))
 

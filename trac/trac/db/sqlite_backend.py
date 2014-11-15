@@ -27,6 +27,8 @@ from trac.util.translation import _
 
 _like_escape_re = re.compile(r'([/_%])')
 
+_glob_escape_re = re.compile(r'[*?\[]')
+
 try:
     import pysqlite2.dbapi2 as sqlite
     have_pysqlite = 2
@@ -255,7 +257,8 @@ class SQLiteConnection(ConnectionWrapper):
                              and sqlite.version_info >= (2, 5, 0)
 
     def __init__(self, path, log=None, params={}):
-        assert have_pysqlite > 0
+        if have_pysqlite == 0:
+            raise TracError(_("Cannot load Python bindings for SQLite"))
         self.cnx = None
         if path != ':memory:':
             if not os.access(path, os.F_OK):
@@ -312,6 +315,24 @@ class SQLiteConnection(ConnectionWrapper):
     def concat(self, *args):
         return '||'.join(args)
 
+    def drop_table(self, table):
+        cursor = self.cursor()
+        cursor.execute("DROP TABLE IF EXISTS " + self.quote(table))
+
+    def get_column_names(self, table):
+        cursor = self.cnx.cursor()
+        rows = cursor.execute("PRAGMA table_info(%s)"
+                              % self.quote(table))
+        return [row[1] for row in rows]
+
+    def get_last_id(self, cursor, table, column='id'):
+        return cursor.lastrowid
+
+    def get_table_names(self):
+        rows = self.execute("""
+            SELECT name FROM sqlite_master WHERE type='table'""")
+        return [row[0] for row in rows]
+
     def like(self):
         """Return a case-insensitive LIKE clause."""
         if sqlite_version >= (3, 1, 0):
@@ -325,12 +346,17 @@ class SQLiteConnection(ConnectionWrapper):
         else:
             return text
 
+    def prefix_match(self):
+        """Return a case sensitive prefix-matching operator."""
+        return 'GLOB %s'
+
+    def prefix_match_value(self, prefix):
+        """Return a value for case sensitive prefix-matching operator."""
+        return _glob_escape_re.sub(lambda m: '[%s]' % m.group(0), prefix) + '*'
+
     def quote(self, identifier):
         """Return the quoted identifier."""
         return "`%s`" % identifier.replace('`', '``')
-
-    def get_last_id(self, cursor, table, column='id'):
-        return cursor.lastrowid
 
     def update_sequence(self, cursor, table, column='id'):
         # SQLite handles sequence updates automagically

@@ -101,7 +101,7 @@ class CachedRepository(Repository):
                       """, (to_utimestamp(cset.date), cset.author,
                             cset.message, self.id, srev))
             else:
-                self._insert_changeset(db, rev, cset)
+                self._insert_changeset(db, cset.rev, cset)
         return old_cset
 
     @cached('_metadata_id')
@@ -115,62 +115,10 @@ class CachedRepository(Repository):
 
     def sync(self, feedback=None, clean=False):
         if clean:
-            self.log.info("Cleaning cache")
-            with self.env.db_transaction as db:
-                db("DELETE FROM revision WHERE repos=%s",
-                   (self.id,))
-                db("DELETE FROM node_change WHERE repos=%s",
-                   (self.id,))
-                db.executemany("DELETE FROM repository WHERE id=%s AND name=%s",
-                               [(self.id, k) for k in CACHE_METADATA_KEYS])
-                db.executemany("""
-                      INSERT INTO repository (id, name, value)
-                      VALUES (%s, %s, %s)
-                      """, [(self.id, k, '') for k in CACHE_METADATA_KEYS])
-                del self.metadata
+            self.remove_cache()
 
         metadata = self.metadata
-
-        with self.env.db_transaction as db:
-            invalidate = False
-
-            # -- check that we're populating the cache for the correct
-            #    repository
-            repository_dir = metadata.get(CACHE_REPOSITORY_DIR)
-            if repository_dir:
-                # directory part of the repo name can vary on case insensitive
-                # fs
-                if os.path.normcase(repository_dir) \
-                        != os.path.normcase(self.name):
-                    self.log.info("'repository_dir' has changed from %r to %r",
-                                  repository_dir, self.name)
-                    raise TracError(_("The repository directory has changed, "
-                                      "you should resynchronize the "
-                                      "repository with: trac-admin $ENV "
-                                      "repository resync '%(reponame)s'",
-                                      reponame=self.reponame or '(default)'))
-            elif repository_dir is None: #
-                self.log.info('Storing initial "repository_dir": %s',
-                              self.name)
-                db("""INSERT INTO repository (id, name, value)
-                      VALUES (%s, %s, %s)
-                      """, (self.id, CACHE_REPOSITORY_DIR, self.name))
-                invalidate = True
-            else: # 'repository_dir' cleared by a resync
-                self.log.info('Resetting "repository_dir": %s', self.name)
-                db("UPDATE repository SET value=%s WHERE id=%s AND name=%s",
-                   (self.name, self.id, CACHE_REPOSITORY_DIR))
-                invalidate = True
-
-            # -- insert a 'youngeset_rev' for the repository if necessary
-            if metadata.get(CACHE_YOUNGEST_REV) is None:
-                db("""INSERT INTO repository (id, name, value)
-                      VALUES (%s, %s, %s)
-                      """, (self.id, CACHE_YOUNGEST_REV, ''))
-                invalidate = True
-
-            if invalidate:
-                del self.metadata
+        self.save_metadata(metadata)
 
         # -- retrieve the youngest revision in the repository and the youngest
         #    revision cached so far
@@ -263,6 +211,65 @@ class CachedRepository(Repository):
                 if feedback:
                     feedback(youngest)
 
+    def remove_cache(self):
+        """Remove the repository cache."""
+        self.log.info("Cleaning cache")
+        with self.env.db_transaction as db:
+            db("DELETE FROM revision WHERE repos=%s",
+               (self.id,))
+            db("DELETE FROM node_change WHERE repos=%s",
+               (self.id,))
+            db.executemany("DELETE FROM repository WHERE id=%s AND name=%s",
+                           [(self.id, k) for k in CACHE_METADATA_KEYS])
+            db.executemany("""
+                  INSERT INTO repository (id, name, value)
+                  VALUES (%s, %s, %s)
+                  """, [(self.id, k, '') for k in CACHE_METADATA_KEYS])
+            del self.metadata
+
+    def save_metadata(self, metadata):
+        """Save the repository metadata."""
+        with self.env.db_transaction as db:
+            invalidate = False
+
+            # -- check that we're populating the cache for the correct
+            #    repository
+            repository_dir = metadata.get(CACHE_REPOSITORY_DIR)
+            if repository_dir:
+                # directory part of the repo name can vary on case insensitive
+                # fs
+                if os.path.normcase(repository_dir) \
+                        != os.path.normcase(self.name):
+                    self.log.info("'repository_dir' has changed from %r to %r",
+                                  repository_dir, self.name)
+                    raise TracError(_("The repository directory has changed, "
+                                      "you should resynchronize the "
+                                      "repository with: trac-admin $ENV "
+                                      "repository resync '%(reponame)s'",
+                                      reponame=self.reponame or '(default)'))
+            elif repository_dir is None: #
+                self.log.info('Storing initial "repository_dir": %s',
+                              self.name)
+                db("""INSERT INTO repository (id, name, value)
+                      VALUES (%s, %s, %s)
+                      """, (self.id, CACHE_REPOSITORY_DIR, self.name))
+                invalidate = True
+            else: # 'repository_dir' cleared by a resync
+                self.log.info('Resetting "repository_dir": %s', self.name)
+                db("UPDATE repository SET value=%s WHERE id=%s AND name=%s",
+                   (self.name, self.id, CACHE_REPOSITORY_DIR))
+                invalidate = True
+
+            # -- insert a 'youngeset_rev' for the repository if necessary
+            if metadata.get(CACHE_YOUNGEST_REV) is None:
+                db("""INSERT INTO repository (id, name, value)
+                      VALUES (%s, %s, %s)
+                      """, (self.id, CACHE_YOUNGEST_REV, ''))
+                invalidate = True
+
+            if invalidate:
+                del self.metadata
+
     def _insert_changeset(self, db, rev, cset):
         srev = self.db_rev(rev)
         # 1. Attempt to resync the 'revision' table.  In case of
@@ -310,9 +317,64 @@ class CachedRepository(Repository):
             return [int(rev) for rev, in db("""
                     SELECT DISTINCT rev FROM node_change
                     WHERE repos=%%s AND rev>=%%s AND rev<=%%s
-                      AND (path=%%s OR path %s)""" % db.like(),
+                      AND (path=%%s OR path %s)""" % db.prefix_match(),
                     (self.id, sfirst, slast, path,
-                     db.like_escape(path + '/') + '%'))]
+                     db.prefix_match_value(path + '/')))]
+
+    def _get_changed_revs(self, node_infos):
+        if not node_infos:
+            return {}
+
+        node_infos = [(node, self.normalize_rev(first)) for node, first
+                                                        in node_infos]
+        sfirst = self.db_rev(min(first for node, first in node_infos))
+        slast = self.db_rev(max(node.rev for node, first in node_infos))
+        path_infos = dict((node.path, (node, first)) for node, first
+                                                     in node_infos)
+        path_revs = dict((node.path, []) for node, first in node_infos)
+
+        db = self.env.get_read_db()
+        cursor = db.cursor()
+        prefix_match = db.prefix_match()
+
+        # Prevent "too many SQL variables" since max number of parameters is
+        # 999 on SQLite. No limitation on PostgreSQL and MySQL.
+        idx = 0
+        delta = (999 - 3) // 5
+        while idx < len(node_infos):
+            subset = node_infos[idx:idx + delta]
+            idx += delta
+            count = len(subset)
+
+            holders = ','.join(('%s',) * count)
+            query = """\
+                SELECT DISTINCT
+                  rev, (CASE WHEN path IN (%s) THEN path %s END) AS path
+                FROM node_change
+                WHERE repos=%%s AND rev>=%%s AND rev<=%%s AND (path IN (%s) %s)
+                """ % \
+                (holders,
+                 ' '.join(('WHEN path ' + prefix_match + ' THEN %s',) * count),
+                 holders,
+                 ' '.join(('OR path ' + prefix_match,) * count))
+            args = []
+            args.extend(node.path for node, first in subset)
+            for node, first in subset:
+                args.append(db.prefix_match_value(node.path + '/'))
+                args.append(node.path)
+            args.extend((self.id, sfirst, slast))
+            args.extend(node.path for node, first in subset)
+            args.extend(db.prefix_match_value(node.path + '/')
+                        for node, first in subset)
+            cursor.execute(query, args)
+
+            for srev, path in cursor:
+                rev = self.rev_db(srev)
+                node, first = path_infos[path]
+                if first <= rev <= node.rev:
+                    path_revs[path].append(rev)
+
+        return path_revs
 
     def has_node(self, path, rev=None):
         return self.repos.has_node(path, self.normalize_rev(rev))
@@ -324,10 +386,16 @@ class CachedRepository(Repository):
         return self.rev_db(self.metadata.get(CACHE_YOUNGEST_REV))
 
     def previous_rev(self, rev, path=''):
-        if self.has_linear_changesets:
-            return self._next_prev_rev('<', rev, path)
-        else:
-            return self.repos.previous_rev(self.normalize_rev(rev), path)
+        # Hitting the repository directly is faster than searching the
+        # database.  When there is a long stretch of inactivity on a file (in
+        # particular, when a file is added late in the history) the database
+        # query can take a very long time to determine that there is no
+        # previous revision in the node_changes table.  However, the repository
+        # will have a datastructure that will allow it to find the previous
+        # version of a node fairly directly.
+        #if self.has_linear_changesets:
+        #    return self._next_prev_rev('<', rev, path)
+        return self.repos.previous_rev(self.normalize_rev(rev), path)
 
     def next_rev(self, rev, path=''):
         if self.has_linear_changesets:
@@ -346,8 +414,8 @@ class CachedRepository(Repository):
             if path:
                 path = path.lstrip('/')
                 # changes on path itself or its children
-                sql += " AND (path=%s OR path " + db.like()
-                args.extend((path, db.like_escape(path + '/') + '%'))
+                sql += " AND (path=%s OR path " + db.prefix_match()
+                args.extend((path, db.prefix_match_value(path + '/')))
                 # deletion of path ancestors
                 components = path.lstrip('/').split('/')
                 parents = ','.join(('%s',) * len(components))
@@ -360,6 +428,12 @@ class CachedRepository(Repository):
 
             for rev, in db(sql, args):
                 return int(rev)
+
+    def parent_revs(self, rev):
+        if self.has_linear_changesets:
+            return Repository.parent_revs(self, rev)
+        else:
+            return self.repos.parent_revs(rev)
 
     def rev_older_than(self, rev1, rev2):
         return self.repos.rev_older_than(self.normalize_rev(rev1),

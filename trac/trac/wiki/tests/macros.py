@@ -1,14 +1,53 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2006-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
+from StringIO import StringIO
 from datetime import datetime
+import os
+import shutil
+import tempfile
 import unittest
 
-from trac.config import Option
+from trac.config import Option, ListOption, IntOption, BoolOption
 from trac.test import locale_en
 from trac.util.datefmt import format_date, utc
 from trac.wiki.model import WikiPage
 from trac.wiki.tests import formatter
 
+
+def add_pages(tc, names):
+    now = datetime.now(utc)
+    for name in names:
+        w = WikiPage(tc.env)
+        w.name = name
+        w.text = '--'
+        w.save('joe', 'the page ' + name, '::1', now)
+
+
 # == [[Image]]
+
+def image_setup(tc):
+    add_pages(tc, ['page:fr'])
+    from trac.attachment import Attachment
+    tc.env.path = tempfile.mkdtemp(prefix='trac-tempenv-')
+    attachment = Attachment(tc.env, 'wiki', 'page:fr')
+    attachment.description = "image in page:fr"
+    attachment.insert('img.png', StringIO(''), 0, 2)
+
+def image_teardown(tc):
+    shutil.rmtree(os.path.join(tc.env.path, 'files'))
+    os.rmdir(tc.env.path)
+    tc.env.reset_db()
 
 # Note: using `« test »` string in the following tests for checking
 #       unicode robustness and whitespace support (first space is
@@ -91,13 +130,39 @@ IMAGE_MACRO_TEST_CASES = u"""
 ------------------------------
 <a style="padding:0; border:none" href="/wiki/WikiStart"><img src="/browser/%C2%AB%20test%C2%A0%C2%BB?format=raw" alt="/browser/« test »" title="/browser/« test »" /></a>
 ============================== Strip unicode white-spaces and ZWSPs (#10668)
-[[Image(  ​source:« test ».png　 ​, nolink)]]
+[[Image(  ​source:« test ».png　 ​, nolink, 100%　 ​)]]
 ------------------------------
 <p>
-<img src="/browser/%C2%AB%20test%C2%A0%C2%BB.png?format=raw" alt="source:« test ».png" title="source:« test ».png" />
+<img width="100%" alt="source:« test ».png" title="source:« test ».png" src="/browser/%C2%AB%20test%C2%A0%C2%BB.png?format=raw" />
 </p>
 ------------------------------
-<img src="/browser/%C2%AB%20test%C2%A0%C2%BB.png?format=raw" alt="source:« test ».png" title="source:« test ».png" />
+<img width="100%" alt="source:« test ».png" title="source:« test ».png" src="/browser/%C2%AB%20test%C2%A0%C2%BB.png?format=raw" />
+------------------------------
+============================== Attachments on page with ':' characters (#10562)
+[[Image("page:fr":img.png​,nolink)]]
+------------------------------
+<p>
+<img src="/raw-attachment/wiki/page%3Afr/img.png" alt="image in page:fr" title="image in page:fr" />
+</p>
+------------------------------
+<img src="/raw-attachment/wiki/page%3Afr/img.png" alt="image in page:fr" title="image in page:fr" />
+------------------------------
+============================== htdocs: Image, nolink
+[[Image(htdocs:trac_logo.png, nolink)]]
+------------------------------
+<p>
+<img src="/chrome/site/trac_logo.png" alt="trac_logo.png" title="trac_logo.png" />
+</p>
+------------------------------
+<img src="/chrome/site/trac_logo.png" alt="trac_logo.png" title="trac_logo.png" />
+============================== shared: Image, nolink
+[[Image(shared:trac_logo.png, nolink)]]
+------------------------------
+<p>
+<img src="/chrome/shared/trac_logo.png" alt="trac_logo.png" title="trac_logo.png" />
+</p>
+------------------------------
+<img src="/chrome/shared/trac_logo.png" alt="trac_logo.png" title="trac_logo.png" />
 ------------------------------
 """
 
@@ -109,14 +174,6 @@ IMAGE_MACRO_TEST_CASES = u"""
 
 
 # == [[TitleIndex]]
-
-def add_pages(tc, names):
-    now = datetime.now(utc)
-    for name in names:
-        w = WikiPage(tc.env)
-        w.name = name
-        w.text = '--'
-        w.save('joe', 'the page ' + name, '::1', now)
 
 def titleindex_teardown(tc):
     tc.env.reset_db()
@@ -391,8 +448,36 @@ TRACINI_MACRO_TEST_CASES = u"""\
 </p><div class="tracini">\
 <h3 id="section-42-section"><code>[section-42]</code></h3>\
 <table class="wiki"><tbody>\
-<tr><td><tt>option1</tt></td><td></td><td class="default"><code>value</code></td></tr>\
-<tr><td><tt>option2</tt></td><td>blah</td><td class="default"><code>value</code></td></tr>\
+<tr class="even"><td><tt>option1</tt></td><td></td><td class="default"><code>value</code></td></tr>\
+<tr class="odd"><td><tt>option2</tt></td><td>blah</td><td class="default"><code>value</code></td></tr>\
+</tbody></table>\
+</div><p>
+</p>
+------------------------------
+============================== TracIni, list option with sep=| (#11074)
+[[TracIni(section-list)]]
+------------------------------
+<p>
+</p><div class="tracini">\
+<h3 id="section-list-section"><code>[section-list]</code></h3>\
+<table class="wiki"><tbody>\
+<tr class="even"><td><tt>option1</tt></td><td></td><td class="default"><code>4.2|42|42||0|enabled</code></td></tr>\
+</tbody></table>\
+</div><p>
+</p>
+------------------------------
+============================== TracIni, option with "false" value as default
+[[TracIni(section-def)]]
+------------------------------
+<p>
+</p><div class="tracini">\
+<h3 id="section-def-section"><code>[section-def]</code></h3>\
+<table class="wiki"><tbody>\
+<tr class="even"><td><tt>option1</tt></td><td></td><td class="nodefault">(no default)</td></tr>\
+<tr class="odd"><td><tt>option2</tt></td><td></td><td class="nodefault">(no default)</td></tr>\
+<tr class="even"><td><tt>option3</tt></td><td></td><td class="default"><code>0</code></td></tr>\
+<tr class="odd"><td><tt>option4</tt></td><td></td><td class="default"><code>disabled</code></td></tr>\
+<tr class="even"><td><tt>option5</tt></td><td></td><td class="default"><code></code></td></tr>\
 </tbody></table>\
 </div><p>
 </p>
@@ -404,6 +489,13 @@ def tracini_setup(tc):
     class Foo(object):
         option_a1 = (Option)('section-42', 'option1', 'value', doc='')
         option_a2 = (Option)('section-42', 'option2', 'value', doc='blah')
+        option_l1 = (ListOption)('section-list', 'option1',
+                                 [4.2, '42', 42, None, 0, True], sep='|')
+        option_d1 = (Option)('section-def', 'option1', None)
+        option_d2 = (Option)('section-def', 'option2', '')
+        option_d3 = (IntOption)('section-def', 'option3', 0)
+        option_d4 = (BoolOption)('section-def', 'option4', False)
+        option_d5 = (ListOption)('section-def', 'option5', [])
 
 def tracini_teardown(tc):
     Option.registry = tc._orig_registry
@@ -411,7 +503,9 @@ def tracini_teardown(tc):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(formatter.suite(IMAGE_MACRO_TEST_CASES, file=__file__))
+    suite.addTest(formatter.suite(IMAGE_MACRO_TEST_CASES, file=__file__,
+                                  setup=image_setup,
+                                  teardown=image_teardown))
     suite.addTest(formatter.suite(TITLEINDEX1_MACRO_TEST_CASES, file=__file__))
     suite.addTest(formatter.suite(TITLEINDEX2_MACRO_TEST_CASES, file=__file__,
                                   setup=titleindex2_setup,

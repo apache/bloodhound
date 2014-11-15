@@ -85,6 +85,7 @@ class WSGIGateway(object):
 
         self.headers_set = []
         self.headers_sent = []
+        self.use_chunked = False
 
     def run(self, application):
         """Start the gateway with the given WSGI application."""
@@ -98,8 +99,8 @@ class WSGIGateway(object):
                 for chunk in response:
                     if chunk:
                         self._write(chunk)
-                if not self.headers_sent:
-                    self._write('')
+                if not self.headers_sent or self.use_chunked:
+                    self._write('') # last chunk '\r\n0\r\n' if use_chunked
         finally:
             if hasattr(response, 'close'):
                 response.close()
@@ -193,9 +194,15 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
 
     def finish(self):
         """We need to help the garbage collector a little."""
-        BaseHTTPRequestHandler.finish(self)
-        self.wfile = None
-        self.rfile = None
+        try:
+            BaseHTTPRequestHandler.finish(self)
+        except (IOError, socket.error), e:
+            # ignore an exception if client disconnects
+            if e.args[0] not in (errno.EPIPE, errno.ECONNRESET, 10053, 10054):
+                raise
+        finally:
+            self.wfile = None
+            self.rfile = None
 
 
 class WSGIServerGateway(WSGIGateway):
@@ -212,12 +219,27 @@ class WSGIServerGateway(WSGIGateway):
 
         try:
             if not self.headers_sent:
+                # Worry at the last minute about Content-Length. If not
+                # yet set, use either chunked encoding or close connection
                 status, headers = self.headers_sent = self.headers_set
+                if any(n.lower() == 'content-length' for n, v in headers):
+                    self.use_chunked = False
+                else:
+                    self.use_chunked = (
+                        self.environ['SERVER_PROTOCOL'] >= 'HTTP/1.1' and
+                        self.handler.protocol_version >= 'HTTP/1.1')
+                    if self.use_chunked:
+                        headers.append(('Transfer-Encoding', 'chunked'))
+                    else:
+                        headers.append(('Connection', 'close'))
                 self.handler.send_response(int(status[:3]))
                 for name, value in headers:
                     self.handler.send_header(name, value)
                 self.handler.end_headers()
-            self.handler.wfile.write(data)
+            if self.use_chunked:
+                self.handler.wfile.write('%x\r\n%s\r\n' % (len(data), data))
+            else:
+                self.handler.wfile.write(data)
         except (IOError, socket.error), e:
             if e.args[0] in (errno.EPIPE, errno.ECONNRESET, 10053, 10054):
                 # client disconnect

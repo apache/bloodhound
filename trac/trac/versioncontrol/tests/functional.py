@@ -1,5 +1,29 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2008-2013 Edgewall Software
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at http://trac.edgewall.org/wiki/TracLicense.
+#
+# This software consists of voluntary contributions made by many
+# individuals. For the exact contribution history, see the revision
+# history and logs, available at http://trac.edgewall.org/log/.
+
+import tempfile
+
+from trac.admin.tests.functional import AuthorizationTestCaseSetup
 from trac.tests.functional import *
+
+
+class TestAdminRepositoryAuthorization(AuthorizationTestCaseSetup):
+    def runTest(self):
+        """Check permissions required to access the Version Control
+        Repositories panel."""
+        self.test_authorization('/admin/versioncontrol/repository',
+                                'VERSIONCONTROL_ADMIN', "Manage Repositories")
 
 
 class TestEmptySvnRepo(FunctionalTwillTestCaseSetup):
@@ -114,6 +138,53 @@ class RegressionTestTicket5819(FunctionalTwillTestCaseSetup):
         tc.find(components, 's')
 
 
+class RegressionTestTicket11186(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11186
+        TracError should be raised when repository with name already exists
+        """
+        self._tester.go_to_admin()
+        tc.follow("\\bRepositories\\b")
+        tc.url(self._tester.url + '/admin/versioncontrol/repository')
+        name = random_word()
+        tc.formvalue('trac-addrepos', 'name', name)
+        tc.formvalue('trac-addrepos', 'dir', '/var/svn/%s' % name)
+        tc.submit()
+        tc.find('The repository "%s" has been added.' % name)
+        tc.formvalue('trac-addrepos', 'name', name)
+        tc.formvalue('trac-addrepos', 'dir', '/var/svn/%s' % name)
+        tc.submit()
+        tc.find('The repository "%s" already exists.' % name)
+        tc.notfind(internal_error)
+
+
+class RegressionTestTicket11186Alias(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11186 alias
+        TracError should be raised when repository alias with name already
+        exists
+        """
+        self._tester.go_to_admin()
+        tc.follow("\\bRepositories\\b")
+        tc.url(self._tester.url + '/admin/versioncontrol/repository')
+        word = random_word()
+        target = '%s_repos' % word
+        name = '%s_alias' % word
+        tc.formvalue('trac-addrepos', 'name', target)
+        tc.formvalue('trac-addrepos', 'dir', '/var/svn/%s' % target)
+        tc.submit()
+        tc.find('The repository "%s" has been added.' % target)
+        tc.formvalue('trac-addalias', 'name', name)
+        tc.formvalue('trac-addalias', 'alias', target)
+        tc.submit()
+        tc.find('The alias "%s" has been added.' % name)
+        tc.formvalue('trac-addalias', 'name', name)
+        tc.formvalue('trac-addalias', 'alias', target)
+        tc.submit()
+        tc.find('The alias "%s" already exists.' % name)
+        tc.notfind(internal_error)
+
+
 class RegressionTestRev5877(FunctionalTwillTestCaseSetup):
     def runTest(self):
         """Test for regression of the source browser fix in r5877"""
@@ -121,16 +192,169 @@ class RegressionTestRev5877(FunctionalTwillTestCaseSetup):
         tc.notfind(internal_error)
 
 
+class RegressionTestTicket11194(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11194
+        TracError should be raised when repository with name already exists
+        """
+        self._tester.go_to_admin()
+        tc.follow("\\bRepositories\\b")
+        tc.url(self._tester.url + '/admin/versioncontrol/repository')
+
+        word = random_word()
+        names = ['%s_%d' % (word, n) for n in xrange(3)]
+        tc.formvalue('trac-addrepos', 'name', names[0])
+        tc.formvalue('trac-addrepos', 'dir', '/var/svn/%s' % names[0])
+        tc.submit()
+        tc.notfind(internal_error)
+
+        tc.formvalue('trac-addrepos', 'name', names[1])
+        tc.formvalue('trac-addrepos', 'dir', '/var/svn/%s' % names[1])
+        tc.submit()
+        tc.notfind(internal_error)
+
+        tc.follow('\\b' + names[1] + '\\b')
+        tc.url(self._tester.url + '/admin/versioncontrol/repository/' + names[1])
+        tc.formvalue('trac-modrepos', 'name', names[2])
+        tc.submit('save')
+        tc.notfind(internal_error)
+        tc.url(self._tester.url + '/admin/versioncontrol/repository')
+
+        tc.follow('\\b' + names[2] + '\\b')
+        tc.url(self._tester.url + '/admin/versioncontrol/repository/' + names[2])
+        tc.formvalue('trac-modrepos', 'name', names[0])
+        tc.submit('save')
+        tc.find('The repository "%s" already exists.' % names[0])
+        tc.notfind(internal_error)
+
+
+class RegressionTestTicket11346(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11346
+        fix for log: link with revision ranges included oldest wrongly
+        showing HEAD revision
+        """
+        # create new 3 revisions
+        self._testenv.svn_mkdir(['ticket11346'], '')
+        for i in (1, 2):
+            rev = self._testenv.svn_add('ticket11346/file%d.txt' % i, '')
+        tc.go(self._tester.url + '/log?revs=1-2')
+        tc.find('@1')
+        tc.find('@2')
+        tc.notfind('@3')
+        tc.notfind('@%d' % rev)
+
+
+class RegressionTestTicket11355(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11355
+        Save with no changes should redirect back to the repository listing.
+        """
+        # Add a repository
+        self._tester.go_to_admin("Repositories")
+        name = random_unique_camel()
+        dir = os.path.join(tempfile.gettempdir(), name.lower())
+        tc.formvalue('trac-addrepos', 'name', name)
+        tc.formvalue('trac-addrepos', 'dir', dir)
+        tc.submit('add_repos')
+        tc.find('The repository "%s" has been added.' % name)
+
+        # Save unmodified form and redirect back to listing page
+        tc.follow(r"\b%s\b" % name)
+        tc.url(self._tester.url + '/admin/versioncontrol/repository/' + name)
+        tc.submit('save', formname='trac-modrepos')
+        tc.url(self._tester.url + '/admin/versioncontrol/repository')
+        tc.find("Your changes have been saved.")
+
+        # Warning is added when repository dir is not an absolute path
+        tc.follow(r"\b%s\b" % name)
+        tc.url(self._tester.url + '/admin/versioncontrol/repository/' + name)
+        tc.formvalue('trac-modrepos', 'dir', os.path.basename(dir))
+        tc.submit('save')
+        tc.url(self._tester.url + '/admin/versioncontrol/repository/' + name)
+        tc.find('The repository directory must be an absolute path.')
+
+
+class RegressionTestTicket11438(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11438
+        fix for log: link with revision ranges included "head" keyword
+        """
+        rev = self._testenv.svn_mkdir(['ticket11438'], '')
+        rev = self._testenv.svn_add('ticket11438/file1.txt', '')
+        rev = self._testenv.svn_add('ticket11438/file2.txt', '')
+        tc.go(self._tester.url + '/intertrac/log:@%d:head' % (rev - 1))
+        tc.url(self._tester.url + r'/log/\?revs=' + str(rev - 1) + '%3Ahead')
+        tc.notfind('@%d' % (rev + 1))
+        tc.find('@%d' % rev)
+        tc.find('@%d' % (rev - 1))
+        tc.notfind('@%d' % (rev - 2))
+
+
+class RegressionTestTicket11584(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11584
+        don't raise NoSuchChangeset for empty repository if no "rev" parameter
+        """
+        repo_path = self._testenv.svnadmin_create('repo-t11584')
+
+        self._tester.go_to_admin()
+        tc.follow("\\bRepositories\\b")
+        tc.url(self._tester.url + '/admin/versioncontrol/repository')
+
+        tc.formvalue('trac-addrepos', 'name', 't11584')
+        tc.formvalue('trac-addrepos', 'dir', repo_path)
+        tc.submit()
+        tc.notfind(internal_error)
+        self._testenv._tracadmin('repository', 'sync', 't11584')
+
+        browser_url = self._tester.url + '/browser/t11584'
+        tc.go(browser_url)
+        tc.url(browser_url)
+        tc.notfind('Error: No such changeset')
+
+
+class RegressionTestTicket11618(FunctionalTwillTestCaseSetup):
+    def runTest(self):
+        """Test for regression of http://trac.edgewall.org/ticket/11618
+        fix for malformed `readonly="True"` attribute in repository admin.
+        """
+        env = self._testenv.get_trac_environment()
+        env.config.set('repositories', 't11618.dir',
+                       self._testenv.repo_path_for_initenv())
+        env.config.save()
+        try:
+            self._tester.go_to_admin()
+            tc.follow(r'\bRepositories\b')
+            tc.url(self._tester.url + '/admin/versioncontrol/repository')
+            tc.follow(r'\bt11618\b')
+            tc.url(self._tester.url + '/admin/versioncontrol/repository/t11618')
+            tc.notfind(' readonly="True"')
+            tc.find(' readonly="readonly"')
+        finally:
+            env.config.remove('repositories', 't11618.dir')
+            env.config.save()
+
+
 def functionalSuite(suite=None):
     if not suite:
-        import trac.tests.functional.testcases
-        suite = trac.tests.functional.testcases.functionalSuite()
+        import trac.tests.functional
+        suite = trac.tests.functional.functionalSuite()
+    suite.addTest(TestAdminRepositoryAuthorization())
+    suite.addTest(RegressionTestTicket11355())
     if has_svn:
         suite.addTest(TestEmptySvnRepo())
         suite.addTest(TestRepoCreation())
         suite.addTest(TestRepoBrowse())
         suite.addTest(TestNewFileLog())
         suite.addTest(RegressionTestTicket5819())
+        suite.addTest(RegressionTestTicket11186())
+        suite.addTest(RegressionTestTicket11186Alias())
+        suite.addTest(RegressionTestTicket11194())
+        suite.addTest(RegressionTestTicket11346())
+        suite.addTest(RegressionTestTicket11438())
+        suite.addTest(RegressionTestTicket11584())
+        suite.addTest(RegressionTestTicket11618())
         suite.addTest(RegressionTestRev5877())
     else:
         print "SKIP: versioncontrol/tests/functional.py (no svn bindings)"

@@ -20,6 +20,7 @@ import pkg_resources
 
 from ConfigParser import RawConfigParser
 from StringIO import StringIO
+from functools import partial
 
 from genshi.builder import tag
 
@@ -98,9 +99,11 @@ class ConfigurableTicketWorkflow(Component):
     """Ticket action controller which provides actions according to a
     workflow defined in trac.ini.
 
-    The workflow is idefined in the `[ticket-workflow]` section of the
+    The workflow is defined in the `[ticket-workflow]` section of the
     [wiki:TracIni#ticket-workflow-section trac.ini] configuration file.
     """
+
+    implements(IEnvironmentSetupParticipant, ITicketActionController)
 
     ticket_workflow_section = ConfigSection('ticket-workflow',
         """The workflow for tickets is controlled by plugins. By default,
@@ -129,7 +132,6 @@ class ConfigurableTicketWorkflow(Component):
                 self.log.warning("Ticket workflow action '%s' doesn't define "
                                  "any transitions", name)
 
-    implements(ITicketActionController, IEnvironmentSetupParticipant)
 
     # IEnvironmentSetupParticipant methods
 
@@ -226,18 +228,14 @@ Read TracWorkflow for more information (don't forget to 'wiki upgrade' as well)
         this_action = self.actions[action]
         status = this_action['newstate']
         operations = this_action['operations']
-        current_owner = ticket._old.get('owner', ticket['owner'] or '(none)')
-        if not (Chrome(self.env).show_email_addresses
-                or 'EMAIL_VIEW' in req.perm(ticket.resource)):
-            format_user = obfuscate_email_address
-        else:
-            format_user = lambda address: address
-        current_owner = format_user(current_owner)
+        current_owner = ticket._old.get('owner', ticket['owner'])
+        format_author = partial(Chrome(self.env).format_author, req)
+        formatted_current_owner = format_author(current_owner or _("(none)"))
 
         control = [] # default to nothing
         hints = []
         if 'reset_workflow' in operations:
-            control.append(tag("from invalid state "))
+            control.append(_("from invalid state"))
             hints.append(_("Current state no longer exists"))
         if 'del_owner' in operations:
             hints.append(_("The ticket will be disowned"))
@@ -245,7 +243,7 @@ Read TracWorkflow for more information (don't forget to 'wiki upgrade' as well)
             id = 'action_%s_reassign_owner' % action
             selected_owner = req.args.get(id, req.authname)
 
-            if this_action.has_key('set_owner'):
+            if 'set_owner' in this_action:
                 owners = [x.strip() for x in
                           this_action['set_owner'].split(',')]
             elif self.config.getbool('ticket', 'restrict_owner'):
@@ -255,41 +253,42 @@ Read TracWorkflow for more information (don't forget to 'wiki upgrade' as well)
             else:
                 owners = None
 
-            if owners == None:
+            if owners is None:
                 owner = req.args.get(id, req.authname)
-                control.append(tag_('to %(owner)s',
+                control.append(tag_("to %(owner)s",
                                     owner=tag.input(type='text', id=id,
                                                     name=id, value=owner)))
                 hints.append(_("The owner will be changed from "
-                               "%(current_owner)s",
-                               current_owner=current_owner))
+                               "%(current_owner)s to the specified user",
+                               current_owner=formatted_current_owner))
             elif len(owners) == 1:
                 owner = tag.input(type='hidden', id=id, name=id,
                                   value=owners[0])
-                formatted_owner = format_user(owners[0])
-                control.append(tag_('to %(owner)s ',
-                                    owner=tag(formatted_owner, owner)))
+                formatted_new_owner = format_author(owners[0])
+                control.append(tag_("to %(owner)s",
+                                    owner=tag(formatted_new_owner, owner)))
                 if ticket['owner'] != owners[0]:
                     hints.append(_("The owner will be changed from "
                                    "%(current_owner)s to %(selected_owner)s",
-                                   current_owner=current_owner,
-                                   selected_owner=formatted_owner))
+                                   current_owner=formatted_current_owner,
+                                   selected_owner=formatted_new_owner))
             else:
-                control.append(tag_('to %(owner)s', owner=tag.select(
+                control.append(tag_("to %(owner)s", owner=tag.select(
                     [tag.option(x, value=x,
                                 selected=(x == selected_owner or None))
                      for x in owners],
                     id=id, name=id)))
                 hints.append(_("The owner will be changed from "
                                "%(current_owner)s to the selected user",
-                               current_owner=current_owner))
+                               current_owner=formatted_current_owner))
         elif 'set_owner_to_self' in operations and \
                 ticket._old.get('owner', ticket['owner']) != req.authname:
             hints.append(_("The owner will be changed from %(current_owner)s "
-                           "to %(authname)s", current_owner=current_owner,
-                           authname=req.authname))
+                           "to %(authname)s",
+                           current_owner=formatted_current_owner,
+                           authname=format_author(req.authname)))
         if 'set_resolution' in operations:
-            if this_action.has_key('set_resolution'):
+            if 'set_resolution' in this_action:
                 resolutions = [x.strip() for x in
                                this_action['set_resolution'].split(',')]
             else:
@@ -302,7 +301,7 @@ Read TracWorkflow for more information (don't forget to 'wiki upgrade' as well)
             if len(resolutions) == 1:
                 resolution = tag.input(type='hidden', id=id, name=id,
                                        value=resolutions[0])
-                control.append(tag_('as %(resolution)s',
+                control.append(tag_("as %(resolution)s",
                                     resolution=tag(resolutions[0],
                                                    resolution)))
                 hints.append(_("The resolution will be set to %(name)s",
@@ -310,7 +309,7 @@ Read TracWorkflow for more information (don't forget to 'wiki upgrade' as well)
             else:
                 selected_option = req.args.get(id,
                         TicketSystem(self.env).default_resolution)
-                control.append(tag_('as %(resolution)s',
+                control.append(tag_("as %(resolution)s",
                                     resolution=tag.select(
                     [tag.option(x, value=x,
                                 selected=(x == selected_option or None))
@@ -320,13 +319,20 @@ Read TracWorkflow for more information (don't forget to 'wiki upgrade' as well)
         if 'del_resolution' in operations:
             hints.append(_("The resolution will be deleted"))
         if 'leave_status' in operations:
-            control.append(_('as %(status)s ',
+            control.append(_("as %(status)s",
                              status= ticket._old.get('status',
                                                      ticket['status'])))
+            if len(operations) == 1:
+                hints.append(_("The owner will remain %(current_owner)s",
+                               current_owner=formatted_current_owner)
+                             if current_owner else
+                             _("The ticket will remain with no owner"))
         else:
             if status != '*':
                 hints.append(_("Next status will be '%(name)s'", name=status))
-        return (this_action['name'], tag(*control), '. '.join(hints) + ".")
+        return (this_action['name'],
+                tag((' ' if i else None, c) for i, c in enumerate(control)),
+                '. '.join(hints) + '.' if hints else '')
 
     def get_ticket_changes(self, req, ticket, action):
         this_action = self.actions[action]

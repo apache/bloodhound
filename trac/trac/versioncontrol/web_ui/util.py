@@ -16,17 +16,21 @@
 # Author: Jonas Borgström <jonas@edgewall.com>
 #         Christian Boos <cboos@edgewall.org>
 
+from StringIO import StringIO
 from itertools import izip
+from zipfile import ZipFile, ZIP_DEFLATED
 
 from genshi.builder import tag
 
 from trac.resource import ResourceNotFound
-from trac.util.datefmt import datetime, utc
+from trac.util import content_disposition, create_zipinfo
+from trac.util.datefmt import datetime, http_date, utc
 from trac.util.translation import tag_, _
 from trac.versioncontrol.api import Changeset, NoSuchNode, NoSuchChangeset
+from trac.web.api import RequestDone
 
 __all__ = ['get_changes', 'get_path_links', 'get_existing_node',
-           'get_allowed_node', 'make_log_graph']
+           'get_allowed_node', 'make_log_graph', 'render_zip']
 
 
 def get_changes(repos, revs, log=None):
@@ -166,3 +170,63 @@ def make_log_graph(repos, revs):
     except StopIteration:
         pass
     return threads, vertices, columns
+
+
+def render_zip(req, filename, repos, root_node, iter_nodes):
+    """Send a ZIP file containing the data corresponding to the `nodes`
+    iterable.
+
+    :type root_node: `~trac.versioncontrol.api.Node`
+    :param root_node: optional ancestor for all the *nodes*
+
+    :param iter_nodes: callable taking the optional *root_node* as input
+                       and generating the `~trac.versioncontrol.api.Node`
+                       for which the content should be added into the zip.
+    """
+    req.send_response(200)
+    req.send_header('Content-Type', 'application/zip')
+    req.send_header('Content-Disposition',
+                    content_disposition('inline', filename))
+    if root_node:
+        req.send_header('Last-Modified', http_date(root_node.last_modified))
+        root_path = root_node.path.rstrip('/')
+    else:
+        root_path = ''
+    if root_path:
+        root_path += '/'
+        root_name = root_node.name + '/'
+    else:
+        root_name = ''
+    root_len = len(root_path)
+
+    buf = StringIO()
+    zipfile = ZipFile(buf, 'w', ZIP_DEFLATED)
+    for node in iter_nodes(root_node):
+        if node is root_node:
+            continue
+        path = node.path.strip('/')
+        assert path.startswith(root_path)
+        path = root_name + path[root_len:]
+        kwargs = {'mtime': node.last_modified}
+        data = None
+        if node.isfile:
+            data = node.get_processed_content(eol_hint='CRLF').read()
+            properties = node.get_properties()
+            # Subversion specific
+            if 'svn:special' in properties and data.startswith('link '):
+                data = data[5:]
+                kwargs['symlink'] = True
+            if 'svn:executable' in properties:
+                kwargs['executable'] = True
+        elif node.isdir and path:
+            kwargs['dir'] = True
+            data = ''
+        if data is not None:
+            zipfile.writestr(create_zipinfo(path, **kwargs), data)
+    zipfile.close()
+
+    zip_str = buf.getvalue()
+    req.send_header("Content-Length", len(zip_str))
+    req.end_headers()
+    req.write(zip_str)
+    raise RequestDone

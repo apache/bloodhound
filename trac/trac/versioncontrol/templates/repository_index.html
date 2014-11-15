@@ -1,4 +1,15 @@
-<!--! Template snippet for a table of repositories -->
+<!--!  Copyright (C) 2008-2014 Edgewall Software
+
+  This software is licensed as described in the file COPYING, which
+  you should have received as part of this distribution. The terms
+  are also available at http://trac.edgewall.com/license.html.
+
+  This software consists of voluntary contributions made by many
+  individuals. For the exact contribution history, see the revision
+  history and logs, available at http://trac.edgewall.org/.
+
+Template snippet for a table of repositories
+-->
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:py="http://genshi.edgewall.org/"
     xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
@@ -11,11 +22,11 @@
         <tr class="${'odd' if idx % 2 else 'even'}">
           <td class="name">
             <em py:strip="not err">
-              <b py:strip="repoinfo.alias != ''">
+              <strong py:strip="repoinfo.alias != ''">
                 <a class="dir" title="View Root Directory"
                    href="${href.browser(repos.reponame if repos else reponame,
                                         order=order if order != 'name' else None, desc=desc)}">$reponame</a>
-              </b>
+              </strong>
             </em>
           </td>
           <td class="size">

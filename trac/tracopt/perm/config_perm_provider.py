@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2009 Edgewall Software
+# Copyright (C) 2009-2013 Edgewall Software
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -17,7 +17,10 @@ from trac.perm import IPermissionRequestor
 
 
 class ExtraPermissionsProvider(Component):
-    """Extra permission provider."""
+    """Define arbitrary permissions.
+
+    Documentation can be found on the [wiki:TracIni#extra-permissions-section]
+    page after enabling the component."""
 
     implements(IPermissionRequestor)
 
@@ -31,17 +34,21 @@ class ExtraPermissionsProvider(Component):
         and a comma-separated list of permissions. For example:
         {{{
         [extra-permissions]
-        extra_admin = extra_view, extra_modify, extra_delete
+        EXTRA_ADMIN = EXTRA_VIEW, EXTRA_MODIFY, EXTRA_DELETE
         }}}
         This entry will define three new permissions `EXTRA_VIEW`,
         `EXTRA_MODIFY` and `EXTRA_DELETE`, as well as a meta-permissions
         `EXTRA_ADMIN` that grants all three permissions.
 
+        The permissions are created in upper-case characters regardless of
+        the casing of the definitions in `trac.ini`. For example, the
+        definition `extra_view` would create the permission `EXTRA_VIEW`.
+
         If you don't want a meta-permission, start the meta-name with an
         underscore (`_`):
         {{{
         [extra-permissions]
-        _perms = extra_view, extra_modify
+        _perms = EXTRA_VIEW, EXTRA_MODIFY
         }}}
         """)
 

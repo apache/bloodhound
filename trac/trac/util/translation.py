@@ -146,17 +146,18 @@ try:
                 self._activate_failed = True
                 return
             t = Translations.load(locale_dir, locale or 'en_US')
-            if not t or t.__class__ is NullTranslations:
+            if not isinstance(t, Translations):
                 t = self._null_translations
             else:
-                t.add(Translations.load(locale_dir, locale or 'en_US',
-                                        'tracini'))
+                self._add(t, Translations.load(locale_dir, locale or 'en_US',
+                                               'tracini'))
                 if env_path:
                     with self._plugin_domains_lock:
                         domains = self._plugin_domains.get(env_path, {})
                         domains = domains.items()
                     for domain, dirname in domains:
-                        t.add(Translations.load(dirname, locale, domain))
+                        self._add(t, Translations.load(dirname, locale,
+                                                       domain))
             self._current.translations = t
             self._activate_failed = False
 
@@ -183,6 +184,12 @@ try:
             # active, or activation has failed.
             return self._current.translations is not None \
                    or self._activate_failed
+
+        # Internal methods
+
+        def _add(self, t, translations):
+            if isinstance(translations, Translations):
+                t.add(translations)
 
         # Delegated methods
 
@@ -335,21 +342,37 @@ try:
         translations are available.
         """
         try:
-            return [dirname for dirname
-                    in pkg_resources.resource_listdir('trac', 'locale')
-                    if '.' not in dirname]
+            locales = [dirname for dirname
+                       in pkg_resources.resource_listdir('trac', 'locale')
+                       if '.' not in dirname
+                       and pkg_resources.resource_exists(
+                        'trac', 'locale/%s/LC_MESSAGES/messages.mo' % dirname)]
+            return locales
         except Exception:
             return []
 
     def get_negotiated_locale(preferred_locales):
         def normalize(locale_ids):
             return [id.replace('-', '_') for id in locale_ids if id]
-        return Locale.negotiate(normalize(preferred_locales),
-                                normalize(get_available_locales()))
+        available_locales = get_available_locales()
+        if 'en_US' not in available_locales:
+            available_locales.append('en_US')
+        locale = Locale.negotiate(normalize(preferred_locales),
+                                  normalize(available_locales))
+        if locale and str(locale) not in available_locales:
+            # The list of get_available_locales() must include locale
+            # identifier from str(locale), but zh_* don't be included after
+            # Babel 1.0. Avoid expanding zh_* to zh_Hans_CN and zh_Hant_TW
+            # to clear "script" property of Locale instance. See #11258.
+            locale._data  # load localedata before clear script property
+            locale.script = None
+            assert str(locale) in available_locales
+        return locale
 
     has_babel = True
 
 except ImportError: # fall back on 0.11 behavior, i18n functions are no-ops
+    Locale = None
     gettext = _ = gettext_noop
     dgettext = dgettext_noop
     ngettext = ngettext_noop

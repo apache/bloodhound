@@ -20,9 +20,8 @@ from genshi.builder import Element, Fragment, tag
 
 from trac.config import ConfigSection
 from trac.core import *
-from trac.perm import PermissionError
 from trac.util.html import find_element
-from trac.util.translation import _, N_
+from trac.util.translation import N_, _, tag_
 from trac.web.api import IRequestHandler
 from trac.wiki.api import IWikiMacroProvider
 from trac.wiki.formatter import extract_link
@@ -53,7 +52,7 @@ class InterTracDispatcher(Component):
            it doesn't know how to dispatch an InterTrac link, and it's up to
            the local Trac to prepare the correct link. Not all links will work
            that way, but the most common do. This is called the compatibility
-           mode, and is `true` by default.
+           mode, and is `false` by default.
          * If you know that the remote Trac knows how to dispatch InterTrac
            links, you can explicitly disable this compatibility mode and then
            ''any'' TracLinks can become InterTrac links.
@@ -90,8 +89,10 @@ class InterTracDispatcher(Component):
         link_frag = extract_link(self.env, web_context(req), link)
         if isinstance(link_frag, (Element, Fragment)):
             elt = find_element(link_frag, 'href')
-            if elt is None: # most probably no permissions to view
-                raise PermissionError(_("Can't view %(link)s:", link=link))
+            if elt is None:
+                raise TracError(
+                    _("Can't view %(link)s. Resource doesn't exist or "
+                      "you don't have the required permission.", link=link))
             href = elt.attrib.get('href')
         else:
             href = req.href(link.rstrip(':'))
@@ -122,16 +123,18 @@ class InterTracDispatcher(Component):
         def generate_prefix(prefix):
             intertrac = intertracs[prefix]
             if isinstance(intertrac, basestring):
-                yield tag.tr(tag.td(tag.b(prefix)),
-                             tag.td('Alias for ', tag.b(intertrac)))
+                yield tag.tr(tag.td(tag.strong(prefix)),
+                             tag.td(tag_("Alias for %(name)s",
+                                         name=tag.strong(intertrac))))
             else:
                 url = intertrac.get('url', '')
                 if url:
                     title = intertrac.get('title', url)
-                    yield tag.tr(tag.td(tag.a(tag.b(prefix),
+                    yield tag.tr(tag.td(tag.a(tag.strong(prefix),
                                               href=url + '/timeline')),
                                  tag.td(tag.a(title, href=url)))
 
         return tag.table(class_="wiki intertrac")(
-            tag.tr(tag.th(tag.em('Prefix')), tag.th(tag.em('Trac Site'))),
+            tag.tr(tag.th(tag.em(_("Prefix"))),
+                   tag.th(tag.em(_("Trac Site")))),
             [generate_prefix(p) for p in sorted(intertracs.keys())])
