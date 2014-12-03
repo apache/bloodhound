@@ -1,0 +1,73 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:py="http://genshi.edgewall.org/" py:strip="">
+  <!--!  Display a sequence of path components.
+  -
+  -      Each component is a link to the corresponding location in the browser.
+  -
+  -      We expect the following variables to be available in the calling
+  -      context:
+  -       * path_links, a list of dicts each having the following keys:
+  -         * name, the path component name
+  -         * href, a link pointing to this path
+  -       * stickyrev, the optional revision information to show
+  -       * reponame, the optional repository name
+  -       * path_depth_limit, number of path components to show (all if empty) 
+  -->
+<py:def function="part_ui(part, last)"><li><a
+    class="pathentry" href="${part.href}"
+    title="${_('View %(name)s', name=part.name)}">${part.name}</a><span 
+    py:if="not last" class="pathentry sep divider">/</span></li></py:def>
+
+<py:if test="path_links">
+<!--! <realm>: -->
+<li><a class="pathentry first" href="${path_links[0].href}"
+   title="${_('Go to repository index') if reponame else _('Go to repository root')}"><i class="icon-home"></i>${path_links[0].name}</a></li>
+<!--! the/path/.../...
+  -
+  -   Note: in the <py:for>...</py:for> below, we take great care of
+  -         not introducing any space character, so that one can easily
+  -         copy the path to the clipboard.
+  -->
+<py:with vars="_depth = path_depth_limit or 9999;
+  path_lead = path_links[1:2];
+  path_hidden = path_links[2:][:-_depth];
+  path_visible = path_links[2:][-_depth:]"><py:if
+    test="path_lead">${part_ui(path_lead[0], False)}</py:if><py:if
+    test="path_hidden"><li class="dropdown"><a 
+    href="#" class="btn btn-mini dropdown-toggle more" 
+    data-toggle="dropdown"><b class="caret"></b></a><ul
+    class="dropdown-menu"><li 
+    py:for="idx, part in enumerate(path_hidden)"
+    py:with="last = idx == len(path_hidden) - 1"><a 
+      class="pathentry" href="${part.href}"
+      title="${_('View %(name)s', name=part.name)}">${part.name}<span 
+      py:if="not last" class="pathentry sep">/</span></a></li></ul><span 
+    class="pathentry sep divider">/</span></li></py:if><py:for 
+    each="idx, part in enumerate(path_visible)"><py:with 
+    vars="last = idx == len(path_visible) - 1;
+    ">${part_ui(part, last)}</py:with></py:for></py:with></py:if>
+<py:if test="stickyrev" py:with="drev = display_rev(stickyrev)"><span class="pathentry sep">@</span>
+  <a class="pathentry" href="${href.changeset(stickyrev, reponame)}"
+     title="${_('View changeset %(rev)s', rev=drev)}">$drev</a>
+</py:if>
+
+</div>

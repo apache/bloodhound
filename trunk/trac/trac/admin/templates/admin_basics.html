@@ -1,0 +1,68 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  <head>
+    <title>Basics</title>
+  </head>
+
+  <body>
+    <h2>Basic Settings</h2>
+
+    <form class="mod" id="modbasic" method="post" action="">
+      <fieldset>
+        <legend>Project</legend>
+        <div class="field">
+          <label>Name:<br />
+            <input type="text" name="name" value="${project.name}" />
+          </label>
+        </div>
+        <div class="field">
+          <label>URL:<br />
+            <input type="text" name="url" size="48" value="${project.url}" />
+          </label>
+        </div>
+        <div class="field">
+          <label>Description:<br />
+            <textarea name="descr" class="trac-resizable" rows="3" cols="50">
+${project.descr}</textarea>
+          </label>
+        </div>
+        <div class="field">
+          <label>Default timezone:<br />
+            <select name="default_timezone">
+              <option value="">Server's local time zone</option>
+              <option py:for="tzname in timezones" value="${tzname}"
+                      selected="${tzname == default_timezone or None}">${tzname}</option>
+            </select>
+          </label>
+        </div>
+        <div class="field">
+          <label>Default language:<br />
+            <select name="default_language">
+              <option value="">Browser's language</option>
+              <option py:for="locale, language in languages" value="${locale}"
+                      selected="${locale == default_language or None}">${language}</option>
+            </select>
+          </label>
+        </div>
+        <div class="field">
+          <label>Default date format:<br />
+            <select name="default_date_format">
+              <option value="">Browser's language</option>
+              <option value="iso8601"
+                      selected="${default_date_format == 'iso8601' or None}">ISO 8601 format</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="buttons">
+        <input type="submit" value="${_('Apply changes')}" />
+      </div>
+    </form>
+  </body>
+
+</html>

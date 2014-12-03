@@ -1,0 +1,110 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title py:choose="">
+      <py:when test="query">Search Results</py:when>
+      <py:otherwise>Search</py:otherwise>
+    </title>
+    <py:if test="results">
+        <meta name="startIndex" content="${results.span[0] + 1}"/>
+        <meta name="totalResults" content="$results.num_items"/>
+        <meta name="itemsPerPage" content="$results.max_per_page"/>
+    </py:if>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {$("#q").get(0).focus()});
+    </script>
+  </head>
+  <body>
+    <div id="content" class="row">
+      <div class="span12">
+        <h2 py:if="results">
+          Results <small>(${results.displayed_items()})</small>
+        </h2>
+
+        <form id="fullsearch" action="${href.search()}" method="get">
+          <input type="hidden" name="q" value="${query}" />
+          <input type="hidden" name="noquickjump" value="1" />
+
+          <div class="row">
+            <div class="span2">
+              <input class="btn" type="submit" value="${_('Apply filters')}" />
+            </div>
+            <div class="span10 filters">
+              <py:for each="filter in filters">
+                <input type="checkbox" id="${filter.name}" name="${filter.name}"
+                       checked="${filter.active or None}" />
+                <label for="${filter.name}">
+                  <span class="label">${filter.label}</span>
+                </label>
+              </py:for>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="span12" py:if="results or quickjump">
+        <div>
+          <dl id="results">
+            <py:if test="quickjump">
+              <dt id="quickjump">
+                <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+              </dt>
+              <dd>${quickjump.description}</dd>
+            </py:if>
+            <py:for each="result in results">
+              <dt><a href="${result.href}" class="searchable">${result.title}</a></dt>
+              <dd class="searchable">${result.excerpt}</dd>
+              <dd>
+                <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                <span class="date">${result.date}</span>
+              </dd>
+            </py:for>
+          </dl>
+        </div>
+        <xi:include py:with="paginator = results" href="bh_page_index.html" />
+      </div>
+
+      <div class="span12"
+          py:if="query and not (results or quickjump)">
+        <p id="notfound" class="alert">
+          No matches found.
+        </p>
+      </div>
+
+    </div>
+
+    <div id="help" class="help-block pull-right" i18n:msg="">
+      <span class="label label-info">Note:</span>
+      See <a href="${href.wiki('TracSearch')}">TracSearch</a>
+      for help on searching.
+    </div>
+    <br/>
+
+  </body>
+</html>

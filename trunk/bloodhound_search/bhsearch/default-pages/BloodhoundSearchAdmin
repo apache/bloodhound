@@ -1,0 +1,22 @@
+= Bloodhound Search Admin=
+
+== Admin Command ==
+Bloodhound search module provides two admin commands:
+
+'''bhsearch rebuild''' rebuilds the search index.[[BR]]
+'''bhsearch optimize''' optimizes the search index by merging different index files.
+
+== Options ==
+The behaviour of Bloodhound search can be controlled by setting different options in trac.ini file.
+
+=== Trac Integration ===
+Bloodhound search can integrate with Trac on different levels, depending on the values of the following options:
+
+'''is_default''' (default=false) - bhsearch will be used when user types a query in quick search box.[[BR]]
+'''enable_redirect''' (default=false) - requests to /search url will be redirected to bhsearch.
+
+=== Multiproduct support ===
+When bhsearch is used in installations with multiple products, quick search box can be used in two different ways; it can either return results from all products (default), or only the results from the product the search is initiated in.
+
+'''global_quicksearch''' (default=true) - do not add product filter to search queries initiated in product scope.
+

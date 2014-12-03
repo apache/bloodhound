@@ -1,0 +1,131 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="bh_admin.html" />
+  <head>
+    <title>$label_plural</title>
+  </head>
+
+  <body>
+    <h2 i18n:msg="label_plural">Manage $label_plural</h2>
+
+    <py:choose test="view">
+      <form py:when="'detail'" class="well form-horizontal" id="modenum" method="post" action="">
+        <fieldset>
+          <legend i18n:msg="label_singular">Modify $label_singular:</legend>
+          <div class="control-group">
+            <label class="control-label" for="name">Name: </label>
+            <div class="controls">
+              <input type="text" id="name" name="name" value="${enum.name}" />
+            </div>
+          </div>
+          <div class="control-group buttons">
+            <input type="submit" class="btn" name="save"
+                   value="${_('Save')}"/>
+            <input type="submit" class="btn-link" name="cancel"
+                   value="${_('Cancel')}"/>
+          </div>
+        </fieldset>
+      </form>
+
+      <py:otherwise>
+        <div class="row">
+          <div class="span9">
+            <form id="addenum" class="well form-inline" method="post" action="">
+              <fieldset>
+                <legend i18n:msg="label_singular">Add $label_singular:</legend>
+                <input class="btn" type="submit" name="add"
+                       value="${_('Add')}"/>
+                <label class="control-label" for="name">Name:</label>
+                <input class="input-medium" type="text"
+                       name="name" id="name"/>
+              </fieldset>
+            </form>
+          </div>
+          <div class="span9">
+            <py:choose>
+              <form py:when="enums" id="enumtable" class="form-inline" method="post" action="">
+                <table id="enumlist"
+                       class="table table-striped table-condensed table-bordered">
+                  <thead>
+                    <tr><th class="sel"><i class="icon-check"></i></th>
+                      <th>Name</th><th>Default</th><th>Order</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr py:for="enum in enums">
+                      <td><input type="checkbox" name="sel" value="${enum.name}" /></td>
+                      <td class="full-x">
+                        <a href="${panel_href(enum.name)}">${enum.name}</a>
+                      </td>
+                      <td class="default">
+                        <input type="radio" name="default" value="${enum.name}"
+                               checked="${enum.name==default or None}" />
+                      </td>
+                      <td class="default">
+                        <select name="value_${enum.value}" class="input-mini">
+                          <option py:for="other in enums"
+                                  selected="${other.value==enum.value or None}">${other.value}</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="form-inline">
+                  <input class="btn" type="submit" name="remove"
+                      value="${_('Remove selected items')}" />
+                  <input class="btn" type="submit" name="apply" 
+                      value="${_('Apply changes')}" />
+                </div>
+                <br/>
+                <p class="help-block" py:if="type=='priority'" i18n:msg="">
+                  <span class="label label-info">Note</span>
+                  The order of priorities determines the
+                  coloring of entries in the ticket queries and reports.
+                </p>
+                <p class="help-block">
+                  <span class="label label-info">Note</span>
+                  You can remove all items from this list to completely hide this
+                  field from the user interface.
+                </p>
+              </form>
+    
+              <p py:otherwise="" class="help-block">
+                <span class="label label-info">Note</span>
+                As long as you don't add any items to the list, this field
+                will remain completely hidden from the user interface.
+              </p>
+            </py:choose>
+          </div>
+        </div>
+
+      </py:otherwise>
+    </py:choose>
+  </body>
+
+</html>
+

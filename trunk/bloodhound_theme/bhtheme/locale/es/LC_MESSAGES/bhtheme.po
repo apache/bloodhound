@@ -1,0 +1,4746 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+# Spanish translations for BloodhoundTheme.
+# Copyright (C) 2013 Apache Software Foundation
+# This file is distributed under the same license as the BloodhoundTheme
+# project.
+#
+# Translators:
+# Olemis Lang <olemis+bh@gmail.com>, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version:  bloodhound\n"
+"Report-Msgid-Bugs-To: dev@bloodhound.apache.org\n"
+"POT-Creation-Date: 2014-02-11 23:05+0100\n"
+"PO-Revision-Date: 2013-12-10 19:05-0500\n"
+"Last-Translator: Olemis Lang <olemis+bh@gmail.com>\n"
+"Language-Team: Spanish "
+"(http://www.transifex.com/projects/p/bloodhound/language/es/)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: bhtheme/theme.py:158
+msgid ""
+"A short version of application name most commonly\n"
+"displayed in text, titles and labels"
+msgstr ""
+"Una versión concisa del nombre de la aplicación mostrada \n"
+"frecuentemente en textos, títulos y etiquetas"
+
+#: bhtheme/theme.py:162
+msgid ""
+"This is full name with trade mark and\n"
+"everything, it is currently used in footers and about page only"
+msgstr ""
+"Nombre completo incluyendo otros aspectos com marca registrada \n"
+"utilizados en los pies de página y la reseña acerca del sitio"
+
+#: bhtheme/theme.py:167
+msgid "Text to display before full application name in footers"
+msgstr "Texto a mostrar en los pies de página antes del nombre de la aplicación"
+
+#: bhtheme/theme.py:171
+msgid "Text to display after full application name in footers"
+msgstr "Texto mostrado en el pie de página después del nombre de la aplicación"
+
+#: bhtheme/theme.py:175
+msgid "Text to use as the right aligned footer"
+msgstr "Texto que aparece en el pie de página alineado a la derecha"
+
+#: bhtheme/theme.py:353
+#, inherit=trac
+msgid "Previous"
+msgstr "Anterior"
+
+#: bhtheme/theme.py:353
+#, inherit=trac
+msgid "Next"
+msgstr "Siguiente"
+
+#: bhtheme/theme.py:423
+msgid "(Global settings)"
+msgstr "(Configuración global)"
+
+#: bhtheme/theme.py:480
+#, python-format
+msgid "Edit product %(prefix)s"
+msgstr "Edit product %(prefix)s"
+
+#: bhtheme/theme.py:483 bhtheme/templates/bh_milestone_view.html:71
+#: bhtheme/templates/bh_product_view.html:60
+#: bhtheme/templates/bh_report_list.html:121
+#: bhtheme/templates/bh_ticket_change.html:71
+#: bhtheme/templates/bh_wiki_edit.html:192
+#, inherit=trac
+msgid "Edit"
+msgstr "Editar"
+
+#: bhtheme/theme.py:487
+msgid "Home page"
+msgstr "Página de inicio"
+
+#: bhtheme/theme.py:489
+msgid "Home"
+msgstr "Inicio"
+
+#: bhtheme/theme.py:491
+msgid "Tickets dashboard"
+msgstr "Resúmen de incidencias"
+
+#: bhtheme/theme.py:493 bhtheme/templates/bh_admin_milestones.html:149
+#, inherit=trac
+msgid "Tickets"
+msgstr "Incidencias"
+
+#: bhtheme/theme.py:495 bhtheme/theme.py:497
+#, inherit=trac
+msgid "Wiki"
+msgstr "Wiki"
+
+#: bhtheme/theme.py:501
+msgid "Browse"
+msgstr "Explorar"
+
+#: bhtheme/theme.py:516
+#, inherit=trac
+msgid "Browse Source"
+msgstr "Hojear fuentes"
+
+#: bhtheme/theme.py:523
+msgid "Multiple selection fields displayed in create ticket menu"
+msgstr ""
+"Campos de selección múltiple incluídos en el menú de creación rápida de "
+"tickets"
+
+#: bhtheme/theme.py:577
+#, python-format
+msgid "Missing ticket field '%(field)s'."
+msgstr "No se encuentra el campo de incidencias '%(field)s'."
+
+#: bhtheme/templates/bh_about.html:30 bhtheme/templates/bh_about.html:48
+msgid "About"
+msgstr "Acerca de"
+
+#: bhtheme/templates/bh_about.html:51
+#, python-format
+msgid ""
+"Standing on the shoulders of\n"
+"        [1:Trac %(Trac)s],\n"
+"        [2:%(Bloodhound)s]\n"
+"        is a project hosted by the Apache Software Foundation's Incubator"
+" project.\n"
+"        [3:]\n"
+"        Currently, it has three key aims:\n"
+"        [4:Multiple Projects]\n"
+"        It will manage anything from your one pet project to dozens of \n"
+"        commercial or open source projects, and scale seamlessly in-"
+"between. \n"
+"        The built-in Wiki allows you to create proposals and store other"
+" \n"
+"        information.\n"
+"        [5:Easy to install]\n"
+"        It will provide an installation process for Windows, Linux and "
+"Mac OS X. \n"
+"        Everything you need to run Bloodhound with your favourite web "
+"server \n"
+"        and database will be provided.\n"
+"        [6:User-friendly design]\n"
+"        It provides a consistent experience throughout. \n"
+"        It will be obvious even to beginners how to carry out common "
+"tasks. \n"
+"        A dashboard will provide an overview of work assigned to you, \n"
+"        or watched by you."
+msgstr ""
+"Construido a partir de\n"
+"        [1:Trac %(Trac)s],\n"
+"        [2:%(Bloodhound)s]\n"
+"        es un proyecto de primer nivel de la Apache Software Foundation.\n"
+"        [3:]\n"
+"        Actualmente, sus objetivos son:\n"
+"        [4:Múltiples Projectos]\n"
+"        Administrar cualquier tipo de proyecto desde los más simples "
+"hasta decenas \n"
+"        de proyectos comerciales o de código abierto, y adaptarse a la "
+"complejidad de todo tipo de despliegues. \n"
+"        La Wiki permite crear propuestas, documentación y almacenar otras"
+" informaciones. \n"
+"        [5:Fácil instalación y despliegue]\n"
+"        Ofrecer un prooceso de instalación robusto y estable para "
+"Windows, Linux y Mac OS X. \n"
+"        Todas las dependencias necesarias para correr Bloodhound con su "
+"servidor web y \n"
+"        base de datos favoritos estarán listas en cuestión de minutos.\n"
+"        [6:Facilidad de uso]\n"
+"        Proveer una experiencia de navigación a los usuarios que sea "
+"consistente a través de todo el sitio. \n"
+"        Las tareas comunes se realizan de manera intuitiva incluso para "
+"los principiantes. \n"
+"        Varias vistas resumen las tareas asignadas o de interés de cada "
+"usuario."
+
+#: bhtheme/templates/bh_about.html:74
+#, inherit=trac
+msgid "Trac: Integrated SCM & Project Management"
+msgstr "Trac: Administrador de proyectos y SCM integrado"
+
+#: bhtheme/templates/bh_about.html:77
+msgid "About Trac"
+msgstr "Acerca de Trac"
+
+#: bhtheme/templates/bh_about.html:78
+#, inherit=trac
+msgid ""
+"Trac is a web-based software project management and bug/issue\n"
+"        tracking system emphasizing ease of use and low ceremony.\n"
+"        It provides an integrated Wiki, an interface to version control\n"
+"        systems, and a number of convenient ways to stay on top of events"
+"\n"
+"        and changes within a project."
+msgstr ""
+"Trac es un proyecto de software basado en web para la gestión y "
+"seguimiento\n"
+"        de errores y problemas centrado en la facilidad de uso y "
+"eliminación\n"
+"        de burocracia.\n"
+"Provee una Wiki integrada, interfaz con sistemas de\n"
+"        control de versiones y varias formas muy convenientes para estar "
+"al\n"
+"        tanto de los eventos y cambios de un proyecto."
+
+#: bhtheme/templates/bh_about.html:84
+#, inherit=trac
+msgid ""
+"Trac is distributed under the modified BSD License.[1:]\n"
+"        The complete text of the license can be found\n"
+"        [2:online]\n"
+"        as well as in the [3:COPYING] file included in the distribution."
+msgstr ""
+"Trac se distribuye mediante licencia modificad BSD.[1:]\n"
+"        El texto completo de la licencia puede encontrarse\n"
+"        [2:online]\n"
+"        y en el fichero [3:COPYING] incluido en la distribución."
+
+#: bhtheme/templates/bh_about.html:89
+#, inherit=trac
+msgid "python powered"
+msgstr "hecho con python"
+
+#: bhtheme/templates/bh_about.html:92
+#, inherit=trac
+msgid ""
+"Please visit the Trac open source project:\n"
+"        [1:http://trac.edgewall.org/]"
+msgstr ""
+"Por favor, visite el proyecto de software abierto Trac:\n"
+"        [1:http://trac.edgewall.org/]"
+
+#: bhtheme/templates/bh_about.html:94
+#, fuzzy, inherit=trac
+msgid ""
+"Copyright © 2003-2013\n"
+"        [1:Edgewall Software]"
+msgstr ""
+"Copyright © 2003-2012\n"
+"        [1:Edgewall Software]"
+
+#: bhtheme/templates/bh_about.html:102
+#, inherit=trac
+msgid "System Information"
+msgstr "Información de sistema"
+
+#: bhtheme/templates/bh_about.html:104
+#, inherit=trac
+msgid "Package"
+msgstr "cambio"
+
+#: bhtheme/templates/bh_about.html:104 bhtheme/templates/bh_about.html:117
+#: bhtheme/templates/bh_history_view.html:52
+#, inherit=trac
+msgid "Version"
+msgstr "Versión"
+
+#: bhtheme/templates/bh_about.html:115
+#, inherit=trac
+msgid "Installed Plugins"
+msgstr "Extensiones instaladas"
+
+#: bhtheme/templates/bh_about.html:117 bhtheme/templates/bh_about.html:138
+#: bhtheme/templates/bh_admin_components.html:120
+#: bhtheme/templates/bh_admin_enums.html:76
+#: bhtheme/templates/bh_admin_milestones.html:148
+#: bhtheme/templates/bh_admin_products.html:132
+#: bhtheme/templates/bh_admin_repositories.html:181
+#: bhtheme/templates/bh_admin_versions.html:119
+#: bhtheme/templates/bh_user_table.html:40
+#, inherit=trac
+msgid "Name"
+msgstr "Nombre"
+
+#: bhtheme/templates/bh_about.html:117
+#, inherit=trac
+msgid "Location"
+msgstr "Ubicación:"
+
+#: bhtheme/templates/bh_about.html:125
+#, inherit=trac
+msgid "N/A"
+msgstr "N/D"
+
+#: bhtheme/templates/bh_about.html:133
+#: bhtheme/templates/bh_admin_logging.html:46
+#, inherit=trac
+msgid "Configuration"
+msgstr "Configuración"
+
+#: bhtheme/templates/bh_about.html:137
+#, inherit=trac
+msgid "Section"
+msgstr "Sección"
+
+#: bhtheme/templates/bh_about.html:139
+#, inherit=trac
+msgid "Value"
+msgstr "Valor"
+
+#: bhtheme/templates/bh_account_details.html:34
+#, inherit=acct_mgr
+msgid "Account Details"
+msgstr "Detalles de Cuenta"
+
+#: bhtheme/templates/bh_account_details.html:40
+#, inherit=acct_mgr
+msgid "Review User Account Details"
+msgstr "Revisar Detalles de Cuenta de Usuario"
+
+#: bhtheme/templates/bh_account_details.html:42
+#, python-format, inherit=acct_mgr
+msgid "for [1:%(name)s] ([2:%(user)s])"
+msgstr "para [1:%(name)s] ([2:%(user)s])"
+
+#: bhtheme/templates/bh_account_details.html:45
+#, python-format, inherit=acct_mgr
+msgid "for [1:%(user)s]"
+msgstr "para [1:%(user)s]"
+
+#: bhtheme/templates/bh_account_details.html:56
+#, inherit=acct_mgr
+msgid "Account Status"
+msgstr "Estado de Cuenta de Usuario"
+
+#: bhtheme/templates/bh_account_details.html:60
+#, python-format, inherit=acct_mgr
+msgid ""
+"Credentials for this user are stored in AuthStore number\n"
+"                  [1:%(order_num)s] (%(store)s)."
+msgstr ""
+"Las credenciales de este usuario están almacenadas en el AuthStore número"
+"\n"
+"                  [1:%(order_num)s] (%(store)s)."
+
+#: bhtheme/templates/bh_account_details.html:64
+#, inherit=acct_mgr
+msgid "Username matching is set to [1:not case-sensitive]."
+msgstr ""
+"La comparación de nombres de usuario [1:no diferencia mayúsculas y "
+"minúsculas]"
+
+#: bhtheme/templates/bh_account_details.html:66
+#, inherit=acct_mgr
+msgid "Username matching is set to [1:case-sensitive]."
+msgstr ""
+"La comparación de nombres de usuario [1:diferencia mayúsculas y "
+"minúsculas]"
+
+#: bhtheme/templates/bh_account_details.html:71
+#, inherit=acct_mgr
+msgid ""
+"No store provides credentials for this user,\n"
+"                  so the user currently can't be authenticated and\n"
+"                  access to this [1:account is effectively blocked],\n"
+"                  while account details may still be available."
+msgstr ""
+"Ninguna fuente ofrece credenciales para este usuario,\n"
+"                  por lo tanto actualmente el usuario no puede iniciar "
+"sesión \n"
+"                  y la [1:cuenta está bloqueada],\n"
+"                  hasta que los detalles necesarios estén disponibles."
+
+#: bhtheme/templates/bh_account_details.html:83
+#, python-format, inherit=acct_mgr
+msgid ""
+"[1:]\n"
+"                    This account has been locked until %(time)s[2:]\n"
+"                    and even valid login attempts are rejected meanwhile."
+msgstr ""
+"[1:]\n"
+"                    Esta cuenta ha sido bloqueada hasta %(time)s[2:]\n"
+"                    mientras tanto todos los intentos de inicio de sesión"
+" (hasta los correctos) serán rechazados."
+
+#: bhtheme/templates/bh_account_details.html:88
+#, inherit=acct_mgr
+msgid "This account has been locked permanently."
+msgstr "Esta cuenta ha sido bloqueada permanentemente"
+
+#: bhtheme/templates/bh_account_details.html:92
+#, inherit=acct_mgr
+msgid "Release account lock"
+msgstr "Desbloquear cuenta"
+
+#: bhtheme/templates/bh_account_details.html:92
+#, inherit=acct_mgr
+msgid "Unlock"
+msgstr "Desbloquear"
+
+#: bhtheme/templates/bh_account_details.html:104
+#, python-format, inherit=acct_mgr
+msgid ""
+"Lock condition has been met\n"
+"                        %(count)s time by now."
+msgid_plural ""
+"Lock condition has been met\n"
+"                        %(count)s times by now."
+msgstr[0] ""
+"Las condiciones de bloqueo de cuenta han sido detectadas\n"
+"                        %(count)s vez."
+msgstr[1] ""
+"Las condiciones de bloqueo de cuenta han sido detectadas\n"
+"                        %(count)s veces."
+
+#: bhtheme/templates/bh_account_details.html:116
+#, python-format, inherit=acct_mgr
+msgid ""
+"Therefore after another failed login attempt authentication\n"
+"                      for this account would be retarded by %(time)s."
+msgstr ""
+"Por lo tanto otro intento fallido de inicio de sesión \n"
+"                      con esta cuenta la deshabilitará por %(time)s."
+
+#: bhtheme/templates/bh_account_details.html:123
+#, inherit=acct_mgr
+msgid "Lock condition has not been met yet."
+msgstr "La condición de bloqueo no han sido detectada todavía"
+
+#: bhtheme/templates/bh_account_details.html:129
+#, inherit=acct_mgr
+msgid "No constraints are set for this account."
+msgstr "No se han aplicado restricciones a esta cuenta"
+
+#: bhtheme/templates/bh_account_details.html:139
+#, inherit=acct_mgr
+msgid "Verification"
+msgstr "Verificación"
+
+#: bhtheme/templates/bh_account_details.html:143
+#, python-format, inherit=acct_mgr
+msgid "Current email address: <%(email)s>"
+msgstr "Dirección e-mail actual: <%(email)s>"
+
+#: bhtheme/templates/bh_account_details.html:146
+#, inherit=acct_mgr
+msgid "This address has been verified successfully."
+msgstr ""
+"Las verificaciones de esta dirección han sido completadas "
+"satisfactoriamente"
+
+#: bhtheme/templates/bh_account_details.html:148
+#, python-format, inherit=acct_mgr
+msgid ""
+"Verification is pending\n"
+"                    ([1:token: '%(token)s' ])."
+msgstr ""
+"La verificación está pendiente\n"
+"                    ([1:token: '%(token)s' ])."
+
+#: bhtheme/templates/bh_account_details.html:151
+#, inherit=acct_mgr
+msgid "This address has not been verified yet."
+msgstr "Esta dirección no ha sido verificada todavía"
+
+#: bhtheme/templates/bh_account_details.html:156
+#, inherit=acct_mgr
+msgid "No email address is registered for this account."
+msgstr "No hay dirección e-mail para esta cuenta de usuario"
+
+#: bhtheme/templates/bh_account_details.html:167
+#, inherit=acct_mgr
+msgid "Access History"
+msgstr "Historial de accesos"
+
+#: bhtheme/templates/bh_account_details.html:170
+#, python-format, inherit=acct_mgr
+msgid "Last login: %(time)s"
+msgstr "Última sesión: %(time)s"
+
+#: bhtheme/templates/bh_account_details.html:172
+#, inherit=acct_mgr
+msgid "The user has not logged in before."
+msgstr "El usuario no ha iniciado una sesión."
+
+#: bhtheme/templates/bh_account_details.html:176
+#, python-format, inherit=acct_mgr
+msgid "Total failed attempts: %(count)s"
+msgstr "Total de intentos fallidos: %(count)s"
+
+#: bhtheme/templates/bh_account_details.html:177
+#, inherit=acct_mgr
+msgid "Table: Last failed login attempts log view"
+msgstr "Tabla: Últimos intentos fallidos de inicio de sesión"
+
+#: bhtheme/templates/bh_account_details.html:182
+#, inherit=acct_mgr
+msgid "IP address"
+msgstr "Dirección IP"
+
+#: bhtheme/templates/bh_account_details.html:183
+#, inherit=acct_mgr
+msgid "Log time"
+msgstr "Fecha y hora"
+
+#: bhtheme/templates/bh_account_details.html:194
+#, inherit=acct_mgr
+msgid "Delete login failure log"
+msgstr "Limpiar registos de fallas de inicio de sesión"
+
+#: bhtheme/templates/bh_account_details.html:194
+#, inherit=acct_mgr
+msgid "Delete Log"
+msgstr "Eliminar registros"
+
+#: bhtheme/templates/bh_account_details.html:201
+#, inherit=acct_mgr
+msgid "There is currently no failed login attempt logged."
+msgstr "No se han registrado fallas de inicio de sesión"
+
+#: bhtheme/templates/bh_account_details.html:210
+#, inherit=acct_mgr
+msgid "Back to accounts"
+msgstr "Volver a cuentas"
+
+#: bhtheme/templates/bh_account_details.html:212
+#: bhtheme/templates/bh_diff_options.html:71
+#: bhtheme/templates/bh_query.html:255 bhtheme/templates/bh_report_view.html:99
+#: bhtheme/templates/bh_revisionlog.html:121
+#: bhtheme/templates/bh_roadmap.html:47 bhtheme/templates/bh_timeline.html:58
+#, inherit=trac
+msgid "Update"
+msgstr "Actualizar"
+
+#: bhtheme/templates/bh_admin.html:31
+msgid "Select Module"
+msgstr "Seleccionar Módulo"
+
+#: bhtheme/templates/bh_admin.html:51
+#, inherit=trac
+msgid "Administration"
+msgstr "Administración"
+
+#: bhtheme/templates/bh_admin.html:84
+#, inherit=trac
+msgid "Administration:"
+msgstr "Administración:"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:33
+#: bhtheme/templates/bh_admin_accountsconfig.html:37
+#, inherit=accmng
+msgid "Accounts: Configuration"
+msgstr "Cuentas: Configuración"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:78
+#, inherit=accmng
+msgid "Password Refresh"
+msgstr "Actualizar Contraseña"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:81
+#, inherit=accmng
+msgid "Silently update password hashes on next successful login."
+msgstr ""
+"Modificar automáticamente las contraseñas codificadas en el próximo "
+"inicio de sesión"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:84
+#, inherit=accmng
+msgid "Restart"
+msgstr "Reiniciar"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:92
+#, inherit=accmng
+msgid "Persistent Sessions"
+msgstr "Sesiones persistentes"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:95
+#, inherit=accmng
+msgid ""
+"Allow the user to be remembered across sessions without needing to\n"
+"              re-authenticate."
+msgstr ""
+"Recordar sesiones de usuario sin necesidad de\n"
+"              reiniciar una sesión."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:99
+#, inherit=accmng
+msgid ""
+"[1:Details]\n"
+"              This is, user checks a \"Remember Me\"\n"
+"              [2:checkbox] and, next time he visits the site,\n"
+"              he'll be remembered and automatically authenticated."
+msgstr ""
+"[1:Detalles]\n"
+"              El usuario activa la\n"
+"              [2:marca] \"Recordar Mi Sesión\" y el sistema recordará su "
+"usuario\n"
+"              cuando visite el sitio nuevamente."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:112
+#, inherit=accmng
+msgid "Password Reset"
+msgstr "Cambiar Contraseña"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:115
+#, inherit=accmng
+msgid "Force users to change passwords after a password reset."
+msgstr "Obligar a los usuarios a cambiar la contraseña"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:123
+#, inherit=accmng
+msgid "Verify email"
+msgstr "Verificar e-mail"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:126
+#, inherit=accmng
+msgid "Force users to verify their email addresses."
+msgstr "Obligar a los usuarios a verificar su dirección e-mail"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:133
+#: bhtheme/templates/bh_admin_accountsnotification.html:73
+#: bhtheme/templates/bh_admin_components.html:84
+#: bhtheme/templates/bh_admin_enums.html:47
+#: bhtheme/templates/bh_admin_milestones.html:102
+#: bhtheme/templates/bh_admin_products.html:90
+#: bhtheme/templates/bh_admin_repositories.html:131
+#: bhtheme/templates/bh_admin_versions.html:78
+#, inherit=trac
+msgid "Save"
+msgstr "Guardar"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:33
+#: bhtheme/templates/bh_admin_accountsnotification.html:37
+#, inherit=accmng
+msgid "Accounts: Notification Configuration"
+msgstr "Cuentas: Configurar Notificaciones"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:41
+#, inherit=accmng
+msgid "Account Notification"
+msgstr "Notificaciones de Cuenta"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:42
+#, inherit=accmng
+msgid ""
+"Set the following options in order to be\n"
+"          notified of account creation, password reset and account "
+"deletion."
+msgstr ""
+"Activar las siguientes opciones para\n"
+"          ser notificado de la creación y cierre de cuentas, así como la "
+"actualización de contraseñas."
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:46
+#, inherit=accmng
+msgid "Notification Actions"
+msgstr "Acciones de Notificación"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:47
+#, inherit=accmng
+msgid ""
+"This is a list of actions which you\n"
+"          can enable or disable by [1:checking] the [2:checkboxes]."
+msgstr ""
+"Esta es una lista de acciones que se pueden\n"
+"          habilitar o deshabilitar [1:activando] las [2:marcas]."
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:52
+#, inherit=accmng
+msgid "Get notified of new account creation"
+msgstr "Notificar creación de cuentas"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:56
+#, inherit=accmng
+msgid "Get notified of password reset"
+msgstr "Notificar actualización de contraseñas"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:60
+#, inherit=accmng
+msgid "Get notified of account deletion"
+msgstr "Notificar cierre de cuentas"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:63
+#, inherit=accmng
+msgid "Notification Recipient Addresses"
+msgstr "Direcciones de Destino de Notificaciones"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:64
+#, inherit=accmng
+msgid ""
+"Space-separated list of email addresses\n"
+"          and/or usernames that get notified of the above actions:"
+msgstr ""
+"Lista de direcciones de e-mail y/o nombres de usuarios (separados por "
+"espacios)\n"
+"          que serán notificados acerca de las acciones anteriores:"
+
+#: bhtheme/templates/bh_admin_basics.html:30
+#, inherit=trac
+msgid "Basics"
+msgstr "Básicos"
+
+#: bhtheme/templates/bh_admin_basics.html:34
+#, inherit=trac
+msgid "Basic Settings"
+msgstr "Configuración básica"
+
+#: bhtheme/templates/bh_admin_basics.html:38
+#, inherit=trac
+msgid "Project"
+msgstr "Proyecto"
+
+#: bhtheme/templates/bh_admin_basics.html:40
+#: bhtheme/templates/bh_admin_components.html:59
+#: bhtheme/templates/bh_admin_components.html:99
+#: bhtheme/templates/bh_admin_enums.html:41
+#: bhtheme/templates/bh_admin_enums.html:63
+#: bhtheme/templates/bh_admin_milestones.html:49
+#: bhtheme/templates/bh_admin_milestones.html:118
+#: bhtheme/templates/bh_admin_products.html:65
+#: bhtheme/templates/bh_admin_products.html:112
+#: bhtheme/templates/bh_admin_repositories.html:79
+#: bhtheme/templates/bh_admin_repositories.html:146
+#: bhtheme/templates/bh_admin_repositories.html:165
+#: bhtheme/templates/bh_admin_versions.html:47
+#: bhtheme/templates/bh_admin_versions.html:93
+#: bhtheme/templates/bh_register.html:135
+#, inherit=trac
+msgid "Name:"
+msgstr "Nombre:"
+
+#: bhtheme/templates/bh_admin_basics.html:46
+#: bhtheme/templates/bh_admin_repositories.html:99
+#, inherit=trac
+msgid "URL:"
+msgstr "URL:"
+
+#: bhtheme/templates/bh_admin_basics.html:52
+#: bhtheme/templates/bh_admin_components.html:67
+#: bhtheme/templates/bh_admin_milestones.html:88
+#: bhtheme/templates/bh_admin_products.html:73
+#: bhtheme/templates/bh_admin_repositories.html:116
+#: bhtheme/templates/bh_admin_versions.html:62
+#: bhtheme/templates/bh_report_edit.html:51
+#: bhtheme/templates/bh_ticket.html:579
+#, inherit=trac
+msgid "Description:"
+msgstr "Descripción:"
+
+#: bhtheme/templates/bh_admin_basics.html:59
+#, inherit=trac
+msgid "Default timezone:"
+msgstr "Zona horaria predeterminada:"
+
+#: bhtheme/templates/bh_admin_basics.html:62
+#, inherit=trac
+msgid "Server's local time zone"
+msgstr "Zona horaria del servidor"
+
+#: bhtheme/templates/bh_admin_basics.html:66
+#, inherit=trac
+msgid ""
+"[1:Note]\n"
+"              Install [2:pytz] for a complete list of timezones."
+msgstr ""
+"[1:Nota]\n"
+"              Instale [2:pytz] para obtener una lista completa de zonas "
+"horarias."
+
+#: bhtheme/templates/bh_admin_basics.html:73
+#, inherit=trac
+msgid "Default language:"
+msgstr "Predeterminado"
+
+#: bhtheme/templates/bh_admin_basics.html:76
+#: bhtheme/templates/bh_admin_basics.html:86
+#, inherit=trac
+msgid "Browser's language"
+msgstr "Lenguaje del navegador web"
+
+#: bhtheme/templates/bh_admin_basics.html:83
+#, inherit=trac
+msgid "Default date format:"
+msgstr "Formato de fecha predeterminado"
+
+#: bhtheme/templates/bh_admin_basics.html:88
+#: bhtheme/templates/bh_prefs_datetime.html:90
+#, inherit=trac
+msgid "ISO 8601 format"
+msgstr "Formato ISO 8601"
+
+#: bhtheme/templates/bh_admin_basics.html:94
+#: bhtheme/templates/bh_admin_components.html:140
+#: bhtheme/templates/bh_admin_enums.html:101
+#: bhtheme/templates/bh_admin_logging.html:80
+#: bhtheme/templates/bh_admin_milestones.html:175
+#: bhtheme/templates/bh_admin_plugins.html:170
+#: bhtheme/templates/bh_admin_products.html:155
+#: bhtheme/templates/bh_admin_versions.html:138
+#, inherit=trac
+msgid "Apply changes"
+msgstr "Aplicar cambios"
+
+#: bhtheme/templates/bh_admin_components.html:30
+#: bhtheme/templates/bh_product_view.html:111
+#, inherit=trac
+msgid "Components"
+msgstr "Componentes"
+
+#: bhtheme/templates/bh_admin_components.html:34
+#, inherit=trac
+msgid "Manage Components"
+msgstr "Administrar componentes"
+
+#: bhtheme/templates/bh_admin_components.html:38
+#: bhtheme/templates/bh_admin_products.html:38
+#, inherit=trac
+msgid "Owner:"
+msgstr "Propietario:"
+
+#: bhtheme/templates/bh_admin_components.html:57
+#, inherit=trac
+msgid "Modify Component:"
+msgstr "Modificar el componente:"
+
+#: bhtheme/templates/bh_admin_components.html:75
+#: bhtheme/templates/bh_admin_products.html:81
+#, inherit=trac
+msgid ""
+"[1:Tip] you may use\n"
+"                  [2:WikiFormatting]\n"
+"                  here"
+msgstr ""
+"[1:Nota] puedes usar\n"
+"                  [2:WikiFormatting]\n"
+"                  aqui):"
+
+#: bhtheme/templates/bh_admin_components.html:86
+#: bhtheme/templates/bh_admin_enums.html:49
+#: bhtheme/templates/bh_admin_milestones.html:104
+#: bhtheme/templates/bh_admin_products.html:92
+#: bhtheme/templates/bh_admin_repositories.html:133
+#: bhtheme/templates/bh_admin_versions.html:80
+#: bhtheme/templates/bh_attachment.html:87
+#: bhtheme/templates/bh_attachment.html:108
+#: bhtheme/templates/bh_milestone_delete.html:66
+#: bhtheme/templates/bh_milestone_edit.html:151
+#: bhtheme/templates/bh_report_delete.html:44
+#: bhtheme/templates/bh_report_edit.html:82
+#: bhtheme/templates/bh_ticket.html:388 bhtheme/templates/bh_ticket.html:444
+#: bhtheme/templates/bh_ticket_change.html:98
+#: bhtheme/templates/bh_ticket_delete.html:61
+#: bhtheme/templates/bh_ticket_delete.html:86
+#: bhtheme/templates/bh_wiki_delete.html:124
+#: bhtheme/templates/bh_wiki_edit_form.html:102
+#: bhtheme/templates/bh_wiki_rename.html:55
+#: bhtheme/templates/bloodhound_theme.html:186
+#: bhtheme/templates/bloodhound_theme.html:339
+#, inherit=trac
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: bhtheme/templates/bh_admin_components.html:97
+#, inherit=trac
+msgid "Add Component:"
+msgstr "Añadir componente:"
+
+#: bhtheme/templates/bh_admin_components.html:106
+#: bhtheme/templates/bh_admin_enums.html:61
+#: bhtheme/templates/bh_admin_milestones.html:133
+#: bhtheme/templates/bh_admin_perms.html:58
+#: bhtheme/templates/bh_admin_perms.html:87
+#: bhtheme/templates/bh_admin_products.html:119
+#: bhtheme/templates/bh_admin_repositories.html:155
+#: bhtheme/templates/bh_admin_repositories.html:171
+#: bhtheme/templates/bh_admin_versions.html:107
+#, inherit=trac
+msgid "Add"
+msgstr "Añadir"
+
+#: bhtheme/templates/bh_admin_components.html:120
+#: bhtheme/templates/bh_admin_products.html:132
+#, inherit=trac
+msgid "Owner"
+msgstr "Propietario"
+
+#: bhtheme/templates/bh_admin_components.html:120
+#: bhtheme/templates/bh_admin_enums.html:76
+#: bhtheme/templates/bh_admin_milestones.html:149
+#: bhtheme/templates/bh_admin_products.html:132
+#: bhtheme/templates/bh_admin_repositories.html:46
+#: bhtheme/templates/bh_admin_versions.html:120
+#, inherit=trac
+msgid "Default"
+msgstr "Predeterminado"
+
+#: bhtheme/templates/bh_admin_components.html:138
+#: bhtheme/templates/bh_admin_enums.html:99
+#: bhtheme/templates/bh_admin_milestones.html:173
+#: bhtheme/templates/bh_admin_perms.html:160
+#: bhtheme/templates/bh_admin_products.html:153
+#: bhtheme/templates/bh_admin_repositories.html:203
+#: bhtheme/templates/bh_admin_versions.html:136
+#, inherit=trac
+msgid "Remove selected items"
+msgstr "Quitar seleccionados"
+
+#: bhtheme/templates/bh_admin_components.html:144
+#: bhtheme/templates/bh_admin_components.html:150
+#: bhtheme/templates/bh_admin_enums.html:111
+#: bhtheme/templates/bh_admin_enums.html:118
+#: bhtheme/templates/bh_admin_milestones.html:179
+#: bhtheme/templates/bh_admin_milestones.html:185
+#: bhtheme/templates/bh_admin_perms.html:62
+#: bhtheme/templates/bh_admin_perms.html:91
+#: bhtheme/templates/bh_admin_products.html:161
+#: bhtheme/templates/bh_admin_products.html:168
+#: bhtheme/templates/bh_admin_versions.html:142
+#: bhtheme/templates/bh_admin_versions.html:149
+#: bhtheme/templates/bh_diff_form.html:80
+#: bhtheme/templates/bh_prefs_datetime.html:94
+#: bhtheme/templates/bh_prefs_datetime.html:114
+#: bhtheme/templates/bh_prefs_general.html:51
+msgid "Note"
+msgstr "Nota"
+
+#: bhtheme/templates/bh_admin_components.html:144
+#: bhtheme/templates/bh_admin_enums.html:111
+#: bhtheme/templates/bh_admin_milestones.html:179
+#: bhtheme/templates/bh_admin_products.html:161
+#: bhtheme/templates/bh_admin_versions.html:142
+#, inherit=trac
+msgid ""
+"You can remove all items from this list to completely hide this\n"
+"                  field from the user interface."
+msgstr ""
+"Puedes quitar todos los objetos de esta lista para ocultar completamente\n"
+"              este campo de la interfaz de usuario."
+
+#: bhtheme/templates/bh_admin_components.html:150
+#: bhtheme/templates/bh_admin_enums.html:118
+#: bhtheme/templates/bh_admin_milestones.html:185
+#: bhtheme/templates/bh_admin_products.html:168
+#: bhtheme/templates/bh_admin_versions.html:149
+#, inherit=trac
+msgid ""
+"As long as you don't add any items to the list, this field\n"
+"                will remain completely hidden from the user interface."
+msgstr ""
+"Mientras no añadas ningún item a la lista, este campo\n"
+"            permanecerá completamente oculto en la interfaz de usuario."
+
+#: bhtheme/templates/bh_admin_enums.html:34
+#, python-format, inherit=trac
+msgid "Manage %(label_plural)s"
+msgstr "Gestionar %(label_plural)s"
+
+#: bhtheme/templates/bh_admin_enums.html:39
+#, python-format, inherit=trac
+msgid "Modify %(label_singular)s:"
+msgstr "Modificar %(label_singular)s"
+
+#: bhtheme/templates/bh_admin_enums.html:60
+#, python-format, inherit=trac
+msgid "Add %(label_singular)s:"
+msgstr "Añadir %(label_singular)s"
+
+#: bhtheme/templates/bh_admin_enums.html:76
+#, inherit=trac
+msgid "Order"
+msgstr "Orden"
+
+#: bhtheme/templates/bh_admin_enums.html:105
+#, inherit=trac
+msgid ""
+"[1:Note]\n"
+"                  The order of priorities determines the\n"
+"                  coloring of entries in the ticket queries and reports."
+msgstr ""
+"[1:Note:] El orden de las prioridades determina el color de las entradas\n"
+"            en las consultas de tickets y informes."
+
+#: bhtheme/templates/bh_admin_logging.html:30
+#: bhtheme/templates/bh_admin_logging.html:42
+#, inherit=trac
+msgid "Logging"
+msgstr "Registro"
+
+#: bhtheme/templates/bh_admin_logging.html:48
+#: bhtheme/templates/bh_admin_repositories.html:38
+#, inherit=trac
+msgid "Type:"
+msgstr "Tipo:"
+
+#: bhtheme/templates/bh_admin_logging.html:58
+#, inherit=trac
+msgid "Log level:"
+msgstr "Nivel de registro:"
+
+#: bhtheme/templates/bh_admin_logging.html:67
+#, inherit=trac
+msgid "Log file:"
+msgstr "Archivo de registro:"
+
+#: bhtheme/templates/bh_admin_logging.html:71
+#, python-format
+msgid ""
+"[1:Note] If you specify a\n"
+"              relative path, the log file will be stored inside the\n"
+"              [2:log] directory of the project environment\n"
+"              ([3:%(dir)s])."
+msgstr ""
+"[1:Nota] Si especificas una ruta relativa, el archivo de registro será "
+"guardado dentro             del directorio [2:log] del entorno del "
+"proyecto ([3:%(dir)s])."
+
+#: bhtheme/templates/bh_admin_milestones.html:30
+#: bhtheme/templates/bh_product_view.html:103
+#, inherit=trac
+msgid "Milestones"
+msgstr "Hitos"
+
+#: bhtheme/templates/bh_admin_milestones.html:40
+#, inherit=trac
+msgid "Manage Milestones"
+msgstr "Administrar hitos"
+
+#: bhtheme/templates/bh_admin_milestones.html:47
+#, inherit=trac
+msgid "Modify Milestone:"
+msgstr "Modificar hito:"
+
+#: bhtheme/templates/bh_admin_milestones.html:56
+#: bhtheme/templates/bh_admin_milestones.html:124
+#: bhtheme/templates/bh_milestone_edit.html:100
+#, inherit=trac
+msgid "Due:"
+msgstr "Vencimiento:"
+
+#: bhtheme/templates/bh_admin_milestones.html:58
+#: bhtheme/templates/bh_admin_milestones.html:71
+#: bhtheme/templates/bh_admin_milestones.html:126
+#: bhtheme/templates/bh_admin_versions.html:55
+#: bhtheme/templates/bh_milestone_edit.html:104
+#: bhtheme/templates/bh_milestone_edit.html:120
+#, python-format, inherit=trac
+msgid "Format: %(datehint)s"
+msgstr "Formato: %(datehint)s"
+
+#: bhtheme/templates/bh_admin_milestones.html:67
+#: bhtheme/templates/bh_milestone_edit.html:116
+#, inherit=trac
+msgid "Completed:"
+msgstr "Completado:"
+
+#: bhtheme/templates/bh_admin_milestones.html:93
+msgid ""
+"[1:Tip]\n"
+"                  you may use\n"
+"                  [2:WikiFormatting] here"
+msgstr ""
+"[1:Nota] puedes usar\n"
+"                  [2:WikiFormatting]\n"
+"                  aqui):"
+
+#: bhtheme/templates/bh_admin_milestones.html:116
+#, inherit=trac
+msgid "Add Milestone:"
+msgstr "Agregar hito:"
+
+#: bhtheme/templates/bh_admin_milestones.html:149
+#, inherit=trac
+msgid "Due"
+msgstr "Vencimiento"
+
+#: bhtheme/templates/bh_admin_milestones.html:149
+#, inherit=trac
+msgid "Completed"
+msgstr "Completado"
+
+#: bhtheme/templates/bh_admin_perms.html:31
+#: bhtheme/templates/bh_admin_perms.html:100
+#, inherit=trac
+msgid "Permissions"
+msgstr "Permisos"
+
+#: bhtheme/templates/bh_admin_perms.html:35
+#, fuzzy, inherit=trac
+msgid "Manage Permissions and Groups"
+msgstr "Administrar permisos"
+
+#: bhtheme/templates/bh_admin_perms.html:41
+#, inherit=trac
+msgid "Grant Permission:"
+msgstr "Asignar permisos:"
+
+#: bhtheme/templates/bh_admin_perms.html:43
+#: bhtheme/templates/bh_admin_perms.html:73
+#, inherit=trac
+msgid "Subject:"
+msgstr "Sujeto:"
+
+#: bhtheme/templates/bh_admin_perms.html:50
+#, inherit=trac
+msgid "Action:"
+msgstr "Acción:"
+
+#: bhtheme/templates/bh_admin_perms.html:62
+#, fuzzy, review
+msgid ""
+"Grant permission\n"
+"              for an action to a subject, which can be either a user\n"
+"              or a group."
+msgstr ""
+"Asignar permiso para una acción a un sujeto, puede ser tanto un usuario\n"
+"          como un grupo."
+
+#: bhtheme/templates/bh_admin_perms.html:71
+#, inherit=trac
+msgid "Add to Group:"
+msgstr "Agregar usuario al grupo:"
+
+#: bhtheme/templates/bh_admin_perms.html:80
+#, inherit=trac
+msgid "Group:"
+msgstr "Grupo:"
+
+#: bhtheme/templates/bh_admin_perms.html:91
+#, fuzzy, review
+msgid ""
+"Add a user or group\n"
+"              to an existing permission group."
+msgstr "Añadir usuario o grupo a un grupo de permisos existente."
+
+#: bhtheme/templates/bh_admin_perms.html:104
+#: bhtheme/templates/bh_admin_perms.html:133
+#, inherit=trac
+msgid "Subject"
+msgstr "Sujeto"
+
+#: bhtheme/templates/bh_admin_perms.html:104
+#: bhtheme/templates/bh_admin_perms.html:133
+#: bhtheme/templates/bh_batch_modify.html:61
+#: bhtheme/templates/bh_ticket.html:657
+msgid "Action"
+msgstr "Acción"
+
+#: bhtheme/templates/bh_admin_perms.html:121
+#, inherit=trac, missing
+msgid "Action is no longer defined"
+msgstr "La acción no está definida"
+
+#: bhtheme/templates/bh_admin_perms.html:130
+#, fuzzy, inherit=trac, missing
+msgid "Group Membership"
+msgstr "Usuarios del grupo"
+
+#: bhtheme/templates/bh_admin_perms.html:155
+#, inherit=trac, missing
+msgid "No group memberships"
+msgstr "Ningun usuario pertenece a este grupo"
+
+#: bhtheme/templates/bh_admin_perms.html:165
+msgid ""
+"[1:Important] Note that\n"
+"          [2:Subject] or [3:Group] names can't be all upper-case,\n"
+"          as that is reserved for permission names."
+msgstr ""
+"[1:Importante] Nótese que los nombres [2:Subject] o [3:Group] no pueden "
+"ser sólo mayúculas,\n"
+"      ya que están reservados para nombres de permisos."
+
+#: bhtheme/templates/bh_admin_plugins.html:30
+#, inherit=trac
+msgid "Plugins"
+msgstr "Extensiones"
+
+#: bhtheme/templates/bh_admin_plugins.html:61
+#, inherit=trac
+msgid "Manage Plugins"
+msgstr "Administrar extensiones"
+
+#: bhtheme/templates/bh_admin_plugins.html:73
+#, inherit=trac
+msgid "Install Plugin:"
+msgstr "Instalar extensión:"
+
+#: bhtheme/templates/bh_admin_plugins.html:74
+#: bhtheme/templates/bh_changeset.html:190
+#, fuzzy, inherit=trac
+msgid "File:"
+msgid_plural "Files:"
+msgstr[0] "Fichero:"
+msgstr[1] ""
+
+#: bhtheme/templates/bh_admin_plugins.html:77
+#, inherit=trac
+msgid "Install"
+msgstr "Instalar"
+
+#: bhtheme/templates/bh_admin_plugins.html:79
+#, inherit=trac
+msgid "Upload a plugin packaged as Python egg."
+msgstr "Subir una extensión empaquetada como Python EGG"
+
+#: bhtheme/templates/bh_admin_plugins.html:106
+#: bhtheme/templates/bh_changeset.html:162
+#: bhtheme/templates/bh_diff_view.html:62
+#, inherit=trac
+msgid "Author:"
+msgstr "Autor:"
+
+#: bhtheme/templates/bh_admin_plugins.html:115
+#, inherit=trac
+msgid "Home page:"
+msgstr "Página principal:"
+
+#: bhtheme/templates/bh_admin_plugins.html:122
+#, inherit=trac
+msgid "License:"
+msgstr "Licencia:"
+
+#: bhtheme/templates/bh_admin_plugins.html:130
+#, inherit=trac
+msgid "Component"
+msgstr "Componente"
+
+#: bhtheme/templates/bh_admin_plugins.html:131
+#, inherit=trac
+msgid "Enabled"
+msgstr "Habilitado"
+
+#: bhtheme/templates/bh_admin_products.html:30
+#: bhtheme/templates/bh_product_list.html:30
+#: bhtheme/templates/bh_product_list.html:36
+#, inherit=multiproduct
+msgid "Products"
+msgstr "Productos"
+
+#: bhtheme/templates/bh_admin_products.html:34
+#, inherit=multiproduct
+msgid "Manage Products"
+msgstr "Administrar Productos"
+
+#: bhtheme/templates/bh_admin_products.html:57
+#, inherit=multiproduct
+msgid "Modify Product:"
+msgstr "Modificar Producto:"
+
+#: bhtheme/templates/bh_admin_products.html:59
+#: bhtheme/templates/bh_admin_products.html:105
+#, inherit=multiproduct
+msgid "Prefix:"
+msgstr "Prefijo:"
+
+#: bhtheme/templates/bh_admin_products.html:103
+#, inherit=multiproduct
+msgid "Add Product:"
+msgstr "Añadir Producto:"
+
+#: bhtheme/templates/bh_admin_products.html:132
+#, inherit=multiproduct
+msgid "Prefix"
+msgstr "Prefijo"
+
+#: bhtheme/templates/bh_admin_products.html:157
+#, fuzzy, inherit=trac
+msgid "Clear default"
+msgstr "(predeterminado)"
+
+#: bhtheme/templates/bh_admin_repositories.html:30
+#, inherit=trac
+msgid "Repositories"
+msgstr "Repositorios"
+
+#: bhtheme/templates/bh_admin_repositories.html:34
+#, inherit=trac
+msgid "Manage Repositories"
+msgstr "Administrar repositorios"
+
+#: bhtheme/templates/bh_admin_repositories.html:42
+#: bhtheme/templates/bh_admin_repositories.html:59
+#: bhtheme/templates/bh_admin_repositories.html:189
+#: bhtheme/templates/bh_admin_repositories.html:191
+#, inherit=trac
+msgid "(default)"
+msgstr "(predeterminado)"
+
+#: bhtheme/templates/bh_admin_repositories.html:54
+#, inherit=trac
+msgid "Repository:"
+msgstr "Repositorio:"
+
+#: bhtheme/templates/bh_admin_repositories.html:71
+#, inherit=trac
+msgid "Modify Repository:"
+msgstr "Modificar repositorio:"
+
+#: bhtheme/templates/bh_admin_repositories.html:72
+#, inherit=trac
+msgid "View Repository:"
+msgstr "Ver repositorio:"
+
+#: bhtheme/templates/bh_admin_repositories.html:73
+#, fuzzy
+msgid ""
+"[1:Warning]\n"
+"            This repository is defined in [2:[3:trac.ini]]\n"
+"            and cannot be edited on this page."
+msgstr ""
+"[1:Atención:]\n"
+"            Este repositorio está definido en [2:[3:trac.ini]]\n"
+"            y no puede editarse en esta página."
+
+#: bhtheme/templates/bh_admin_repositories.html:92
+#: bhtheme/templates/bh_admin_repositories.html:151
+#, inherit=trac
+msgid "Directory:"
+msgstr "Directorio"
+
+#: bhtheme/templates/bh_admin_repositories.html:110
+#, inherit=trac
+msgid "Hide from repository index"
+msgstr "Ocultar del índice del repositorio"
+
+#: bhtheme/templates/bh_admin_repositories.html:123
+#: bhtheme/templates/bh_admin_versions.html:70
+#, review
+msgid ""
+"[1:Tip]\n"
+"                  you may use [2:WikiFormatting] here"
+msgstr ""
+"[1:Tip]\n"
+"                  puedes usar [2:WikiFormatting] aquí"
+
+#: bhtheme/templates/bh_admin_repositories.html:144
+#, inherit=trac
+msgid "Add Repository:"
+msgstr "Añadir repositorio:"
+
+#: bhtheme/templates/bh_admin_repositories.html:163
+#, inherit=trac
+msgid "Add Alias:"
+msgstr "Añadir alias:"
+
+#: bhtheme/templates/bh_admin_repositories.html:181
+#, inherit=trac
+msgid "Type"
+msgstr "Tipo"
+
+#: bhtheme/templates/bh_admin_repositories.html:182
+#: bhtheme/templates/bh_browser.html:79
+#, inherit=trac
+msgid "Directory"
+msgstr "Directorio"
+
+#: bhtheme/templates/bh_admin_repositories.html:182
+#, inherit=trac
+msgid "Revision"
+msgstr "Revisión"
+
+#: bhtheme/templates/bh_admin_repositories.html:194
+#, python-format, inherit=trac
+msgid "Alias of %(repo)s"
+msgstr "Alias de %(repo)s"
+
+#: bhtheme/templates/bh_admin_repositories.html:201
+#, inherit=trac
+msgid "Refresh"
+msgstr "Refrescar"
+
+#: bhtheme/templates/bh_admin_users.html:33
+#, inherit=acct_mgr
+msgid "Accounts"
+msgstr "Cuentas"
+
+#: bhtheme/templates/bh_admin_users.html:42
+#, inherit=acct_mgr
+msgid "Manage User Accounts"
+msgstr "Administrar cuentas de usuario"
+
+#: bhtheme/templates/bh_admin_users.html:65
+#, inherit=acct_mgr, missing
+msgid "Add/Edit Account:"
+msgstr "Añadir/Editar Cuenta:"
+
+#: bhtheme/templates/bh_admin_users.html:67 bhtheme/templates/bh_login.html:58
+#: bhtheme/templates/bh_register.html:61
+#: bhtheme/templates/bh_reset_password.html:74
+#, inherit=acct_mgr
+msgid "Username:"
+msgstr "Nombre de usuario:"
+
+#: bhtheme/templates/bh_admin_users.html:75 bhtheme/templates/bh_login.html:65
+#: bhtheme/templates/bh_prefs_account.html:52
+#: bhtheme/templates/bh_register.html:69
+#, inherit=acct_mgr
+msgid "Password:"
+msgstr "Contraseña:"
+
+#: bhtheme/templates/bh_admin_users.html:91
+#: bhtheme/templates/bh_prefs_account.html:125
+#: bhtheme/templates/bh_register.html:82
+#, inherit=acct_mgr
+msgid "Confirm Password:"
+msgstr "Confirmar contraseña:"
+
+#: bhtheme/templates/bh_admin_users.html:107
+#, inherit=acct_mgr
+msgid "Pre-/Surname (Nickname):"
+msgstr "Nombre y Apellidos (Apodo)"
+
+#: bhtheme/templates/bh_admin_users.html:114
+#: bhtheme/templates/bh_reset_password.html:81
+#, inherit=acct_mgr
+msgid "Email Address:"
+msgstr "Dirección de correo electrónico:"
+
+#: bhtheme/templates/bh_admin_users.html:125
+#, inherit=acct_mgr, missing
+msgid "Add a new user account or edit an existing one."
+msgstr "Añadir una nueva cuenta de usuario o editar una existente."
+
+#: bhtheme/templates/bh_admin_users.html:127
+#, review, inherit=trac
+msgid " Add "
+msgstr "Añadir"
+
+#: bhtheme/templates/bh_admin_users.html:130
+#, review, inherit=trac
+msgid " Change "
+msgstr "Cambiar"
+
+#: bhtheme/templates/bh_admin_users.html:150
+#, inherit=acct_mgr, missing
+msgid "Send another random password"
+msgstr "Generar y enviar otra contraseña"
+
+#: bhtheme/templates/bh_admin_users.html:150
+#, inherit=acct_mgr, missing
+msgid "Reset passwords"
+msgstr "Cambiar contraseñas"
+
+#: bhtheme/templates/bh_admin_users.html:154
+#, inherit=acct_mgr
+msgid "Remove selected accounts"
+msgstr "Eliminar cuentas de usuario seleccionadas"
+
+#: bhtheme/templates/bh_admin_users.html:157
+#, inherit=acct_mgr, missing
+msgid "Review account attributes"
+msgstr "Revisar atributos de la cuenta"
+
+#: bhtheme/templates/bh_admin_versions.html:30
+#: bhtheme/templates/bh_product_view.html:95
+#, inherit=trac
+msgid "Versions"
+msgstr "Versiones"
+
+#: bhtheme/templates/bh_admin_versions.html:39
+#, inherit=trac
+msgid "Manage Versions"
+msgstr "Administrar versiones"
+
+#: bhtheme/templates/bh_admin_versions.html:45
+#, inherit=trac
+msgid "Modify Version:"
+msgstr "Modificar versión:"
+
+#: bhtheme/templates/bh_admin_versions.html:53
+#: bhtheme/templates/bh_admin_versions.html:99
+#, inherit=trac
+msgid "Released:"
+msgstr "Liberado:"
+
+#: bhtheme/templates/bh_admin_versions.html:91
+#, inherit=trac
+msgid "Add Version:"
+msgstr "Añadir versión:"
+
+#: bhtheme/templates/bh_admin_versions.html:120
+#, inherit=trac
+msgid "Released"
+msgstr "Liberado"
+
+#: bhtheme/templates/bh_attachment.html:32
+#, inherit=trac
+msgid "– Attachment"
+msgstr "– Agregar archivo adjunto"
+
+#: bhtheme/templates/bh_attachment.html:33
+#, inherit=trac
+msgid "– Attachments"
+msgstr "– Adjuntos"
+
+#: bhtheme/templates/bh_attachment.html:34
+#, python-format, inherit=trac
+msgid "%(filename)s on %(parent)s – Attachment"
+msgstr "%(filename)s en %(parent)s – Adjunto"
+
+#: bhtheme/templates/bh_attachment.html:49
+#, python-format, inherit=trac
+msgid "Add Attachment to [1:%(parent)s]"
+msgstr "Añadir adjunto a [1:%(parent)s]"
+
+#: bhtheme/templates/bh_attachment.html:54 bhtheme/templates/bh_browser.html:80
+#, inherit=trac
+msgid "File"
+msgstr "Fichero"
+
+#: bhtheme/templates/bh_attachment.html:55
+#, python-format, inherit=trac
+msgid "(size limit %(value)s)"
+msgstr "(límite de tamaño %(value)s)"
+
+#: bhtheme/templates/bh_attachment.html:62
+#, inherit=trac
+msgid "Attachment Info"
+msgstr "Información del adjunto"
+
+#: bhtheme/templates/bh_attachment.html:64 bhtheme/templates/bh_ticket.html:686
+#: bhtheme/templates/bh_wiki_edit_form.html:67
+#, inherit=trac
+msgid "Your email or username:"
+msgstr "Su correo o nombre de usuario"
+
+#: bhtheme/templates/bh_attachment.html:69
+msgid "Description of the file:"
+msgstr "Descripción del fichero:"
+
+#: bhtheme/templates/bh_attachment.html:76
+#, inherit=trac
+msgid "Replace existing attachment of the same name"
+msgstr "Remplazar adjunto existente con el mismo nombre"
+
+#: bhtheme/templates/bh_attachment.html:85
+#, inherit=trac
+msgid "Add attachment"
+msgstr "Agregar adjunto"
+
+#: bhtheme/templates/bh_attachment.html:98
+#: bhtheme/templates/bh_milestone_delete.html:49
+#: bhtheme/templates/bh_wiki_delete.html:57
+#: bhtheme/templates/bh_wiki_rename.html:40
+msgid "Caution"
+msgstr "Atención"
+
+#: bhtheme/templates/bh_attachment.html:99
+#, inherit=trac
+msgid "Are you sure you want to delete this attachment?"
+msgstr "¿Seguro que quiere borrar este adjunto?"
+
+#: bhtheme/templates/bh_attachment.html:99
+#: bhtheme/templates/bh_ticket_delete.html:56
+#: bhtheme/templates/bh_ticket_delete.html:81
+#: bhtheme/templates/bh_wiki_delete.html:117
+#, inherit=trac
+msgid "This is an irreversible operation."
+msgstr "Esta es una operación irreversible"
+
+#: bhtheme/templates/bh_attachment.html:106
+#: bhtheme/templates/bh_attachment.html:160
+#, inherit=trac
+msgid "Delete attachment"
+msgstr "Borrar adjunto"
+
+#: bhtheme/templates/bh_attachment.html:120
+#, inherit=trac
+msgid "Attach another file"
+msgstr "Adjuntar otro fichero"
+
+#: bhtheme/templates/bh_attachment.html:131
+#: bhtheme/templates/bh_milestone_edit.html:83
+#: bhtheme/templates/bh_ticket_box.html:123
+#: bhtheme/templates/bloodhound_theme.html:165
+#: bhtheme/templates/bloodhound_theme.html:318
+#, inherit=trac
+msgid "Description"
+msgstr "Descripción"
+
+#: bhtheme/templates/bh_attachment.html:136
+#: bhtheme/templates/bh_browser.html:222
+#: bhtheme/templates/bh_dir_entries.html:36
+#: bhtheme/templates/bh_list_of_attachments.html:42
+#, python-format, inherit=trac
+msgid "%(size)s bytes"
+msgstr "%(size)s octetos"
+
+#: bhtheme/templates/bh_attachment.html:134
+#, python-format
+msgid ""
+"File %(file)s,\n"
+"                [1:\n"
+"                  %(size)s\n"
+"                ]\n"
+"                (added by %(author)s,\n"
+"                %(date)s)"
+msgstr ""
+"Fichero %(file)s,\n"
+"                [1:\n"
+"                  %(size)s\n"
+"                ]\n"
+"                (añadido por %(author)s,\n"
+"                %(date)s)"
+
+#: bhtheme/templates/bh_batch_modify.html:29
+#, inherit=trac, missing
+msgid "Batch Modify"
+msgstr "Modificación por lotes"
+
+#: bhtheme/templates/bh_batch_modify.html:30
+#, inherit=trac, missing
+msgid "Batch modification fields"
+msgstr "Campos a modificar"
+
+#: bhtheme/templates/bh_batch_modify.html:33
+#: bhtheme/templates/bh_diff_view.html:68
+#, inherit=trac
+msgid "Comment:"
+msgstr "Comentario"
+
+#: bhtheme/templates/bh_batch_modify.html:44
+#, fuzzy, inherit=trac
+msgid "Add Field:"
+msgstr "añadido"
+
+#: bhtheme/templates/bh_batch_modify.html:71
+#, fuzzy, inherit=trac
+msgid "Change tickets"
+msgstr "incidencias"
+
+#: bhtheme/templates/bh_batch_modify.html:75
+#, review
+msgid ""
+"[1:\n"
+"      [2:Note] See [3:TracBatchModify] for help on using batch modify.\n"
+"    ]"
+msgstr ""
+"[1:\n"
+"      [2:Nota] Consulte [3:TracBatchModify] para conocer más sobre la "
+"modificación por lotes.\n"
+"    ]"
+
+#: bhtheme/templates/bh_browser.html:33
+#, python-format, inherit=trac
+msgid "%(basename)s in %(dirname)s"
+msgstr "%(basename)s en %(dirname)s"
+
+#: bhtheme/templates/bh_browser.html:76
+#, inherit=trac
+msgid "Default Repository"
+msgstr "Repositorio predeterminado"
+
+#: bhtheme/templates/bh_browser.html:81 bhtheme/templates/bh_path_links.html:35
+#: bhtheme/templates/bh_path_links.html:60
+#, python-format, inherit=trac
+msgid "View %(name)s"
+msgstr "Ver %(name)s"
+
+#: bhtheme/templates/bh_browser.html:90
+#, inherit=trac, missing
+msgid "Show the diff against a specific revision"
+msgstr "Modificar diferencias respecto a cierta versión"
+
+#: bhtheme/templates/bh_browser.html:91
+#, fuzzy, inherit=trac
+msgid "View diff against:"
+msgstr "ver diferencias"
+
+#: bhtheme/templates/bh_browser.html:104
+#, inherit=trac
+msgid "Hint: clear the field to view latest revision"
+msgstr "Consejo: limpie el campo para ver la última revisión"
+
+#: bhtheme/templates/bh_browser.html:104
+#, inherit=trac
+msgid "View revision:"
+msgstr "Ver revisión:"
+
+#: bhtheme/templates/bh_browser.html:114
+#, inherit=trac
+msgid "Visit:"
+msgstr "Visitar:"
+
+#: bhtheme/templates/bh_browser.html:122
+#, inherit=trac
+msgid "Go!"
+msgstr "Hazlo"
+
+#: bhtheme/templates/bh_browser.html:122
+#, inherit=trac
+msgid "Jump to the chosen preselected path"
+msgstr "Saltar a la ruta preseleccionada elegida"
+
+#: bhtheme/templates/bh_browser.html:131
+#: bhtheme/templates/bh_revisionlog.html:214
+#, fuzzy, inherit=trac, missing
+msgid "Branch head"
+msgstr "Cabeza de una rama"
+
+#: bhtheme/templates/bh_browser.html:131
+#: bhtheme/templates/bh_revisionlog.html:214
+#, inherit=trac, missing
+msgid "Branch"
+msgstr "Rama"
+
+#: bhtheme/templates/bh_browser.html:136
+#: bhtheme/templates/bh_revisionlog.html:219
+#, fuzzy, inherit=trac, missing
+msgid "Tag"
+msgstr "Marca"
+
+#: bhtheme/templates/bh_browser.html:149
+#, inherit=trac
+msgid "Parent Directory"
+msgstr "Directorio padre"
+
+#: bhtheme/templates/bh_browser.html:155
+#, inherit=trac
+msgid "No files found"
+msgstr "No se encontraron ficheros"
+
+#: bhtheme/templates/bh_browser.html:164
+#: bhtheme/templates/bh_wiki_edit.html:175
+#: bhtheme/templates/bh_wiki_view.html:55
+#, inherit=trac
+msgid "Revision info"
+msgstr "Información de la revisión"
+
+#: bhtheme/templates/bh_browser.html:174 bhtheme/templates/bh_browser.html:182
+#: bhtheme/templates/bh_diff_options.html:31
+#, inherit=trac
+msgid "View differences"
+msgstr "Ver diferencias"
+
+#: bhtheme/templates/bh_browser.html:176 bhtheme/templates/bh_browser.html:184
+#: bhtheme/templates/bh_path_links.html:69
+#, python-format, inherit=trac
+msgid "View changeset %(rev)s"
+msgstr "Ver conjunto de cambios %(rev)s"
+
+#: bhtheme/templates/bh_browser.html:173
+#, python-format
+msgid ""
+"[1:Last change]\n"
+"                    on this file since %(stickyrev)s was\n"
+"                    [2:%(rev)s],\n"
+"                    checked in by %(author)s, %(age)s"
+msgstr ""
+"[1:Último cambio]\n"
+"                    en este fichero desde %(stickyrev)s fue en\n"
+"                    [2:%(rev)s],\n"
+"                    añadida por %(author)s, %(age)s"
+
+#: bhtheme/templates/bh_browser.html:181
+#, python-format
+msgid ""
+"[1:Last change]\n"
+"                    on this file was\n"
+"                    [2:%(rev)s],\n"
+"                    checked in by %(author)s, %(age)s"
+msgstr ""
+"[1:Último cambio]\n"
+"                    en este fichero fue\n"
+"                    [2:%(rev)s],\n"
+"                    añadida por %(author)s, %(age)s"
+
+#: bhtheme/templates/bh_browser.html:215
+#, python-format, inherit=trac
+msgid "Property [1:%(name)s] set to %(value)s"
+msgstr "Propiedad [1:%(name)s] establecida a %(value)s"
+
+#: bhtheme/templates/bh_browser.html:221
+msgid "File size:"
+msgstr "Tamaño de fichero:"
+
+#: bhtheme/templates/bh_browser.html:234
+#, inherit=trac
+msgid "Repository Index"
+msgstr "Índice del repositorio"
+
+#: bhtheme/templates/bh_browser.html:254
+#, inherit=trac
+msgid "View changes..."
+msgstr "Ver cambios..."
+
+#: bhtheme/templates/bh_browser.html:254
+#, inherit=trac
+msgid "Select paths and revs for Diff"
+msgstr "Seleccione rutas y revisiones para ver diferencias"
+
+#: bhtheme/templates/bh_browser.html:259
+msgid ""
+"[1:\n"
+"          [2:Note] See\n"
+"          [3:TracBrowser]\n"
+"          for help on using the repository browser.\n"
+"        ]"
+msgstr ""
+"[1:\n"
+"          [2:Nota] Consulte\n"
+"          [3:TracBrowser]\n"
+"          para conocer más sobre el explorador del repositorio.\n"
+"        ]"
+
+#: bhtheme/templates/bh_changeset.html:55
+#: bhtheme/templates/bh_changeset.html:65
+#: bhtheme/templates/bh_changeset.html:67
+#: bhtheme/templates/bh_changeset.html:77
+#: bhtheme/templates/bh_changeset.html:87
+#: bhtheme/templates/bh_changeset.html:89
+#, fuzzy, inherit=trac
+msgid "Show full changeset"
+msgstr "Mostrar mensajes de registro completos"
+
+#: bhtheme/templates/bh_changeset.html:56
+#: bhtheme/templates/bh_changeset.html:59
+#: bhtheme/templates/bh_changeset.html:64
+#: bhtheme/templates/bh_changeset.html:66
+#: bhtheme/templates/bh_changeset.html:78
+#: bhtheme/templates/bh_changeset.html:81
+#: bhtheme/templates/bh_changeset.html:86
+#: bhtheme/templates/bh_changeset.html:88
+#: bhtheme/templates/bh_changeset.html:124
+msgid "Show entry in browser"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:54
+#, python-format
+msgid ""
+"Changeset [1:%(new_rev)s] in %(reponame)s\n"
+"              for [2:%(new_path)s]"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:60
+#: bhtheme/templates/bh_changeset.html:82
+#, fuzzy, inherit=trac
+msgid "Show revision log"
+msgstr "Registro de revisiones"
+
+#: bhtheme/templates/bh_changeset.html:58
+#, python-format
+msgid ""
+"Changes in [1:%(new_path)s]\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]] in %(reponame)s"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:62
+#, python-format
+msgid ""
+"Changes in %(reponame)s\n"
+"              from [1:%(old_path)s]\n"
+"              at [2:r%(old_rev)s]\n"
+"              to [3:%(new_path)s]\n"
+"              at [4:r%(new_rev)s]"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:69
+#, fuzzy, python-format, inherit=trac
+msgid "Changeset [1:%(new_rev)s] in %(reponame)s"
+msgstr "Ver conjunto de cambios [%(new_rev)s] restringido a %(reponame)s"
+
+#: bhtheme/templates/bh_changeset.html:76
+#, python-format
+msgid ""
+"Changeset [1:%(new_rev)s]\n"
+"              for [2:%(new_path)s]"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:80
+#, python-format
+msgid ""
+"Changes in [1:%(new_path)s]\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]]"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:84
+#, python-format
+msgid ""
+"Changes\n"
+"              from [1:%(old_path)s]\n"
+"              at [2:r%(old_rev)s]\n"
+"              to [3:%(new_path)s]\n"
+"              at [4:r%(new_rev)s]"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:91
+#, fuzzy, python-format, inherit=trac
+msgid "Changeset [1:%(new_rev)s]"
+msgstr "Ver conjunto de cambios [1:%(new_rev)s]"
+
+#: bhtheme/templates/bh_changeset.html:120
+#, python-format
+msgid "Show what was removed (content at revision %(old_rev)s)"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:125
+msgid "(root)"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:131
+#, python-format
+msgid "Show original file (revision %(old_rev)s)"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:130
+#, python-format
+msgid ""
+"(%(kind)s from [1:\n"
+"                %(old_path)s])"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:138
+#: bhtheme/templates/bh_changeset.html:141
+#, fuzzy, inherit=trac
+msgid "Show differences"
+msgstr "Ver diferencias"
+
+#: bhtheme/templates/bh_changeset.html:138
+#, fuzzy, inherit=trac
+msgid "view diffs"
+msgstr "Ver diferencias"
+
+#: bhtheme/templates/bh_changeset.html:141
+#, python-format
+msgid "%(num)d diff"
+msgid_plural "%(num)d diffs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bhtheme/templates/bh_changeset.html:144
+#, python-format
+msgid "%(num)d prop"
+msgid_plural "%(num)d props"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bhtheme/templates/bh_changeset.html:148
+msgid "Show previous version in browser"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:148
+#: bhtheme/templates/bh_ticket_change.html:127
+#, inherit=trac
+msgid "previous"
+msgstr "anterior"
+
+#: bhtheme/templates/bh_changeset.html:156
+#, fuzzy, inherit=trac
+msgid "Timstamp:"
+msgstr "Fecha y hora:"
+
+#: bhtheme/templates/bh_changeset.html:159
+msgid "(less than one hour ago)"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:160
+#, python-format
+msgid "(%(age)s ago)"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:174
+#, fuzzy, inherit=trac
+msgid "Message:"
+msgstr "Página principal:"
+
+#: bhtheme/templates/bh_changeset.html:186
+#, fuzzy, inherit=trac
+msgid "Location:"
+msgstr "Ubicación:"
+
+#: bhtheme/templates/bh_changeset.html:190
+#, fuzzy, inherit=trac
+msgid "(No files)"
+msgstr "Archivo de registro:"
+
+#: bhtheme/templates/bh_changeset.html:195
+#, fuzzy, python-format, inherit=trac
+msgid "%(num)d added"
+msgid_plural "%(num)d added"
+msgstr[0] "%(num)d encontrado"
+msgstr[1] "%(num)d encontrados"
+
+#: bhtheme/templates/bh_changeset.html:196
+#, fuzzy, python-format, inherit=trac
+msgid "%(num)d deleted"
+msgid_plural "%(num)d deleted"
+msgstr[0] "%(num)d borrado"
+msgstr[1] "%(num)d borrados"
+
+#: bhtheme/templates/bh_changeset.html:197
+#, python-format
+msgid "%(num)d edited"
+msgid_plural "%(num)d edited"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bhtheme/templates/bh_changeset.html:198
+#, python-format
+msgid "%(num)d copied"
+msgid_plural "%(num)d copied"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bhtheme/templates/bh_changeset.html:199
+#, fuzzy, python-format, inherit=trac
+msgid "%(num)d moved"
+msgid_plural "%(num)d moved"
+msgstr[0] "%(num)d encontrado"
+msgstr[1] "%(num)d encontrados"
+
+#: bhtheme/templates/bh_changeset.html:205
+#, fuzzy, inherit=trac
+msgid "added"
+msgstr "Añadido"
+
+#: bhtheme/templates/bh_changeset.html:206
+#, fuzzy, inherit=trac
+msgid "deleted"
+msgstr "Borrar"
+
+#: bhtheme/templates/bh_changeset.html:207
+msgid "copied"
+msgstr ""
+
+#: bhtheme/templates/bh_changeset.html:208
+#, fuzzy, inherit=trac
+msgid "moved"
+msgstr "Eliminado"
+
+#: bhtheme/templates/bh_changeset.html:209
+#, fuzzy, inherit=trac
+msgid "modified"
+msgstr "No modificado"
+
+#: bhtheme/templates/bh_changeset.html:219
+#: bhtheme/templates/bh_diff_view.html:76
+#: bhtheme/templates/bh_revisionlog.html:53
+#, inherit=trac
+msgid "Legend:"
+msgstr "Leyenda"
+
+#: bhtheme/templates/bh_changeset.html:221
+#: bhtheme/templates/bh_diff_view.html:78
+#, inherit=trac
+msgid "Unmodified"
+msgstr "No modificado"
+
+#: bhtheme/templates/bh_changeset.html:222
+#: bhtheme/templates/bh_diff_view.html:79
+#: bhtheme/templates/bh_revisionlog.html:55
+#, inherit=trac
+msgid "Added"
+msgstr "Añadido"
+
+#: bhtheme/templates/bh_changeset.html:223
+#: bhtheme/templates/bh_diff_view.html:80
+#: bhtheme/templates/bh_revisionlog.html:57
+#, inherit=trac
+msgid "Removed"
+msgstr "Eliminado"
+
+#: bhtheme/templates/bh_changeset.html:225
+#: bhtheme/templates/bh_diff_view.html:81
+#: bhtheme/templates/bh_revisionlog.html:59
+#, inherit=trac
+msgid "Modified"
+msgstr "Modificado"
+
+#: bhtheme/templates/bh_changeset.html:232
+#, fuzzy
+msgid ""
+"[1:Note:] See [2:TracChangeset]\n"
+"          for help on using the changeset viewer."
+msgstr ""
+"[1:Note:] Consulte [2:TracRevisionLog]\n"
+"          para saber más sobre el registro de revisión."
+
+#: bhtheme/templates/bh_diff_form.html:29
+#: bhtheme/templates/bh_diff_form.html:40
+msgid "Prepare Diff"
+msgstr ""
+
+#: bhtheme/templates/bh_diff_form.html:46
+#, fuzzy, inherit=trac
+msgid "Select the base and the target for the diff:"
+msgstr "Seleccione rutas y revisiones para ver diferencias"
+
+#: bhtheme/templates/bh_diff_form.html:49
+msgid "From:"
+msgstr ""
+
+#: bhtheme/templates/bh_diff_form.html:56
+#: bhtheme/templates/bh_diff_form.html:72
+#, fuzzy, inherit=trac
+msgid "at revision:"
+msgstr "Ver revisión:"
+
+#: bhtheme/templates/bh_diff_form.html:65
+#, fuzzy, inherit=trac
+msgid "To:"
+msgstr "Autor:"
+
+#: bhtheme/templates/bh_diff_form.html:80
+msgid ""
+"For either path, you can start typing the path and will be\n"
+"              presented a list of existing directories and files to "
+"select\n"
+"              from. Select an entry by clicking on it, or by using the\n"
+"              up/down cursor keys and hitting tab."
+msgstr ""
+
+#: bhtheme/templates/bh_diff_form.html:88
+#: bhtheme/templates/bh_history_view.html:46
+#: bhtheme/templates/bh_history_view.html:79
+#: bhtheme/templates/bh_revisionlog.html:131
+#: bhtheme/templates/bh_revisionlog.html:242
+#, inherit=trac
+msgid "View changes"
+msgstr "Ver cambios"
+
+#: bhtheme/templates/bh_diff_form.html:92
+#, fuzzy
+msgid ""
+"[1:\n"
+"          [2:Note:] See\n"
+"          [3:TracChangeset]\n"
+"          for help on using the diff feature.\n"
+"        ]"
+msgstr ""
+"[1:\n"
+"          [2:Nota] Consulte\n"
+"          [3:TracRoadmap]\n"
+"          para saber más acerca de la vista de progreso.\n"
+"        ]"
+
+#: bhtheme/templates/bh_diff_options.html:34
+#, inherit=trac
+msgid "inline"
+msgstr "en línea"
+
+#: bhtheme/templates/bh_diff_options.html:36
+#, inherit=trac
+msgid "side by side"
+msgstr "al lado"
+
+#: bhtheme/templates/bh_diff_options.html:39
+msgid ""
+"[1:]\n"
+"      [2:Show]\n"
+"      [3:]\n"
+"      [4: lines around each change]"
+msgstr ""
+"[1:]\n"
+"      [2:Mostrar]\n"
+"      [3:]\n"
+"      [4: líneas alrededor de cada cambio]"
+
+#: bhtheme/templates/bh_diff_options.html:50
+#, inherit=trac
+msgid "Show the changes in full context"
+msgstr "Mostrar los cambios en contexto completo"
+
+#: bhtheme/templates/bh_diff_options.html:53
+#, inherit=trac
+msgid "Ignore:"
+msgstr "Ignorar:"
+
+#: bhtheme/templates/bh_diff_options.html:57
+#, inherit=trac
+msgid "Blank lines"
+msgstr "Líneas en blanco"
+
+#: bhtheme/templates/bh_diff_options.html:62
+#, inherit=trac
+msgid "Case changes"
+msgstr "Cambios de mayúsculas/minúsculas"
+
+#: bhtheme/templates/bh_diff_options.html:67
+#, inherit=trac
+msgid "White space changes"
+msgstr "Cambios en espacios en blanco"
+
+#: bhtheme/templates/bh_diff_view.html:37
+#, python-format, inherit=trac
+msgid ""
+"Changes between\n"
+"          [1:Version %(old)s] and\n"
+"          [2:Version %(new)s] of\n"
+"          [3:%(name)s]"
+msgstr ""
+"Cambios entre\n"
+"          [1:Versión %(old)s] y\n"
+"          [2:Versión %(new)s] de\n"
+"          [3:%(name)s]"
+
+#: bhtheme/templates/bh_diff_view.html:42
+#, python-format, inherit=trac
+msgid ""
+"Changes between\n"
+"          [1:Initial Version] and\n"
+"          [2:Version %(new)s] of\n"
+"          [3:%(name)s]"
+msgstr ""
+"Cambios entre\n"
+"          [1:versión inicial] y\n"
+"          [2:versión %(new)s] de\n"
+"          [3:%(name)s]"
+
+#: bhtheme/templates/bh_diff_view.html:47
+#, python-format, inherit=trac
+msgid ""
+"Changes from\n"
+"          [1:Version %(new)s] of\n"
+"          [2:%(name)s]"
+msgstr ""
+"Cambios de\n"
+"          [1:versión %(new)s] de\n"
+"          [2:%(name)s]"
+
+#: bhtheme/templates/bh_diff_view.html:54
+#, inherit=trac
+msgid "Timestamp:"
+msgstr "Fecha y hora:"
+
+#: bhtheme/templates/bh_diff_view.html:56
+#: bhtheme/templates/bh_diff_view.html:64
+#: bhtheme/templates/bh_diff_view.html:70
+#, inherit=trac
+msgid "(multiple changes)"
+msgstr "(múltiples cambios)"
+
+#: bhtheme/templates/bh_diff_view.html:58
+#, python-format, inherit=trac
+msgid "%(date)s (%(duration)s ago)"
+msgstr "%(date)s (hace %(duration)s)"
+
+#: bhtheme/templates/bh_diff_view.html:66
+#, python-format, inherit=trac
+msgid "(IP: %(ipnr)s)"
+msgstr "(IP: %(ipnr)s)"
+
+#: bhtheme/templates/bh_dir_entries.html:31
+#, inherit=trac
+msgid "View Directory"
+msgstr "Ver directorio"
+
+#: bhtheme/templates/bh_dir_entries.html:31
+#, inherit=trac
+msgid "View File"
+msgstr "Ver fichero"
+
+#: bhtheme/templates/bh_dir_entries.html:37
+#: bhtheme/templates/bh_repository_index.html:41
+#, inherit=trac, missing
+msgid "Download as Zip archive"
+msgstr "Descargar como archivo ZIP"
+
+#: bhtheme/templates/bh_dir_entries.html:37
+#: bhtheme/templates/bh_list_of_attachments.html:38
+#: bhtheme/templates/bh_list_of_attachments.html:60
+#: bhtheme/templates/bh_ticket_change.html:152
+#, inherit=trac
+msgid "Download"
+msgstr "Descargar"
+
+#: bhtheme/templates/bh_dir_entries.html:41
+#: bhtheme/templates/bh_repository_index.html:45
+#, inherit=trac
+msgid "View Revision Log"
+msgstr "Ver registro de revisiones"
+
+#: bhtheme/templates/bh_dir_entries.html:42
+#: bhtheme/templates/bh_repository_index.html:46
+#, inherit=trac
+msgid "View Changeset"
+msgstr "Ver conjunto de cambios"
+
+#: bhtheme/templates/bh_dirlist_thead.html:31
+#: bhtheme/templates/bh_revisionlog.html:141
+#, inherit=trac
+msgid "Rev"
+msgstr "Ver."
+
+#: bhtheme/templates/bh_dirlist_thead.html:34
+#, inherit=trac
+msgid "Last Change"
+msgstr "Último cambio"
+
+#: bhtheme/templates/bh_history_view.html:36
+#, python-format, inherit=trac
+msgid "Change History for [1:%(name)s]"
+msgstr "Historia de cambios para [1:%(name)s]"
+
+#: bhtheme/templates/bh_history_view.html:48
+#, inherit=trac
+msgid "Change history"
+msgstr "Historial de cambios"
+
+#: bhtheme/templates/bh_history_view.html:53
+#, inherit=trac
+msgid "Date"
+msgstr "Fecha"
+
+#: bhtheme/templates/bh_history_view.html:54
+#: bhtheme/templates/bh_revisionlog.html:143
+#: bhtheme/templates/bh_ticket.html:681
+#, inherit=trac
+msgid "Author"
+msgstr "Autor"
+
+#: bhtheme/templates/bh_history_view.html:55
+#, inherit=trac
+msgid "Comment"
+msgstr "Comentario"
+
+#: bhtheme/templates/bh_history_view.html:67
+#, inherit=trac
+msgid "View this version"
+msgstr "Ver esta versión"
+
+#: bhtheme/templates/bh_history_view.html:70
+#, python-format, inherit=trac
+msgid "IP-Address: %(ipnr)s"
+msgstr "Dirección IP: %(ipnr)s"
+
+#: bhtheme/templates/bh_list_of_attachments.html:40
+#, inherit=trac
+msgid "View attachment"
+msgstr "Ver adjunto"
+
+#: bhtheme/templates/bh_list_of_attachments.html:39
+#, python-format
+msgid ""
+"[1:%(file)s]\n"
+"       [2:([3:%(size)s]) -\n"
+"      added by [4:%(author)s] %(date)s.]"
+msgstr ""
+"[1:%(file)s]\n"
+"       [2:([3:%(size)s]) -\n"
+"      añadido por [4:%(author)s] %(date)s.]"
+
+#: bhtheme/templates/bh_list_of_attachments.html:49
+#: bhtheme/templates/bh_list_of_attachments.html:66
+msgid "Attachments ("
+msgstr "Adjuntos ("
+
+#: bhtheme/templates/bh_list_of_attachments.html:60
+msgid "all attachments as:"
+msgstr "todos los adjuntos como:"
+
+#: bhtheme/templates/bh_list_of_attachments.html:61
+#: bhtheme/templates/bh_list_of_attachments.html:76
+#, inherit=trac, missing
+msgid ".zip"
+msgstr ".zip"
+
+#: bhtheme/templates/bh_list_of_attachments.html:76
+#, fuzzy, inherit=trac
+msgid "Download all attachments as:"
+msgstr "Agregar adjunto"
+
+#: bhtheme/templates/bh_login.html:33 bhtheme/templates/bh_login.html:51
+#: bhtheme/templates/bh_login.html:86
+#: bhtheme/templates/bloodhound_theme.html:73
+#: bhtheme/templates/bloodhound_theme.html:202
+#: bhtheme/templates/bloodhound_theme.html:353
+#, inherit=trac
+msgid "Login"
+msgstr "Entrar"
+
+#: bhtheme/templates/bh_login.html:73 bhtheme/templates/bh_login.html:99
+#: bhtheme/templates/bh_login.html:102
+#, inherit=acct_mgr
+msgid "Forgot your password?"
+msgstr "¿Olvidó su contraseña?"
+
+#: bhtheme/templates/bh_login.html:79
+#, inherit=acct_mgr
+msgid "Remember me"
+msgstr "Recuérdeme"
+
+#: bhtheme/templates/bh_login.html:91 bhtheme/templates/bh_login.html:94
+#: bhtheme/templates/bh_register.html:33
+#, inherit=acct_mgr
+msgid "Register"
+msgstr "Registrarse"
+
+#: bhtheme/templates/bh_milestone_delete.html:30
+#: bhtheme/templates/bh_milestone_delete.html:42
+msgid "Delete Milestone"
+msgstr "Eliminar Hito"
+
+#: bhtheme/templates/bh_milestone_delete.html:50
+#, inherit=trac
+msgid "Are you sure you want to delete this milestone?"
+msgstr "¿Seguro que quiere borrar este hito?"
+
+#: bhtheme/templates/bh_milestone_delete.html:53
+#, inherit=trac
+msgid "Retarget associated tickets to milestone"
+msgstr "Reasignar las incidencias asociadas al hito"
+
+#: bhtheme/templates/bh_milestone_delete.html:55
+#: bhtheme/templates/bh_milestone_edit.html:134
+#, inherit=trac
+msgid "None"
+msgstr "Ninguno"
+
+#: bhtheme/templates/bh_milestone_delete.html:64
+#, inherit=trac
+msgid "Delete milestone"
+msgstr "Borrar hito"
+
+#: bhtheme/templates/bh_milestone_delete.html:73
+msgid ""
+"[1:Note] See\n"
+"          [2:TracRoadmap] for help on using\n"
+"          the roadmap."
+msgstr ""
+"[1:Nota] Consulte\n"
+"          [2:TracRoadmap] para saber más sobre\n"
+"          la vista de progreso."
+
+#: bhtheme/templates/bh_milestone_edit.html:31
+#: bhtheme/templates/bh_milestone_edit.html:66
+msgid "Edit Milestone"
+msgstr "Editar Hito"
+
+#: bhtheme/templates/bh_milestone_edit.html:32
+#: bhtheme/templates/bh_milestone_edit.html:67
+#, inherit=trac
+msgid "New Milestone"
+msgstr "Hito nuevo"
+
+#: bhtheme/templates/bh_milestone_edit.html:76
+#, inherit=trac
+msgid "Name of the milestone:"
+msgstr "Nombre del hito:"
+
+#: bhtheme/templates/bh_milestone_edit.html:86
+#, review
+msgid ""
+"[1:Tip]\n"
+"                You may use [2:WikiFormatting] here"
+msgstr ""
+"[1:Consejo]\n"
+"                Puedes utilizar [2:WikiFormatting] aquí"
+
+#: bhtheme/templates/bh_milestone_edit.html:97
+#, inherit=trac
+msgid "Schedule"
+msgstr "Programar"
+
+#: bhtheme/templates/bh_milestone_edit.html:108
+#: bhtheme/templates/bh_milestone_edit.html:124
+#, python-format
+msgid ""
+"[1:Tip]\n"
+"                    Format: %(datehint)s"
+msgstr ""
+"[1:Consejo]\n"
+"                    Formato: %(datehint)s"
+
+#: bhtheme/templates/bh_milestone_edit.html:132
+#, inherit=trac
+msgid "Retarget associated open tickets to milestone:"
+msgstr "Reasignar las incidencias abiertas al hito:"
+
+#: bhtheme/templates/bh_milestone_edit.html:147
+#: bhtheme/templates/bh_ticket.html:385 bhtheme/templates/bh_ticket.html:441
+#: bhtheme/templates/bh_ticket_change.html:95
+#: bhtheme/templates/bh_wiki_edit_form.html:93
+#: bhtheme/templates/bh_wiki_edit_form.html:98
+#, inherit=trac
+msgid "Submit changes"
+msgstr "Enviar cambios"
+
+#: bhtheme/templates/bh_milestone_edit.html:149
+#, inherit=trac
+msgid "Add milestone"
+msgstr "Añadir hito"
+
+#: bhtheme/templates/bh_milestone_edit.html:156
+msgid ""
+"[1:\n"
+"          [2:Note] See\n"
+"          [3:TracRoadmap]\n"
+"          for help on using the roadmap.\n"
+"        ]"
+msgstr ""
+"[1:\n"
+"          [2:Nota] Consulte\n"
+"          [3:TracRoadmap]\n"
+"          para saber más acerca de la vista de progreso.\n"
+"        ]"
+
+#: bhtheme/templates/bh_milestone_view.html:35
+#: bhtheme/templates/bh_roadmap.html:62
+#, python-format, inherit=trac
+msgid "Completed %(duration)s ago (%(date)s)"
+msgstr "Completado hace %(duration)s (el %(date)s)"
+
+#: bhtheme/templates/bh_milestone_view.html:40
+#, fuzzy
+msgid "dateinfo(milestone.due)} late"
+msgstr "dateinfo(milestone.due)} de atraso"
+
+#: bhtheme/templates/bh_milestone_view.html:45
+#, fuzzy, python-format
+msgid "Due in %(duration)s"
+msgstr "Debe terminar en %(duration)s"
+
+#: bhtheme/templates/bh_milestone_view.html:50
+msgid "Unscheduled"
+msgstr "No planificada"
+
+#: bhtheme/templates/bh_milestone_view.html:56
+#: bhtheme/templates/bh_milestone_view.html:108
+#, inherit=trac
+msgid "Milestone"
+msgstr "Hito"
+
+#: bhtheme/templates/bh_milestone_view.html:82
+#: bhtheme/templates/bh_product_view.html:71
+#: bhtheme/templates/bh_report_list.html:115
+#, inherit=trac
+msgid "Delete"
+msgstr "Borrar"
+
+#: bhtheme/templates/bh_milestone_view.html:94
+#: bhtheme/templates/bh_milestone_view.html:102
+#, review
+msgid "milestone="
+msgstr "milestone="
+
+#: bhtheme/templates/bh_milestone_view.html:94
+#: bhtheme/templates/bh_product_view.html:89
+#, review
+msgid "&status=!closed&group=time&col=id&col=summary&col=owner&col=status&col=priority&order=priority&groupdesc=1&desc=1"
+msgstr "&status=!closed&group=time&col=id&col=summary&col=owner&col=status&col=priority&order=priority&groupdesc=1&desc=1"
+
+#: bhtheme/templates/bh_milestone_view.html:95
+#, review
+msgid "Active tickets in milestone"
+msgstr "Incidencias activas en hito"
+
+#: bhtheme/templates/bh_milestone_view.html:100
+#: bhtheme/templates/bh_product_view.html:112
+#, review
+msgid "component"
+msgstr "component"
+
+#: bhtheme/templates/bh_milestone_view.html:101
+#: bhtheme/templates/bh_product_view.html:97
+#: bhtheme/templates/bh_product_view.html:105
+#: bhtheme/templates/bh_product_view.html:113
+#, review
+msgid "true"
+msgstr "true"
+
+#: bhtheme/templates/bh_milestone_view.html:102
+#: bhtheme/templates/bh_product_view.html:114
+#, review
+msgid "&group=component"
+msgstr "&group=component"
+
+#: bhtheme/templates/bh_milestone_view.html:109
+#, inherit=trac
+msgid "Edit this milestone"
+msgstr "Editar este hito"
+
+#: bhtheme/templates/bh_path_general.html:33
+msgid "Select product to administer"
+msgstr "Seleccionar producto a administrar"
+
+#: bhtheme/templates/bh_path_general.html:53
+msgid "View the dashboard"
+msgstr "Ir a la vista resumida"
+
+#: bhtheme/templates/bh_path_general.html:53
+msgid "Dashboard"
+msgstr "Vista resumida"
+
+#: bhtheme/templates/bh_path_general.html:58
+msgid "Current product"
+msgstr "Producto actual"
+
+#: bhtheme/templates/bh_path_general.html:69
+msgid "Back to products"
+msgstr "Regresar a productos"
+
+#: bhtheme/templates/bh_path_general.html:69
+msgid "All products"
+msgstr "Todos los productos"
+
+#: bhtheme/templates/bh_path_general.html:78
+msgid "Current milestone"
+msgstr "Hito actual"
+
+#: bhtheme/templates/bh_path_general.html:89
+msgid "Back to roadmap"
+msgstr "Regresar a vista de progreso"
+
+#: bhtheme/templates/bh_path_general.html:89
+#: bhtheme/templates/bh_roadmap.html:29 bhtheme/templates/bh_roadmap.html:51
+#, inherit=trac
+msgid "Roadmap"
+msgstr "Progreso"
+
+#: bhtheme/templates/bh_path_links.html:42
+#, inherit=trac
+msgid "Go to repository index"
+msgstr "Ir al índice del repositorio"
+
+#: bhtheme/templates/bh_path_links.html:42
+#, inherit=trac
+msgid "Go to repository root"
+msgstr "Ir a la raíz del repositorio"
+
+#: bhtheme/templates/bh_path_search.html:28 bhtheme/templates/bh_search.html:32
+#: bhtheme/templates/bloodhound_theme.html:110
+#, inherit=trac
+msgid "Search"
+msgstr "Buscar"
+
+#: bhtheme/templates/bh_path_ticket.html:30
+msgid "Ticket #"
+msgstr "Incidencia #"
+
+#: bhtheme/templates/bh_path_wikipage.html:27
+msgid "View default wiki page"
+msgstr "Ver la wiki predeterminada"
+
+#: bhtheme/templates/bh_path_wikipage.html:27
+#, inherit=trac
+msgid "wiki:"
+msgstr "wiki:"
+
+#: bhtheme/templates/bh_path_wikipage.html:30
+#, python-format, inherit=trac
+msgid "View %(path)s"
+msgstr "Ver %(path)s"
+
+#: bhtheme/templates/bh_prefs.html:31
+#, inherit=trac
+msgid "Preferences"
+msgstr "Preferencias"
+
+#: bhtheme/templates/bh_prefs.html:32
+#, review, inherit=trac
+msgid ""
+"This page lets you customize your personal settings for this site.\n"
+"    These settings are stored on the server and are identified by a "
+"session\n"
+"    key stored in a browser cookie. That cookie allows your settings to "
+"be\n"
+"    restored on subsequent visits."
+msgstr ""
+"Esta página le permite personalizar el sitio.\n"
+"      Estos ajustes se guardan en el servidor y son identificados por una"
+"\n"
+"      clave de sesión almacenada como \"cookie\" en su navegador.\n"
+"      Esta \"cookie\" le permitirá restaurar su personalización en las\n"
+"      siguientes visitas."
+
+#: bhtheme/templates/bh_prefs.html:70
+#, inherit=trac
+msgid "Save changes"
+msgstr "Guardar los cambios"
+
+#: bhtheme/templates/bh_prefs.html:91
+#, inherit=trac
+msgid "Preferences:"
+msgstr "Preferencias:"
+
+#: bhtheme/templates/bh_prefs_account.html:41
+#, inherit=acct_mgr
+msgid "Delete Account"
+msgstr "Eliminar cuenta"
+
+#: bhtheme/templates/bh_prefs_account.html:64
+#, inherit=acct_mgr
+msgid "Delete account"
+msgstr "Eliminar cuenta"
+
+#: bhtheme/templates/bh_prefs_account.html:73
+#: bhtheme/templates/bh_user_table.html:39
+#, inherit=acct_mgr
+msgid "Account"
+msgstr "Cuenta"
+
+#: bhtheme/templates/bh_prefs_account.html:87
+#, inherit=acct_mgr
+msgid "Change Password"
+msgstr "Cambiar contraseña"
+
+#: bhtheme/templates/bh_prefs_account.html:95
+#, inherit=acct_mgr
+msgid "Old Password:"
+msgstr "Contraseña antigua:"
+
+#: bhtheme/templates/bh_prefs_account.html:110
+#, inherit=acct_mgr
+msgid "New Password:"
+msgstr "Nueva contraseña:"
+
+#: bhtheme/templates/bh_prefs_advanced.html:30
+#, inherit=trac
+msgid "Advanced"
+msgstr "Avanzado"
+
+#: bhtheme/templates/bh_prefs_advanced.html:36
+#, inherit=trac
+msgid "Session key:"
+msgstr "Clave de sesión:"
+
+#: bhtheme/templates/bh_prefs_advanced.html:41
+#: bhtheme/templates/bh_prefs_advanced.html:59
+#: bhtheme/templates/bh_preview_file.html:35
+#: bhtheme/templates/bh_preview_file.html:40
+#: bhtheme/templates/bh_register.html:106
+#: bhtheme/templates/bh_register.html:154
+msgid "Notice"
+msgstr "Mensaje"
+
+#: bhtheme/templates/bh_prefs_advanced.html:41
+#, review, inherit=trac
+msgid ""
+"The session key is used to identify stored custom\n"
+"          settings and session data on the server. Although it is\n"
+"          automatically generated by default, you may change it to "
+"something\n"
+"          easier to remember at any time if you wish to load your "
+"settings\n"
+"          in a different web browser."
+msgstr ""
+"La clave de sesión se utiliza para identificar los ajustes personales\n"
+"      y los datos de sesión en el servidor. Aunque se genera "
+"automáticamente\n"
+"      por defecto, puede cambiarla a algo más fácil para recordarla en "
+"otro\n"
+"      momento y así cargar sus ajustes desde un navegador de web "
+"diferente."
+
+#: bhtheme/templates/bh_prefs_advanced.html:48
+#, inherit=trac
+msgid "Change"
+msgstr "Cambiar"
+
+#: bhtheme/templates/bh_prefs_advanced.html:55
+#, inherit=trac
+msgid "Restore session:"
+msgstr "Restaurar la sesión:"
+
+#: bhtheme/templates/bh_prefs_advanced.html:59
+msgid ""
+"You may load a previously created session by entering the\n"
+"          corresponding session key below. This lets you share settings "
+"between\n"
+"          multiple computers and web browsers."
+msgstr ""
+"Puede cargar una sesión previamente creada introduciendo\n"
+"      la correspondiente clave de sesión más abajo. Esto le permitirá\n"
+"      compartir los ajustes entre diferentes ordenadores y navegadores."
+
+#: bhtheme/templates/bh_prefs_advanced.html:64
+#, inherit=trac
+msgid "Load"
+msgstr "Cargar"
+
+#: bhtheme/templates/bh_prefs_datetime.html:30
+#, inherit=trac
+msgid "Date & Time"
+msgstr "Fecha y hora"
+
+#: bhtheme/templates/bh_prefs_datetime.html:37
+#, inherit=trac
+msgid "Time zone:"
+msgstr "Zona horaria:"
+
+#: bhtheme/templates/bh_prefs_datetime.html:40
+#, inherit=trac
+msgid "Default time zone"
+msgstr "Zona horaria predeterminada"
+
+#: bhtheme/templates/bh_prefs_datetime.html:47
+#, review, inherit=trac
+msgid ""
+"Configuring your time zone will result in all\n"
+"        dates and times displayed on this site to use your time zone\n"
+"        instead of that of the server."
+msgstr ""
+"Configurando su zona horaria conseguirá que todas\n"
+"      las fechas y horas mostradas en este sitio usen su zona horaria\n"
+"      en lugar de la del servidor."
+
+#: bhtheme/templates/bh_prefs_datetime.html:56
+#, python-format
+msgid "[1:Example] The current time is [2:%(time)s] [3:UTC]."
+msgstr "[1:Example] La hora actual es [2:%(time)s] [3:UTC]."
+
+#: bhtheme/templates/bh_prefs_datetime.html:61
+#, review, python-format, inherit=trac
+msgid ""
+"In your time zone %(tz)s, this would be displayed as\n"
+"              [1:%(formatted)s]."
+msgstr ""
+"En su zona horaria %(tz)s, esto se mostrará como\n"
+"            [1:%(formatted)s]."
+
+#: bhtheme/templates/bh_prefs_datetime.html:67
+#, fuzzy, review, python-format, inherit=trac
+msgid "In the default time zone, this would be displayed as [1:%(formatted)s]."
+msgstr ""
+"En la zona horaria predeterminada, esto podría mostrarse como\n"
+"             [1:%(formatted)s]."
+
+#: bhtheme/templates/bh_prefs_datetime.html:73
+#, review, inherit=trac
+msgid ""
+"[1:Note] Universal Co-ordinated Time ( [2:UTC] ) is also known as "
+"Greenwich Mean Time ( [3:GMT] ).[4:]\n"
+"          A positive offset is used to indicate a timezone at the east of"
+" Greenwich, i.e. ahead of Universal Time."
+msgstr ""
+"[1:Note] Tiempo Coordinado Universal ( [2:UTC] ) es también conocido como"
+" Tiempo del Meridiano de Greenwich ( [3:GMT] ).[4:]\n"
+"        Usa un desplazamiento positivo para indicar la zona horaria al "
+"este de Greenwich, i.e. al contrario que en Tiempo Universal."
+
+#: bhtheme/templates/bh_prefs_datetime.html:83
+#, fuzzy, inherit=trac
+msgid "Date format:"
+msgstr "Información del sistema:"
+
+#: bhtheme/templates/bh_prefs_datetime.html:86
+#, fuzzy, inherit=trac
+msgid "Default date format"
+msgstr "Zona horaria predeterminada"
+
+#: bhtheme/templates/bh_prefs_datetime.html:88
+#, inherit=trac
+msgid "Your language setting"
+msgstr "Sus ajustes de lenguaje"
+
+#: bhtheme/templates/bh_prefs_datetime.html:94
+#, review, inherit=trac
+msgid ""
+"Configuring your date format will result in formatting\n"
+"        and parsing datetime displayed on this site to use your date "
+"format\n"
+"        instead of that of the server."
+msgstr ""
+"Configurando su zona horaria conseguirá que todas\n"
+"      las fechas y horas mostradas en este sitio usen su zona horaria\n"
+"      en lugar de la del servidor."
+
+#: bhtheme/templates/bh_prefs_datetime.html:103
+#, inherit=trac, missing
+msgid "Date relative/absolute format:"
+msgstr "Formato de fecha (relativo/absoluto)"
+
+#: bhtheme/templates/bh_prefs_datetime.html:106
+#, fuzzy, inherit=trac
+msgid "Default format"
+msgstr "(predeterminado)"
+
+#: bhtheme/templates/bh_prefs_datetime.html:108
+#, inherit=trac, missing
+msgid "Relative format"
+msgstr "Formato relativo"
+
+#: bhtheme/templates/bh_prefs_datetime.html:110
+#, fuzzy, inherit=trac
+msgid "Absolute format"
+msgstr "Información de sistema"
+
+#: bhtheme/templates/bh_prefs_datetime.html:114
+msgid ""
+"Configuring your relative/absolute format will result in\n"
+"        formatting datetime displayed on this site to use your format "
+"instead of\n"
+"        that of the server."
+msgstr ""
+"Configurando su zona horaria conseguirá que todas\n"
+"      las fechas y horas mostradas en este sitio usen su zona horaria\n"
+"      en lugar de la del servidor."
+
+#: bhtheme/templates/bh_prefs_general.html:30
+#, inherit=trac
+msgid "General"
+msgstr "General"
+
+#: bhtheme/templates/bh_prefs_general.html:35
+#, inherit=trac
+msgid "Full name:"
+msgstr "Nombre completo:"
+
+#: bhtheme/templates/bh_prefs_general.html:43
+#, inherit=trac
+msgid "Email address:"
+msgstr "Dirección de correo electrónico:"
+
+#: bhtheme/templates/bh_prefs_general.html:52
+#, inherit=trac
+msgid ""
+"This information is used to automatically populate some forms\n"
+"        on this site with your contact details."
+msgstr ""
+"Esta información es usada para rellenar automáticamente algunos "
+"formularios\n"
+"        de este sitio con sus datos de contacto."
+
+#: bhtheme/templates/bh_prefs_general.html:56
+#, inherit=trac
+msgid ""
+"This information is used to associate your login name with your\n"
+"        email address and full name, which is used for email\n"
+"        notification and RSS feeds, for example."
+msgstr ""
+"Esta información se usa para asociar su nombre de usuario con su\n"
+"        dirección de correo y nombre completo, que será usado para enviar"
+"\n"
+"        notificaciones y canales RSS, por ejemplo."
+
+#: bhtheme/templates/bh_prefs_keybindings.html:30
+#, inherit=trac
+msgid "Keyboard Shortcuts"
+msgstr "Atajos de teclado"
+
+#: bhtheme/templates/bh_prefs_keybindings.html:38
+#, inherit=trac
+msgid "Enable access keys"
+msgstr "Permitir teclas de acceso"
+
+#: bhtheme/templates/bh_prefs_keybindings.html:41
+msgid ""
+"[1:Note]\n"
+"      This site provides keyboard shortcuts for\n"
+"      faster access to certain functions of this site. As these shortcuts"
+" can\n"
+"      cause conflicts with shortcuts provided by the desktop system or\n"
+"      web browser, they are disabled by default. See\n"
+"      [2:TracAccessibility]\n"
+"      for more information on access keys."
+msgstr ""
+"[1:Nota]\n"
+"Este sitio proporciona atajos de teclado para\n"
+"      un mayor acceso a ciertas funciones de este sitio. Dado que estos \n"
+"      atajos puden causar conflictos con atajos del sistema de escritorio"
+"\n"
+"      o con el navegador, están deshabilitados por defecto. Vea\n"
+"      [1:TracAccessibility]\n"
+"      para más información sobre las teclas de acceso."
+
+#: bhtheme/templates/bh_prefs_language.html:30
+#, inherit=trac
+msgid "Language"
+msgstr "Idioma"
+
+#: bhtheme/templates/bh_prefs_language.html:35
+#, inherit=trac
+msgid "Language:"
+msgstr "Idioma:"
+
+#: bhtheme/templates/bh_prefs_language.html:37
+#, fuzzy, inherit=trac
+msgid "Default language"
+msgstr "Predeterminado"
+
+#: bhtheme/templates/bh_prefs_language.html:43
+#, inherit=trac
+msgid ""
+"Configuring your language will result in all text\n"
+"      displayed on this site to use your language instead of that of the\n"
+"      server."
+msgstr ""
+"Configurando su lenguaje va a ver todo\n"
+"      el texto del sitio"
+
+#: bhtheme/templates/bh_prefs_language.html:47
+#, fuzzy, inherit=trac
+msgid ""
+"The [1:Default language] option uses the browser's\n"
+"        language negotiation feature to select the appropriate language."
+msgstr ""
+"El [1:idioma predeterminado] usa la capacidad de negociación\n"
+"        del navegador para seleccionar el idioma más apropiado."
+
+#: bhtheme/templates/bh_prefs_pygments.html:30
+#, inherit=trac
+msgid "Syntax Highlighting"
+msgstr "Resaltado de sintaxis"
+
+#: bhtheme/templates/bh_prefs_pygments.html:59
+msgid "Overview"
+msgstr "General"
+
+#: bhtheme/templates/bh_prefs_pygments.html:59
+msgid ""
+"The Pygments syntax highlighter can be used with\n"
+"        different coloring styles."
+msgstr ""
+"Pygments permite resaltar la sintaxis utilizando        diferentes "
+"combinaciones de colores."
+
+#: bhtheme/templates/bh_prefs_pygments.html:63
+#, inherit=trac
+msgid "Style:"
+msgstr "Estilo:"
+
+#: bhtheme/templates/bh_prefs_pygments.html:68
+#, inherit=trac
+msgid "Preview:"
+msgstr "Vista previa"
+
+#: bhtheme/templates/bh_prefs_userinterface.html:30
+#, inherit=trac, missing
+msgid "User Interface"
+msgstr "Interfaz de usuario"
+
+#: bhtheme/templates/bh_prefs_userinterface.html:39
+#, inherit=trac, missing
+msgid "Use only symbols for buttons."
+msgstr "Utilizar solo símbolos para los botones"
+
+#: bhtheme/templates/bh_prefs_userinterface.html:42
+msgid ""
+"[1:Note]\n"
+"        Display only the icon or symbol for short inline buttons, and "
+"hide the text caption."
+msgstr ""
+"[1:Nota]\n"
+"        Solo se muestra el ícono o símbolo en los botones, y se esconde "
+"el texto asociado."
+
+#: bhtheme/templates/bh_prefs_userinterface.html:52
+#, inherit=trac
+msgid "Hide help links."
+msgstr "Esconder enlaces de ayuda"
+
+#: bhtheme/templates/bh_prefs_userinterface.html:55
+msgid ""
+"[1:Note]\n"
+"        Don't show the various help links. This reduces the verbosity of "
+"the pages."
+msgstr ""
+"[1:Nota]\n"
+"        No mostrar los diversos enlaces de ayuda. Esto reduce la "
+"verbosidad de las páginas."
+
+#: bhtheme/templates/bh_preview_file.html:36
+#, inherit=trac
+msgid "(The file is empty)"
+msgstr "(el fichero está vacío)"
+
+#: bhtheme/templates/bh_preview_file.html:41
+#, review, python-format, inherit=trac
+msgid ""
+"[1:HTML preview not available], since the file size exceeds %(size)s "
+"bytes."
+msgstr ""
+"[1:Vista previa HTML no disponible], el tamaño del fichero excede "
+"%(size)s bytes."
+
+#: bhtheme/templates/bh_preview_file.html:44
+#, review, inherit=trac
+msgid "[1:HTML preview not available], since no preview renderer could handle it."
+msgstr "[1:Vista previa HTML no disponible], ningún visor puede reproducirla."
+
+#: bhtheme/templates/bh_preview_file.html:48
+#, inherit=trac
+msgid "Try [1:downloading] the file instead."
+msgstr "Intente [1:bajar] el fichero en su lugar."
+
+#: bhtheme/templates/bh_product_list.html:43
+#, inherit=multiproduct
+msgid "Add new product"
+msgstr "Añadir nuevo producto"
+
+#: bhtheme/templates/bh_product_view.html:34
+#, review, inherit=trac
+msgid "Owned by"
+msgstr "Propietario"
+
+#: bhtheme/templates/bh_product_view.html:44
+#: bhtheme/templates/bh_product_view.html:120
+#, inherit=multiproduct
+msgid "Product"
+msgstr "Producto"
+
+#: bhtheme/templates/bh_product_view.html:82
+#: bhtheme/templates/bh_product_view.html:89
+#: bhtheme/templates/bh_product_view.html:98
+#: bhtheme/templates/bh_product_view.html:106
+#: bhtheme/templates/bh_product_view.html:114
+#, review
+msgid "product="
+msgstr "product="
+
+#: bhtheme/templates/bh_product_view.html:82
+#, review
+msgid "&status=!closed&group=time&col=id&col=summary&col=owner&col=status&col=priority&order=priority&groupdesc=1&desc=1&owner=$USER"
+msgstr "&status=!closed&group=time&col=id&col=summary&col=owner&col=status&col=priority&order=priority&groupdesc=1&desc=1&owner=$USER"
+
+#: bhtheme/templates/bh_product_view.html:83
+msgid "My Tickets"
+msgstr "Mis incidencias"
+
+#: bhtheme/templates/bh_product_view.html:90
+msgid "Active Tickets"
+msgstr "Incidencias activas"
+
+#: bhtheme/templates/bh_product_view.html:96
+#, review
+msgid "version"
+msgstr "version"
+
+#: bhtheme/templates/bh_product_view.html:98
+#, review
+msgid "&group=version"
+msgstr "&group=version"
+
+#: bhtheme/templates/bh_product_view.html:104
+#, review
+msgid "milestone"
+msgstr "milestone"
+
+#: bhtheme/templates/bh_product_view.html:106
+#, review
+msgid "&group=milestone"
+msgstr "&group=milestone"
+
+#: bhtheme/templates/bh_product_view.html:121
+#, inherit=multiproduct
+msgid "Edit this product"
+msgstr "Editar este producto"
+
+#: bhtheme/templates/bh_query.html:55 bhtheme/templates/bh_report_view.html:41
+#, python-format, inherit=trac
+msgid "%(num)s match"
+msgid_plural "%(num)s matches"
+msgstr[0] "%(num)s encontrado"
+msgstr[1] "%(num)s encontrados"
+
+#: bhtheme/templates/bh_query.html:67
+#, inherit=trac
+msgid "Filters"
+msgstr "Filtros"
+
+#: bhtheme/templates/bh_query.html:68
+#, inherit=trac
+msgid "Query filters"
+msgstr "Filtros de búsqueda"
+
+#: bhtheme/templates/bh_query.html:74 bhtheme/templates/bh_query.html:178
+#, inherit=trac
+msgid "Or"
+msgstr "o"
+
+#: bhtheme/templates/bh_query.html:102
+#: bhtheme/templates/bloodhound_theme.html:74
+#, inherit=trac
+msgid "or"
+msgstr "o"
+
+#: bhtheme/templates/bh_query.html:137
+#, inherit=trac
+msgid "yes"
+msgstr "sí"
+
+#: bhtheme/templates/bh_query.html:140
+#, inherit=trac
+msgid "no"
+msgstr "no"
+
+#: bhtheme/templates/bh_query.html:150
+msgid ""
+"[1:between]\n"
+"                                [2:]\n"
+"                                [3:and]\n"
+"                                [4:]"
+msgstr ""
+"[1:entre]\n"
+"                                [2:]\n"
+"                                [3:y]\n"
+"                                [4:]"
+
+#: bhtheme/templates/bh_query.html:164
+#, inherit=trac
+msgid "And"
+msgstr "y"
+
+#: bhtheme/templates/bh_query.html:201
+#, inherit=trac
+msgid "Columns"
+msgstr "Columnas"
+
+#: bhtheme/templates/bh_query.html:219
+#, inherit=trac
+msgid "Group results by"
+msgstr "Agrupar resultados por"
+
+#: bhtheme/templates/bh_query.html:231
+#, inherit=trac
+msgid "descending"
+msgstr "hacia abajo"
+
+#: bhtheme/templates/bh_query.html:234 bhtheme/templates/bh_report_view.html:76
+#, inherit=trac
+msgid "Max items per page"
+msgstr "Máximo de líneas por página"
+
+#: bhtheme/templates/bh_query.html:240
+#, inherit=trac
+msgid "Show under each result:"
+msgstr "Mostrar bajo cada resultado:"
+
+#: bhtheme/templates/bh_query.html:276
+#, python-format, inherit=trac
+msgid "Edit report {%(id)s} corresponding to this query"
+msgstr "Editar informe {%(id)s} correspondiente a esta consulta"
+
+#: bhtheme/templates/bh_query.html:276
+#, inherit=trac
+msgid "Edit query"
+msgstr "Editar consulta"
+
+#: bhtheme/templates/bh_query.html:285
+#, inherit=trac
+msgid "Save query"
+msgstr "Guardar consulta"
+
+#: bhtheme/templates/bh_query.html:285
+#, python-format, inherit=trac
+msgid "Save updated query in report {%(id)s}"
+msgstr "Salvar consulta actualizada en el informe %(id)s"
+
+#: bhtheme/templates/bh_query.html:285
+#, inherit=trac
+msgid "Create new report from current query"
+msgstr "Crear un nuevo informe a partir de la consulta actual"
+
+#: bhtheme/templates/bh_query.html:294
+#, python-format, inherit=trac
+msgid "Delete report {%(id)s} corresponding to this query"
+msgstr "Borrar el informe informe {%(id)s} correspondiente a esta consulta"
+
+#: bhtheme/templates/bh_query.html:294
+#, inherit=trac
+msgid "Delete query"
+msgstr "Borrar consulta"
+
+#: bhtheme/templates/bh_query.html:302
+msgid ""
+"[1:Note] See [2:TracQuery]\n"
+"          for help on using queries."
+msgstr ""
+"[1:Note] Consulte [2:TracQuery]\n"
+"          para saber más sobre las consultas."
+
+#: bhtheme/templates/bh_register.html:39
+#, review
+msgid "@name=username"
+msgstr "@name=username"
+
+#: bhtheme/templates/bh_register.html:43
+#, inherit=acct_mgr
+msgid "Register an account"
+msgstr "Registrar una cuenta"
+
+#: bhtheme/templates/bh_register.html:56
+#, inherit=acct_mgr
+msgid "Required"
+msgstr "Obligatorio"
+
+#: bhtheme/templates/bh_register.html:95 bhtheme/templates/bh_register.html:144
+#, inherit=acct_mgr
+msgid "Email:"
+msgstr "Correo electrónico:"
+
+#: bhtheme/templates/bh_register.html:106
+#, review, inherit=acct_mgr
+msgid ""
+"The email \n"
+"                    address is required for Trac to send you a\n"
+"                    verification token."
+msgstr ""
+"La dirección e-mail es necesaria para que Trac le envíe un mensaje \n"
+"con instrucciones para verificar su usuario"
+
+#: bhtheme/templates/bh_register.html:111
+#, review
+msgid ""
+"Entering your email address\n"
+"                    will also enable you to reset your password if you "
+"ever \n"
+"                    forget it."
+msgstr ""
+"Si proporciona su dirección e-mail\n"
+"                    luego podrá recuperar su contraseña en caso de ser "
+"olvidada"
+
+#: bhtheme/templates/bh_register.html:120
+#, inherit=acct_mgr
+msgid "Create account"
+msgstr "Crear cuenta"
+
+#: bhtheme/templates/bh_register.html:131
+#, inherit=acct_mgr
+msgid "Optional"
+msgstr "Opcional"
+
+#: bhtheme/templates/bh_register.html:154
+msgid ""
+"Entering your email address\n"
+"                      will enable you to reset your password if \n"
+"                      you ever forget it."
+msgstr ""
+"Si proporciona su dirección e-mail\n"
+"                    luego podrá recuperar su contraseña en caso de ser "
+"olvidada"
+
+#: bhtheme/templates/bh_report_delete.html:38
+#, inherit=trac
+msgid "Are you sure you want to delete this report?"
+msgstr "¿Seguro que quiere eliminar este informe?"
+
+#: bhtheme/templates/bh_report_delete.html:42
+#: bhtheme/templates/bh_report_list.html:115
+#: bhtheme/templates/bh_report_view.html:66
+#, inherit=trac
+msgid "Delete report"
+msgstr "Borrar informe"
+
+#: bhtheme/templates/bh_report_delete.html:51
+#: bhtheme/templates/bh_report_edit.html:90
+msgid ""
+"[1:Note]\n"
+"          See [2:TracReports] for help on using and creating reports."
+msgstr ""
+"[1:Nota]\n"
+"        Consulte [2:TracReports] para ayuda en el uso y creación de "
+"informes."
+
+#: bhtheme/templates/bh_report_edit.html:37
+#, inherit=trac
+msgid "New Report"
+msgstr "Nuevo informe"
+
+#: bhtheme/templates/bh_report_edit.html:45
+#, inherit=trac
+msgid "Report Title:"
+msgstr "Título del informe:"
+
+#: bhtheme/templates/bh_report_edit.html:57
+msgid ""
+"[1:Tip]\n"
+"                  You may use [2:WikiFormatting] here."
+msgstr ""
+"[1:Consejo]\n"
+"                  Puedes utilizar [2:WikiFormatting] aquí."
+
+#: bhtheme/templates/bh_report_edit.html:65
+#, inherit=trac
+msgid "Error:"
+msgstr "Error:"
+
+#: bhtheme/templates/bh_report_edit.html:67
+msgid "Query for Report:"
+msgstr "Consulta para el informe:"
+
+#: bhtheme/templates/bh_report_edit.html:73
+msgid ""
+"[1:Tip]\n"
+"                  Can be either SQL or, if starting with [2:query:],\n"
+"                  a [3:TracQuery] expression."
+msgstr ""
+"[1:Consejo]\n"
+"                  Puede ser tanto SQL, como empezar con [2:query:],\n"
+"                  una expresión [2:TracQuery])"
+
+#: bhtheme/templates/bh_report_edit.html:81
+#, inherit=trac
+msgid "Save report"
+msgstr "Guardar informe"
+
+#: bhtheme/templates/bh_report_list.html:30
+#: bhtheme/templates/bh_report_list.html:48
+#, inherit=trac, inherit=bhdashboard
+msgid "Reports"
+msgstr "Informes"
+
+#: bhtheme/templates/bh_report_list.html:55
+#, inherit=trac, missing
+msgid "Forget last query"
+msgstr "Olvidar consulta"
+
+#: bhtheme/templates/bh_report_list.html:55
+#, fuzzy, inherit=trac, missing
+msgid "Clear"
+msgstr "Borrar"
+
+#: bhtheme/templates/bh_report_list.html:59
+#, inherit=trac, missing
+msgid "Return to Last Query"
+msgstr "Volver a última consulta"
+
+#: bhtheme/templates/bh_report_list.html:62
+#: bhtheme/templates/bh_report_list.html:72
+#: bhtheme/templates/bh_ticket_actions.html:35
+msgid "Tip"
+msgstr "Consejo"
+
+#: bhtheme/templates/bh_report_list.html:62
+#, inherit=trac, missing
+msgid ""
+"Continue browsing through the current list of results,\n"
+"              from the last selected report or custom query."
+msgstr ""
+"Continúe la navegación a partir de esta lista de resultados,\n"
+"              desde el úlitmo informe o consulta seleccionado."
+
+#: bhtheme/templates/bh_report_list.html:69
+#, inherit=trac
+msgid "Custom Query"
+msgstr "Búsqueda personalizada"
+
+#: bhtheme/templates/bh_report_list.html:72
+#, inherit=trac, missing
+msgid "Compose a new ticket query by selecting filters and columns to display."
+msgstr "Confeccionar una nueva consulta seccionando filtros y columnas."
+
+#: bhtheme/templates/bh_report_list.html:82
+#, fuzzy, inherit=trac
+msgid "Show Descriptions"
+msgstr "Mostrar todas las descripciones"
+
+#: bhtheme/templates/bh_report_list.html:92
+#, inherit=trac, missing
+msgid "SQL reports and saved custom queries"
+msgstr "Informes"
+
+#: bhtheme/templates/bh_report_list.html:94
+#, fuzzy, inherit=trac
+msgid "Sort by:"
+msgstr "Informado por:"
+
+#: bhtheme/templates/bh_report_list.html:98
+#, inherit=trac, missing
+msgid "Identifier"
+msgstr "Identificador"
+
+#: bhtheme/templates/bh_report_list.html:104
+#, inherit=trac
+msgid "Title"
+msgstr "Título"
+
+#: bhtheme/templates/bh_report_list.html:121
+#: bhtheme/templates/bh_report_view.html:53
+#, inherit=trac
+msgid "Edit report"
+msgstr "Editar informe"
+
+#: bhtheme/templates/bh_report_list.html:124
+#, inherit=trac
+msgid "View report"
+msgstr "Ver informe"
+
+#: bhtheme/templates/bh_report_list.html:132
+#: bhtheme/templates/bloodhound_theme.html:284
+msgid "Warning"
+msgstr "Alerta"
+
+#: bhtheme/templates/bh_report_list.html:132
+#, inherit=trac
+msgid "No reports available."
+msgstr "No hay informes disponibles."
+
+#: bhtheme/templates/bh_report_list.html:142
+#, inherit=trac
+msgid "Create new report"
+msgstr "Crear informe nuevo"
+
+#: bhtheme/templates/bh_report_list.html:147
+msgid ""
+"[1:\n"
+"          [2:Note]\n"
+"          See [3:TracReports] for help on using and creating reports.\n"
+"        ]"
+msgstr ""
+"[1:\n"
+"          [2:Nota]\n"
+"          Consulte [3:TracReports] para saber más sobre la creación y uso"
+" de informes.\n"
+"        ]"
+
+#: bhtheme/templates/bh_report_view.html:60
+#, inherit=trac
+msgid "Copy report"
+msgstr "Copiar informe"
+
+#: bhtheme/templates/bh_report_view.html:82
+#, inherit=trac
+msgid "Arguments"
+msgstr "Argumentos"
+
+#: bhtheme/templates/bh_report_view.html:83
+#, inherit=trac
+msgid "Report arguments"
+msgstr "Argumentos del informe"
+
+#: bhtheme/templates/bh_report_view.html:110
+#, review
+msgid ""
+"[1:Note]\n"
+"        See [2:TracReports] for help on using and creating reports."
+msgstr ""
+"[1:Nota]\n"
+"        Consulte [2:TracReports] para saber más sobre la creación y uso "
+"de informes."
+
+#: bhtheme/templates/bh_repository_index.html:34
+#, inherit=trac
+msgid "View Root Directory"
+msgstr "Ver directorio raíz"
+
+#: bhtheme/templates/bh_reset_password.html:33
+#: bhtheme/templates/bh_reset_password.html:43
+#, inherit=acct_mgr
+msgid "Reset Password"
+msgstr "Reiniciar contraseña"
+
+#: bhtheme/templates/bh_reset_password.html:47
+#, inherit=acct_mgr
+msgid "Already logged in"
+msgstr "Ya está conectado"
+
+#: bhtheme/templates/bh_reset_password.html:48
+#, review, inherit=acct_mgr
+msgid ""
+"You're already logged in. If you\n"
+"          need to change your password please use the\n"
+"          [1:Account Preferences] page."
+msgstr ""
+"Ya está conectado. Si necesita cambiar su contraseña por favor use la "
+"página [1:Preferencias de cuenta]."
+
+#: bhtheme/templates/bh_reset_password.html:54
+#, review, python-format, inherit=acct_mgr
+msgid "A new password has been emailed to you at %(email)s ."
+msgstr "Se le ha enviado una nueva contraseña por correo electrónico a %(email)s ."
+
+#: bhtheme/templates/bh_reset_password.html:59
+msgid ""
+"If you've forgotten your password, enter\n"
+"        your username and email address below and you'll be emailed a new"
+"\n"
+"        password."
+msgstr ""
+"Si ha olvidado su contraseña introduzca su nombre de usuario y su \n"
+"dirección de correo electrónico y se le enviará una nueva."
+
+#: bhtheme/templates/bh_reset_password.html:95
+#, inherit=acct_mgr
+msgid "Reset password"
+msgstr "Reiniciar contraseña"
+
+#: bhtheme/templates/bh_revisionlog.html:30
+#, inherit=trac
+msgid "(log)"
+msgstr "(registro)"
+
+#: bhtheme/templates/bh_revisionlog.html:49
+#, inherit=trac
+msgid "Revision log"
+msgstr "Registro de revisiones"
+
+#: bhtheme/templates/bh_revisionlog.html:60
+#, inherit=trac
+msgid "Copied or renamed"
+msgstr "Copiado o renombrado"
+
+#: bhtheme/templates/bh_revisionlog.html:73
+#, inherit=trac
+msgid "Revision Log Mode:"
+msgstr "Modo de registro de revisión:"
+
+#: bhtheme/templates/bh_revisionlog.html:77
+#, inherit=trac
+msgid "Stop on copy"
+msgstr "Parar en copia"
+
+#: bhtheme/templates/bh_revisionlog.html:83
+#, inherit=trac
+msgid "Follow copies"
+msgstr "Seguir las copias"
+
+#: bhtheme/templates/bh_revisionlog.html:89
+#, inherit=trac
+msgid "Show only adds and deletes"
+msgstr "Ver solamente añadidos y eliminados"
+
+#: bhtheme/templates/bh_revisionlog.html:95
+msgid ""
+"[1:View log starting at]\n"
+"                  [2:\n"
+"                    [3:]\n"
+"                  ]\n"
+"                  [4:and back to]\n"
+"                  [5:\n"
+"                    [6:]\n"
+"                  ]"
+msgstr ""
+"[1:Ver registro empezando por]\n"
+"                  [2:\n"
+"                    [3:]\n"
+"                  ]\n"
+"                  [4:hasta]\n"
+"                  [5:\n"
+"                    [6:]\n"
+"                  ]"
+
+#: bhtheme/templates/bh_revisionlog.html:105
+msgid ""
+"[1:Show at most]\n"
+"                  [2:\n"
+"                    [3:]\n"
+"                    revisions per page.\n"
+"                  ]"
+msgstr ""
+"[1:Ver como máximo]\n"
+"                  [2:\n"
+"                    [3:]\n"
+"                    revisiones por página.\n"
+"                  ]"
+
+#: bhtheme/templates/bh_revisionlog.html:115
+#, inherit=trac
+msgid "Show full log messages"
+msgstr "Mostrar mensajes de registro completos"
+
+#: bhtheme/templates/bh_revisionlog.html:131
+#: bhtheme/templates/bh_revisionlog.html:242
+#, inherit=trac
+msgid "Diff from Old Revision to New Revision (as selected in the Diff column)"
+msgstr ""
+"Diferencias entre revisión vieja y nueva (como se seleccionó en la "
+"columna de diferencias)"
+
+#: bhtheme/templates/bh_revisionlog.html:137
+#, fuzzy, inherit=trac
+msgid "Graph"
+msgstr "Grafo"
+
+#: bhtheme/templates/bh_revisionlog.html:138
+#, inherit=trac
+msgid "Old / New"
+msgstr "Viejo / Nuevo"
+
+#: bhtheme/templates/bh_revisionlog.html:139
+#, inherit=trac
+msgid "Diff"
+msgstr "Diferencias"
+
+#: bhtheme/templates/bh_revisionlog.html:142
+#, inherit=trac
+msgid "Age"
+msgstr "Hace"
+
+#: bhtheme/templates/bh_revisionlog.html:144
+#, inherit=trac
+msgid "Log Message"
+msgstr "Mensaje de registro"
+
+#: bhtheme/templates/bh_revisionlog.html:152
+#, inherit=trac
+msgid "No revisions found"
+msgstr "No hay revisiones"
+
+#: bhtheme/templates/bh_revisionlog.html:167
+#, python-format, inherit=trac
+msgid "copied from [1:%(path)s]:"
+msgstr "copiado de [1:%(path)s]:"
+
+#: bhtheme/templates/bh_revisionlog.html:174
+#, python-format, inherit=trac
+msgid "From [%(rev)s]"
+msgstr "De [%(rev)s]"
+
+#: bhtheme/templates/bh_revisionlog.html:178
+#, python-format, inherit=trac
+msgid "To [%(rev)s]"
+msgstr "A [%(rev)s]"
+
+#: bhtheme/templates/bh_revisionlog.html:185
+#, inherit=trac
+msgid "View log starting at this revision"
+msgstr "Ver registro empezando en esta revisión"
+
+#: bhtheme/templates/bh_revisionlog.html:192
+#, python-format, inherit=trac
+msgid "Browse at revision %(rev)s"
+msgstr "Hojear en revisión %(rev)s"
+
+#: bhtheme/templates/bh_revisionlog.html:196
+#, python-format, inherit=trac
+msgid "View removal changeset [%(rev)s]"
+msgstr "Ver eliminación de conjunto de cambio [%(rev)s]"
+
+#: bhtheme/templates/bh_revisionlog.html:198
+#, python-format, inherit=trac
+msgid "View changeset [%(rev)s] restricted to %(path)s"
+msgstr "Ver conjunto de cambios [%(rev)s] restringido a %(path)s"
+
+#: bhtheme/templates/bh_revisionlog.html:248
+msgid ""
+"[1:Note:] See [2:TracRevisionLog]\n"
+"          for help on using the revision log."
+msgstr ""
+"[1:Note:] Consulte [2:TracRevisionLog]\n"
+"          para saber más sobre el registro de revisión."
+
+#: bhtheme/templates/bh_roadmap.html:39
+#, fuzzy, inherit=trac
+msgid "Show completed milestones"
+msgstr "Borrar hito"
+
+#: bhtheme/templates/bh_roadmap.html:44
+msgid "Hide milestones with no due date"
+msgstr ""
+
+#: bhtheme/templates/bh_roadmap.html:57
+#, fuzzy, review
+msgid "Milestone:"
+msgstr "milestone"
+
+#: bhtheme/templates/bh_roadmap.html:67
+#, fuzzy, python-format, inherit=trac
+msgid "[1:%(duration)s late] (%(date)s)"
+msgstr "Completado hace %(duration)s (el %(date)s)"
+
+#: bhtheme/templates/bh_roadmap.html:72
+#, fuzzy, python-format, inherit=trac
+msgid "Due in %(duration)s (%(date)s)"
+msgstr "Completado hace %(duration)s (el %(date)s)"
+
+#: bhtheme/templates/bh_roadmap.html:76
+msgid "No date set"
+msgstr ""
+
+#: bhtheme/templates/bh_roadmap.html:95
+#, fuzzy, inherit=trac
+msgid "Add new milestone"
+msgstr "Añadir hito"
+
+#: bhtheme/templates/bh_roadmap.html:99
+#, fuzzy
+msgid ""
+"[1:Note:] See\n"
+"        [2:TracRoadmap] for help on using\n"
+"        the roadmap."
+msgstr ""
+"[1:Nota] Consulte\n"
+"          [2:TracRoadmap] para saber más sobre\n"
+"          la vista de progreso."
+
+#: bhtheme/templates/bh_search.html:31
+#, fuzzy, inherit=trac
+msgid "Search Results"
+msgstr "No hay resultados"
+
+#: bhtheme/templates/bh_search.html:46
+#, inherit=trac
+msgid "Results"
+msgstr "Resultados"
+
+#: bhtheme/templates/bh_search.html:56
+msgid "Apply filters"
+msgstr "Aplicar filtros"
+
+#: bhtheme/templates/bh_search.html:76
+#, python-format, inherit=trac
+msgid "Quickjump to %(name)s"
+msgstr "Salto rápido a %(name)s"
+
+#: bhtheme/templates/bh_search.html:84
+#, python-format, inherit=trac
+msgid "By %(author)s"
+msgstr "De %(author)s"
+
+#: bhtheme/templates/bh_search.html:95
+#, inherit=trac
+msgid "No matches found."
+msgstr "No hay coindicencias."
+
+#: bhtheme/templates/bh_search.html:102
+msgid ""
+"[1:Note:]\n"
+"      See [2:TracSearch]\n"
+"      for help on searching."
+msgstr ""
+"[1:Nota:]\n"
+"      Consulte [2:TracSearch]\n"
+"      para saber más acerca de la búsqueda."
+
+#: bhtheme/templates/bh_sortable_th.html:37
+#, python-format, inherit=trac
+msgid "Sort by %(col)s %(direction)s"
+msgstr "Ordenado por %(col)s %(direction)s"
+
+#: bhtheme/templates/bh_ticket.html:55 bhtheme/templates/bh_ticket.html:363
+#: bhtheme/templates/bloodhound_theme.html:153
+#: bhtheme/templates/bloodhound_theme.html:305
+#, inherit=trac
+msgid "New Ticket"
+msgstr "Nueva incidencia"
+
+#: bhtheme/templates/bh_ticket.html:350
+#, python-format, inherit=trac
+msgid "Ticket #%(id)s"
+msgstr "Incidencia #%(id)s"
+
+#: bhtheme/templates/bh_ticket.html:355
+#, inherit=trac
+msgid "at [1:Initial Version]"
+msgstr "en [1:Initial Version]"
+
+#: bhtheme/templates/bh_ticket.html:358
+#, python-format, inherit=trac
+msgid "at [1:Version %(version)s]"
+msgstr "en [1:Version %(version)s]"
+
+#: bhtheme/templates/bh_ticket.html:368
+msgid "Assigned to"
+msgstr "Asignado a"
+
+#: bhtheme/templates/bh_ticket.html:372
+#, python-format
+msgid "last modified %(modified)s"
+msgstr "última modificación %(modified)s"
+
+#: bhtheme/templates/bh_ticket.html:374
+#, inherit=trac
+msgid "(ticket not yet created)"
+msgstr "(incidencia no creada aún)"
+
+#: bhtheme/templates/bh_ticket.html:381 bhtheme/templates/bh_ticket.html:542
+#, inherit=trac
+msgid "Modify Ticket"
+msgstr "Modificar incidencia"
+
+#: bhtheme/templates/bh_ticket.html:388 bhtheme/templates/bh_ticket.html:444
+msgid "Discard changes"
+msgstr "Revertir los cambios"
+
+#: bhtheme/templates/bh_ticket.html:397
+#, inherit=trac
+msgid "Go to the ticket editor"
+msgstr "Ir al editor de incidencias"
+
+#: bhtheme/templates/bh_ticket.html:397
+#, inherit=trac
+msgid "Modify"
+msgstr "Modificar"
+
+#: bhtheme/templates/bh_ticket.html:454
+#, inherit=trac
+msgid "I have files to attach to this ticket"
+msgstr "Tengo ficheros que adjuntar a esta incidencia"
+
+#: bhtheme/templates/bh_ticket.html:463
+#, inherit=trac
+msgid "Create ticket"
+msgstr "Crear incidencia"
+
+#: bhtheme/templates/bh_ticket.html:485
+msgid ""
+"[1:Note:] See\n"
+"            [2:TracTickets] for help on using tickets."
+msgstr ""
+"[1:Nota:] Consulte\n"
+"            [2:TracTickets] para saber más sobre las incidencias."
+
+#: bhtheme/templates/bh_ticket.html:496
+#, inherit=trac, missing
+msgid "Newest first"
+msgstr "Primero los recientes"
+
+#: bhtheme/templates/bh_ticket.html:500
+#, inherit=trac, missing
+msgid "Oldest first"
+msgstr "Primero los antiguos"
+
+#: bhtheme/templates/bh_ticket.html:514
+msgid "View ticket fields and description"
+msgstr "Ver campos de incidencias y descripción"
+
+#: bhtheme/templates/bh_ticket.html:514
+msgid "View"
+msgstr "Ver"
+
+#: bhtheme/templates/bh_ticket.html:516
+msgid ""
+"[1:Warning]\n"
+"                  This ticket has been modified since you started "
+"editing. You should review the\n"
+"                  [2:other modifications] which have been appended above,"
+"\n"
+"                  and any [3:conflicts] shown in the preview below.\n"
+"                  You can nevertheless proceed and submit your changes if"
+" you wish so."
+msgstr ""
+"[1:Alerta]\n"
+"                  Esta incidencia ha sido modificada desde que se empezó "
+"a editar. Revise las\n"
+"                  [2:otras modificaciones] que se han añadido más arriba,"
+"\n"
+"                  y cualquier otro [3:conflicto] mostrado más abajo en la"
+" vista previa.\n"
+"                  De todas maneras es posible continuar y aplicar sus "
+"cambios si así lo desea."
+
+#: bhtheme/templates/bh_ticket.html:530
+msgid "Submit"
+msgstr "Enviar"
+
+#: bhtheme/templates/bh_ticket.html:531
+msgid ""
+"[1:Tip]\n"
+"                    You may use\n"
+"                    [2:WikiFormatting]\n"
+"                    here."
+msgstr ""
+"[1:Consejo]\n"
+"                    Puedes usar\n"
+"                    [2:WikiFormatting]\n"
+"                    aquí."
+
+#: bhtheme/templates/bh_ticket.html:548
+#, inherit=trac
+msgid "Change Properties"
+msgstr "Cambiar propiedades"
+
+#: bhtheme/templates/bh_ticket.html:549
+#, inherit=trac
+msgid "Properties"
+msgstr "Propiedades"
+
+#: bhtheme/templates/bh_ticket.html:555
+msgid "Product:"
+msgstr "Producto:"
+
+#: bhtheme/templates/bh_ticket.html:565
+#, inherit=trac
+msgid "Summary:"
+msgstr "Resumen:"
+
+#: bhtheme/templates/bh_ticket.html:572
+#, inherit=trac
+msgid "Reporter:"
+msgstr "Informador:"
+
+#: bhtheme/templates/bh_ticket.html:583
+msgid ""
+"[1:Tip]\n"
+"                            You may use\n"
+"                            [2:WikiFormatting] here."
+msgstr ""
+"[1:Consejo]\n"
+"                            Puedes usar\n"
+"                            [2:WikiFormatting] aquí."
+
+#: bhtheme/templates/bh_ticket.html:597
+#, python-format, inherit=trac
+msgid "%(field)s:"
+msgstr "%(field)s:"
+
+#: bhtheme/templates/bh_ticket.html:631
+#, inherit=trac
+msgid "This checkbox allows you to add or remove yourself from the CC list."
+msgstr "Esta marca le permite añadirse o eliminarse de la lista Cc."
+
+#: bhtheme/templates/bh_ticket.html:637
+#, inherit=trac
+msgid "Space or comma delimited email addresses and usernames are accepted."
+msgstr "Son aceptables direcciones de correo separadas por coma o espacio."
+
+#: bhtheme/templates/bh_ticket.html:682 bhtheme/templates/bh_ticket_box.html:76
+#, inherit=trac
+msgid "Reporter"
+msgstr "Informador"
+
+#: bhtheme/templates/bh_ticket.html:695
+#: bhtheme/templates/bh_wiki_edit_form.html:71
+#, inherit=trac
+msgid "E-mail address and user name can be saved in the [1:Preferences]."
+msgstr ""
+"La dirección de correo y el nombre de usuario pueden guardarse en las "
+"[1:Preferences]"
+
+#: bhtheme/templates/bh_ticket.html:702
+#, inherit=trac
+msgid "Go to the list of attachments"
+msgstr "Ir a la lista de adjuntos"
+
+#: bhtheme/templates/bh_ticket.html:702
+#, inherit=trac
+msgid "Attachments"
+msgstr "Adjuntos"
+
+#: bhtheme/templates/bh_ticket_box.html:46
+#, review, python-format
+msgid "%(field)s"
+msgstr "%(field)s"
+
+#: bhtheme/templates/bh_ticket_box.html:73
+msgid "Details"
+msgstr "Detalles"
+
+#: bhtheme/templates/bh_ticket_box.html:85
+#: bhtheme/templates/bh_ticket_box.html:86
+#, inherit=trac
+msgid "Keywords"
+msgstr "Palabras clave"
+
+#: bhtheme/templates/bh_ticket_box.html:127
+#, inherit=trac
+msgid "Reply, quoting this description"
+msgstr "Responder, citando esta descripción"
+
+#: bhtheme/templates/bh_ticket_box.html:130
+#: bhtheme/templates/bh_ticket_change.html:79
+#, inherit=trac
+msgid "Reply"
+msgstr "Responder"
+
+#: bhtheme/templates/bh_ticket_box.html:140
+#, python-format
+msgid "Last modified by %(author)s"
+msgstr "Última modificación por %(author)s"
+
+#: bhtheme/templates/bh_ticket_box.html:141
+#: bhtheme/templates/bh_ticket_change.html:135
+#, inherit=trac
+msgid "diff"
+msgstr "diferencia"
+
+#: bhtheme/templates/bh_ticket_change.html:71
+#, python-format, inherit=trac
+msgid "Edit comment %(cnum)s"
+msgstr "Editar comentario %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:79
+#, python-format, inherit=trac
+msgid "Reply to comment %(cnum)s"
+msgstr "Responder al comentario %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:93
+#: bhtheme/templates/bh_wiki_edit.html:115
+#: bhtheme/templates/bh_wiki_edit_form.html:91
+#, inherit=trac
+msgid "Preview"
+msgstr "Vista previa"
+
+#: bhtheme/templates/bh_ticket_change.html:93
+#, python-format, inherit=trac
+msgid "Preview changes to comment %(cnum)s"
+msgstr "Previsualizar cambios al comentario %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:95
+#, python-format, inherit=trac
+msgid "Submit changes to comment %(cnum)s"
+msgstr "Enviar cambios al comentario %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:98
+#, inherit=trac
+msgid "Cancel comment edit"
+msgstr "Cancelar edición del comentario"
+
+#: bhtheme/templates/bh_ticket_change.html:117
+#, review, python-format
+msgid ""
+"Version %(version)s, edited %(date)s\n"
+"              by %(author)s"
+msgstr ""
+"Versión %(version)s, editado en fecha %(date)s\n"
+"              por %(author)s"
+
+#: bhtheme/templates/bh_ticket_change.html:121
+#, python-format
+msgid ""
+"Last modified %(date)s\n"
+"              by %(author)s"
+msgstr "Modificado por última vez en fecha %(date)s por %(author)s"
+
+#: bhtheme/templates/bh_ticket_change.html:131
+#, inherit=trac
+msgid "next"
+msgstr "siguiente"
+
+#: bhtheme/templates/bh_ticket_change.html:150
+#, python-format
+msgid ""
+"[1:[2:%(name)s]][3:​]\n"
+"            added"
+msgstr ""
+"[1:[2:%(name)s]][3:​]\n"
+"            añadido"
+
+#: bhtheme/templates/bh_ticket_change.html:157
+#, python-format, inherit=trac
+msgid "changed from [1:%(old)s] to [2:%(new)s]"
+msgstr "cambiado de [1:%(old)s] to [2:%(new)s]"
+
+#: bhtheme/templates/bh_ticket_change.html:160
+#, python-format, inherit=trac
+msgid "set to [1:%(value)s]"
+msgstr "establecido a [1:%(value)s]"
+
+#: bhtheme/templates/bh_ticket_change.html:163
+#, python-format, inherit=trac
+msgid "[1:%(value)s] deleted"
+msgstr "[1:%(value)s] borrados"
+
+#: bhtheme/templates/bh_ticket_change.html:167
+msgid "- by"
+msgstr "- por"
+
+#: bhtheme/templates/bh_ticket_delete.html:31
+#, python-format, inherit=trac
+msgid "Delete Ticket #%(id)s"
+msgstr "Borrar incidencia #%(id)s"
+
+#: bhtheme/templates/bh_ticket_delete.html:32
+#: bhtheme/templates/bh_ticket_delete.html:68
+#, python-format, inherit=trac
+msgid "Delete comment %(num)s on Ticket #%(id)s"
+msgstr "Borrar el comentario %(num)s a la incidencia #%(id)s"
+
+#: bhtheme/templates/bh_ticket_delete.html:40
+#, python-format, inherit=trac
+msgid "Delete [1:Ticket #%(id)s]"
+msgstr "Borrar [1:Ticket #%(id)s]"
+
+#: bhtheme/templates/bh_ticket_delete.html:52
+#, inherit=trac
+msgid "Are you sure you want to delete this ticket?"
+msgstr "¿Seguro que quiere borrar esta incidencia?"
+
+#: bhtheme/templates/bh_ticket_delete.html:53
+#, python-format, inherit=trac
+msgid ""
+"(comments: %(comments)s,\n"
+"                 attachments: %(attachments)s)"
+msgstr ""
+"(comentarios: %(comments)s,\n"
+"                 adjuntos: %(attachments)s)"
+
+#: bhtheme/templates/bh_ticket_delete.html:62
+#, inherit=trac
+msgid "Delete ticket"
+msgstr "Borrar incidencia"
+
+#: bhtheme/templates/bh_ticket_delete.html:81
+#, inherit=trac
+msgid "Are you sure you want to delete this ticket comment?"
+msgstr "¿Seguro que quiere eliminar el comentario de la incidencia"
+
+#: bhtheme/templates/bh_ticket_delete.html:85
+#, inherit=trac
+msgid "Delete comment"
+msgstr "Borrar comentario"
+
+#: bhtheme/templates/bh_timeline.html:30 bhtheme/templates/bh_timeline.html:41
+#, inherit=trac
+msgid "Timeline"
+msgstr "Eventos"
+
+#: bhtheme/templates/bh_timeline.html:46
+msgid ""
+"[1:View changes from [2:]]\n"
+"              and [3:[4:] days back]\n"
+"              [5:done by [6:]]"
+msgstr ""
+"[1:Ver cambios desde [2:]]\n"
+"        y [3:[4:] días atrás]\n"
+"        [5:hechos por [6:]]"
+
+#: bhtheme/templates/bh_timeline.html:68
+msgid ""
+"[1:\n"
+"          [2:Note:] See\n"
+"          [3:TracTimeline]\n"
+"          for information about the timeline view.\n"
+"        ]"
+msgstr ""
+"[1:\n"
+"          [2:Nota:] Consulte\n"
+"          [3:TracTimeline]\n"
+"          para saber más sobre la vista de avance.\n"
+"        ]"
+
+#: bhtheme/templates/bh_user_table.html:41
+#, inherit=trac
+msgid "Email"
+msgstr "Email"
+
+#: bhtheme/templates/bh_user_table.html:42
+#, inherit=acct_mgr
+msgid "Last Login"
+msgstr "Última conexión"
+
+#: bhtheme/templates/bh_user_table.html:57
+#, inherit=acct_mgr, missing
+msgid "Account locked"
+msgstr "Cuenta bloqueada"
+
+#: bhtheme/templates/bh_user_table.html:60
+#, inherit=acct_mgr, missing
+msgid "Permanently locked"
+msgstr "Permanentemente bloqueada"
+
+#: bhtheme/templates/bh_verify_email.html:33
+#: bhtheme/templates/bh_verify_email.html:44
+#, inherit=acct_mgr
+msgid "Verify Email"
+msgstr "Verificar correo electrónico"
+
+#: bhtheme/templates/bh_verify_email.html:46
+#, python-format, inherit=acct_mgr
+msgid ""
+"An email was sent to\n"
+"        %(email)s with a token to verify your new address.\n"
+"        Please check your email and enter the token in the form below."
+msgstr ""
+"Se ha enviado un correo electrónico a %(email)s con una clave para "
+"verificar su nueva dirección. Por favor, compruebe su correo he "
+"introduzca la clave en el formulario de abajo."
+
+#: bhtheme/templates/bh_verify_email.html:49
+#, review, inherit=acct_mgr
+msgid ""
+"You can [1:change\n"
+"        your email address], if it is incorrect."
+msgstr "Puede [1:cambiar su dirección de correo electrónico] si es incorrecta."
+
+#: bhtheme/templates/bh_verify_email.html:53
+#, inherit=acct_mgr
+msgid "Verification Token:"
+msgstr "Clave de verificación:"
+
+#: bhtheme/templates/bh_verify_email.html:57
+#: bhtheme/templates/bh_verify_email.html:60
+#, inherit=acct_mgr
+msgid "Verify"
+msgstr "Verificar"
+
+#: bhtheme/templates/bh_verify_email.html:62
+#: bhtheme/templates/bh_verify_email.html:65
+#, inherit=acct_mgr
+msgid "Resend Email"
+msgstr "Reenviar correo electrónico"
+
+#: bhtheme/templates/bh_wiki_delete.html:39
+#, python-format, inherit=trac
+msgid "Delete versions %(from)s to %(to)s of [1:%(name)s]"
+msgstr "Borrar versiones de la %(from)s a la %(to)s de [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_delete.html:44
+#, python-format, inherit=trac
+msgid "Delete version %(version)s of [1:%(name)s]"
+msgstr "Borrar versión %(version)s de [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_delete.html:49
+#, python-format, inherit=trac
+msgid "Delete [1:%(name)s]"
+msgstr "Borrar [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_delete.html:60
+#, review, python-format, inherit=trac
+msgid ""
+"[1:\n"
+"                    Are you sure you want to delete versions %(from)s to "
+"%(to)s of this page?\n"
+"                  ]\n"
+"                  [2:]\n"
+"                    Removing [3:\n"
+"                      %(versions)s versions] of the page, \n"
+"                    which was first modified %(first_modified)s and last "
+"modified %(last_modified)s."
+msgstr ""
+"[1:\n"
+"                    ¿Está seguro que desea eliminar las versiones "
+"%(from)s a %(to)s de esta página?\n"
+"                  ]\n"
+"                  [2:]\n"
+"                    Eliminando [3:\n"
+"                      %(versions)s versiones] de la página, \n"
+"                    que fue modificada inicialmente %(first_modified)s y "
+"finalmente %(last_modified)s."
+
+#: bhtheme/templates/bh_wiki_delete.html:72
+#, python-format, inherit=trac
+msgid "Are you sure you want to delete version %(version)s of this page?"
+msgstr "¿Seguro que quiere borrar la versión %(version)s de esta página?"
+
+#: bhtheme/templates/bh_wiki_delete.html:79
+#, review, python-format, inherit=trac, missing
+msgid ""
+"This is the only [1:\n"
+"                        version] of the page,\n"
+"                      created %(created)s, so the page will be removed "
+"completely!"
+msgstr ""
+"Esta es la única [1:\n"
+"                        versión] de la página,\n"
+"                      creada %(created)s, por lo que ... ¡será eliminada!"
+
+#: bhtheme/templates/bh_wiki_delete.html:86
+#, fuzzy, python-format, inherit=trac
+msgid "Modified %(modified)s."
+msgstr "Última modificación %(modified)s"
+
+#: bhtheme/templates/bh_wiki_delete.html:93
+#, inherit=trac
+msgid "Are you sure you want to completely delete this page?"
+msgstr "¿Seguro que quiere borrar completamente esta página?"
+
+#: bhtheme/templates/bh_wiki_delete.html:99
+#, review, python-format, inherit=trac, missing
+msgid ""
+"Removing the one and only [1:\n"
+"                          version] of the page, which was created "
+"%(created)s."
+msgstr ""
+"Eliminando la única [1:\n"
+"                          versión] de la página, creada en la fecha "
+"%(created)s."
+
+#: bhtheme/templates/bh_wiki_delete.html:105
+#, review, python-format, inherit=trac, missing
+msgid ""
+"Removing all [1:\n"
+"                          %(versions)s versions] of the page, \n"
+"                        which was created %(created)s and last modified "
+"%(modified)s."
+msgstr ""
+"Eliminando todas las [1:\n"
+"                          %(versions)s versiones] de la página, \n"
+"                        creada en la fecha %(created)s y finalmente "
+"modificada %(modified)s."
+
+#: bhtheme/templates/bh_wiki_delete.html:120
+#, inherit=trac
+msgid "Delete those versions"
+msgstr "Borrar estas versiones"
+
+#: bhtheme/templates/bh_wiki_delete.html:120
+#: bhtheme/templates/bh_wiki_view.html:151
+#, inherit=trac
+msgid "Delete this version"
+msgstr "Borrar esta versión"
+
+#: bhtheme/templates/bh_wiki_delete.html:120
+#: bhtheme/templates/bh_wiki_view.html:153
+#, inherit=trac
+msgid "Delete page"
+msgstr "Borrar página"
+
+#: bhtheme/templates/bh_wiki_diff.html:38
+#, python-format, inherit=trac
+msgid "Delete version %(old_version)d to version %(version)d"
+msgstr "Borrar versión %(old_version)d de versión %(version)d"
+
+#: bhtheme/templates/bh_wiki_diff.html:39
+#, python-format, inherit=trac
+msgid "Delete version %(version)d"
+msgstr "Borrar la versión %(version)d"
+
+#: bhtheme/templates/bh_wiki_edit.html:114
+#, inherit=trac
+msgid "See the diffs"
+msgstr "Ver las diferencias"
+
+#: bhtheme/templates/bh_wiki_edit.html:114
+#, inherit=trac
+msgid "Review"
+msgstr "Vista previa"
+
+#: bhtheme/templates/bh_wiki_edit.html:115
+#, inherit=trac
+msgid "See the preview"
+msgstr "Ver la vista previa"
+
+#: bhtheme/templates/bh_wiki_edit.html:118
+#, fuzzy, python-format, inherit=trac
+msgid "Editing %(name)s"
+msgstr "Hito %(name)s"
+
+#: bhtheme/templates/bh_wiki_edit.html:147
+msgid ""
+"[1:Oops !]\n"
+"              Sorry, this page has been modified by somebody else since "
+"you started\n"
+"              editing. Your changes cannot be saved."
+msgstr ""
+"[1:Atención]\n"
+"Lo siento, esta página ha sido modificada por alguien desde que comenzó a"
+" editarla.\n"
+"Sus cambios no serán guardados."
+
+#: bhtheme/templates/bh_wiki_edit.html:162
+msgid "Important"
+msgstr "Importante"
+
+#: bhtheme/templates/bh_wiki_edit.html:162
+#, inherit=trac
+msgid "Someone else has modified that page since you started your edits."
+msgstr "Alguien más ha modificado la página desde que comenzó su edición."
+
+#: bhtheme/templates/bh_wiki_edit.html:164
+#, review, inherit=trac
+msgid ""
+"[1:If you save right away, you risk to revert those changes\n"
+"            (highlighted below as deletions).]"
+msgstr ""
+"[1:Si guarda inmediatamente, hay riesgo de perder estos cambios\n"
+"        (las eliminaciones aparecen resaltadas.]"
+
+#: bhtheme/templates/bh_wiki_edit.html:166
+#, review, inherit=trac
+msgid ""
+"Please review all those changes and manually merge them with your\n"
+"            own changes. [1:]\n"
+"            If you're unsure about what you're doing, please press "
+"[2:Cancel]\n"
+"            (losing your changes) and start editing the latest version of"
+" the page\n"
+"            again."
+msgstr ""
+"Por favor, revise todos los cambios y mézclelos manualmente con los suyos"
+"\n"
+"        [1:]\n"
+"        Si no está seguro de lo que está haciendo, por favor presione "
+"[2:Cancelar]\n"
+"        (perdiendo sus cambios) y comience editando la última versión de "
+"la  página\n"
+"        de nuevo."
+
+#: bhtheme/templates/bh_wiki_edit.html:177
+#, review, python-format, inherit=trac
+msgid ""
+"Change information for future version %(version)s (modified by "
+"%(author)s):"
+msgstr ""
+"La información de cambios para la futura versión %(version)s (modificada "
+"por %(author)s):"
+
+#: bhtheme/templates/bh_wiki_edit.html:192
+#, inherit=trac
+msgid "Go to the editor"
+msgstr "Ir al editor"
+
+#: bhtheme/templates/bh_wiki_edit.html:195
+#: bhtheme/templates/bh_wiki_edit_form.html:97
+#, inherit=trac
+msgid "Review Changes"
+msgstr "Revisar cambios"
+
+#: bhtheme/templates/bh_wiki_edit.html:197
+#, inherit=trac
+msgid "No changes"
+msgstr "Sin cambios"
+
+#: bhtheme/templates/bh_wiki_edit.html:208
+#, inherit=trac
+msgid "Go to Save, Preview, Review or Cancel buttons"
+msgstr "Ir a Guardar, Previsualizar, Revisar o Cancelar"
+
+#: bhtheme/templates/bh_wiki_edit.html:209
+#, inherit=trac
+msgid "Actions"
+msgstr "Acciones"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:36
+#, inherit=trac
+msgid "Adjust edit area height:"
+msgstr "Ajustar la altura del área de edición:"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:45
+#, review, inherit=trac
+msgid "Selecting and pressing 'Preview' enters a two-column [edit|preview] mode"
+msgstr ""
+"Seleccionando y presionando 'Previsualización' entrará en un modo de "
+"[edición/previsualización]"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:46
+#, inherit=trac
+msgid "Edit side-by-side"
+msgstr "Edición lado a lado"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:56
+msgid ""
+"[1:Note]\n"
+"        See [2:WikiFormatting] and\n"
+"        [3:TracWiki] for help on editing wiki content."
+msgstr ""
+"[1:Nota]\n"
+"        Consulte [2:WikiFormatting] y\n"
+"        [3:TracWiki] para saber más acerca de editar páginas wiki."
+
+#: bhtheme/templates/bh_wiki_edit_form.html:64
+#, inherit=trac
+msgid "Change information"
+msgstr "Cambiar información"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:75
+#, inherit=trac
+msgid "Comment about this change (optional):"
+msgstr "Comentarios sobre este cambio (opcional):"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:82
+#, inherit=trac
+msgid "Page is read-only"
+msgstr "Esta página es sólo de lectura"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:92
+#, inherit=trac
+msgid "Merge changes"
+msgstr "Mezclar cambios"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:96
+#, inherit=trac
+msgid "Preview Page"
+msgstr "Previsualizar página"
+
+#: bhtheme/templates/bh_wiki_rename.html:36
+#, python-format, inherit=trac
+msgid "Rename [1:%(name)s]"
+msgstr "Renombrar [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_rename.html:41
+#, review, inherit=trac
+msgid "Renaming the page will rename all existing versions of the page in place."
+msgstr ""
+"Renombrando la página renombrará también todas las versiones anteriores "
+"de la página."
+
+#: bhtheme/templates/bh_wiki_rename.html:41
+#, inherit=trac
+msgid "The complete history of the page will be moved to the new location."
+msgstr "El histórico completo de la página será movido a una nueva ubicación."
+
+#: bhtheme/templates/bh_wiki_rename.html:44
+#, inherit=trac
+msgid "New name:"
+msgstr "Nombre nuevo:"
+
+#: bhtheme/templates/bh_wiki_rename.html:48
+#, inherit=trac
+msgid "Leave a redirection page at the old location"
+msgstr "Dejar una página de redirección a la antigua ubicación"
+
+#: bhtheme/templates/bh_wiki_rename.html:53
+#: bhtheme/templates/bh_wiki_view.html:143
+#, inherit=trac
+msgid "Rename page"
+msgstr "Renombrar página"
+
+#: bhtheme/templates/bh_wiki_view.html:35
+#, fuzzy, inherit=trac
+msgid "Revert page to this version"
+msgstr "Borrar esta versión"
+
+#: bhtheme/templates/bh_wiki_view.html:35
+#: bhtheme/templates/bh_wiki_view.html:120
+#, inherit=trac
+msgid "Edit this page"
+msgstr "Editar esta página"
+
+#: bhtheme/templates/bh_wiki_view.html:57
+#, review, python-format, inherit=trac
+msgid ""
+"Version %(version)s (modified by %(author)s, %(date)s)\n"
+"                 ([1:diff])"
+msgstr ""
+"Versión %(version)s (modificada por %(author)s, hace %(date)s)\n"
+"                 ([1:diff])"
+
+#: bhtheme/templates/bh_wiki_view.html:73
+#, python-format, inherit=trac
+msgid "Version %(version)s by %(author)s: %(comment)s"
+msgstr "Versión %(version)s de %(author)s: %(comment)s"
+
+#: bhtheme/templates/bh_wiki_view.html:73
+#, python-format, inherit=trac
+msgid "Version %(version)s by %(author)s"
+msgstr "Version %(version)s de %(author)s"
+
+#: bhtheme/templates/bh_wiki_view.html:81
+#, fuzzy, python-format, inherit=trac
+msgid "[1:Last modified] %(reldate)s"
+msgstr "[1:Última modificación] hace %(reldate)s"
+
+#: bhtheme/templates/bh_wiki_view.html:85
+#, python-format, inherit=trac
+msgid "Last modified on %(date)s"
+msgstr "Modificado por última vez en fecha %(date)s"
+
+#: bhtheme/templates/bh_wiki_view.html:90
+#, python-format, inherit=trac
+msgid "The page %(name)s does not exist. You can create it here."
+msgstr "La página %(name)s no existe. Puede crearla aquí."
+
+#: bhtheme/templates/bh_wiki_view.html:92
+#, inherit=trac
+msgid "You could also create the same page higher in the hierarchy:"
+msgstr "También puede crear la misma página más arriba en la jerarquía:"
+
+#: bhtheme/templates/bh_wiki_view.html:117
+#, fuzzy, inherit=trac
+msgid "Revert to this version"
+msgstr "Borrar esta versión"
+
+#: bhtheme/templates/bh_wiki_view.html:123
+#, inherit=trac
+msgid "Create this page"
+msgstr "Crear esta página"
+
+#: bhtheme/templates/bh_wiki_view.html:125
+#, inherit=trac
+msgid "Using the template:"
+msgstr "Usando la plantilla:"
+
+#: bhtheme/templates/bh_wiki_view.html:128
+#, inherit=trac
+msgid "(blank page)"
+msgstr "(página en blanco)"
+
+#: bhtheme/templates/bh_wiki_view.html:161
+#, review, inherit=trac
+msgid "The following pages have a name similar to this page, and may be related:"
+msgstr ""
+"Las siguientes páginas tienen un nombre similar a esta, y pueden estar "
+"relacionadas:"
+
+#: bhtheme/templates/bloodhound_theme.html:60
+msgid "Bloodhound Logo"
+msgstr "Logotipo de Bloodhound"
+
+#: bhtheme/templates/bloodhound_theme.html:102
+msgid "Search all products. Try TracLinks."
+msgstr "Pruebe #1 , TracLinks ..."
+
+#: bhtheme/templates/bloodhound_theme.html:144
+msgid "Create Ticket"
+msgstr "Crear Incidencia"
+
+#: bhtheme/templates/bloodhound_theme.html:159
+#: bhtheme/templates/bloodhound_theme.html:312
+#, inherit=trac
+msgid "Summary"
+msgstr "Resumen"
+
+#: bhtheme/templates/bloodhound_theme.html:184
+#: bhtheme/templates/bloodhound_theme.html:337
+#, inherit=trac
+msgid "Create"
+msgstr "Crear"
+
+#: bhtheme/templates/bloodhound_theme.html:185
+#: bhtheme/templates/bloodhound_theme.html:338
+msgid "More fields"
+msgstr "Más campos"
+
+#: bhtheme/templates/bloodhound_theme.html:194
+#: bhtheme/templates/bloodhound_theme.html:345
+msgid "TICKET_CREATE"
+msgstr "TICKET_CREATE"
+
+#: bhtheme/templates/bloodhound_theme.html:194
+msgid ""
+"privileges are required to perform this operation.\n"
+"                            You don't have the required permissions"
+msgstr ""
+"es el permiso necesario para realizar esta operación.\n"
+"                            Usted no tiene acceso"
+
+#: bhtheme/templates/bloodhound_theme.html:204
+msgid ""
+"Please contact your administrator or team leader to \n"
+"                                request these."
+msgstr ""
+"Por favor contacte a su administrador o jefe de projecto \n"
+"para que les sean otorgados"
+
+#: bhtheme/templates/bloodhound_theme.html:235
+#, inherit=bhdashboard
+msgid "More"
+msgstr "Más"
+
+#: bhtheme/templates/bloodhound_theme.html:292
+msgid "Success"
+msgstr "Ok"
+
+#: bhtheme/templates/bloodhound_theme.html:345
+#, review
+msgid ""
+"privileges are required to perform this operation.\n"
+"                    You don't have the required permissions"
+msgstr ""
+"es el permiso necesario para realizar esta operación.\n"
+"                            Usted no tiene acceso"
+
+#: bhtheme/templates/bloodhound_theme.html:355
+#, review
+msgid ""
+"Please contact your administrator or team leader to \n"
+"                        request these."
+msgstr ""
+"Por favor contacte a su administrador o jefe de projecto \n"
+"para que les sean otorgados"
+
+#: bhtheme/templates/bloodhound_theme.html:360
+msgid "Close"
+msgstr "Cerrar"
+
+#: bhtheme/templates/bloodhound_theme.html:391
+#, fuzzy, review, inherit=trac
+msgid "Powered by"
+msgstr "Propietario"
+

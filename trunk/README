@@ -1,0 +1,10 @@
+Apache Bloodhound
+==============================
+
+Further information:
+
+ installer/README.rst - Description of the installation process
+ https://issues.apache.org/bloodhound/ - The Apache Bloodhound wiki pages
+
+ The current version of Trac that Apache Bloodhound is specified in trac/trac/TRAC_VERSION
+

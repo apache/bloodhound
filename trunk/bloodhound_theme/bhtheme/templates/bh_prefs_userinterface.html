@@ -1,0 +1,61 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="bh_prefs.html" />
+  <head>
+    <title>User Interface</title>
+  </head>
+  <body>
+
+    <div class="field control-group">
+      <div class="controls">
+        <input type="hidden" name="ui.use_symbols_cb" value="" />
+        <label>
+          <input type="checkbox" class="checkbox" name="ui.use_symbols" value="1"
+                 checked="${settings.session.get('ui.use_symbols') or None}" />
+          Use only symbols for buttons.
+        </label>
+        <p class="hint help-block" i18n:msg=""><span class="label label-info">Note</span>
+        Display only the icon or symbol for short inline buttons, and hide the text caption.</p>
+      </div>
+    </div>
+
+    <div class="field control-group">
+      <div class="controls">
+        <input type="hidden" name="ui.hide_help_cb" value="" />
+        <label>
+          <input type="checkbox" class="checkbox" name="ui.hide_help" value="1"
+                 checked="${settings.session.get('ui.hide_help') or None}" />
+          Hide help links.
+        </label>
+        <p class="hint help-block" i18n:msg=""><span class="label label-info">Note</span>
+        Don't show the various help links. This reduces the verbosity of the pages.</p>
+      </div>
+    </div>
+
+  </body>
+</html>

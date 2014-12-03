@@ -1,0 +1,129 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhrelations"
+      xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard">
+  <xi:include href="layout.html" />
+  <xi:include href="widget_macros.html" />
+
+  <head>
+    <title py:choose="" i18n:msg="ticket_id">Ticket relations for #${ticket.id}</title>
+  </head>
+
+  <body>
+    <h1 i18n:msg="ticket_id">Manage relations for ticket <a href="${href.ticket(ticket.id)}">#$ticket.id</a></h1>
+
+    <div class="row">
+      <div class="span8">
+        <py:if test='error'>
+          <div class="alert alert-error" i18n:msg="error">
+            <span class="label label-important">Oops !</span>
+            Could not create relation.
+            $error
+          </div>
+        </py:if>
+
+        <form id="addrelation" class="well form-horizontal" method="post" action="">
+          <fieldset>
+            <legend>Add relation</legend>
+          </fieldset>
+
+          <div class="control-group">
+            <label class="control-label" for="reltype">This ticket</label>
+            <div class="controls">
+              <select class="span4" id="reltype" name="reltype">
+                <option py:for="reltype,label in reltypes" value="$reltype" selected="${True if reltype == relation.type else None}">$label</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dest_tid">Related ticket</label>
+            <div class="controls">
+              <input type="text" id="dest_tid" class="span4" name="dest_tid" value="$relation.destination" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="comment">Comment</label>
+            <div class="controls">
+              <textarea id="comment" name="comment" rows="3" class="span4">${relation.comment}</textarea>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="controls">
+              <input type="submit" class="btn" name="add" value="${_('Add')}" />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="span8">
+        <py:choose>
+          <form py:when="relations" id="rmrelations" class="form-horizontal" method="post" action="">
+            <table class="table table-condensed table-bordered">
+              <thead>
+                <tr>
+                  <th class="sel"><i class="icon-check"></i></th>
+                  <th>Type</th><th>Product</th><th>Ticket</th><th>Comment</th><th>Author</th><th class="hidden-phone">Changed</th>
+                </tr>
+              </thead>
+              <tbody py:for="relgroup,items in relations.iteritems()">
+                <tr py:for="item in items">
+                  <td class="sel"><input type="checkbox" name="sel" value="${item.relation_id}" /></td>
+                  <td>$relgroup</td>
+                  <td>
+                    <a href="${href.products(item['destticket'].env.product.prefix)}">
+                      <span class="hidden-phone">${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})</span>
+                      <span class="visible-phone">${item['destticket'].env.product.prefix}</span>
+                    </a>
+                  </td>
+                  <td><a href="${item['desthref']}" class="${classes(item['destticket'].status, 'ticket')}">
+                    ${get_resource_shortname(item['destticket'].env, item['destticket'].resource)}</a> - ${get_resource_summary(item['destticket'].env, item['destticket'].resource)}
+                  </td>
+                  <td>$item.comment</td>
+                  <td>$item.author</td>
+                  <td class="hidden-phone">${pretty_dateinfo(item.when)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="control-group">
+              <input type="submit" class="btn" name="remove" value="${_('Remove selected relations')}" />
+            </div>
+          </form>
+
+          <div py:otherwise="" class="alert alert-info">
+            No defined relations for this ticket.
+          </div>
+        </py:choose>
+      </div>
+    </div>
+  </body>
+</html>

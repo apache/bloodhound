@@ -1,0 +1,42 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!--!
+Render data relevant to automatic ticket preview.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      py:with="can_append = 'TICKET_APPEND' in perm(ticket.resource);
+               has_edit_comment = 'TICKET_EDIT_COMMENT' in perm(ticket.resource);"
+      py:strip="">
+  <xi:include href="bh_ticket_box.html"/>
+  <div id="changelog">
+    <div py:for="change in changes"
+         class="change${' trac-new' if change.date > start_time and 'attachment' not in change.fields else None}"
+         id="${'trac-change-%d-%d' % (change.cnum, to_utimestamp(change.date)) if 'cnum' in change else None}">
+      <xi:include href="bh_ticket_change.html" py:with="edited_comment = None; cnum_edit = 0"/>
+    </div>
+  </div>
+  <input type="hidden" name="view_time" value="${to_utimestamp(ticket['changetime'])}"/>
+  <div id="preview"><xi:include py:if="change_preview.fields or change_preview.comment"
+                                href="bh_ticket_change.html" py:with="change = change_preview; preview = True"/></div>
+</html>

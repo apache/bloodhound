@@ -1,0 +1,670 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+# Spanish translations for BloodhoundMultiProduct.
+# Copyright (C) 2013 Apache Software Foundation
+# This file is distributed under the same license as the Apache(TM)
+# Bloodhound project.
+#
+# Translators:
+# Olemis Lang <olemis+bh@gmail.com>, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version:  bloodhound\n"
+"Report-Msgid-Bugs-To: dev@bloodhound.apache.org\n"
+"POT-Creation-Date: 2014-02-11 23:05+0100\n"
+"PO-Revision-Date: 2013-12-06 13:13-0500\n"
+"Last-Translator: Olemis Lang <olemis+bh@gmail.com>\n"
+"Language-Team: Spanish "
+"(http://www.transifex.com/projects/p/bloodhound/language/es/)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: multiproduct/api.py:82
+msgid ""
+"Prefix used for default product when migrating single-product\n"
+"installations to multi-product."
+msgstr ""
+"Prefijo que identifica el producto utilizado durante la migración desde "
+"un sistema\n"
+"sin productos hacia instalaciones con multiples productos."
+
+#: multiproduct/api.py:89
+msgid "Default product for newly created tickets."
+msgstr ""
+
+#: multiproduct/api.py:92
+msgid ""
+"A pattern used to generate the base URL of product environments,\n"
+"e.g. the use cases listed in bh:wiki:/Proposals/BEP-0003#url-mapping .\n"
+"Both absolute as well as relative URLs are supported. The later\n"
+"will be resolved with respect to the base URL of the parent global\n"
+"environment. The pattern may contain references to $(envname)s,\n"
+"$(prefix)s and $(name)s placeholders representing the environment name,\n"
+"product prefix and product name respectively . If nothing is set the\n"
+"following will be used `products/$(prefix)s`\n"
+"\n"
+"Note the usage of `$(...)s` instead of `%(...)s` as the later form\n"
+"would be interpreted by the ConfigParser itself. "
+msgstr ""
+"Una expresión utilizada para generar a partir de los datos del producto "
+"su URL de base,\n"
+"e.g. los casos de uso enumerados en bh:wiki:/Proposals/BEP-0003#url-"
+"mapping .\n"
+"Se ofrece soporte URLs absolutas y relativas. Las últimas \n"
+"serán expandidas tomando como referencia la URL de base del entorno "
+"global.\n"
+"La expresión puede contener referencias a las variables $(envname)s,\n"
+"$(prefix)s y $(name)s que representan respectivamente el nombre del "
+"entorno global,\n"
+"el prefijo y el nombre del producto. Si no se especifica ningún valor "
+"entonces\n"
+"se asumirá la siguiente configuración `products/$(prefix)s`\n"
+"\n"
+"Es preciso destacar el uso de `$(...)s` en vez de `%(...)s` pues el "
+"último caso \n"
+"sería expandido por la instancia de la clase `ConfigParser` que procesa "
+"el fichero de configuración. "
+
+#: multiproduct/api.py:106
+msgid ""
+"The path to the configuration file containing the settings shared\n"
+"by sibling product environments. By default will inherit\n"
+"global environment configuration."
+msgstr ""
+"El camino al fichero de configuración que contiene las configuraciones "
+"compartidas por\n"
+"los productos agrupados en un mismo entorno. El comportamiento "
+"predeterminado consiste en\n"
+"heredar las configuraciones del entorno global."
+
+#: multiproduct/api.py:635 multiproduct/templates/product_view.html:30
+#: multiproduct/templates/product_view.html:37
+msgid "Product"
+msgstr "Producto"
+
+#: multiproduct/api.py:655
+#, python-format
+msgid "Product %(name)s"
+msgstr "Producto %(name)s"
+
+#: multiproduct/api.py:683
+#, python-format
+msgid "Unsupported neighborhood %(realm)s"
+msgstr "El ámbito de recursos %(realm)s no es válido"
+
+#: multiproduct/api.py:688
+#, python-format
+msgid "Unknown product prefix %(prefix)s"
+msgstr "El prefijo de producto %(prefix)s no es válido"
+
+#: multiproduct/api.py:748
+#, python-format
+msgid "The user \"%s\" does not exist."
+msgstr "El usuario \"%s\" no existe."
+
+#: multiproduct/env.py:422
+#, inherit=trac
+msgid ""
+"Reference URL for the Trac deployment.\n"
+"\n"
+"This is the base URL that will be used when producing\n"
+"documents that will be used outside of the web browsing\n"
+"context, like for example when inserting URLs pointing to Trac\n"
+"resources in notification e-mails."
+msgstr ""
+"URL de referencia para acceder a la instancia de Trac.\n"
+"\n"
+"Esta es la URL que será utilizada para generar documentos\n"
+"que serán utilizados en contextos distintos a la consulta del sitio con \n"
+"un navegador web, como puede ser al insertar en e-mails de notificación\n"
+"las URLs que apuntar a los recursos del proyecto."
+
+#: multiproduct/env.py:437
+#, inherit=trac
+msgid ""
+"Optionally use `[trac] base_url` for redirects.\n"
+"\n"
+"In some configurations, usually involving running Trac behind\n"
+"a HTTP proxy, Trac can't automatically reconstruct the URL\n"
+"that is used to access it. You may need to use this option to\n"
+"force Trac to use the `base_url` setting also for\n"
+"redirects. This introduces the obvious limitation that this\n"
+"environment will only be usable when accessible from that URL,\n"
+"as redirects are frequently used. ''(since 0.10.5)''"
+msgstr ""
+"Utilizar `[trac] base_url` opcionalmente para redirecciones HTTP.\n"
+"\n"
+"En algunas configuraciones, generalmente involucrando el uso de Trac "
+"detrás\n"
+"de un proxy HTTP, el sistema no puede reconstruir automaticamente la URL\n"
+"en la que está desplegada la instancia. Esta opción obliga a Trac\n"
+"a utilizar la opción `base_url` en las redirecciones HTTP.\n"
+"Esto introduce la limitación evidente consistente en que\n"
+"el entorno del proyecto solo será accesible desde la URL configurada,\n"
+"ya que las redirecciones HTTP son de uso muy frecuente. ''(desde 0.10.5)''"
+
+#: multiproduct/env.py:471
+msgid "E-Mail address of the product's leader / administrator."
+msgstr "E-mail del administrador, jefe o líder del proyecto"
+
+#: multiproduct/env.py:482
+msgid "URL of the icon of the product."
+msgstr "URL del ícono del proyecto"
+
+#: multiproduct/env.py:485
+#, inherit=trac
+msgid ""
+"Logging facility to use.\n"
+"\n"
+"Should be one of (`inherit`, `none`, `file`, `stderr`,\n"
+"`syslog`, `winlog`)."
+msgstr ""
+"Seleccionar destino de registro de eventos.\n"
+"\n"
+"Tiene que ser asignado a uno de estos valores (`inherit`, `none`, `file`,"
+" `stderr`, \n"
+"`syslog`, `winlog`)."
+
+#: multiproduct/env.py:491
+#, inherit=trac
+msgid ""
+"If `log_type` is `file`, this should be a path to the\n"
+"log-file.  Relative paths are resolved relative to the `log`\n"
+"directory of the environment."
+msgstr ""
+"Si `log_type` es `file`, esta opción contendrá el camino al\n"
+"fichero de registro de eventos.  Los caminos relativos serán determinados"
+" \n"
+"a partir de la carpeta `log` del entorno."
+
+#: multiproduct/env.py:496
+#, inherit=trac
+msgid ""
+"Level of verbosity in log.\n"
+"\n"
+"Should be one of (`CRITICAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`)."
+msgstr ""
+"Nivel de registro de eventos.\n"
+"\n"
+"Tiene que ser asignado a uno de estos valores (`CRITICAL`, `ERROR`, "
+"`WARN`, `INFO`, `DEBUG`)."
+
+#: multiproduct/env.py:502
+#, inherit=trac
+msgid ""
+"Custom logging format.\n"
+"\n"
+"If nothing is set, the following will be used:\n"
+"\n"
+"Trac[$(module)s] $(levelname)s: $(message)s\n"
+"\n"
+"In addition to regular key names supported by the Python\n"
+"logger library (see\n"
+"http://docs.python.org/library/logging.html), one could use:\n"
+"\n"
+"- $(path)s     the path for the current environment\n"
+"- $(basename)s the last path component of the current environment\n"
+"- $(project)s  the project name\n"
+"\n"
+"Note the usage of `$(...)s` instead of `%(...)s` as the latter form\n"
+"would be interpreted by the ConfigParser itself.\n"
+"\n"
+"Example:\n"
+"`($(thread)d) Trac[$(basename)s:$(module)s] $(levelname)s: $(message)s`\n"
+"\n"
+"''(since 0.10.5)''"
+msgstr ""
+"Formato personalizado de los registros de eventos.\n"
+"\n"
+"Si no se especifica nada se utilizará el enfoque siguiente:\n"
+"\n"
+"Trac[$(module)s] $(levelname)s: $(message)s\n"
+"\n"
+"Además de los valores soportados por la librería estándar de Python\n"
+"para registro de eventos (consulte\n"
+"http://docs.python.org/library/logging.html), también se puede utilizar:\n"
+"\n"
+"- $(path)s     el camino a la carpeta del entorno\n"
+"- $(basename)s el último componente del camino a la carpeta del entorno\n"
+"- $(project)s  el nombre del proyecto\n"
+"\n"
+"Es preciso destacar el uso de `$(...)s` en vez de `%(...)s` pues el "
+"último caso \n"
+"sería expandido por la instancia de la clase `ConfigParser` que procesa "
+"el fichero de configuración. \n"
+"Ejemplo:\n"
+"`($(thread)d) Trac[$(basename)s:$(module)s] $(levelname)s: $(message)s`\n"
+"\n"
+"''(desde 0.10.5)''"
+
+#: multiproduct/product_admin.py:98 multiproduct/web_ui.py:175
+#, inherit=trac
+msgid "Your changes have been saved."
+msgstr "Sus cambios han sido aplicados."
+
+#: multiproduct/product_admin.py:112
+msgid "All fields are required!"
+msgstr "¡Todos los campos son obligatorios!"
+
+#: multiproduct/product_admin.py:122 multiproduct/web_ui.py:195
+#, python-format
+msgid "The product \"%(id)s\" has been added."
+msgstr "El producto \"%(id)s\" ha sido añadido."
+
+#: multiproduct/product_admin.py:127
+msgid "Invalid product id."
+msgstr "Identificador de product no válido"
+
+#: multiproduct/product_admin.py:128
+#, python-format
+msgid "Product %(id)s already exists."
+msgstr "El producto %(id)s ya existe."
+
+#: multiproduct/product_admin.py:133 multiproduct/web_ui.py:103
+#: multiproduct/web_ui.py:107
+msgid "Product removal is not allowed!"
+msgstr "¡La eliminación de un producto no está permitida!"
+
+#: multiproduct/product_admin.py:197
+#: multiproduct/templates/admin_products.html:106
+msgid "Prefix"
+msgstr "Prefijo"
+
+#: multiproduct/product_admin.py:197
+#: multiproduct/templates/admin_products.html:106
+#, inherit=trac
+msgid "Owner"
+msgstr "Responsable"
+
+#: multiproduct/product_admin.py:197
+#: multiproduct/templates/admin_products.html:106
+#: multiproduct/templates/repository_links.html:43
+#, inherit=trac
+msgid "Name"
+msgstr "Nombre"
+
+#: multiproduct/product_admin.py:200
+msgid "Command 'product remove' not supported yet"
+msgstr "El comando 'product remove' no está implementado"
+
+#: multiproduct/product_admin.py:237
+msgid ""
+"Do not show any product admin panels in this list even if\n"
+"allowed by white list. Value must be a comma-separated list of\n"
+"`cat:id` strings respectively identifying the section and identifier\n"
+"of target admin panel. Empty values of `cat` and `id` will be ignored\n"
+"and warnings emitted if TracLogging is enabled. If `id` is set\n"
+"to `*` then all panels in `cat` section will be added to blacklist\n"
+"while in product context."
+msgstr ""
+"No mostrar ninguno de los paneles de administración incluidos en esta "
+"lista incluso si\n"
+"fuera permitido en la lista blanca. Debe ser una lista de valores "
+"separados por comas\n"
+"con cada elemento de la forma `cat:id` identificando respectivamente la "
+"sección y el identificador\n"
+"del panel de administración en cuestión. Si `cat` y/o `id` estuvieran "
+"vaciós el elemento será descartado\n"
+"y se emitirán mensajes en el registro de eventos si la funcionalidad "
+"TracLogging estuviera activada.\n"
+"Si `id` es `*` entonces todos los paneles en la sección `cat` serán "
+"añadidos a la lista negra\n"
+"y no serán mostrados en los productos."
+
+#: multiproduct/product_admin.py:321
+#, python-format, inherit=trac
+msgid ""
+"No documentation found for '%(cmd)s'. Use 'help' to see the list of "
+"commands."
+msgstr ""
+"No se encontró documentación para '%(cmd)s'. Use 'help' para listar los "
+"comandos."
+
+#: multiproduct/product_admin.py:327
+#, inherit=trac
+msgid "Did you mean this?"
+msgid_plural "Did you mean one of these?"
+msgstr[0] "¿Acaso no será este?"
+msgstr[1] "¿Acaso no será uno de estos?"
+
+#: multiproduct/product_admin.py:331
+#, python-format, inherit=trac
+msgid "trac-admin - The Trac Administration Console %(version)s"
+msgstr "trac-admin - La consola de administración de Trac %(version)s"
+
+#: multiproduct/product_admin.py:369
+#, inherit=trac
+msgid "Unknown administration panel"
+msgstr "Panel de administración desconocido"
+
+#: multiproduct/product_admin.py:420
+#, inherit=trac
+msgid "Version Control"
+msgstr "Control de versiones"
+
+#: multiproduct/product_admin.py:421
+#: multiproduct/templates/repository_links.html:30
+msgid "Repository Links"
+msgstr "Repositorios del producto"
+
+#: multiproduct/product_admin.py:422
+#, inherit=trac
+msgid "Repositories"
+msgstr "Repositorios"
+
+#: multiproduct/web_ui.py:87 multiproduct/web_ui.py:112
+#, python-format
+msgid "Product %(pid)s not found"
+msgstr "No se encontró el producto %(pid)s"
+
+#: multiproduct/web_ui.py:91
+msgid "Unable to render product page. Wrong setup?"
+msgstr "No se a podido mostrar la página del producto. Verifique su configuración"
+
+#: multiproduct/web_ui.py:94 multiproduct/templates/admin_products.html:30
+#: multiproduct/templates/product_list.html:30
+#: multiproduct/templates/product_list.html:35
+msgid "Products"
+msgstr "Productos"
+
+#: multiproduct/web_ui.py:167 multiproduct/web_ui.py:187
+#, python-format
+msgid ""
+"A product with name \"%(name)s\" already exists, please choose a "
+"different name."
+msgstr ""
+"Ya existe un producto con nombre \"%(name)s\", por favor escoja otro "
+"nombre."
+
+#: multiproduct/web_ui.py:170 multiproduct/web_ui.py:185
+msgid "You must provide a name for the product."
+msgstr "El nombre del producto es obligatorio"
+
+#: multiproduct/web_ui.py:180
+msgid "You must provide a prefix for the product."
+msgstr "El prefijo del producto es obligatorio"
+
+#: multiproduct/web_ui.py:182
+#, python-format
+msgid "Product \"%(id)s\" already exists, please choose another prefix."
+msgstr "El producto \"%(id)s\" ya existe, por favor escoja otro prefijo."
+
+#: multiproduct/templates/admin_products.html:34
+msgid "Manage Products"
+msgstr "Administrar Productos"
+
+#: multiproduct/templates/admin_products.html:38
+msgid "Owner:"
+msgstr "Responsable:"
+
+#: multiproduct/templates/admin_products.html:55
+msgid "Modify Product:"
+msgstr "Modificar Producto:"
+
+#: multiproduct/templates/admin_products.html:57
+#: multiproduct/templates/admin_products.html:89
+msgid "Prefix:"
+msgstr "Prefijo:"
+
+#: multiproduct/templates/admin_products.html:60
+#: multiproduct/templates/admin_products.html:92
+#, inherit=trac
+msgid "Name:"
+msgstr "Nombre:"
+
+#: multiproduct/templates/admin_products.html:65
+#, inherit=trac
+msgid ""
+"Description (you may use\n"
+"                [1:WikiFormatting]\n"
+"                here):"
+msgstr ""
+"Descripción (puedes usar\n"
+"                [1:WikiFormatting]\n"
+"                aqui):"
+
+#: multiproduct/templates/admin_products.html:78
+#, inherit=trac
+msgid "Save"
+msgstr "Guardar"
+
+#: multiproduct/templates/admin_products.html:79
+#: multiproduct/templates/product_delete.html:44
+#: multiproduct/templates/product_edit.html:64
+#, inherit=trac
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: multiproduct/templates/admin_products.html:87
+msgid "Add Product:"
+msgstr "Añadir Producto:"
+
+#: multiproduct/templates/admin_products.html:96
+#: multiproduct/templates/repository_links.html:83
+#, inherit=trac
+msgid "Add"
+msgstr "Añadir"
+
+#: multiproduct/templates/admin_products.html:106
+#, inherit=trac
+msgid "Default"
+msgstr "Predeterminado"
+
+#: multiproduct/templates/admin_products.html:125
+#: multiproduct/templates/repository_links.html:69
+#, inherit=trac
+msgid "Remove selected items"
+msgstr "Quitar seleccionados"
+
+#: multiproduct/templates/admin_products.html:126
+msgid "Apply changes"
+msgstr "Aplicar cambios"
+
+#: multiproduct/templates/admin_products.html:127
+#, fuzzy, inherit=trac
+msgid "Clear default"
+msgstr "(predeterminado)"
+
+#: multiproduct/templates/admin_products.html:129
+#, inherit=trac
+msgid ""
+"You can remove all items from this list to completely hide this\n"
+"              field from the user interface."
+msgstr ""
+"Puedes quitar todos los objetos de esta lista para ocultar completamente\n"
+"              este campo de la interfaz de usuario."
+
+#: multiproduct/templates/admin_products.html:135
+#, inherit=trac
+msgid ""
+"As long as you don't add any items to the list, this field\n"
+"            will remain completely hidden from the user interface."
+msgstr ""
+"Mientras no añadas ningún item a la lista, este campo\n"
+"            permanecerá completamente oculto en la interfaz de usuario."
+
+#: multiproduct/templates/product_delete.html:30
+#: multiproduct/templates/product_delete.html:35
+msgid "Delete Product"
+msgstr "Eliminar Producto"
+
+#: multiproduct/templates/product_delete.html:40
+msgid "Are you sure you want to delete this product?"
+msgstr "¿Realmente desea eliminar este producto?"
+
+#: multiproduct/templates/product_delete.html:43
+#: multiproduct/templates/product_view.html:54
+msgid "Delete product"
+msgstr "Eliminar producto"
+
+#: multiproduct/templates/product_edit.html:31
+#: multiproduct/templates/product_edit.html:39
+msgid "Edit Product"
+msgstr "Editar Producto"
+
+#: multiproduct/templates/product_edit.html:32
+#: multiproduct/templates/product_edit.html:40
+msgid "New Product"
+msgstr "Nuevo Producto"
+
+#: multiproduct/templates/product_edit.html:46
+msgid "Short name for the product (prefix):"
+msgstr "Identificador del producto (prefijo):"
+
+#: multiproduct/templates/product_edit.html:49
+msgid "Name of the product:"
+msgstr "Nombre del producto:"
+
+#: multiproduct/templates/product_edit.html:55
+#, inherit=trac
+msgid "Description (you may use [1:WikiFormatting] here):"
+msgstr "Descripción (puedes utilizar [1:WikiFormatting] aquí):"
+
+#: multiproduct/templates/product_edit.html:62
+msgid "Submit changes"
+msgstr "Enviar cambios"
+
+#: multiproduct/templates/product_edit.html:63
+msgid "Add Product"
+msgstr "Añadir Product"
+
+#: multiproduct/templates/product_list.html:53
+msgid "Add new product"
+msgstr "Añadir nuevo producto"
+
+#: multiproduct/templates/product_view.html:31
+msgid "Edit this product"
+msgstr "Editar este producto"
+
+#: multiproduct/templates/product_view.html:48
+msgid "Edit product"
+msgstr "Editar producto"
+
+#: multiproduct/templates/repository_links.html:33
+msgid "Manage repository links"
+msgstr "Gestionar repositorios del producto"
+
+#: multiproduct/templates/repository_links.html:44
+#, inherit=trac
+msgid "Type"
+msgstr "Tipo"
+
+#: multiproduct/templates/repository_links.html:45
+#, inherit=trac
+msgid "Directory"
+msgstr "Directorio"
+
+#: multiproduct/templates/repository_links.html:46
+#, inherit=trac
+msgid "Revision"
+msgstr "Revisión"
+
+#: multiproduct/templates/repository_links.html:53
+#: multiproduct/templates/repository_links.html:55
+#, inherit=trac
+msgid "(default)"
+msgstr "(predeterminado)"
+
+#: multiproduct/templates/repository_links.html:58
+#, python-format, inherit=trac
+msgid "Alias of %(repo)s"
+msgstr "Alias de %(repo)s"
+
+#: multiproduct/templates/repository_links.html:65
+msgid "No linked repositories."
+msgstr "No hay repositorios en este producto"
+
+#: multiproduct/templates/repository_links.html:68
+msgid "Refresh"
+msgstr "Refrescar"
+
+#: multiproduct/templates/repository_links.html:76
+msgid "Add repository link"
+msgstr "Añadir enlace a repositorio"
+
+#: multiproduct/templates/repository_links.html:87
+msgid "No repositories to add."
+msgstr "No hay repositorios disponibles"
+
+#: multiproduct/ticket/batch.py:49
+#, inherit=trac
+msgid "add"
+msgstr "añadido"
+
+#: multiproduct/ticket/batch.py:50
+#, inherit=trac
+msgid "remove"
+msgstr "eliminado"
+
+#: multiproduct/ticket/batch.py:51
+#, inherit=trac
+msgid "add / remove"
+msgstr "eliminado"
+
+#: multiproduct/ticket/batch.py:52
+#, inherit=trac
+msgid "set to"
+msgstr "poner"
+
+#: multiproduct/ticket/query.py:115
+#, python-format, inherit=trac
+msgid "Page %(page)s is beyond the number of pages in the query"
+msgstr "La página %(page)s es mayor que el número de páginas de la consulta"
+
+#: multiproduct/ticket/query.py:294
+#, python-format, inherit=trac, missing
+msgid "Ticket completion status for each %(group)s"
+msgstr "Estado de resolución de incidencias para cada %(group)s"
+
+#: multiproduct/ticket/query.py:309
+#, inherit=trac
+msgid "No results"
+msgstr "No hay resultados"
+
+#: multiproduct/ticket/query.py:342
+#, python-format, inherit=trac
+msgid "%(groupvalue)s %(groupname)s tickets matching %(query)s"
+msgstr "Las incidencias %(groupvalue)s %(groupname)s coinciden con %(query)s"
+
+#: multiproduct/ticket/query.py:366
+#, python-format, inherit=trac
+msgid "%(groupvalue)s %(groupname)s tickets:"
+msgstr "Incidencias de %(groupvalue)s %(groupname)s:"
+
+#: multiproduct/ticket/web_ui.py:84
+msgid "id can't be set for a new ticket request."
+msgstr ""
+"No se puede establecer un identificador para la petición de nueva "
+"incidencia."
+
+#: multiproduct/ticket/web_ui.py:91 multiproduct/ticket/web_ui.py:101
+msgid "Invalid ticket number"
+msgstr "Número de incidencia no válido"
+
+#: multiproduct/ticket/web_ui.py:156
+#, review, python-format
+msgid "%(title)s: %(message)s"
+msgstr "%(title)s: %(message)s"
+
+#: multiproduct/ticket/web_ui.py:177
+msgid "View Tickets"
+msgstr "Ver incidencias"
+

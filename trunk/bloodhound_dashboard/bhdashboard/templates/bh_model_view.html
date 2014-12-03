@@ -1,0 +1,93 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<div xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhdashboard"
+      xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip=""
+      py:with="colspan = 'span8';
+               cols_activity = 'span4'">
+
+  <!--! hack for hiding the activity feed title in desktop/tablet landscape mode (the title is part of the sticky) -->
+  <style>
+    @media (min-width: 768px) {
+      #activity h3 { display: none !important; }
+    }
+    @media (max-width: 767px) {
+      #activity h3 { display: inherit !important; }
+    }
+  </style>
+  <xi:include href="widget_macros.html" />
+
+  <div class="span12">
+    <div class="row">
+      <div class="$colspan">
+        $heading
+
+        <py:choose>
+          <py:when test="progress_data">
+            <xi:include href="widget_progress.html"
+                py:with="view = 'compact'; legend = True;
+                    stats = progress_data.stats;
+                    interval_hrefs = progress_data.interval_hrefs;
+                    " />
+          </py:when>
+        </py:choose>
+      </div>
+      <div class="$cols_activity hidden-phone">
+        <h2>${dgettext('bhdashboard', 'Activity')}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="$colspan">
+    <div py:if="ticket_query" id="overview">
+      <bh:widget urn="TicketGroupStats">
+        <bh:args>
+          <bh:arg name="query">$ticket_query</bh:arg>
+          <bh:arg name="view">compact</bh:arg>
+        </bh:args>
+      </bh:widget>
+    </div>
+
+    <div py:if="description" class="well">
+      $description
+    </div>
+
+    $buttons
+    $widgets
+  </div>
+
+  <div py:if="bhdb" id="activity" class="$cols_activity">
+    <div class="visible-phone" id="mobile-activity"></div>
+    <bh:widget urn="Timeline">
+      <bh:args py:if="resource_realm and resource_id">
+        <bh:arg name="realm">$resource_realm</bh:arg>
+        <bh:arg name="id">$resource_id</bh:arg>
+      </bh:args>
+    </bh:widget>
+  </div>
+</div>
+

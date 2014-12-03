@@ -1,0 +1,62 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="layout.html" />
+  <head>
+    <title>$title</title>
+  </head>
+
+  <body>
+    <div id="content" class="wiki row" py:with="current_href = href.wiki(page.name)">
+      <div class="span12">
+        <h1 i18n:msg="name">Rename <a href="$current_href">$page.name</a></h1>
+        <form id="rename-form" action="$current_href" method="post">
+          <input type="hidden" name="action" value="rename"/>
+          <p class="help-block">
+            <span class="label label-important">Caution</span>
+            <strong>Renaming the page will rename all existing versions of the page in place.</strong><br/>
+            The complete history of the page will be moved to the new location.
+          </p>
+          <label for="new_name">New name: </label>
+          <input type="text" id="new_name" name="new_name" size="40" value="$new_name"/>
+          <br/>
+          <label for="redirect" class="checkbox">
+            <input type="checkbox" id="redirect" name="redirect"/>
+            Leave a redirection page at the old location
+          </label>
+          <br/><br/>
+          <div class="control-group">
+            <input class="btn" type="submit" name="submit"
+                   value="${_('Rename page')}"/>
+            <input class="btn-link" type="submit" name="cancel"
+                   value="${_('Cancel')}"/>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

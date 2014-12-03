@@ -1,0 +1,29 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<svg width="160" height="120" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_6">
+   <path id="svg_5" d="m137.453018,3.469111c8.26181,5.119994 16.843658,11.374512 18.996368,22.167251c2.15271,10.792742 -1.861816,21.440004 -7.883667,30.225451c1.861816,20.072735 10.974579,39.541775 1.549103,59.149044c-6.138153,0.319977 -15.845001,1.760895 -17.796814,-0.58139c-1.951813,-2.342285 1.876801,-4.439056 4.785889,-7.813599c-1.570892,-4.887268 0.930939,-14.041351 -4.189056,-16.659515c-12.04364,-0.698181 -24.232727,0.436371 -36.13089,-2.123627c0.407257,9.367249 0.232697,18.821808 -2.880005,27.752716c-6.370911,1.134521 -15.065002,1.147278 -17.438171,-0.64093c-2.373169,-1.788208 3.532715,-6.457245 5.219971,-8.202698c0.698212,-7.243652 0.029114,-15.040009 -7.127258,-18.880005c-1.832733,9.338165 -0.378174,21.963623 -9.97818,27.519989c-7.621826,3.578186 -18.676361,2.327271 -21.265442,-7.098175c-10.15271,13.323608 -36.10817,9.08728 -39.7668,5.429993c-3.65863,-3.657288 4.060471,-14.611847 14.544998,-28.208191c10.484528,-13.596344 11.636353,-34.472698 29.818176,-39.621792c25.629059,-1.658173 51.461792,0.378189 77.119965,-0.98909c7.389069,-0.669083 14.300934,0.698196 19.461823,-10.23999c5.160889,-10.938189 -1.949097,-21.818177 -7.040009,-31.185441z" fill="#000000"/>
+  </g>
+ </g>
+</svg>

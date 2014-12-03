@@ -1,0 +1,75 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="bh_prefs.html" />
+  <head>
+    <title>Syntax Highlighting</title>
+    <style type="text/css">
+      div.code pre { border: 1px solid #999; font-size: 90%; margin: 1em 2em;
+        padding: 5px; width: 60%;
+      }
+    </style>
+    <link py:for="style in sorted(styles)" rel="stylesheet" type="text/css"
+          href="${href.pygments('%s.css' % style)}" title="${style.title()}" />
+    <script type="text/javascript">
+        (function($){
+              window.switchStyleSheet = function(title) {
+                $('link[rel="stylesheet"][title]').each(function() {
+                  this.disabled = true;
+                  this.disabled = this.getAttribute('title') != title;
+                });
+              }
+      })(jQuery);
+      jQuery(document).ready(function($) {
+        switchStyleSheet("${selection.title()}");
+        $("#pygment_theme").attr("autocomplete", "off").bind('change keypress', function() {
+          switchStyleSheet(this.options[this.selectedIndex].text);
+        });
+      });
+    </script>
+  </head>
+  <body>
+
+    <div>
+      <p class="help-block">
+        <span class="label label-info">Overview</span>
+        The Pygments syntax highlighter can be used with
+        different coloring styles.</p>
+      <br/>
+      <p><label for="pygment_theme">Style:</label>
+        <select id="pygment_theme" name="style">
+          <option py:for="style in sorted(styles)" value="${style}"
+                  selected="${selection == style or None}">${style.title()}</option>
+        </select>
+      </p>
+      Preview:
+      <div class="code"><pre>${output}</pre></div>
+    </div>
+
+  </body>
+</html>
+

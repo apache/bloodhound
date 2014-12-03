@@ -1,0 +1,140 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="acct_mgr">
+  <xi:include href="bh_prefs.html" />
+  <?python
+    if _dgettext is not None:
+        dgettext = _dgettext ?>
+
+  <!--! FIXME [1] prevents this from matching its own output.
+        Should that really be necessary? -->
+  <div py:match="div[@id='tabcontent'][1]" py:attrs="select('@*')">
+    <div class="row">
+      <div class="span6">
+        ${select('*')}
+      </div>
+      <div py:if="account.delete_enabled" class="span6">
+        <h2>Delete Account</h2>
+
+        <div class="system-message" py:if="account.delete_error">
+          <xi:include href="widget_alert.html"
+              py:with="msglabel = 'Failed'; msgbody = account.delete_error" />
+        </div>
+
+        <form method="post" action="" id="acctmgr_delete_account"
+              onsubmit="return confirm('${account.delete_msg_confirm}');"
+              class="form-horizontal">
+          <div class="field control-group">
+            <label class="control-label" for="password_rm">Password:</label>
+            <div class="controls">
+              <div class="input-prepend">
+                <span class="add-on"><i class="icon-lock"></i></span>
+                <input type="password" id="password_rm"
+                       class="textwidget input-large" name="password"
+                       placeholder="${dgettext('bhtheme', 'Type your password')}" />
+              </div>
+            </div>
+          </div>
+          <div class="buttons">
+            <input type="hidden" name="action" value="delete" />
+            <input type="submit" class="btn"
+                   value="${dgettext('acct_mgr', 'Delete account')}" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <head>
+    <title>Account</title>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#old_password_chg").focus();
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="system-message" py:if="account.error">
+      <xi:include href="widget_alert.html"
+          py:with="msglabel = 'Failed'; msgbody = account.error"/>
+    </div>
+    <p class="help-block" py:if="account.message">$account.message</p>
+    <h2>Change Password</h2>
+
+    <div class="system-message" py:if="account.save_error">
+      <xi:include href="widget_alert.html"
+          py:with="msglabel = 'Failed'; msgbody = account.save_error" />
+    </div>
+
+    <div class="field control-group">
+      <label for="old_password_chg" class="control-label">
+        Old Password:
+      </label>
+      <div class="controls">
+        <div class="input-prepend">
+          <span class="add-on">
+            <i class="icon-lock"></i>
+          </span>
+          <input type="password" id="old_password_chg"
+                 class="textwidget input-large" name="old_password"
+                 placeholder="${dgettext('bhtheme', 'Type current password')}" />
+        </div>
+      </div>
+    </div>
+    <div class="field control-group">
+      <label class="control-label" for="password_chg">
+        New Password:
+      </label>
+      <div class="controls">
+        <div class="input-prepend">
+          <span class="add-on">
+            <i class="icon-lock"></i>
+          </span>
+          <input type="password"  id="password_chg"
+                 class="textwidget input-large"
+                 name="password" placeholder="${dgettext('bhtheme', 'Type new password')}" />
+        </div>
+      </div>
+    </div>
+    <div class="field control-group">
+      <label class="control-label" for="password_confirm_chg">
+        Confirm Password:
+      </label>
+      <div class="controls">
+        <div class="input-prepend">
+          <span class="add-on">
+            <i class="icon-lock"></i>
+          </span>
+          <input type="password" id="password_confirm_chg"
+                 class="textwidget input-large" name="password_confirm"
+                 placeholder="${dgettext('bhtheme', 'Must match new password')}" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

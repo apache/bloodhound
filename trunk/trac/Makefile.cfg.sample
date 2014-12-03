@@ -1,0 +1,58 @@
+# -*- Makefile -*- configuration file sample
+#
+# Adapt to your local setting and copy to Makefile.cfg
+#
+# ----------------------------------------------------------------------------
+# Python Installations (select with `python=` on the `make` command line)
+
+python.23 =
+python.24 =
+python.25 = C:/Dev/Python254
+python.ap25 = C:/Dev/ActivePython254
+python.26 = C:/Dev/Python261
+python.27 =
+
+# default Python version (if not defined, pick the one from the path)
+.python =
+
+# ----------------------------------------------------------------------------
+# Database Backends (select with `db=` on the `make` command line)
+
+# db URIs
+sqlite.uri = sqlite:test.db
+mysql.uri = mysql://tracuser:tracpassword@localhost/trac
+postgres.uri = postgres://tracuser:tracpassword@localhost:5432/trac?schema=tractest
+
+# default db backend (if not defined, use in-memory sqlite)
+.uri =
+
+# default Python versions to use when `db` is specified
+mysql.python = 25
+postgres.python = 26
+
+# ----------------------------------------------------------------------------
+# Settings for the test server
+
+env = ~/tracenvs
+auth = *,~/tracenvs/htdigest.realm,realm
+
+# ----------------------------------------------------------------------------
+# Settings for the documentation
+
+dotpath = /usr/local/bin/dot
+
+# ----------------------------------------------------------------------------
+# Custom rules
+
+.PHONY: bigtest
+
+bigtest:
+	make python=24 test
+	make db=postgres test
+	make db=mysql test
+
+.PHONY: frup frcomp
+
+frup: stats-pot extraction update-fr stats-fr
+
+frcomp: check-fr compile-fr stats-fr stats-pot

@@ -1,0 +1,228 @@
+# French translations for Trac.
+# Copyright (C) 2012 Edgewall Software
+# This file is distributed under the same license as the Trac project.
+# Christian Boos <cboos@edgewall.org>, 2010-2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Trac 1.0\n"
+"Report-Msgid-Bugs-To: trac-dev@googlegroups.com\n"
+"POT-Creation-Date: 2013-01-27 11:21+0900\n"
+"PO-Revision-Date: 2011-01-25 20:28+0100\n"
+"Last-Translator: Christian Boos <cboos@edgewall.org>\n"
+"Language-Team: fr <trac-dev@googlegroups.com>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6dev-r0\n"
+
+#: trac/htdocs/js/blame.js:84
+msgid "(no changeset information)"
+msgstr "(pas d'information sur la révision)"
+
+#: trac/htdocs/js/blame.js:87
+msgid "Close"
+msgstr "Fermer"
+
+#: trac/htdocs/js/diff.js:119
+msgid "Tabular"
+msgstr "Table"
+
+#: trac/htdocs/js/diff.js:125
+msgid "Unified"
+msgstr "Diff unifié"
+
+#: trac/htdocs/js/expand_dir.js:42
+msgid "Expand sub-directory in place"
+msgstr "Ouvrir le sous-répertoire"
+
+#: trac/htdocs/js/expand_dir.js:71
+msgid "Re-expand directory"
+msgstr "Réouvrir le sous-répertoire"
+
+#: trac/htdocs/js/expand_dir.js:121
+#, python-format
+msgid "Loading %(entry)s..."
+msgstr "Chargement de %(entry)s ..."
+
+#: trac/htdocs/js/expand_dir.js:149
+msgid "(empty)"
+msgstr "(vide)"
+
+#: trac/htdocs/js/expand_dir.js:157
+msgid "(error)"
+msgstr "(erreur)"
+
+#: trac/htdocs/js/expand_dir.js:164
+msgid "Fold directory"
+msgstr "Fermer le répertoire"
+
+#: trac/htdocs/js/folding.js:62
+#, python-format
+msgid "Show %(title)s"
+msgstr "Voir %(title)s"
+
+#: trac/htdocs/js/folding.js:78
+#, python-format
+msgid "%(title)s (click to hide column)"
+msgstr "%(title)s (cliquer pour cacher la colonne)"
+
+#. TRANSLATOR: Format in month heading in the datepicker, extracts yearSuffix
+#. and showMonthAfterYear
+#: trac/htdocs/js/jquery-ui-i18n.js:4
+msgid "$month$year"
+msgstr "$month$year"
+
+#. TRANSLATOR: Link that closes the datepicker
+#. TRANSLATOR: Link that closes the timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:7 trac/htdocs/js/jquery-ui-i18n.js:39
+msgid "Done"
+msgstr "Valider"
+
+#. TRANSLATOR: Link to the previous month in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:9
+msgid "Prev"
+msgstr "Précédent"
+
+#. TRANSLATOR: Link to the next month in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:11
+msgid "Next"
+msgstr "Suivant"
+
+#. TRANSLATOR: Link to the current day in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:13
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#. TRANSLATOR: Heading for the week-of-the-year column in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:20
+msgid "Wk"
+msgstr "Sem"
+
+#. TRANSLATOR: Heading of the standalone timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:30
+msgid "Choose Time"
+msgstr "Sélectionnez une heure"
+
+#. TRANSLATOR: Time selector label
+#: trac/htdocs/js/jquery-ui-i18n.js:32
+msgid "Time"
+msgstr "hh:mm:ss"
+
+#. TRANSLATOR: Time labels in the timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:34
+msgid "Hour"
+msgstr "Heure"
+
+#: trac/htdocs/js/jquery-ui-i18n.js:34
+msgid "Minute"
+msgstr "Minute"
+
+#: trac/htdocs/js/jquery-ui-i18n.js:34
+msgid "Second"
+msgstr "Secondes"
+
+#: trac/htdocs/js/jquery-ui-i18n.js:35
+msgid "Time Zone"
+msgstr "Fuseau horaire"
+
+#. TRANSLATOR: Link to pick the current time in the timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:37
+msgid "Now"
+msgstr "Maintenant"
+
+#: trac/htdocs/js/query.js:132
+msgid "A filter already exists for that property"
+msgstr "Un filtre existe déjà pour cette propriété"
+
+#: trac/htdocs/js/query.js:159
+msgid "or"
+msgstr "ou"
+
+#: trac/htdocs/js/query.js:182 trac/htdocs/js/query.js:310
+msgid "yes"
+msgstr "oui"
+
+#: trac/htdocs/js/query.js:185 trac/htdocs/js/query.js:313
+msgid "no"
+msgstr "non"
+
+#: trac/htdocs/js/query.js:188
+msgid "between"
+msgstr "entre"
+
+#: trac/htdocs/js/query.js:190
+msgid "and"
+msgstr "et"
+
+#: trac/htdocs/js/query.js:337
+msgid " remove:"
+msgstr " supprimer :"
+
+#: trac/htdocs/js/query.js:347
+msgid " add:"
+msgstr " ajouter :"
+
+#: trac/htdocs/js/query.js:376
+#, python-format
+msgid "Select ticket %(id)s for modification"
+msgstr "Sélectionner le ticket %(id)s pour le modifier"
+
+#: trac/htdocs/js/query.js:387
+msgid "Toggle selection of all tickets shown in this group"
+msgstr "Sélectionner tous les tickets visibles dans ce groupe"
+
+#: trac/htdocs/js/trac.js:7
+msgid "Link here"
+msgstr "Signet"
+
+#: trac/htdocs/js/wikitoolbar.js:56
+msgid "Bold text: '''Example'''"
+msgstr "Texte en gras : '''Exemple'''"
+
+#: trac/htdocs/js/wikitoolbar.js:59
+msgid "Italic text: ''Example''"
+msgstr "Texte en italique : ''Exemple''"
+
+#: trac/htdocs/js/wikitoolbar.js:62
+msgid "Heading: == Example =="
+msgstr "Titre : == Exemple =="
+
+#: trac/htdocs/js/wikitoolbar.js:65
+msgid "Link: [http://www.example.com/ Example]"
+msgstr "Lien : [http://www.exemple.com/ Exemple]"
+
+#: trac/htdocs/js/wikitoolbar.js:68
+msgid "Code block: {{{ example }}}"
+msgstr "Bloc de code : {{{ exemple }}}"
+
+#: trac/htdocs/js/wikitoolbar.js:71
+msgid "Horizontal rule: ----"
+msgstr "Filet horizontal : ----"
+
+#: trac/htdocs/js/wikitoolbar.js:74
+msgid "New paragraph"
+msgstr "Nouveau paragraphe"
+
+#: trac/htdocs/js/wikitoolbar.js:77
+msgid "Line break: [[BR]]"
+msgstr "Saut de ligne : [[BR]]"
+
+#: trac/htdocs/js/wikitoolbar.js:80
+msgid "Image: [[Image()]]"
+msgstr "Image : [[Image()]]"
+
+#: trac/ticket/templates/ticket.html:3 trac/wiki/templates/wiki_view.html:3
+msgid "Link to this section"
+msgstr "Lien vers cette section"
+
+#: trac/versioncontrol/templates/changeset.html:7
+msgid "Link to this diff"
+msgstr "Lien vers cette différence"
+
+#: trac/wiki/templates/wiki_view.html:5
+#, python-format
+msgid "Link to #%(id)s"
+msgstr "Lien vers #%(id)s"
+

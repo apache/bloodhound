@@ -1,0 +1,145 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!--!
+Ticket Box (ticket fields along with description).
+
+Arguments:
+ - ticket: the ticket to be shown
+ - fields: ticket field metadata
+ - description_change: metadata about changes in the description
+ - can_append: True if the user is allowed to append to tickets
+ - preview_mode: if True, show the "draft" background
+ - reporter_link=None: rendered link for the reporter field
+ - owner_link=None: rendered link for the owner field
+ - colcount=6: the number of fields to display in a row
+-->
+<div xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:py="http://genshi.edgewall.org/"
+     xmlns:xi="http://www.w3.org/2001/XInclude"
+     xmlns:i18n="http://genshi.edgewall.org/i18n"
+     i18n:domain="bhtheme"
+     id="ticket" class="${'ticketdraft' if preview_mode else None}">
+
+
+  <py:def function="render_fields_row(fields_row, fontsize, is_inline)">
+    <py:for each="idx, field in enumerate(fields_row)">
+      <py:if test="field is not None">
+        <tr>
+          <td id="${'h_' + field.name if field else None}">
+            <i18n:msg py:if="field" params="field">${field.label or field.name} </i18n:msg>
+          </td>
+          <td data-edit="${'inplace' if (field and field.name not in ('status', 'product')) else None}" id="${'vc-' + field.name if field else None}">
+            <py:if test="field">
+              <py:choose test="">
+                <py:when test="'rendered' in field">${field.rendered}</py:when>
+                <py:otherwise>${ticket[field.name]}</py:otherwise>
+              </py:choose>
+            </py:if>
+            <py:if test="field.name == 'status'">
+              <div id="edit-workflow-buttons" class="btn-group" style="display: none">
+                <button class="btn dropdown-toggle input-block-level" data-toggle="dropdown" style="white-space: normal">
+                  <span id="submit-action-label"></span>
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  <fieldset id="workflow-actions">
+                  </fieldset>
+                </ul>
+              </div>
+            </py:if>
+          </td>
+        </tr>
+      </py:if>
+    </py:for>
+  </py:def>
+
+  <h4>Details</h4>
+  <table class="ticket-properties">
+    <tr>
+      <td id="h_reporter">Reporter</td>
+      <td id="vc-reporter" data-edit="${'inplace' if only_for_admin else None}">
+        ${reporter_link if defined('reporter_link') else authorinfo(ticket.reporter)}
+      </td>
+    </tr>
+
+    <!--! use a placeholder if it's a new ticket -->
+    <py:for each="field in fields">
+      <py:if test="field.name == 'keywords'">
+        <tr title="Keywords" class="keywords">
+          <td>Keywords</td>
+          <td><span data-edit="${'inplace' if can_modify or can_edit or can_create else None}" id="vc-keywords">${field.rendered}</span></td>
+        </tr>
+      </py:if>
+    </py:for>
+
+
+    <!--!
+          Todo: ticket status and type are included here and thrown out of
+          bh_ticket view. The resolution field is still missing, and all of
+          this should probably be consolidated into the ticket widget itself,
+          instead of this code (i.e., status, type and resolution should not
+          be marked as .skip)
+    -->
+    <py:with vars="basefields = [f for f in fields if (f.name == 'status' or f.name == 'type' or not f.skip)
+                                 and f.name not in ('owner', 'keywords')];
+        small_fields = [f for f in basefields if f.type not in ('text', 'textarea') and f.name != 'cc'];
+        text_fields = [f for f in basefields if (f.type == 'text' and f.name != 'type') or f.name == 'cc'];
+        area_fields = [f for f in basefields if f.type == 'textarea'];
+        _colcount = colcount or 6">
+      <py:with vars="_fields, count = (small_fields, _colcount / 2)">
+        <py:for each="fields_row in group(_fields, count)">
+          ${render_fields_row(fields_row, None, True)}
+        </py:for>
+      </py:with>
+
+      <py:for each="_fields, count in 
+          [(text_fields, _colcount / 2), (area_fields, 1)]">
+        <py:for each="fields_row in group(_fields, count)">
+          ${render_fields_row(fields_row, None, False)}
+        </py:for>
+      </py:for>
+    </py:with>
+  </table>
+
+
+  <div class="description">
+    <h4 id="comment:description">Description</h4>
+
+    <!--! Quote the description (only for existing tickets) -->
+    <div class="pull-right">
+      <a py:if="ticket.exists and ticket.description and can_append"
+          id="addreply" class="btn btn-mini" type="submit"
+          href="?replyto=description#trac-add-comment"
+          title="Reply, quoting this description">Reply</a>
+    </div>
+    <div class="searchable" xml:space="preserve"
+        data-edit="${'inplace' if can_edit or can_create else None}"
+        id="vc-description">
+      <py:if test="ticket.description">
+        ${wiki_to_html(context, ticket.description, escape_newlines=preserve_newlines)}
+      </py:if>
+    </div>
+    <span py:if="description_change" class="lastmod" title="$description_change.date">
+      <i18n:msg params="author">Last modified by ${authorinfo(description_change.author)}</i18n:msg>
+      (<a href="${href.ticket(ticket.id, action='diff', version=description_change.cnum)}">diff</a>)
+    </span>
+  </div>
+</div>
+

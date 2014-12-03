@@ -1,0 +1,73 @@
+============================================================
+
+        Product report links
+
+============================== %(tc_title_prefix)s - report link shorthand form
+%(link_prefix_quote)s{1}", %(link_prefix_quote)s{2}"
+%(link_prefix_quote)s{12}", %(link_prefix_quote)s{abc}"
+{%(link_prefix)s1}, {%(link_prefix)s2}
+{%(link_prefix)s12}, {%(link_prefix)sabc}
+------------------------------
+<p>
+<a class="report" href="%(path_prefix)s/report/1">{1}</a>, <a class="report" href="%(path_prefix)s/report/2">{2}</a>
+<a class="report" href="%(path_prefix)s/report/12">{12}</a>, %(link_prefix_quote_escaped)s{abc}&#34;
+<a class="report" href="%(path_prefix)s/report/1">{%(link_prefix)s1}</a>, <a class="report" href="%(path_prefix)s/report/2">{%(link_prefix)s2}</a>
+<a class="report" href="%(path_prefix)s/report/12">{%(link_prefix)s12}</a>, {%(link_prefix)sabc}
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - escaping the above
+!%(link_prefix_quote)s{1}"
+!{%(link_prefix)s1}
+------------------------------
+<p>
+%(link_prefix_quote_escaped)s{1}&#34;
+{%(link_prefix)s1}
+</p>
+------------------------------
+%(link_prefix_quote_escaped)s{1}&#34;
+{%(link_prefix)s1}
+============================== %(tc_title_prefix)s - ticket shorthands, not numerical HTML entities
+&#1; &#23;
+------------------------------
+<p>
+&amp;#1; &amp;#23;
+</p>
+------------------------------
+&amp;#1; &amp;#23;
+============================== %(tc_title_prefix)s - InterTrac for reports
+%(link_prefix)strac:report:1
+[%(link_prefix)strac:report:1 Trac r1]
+%(link_prefix_quote)s{T1}"
+%(link_prefix_quote)s{trac1}"
+%(link_prefix_quote)s{trac 1}"
+{%(link_prefix)sT1}
+{%(link_prefix)strac1}
+{%(link_prefix)strac 1}
+------------------------------
+<p>
+<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>%(link_prefix_escaped)strac:report:1</a>
+<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>Trac r1</a>
+<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>{T1}</a>
+<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>{trac1}</a>
+<a class="ext-link" href="http://trac.edgewall.org/intertrac/report%%3A1" title="%(link_title_prefix)sreport:1 in Trac's Trac"><span class="icon"></span>{trac 1}</a>
+{%(link_prefix)sT1}
+{%(link_prefix)strac1}
+{%(link_prefix)strac 1}
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - report syntax with unicode digits
+{%(link_prefix)s⁴²} !{%(link_prefix)s⁴²}
+{%(link_prefix)sT⁴²}
+{%(link_prefix)strac⁴²}
+%(link_prefix)s{T⁴²}
+%(link_prefix)s{trac⁴²}
+
+------------------------------
+<p>
+{%(link_prefix)s⁴²} !{%(link_prefix)s⁴²}
+{%(link_prefix)sT⁴²}
+{%(link_prefix)strac⁴²}
+%(link_prefix)s{T⁴²}
+%(link_prefix)s{trac⁴²}
+</p>
+------------------------------

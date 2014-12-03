@@ -1,0 +1,176 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!--!
+Render a ticket comment.
+
+Arguments:
+ - change: the change data
+ - hide_buttons=False: hide all buttons (Edit, Reply)
+ - cnum_edit=None: the comment number being edited
+ - edited_comment: the current value of the comment editor
+ - cnum_hist=None: the comment number for which to show a historical content
+ - can_append=False: True if the user is allowed to append to tickets
+ - has_edit_comment=False: True if the user is allowed to edit all comments
+ - preview=False: True if rendering a change preview
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      py:with="cnum = change.get('cnum'); hide_buttons = value_of('hide_buttons', False);
+               cnum_edit = value_of('cnum_edit'); cnum_hist = value_of('cnum_hist');
+               can_append = value_of('can_append', False); has_edit_comment = value_of('has_edit_comment', False);
+               preview = value_of('preview', False);
+               can_edit_comment = has_edit_comment or (authname and authname != 'anonymous'
+                                                       and authname == change.author);
+               show_editor = can_edit_comment and str(cnum) == cnum_edit;
+               show_history = str(cnum) == cnum_hist;
+               max_version = max(change.comment_history) if change.comment_history else 0;
+               comment_version = int(cversion or 0) if show_history else max_version;
+               show_buttons = not hide_buttons and not show_editor and comment_version == max_version"
+      py:strip="">
+  <py:def function="commentref(prefix, cnum, cls=None)">
+    <a href="#comment:$cnum" title="$prefix$cnum" class="$cls" style="margin-left:5px;">&#x260D;</a>
+  </py:def>
+  <div class="visible-desktop-hover" py:if="change.comment">
+    <div py:if="cnum" class="comment-box" id="${'comment:' + str(cnum) if cnum else ''}">
+      <div>
+        <h4 class="change" style="display: inline-block;">        
+          ${authorinfo(change.author)}
+          <span py:if="preview or show_editor" class="trac-loading"/>
+        </h4>
+        <div class="pull-right">
+          <span py:if="'cnum' in change" id="comment:$cnum" class="cnum">${commentref('comment:', cnum)}</span>
+        </div>
+        <div py:if="show_buttons" class="pull-right bh-ticket-buttons shade-desktop trac-ticket-buttons">
+          <py:if test="'date' in change">
+            ${pretty_dateinfo(change.date)}
+          </py:if>
+          <form py:if="'cnum' in change and can_edit_comment" method="get"
+              style="display:inline" action="#comment:${cnum}">
+            <div class="inlinebuttons">
+              <input type="hidden" name="cnum_edit" value="${cnum}"/>
+              <input type="submit" value="${_('Edit')}" class="btn-link"
+                  title="${_('Edit comment %(cnum)s', cnum=cnum)}"/>
+            </div>
+          </form>
+          <form py:if="'cnum' in change and can_append" id="reply-to-comment-${cnum}"
+                method="get" action="#comment" style="display: inline">
+            <div class="inlinebuttons">
+              <input type="hidden" name="replyto" value="${cnum}"/>
+              <input type="submit" value="${_('Reply')}" class="btn-link"
+                  title="${_('Reply to comment %(cnum)s', cnum=cnum)}"/>
+            </div>
+          </form>
+        </div>
+        <form py:if="show_editor" id="trac-comment-editor" method="post"
+              action="${href.ticket(ticket.id) + '#comment:%d' % cnum}">
+          <div>
+            <textarea name="edited_comment" class="wikitext trac-resizable" rows="10" cols="78">
+${edited_comment if edited_comment is not None else change.comment}</textarea>
+            <input type="hidden" name="cnum_edit" value="${cnum}"/>
+          </div>
+          <div class="btn-toolbar buttons">
+            <div class="btn-group">
+              <input class="btn" type="submit" name="preview_comment" value="${_('Preview')}"
+                     title="${_('Preview changes to comment %(cnum)s', cnum=cnum)}"/>
+              <input class="btn" type="submit" name="edit_comment" value="${_('Submit changes')}"
+                     title="${_('Submit changes to comment %(cnum)s', cnum=cnum)}"/>
+            </div>
+            <input class="btn-link" type="submit" name="cancel_comment" value="${_('Cancel')}"
+                   title="Cancel comment edit"/>
+          </div>
+        </form>
+        <py:choose>
+          <div py:when="str(cnum) == cnum_edit"
+               py:with="text = edited_comment if edited_comment is not None else change.comment"
+               class="comment searchable ticketdraft" style="${'display: none' if not text else None}" xml:space="preserve">
+            ${wiki_to_html(context, text, escape_newlines=preserve_newlines)}
+          </div>
+          <div py:when="show_history" class="comment searchable" xml:space="preserve">
+            ${wiki_to_html(context, change.comment_history[int(cversion)].comment, escape_newlines=preserve_newlines)}
+          </div>
+          <div py:when="change.comment" class="comment searchable" xml:space="preserve">
+            ${wiki_to_html(context, change.comment, escape_newlines=preserve_newlines)}
+          </div>
+        </py:choose>
+        <div py:if="not show_editor and len(change.comment_history) > 1" py:choose=""
+             class="trac-lastedit ${'trac-shade' if comment_version != max_version else None} lastmod">
+          <i18n:msg params="version, date, author" py:when="comment_version != max_version">
+              Version ${comment_version}, edited ${pretty_dateinfo(change.comment_history[comment_version].date)}
+              by ${authorinfo(change.comment_history[comment_version].author)}
+          </i18n:msg>
+          <i18n:msg params="date, author" py:otherwise="">
+              Last modified ${pretty_dateinfo(change.comment_history[comment_version].date)}
+              by ${authorinfo(change.comment_history[comment_version].author)}
+          </i18n:msg>
+          <py:if test="comment_version > 0">
+            (<a href="${href.ticket(ticket.id, cnum_hist=cnum, cversion=comment_version - 1)
+                       }#comment:${cnum}">previous</a>)
+          </py:if>
+          <py:if test="comment_version &lt; max_version">
+            (<a href="${href.ticket(ticket.id, cnum_hist=cnum, cversion=comment_version + 1)
+                       }#comment:${cnum}">next</a>)
+          </py:if>
+          <py:if test="comment_version > 0">
+            (<a href="${href.ticket(ticket.id, action='comment-diff', cnum=cnum,
+                                    version=comment_version)}">diff</a>)
+          </py:if>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul py:if="change.fields" class="changes${' creation-event' if not change.cnum else ''}">
+    <li py:for="field_name, field in sorted(change.fields.iteritems(), key=lambda item: item[1].label.lower())"
+        class="trac-field-${field_name}${'trac-conflict' if preview and field_name in conflicts else None} visible-desktop-hover">
+      <strong class="trac-field-${field_name}">${field.label}</strong>
+      <span>
+        <py:choose>
+          <py:when test="field_name == 'reported'">
+          </py:when>
+          <py:when test="field_name == 'attachment'"><i18n:msg params="name">
+            <a href="${href.attachment('ticket', ticket.id, field.new)}"><em>${field.new
+              }</em></a><a href="${href('raw-attachment', 'ticket', ticket.id, field.new)}"
+                           title="Download" class="trac-rawlink">&#8203;</a>
+            added
+          </i18n:msg></py:when>
+          <py:when test="'rendered' in field">${field.rendered}</py:when>
+          <py:when test="field.old and field.new"><i18n:msg params="old, new">
+            changed from <em>${field.old}</em> to <em>${field.new}</em>
+          </i18n:msg></py:when>
+          <py:when test="not field.old and field.new"><i18n:msg params="value">
+            set to <em>${field.new}</em>
+          </i18n:msg></py:when>
+          <py:otherwise><i18n:msg params="value">
+            <em>${field.old}</em> deleted
+          </i18n:msg></py:otherwise>
+        </py:choose>
+        <span class="${'shade-desktop' if change.cnum else ''}">
+        - by ${authorinfo(change.author)}<span py:if="'date' in change">, ${pretty_dateinfo(change.date)}</span>
+        </span>
+        <span py:if="field_name == 'attachment' and change.comment" class="attachment-desc searchable" xml:space="preserve">
+          ${wiki_to_html(context, change.comment, escape_newlines=preserve_newlines)}
+        </span>
+      </span>
+    </li>
+  </ul>
+</html>

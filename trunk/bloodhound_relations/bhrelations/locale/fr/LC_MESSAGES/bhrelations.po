@@ -1,0 +1,201 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+# Translations template for BloodhoundRelationsPlugin.
+# Copyright (C) 2014 ORGANIZATION
+# This file is distributed under the same license as the BloodhoundRelationsPlugin project.
+# Translators:
+# SaintGermain <saintger@gmail.com>, 2013
+msgid ""
+msgstr ""
+"Project-Id-Version: bloodhound\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2014-01-31 00:36+0100\n"
+"PO-Revision-Date: 2013-11-17 14:04+0000\n"
+"Last-Translator: SaintGermain <saintger@gmail.com>\n"
+"Language-Team: French (http://www.transifex.com/projects/p/bloodhound/language/fr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: bhrelations/api.py:198
+msgid ""
+"Validators used to validate all relations,\n"
+"regardless of their type."
+msgstr "Validateurs utilisés pour valider toutes les relations, indépendamment de leur type."
+
+#: bhrelations/api.py:208
+msgid "Relation type to be used with the resolve as duplicate workflow."
+msgstr "Type de relation à utiliser avec le flux de tâche de résolution en tant que doublon"
+
+#: bhrelations/web_ui.py:58
+msgid "No ticket id provided."
+msgstr "Aucun id de ticket n'est fourni."
+
+#: bhrelations/web_ui.py:63
+msgid "Invalid ticket id."
+msgstr "ID de ticket non valide."
+
+#: bhrelations/web_ui.py:92 bhrelations/web_ui.py:102
+msgid "Invalid ticket ID."
+msgstr "ID de ticket invalide."
+
+#: bhrelations/web_ui.py:104
+msgid "Unknown relation type."
+msgstr "Type de relation inconnu."
+
+#: bhrelations/web_ui.py:118
+#, python-format
+msgid ""
+"The relation has been added, but an error occurred while "
+"sendingnotifications: %(message)s"
+msgstr "La relation a été créée, mais une erreur est survenue lors de l'envoi des notifications : %(message)s"
+
+#: bhrelations/web_ui.py:123
+msgid "Invalid operation."
+msgstr "Opération invalide."
+
+#: bhrelations/web_ui.py:190
+#, python-format
+msgid "Not enough permissions to remove relation \"%s\""
+msgstr "Permissions insuffisantes pour enlever la relation \"%s\""
+
+#: bhrelations/templates/relation_notify_email.txt:1
+#, python-format
+msgid ""
+"{#\n"
+"  Licensed to the Apache Software Foundation (ASF) under one\n"
+"  or more contributor license agreements.  See the NOTICE file\n"
+"  distributed with this work for additional information\n"
+"  regarding copyright ownership.  The ASF licenses this file\n"
+"  to you under the Apache License, Version 2.0 (the\n"
+"  \"License\"); you may not use this file except in compliance\n"
+"  with the License.  You may obtain a copy of the License at\n"
+"\n"
+"   http://www.apache.org/licenses/LICENSE-2.0\n"
+"\n"
+"  Unless required by applicable law or agreed to in writing,\n"
+"  software distributed under the License is distributed on an\n"
+"  \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n"
+"  KIND, either express or implied.  See the License for the\n"
+"  specific language governing permissions and limitations\n"
+"  under the License.\n"
+"#}\\\n"
+"\n"
+"{% choose created %}\\\n"
+"    {% when True %}\\"
+msgstr ""
+
+#: bhrelations/templates/relation_notify_email.txt:21
+#, python-format
+msgid "Relation %(type)s %(source)s -> %(destination)s created."
+msgstr "Relation %(type)s %(source)s -> %(destination)s créée."
+
+#: bhrelations/templates/relation_notify_email.txt:21
+#, python-format
+msgid ""
+"{% end %}\\\n"
+"    {% otherwise %}"
+msgstr ""
+
+#: bhrelations/templates/relation_notify_email.txt:22
+#, python-format
+msgid "Relation %(type)s %(source)s -> %(destination)s deleted."
+msgstr "Relation %(type)s %(source)s -> %(destination)s supprimée."
+
+#: bhrelations/templates/relation_notify_email.txt:22
+#, python-format
+msgid ""
+"{% end %}\\\n"
+"{% end %}\n"
+"\n"
+"--"
+msgstr ""
+
+#: bhrelations/templates/relations_manage.html:33
+#, python-format
+msgid "Ticket relations for #%(ticket_id)s"
+msgstr "Relations de ticket pour #%(ticket_id)s"
+
+#: bhrelations/templates/relations_manage.html:37
+#, python-format
+msgid "Manage relations for ticket [1:#%(ticket_id)s]"
+msgstr "Gérer les relations pour le ticket [1:#%(ticket_id)s]"
+
+#: bhrelations/templates/relations_manage.html:42
+#, python-format
+msgid ""
+"[1:Oops !]\n"
+"            Could not create relation.\n"
+"            %(error)s"
+msgstr "[1:Oops !]\n            Ne peut créer la relation.\n            %(error)s"
+
+#: bhrelations/templates/relations_manage.html:51
+msgid "Add relation"
+msgstr "Ajouter relation"
+
+#: bhrelations/templates/relations_manage.html:55
+msgid "This ticket"
+msgstr "Ce ticket"
+
+#: bhrelations/templates/relations_manage.html:64
+msgid "Related ticket"
+msgstr "Ticket en relation"
+
+#: bhrelations/templates/relations_manage.html:71
+#: bhrelations/templates/relations_manage.html:94
+msgid "Comment"
+msgstr "Commentaire"
+
+#: bhrelations/templates/relations_manage.html:79
+msgid "Add"
+msgstr "Ajouter"
+
+#: bhrelations/templates/relations_manage.html:94
+msgid "Type"
+msgstr "Type"
+
+#: bhrelations/templates/relations_manage.html:94
+msgid "Product"
+msgstr "Produit"
+
+#: bhrelations/templates/relations_manage.html:94
+msgid "Ticket"
+msgstr "Ticket"
+
+#: bhrelations/templates/relations_manage.html:94
+msgid "Author"
+msgstr "Auteur"
+
+#: bhrelations/templates/relations_manage.html:94
+msgid "Changed"
+msgstr "Modifié"
+
+#: bhrelations/templates/relations_manage.html:118
+msgid "Remove selected relations"
+msgstr "Supprimer les relations sélectionnées"
+
+#: bhrelations/templates/relations_manage.html:122
+msgid "No defined relations for this ticket."
+msgstr "Aucune relation définie pour ce ticket."
+
+#: bhrelations/widgets/relations.py:62
+msgid "Related tickets"
+msgstr "Tickets en relation"

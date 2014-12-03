@@ -1,0 +1,30 @@
+
+#----------------
+# Outstanding tasks
+#-----------------
+
+[ticket/t1]
+id =
+summary = Configure multiple dashboard layouts
+description = Provide an extension point interface so that components
+    will be able to specify custom templates implementing different
+    dashboard layouts. Include the following by default
+    [[BR]]
+      - Two-columns
+      - One-column
+      - Banner + two columns layouts
+keywords = dashboard extension layout interface
+
+[ticket/t2]
+id =
+summary = Insert pagination links in tickets report widget
+description = Insert pagination links in tickets report widget
+keywords = dashboard widget ticket report pagination
+
+[ticket/t3]
+id = 
+summary = Insert altlikns at the bottom of widgets
+description = Provide a separate panel at the bottom of widgets 
+    so as to display alternate (e.g. download) links.
+keywords = dashboard download alternate navigation
+

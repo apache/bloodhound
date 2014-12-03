@@ -1,0 +1,219 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="acct_mgr">
+  <xi:include href="admin.html" />
+  <?python
+    if _dgettext:
+        dgettext = _dgettext ?>
+
+  <head>
+    <title>Account Details</title>
+  </head>
+
+  <body>
+    <div id="account_details">
+      <div id="header">
+        <h2>Review User Account Details</h2>
+        <py:choose>
+          <p py:when="name" i18n:msg="name, user">
+            for <b>${name}</b> (<em>${user}</em>)
+          </p>
+          <p py:otherwise="" i18n:msg="user">
+            for <b>${user}</b>
+          </p>
+        </py:choose>
+      </div>
+
+      <form method="get" action="${url}">
+      <div class="row">
+        <div class="span4">
+          <fieldset>
+            <legend>
+              <label><span class="label">Account Status</span></label>
+            </legend>
+            <py:choose>
+              <div id="user_store" py:when="user_store">
+                <p i18n:msg="order_num,store">
+                  Credentials for this user are stored in AuthStore number
+                  <em>${store_order_num}</em> (${user_store}).</p>
+                <py:choose>
+                  <p class="hint" py:when="ignore_auth_case" i18n:msg="bool">
+                    Username matching is set to <b>not case-sensitive</b>.</p>
+                  <p class="hint" py:otherwise="" i18n:msg="bool">
+                    Username matching is set to <em>case-sensitive</em>.</p>
+                </py:choose>
+              </div>
+              <div id="no_user_store" py:otherwise="">
+                <p i18n:msg="">No store provides credentials for this user,
+                  so the user currently can't be authenticated and
+                  access to this <b>account is effectively blocked</b>,
+                  while account details may still be available.</p>
+              </div>
+            </py:choose>
+    
+            <hr py:if="pretty_lock_time or (lock_count > 0)" />
+    
+            <div id="user_locked" py:if="user_locked is True">
+              <p>
+                <py:choose>
+                  <span py:when="release_time" i18n:msg="time">
+                    <img src="${href.chrome('/acct_mgr/time-locked.png')}" />
+                    This account has been locked until ${release_time}<br />
+                    and even valid login attempts are rejected meanwhile.</span>
+                  <span py:otherwise="">
+                    <img src="${href.chrome('/acct_mgr/locked.png')}" />
+                    This account has been locked permanently.</span>
+                </py:choose>
+                <span class="buttons">
+                  <input type="submit" name="release"
+                         alt="Release account lock"
+                         title="Release account lock"
+                         value="${dgettext('acct_mgr', 'Unlock')}" />
+                </span>
+              </p>
+            </div>
+    
+            <py:choose>
+              <div id="restricted" py:when="pretty_lock_time">
+                <py:choose>
+                  <div py:when="lock_count > 0">
+                    <i18n:choose numeral="lock_count" params="count"
+                                 py:if="not _dgettext">
+                      <p i18n:singular="">Lock condition has been met
+                        ${lock_count} time by now.</p>
+                      <p i18n:plural="">Lock condition has been met
+                        ${lock_count} times by now.</p>
+                    </i18n:choose>
+                    <!--! i18n:choose doesn't play nicely with Trac releases
+                      before Trac 0.12, so we provide an alternative message
+                      that is excluded from extraction and translation. -->
+                    <p py:if="_dgettext" xml:lang="en">Lock condition has been met
+                      ${lock_count} time(s) by now.</p>
+                    <p i18n:msg="time">
+                      Therefore after another failed login attempt authentication
+                      for this account would be retarded by ${pretty_lock_time}.
+                    </p>
+                  </div>
+    
+                  <div py:otherwise="">
+                    <p>Lock condition has not been met yet.</p>
+                  </div>
+                </py:choose>
+              </div>
+    
+              <div id="unrestricted" py:otherwise="">
+                <p py:if="not user_locked is True">
+                  No constraints are set for this account.</p>
+              </div>
+            </py:choose>
+          </fieldset>
+        </div>
+
+        <div id="verification" py:if="verification" class="span4">
+          <fieldset>
+            <legend>
+              <label><span class="label">Verification</span></label>
+            </legend>
+            <py:choose>
+              <div py:when="email">
+                <p i18n:msg="email">
+                  Current email address: &lt;${email}&gt;</p>
+                <py:choose>
+                  <p py:when="email_verified is True">
+                    This address has been verified successfully.</p>
+                  <p py:when="not email_verified is None" i18n:msg="token">
+                    Verification is pending
+                    (<span class="hint">token: '${email_verified}' </span>).</p>
+                  <p py:otherwise="">
+                    This address has not been verified yet.</p>
+                </py:choose>
+              </div>
+              <div py:otherwise="">
+                <p>No email address is registered for this account.</p>
+              </div>
+            </py:choose>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span4">
+          <fieldset>
+            <legend>
+              <label><span class="label">Access History</span></label>
+            </legend>
+            <py:choose>
+              <p py:when="last_visit" i18n:msg="time">
+                Last login: ${last_visit}</p>
+              <p py:otherwise="">The user has not logged in before.</p>
+            </py:choose>
+            <py:choose>
+              <div id="failed_attempts" py:when="attempts_count > 0">
+                <p i18n:msg="count">Total failed attempts: ${attempts_count}</p> 
+                <p class="tableheader">
+                  Table: Last failed login attempts log view</p>
+                <table class="listing" id="login_attempts">
+                  <thead>
+                    <tr>
+                      <th>IP address</th>
+                      <th>Log time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr py:for="attempt in attempts">
+                      <td>${attempt.ipnr}</td>
+                      <td>${attempt.time}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="buttons" py:if="not user_locked is True">
+                  <input type="submit" name="delete"
+                         alt="Delete login failure log"
+                         title="Delete login failure log"
+                         value="${dgettext('acct_mgr', 'Delete Log')}" />
+                </div>
+              </div>
+              <div id="no_failed_attempts" py:otherwise="">
+                <p>There is currently no failed login attempt logged.</p>
+              </div>
+            </py:choose>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <input type="hidden" name="user" value="${user}" />
+        <input type="submit" name="list" class="btn"
+               value="${dgettext('acct_mgr', 'Back to accounts')}" />
+        <input type="submit" name="update" class="btn"
+               value="${dgettext('acct_mgr', 'Update')}" />
+      </div>
+      </form>
+    </div>
+
+  </body>
+</html>

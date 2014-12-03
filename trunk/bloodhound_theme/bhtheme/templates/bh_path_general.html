@@ -1,0 +1,96 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+
+<div xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:py="http://genshi.edgewall.org/"
+     xmlns:i18n="http://genshi.edgewall.org/i18n"
+     i18n:domain="bhtheme"
+     xmlns:xi="http://www.w3.org/2001/XInclude"
+     py:strip=""
+     py:with="single_product = not product_list or len(product_list) &lt; 2">
+
+  <py:choose test="">
+    <py:when test="admin_product_list">
+      <li py:with="prefix,name,url = admin_current_product">
+        <div class="btn-group">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="$url"
+              title="Select product to administer">
+            $name
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li py:with="prefix,name,url = admin_product_list[0]">
+              <a href="${url}">${name}</a>
+            </li>
+            <li class="divider"></li>
+            <li py:for="prefix,name,url in admin_product_list[1:]">
+              <a href="${url}">${name}</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </py:when>
+
+    <py:otherwise>
+      <li py:if="bhdb">
+        <a title="View the dashboard" href="${href._global_href.dashboard()}">Dashboard</a>
+        <span class="divider">/</span>
+      </li>
+      <div class="btn-group" py:strip="single_product">
+        <button class="btn btn-mini" py:strip="single_product">
+          <a title="Current product" href="${href.products(req.perm.env.product.prefix)}"><span class="hidden-phone">${req.perm.env.product.name}</span><span class="visible-phone">${req.perm.env.product.prefix}</span></a>
+        </button>
+        <py:if test="not single_product">
+          <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li py:for="prefix,name,url in product_list">
+              <a title="Product $name ($prefix)" href="$url">$name ($prefix)</a>
+            </li>
+            <li class="divider"></li>
+            <li><a title="Back to products" href="${href.products()}">All products</a></li>
+          </ul>
+        </py:if>
+      </div>
+      <py:if test="milestone"
+       py:with="single_milestone = not milestone_list or len(milestone_list) &lt; 2">
+        <li><span class="divider">/</span></li>
+        <div class="btn-group" py:strip="single_milestone">
+          <button class="btn btn-mini" py:strip="single_milestone">
+            <a title="Current milestone" href="${href.milestone(milestone.name)}">${milestone.name}</a>
+          </button>
+          <py:if test="not single_milestone">
+            <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li py:for="name in milestone_list">
+                <a title="Milestone $name" href="${href.milestone(name)}">$name</a>
+              </li>
+              <li class="divider"></li>
+              <li><a title="Back to roadmap" href="${href.roadmap()}">Roadmap</a></li>
+            </ul>
+          </py:if>
+        </div>
+      </py:if>
+    </py:otherwise>
+  </py:choose>
+</div>

@@ -1,0 +1,87 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div id="content" class="product"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  i18n:domain="bhdashboard">
+  <div py:if="product_list" class="row" id="products">
+    <py:for each="i, p in zip(colseq, product_list)">
+      <div class="span4">
+        <div class="well product-well">
+          <h4 i18n:msg="name,prefix,owner">
+            &#9734; <a href="${p.href}">$p.name ($p.prefix)</a>
+            <py:if test="p.owner_link">
+              <br />
+              <small>owned by
+                <a href="$p.owner_link" py:if="p._data['owner']">${authorinfo(p._data['owner'])}</a>
+                <a href="$p.owner_link" py:if="not p._data['owner']">(nobody)</a>
+              </small>
+            </py:if>
+          </h4>
+  
+          <h5>Milestones</h5>
+          <py:choose test="">
+            <py:when test="p.milestones">
+              <ul class="subset">
+                <li py:for="m in p.milestones">
+                  <a href="$m.url">$m.name<py:if test="m.ticket_count is not None"> ($m.ticket_count)</py:if></a>
+                </li>
+              </ul>
+            </py:when>
+            <py:otherwise>
+              (No milestones for this product)
+            </py:otherwise>
+          </py:choose>
+  
+          <h5>Components</h5>
+          <py:choose test="">
+            <py:when test="p.components">
+              <ul class="subset">
+                <li py:for="c in p.components">
+                  <a href="$c.url">$c.name<py:if test="c.ticket_count is not None"> ($c.ticket_count)</py:if></a>
+                </li>
+              </ul>
+            </py:when>
+            <py:otherwise>
+              (No components for this product)
+            </py:otherwise>
+          </py:choose>
+  
+          <h5>Versions</h5>
+          <py:choose test="">
+            <py:when test="p.versions">
+              <ul class="subset">
+                <li py:for="v in p.versions">
+                  <a href="$v.url">$v.name<py:if test="v.ticket_count is not None"> ($v.ticket_count)</py:if></a>
+                </li>
+              </ul>
+            </py:when>
+            <py:otherwise>
+              (No versions for this product)
+            </py:otherwise>
+          </py:choose>
+        </div>
+      </div>
+      <div class="clearfix" py:if="i == 0" />
+    </py:for>
+  </div>
+</div>

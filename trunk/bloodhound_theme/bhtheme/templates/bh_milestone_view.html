@@ -1,0 +1,132 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <xi:include href="widget_macros.html" />
+
+  <py:def function="milestone_date">
+    <py:choose test="">
+      <py:when test="milestone.completed">
+        <i18n:msg params="duration, date">
+          Completed ${dateinfo(milestone.completed)} ago (${format_datetime(milestone.completed)})
+        </i18n:msg>
+      </py:when>
+      <py:when test="milestone.is_late">
+        <i18n:msg params="duration, date">
+          dateinfo(milestone.due)} late
+        </i18n:msg>
+      </py:when>
+      <py:when test="milestone.due">
+        <i18n:msg params="duration, date">
+          Due in ${dateinfo(milestone.due)}
+        </i18n:msg>
+      </py:when>
+      <py:otherwise>
+        <span class="label">Unscheduled</span>
+      </py:otherwise>
+    </py:choose>
+  </py:def>
+
+  <py:def function="milestone_heading()">
+    <h1>Milestone ${milestone.name}</h1>
+    <h6>${milestone_date()}</h6>
+  </py:def>
+
+  <py:def function="milestone_buttons()">
+    <div py:if="'MILESTONE_MODIFY' in perm(milestone.resource) or
+                'MILESTONE_DELETE' in perm(milestone.resource) or
+                attachments.can_create">
+      <form py:if="'MILESTONE_MODIFY' in perm(milestone.resource)"
+          method="get" action="" id="editmilestone"
+          style="display: inline-block">
+        <input type="hidden" name="action" value="edit" />
+        <div class="btn-group">
+          <button class="btn" name="editmilestonebutton" type="submit">
+            <i class="icon-edit"></i>
+            ${_('Edit')}
+          </button>
+        </div>
+      </form>
+      <form py:if="'MILESTONE_DELETE' in perm(milestone.resource)"
+          method="get" action="" id="deletemilestone"
+          style="display: inline-block">
+        <input type="hidden" name="action" value="delete" />
+        <div class="btn-group">
+          <button class="btn" name="deletemilestonebutton" type="submit">
+            <i class="icon-trash"></i>
+            ${_('Delete')}
+          </button>
+        </div>
+      </form>
+      <xi:include href="bh_attach_file_form.html" py:with="alist = attachments" />
+    </div>
+  </py:def>
+
+  <py:def function="milestone_widgets()">
+    <bh:widget urn="TicketQuery">
+      <bh:args>
+        <bh:arg name="max">10</bh:arg>
+        <bh:arg name="query">milestone=${milestone.name}&amp;status=!closed&amp;group=time&amp;col=id&amp;col=summary&amp;col=owner&amp;col=status&amp;col=priority&amp;order=priority&amp;groupdesc=1&amp;desc=1</bh:arg>
+        <bh:arg name="title">Active tickets in milestone</bh:arg>
+      </bh:args>
+    </bh:widget>
+    <bh:widget urn="TicketFieldValues">
+      <bh:args>
+        <bh:arg name="field">component</bh:arg>
+        <bh:arg name="verbose">true</bh:arg>
+        <bh:arg name="query">milestone=${milestone.name}&amp;group=component</bh:arg>
+      </bh:args>
+    </bh:widget>
+  </py:def>
+
+  <head>
+    <title>Milestone ${milestone.name}</title>
+    <link py:if="'MILESTONE_MODIFY' in perm(milestone.resource)" rel="alternate" type="application/x-wiki"
+          title="Edit this milestone" href="${href.milestone(milestone.name, action='edit')}" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="content" class="row milestone">
+      <xi:include href="bh_model_view.html"
+          py:with="heading = milestone_heading(); buttons = milestone_buttons();
+              progress_data = {'stats' : stats, 'interval_hrefs' : interval_hrefs};
+              description = wiki_to_html(context, milestone.description);
+              widgets = milestone_widgets();" />
+      <div class="span12">
+        <xi:include href="bh_list_of_attachments.html"
+                    py:with="alist = attachments; compact = True; foldable = True"/>
+      </div>
+    </div>
+  </body>
+
+</html>

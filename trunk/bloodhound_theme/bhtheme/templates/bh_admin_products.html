@@ -1,0 +1,182 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="bh_admin.html" />
+  <head>
+    <title>Products</title>
+  </head>
+
+  <body>
+    <h2>Manage Products</h2>
+
+    <py:def function="owner_field(default_owner='')">
+      <div class="control-group">
+        <label class="control-label" for="owner">Owner: </label>
+        <div class="controls" py:choose="">
+          <select class="input-large"
+              py:when="owners" size="1" id="owner" name="owner">
+            <option py:for="owner in owners"
+                    selected="${owner==default_owner or None}" value="$owner">$owner</option>
+            <option py:if="default_owner and default_owner not in owners"
+                    selected="selected" value="$default_owner">$default_owner</option>
+          </select>
+          <input py:otherwise="" class="input-large" type="text" id="owner"
+              name="owner" value="$default_owner" />
+        </div>
+      </div>
+    </py:def>
+
+    <py:choose test="view">
+      <form py:when="'detail'" class="well form-horizontal" id="modprod" 
+          method="post" action="">
+        <fieldset>
+          <legend>Modify Product:</legend>
+          <div class="control-group">
+            <label class="control-label" for="name">Prefix:</label>
+            <div class="controls">
+              <input type="text" id="prefix" name="prefix" value="$product.prefix" readonly="readonly" />
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="name">Name:</label>
+            <div class="controls">
+              <input type="text" id="name" name="name" value="$product.name"/>
+            </div>
+          </div>
+          ${owner_field(product.owner)}
+          <div class="control-group">
+            <fieldset class="iefix">
+              <label class="control-label" for="description" i18n:msg="">
+                Description:
+              </label>
+              <div class="controls">
+                <textarea id="description" name="description" 
+                    class="wikitext trac-resizable"
+                    placeholder="${_('Describe this product using WikiFormatting')}"
+                    rows="6" cols="60">$product.description</textarea>
+                <p class="help-block" i18n:msg="">
+                  <span class="label label-info">Tip</span> you may use
+                  <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+                  here
+                </p>
+              </div>
+            </fieldset>
+          </div>
+          <div class="control-group">
+            <input class="btn" type="submit" name="save"
+                value="${_('Save')}" />
+            <input class="btn-link" type="submit" name="cancel"
+                   value="${_('Cancel')}" />
+          </div>
+        </fieldset>
+      </form>
+
+      <py:otherwise>
+        <div class="row">
+          <div class="span9">
+            <form id="addproduct" class="well form-horizontal" method="post" action="">
+              <fieldset>
+                <legend>Add Product:</legend>
+                <div class="control-group">
+                  <label class="control-label" for="prefix">Prefix:</label>
+                  <div class="controls">
+                    <input type="text" id="prefix" class="input-large"
+                           name="prefix" value="$prefix" />
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="name">Name:</label>
+                  <div class="controls">
+                    <input type="text" id="name" class="input-large"
+                           name="name" value="$name" />
+                  </div>
+                </div>
+                ${owner_field(owner)}
+                <div class="control-group">
+                  <input type="submit" class="btn" name="add"
+                         value="${_('Add')}" />
+                </div>
+              </fieldset>
+            </form>
+          </div>
+          <div class="span9">
+            <py:choose>
+              <form py:when="products" id="product_table" method="post" action="">
+                <table id="prodlist"
+                    class="table table-striped table-condensed table-bordered">
+                  <thead>
+                    <tr><th class="sel"><i class="icon-check"></i></th>
+                      <th>Prefix</th><th class="full-x">Name</th><th>Owner</th><th>Default</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr py:for="prod in products">
+                      <td class="sel"><input type="checkbox" name="sel" value="$prod.prefix" /></td>
+                      <td class="prefix">
+                        <a href="${panel_href(prod.prefix)}">$prod.prefix</a>
+                      </td>
+                      <td class="name">
+                        <a href="${panel_href(prod.prefix)}">$prod.name</a>
+                      </td>
+                      <td class="owner">$prod.owner</td>
+                      <td class="default">
+                        <input type="radio" name="default" value="$prod.prefix"
+                               checked="${prod.prefix==default or None}" />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="control-group">
+                  <input class="btn" type="submit" name="remove"
+                         value="${_('Remove selected items')}" />
+                  <input class="btn" type="submit" name="apply"
+                         value="${_('Apply changes')}" />
+                  <input class="btn" type="submit" name="clear"
+                         value="${_('Clear default')}" />
+                </div>
+                <p class="help-block">
+                  <span class="label label-info">Note</span>
+                  You can remove all items from this list to completely hide this
+                  field from the user interface.
+                </p>
+              </form>
+    
+              <p py:otherwise="" class="help-block">
+                <span class="label label-info">Note</span>
+                As long as you don't add any items to the list, this field
+                will remain completely hidden from the user interface.
+              </p>
+            </py:choose>
+          </div>
+        </div>
+
+      </py:otherwise>
+    </py:choose>
+  </body>
+
+</html>
+

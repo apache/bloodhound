@@ -1,0 +1,127 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<html 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    i18n:domain="bhdashboard"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:bh="http://issues.apache.org/bloodhound/wiki/Ui/Dashboard"
+    py:strip="" >
+
+  <!--! Helper functions (py:def) -->
+
+  <div py:def="widget_container(w)" role="application" py:if="w.visible">
+    <py:if test="w.title">
+      <h3 style="display: inline;">${w.title}</h3>
+      <py:if test="w.ctxtnav">
+        <py:for each="itm in w.ctxtnav">
+          &nbsp;&nbsp;$itm
+        </py:for>
+      </py:if>
+      &nbsp;&nbsp;
+      <div class="btn-group" py:if="w.altlinks" style="display: inline-block;">
+        <a class="btn btn-mini dropdown-toggle" href="#" data-toggle="dropdown">
+          <i class="icon-download-alt"></i>Download<b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+          <li py:for="idx, link in enumerate(w.altlinks)"
+              class="${first_last(idx, w.altlinks)}">
+            <a rel="nofollow" href="${link.href}" class="link.class"
+                py:content="link.title"></a>
+          </li>
+        </ul>
+      </div>
+      <br/>
+    </py:if>
+    ${w.content}
+  </div>
+
+  <!--! Widget markup (py:match) -->
+
+  <div py:def="bhnotfound()" class="alert alert-error" i18n:msg="Error">
+    <span class="label label-important">Error</span>
+    Dashboard data is missing . 
+    Is <code>bhdashboard.web_ui.DashboardModule</code> component disabled?
+  </div>
+
+  <!--!
+  Sample layout tag 
+
+  <bh:layout urn="LayoutName">
+    <bh:schema>
+      JSON object describing positioning and ...
+    </bh:schema>
+    <bh:widgets>
+      <bh:w id="simple_widget" urn="WidgetName" altlinks="false">
+        <bh:args>
+          <bh:arg name="arg1">value1</bh:arg>
+          <bh:arg name="arg2">value2</bh:arg>
+        </bh:args>
+      </bh:w>
+      <bh:l id="nested_layout" urn="LayoutName">
+        <bh:schema>
+          JSON object describing positioning and ...
+        </bh:schema>
+        <bh:widgets>
+          ... Same as before ...
+        </bh:widgets>
+      </bh:l>
+    </bh:widgets>
+  </bh:layout>
+  -->
+  <py:match path="bh:layout">
+    <py:choose test="">
+      <py:when test="bhdb">
+        <!--! TODO: Implement nested XML tags (e.g. bh:w and bh:l) -->
+        ${bhdb.embed_layout(context, layout=unicode(select('@urn')), schema=unicode(select('bh:schema/text()')), widgets=unicode(select('bh:widgets/text()')))}
+      </py:when>
+      <py:otherwise>
+        ${bhnotfound()}
+      </py:otherwise>
+    </py:choose>
+  </py:match>
+  <!--! 
+  Sample widget tag
+
+  <bh:widget id="simple_widget" urn="WidgetName" altlinks="false">
+    <bh:args>
+      <bh:arg name="arg1">value1</bh:arg>
+      <bh:arg name="arg2">value2</bh:arg>
+    </bh:args>
+  </bh:widget>
+
+  -->
+  <py:match path="bh:widget">
+    <py:choose test="">
+      <py:when test="bhdb"
+               py:with="wnm = unicode(select('@urn'));
+                        args = select('bh:args/bh:arg') or {};
+                        altlinks = unicode(select('@altlinks')).lower() != 'false';
+                        ctxtnav = unicode(select('@ctxtnav')).lower() != 'false';
+                        hide_disabled = unicode(select('@hide_disabled')).lower() == 'true';">
+        ${widget_container(bhdb.expand_widget(context, dict(args=[wnm, None, {'args': args}], altlinks=altlinks, ctxtnav=ctxtnav, hide_disabled=hide_disabled)))}
+      </py:when>
+      <py:otherwise>
+        ${bhnotfound()}
+      </py:otherwise>
+    </py:choose>
+  </py:match>
+</html>

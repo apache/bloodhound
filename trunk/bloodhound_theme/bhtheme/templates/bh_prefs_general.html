@@ -1,0 +1,65 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="bh_prefs.html" />
+  <head>
+    <title>General</title>
+  </head>
+  <body>
+
+    <div class="control-group">
+      <label class="control-label" for="name">Full name:</label>
+      <div class="controls">
+        <input type="text" id="name" name="name" size="30"
+            placeholder="${_('Jack Pumpkinhead')}"
+            value="${settings.session.get('name')}" />
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="email">Email address:</label>
+      <div class="controls">
+        <input type="text" id="email" name="email" size="30"
+            placeholder="${_('jack@marvelous.land-of.oz')}"
+            value="${settings.session.get('email')}" />
+      </div>
+    </div>
+    <p py:choose="" class="help-block">
+      <span class="label label-info">Note</span>
+      <py:when test="req.authname == 'anonymous'">
+        This information is used to automatically populate some forms
+        on this site with your contact details.
+      </py:when>
+      <py:otherwise>
+        This information is used to associate your login name with your
+        email address and full name, which is used for email
+        notification and RSS feeds, for example.
+      </py:otherwise>
+    </p>
+
+  </body>
+</html>
+

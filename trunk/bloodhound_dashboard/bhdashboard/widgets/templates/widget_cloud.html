@@ -1,0 +1,110 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div id="content" class="${'well' if view == 'cloud' else None}"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  i18n:domain="bhdashboard"
+  py:with="_view = view if view in ('list', 'cloud', 'compact', 'table') else 'list'">
+
+  <py:def function="display_value(value)">
+    <py:choose test="value">
+      <py:when test="None">
+        <span class="label">empty</span>
+      </py:when>
+      <py:when test="''">
+        <span class="label">empty</span>
+      </py:when>
+      <py:otherwise>${value}</py:otherwise>
+    </py:choose>
+  </py:def>
+
+  <py:def function="qty_badge(value)">
+    <span class="badge ${'badge-inverse' if value == bounds.max else
+        'badge-info' if value &gt; bounds.min else None}"
+        style="${'vertical-align: text-top' if view == 'cloud' else None}">
+      $value
+    </span>
+  </py:def>
+
+  <h3 py:if="heading is not None and items" style="display: inline;">$heading</h3>
+  <py:if test="_view != view">
+    <xi:include href="widget_alert.html"
+        py:with="msglabel = 'Warning'; msgbody = 'Unknown view ' + view" />
+  </py:if>
+  <py:choose test="_view">
+    <py:when test="'cloud'">
+      <p style="font-size: medium; line-height: 150%;">
+        <py:for each="item in items"
+            py:with="_max = bounds.max + 1; _min = bounds.min" >
+          <py:if test="item[1] &gt; 0">
+            <a href="${item_link(item)}"
+                style="font-size: ${int(28 - (13 / (_max - _min)) * (_max - item[1] - 1) )}px">
+              ${display_value(item[0])}
+            </a>
+            <py:if test="verbose">${qty_badge(item[1])}</py:if>
+            &nbsp;&nbsp;
+          </py:if>
+        </py:for>
+      </p>
+    </py:when>
+    <py:when test="'list'">
+      <ul class="unstyled">
+        <li py:for="item in items" py:if="item[1] &gt; 0"
+            style="line-height: 20px">
+          <a href="${item_link(item)}">
+            <strong>${display_value(item[0])}</strong>
+          </a>
+          <py:if test="verbose">${qty_badge(item[1])}</py:if>
+        </li>
+      </ul>
+    </py:when>
+    <py:when test="'table'">
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th class="full-x">&nbsp;</th>
+            <th py:if="verbose">Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr py:for="item in items" py:if="item[1] &gt; 0">
+            <td>
+              <a href="${item_link(item)}">${display_value(item[0])}</a>
+            </td>
+            <td py:if="verbose">${qty_badge(item[1])}</td>
+          </tr>
+        </tbody>
+      </table>
+    </py:when>
+    <py:when test="'compact'">
+      <div class="span3" py:for="item in items" py:if="item[1] &gt; 0">
+        <a href="${item_link(item)}">
+          ${display_value(item[0])}
+        </a>
+        <py:if test="verbose">${qty_badge(item[1])}</py:if>
+      </div>
+    </py:when>
+    <py:otherwise>
+      <!--! TODO: Error message: Invalid widget view -->
+    </py:otherwise>
+  </py:choose>
+</div>

@@ -1,0 +1,52 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:strip="">
+
+  <py:for each="item in items">
+    <h3 id="${item.title.lower() + '-widget'}" class="doc-widget-title">${item.title}</h3>
+    <div class="doc-widget-message">
+      ${wiki_to_html(context, item.desc)}
+      <py:if test="item.sections">
+        <py:for each="section in item.sections">
+          <div><span class="label label-inverse">${section.title}</span></div>
+          <dl class="dl-horizontal">
+            <py:for each="subitem in section.entries">
+              <dt>${subitem.caption}</dt>
+              <dd>${wiki_to_html(context, subitem.summary)}
+                <p py:if="subitem.details">
+                  <py:for each="i, row in enumerate(subitem.details)">
+                    <py:if test="row[1]">
+                      <span class="text-success">${row[0]}</span> :
+                      <span class="muted">${row[1]}</span>
+                    </py:if>
+                  </py:for>
+                </p>
+              </dd>
+            </py:for>
+          </dl>
+        </py:for>
+      </py:if>
+    </div>
+  </py:for>
+</div>

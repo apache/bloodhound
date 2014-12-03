@@ -1,0 +1,78 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="acct_mgr">
+  <xi:include href="admin.html" />
+  <?python
+    if _dgettext is not None:
+        dgettext = _dgettext ?>
+  <head>
+    <title>Accounts: Notification Configuration</title>
+  </head>
+
+  <body>
+    <h2>Accounts: Notification Configuration</h2>
+
+    <form id="accountsconfig" class="mod" method="post">
+      <fieldset>
+        <legend>Account Notification</legend>
+        <p class="help-block">Set the following options in order to be
+          notified of account creation, password reset and account deletion.
+        </p>
+
+        <h3>Notification Actions</h3>
+        <p class="help-block" i18n:msg="">This is a list of actions which you
+          can enable or disable by <em>checking</em> the <em>checkboxes</em>.
+        </p>
+        <label>
+          <input type="checkbox" name="notify_actions" value="new"
+                 checked="${'new' in notify_actions or None}" />
+          Get notified of new account creation</label>
+        <label>
+          <input type="checkbox" name="notify_actions" value="change"
+                 checked="${'change' in notify_actions or None}" />
+          Get notified of password reset</label>
+        <label>
+          <input type="checkbox" name="notify_actions" value="delete"
+                 checked="${'delete' in notify_actions or None}" />
+          Get notified of account deletion</label>
+
+        <h3>Notification Recipient Addresses</h3>
+        <label for="notify_addresses">Space-separated list of email addresses
+          and/or usernames that get notified of the above actions:
+        </label>
+        <textarea id="notify_addresses" class="span4" rows="2"
+                  name="notify_addresses">
+${' '.join(notify_addresses)}
+        </textarea>
+      </fieldset>
+      <div class="buttons">
+        <input type="submit" name="save" class="btn"
+               value="${dgettext('acct_mgr', 'Save')}" />
+      </div>
+    </form>
+  </body>
+</html>

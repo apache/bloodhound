@@ -1,0 +1,169 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:with="modify_perm = 'WIKI_MODIFY' in perm(page.resource);
+               admin_perm = 'WIKI_ADMIN' in perm(page.resource);
+               is_not_latest = page.exists and page.version != latest_version">
+  <xi:include href="layout.html" />
+  <head>
+    <title py:if="title">$title</title>
+    <meta py:if="version or page.author == 'trac'" name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <link py:if="admin_perm or (not page.readonly and modify_perm)" rel="alternate" type="application/x-wiki"
+          href="${href.wiki(page.name, action='edit', version=page.version if is_not_latest else None)}"
+          title="${_('Revert page to this version') if is_not_latest else _('Edit this page')}"/>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="content" class="wiki row">
+
+      <py:if test="version">
+        <div class="span12">
+          <br />
+          <table id="info" summary="Revision info">
+            <tbody>
+              <tr><th scope="row" i18n:msg="version, author, date">
+                 Version $page.version (modified by ${authorinfo(page.author)}, ${pretty_dateinfo(page.time)})
+                 (<a href="${href.wiki(page.name, action='diff', version=page.version)}">diff</a>)
+              </th></tr>
+              <tr><td xml:space="preserve">
+                <div class="alert alert-success">
+                  ${wiki_to_html(context, page.comment or '--')}
+                </div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </py:if>
+
+      <div class="wikipage searchable span12" py:choose="" xml:space="preserve">
+        <py:when test="page.exists">
+          <?python
+            last_modification = (page.comment and
+                 _('Version %(version)s by %(author)s: %(comment)s',
+                   version=page.version, author=format_author(page.author), comment=page.comment) or
+                 _('Version %(version)s by %(author)s',
+                   version=page.version, author=format_author(page.author)))
+          ?>
+          <div py:if="not version" class="trac-modifiedby">
+            <span i18n:msg="reldate">
+              <a href="${href.wiki(page.name, action='diff', version=page.version)}"
+                 title="$last_modification">Last modified</a> ${pretty_dateinfo(page.time)}
+            </span>
+            <span class="trac-print" i18n:msg="date">Last modified on ${format_datetime(page.time)}</span>
+          </div>
+          <div id="wikipage" class="trac-content" py:content="wiki_to_html(context, text)" />
+        </py:when>
+        <py:otherwise>
+          <p i18n:msg="name">The page ${name_of(page.resource)} does not exist. You can create it here.</p>
+          <py:if test="higher">
+            <p>You could also create the same page higher in the hierarchy:</p>
+            <ul>
+              <li py:for="markup in higher">${markup}</li>
+            </ul>
+          </py:if>
+        </py:otherwise>
+      </div>
+
+      <div class="span12">
+        <xi:include href="bh_list_of_attachments.html"
+                  py:with="alist = attachments; compact = True; foldable = True"/>
+      </div>
+
+      <py:with vars="delete_perm = 'WIKI_DELETE' in perm(page.resource);
+                     rename_perm = 'WIKI_RENAME' in perm(page.resource)">
+        <div class="span12"
+            py:if="admin_perm or (not page.readonly and (modify_perm or delete_perm))">
+          <div class="btn-toolbar">
+            <form style="display:inline" method="get" action="${href.wiki(page.name)}" id="modifypage" py:if="modify_perm" >
+              <input type="hidden" name="action" value="edit" />
+              <input type="hidden" name="version" value="${page.version}"
+                  py:if="is_not_latest" />
+              <div class="btn-group">
+                <py:choose>
+                  <py:when test="is_not_latest">
+                    <button class="btn" type="submit" name="revert_version_button">${_('Revert to this version')}</button>
+                  </py:when>
+                  <py:when test="page.exists">
+                    <button class="btn" type="submit" name="edit_page_button" accesskey="e">${_('Edit this page')}</button>
+                  </py:when>
+                  <py:otherwise>
+                    <button class="btn" type="submit" name="create_page_button" accesskey="e">${_('Create this page')}</button>
+                    <div py:if="templates" id="template" style="display:inline">
+                      <label for="template">Using the template:</label>
+                      <select name="template">
+                        <option selected="${not default_template in templates or None}"
+                                value="">(blank page)</option>
+                        <option py:for="t in sorted(templates)" value="$t"
+                                selected="${t == default_template or None}">$t</option>
+                      </select>
+                    </div>
+                  </py:otherwise>
+                </py:choose>
+              </div>
+            </form>
+            <py:if test="page.exists">
+              <xi:include href="bh_attach_file_form.html" py:with="alist = attachments"/>
+            </py:if>
+            <form method="get" style="display:inline" action="${href.wiki(page.name)}" id="rename" py:if="page.exists and rename_perm">
+              <input type="hidden" name="action" value="rename" />
+              <div class="btn-group">
+                <button class="btn" type="submit" name="rename_page_button">${_('Rename page')}</button>
+              </div>
+            </form>
+            <form method="get" style="display:inline" action="${href.wiki(page.name)}" py:if="page.exists and delete_perm">
+              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="version" value="$page.version" />
+              <div id="delete" class="btn-group">
+                <py:if test="page.version == latest_version">
+                  <button class="btn btn-link" type="submit" name="delete_version">${_('Delete this version')}</button>
+                </py:if>
+                <button class="btn btn-link" type="submit" name="delete_page_button">${_('Delete page')}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </py:with>
+
+      <div class="wikipage searchable span12" py:if="not page.exists and related">
+        <p>The following pages have a name similar to this page, and may be related:</p>
+        <ul>
+          <li py:for="markup in related">${markup}</li>
+        </ul>
+      </div>
+
+    </div>
+  </body>
+</html>

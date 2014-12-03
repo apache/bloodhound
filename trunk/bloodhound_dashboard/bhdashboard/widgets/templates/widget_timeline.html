@@ -1,0 +1,70 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div id="content" class="timeline"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  i18n:domain="bhdashboard"
+  py:with="now = datetime.now(req.tz);
+           today = format_date(now);
+           yesterday = format_date(now - timedelta(days=1))"
+  py:choose="">
+
+  <table py:when="events"
+      py:for="day, events in groupby(events, key=lambda e: format_date(e.date))"
+      class="table activityfeed">
+    <thead>
+      <tr>
+        <th>
+          ${day}: ${day == today and _('Today') or day == yesterday and _('Yesterday') or None}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr py:for="event in events"
+        py:with="highlight = precision and precisedate and timedelta(0) &lt;= (event.date - precisedate) &lt; precision">
+        <td class="${classes(event.kind, highlight=highlight)}">
+          <dt i18n:msg="time,event,author">
+            <span class="time">${format_time(event.date, str('%H:%M'))}</span>: <a href="${event.render('url', context)}">${event.render('title', context)}</a>
+              <py:if test="event.author">by <span class="author">${format_author(event.author)}</span></py:if>
+          </dt>
+          <dd>
+            ${event.render('description', context)}
+          </dd>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <py:otherwise>
+    <py:def function="timeline_empty()">
+      No events reported 
+      <py:if test="context.resource.id">
+        for <em>${summary_of(context.resource)}</em>
+      </py:if>
+      in the last <em>$daysback</em> days since 
+      <span class="date">${format_date(fromdate)}</span>.
+      This may happen if system is not configured correctly. 
+      Please contact your administrator if you think this is the case.
+    </py:def>
+    <xi:include href="widget_alert.html" 
+        py:with="msglabel = 'Warning'; msgbody = timeline_empty()" />
+  </py:otherwise>
+</div>

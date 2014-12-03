@@ -1,0 +1,138 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="acct_mgr">
+  <xi:include href="admin.html" />
+  <?python
+    if _dgettext is not None:
+        dgettext = _dgettext ?>
+  <head>
+    <title>Accounts: Configuration</title>
+  </head>
+
+  <body>
+    <h2>Accounts: Configuration</h2>
+
+    <div class="notice system-message" py:if="result">
+      <xi:include href="widget_alert.html" 
+          py:with="msglabel = 'Message'; msgtype = 'info'; msgbody = result"/>
+    </div>
+    <form id="accountsconfig" class="mod form-horizontal" method="post">
+      <div class="row" py:for="section_pair in group(sections, 2)">
+        <div class="span4 ${'offset1' if i == 1 else None}" 
+            py:for="i, section in enumerate(section_pair)" py:if="section"
+            style="padding-top: 20px">
+          <fieldset>
+            <label>
+              <select name="${section.classname}" class="input-mini">
+                <option py:for="order in numstores" value="${order}"
+                  selected="${order == section.order or None}">
+                  ${order == 0 and '--' or order}
+                </option>
+              </select>
+              <span class="label label-inverse">$section.name</span>
+            </label>
+    
+            <div class="field control-group" py:for="option in section.options">
+              <label class="control-label" for="cgf-${section.name}-${option.name}">
+                <span class="label">$option.label</span>:
+              </label>
+              <div class="controls">
+                <input type="text" name="$option.name" value="$option.value"
+                       class="textwidget input-xlarge"
+                       id="cgf-${section.name}-${option.name}"/>
+                <p class="help-block" py:if="option.doc">$option.doc</p>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="span9"><hr/></div>
+      </div>
+
+      <div class="row">
+        <div class="span4">
+          <fieldset>
+            <legend>Password Refresh</legend>
+            <label class="checkbox">
+              <input type="checkbox" name="refresh_passwd" value="true"
+                     checked="${refresh_passwd and 'checked' or None}" />
+              Silently update password hashes on next successful login.</label>
+              <div class="buttons">
+                <input type="submit" name="restart" class="btn"
+                  value="${dgettext('acct_mgr', 'Restart')}" />
+              </div>
+          </fieldset>
+        </div>
+
+        <div class="offset1 span4">
+          <fieldset>
+            <legend>Persistent Sessions</legend>
+            <label class="checkbox">
+              <input type="checkbox" name="persistent_sessions" value="true"
+                     checked="${persistent_sessions and 'checked' or None}" />
+              Allow the user to be remembered across sessions without needing to
+              re-authenticate.
+            </label>
+            <p class="help-block" i18n:msg="">
+              <span class="label label-info">Details</span>
+              This is, user checks a "Remember Me"
+              <code>checkbox</code> and, next time he visits the site,
+              he'll be remembered and automatically authenticated.
+            </p>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span4">
+          <fieldset>
+            <legend>Password Reset</legend>
+            <label class="checkbox">
+              <input type="checkbox" name="force_passwd_change" value="true"
+                     checked="${force_passwd_change and 'checked' or None}" />
+              Force users to change passwords after a password reset.
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="offset1 span4">
+          <fieldset>
+            <legend>Verify email</legend>
+            <label class="checkbox">
+              <input type="checkbox" name="verify_email" value="true"
+                     checked="${verify_email and 'checked' or None}" />
+              Force users to verify their email addresses.</label>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="buttons row">
+        <input type="submit" name="save" class="btn"
+          value="${dgettext('acct_mgr', 'Save')}" />
+      </div>
+    </form>
+  </body>
+</html>

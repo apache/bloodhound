@@ -1,0 +1,3962 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+# Translations template for BloodhoundTheme.
+# Copyright (C) 2014 Apache Software Foundation
+# This file is distributed under the same license as the BloodhoundTheme project.
+# Translators:
+# SaintGermain <saintger@gmail.com>, 2013-2014
+msgid ""
+msgstr ""
+"Project-Id-Version: bloodhound\n"
+"Report-Msgid-Bugs-To: dev@bloodhound.apache.org\n"
+"POT-Creation-Date: 2014-07-06 22:10+0200\n"
+"PO-Revision-Date: 2014-07-06 20:11+0000\n"
+"Last-Translator: SaintGermain <saintger@gmail.com>\n"
+"Language-Team: French (http://www.transifex.com/projects/p/bloodhound/language/fr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: bhtheme/theme.py:161
+msgid ""
+"A short version of application name most commonly\n"
+"displayed in text, titles and labels"
+msgstr "Une version courte du nom de l'application généralement affichée dans les textes, titres et labels"
+
+#: bhtheme/theme.py:165
+msgid ""
+"This is full name with trade mark and\n"
+"everything, it is currently used in footers and about page only"
+msgstr "C'est le nom complet avec tout, y compris la marque, cela est actuellement seulement utilisé dans les pieds de page et la page d'à propos"
+
+#: bhtheme/theme.py:170
+msgid "Text to display before full application name in footers"
+msgstr "Texte à afficher avant le nom complet de l'application dans les pieds de page"
+
+#: bhtheme/theme.py:174
+msgid "Text to display after full application name in footers"
+msgstr "Texte à afficher après le nom complet de l'application dans les pieds de page"
+
+#: bhtheme/theme.py:178
+msgid "Text to use as the right aligned footer"
+msgstr "Texte à utiliser pour le pied de page aligné à droite"
+
+#: bhtheme/theme.py:356
+msgid "Previous"
+msgstr "Précédente"
+
+#: bhtheme/theme.py:356
+msgid "Next"
+msgstr "Suivante"
+
+#: bhtheme/theme.py:426
+msgid "(Global settings)"
+msgstr "(Paramètres généraux)"
+
+#: bhtheme/theme.py:483
+#, python-format
+msgid "Edit product %(prefix)s"
+msgstr "Modifier le produit %(prefix)s"
+
+#: bhtheme/theme.py:486 bhtheme/templates/bh_milestone_view.html:71
+#: bhtheme/templates/bh_product_view.html:60
+#: bhtheme/templates/bh_report_list.html:121
+#: bhtheme/templates/bh_ticket_change.html:71
+#: bhtheme/templates/bh_wiki_edit.html:192
+msgid "Edit"
+msgstr "Modifier"
+
+#: bhtheme/theme.py:490
+msgid "Home page"
+msgstr "Page d'accueil"
+
+#: bhtheme/theme.py:492
+msgid "Home"
+msgstr "Accueil"
+
+#: bhtheme/theme.py:494
+msgid "Tickets dashboard"
+msgstr "Tableau de bord des tickets"
+
+#: bhtheme/theme.py:496 bhtheme/templates/bh_admin_milestones.html:149
+msgid "Tickets"
+msgstr "Tickets"
+
+#: bhtheme/theme.py:498 bhtheme/theme.py:500
+msgid "Wiki"
+msgstr "Wiki"
+
+#: bhtheme/theme.py:504
+msgid "Browse"
+msgstr "Explorer"
+
+#: bhtheme/theme.py:519
+msgid "Source"
+msgstr "Source"
+
+#: bhtheme/theme.py:541
+msgid "Multiple selection fields displayed in create ticket menu"
+msgstr "Champs de sélection multiple affiché dans le menu de création de tickets"
+
+#: bhtheme/theme.py:601
+#, python-format
+msgid "Missing ticket field '%(field)s'."
+msgstr "Champs '%(field)s' manquant dans le ticket."
+
+#: bhtheme/templates/bh_about.html:30 bhtheme/templates/bh_about.html:48
+msgid "About"
+msgstr "À propos"
+
+#: bhtheme/templates/bh_about.html:51
+#, python-format
+msgid ""
+"Standing on the shoulders of\n"
+"        [1:Trac %(Trac)s],\n"
+"        [2:%(Bloodhound)s]\n"
+"        is a project hosted by the Apache Software Foundation's Incubator project.\n"
+"        [3:]\n"
+"        Currently, it has three key aims:\n"
+"        [4:Multiple Projects]\n"
+"        It will manage anything from your one pet project to dozens of \n"
+"        commercial or open source projects, and scale seamlessly in-between. \n"
+"        The built-in Wiki allows you to create proposals and store other \n"
+"        information.\n"
+"        [5:Easy to install]\n"
+"        It will provide an installation process for Windows, Linux and Mac OS X. \n"
+"        Everything you need to run Bloodhound with your favourite web server \n"
+"        and database will be provided.\n"
+"        [6:User-friendly design]\n"
+"        It provides a consistent experience throughout. \n"
+"        It will be obvious even to beginners how to carry out common tasks. \n"
+"        A dashboard will provide an overview of work assigned to you, \n"
+"        or watched by you."
+msgstr "Debout sur les épaules de [1:Trac %(Trac)s], [2:%(Bloodhound)s] est un projet hébergé par le projet d'Incubation de la Apache Software Foundation.\n[3:]\nActuellement, il a trois objectifs :\n[4:Projets multiples]\nIl sera capable de s'adapter facilement à n'importe quelle situation, de votre simple projet personnel à des douzaines de projets commercial ou libre.\nLe Wiki embarqué permet de créer des propositions et de stocker d'autres informations.\n[5:Facile à installer]\nIl fournira un processus d'installation pour Windows, Linux et Mac OS X.\nTout ce qui est nécessaire pour exécuter Bloodhound avec votre navigateur et base de données préférés seront fournis.\n[6:Conception facile à utiliser]\nUne expérience d'utilisation consistante sera fournie.\nIl sera évident aux débutant de savoir comment effectuer les tâches courantes.\nUn tableau de bord fournira une vue d'ensemble du travail qui vous est assigné, or surveillé par vous."
+
+#: bhtheme/templates/bh_about.html:74
+msgid "Trac: Integrated SCM & Project Management"
+msgstr "Trac : gestion de projet et de configuration logicielle intégrée"
+
+#: bhtheme/templates/bh_about.html:77
+msgid "About Trac"
+msgstr "À propos de Trac"
+
+#: bhtheme/templates/bh_about.html:78
+msgid ""
+"Trac is a web-based software project management and bug/issue\n"
+"        tracking system emphasizing ease of use and low ceremony.\n"
+"        It provides an integrated Wiki, an interface to version control\n"
+"        systems, and a number of convenient ways to stay on top of events\n"
+"        and changes within a project."
+msgstr "Trac est un système de gestion de projet logiciel et de suivi de\ndéfauts/incidents via le Web, qui met l'accent sur la facilité d'utilisation\net n'impose qu'un minimum de protocole. Il propose une interface pour le système\nde contrôle de source, un Wiki intégré, et un nombre intéressant d'options\npermettant d'être tenu informé des évènements et changements survenant\ndans le cadre d'un projet logiciel."
+
+#: bhtheme/templates/bh_about.html:84
+msgid ""
+"Trac is distributed under the modified BSD License.[1:]\n"
+"        The complete text of the license can be found\n"
+"        [2:online]\n"
+"        as well as in the [3:COPYING] file included in the distribution."
+msgstr "Trac est distribué selons les termes de la licence BSD modifiée.[1:]\n        Le texte entier de la licence peut être consulté        [2:en ligne]\n        aussi bien que dans le fichier [3:COPYING] inclus dans cette        distribution."
+
+#: bhtheme/templates/bh_about.html:89
+msgid "python powered"
+msgstr "animé par Python"
+
+#: bhtheme/templates/bh_about.html:92
+msgid ""
+"Please visit the Trac open source project:\n"
+"        [1:http://trac.edgewall.org/]"
+msgstr "Consultez le site Open Source du projet Trac :\n        [1:http://trac.edgewall.org/]"
+
+#: bhtheme/templates/bh_about.html:94
+msgid ""
+"Copyright © 2003-2013\n"
+"        [1:Edgewall Software]"
+msgstr "Copyright © 2003-2012\n        [1:Edgewall Software]"
+
+#: bhtheme/templates/bh_about.html:102
+msgid "System Information"
+msgstr "Informations système"
+
+#: bhtheme/templates/bh_about.html:104
+msgid "Package"
+msgstr "Paquetage"
+
+#: bhtheme/templates/bh_about.html:104 bhtheme/templates/bh_about.html:117
+#: bhtheme/templates/bh_history_view.html:52
+msgid "Version"
+msgstr "Version"
+
+#: bhtheme/templates/bh_about.html:115
+msgid "Installed Plugins"
+msgstr "Extensions installées"
+
+#: bhtheme/templates/bh_about.html:117 bhtheme/templates/bh_about.html:138
+#: bhtheme/templates/bh_admin_components.html:120
+#: bhtheme/templates/bh_admin_enums.html:76
+#: bhtheme/templates/bh_admin_milestones.html:148
+#: bhtheme/templates/bh_admin_products.html:133
+#: bhtheme/templates/bh_admin_repositories.html:181
+#: bhtheme/templates/bh_admin_versions.html:119
+#: bhtheme/templates/bh_user_table.html:40
+msgid "Name"
+msgstr "Nom"
+
+#: bhtheme/templates/bh_about.html:117
+msgid "Location"
+msgstr "Chemin"
+
+#: bhtheme/templates/bh_about.html:125
+msgid "N/A"
+msgstr "Non disponible"
+
+#: bhtheme/templates/bh_about.html:133
+#: bhtheme/templates/bh_admin_logging.html:46
+msgid "Configuration"
+msgstr "Configuration"
+
+#: bhtheme/templates/bh_about.html:137
+msgid "Section"
+msgstr "Section"
+
+#: bhtheme/templates/bh_about.html:139
+msgid "Value"
+msgstr "Valeur"
+
+#: bhtheme/templates/bh_account_details.html:34
+msgid "Account Details"
+msgstr "Détails du compte"
+
+#: bhtheme/templates/bh_account_details.html:40
+msgid "Review User Account Details"
+msgstr "Revue des détails du compte de l'utilisateur"
+
+#: bhtheme/templates/bh_account_details.html:42
+#, python-format
+msgid "for [1:%(name)s] ([2:%(user)s])"
+msgstr "pour [1:%(name)s] ([2:%(user)s])"
+
+#: bhtheme/templates/bh_account_details.html:45
+#, python-format
+msgid "for [1:%(user)s]"
+msgstr "pour [1:%(user)s]"
+
+#: bhtheme/templates/bh_account_details.html:56
+msgid "Account Status"
+msgstr "Statut du compte"
+
+#: bhtheme/templates/bh_account_details.html:60
+#, python-format
+msgid ""
+"Credentials for this user are stored in AuthStore number\n"
+"                  [1:%(order_num)s] (%(store)s)."
+msgstr "Les identifiants pour cet utilisateur sont stockés dans le nombre AuthStore [1:%(order_num)s] (%(store)s)."
+
+#: bhtheme/templates/bh_account_details.html:64
+msgid "Username matching is set to [1:not case-sensitive]."
+msgstr "Correspondance sur le nom d'utilisateur est défini à [1: non sensible à la casse]."
+
+#: bhtheme/templates/bh_account_details.html:66
+msgid "Username matching is set to [1:case-sensitive]."
+msgstr "Correspondance sur le nom d'utilisateur défini à [1: sensible à la casse]."
+
+#: bhtheme/templates/bh_account_details.html:71
+msgid ""
+"No store provides credentials for this user,\n"
+"                  so the user currently can't be authenticated and\n"
+"                  access to this [1:account is effectively blocked],\n"
+"                  while account details may still be available."
+msgstr "Aucun entrepôt ne fournit d'identifiants pour cet utilisateur, donc cet utilisateur ne peut être authentifié actuellement et l'accès à ce [1:compte est effectivement bloqué], tandis que les détails du compte peuvent encore être accessibles."
+
+#: bhtheme/templates/bh_account_details.html:83
+#, python-format
+msgid ""
+"[1:]\n"
+"                    This account has been locked until %(time)s[2:]\n"
+"                    and even valid login attempts are rejected meanwhile."
+msgstr "[1:]\nCe compte a été verrouillé jusqu'à %(time)s[2:]\net toutes les tentatives de connexion, même valides, seront rejetés jusqu'à cette date."
+
+#: bhtheme/templates/bh_account_details.html:88
+msgid "This account has been locked permanently."
+msgstr "Cet compte a été verrouillé de manière définitive."
+
+#: bhtheme/templates/bh_account_details.html:92
+msgid "Release account lock"
+msgstr "Déverrouiller le verrou sur le compte"
+
+#: bhtheme/templates/bh_account_details.html:92
+msgid "Unlock"
+msgstr "Déverrouiller"
+
+#: bhtheme/templates/bh_account_details.html:104
+#, python-format
+msgid ""
+"Lock condition has been met\n"
+"                        %(count)s time by now."
+msgid_plural ""
+"Lock condition has been met\n"
+"                        %(count)s times by now."
+msgstr[0] "La condition de verrouillage a été déclenchée\n%(count)s fois jusqu'ici."
+msgstr[1] "La condition de verrouillage a été déclenchée\n%(count)s fois jusqu'ici."
+
+#: bhtheme/templates/bh_account_details.html:116
+#, python-format
+msgid ""
+"Therefore after another failed login attempt authentication\n"
+"                      for this account would be retarded by %(time)s."
+msgstr "Par conséquent après une autre tentative infructueuse de connexion, l'authentification à ce compte sera retardé de %(time)s."
+
+#: bhtheme/templates/bh_account_details.html:123
+msgid "Lock condition has not been met yet."
+msgstr "La condition de verrouillage n'a pas encore été déclenchée."
+
+#: bhtheme/templates/bh_account_details.html:129
+msgid "No constraints are set for this account."
+msgstr "Aucune contrainte n'est donnée pour ce compte."
+
+#: bhtheme/templates/bh_account_details.html:139
+msgid "Verification"
+msgstr "Vérification"
+
+#: bhtheme/templates/bh_account_details.html:143
+#, python-format
+msgid "Current email address: <%(email)s>"
+msgstr "Adresse de courriel actuelle: <%(email)s>"
+
+#: bhtheme/templates/bh_account_details.html:146
+msgid "This address has been verified successfully."
+msgstr "Cette adresse a été vérifiée avec succès"
+
+#: bhtheme/templates/bh_account_details.html:148
+#, python-format
+msgid ""
+"Verification is pending\n"
+"                    ([1:token: '%(token)s' ])."
+msgstr "Vérification en cours\n([1:token: '%(token)s' ])."
+
+#: bhtheme/templates/bh_account_details.html:151
+msgid "This address has not been verified yet."
+msgstr "Cette adresse n'a pas encore été vérifiée."
+
+#: bhtheme/templates/bh_account_details.html:156
+msgid "No email address is registered for this account."
+msgstr "Aucune adresse n'a été enregistrée pour ce compte."
+
+#: bhtheme/templates/bh_account_details.html:167
+msgid "Access History"
+msgstr "Historique d'accès"
+
+#: bhtheme/templates/bh_account_details.html:170
+#, python-format
+msgid "Last login: %(time)s"
+msgstr "Dernière connexion : %(time)s"
+
+#: bhtheme/templates/bh_account_details.html:172
+msgid "The user has not logged in before."
+msgstr "Cet utilisateur ne s'est jamais connecté auparavant."
+
+#: bhtheme/templates/bh_account_details.html:176
+#, python-format
+msgid "Total failed attempts: %(count)s"
+msgstr "Nombre total de tentatives infructueuses : %(count)s"
+
+#: bhtheme/templates/bh_account_details.html:177
+msgid "Table: Last failed login attempts log view"
+msgstr "Table : vue du journal des dernières tentative infructueuses de connexion"
+
+#: bhtheme/templates/bh_account_details.html:182
+msgid "IP address"
+msgstr "Adresse IP"
+
+#: bhtheme/templates/bh_account_details.html:183
+msgid "Log time"
+msgstr "Date du journal"
+
+#: bhtheme/templates/bh_account_details.html:194
+msgid "Delete login failure log"
+msgstr "Effacer le journal des échecs de connexion"
+
+#: bhtheme/templates/bh_account_details.html:194
+msgid "Delete Log"
+msgstr "Effacer le journal"
+
+#: bhtheme/templates/bh_account_details.html:201
+msgid "There is currently no failed login attempt logged."
+msgstr "Il n'y a actuellement aucune tentative infructueuse de connexion dans le journal."
+
+#: bhtheme/templates/bh_account_details.html:210
+msgid "Back to accounts"
+msgstr "Retour aux comptes"
+
+#: bhtheme/templates/bh_account_details.html:212
+#: bhtheme/templates/bh_diff_options.html:71
+#: bhtheme/templates/bh_query.html:254
+#: bhtheme/templates/bh_report_view.html:99
+#: bhtheme/templates/bh_revisionlog.html:121
+#: bhtheme/templates/bh_roadmap.html:52 bhtheme/templates/bh_timeline.html:58
+msgid "Update"
+msgstr "Mise à jour"
+
+#: bhtheme/templates/bh_admin.html:31
+msgid "Select Module"
+msgstr "Sélectionner le module"
+
+#: bhtheme/templates/bh_admin.html:51
+msgid "Administration"
+msgstr "Administration"
+
+#: bhtheme/templates/bh_admin.html:84
+msgid "Administration:"
+msgstr "Administration :"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:33
+#: bhtheme/templates/bh_admin_accountsconfig.html:37
+msgid "Accounts: Configuration"
+msgstr "Comptes : configuration"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:78
+msgid "Password Refresh"
+msgstr "Renouvellement du mot de passe"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:81
+msgid "Silently update password hashes on next successful login."
+msgstr "Mis à jour silencieuse des hashes de mots de passe lors de la prochaine connexion réussi."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:84
+msgid "Restart"
+msgstr "Redémarrage"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:92
+msgid "Persistent Sessions"
+msgstr "Session persistante"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:95
+msgid ""
+"Allow the user to be remembered across sessions without needing to\n"
+"              re-authenticate."
+msgstr "Autorise l'utilisateur à être reconnu à travers les sessions sans avoir besoin de se re-authentifier."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:99
+msgid ""
+"[1:Details]\n"
+"              This is, user checks a \"Remember Me\"\n"
+"              [2:checkbox] and, next time he visits the site,\n"
+"              he'll be remembered and automatically authenticated."
+msgstr "[1:Détails]\nL'utilisateur coche la [2:case à cocher] « Se souvenir de moi » et, la prochaine fois qu'il visite le site, il sera automatiquement reconnu et authentifié."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:112
+msgid "Password Reset"
+msgstr "Réinitialisation du mot de passe"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:115
+msgid "Force users to change passwords after a password reset."
+msgstr "Force les utilisateurs à changer leur mot de passe après une réinitialisation du mot de passe."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:123
+msgid "Verify email"
+msgstr "Vérifier le courriel"
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:126
+msgid "Force users to verify their email addresses."
+msgstr "Forcer les utilisateurs à vérifier leur adresse de courriel."
+
+#: bhtheme/templates/bh_admin_accountsconfig.html:133
+#: bhtheme/templates/bh_admin_accountsnotification.html:73
+#: bhtheme/templates/bh_admin_components.html:84
+#: bhtheme/templates/bh_admin_enums.html:47
+#: bhtheme/templates/bh_admin_milestones.html:102
+#: bhtheme/templates/bh_admin_products.html:90
+#: bhtheme/templates/bh_admin_repositories.html:131
+#: bhtheme/templates/bh_admin_versions.html:78
+msgid "Save"
+msgstr "Enregistrer"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:33
+#: bhtheme/templates/bh_admin_accountsnotification.html:37
+msgid "Accounts: Notification Configuration"
+msgstr "Compte : configuration de la notification"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:41
+msgid "Account Notification"
+msgstr "Notification du compte"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:42
+msgid ""
+"Set the following options in order to be\n"
+"          notified of account creation, password reset and account deletion."
+msgstr "Définir les options suivantes afin d'être notifié des créations de compte, de réinitialisation de mot de passe et de suppression de compte."
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:46
+msgid "Notification Actions"
+msgstr "Actions de notification"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:47
+msgid ""
+"This is a list of actions which you\n"
+"          can enable or disable by [1:checking] the [2:checkboxes]."
+msgstr "Ceci est une liste d'actions que vous pouvez activer ou désactiver en [1:cochant] les [2:cases à cocher]."
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:52
+msgid "Get notified of new account creation"
+msgstr "Être notifié des création de nouveaux comptes"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:56
+msgid "Get notified of password reset"
+msgstr "Être notifié des réinitialisations de mots de passe"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:60
+msgid "Get notified of account deletion"
+msgstr "Être notifié des suppressions de compte"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:63
+msgid "Notification Recipient Addresses"
+msgstr "Adresses des destinataires des notifications"
+
+#: bhtheme/templates/bh_admin_accountsnotification.html:64
+msgid ""
+"Space-separated list of email addresses\n"
+"          and/or usernames that get notified of the above actions:"
+msgstr "Liste séparée par des espaces des adresses de courriels et/ou des noms d'utilisateur qui seront notifiés des actions ci-dessus :"
+
+#: bhtheme/templates/bh_admin_basics.html:30
+msgid "Basics"
+msgstr "Base"
+
+#: bhtheme/templates/bh_admin_basics.html:34
+msgid "Basic Settings"
+msgstr "Réglages de base"
+
+#: bhtheme/templates/bh_admin_basics.html:38
+msgid "Project"
+msgstr "Projet"
+
+#: bhtheme/templates/bh_admin_basics.html:40
+#: bhtheme/templates/bh_admin_components.html:59
+#: bhtheme/templates/bh_admin_components.html:99
+#: bhtheme/templates/bh_admin_enums.html:41
+#: bhtheme/templates/bh_admin_enums.html:63
+#: bhtheme/templates/bh_admin_milestones.html:49
+#: bhtheme/templates/bh_admin_milestones.html:118
+#: bhtheme/templates/bh_admin_products.html:65
+#: bhtheme/templates/bh_admin_products.html:112
+#: bhtheme/templates/bh_admin_repositories.html:79
+#: bhtheme/templates/bh_admin_repositories.html:146
+#: bhtheme/templates/bh_admin_repositories.html:165
+#: bhtheme/templates/bh_admin_versions.html:47
+#: bhtheme/templates/bh_admin_versions.html:93
+#: bhtheme/templates/bh_product_edit.html:56
+#: bhtheme/templates/bh_register.html:135
+msgid "Name:"
+msgstr "Nom :"
+
+#: bhtheme/templates/bh_admin_basics.html:46
+#: bhtheme/templates/bh_admin_repositories.html:99
+msgid "URL:"
+msgstr "URL :"
+
+#: bhtheme/templates/bh_admin_basics.html:52
+#: bhtheme/templates/bh_admin_components.html:67
+#: bhtheme/templates/bh_admin_milestones.html:88
+#: bhtheme/templates/bh_admin_products.html:73
+#: bhtheme/templates/bh_admin_repositories.html:116
+#: bhtheme/templates/bh_admin_versions.html:62
+#: bhtheme/templates/bh_product_edit.html:63
+#: bhtheme/templates/bh_report_edit.html:51
+#: bhtheme/templates/bh_ticket.html:557
+msgid "Description:"
+msgstr "Description :"
+
+#: bhtheme/templates/bh_admin_basics.html:59
+msgid "Default timezone:"
+msgstr "Fuseau horaire par défaut :"
+
+#: bhtheme/templates/bh_admin_basics.html:62
+msgid "Server's local time zone"
+msgstr "Fuseau horaire du serveur"
+
+#: bhtheme/templates/bh_admin_basics.html:66
+msgid ""
+"[1:Note]\n"
+"              Install [2:pytz] for a complete list of timezones."
+msgstr "[1:Note]\n              Installer [2:pytz] pour une liste complète des fuseaux horaires."
+
+#: bhtheme/templates/bh_admin_basics.html:73
+msgid "Default language:"
+msgstr "Langue par défaut :"
+
+#: bhtheme/templates/bh_admin_basics.html:76
+#: bhtheme/templates/bh_admin_basics.html:86
+msgid "Browser's language"
+msgstr "Langue du navigateur"
+
+#: bhtheme/templates/bh_admin_basics.html:83
+msgid "Default date format:"
+msgstr "Format de date par défaut :"
+
+#: bhtheme/templates/bh_admin_basics.html:88
+#: bhtheme/templates/bh_prefs_datetime.html:90
+msgid "ISO 8601 format"
+msgstr "Format ISO 8601"
+
+#: bhtheme/templates/bh_admin_basics.html:94
+#: bhtheme/templates/bh_admin_components.html:140
+#: bhtheme/templates/bh_admin_enums.html:101
+#: bhtheme/templates/bh_admin_logging.html:80
+#: bhtheme/templates/bh_admin_milestones.html:175
+#: bhtheme/templates/bh_admin_plugins.html:170
+#: bhtheme/templates/bh_admin_products.html:156
+#: bhtheme/templates/bh_admin_versions.html:138
+msgid "Apply changes"
+msgstr "Enregistrer les changements"
+
+#: bhtheme/templates/bh_admin_components.html:30
+#: bhtheme/templates/bh_product_view.html:111
+msgid "Components"
+msgstr "Composants"
+
+#: bhtheme/templates/bh_admin_components.html:34
+msgid "Manage Components"
+msgstr "Gestion des composants"
+
+#: bhtheme/templates/bh_admin_components.html:38
+#: bhtheme/templates/bh_admin_products.html:38
+msgid "Owner:"
+msgstr "Propriétaire :"
+
+#: bhtheme/templates/bh_admin_components.html:57
+msgid "Modify Component:"
+msgstr "Modifier le composant :"
+
+#: bhtheme/templates/bh_admin_components.html:71
+msgid "Describe this component using WikiFormatting"
+msgstr "Décrivez ce composant en utilisant le WikiFormatting"
+
+#: bhtheme/templates/bh_admin_components.html:75
+#: bhtheme/templates/bh_admin_products.html:81
+msgid ""
+"[1:Tip] you may use\n"
+"                  [2:WikiFormatting]\n"
+"                  here"
+msgstr "[1:Tip] L'utilisation du\n                [2:WikiFormatting]\n                est possible ici."
+
+#: bhtheme/templates/bh_admin_components.html:86
+#: bhtheme/templates/bh_admin_enums.html:49
+#: bhtheme/templates/bh_admin_milestones.html:104
+#: bhtheme/templates/bh_admin_products.html:92
+#: bhtheme/templates/bh_admin_repositories.html:133
+#: bhtheme/templates/bh_admin_versions.html:80
+#: bhtheme/templates/bh_attachment.html:87
+#: bhtheme/templates/bh_attachment.html:108
+#: bhtheme/templates/bh_milestone_delete.html:66
+#: bhtheme/templates/bh_milestone_edit.html:151
+#: bhtheme/templates/bh_product_edit.html:79
+#: bhtheme/templates/bh_report_delete.html:44
+#: bhtheme/templates/bh_report_edit.html:82
+#: bhtheme/templates/bh_ticket.html:366 bhtheme/templates/bh_ticket.html:422
+#: bhtheme/templates/bh_ticket_change.html:98
+#: bhtheme/templates/bh_ticket_delete.html:61
+#: bhtheme/templates/bh_ticket_delete.html:86
+#: bhtheme/templates/bh_wiki_delete.html:124
+#: bhtheme/templates/bh_wiki_edit_form.html:102
+#: bhtheme/templates/bh_wiki_rename.html:55
+#: bhtheme/templates/bloodhound_theme.html:189
+#: bhtheme/templates/bloodhound_theme.html:342
+msgid "Cancel"
+msgstr "Annuler"
+
+#: bhtheme/templates/bh_admin_components.html:97
+msgid "Add Component:"
+msgstr "Ajouter un composant :"
+
+#: bhtheme/templates/bh_admin_components.html:106
+#: bhtheme/templates/bh_admin_enums.html:61
+#: bhtheme/templates/bh_admin_milestones.html:133
+#: bhtheme/templates/bh_admin_perms.html:58
+#: bhtheme/templates/bh_admin_perms.html:87
+#: bhtheme/templates/bh_admin_products.html:120
+#: bhtheme/templates/bh_admin_repositories.html:155
+#: bhtheme/templates/bh_admin_repositories.html:171
+#: bhtheme/templates/bh_admin_versions.html:107
+msgid "Add"
+msgstr "Ajouter"
+
+#: bhtheme/templates/bh_admin_components.html:120
+#: bhtheme/templates/bh_admin_products.html:133
+msgid "Owner"
+msgstr "Propriétaire"
+
+#: bhtheme/templates/bh_admin_components.html:120
+#: bhtheme/templates/bh_admin_enums.html:76
+#: bhtheme/templates/bh_admin_milestones.html:149
+#: bhtheme/templates/bh_admin_products.html:133
+#: bhtheme/templates/bh_admin_repositories.html:46
+#: bhtheme/templates/bh_admin_versions.html:120
+msgid "Default"
+msgstr "Défaut"
+
+#: bhtheme/templates/bh_admin_components.html:138
+#: bhtheme/templates/bh_admin_enums.html:99
+#: bhtheme/templates/bh_admin_milestones.html:173
+#: bhtheme/templates/bh_admin_perms.html:160
+#: bhtheme/templates/bh_admin_products.html:154
+#: bhtheme/templates/bh_admin_repositories.html:203
+#: bhtheme/templates/bh_admin_versions.html:136
+msgid "Remove selected items"
+msgstr "Supprimer les éléments sélectionnés"
+
+#: bhtheme/templates/bh_admin_components.html:144
+#: bhtheme/templates/bh_admin_components.html:150
+#: bhtheme/templates/bh_admin_enums.html:111
+#: bhtheme/templates/bh_admin_enums.html:118
+#: bhtheme/templates/bh_admin_milestones.html:179
+#: bhtheme/templates/bh_admin_milestones.html:185
+#: bhtheme/templates/bh_admin_perms.html:62
+#: bhtheme/templates/bh_admin_perms.html:91
+#: bhtheme/templates/bh_admin_products.html:162
+#: bhtheme/templates/bh_admin_products.html:169
+#: bhtheme/templates/bh_admin_versions.html:142
+#: bhtheme/templates/bh_admin_versions.html:149
+#: bhtheme/templates/bh_diff_form.html:80
+#: bhtheme/templates/bh_prefs_datetime.html:94
+#: bhtheme/templates/bh_prefs_datetime.html:114
+#: bhtheme/templates/bh_prefs_general.html:51
+msgid "Note"
+msgstr "Note"
+
+#: bhtheme/templates/bh_admin_components.html:144
+#: bhtheme/templates/bh_admin_enums.html:111
+#: bhtheme/templates/bh_admin_milestones.html:179
+#: bhtheme/templates/bh_admin_products.html:162
+#: bhtheme/templates/bh_admin_versions.html:142
+msgid ""
+"You can remove all items from this list to completely hide this\n"
+"                  field from the user interface."
+msgstr "La suppression de l'intégralité des éléments de cette liste permet de\n              masquer ce champ dans l'interface utilisateur."
+
+#: bhtheme/templates/bh_admin_components.html:150
+#: bhtheme/templates/bh_admin_enums.html:118
+#: bhtheme/templates/bh_admin_milestones.html:185
+#: bhtheme/templates/bh_admin_products.html:169
+#: bhtheme/templates/bh_admin_versions.html:149
+msgid ""
+"As long as you don't add any items to the list, this field\n"
+"                will remain completely hidden from the user interface."
+msgstr "Tant qu'aucun élément n'est ajouté à cette liste, ce champ ne sera pas\n            visible dans l'interface utilisateur."
+
+#: bhtheme/templates/bh_admin_enums.html:34
+#, python-format
+msgid "Manage %(label_plural)s"
+msgstr "Gestion des %(label_plural)s"
+
+#: bhtheme/templates/bh_admin_enums.html:39
+#, python-format
+msgid "Modify %(label_singular)s:"
+msgstr "Modifier %(label_singular)s :"
+
+#: bhtheme/templates/bh_admin_enums.html:60
+#, python-format
+msgid "Add %(label_singular)s:"
+msgstr "Ajouter %(label_singular)s :"
+
+#: bhtheme/templates/bh_admin_enums.html:76
+msgid "Order"
+msgstr "Ordre"
+
+#: bhtheme/templates/bh_admin_enums.html:105
+msgid ""
+"[1:Note]\n"
+"                  The order of priorities determines the\n"
+"                  coloring of entries in the ticket queries and reports."
+msgstr "[1:Note ] L'ordre des priorités détermine la couleur des lignes\n              dans les résultats des requêtes personnalisées              et des rapports."
+
+#: bhtheme/templates/bh_admin_logging.html:30
+#: bhtheme/templates/bh_admin_logging.html:42
+msgid "Logging"
+msgstr "Journal"
+
+#: bhtheme/templates/bh_admin_logging.html:48
+#: bhtheme/templates/bh_admin_repositories.html:38
+msgid "Type:"
+msgstr "Type :"
+
+#: bhtheme/templates/bh_admin_logging.html:58
+msgid "Log level:"
+msgstr "Niveau du journal :"
+
+#: bhtheme/templates/bh_admin_logging.html:67
+msgid "Log file:"
+msgstr "Fichier du journal :"
+
+#: bhtheme/templates/bh_admin_logging.html:71
+#, python-format
+msgid ""
+"[1:Note] If you specify a\n"
+"              relative path, the log file will be stored inside the\n"
+"              [2:log] directory of the project environment\n"
+"              ([3:%(dir)s])."
+msgstr "[1:Note] Si le chemin est relatif, le fichier du journal sera créé dans le\n            sous-répertoire [2:log] du projet ([3:%(dir)s])."
+
+#: bhtheme/templates/bh_admin_milestones.html:30
+#: bhtheme/templates/bh_product_view.html:103
+msgid "Milestones"
+msgstr "Jalons"
+
+#: bhtheme/templates/bh_admin_milestones.html:40
+msgid "Manage Milestones"
+msgstr "Gestion des jalons"
+
+#: bhtheme/templates/bh_admin_milestones.html:47
+msgid "Modify Milestone:"
+msgstr "Modifier le jalon :"
+
+#: bhtheme/templates/bh_admin_milestones.html:56
+#: bhtheme/templates/bh_admin_milestones.html:124
+#: bhtheme/templates/bh_milestone_edit.html:100
+msgid "Due:"
+msgstr "Date d'échéance :"
+
+#: bhtheme/templates/bh_admin_milestones.html:58
+#: bhtheme/templates/bh_admin_milestones.html:71
+#: bhtheme/templates/bh_admin_milestones.html:126
+#: bhtheme/templates/bh_admin_versions.html:55
+#: bhtheme/templates/bh_milestone_edit.html:104
+#: bhtheme/templates/bh_milestone_edit.html:120
+#, python-format
+msgid "Format: %(datehint)s"
+msgstr "Format : %(datehint)s"
+
+#: bhtheme/templates/bh_admin_milestones.html:67
+#: bhtheme/templates/bh_milestone_edit.html:116
+msgid "Completed:"
+msgstr "Atteint le :"
+
+#: bhtheme/templates/bh_admin_milestones.html:90
+#: bhtheme/templates/bh_milestone_edit.html:84
+msgid "Describe this milestone using WikiFormatting"
+msgstr "Décrivez ce jalon en utilisant le WikiFormatting"
+
+#: bhtheme/templates/bh_admin_milestones.html:93
+msgid ""
+"[1:Tip]\n"
+"                  you may use\n"
+"                  [2:WikiFormatting] here"
+msgstr "[1:Tip]\nL'utilisation du\n                          [1:WikiFormatting]\n                          est possible ici."
+
+#: bhtheme/templates/bh_admin_milestones.html:116
+msgid "Add Milestone:"
+msgstr "Créér un jalon :"
+
+#: bhtheme/templates/bh_admin_milestones.html:149
+msgid "Due"
+msgstr "Date limite"
+
+#: bhtheme/templates/bh_admin_milestones.html:149
+msgid "Completed"
+msgstr "Atteint le"
+
+#: bhtheme/templates/bh_admin_perms.html:31
+#: bhtheme/templates/bh_admin_perms.html:100
+msgid "Permissions"
+msgstr "Permissions"
+
+#: bhtheme/templates/bh_admin_perms.html:35
+msgid "Manage Permissions and Groups"
+msgstr "Gestion des permissions et groupes"
+
+#: bhtheme/templates/bh_admin_perms.html:41
+msgid "Grant Permission:"
+msgstr "Attribuer la permission :"
+
+#: bhtheme/templates/bh_admin_perms.html:43
+#: bhtheme/templates/bh_admin_perms.html:73
+msgid "Subject:"
+msgstr "Sujet :"
+
+#: bhtheme/templates/bh_admin_perms.html:50
+msgid "Action:"
+msgstr "Actions :"
+
+#: bhtheme/templates/bh_admin_perms.html:62
+msgid ""
+"Grant permission\n"
+"              for an action to a subject, which can be either a user\n"
+"              or a group."
+msgstr "Donne les droits d'effectuer une action à un sujet, lequel peut être un\n            utilisateur ou un groupe."
+
+#: bhtheme/templates/bh_admin_perms.html:71
+msgid "Add to Group:"
+msgstr "Ajout à un groupe : "
+
+#: bhtheme/templates/bh_admin_perms.html:80
+msgid "Group:"
+msgstr "Groupe :"
+
+#: bhtheme/templates/bh_admin_perms.html:91
+msgid ""
+"Add a user or group\n"
+"              to an existing permission group."
+msgstr "Ajoute un utilisateur ou un groupe à un groupe de permission existant."
+
+#: bhtheme/templates/bh_admin_perms.html:104
+#: bhtheme/templates/bh_admin_perms.html:133
+msgid "Subject"
+msgstr "Sujet"
+
+#: bhtheme/templates/bh_admin_perms.html:104
+#: bhtheme/templates/bh_admin_perms.html:133
+#: bhtheme/templates/bh_batch_modify.html:61
+#: bhtheme/templates/bh_ticket.html:635
+msgid "Action"
+msgstr "Action"
+
+#: bhtheme/templates/bh_admin_perms.html:121
+msgid "Action is no longer defined"
+msgstr "L'action n'est plus définie"
+
+#: bhtheme/templates/bh_admin_perms.html:130
+msgid "Group Membership"
+msgstr "Appartenance aux groupes"
+
+#: bhtheme/templates/bh_admin_perms.html:155
+msgid "No group memberships"
+msgstr "Aucun groupe n'est défini"
+
+#: bhtheme/templates/bh_admin_perms.html:165
+msgid ""
+"[1:Important] Note that\n"
+"          [2:Subject] or [3:Group] names can't be all upper-case,\n"
+"          as that is reserved for permission names."
+msgstr "[1:Important] Notez que pour un [2:Sujet] ou [3:Groupe] les noms ne peuvent pas êtres entièrement en majuscules\n      car il sont réservés aux noms de permissions."
+
+#: bhtheme/templates/bh_admin_plugins.html:30
+msgid "Plugins"
+msgstr "Extensions"
+
+#: bhtheme/templates/bh_admin_plugins.html:61
+msgid "Manage Plugins"
+msgstr "Gestion des extensions"
+
+#: bhtheme/templates/bh_admin_plugins.html:73
+msgid "Install Plugin:"
+msgstr "Ajouter une extension :"
+
+#: bhtheme/templates/bh_admin_plugins.html:74
+#: bhtheme/templates/bh_changeset.html:190
+msgid "File:"
+msgid_plural "Files:"
+msgstr[0] "Fichier :"
+msgstr[1] "Fichiers :"
+
+#: bhtheme/templates/bh_admin_plugins.html:77
+msgid "Install"
+msgstr "Installer"
+
+#: bhtheme/templates/bh_admin_plugins.html:79
+msgid "Upload a plugin packaged as Python egg."
+msgstr "Envoi d'une extension au format Python egg."
+
+#: bhtheme/templates/bh_admin_plugins.html:106
+#: bhtheme/templates/bh_changeset.html:162
+#: bhtheme/templates/bh_diff_view.html:62
+msgid "Author:"
+msgstr "Auteur :"
+
+#: bhtheme/templates/bh_admin_plugins.html:115
+msgid "Home page:"
+msgstr "Page d'accueil :"
+
+#: bhtheme/templates/bh_admin_plugins.html:122
+msgid "License:"
+msgstr "Licence :"
+
+#: bhtheme/templates/bh_admin_plugins.html:130
+msgid "Component"
+msgstr "Composant"
+
+#: bhtheme/templates/bh_admin_plugins.html:131
+msgid "Enabled"
+msgstr "Activé"
+
+#: bhtheme/templates/bh_admin_products.html:30
+#: bhtheme/templates/bh_product_list.html:30
+#: bhtheme/templates/bh_product_list.html:36
+msgid "Products"
+msgstr "Produits"
+
+#: bhtheme/templates/bh_admin_products.html:34
+msgid "Manage Products"
+msgstr "Gérer les Produits"
+
+#: bhtheme/templates/bh_admin_products.html:57
+msgid "Modify Product:"
+msgstr "Modifier le Produit :"
+
+#: bhtheme/templates/bh_admin_products.html:59
+#: bhtheme/templates/bh_admin_products.html:105
+#: bhtheme/templates/bh_product_edit.html:50
+msgid "Prefix:"
+msgstr "Préfixe :"
+
+#: bhtheme/templates/bh_admin_products.html:77
+msgid "Describe this product using WikiFormatting"
+msgstr "Décrivez ce produit en utilisant le WikiFormatting"
+
+#: bhtheme/templates/bh_admin_products.html:103
+msgid "Add Product:"
+msgstr "Ajouter Produit :"
+
+#: bhtheme/templates/bh_admin_products.html:133
+msgid "Prefix"
+msgstr "Préfixe"
+
+#: bhtheme/templates/bh_admin_products.html:158
+msgid "Clear default"
+msgstr "Effacer la valeur par défaut"
+
+#: bhtheme/templates/bh_admin_repositories.html:30
+msgid "Repositories"
+msgstr "Dépôts"
+
+#: bhtheme/templates/bh_admin_repositories.html:34
+msgid "Manage Repositories"
+msgstr "Gestion des dépôts"
+
+#: bhtheme/templates/bh_admin_repositories.html:42
+#: bhtheme/templates/bh_admin_repositories.html:59
+#: bhtheme/templates/bh_admin_repositories.html:189
+#: bhtheme/templates/bh_admin_repositories.html:191
+msgid "(default)"
+msgstr "(défaut)"
+
+#: bhtheme/templates/bh_admin_repositories.html:54
+msgid "Repository:"
+msgstr "Dépôt :"
+
+#: bhtheme/templates/bh_admin_repositories.html:71
+msgid "Modify Repository:"
+msgstr "Modifier le dépôt :"
+
+#: bhtheme/templates/bh_admin_repositories.html:72
+msgid "View Repository:"
+msgstr "Voir le dépôt :"
+
+#: bhtheme/templates/bh_admin_repositories.html:73
+msgid ""
+"[1:Warning]\n"
+"            This repository is defined in [2:[3:trac.ini]]\n"
+"            and cannot be edited on this page."
+msgstr "[1:Note :]\n            Ce dépôt est défini dans [2:[3:trac.ini]]\n            et ne peut être modifié à partir de cette page."
+
+#: bhtheme/templates/bh_admin_repositories.html:92
+#: bhtheme/templates/bh_admin_repositories.html:151
+msgid "Directory:"
+msgstr "Répertoire :"
+
+#: bhtheme/templates/bh_admin_repositories.html:110
+msgid "Hide from repository index"
+msgstr "Ne pas montrer dans l'index des dépôts"
+
+#: bhtheme/templates/bh_admin_repositories.html:120
+msgid "Describe this repository using WikiFormatting"
+msgstr "Décrivez ce dépôt en utilisant le WikiFormatting"
+
+#: bhtheme/templates/bh_admin_repositories.html:123
+#: bhtheme/templates/bh_admin_versions.html:70
+msgid ""
+"[1:Tip]\n"
+"                  you may use [2:WikiFormatting] here"
+msgstr "[1:Tip]\nL'utilisation du\n                          [2:WikiFormatting]\n                          est possible ici."
+
+#: bhtheme/templates/bh_admin_repositories.html:144
+msgid "Add Repository:"
+msgstr "Ajouter un dépôt :"
+
+#: bhtheme/templates/bh_admin_repositories.html:163
+msgid "Add Alias:"
+msgstr "Ajouter un alias :"
+
+#: bhtheme/templates/bh_admin_repositories.html:181
+msgid "Type"
+msgstr "Type"
+
+#: bhtheme/templates/bh_admin_repositories.html:182
+#: bhtheme/templates/bh_browser.html:79
+msgid "Directory"
+msgstr "Répertoire"
+
+#: bhtheme/templates/bh_admin_repositories.html:182
+msgid "Revision"
+msgstr "Révision"
+
+#: bhtheme/templates/bh_admin_repositories.html:194
+#, python-format
+msgid "Alias of %(repo)s"
+msgstr "Alias de %(repo)s"
+
+#: bhtheme/templates/bh_admin_repositories.html:201
+msgid "Refresh"
+msgstr "Mise à jour"
+
+#: bhtheme/templates/bh_admin_users.html:33
+msgid "Accounts"
+msgstr "Comptes"
+
+#: bhtheme/templates/bh_admin_users.html:42
+msgid "Manage User Accounts"
+msgstr "Gérer les comptes utilisateurs"
+
+#: bhtheme/templates/bh_admin_users.html:65
+msgid "Add/Edit Account:"
+msgstr "Ajouter/modifier le compte :"
+
+#: bhtheme/templates/bh_admin_users.html:67 bhtheme/templates/bh_login.html:58
+#: bhtheme/templates/bh_register.html:61
+#: bhtheme/templates/bh_reset_password.html:74
+msgid "Username:"
+msgstr "Nom d'utilisateur :"
+
+#: bhtheme/templates/bh_admin_users.html:68
+#: bhtheme/templates/bh_reset_password.html:76
+msgid "e.g. myuser"
+msgstr "p. ex. myuser"
+
+#: bhtheme/templates/bh_admin_users.html:75 bhtheme/templates/bh_login.html:65
+#: bhtheme/templates/bh_prefs_account.html:52
+#: bhtheme/templates/bh_register.html:69
+msgid "Password:"
+msgstr "Mot de passe :"
+
+#: bhtheme/templates/bh_admin_users.html:80
+#: bhtheme/templates/bh_admin_users.html:83
+#: bhtheme/templates/bh_prefs_account.html:56
+msgid "Type your password"
+msgstr "Entrez votre mot de passe"
+
+#: bhtheme/templates/bh_admin_users.html:91
+#: bhtheme/templates/bh_prefs_account.html:125
+#: bhtheme/templates/bh_register.html:82
+msgid "Confirm Password:"
+msgstr "Confirmer le mot de passe :"
+
+#: bhtheme/templates/bh_admin_users.html:96
+#: bhtheme/templates/bh_admin_users.html:99
+#: bhtheme/templates/bh_register.html:88
+msgid "Must match password"
+msgstr "Le mot de passe doit être identique"
+
+#: bhtheme/templates/bh_admin_users.html:107
+msgid "Pre-/Surname (Nickname):"
+msgstr "Surnom :"
+
+#: bhtheme/templates/bh_admin_users.html:108
+#: bhtheme/templates/bh_register.html:137
+msgid "e.g. John Smith"
+msgstr "p. ex. John Smith"
+
+#: bhtheme/templates/bh_admin_users.html:114
+#: bhtheme/templates/bh_reset_password.html:81
+msgid "Email Address:"
+msgstr "Adresse électronique :"
+
+#: bhtheme/templates/bh_admin_users.html:119
+#: bhtheme/templates/bh_register.html:101
+#: bhtheme/templates/bh_register.html:150
+#: bhtheme/templates/bh_reset_password.html:87
+msgid "user@domain.com"
+msgstr "user@domain.com"
+
+#: bhtheme/templates/bh_admin_users.html:125
+msgid "Add a new user account or edit an existing one."
+msgstr "Ajouter un nouveau compte utilisateur ou modifier un compte existant."
+
+#: bhtheme/templates/bh_admin_users.html:127
+msgid " Add "
+msgstr "Ajouter"
+
+#: bhtheme/templates/bh_admin_users.html:130
+msgid " Change "
+msgstr "Modifier"
+
+#: bhtheme/templates/bh_admin_users.html:150
+msgid "Send another random password"
+msgstr "envoyer un nouveau mot de passe aléatoire"
+
+#: bhtheme/templates/bh_admin_users.html:150
+msgid "Reset passwords"
+msgstr "Réinitialiser les mots de passe"
+
+#: bhtheme/templates/bh_admin_users.html:154
+msgid "Remove selected accounts"
+msgstr "Supprimer les comptes sélectionnés"
+
+#: bhtheme/templates/bh_admin_users.html:157
+msgid "Review account attributes"
+msgstr "Revue des attributs de compte"
+
+#: bhtheme/templates/bh_admin_versions.html:30
+#: bhtheme/templates/bh_product_view.html:95
+msgid "Versions"
+msgstr "Versions"
+
+#: bhtheme/templates/bh_admin_versions.html:39
+msgid "Manage Versions"
+msgstr "Gestion des versions"
+
+#: bhtheme/templates/bh_admin_versions.html:45
+msgid "Modify Version:"
+msgstr "Modification d'une version :"
+
+#: bhtheme/templates/bh_admin_versions.html:53
+#: bhtheme/templates/bh_admin_versions.html:99
+msgid "Released:"
+msgstr "Livrée :"
+
+#: bhtheme/templates/bh_admin_versions.html:66
+msgid "Describe this version using WikiFormatting"
+msgstr "Décrivez cette version en utilisant le WikiFormatting"
+
+#: bhtheme/templates/bh_admin_versions.html:91
+msgid "Add Version:"
+msgstr "Ajout d'une version :"
+
+#: bhtheme/templates/bh_admin_versions.html:120
+msgid "Released"
+msgstr "Livrée"
+
+#: bhtheme/templates/bh_attachment.html:32
+msgid "– Attachment"
+msgstr "– Pièce jointe"
+
+#: bhtheme/templates/bh_attachment.html:33
+msgid "– Attachments"
+msgstr "– Pièces jointes"
+
+#: bhtheme/templates/bh_attachment.html:34
+#, python-format
+msgid "%(filename)s on %(parent)s – Attachment"
+msgstr "%(filename)s sur %(parent)s – Pièce jointe"
+
+#: bhtheme/templates/bh_attachment.html:49
+#, python-format
+msgid "Add Attachment to [1:%(parent)s]"
+msgstr "Ajouter une pièce jointe à [1:%(parent)s]"
+
+#: bhtheme/templates/bh_attachment.html:54
+#: bhtheme/templates/bh_browser.html:80
+msgid "File"
+msgstr "Fichier"
+
+#: bhtheme/templates/bh_attachment.html:55
+#, python-format
+msgid "(size limit %(value)s)"
+msgstr "(limite de taille %(value)s)"
+
+#: bhtheme/templates/bh_attachment.html:62
+msgid "Attachment Info"
+msgstr "Informations sur la pièce jointe"
+
+#: bhtheme/templates/bh_attachment.html:64
+#: bhtheme/templates/bh_ticket.html:664
+#: bhtheme/templates/bh_wiki_edit_form.html:67
+msgid "Your email or username:"
+msgstr "Adresse électronique ou nom d'utilisateur :"
+
+#: bhtheme/templates/bh_attachment.html:69
+msgid "Description of the file:"
+msgstr "Description du fichier :"
+
+#: bhtheme/templates/bh_attachment.html:70
+msgid "optional"
+msgstr "optionnel"
+
+#: bhtheme/templates/bh_attachment.html:76
+msgid "Replace existing attachment of the same name"
+msgstr "Remplacer toute pièce jointe existante avec le même nom"
+
+#: bhtheme/templates/bh_attachment.html:85
+msgid "Add attachment"
+msgstr "Joindre un fichier"
+
+#: bhtheme/templates/bh_attachment.html:98
+#: bhtheme/templates/bh_milestone_delete.html:49
+#: bhtheme/templates/bh_wiki_delete.html:57
+#: bhtheme/templates/bh_wiki_rename.html:40
+msgid "Caution"
+msgstr "Attention"
+
+#: bhtheme/templates/bh_attachment.html:99
+msgid "Are you sure you want to delete this attachment?"
+msgstr "Voulez-vous réellement supprimer la pièce jointe ?"
+
+#: bhtheme/templates/bh_attachment.html:99
+#: bhtheme/templates/bh_ticket_delete.html:56
+#: bhtheme/templates/bh_ticket_delete.html:81
+#: bhtheme/templates/bh_wiki_delete.html:117
+msgid "This is an irreversible operation."
+msgstr "Cette opération est irréversible."
+
+#: bhtheme/templates/bh_attachment.html:106
+#: bhtheme/templates/bh_attachment.html:160
+msgid "Delete attachment"
+msgstr "Supprimer la pièce jointe"
+
+#: bhtheme/templates/bh_attachment.html:120
+msgid "Attach another file"
+msgstr "Joindre un autre fichier"
+
+#: bhtheme/templates/bh_attachment.html:131
+#: bhtheme/templates/bh_milestone_edit.html:83
+#: bhtheme/templates/bh_ticket_box.html:123
+#: bhtheme/templates/bloodhound_theme.html:168
+#: bhtheme/templates/bloodhound_theme.html:321
+msgid "Description"
+msgstr "Description"
+
+#: bhtheme/templates/bh_attachment.html:136
+#: bhtheme/templates/bh_browser.html:222
+#: bhtheme/templates/bh_dir_entries.html:36
+#: bhtheme/templates/bh_list_of_attachments.html:42
+#, python-format
+msgid "%(size)s bytes"
+msgstr "%(size)s octets"
+
+#: bhtheme/templates/bh_attachment.html:134
+#, python-format
+msgid ""
+"File %(file)s,\n"
+"                [1:\n"
+"                  %(size)s\n"
+"                ]\n"
+"                (added by %(author)s,\n"
+"                %(date)s)"
+msgstr "Pièce jointe %(file)s,\n                [1:%(size)s]\n                (ajoutée par %(author)s, %(date)s)"
+
+#: bhtheme/templates/bh_batch_modify.html:29
+msgid "Batch Modify"
+msgstr "Modification par lot"
+
+#: bhtheme/templates/bh_batch_modify.html:30
+msgid "Batch modification fields"
+msgstr "Champs concernés par la modification par lot"
+
+#: bhtheme/templates/bh_batch_modify.html:33
+#: bhtheme/templates/bh_diff_view.html:68
+msgid "Comment:"
+msgstr "Commentaire :"
+
+#: bhtheme/templates/bh_batch_modify.html:35
+msgid "Describe changes using WikiFormatting"
+msgstr "Décrivez les changements en utilisant le WikiFormatting"
+
+#: bhtheme/templates/bh_batch_modify.html:44
+msgid "Add Field:"
+msgstr "Ajouter le champ :"
+
+#: bhtheme/templates/bh_batch_modify.html:71
+msgid "Change tickets"
+msgstr "Modifier les tickets"
+
+#: bhtheme/templates/bh_batch_modify.html:75
+msgid ""
+"[1:\n"
+"      [2:Note] See [3:TracBatchModify] for help on using batch modify.\n"
+"    ]"
+msgstr "[1:\n[2:Note :] consultez [3:TracBatchModify] pour obtenir de l'aide sur l'utilisation de la modification par lot.\n]"
+
+#: bhtheme/templates/bh_browser.html:33
+#, python-format
+msgid "%(basename)s in %(dirname)s"
+msgstr "%(basename)s dans %(dirname)s"
+
+#: bhtheme/templates/bh_browser.html:76
+msgid "Default Repository"
+msgstr "Dépôt par défaut"
+
+#: bhtheme/templates/bh_browser.html:81
+#: bhtheme/templates/bh_path_links.html:35
+#: bhtheme/templates/bh_path_links.html:60
+#, python-format
+msgid "View %(name)s"
+msgstr "Voir %(name)s"
+
+#: bhtheme/templates/bh_browser.html:90
+msgid "Show the diff against a specific revision"
+msgstr "Voir les différences par rapport à une révision particulière"
+
+#: bhtheme/templates/bh_browser.html:91
+msgid "View diff against:"
+msgstr "Différences :"
+
+#: bhtheme/templates/bh_browser.html:104
+msgid "Hint: clear the field to view latest revision"
+msgstr "Astuce : videz le champ pour voir la dernière révision"
+
+#: bhtheme/templates/bh_browser.html:104
+msgid "View revision:"
+msgstr "Afficher la révision :"
+
+#: bhtheme/templates/bh_browser.html:114
+msgid "Visit:"
+msgstr "Explorer :"
+
+#: bhtheme/templates/bh_browser.html:122
+msgid "Go!"
+msgstr "Aller"
+
+#: bhtheme/templates/bh_browser.html:122
+msgid "Jump to the chosen preselected path"
+msgstr "Saut direct au chemin préselectionné"
+
+#: bhtheme/templates/bh_browser.html:131
+#: bhtheme/templates/bh_revisionlog.html:214
+msgid "Branch head"
+msgstr "Extrémité de branche"
+
+#: bhtheme/templates/bh_browser.html:131
+#: bhtheme/templates/bh_revisionlog.html:214
+msgid "Branch"
+msgstr "Branche"
+
+#: bhtheme/templates/bh_browser.html:136
+#: bhtheme/templates/bh_revisionlog.html:219
+msgid "Tag"
+msgstr "Tag"
+
+#: bhtheme/templates/bh_browser.html:149
+msgid "Parent Directory"
+msgstr "Répertoire parent"
+
+#: bhtheme/templates/bh_browser.html:155
+msgid "No files found"
+msgstr "Aucun fichier trouvé"
+
+#: bhtheme/templates/bh_browser.html:164
+#: bhtheme/templates/bh_wiki_edit.html:175
+#: bhtheme/templates/bh_wiki_view.html:55
+msgid "Revision info"
+msgstr "Info révision"
+
+#: bhtheme/templates/bh_browser.html:174 bhtheme/templates/bh_browser.html:182
+#: bhtheme/templates/bh_diff_options.html:31
+msgid "View differences"
+msgstr "Afficher les différences"
+
+#: bhtheme/templates/bh_browser.html:176 bhtheme/templates/bh_browser.html:184
+#: bhtheme/templates/bh_path_links.html:69
+#, python-format
+msgid "View changeset %(rev)s"
+msgstr "Voir la révision %(rev)s"
+
+#: bhtheme/templates/bh_browser.html:173
+#, python-format
+msgid ""
+"[1:Last change]\n"
+"                    on this file since %(stickyrev)s was\n"
+"                    [2:%(rev)s],\n"
+"                    checked in by %(author)s, %(age)s"
+msgstr "La [1:dernière modification]\n                  sur ce fichier depuis %(stickyrev)s était\n                  [2:%(rev)s],\n                  produite par %(author)s, %(age)s"
+
+#: bhtheme/templates/bh_browser.html:181
+#, python-format
+msgid ""
+"[1:Last change]\n"
+"                    on this file was\n"
+"                    [2:%(rev)s],\n"
+"                    checked in by %(author)s, %(age)s"
+msgstr "La [1:dernière modification]\n                  sur ce fichier était\n                  [2:%(rev)s],\n                  produite par %(author)s, %(age)s"
+
+#: bhtheme/templates/bh_browser.html:215
+#, python-format
+msgid "Property [1:%(name)s] set to %(value)s"
+msgstr "Propriété [1:%(name)s] initialisée à %(value)s"
+
+#: bhtheme/templates/bh_browser.html:221
+msgid "File size:"
+msgstr "Taille de fichier :"
+
+#: bhtheme/templates/bh_browser.html:234
+msgid "Repository Index"
+msgstr "Index des dépôts"
+
+#: bhtheme/templates/bh_browser.html:254
+msgid "View changes..."
+msgstr "Voir les différences …"
+
+#: bhtheme/templates/bh_browser.html:254
+msgid "Select paths and revs for Diff"
+msgstr "Sélection des chemins et des révisions pour les différences"
+
+#: bhtheme/templates/bh_browser.html:259
+msgid ""
+"[1:\n"
+"          [2:Note] See\n"
+"          [3:TracBrowser]\n"
+"          for help on using the repository browser.\n"
+"        ]"
+msgstr "[1:\n[2:Note :] consultez [3:TracBrowser] pour obtenir de l'aide sur l'utilisation de l'explorateur de sources.\n]"
+
+#: bhtheme/templates/bh_changeset.html:55
+#: bhtheme/templates/bh_changeset.html:65
+#: bhtheme/templates/bh_changeset.html:67
+#: bhtheme/templates/bh_changeset.html:77
+#: bhtheme/templates/bh_changeset.html:87
+#: bhtheme/templates/bh_changeset.html:89
+msgid "Show full changeset"
+msgstr "Voir toutes les modifications"
+
+#: bhtheme/templates/bh_changeset.html:56
+#: bhtheme/templates/bh_changeset.html:59
+#: bhtheme/templates/bh_changeset.html:64
+#: bhtheme/templates/bh_changeset.html:66
+#: bhtheme/templates/bh_changeset.html:78
+#: bhtheme/templates/bh_changeset.html:81
+#: bhtheme/templates/bh_changeset.html:86
+#: bhtheme/templates/bh_changeset.html:88
+#: bhtheme/templates/bh_changeset.html:124
+msgid "Show entry in browser"
+msgstr "Afficher l'entrée dans le navigateur"
+
+#: bhtheme/templates/bh_changeset.html:54
+#, python-format
+msgid ""
+"Changeset [1:%(new_rev)s] in %(reponame)s\n"
+"              for [2:%(new_path)s]"
+msgstr "Révision [1:%(new_rev)s] dans le dépôt %(reponame)s\n              pour [2:%(new_path)s]"
+
+#: bhtheme/templates/bh_changeset.html:60
+#: bhtheme/templates/bh_changeset.html:82
+msgid "Show revision log"
+msgstr "Voir le journal des révisions"
+
+#: bhtheme/templates/bh_changeset.html:58
+#, python-format
+msgid ""
+"Changes in [1:%(new_path)s]\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]] in %(reponame)s"
+msgstr "Modifications sur [1:%(new_path)s]\n              [2:\\[%(old_rev)s:%(new_rev)s\\]] dans %(reponame)s"
+
+#: bhtheme/templates/bh_changeset.html:62
+#, python-format
+msgid ""
+"Changes in %(reponame)s\n"
+"              from [1:%(old_path)s]\n"
+"              at [2:r%(old_rev)s]\n"
+"              to [3:%(new_path)s]\n"
+"              at [4:r%(new_rev)s]"
+msgstr "Modifications dans le dépôt %(reponame)s\n              entre [1:%(old_path)s]\n              révision [2:r%(old_rev)s]\n              et [3:%(new_path)s]\n              révision [4:r%(new_rev)s]"
+
+#: bhtheme/templates/bh_changeset.html:69
+#, python-format
+msgid "Changeset [1:%(new_rev)s] in %(reponame)s"
+msgstr "Révision [1:%(new_rev)s] dans le dépôt %(reponame)s"
+
+#: bhtheme/templates/bh_changeset.html:76
+#, python-format
+msgid ""
+"Changeset [1:%(new_rev)s]\n"
+"              for [2:%(new_path)s]"
+msgstr "Révision [1:%(new_rev)s]\n              pour [2:%(new_path)s]"
+
+#: bhtheme/templates/bh_changeset.html:80
+#, python-format
+msgid ""
+"Changes in [1:%(new_path)s]\n"
+"              [2:\\[%(old_rev)s:%(new_rev)s\\]]"
+msgstr "Modifications sur [1:%(new_path)s]\n              [2:\\[%(old_rev)s:%(new_rev)s\\]]"
+
+#: bhtheme/templates/bh_changeset.html:84
+#, python-format
+msgid ""
+"Changes\n"
+"              from [1:%(old_path)s]\n"
+"              at [2:r%(old_rev)s]\n"
+"              to [3:%(new_path)s]\n"
+"              at [4:r%(new_rev)s]"
+msgstr "Modifications\n              entre [1:%(old_path)s]\n              révision [2:r%(old_rev)s]\n              et [3:%(new_path)s]\n              révision [4:r%(new_rev)s]"
+
+#: bhtheme/templates/bh_changeset.html:91
+#, python-format
+msgid "Changeset [1:%(new_rev)s]"
+msgstr "Révision [1:%(new_rev)s]"
+
+#: bhtheme/templates/bh_changeset.html:120
+#, python-format
+msgid "Show what was removed (content at revision %(old_rev)s)"
+msgstr "Montrer ce qui a été supprimé (contenu à la révision %(old_rev)s)"
+
+#: bhtheme/templates/bh_changeset.html:125
+msgid "(root)"
+msgstr "(racine)"
+
+#: bhtheme/templates/bh_changeset.html:131
+#, python-format
+msgid "Show original file (revision %(old_rev)s)"
+msgstr "Montrer ce qui a été supprimé (contenu à la révision %(old_rev)s)"
+
+#: bhtheme/templates/bh_changeset.html:130
+#, python-format
+msgid ""
+"(%(kind)s from [1:\n"
+"                %(old_path)s])"
+msgstr "(%(kind)s à partir de [1:\n                %(old_path)s])"
+
+#: bhtheme/templates/bh_changeset.html:138
+#: bhtheme/templates/bh_changeset.html:141
+msgid "Show differences"
+msgstr "Voir les différences"
+
+#: bhtheme/templates/bh_changeset.html:138
+msgid "view diffs"
+msgstr "voir les différences"
+
+#: bhtheme/templates/bh_changeset.html:141
+#, python-format
+msgid "%(num)d diff"
+msgid_plural "%(num)d diffs"
+msgstr[0] "%(num)d différence"
+msgstr[1] "%(num)d différences"
+
+#: bhtheme/templates/bh_changeset.html:144
+#, python-format
+msgid "%(num)d prop"
+msgid_plural "%(num)d props"
+msgstr[0] "%(num)d propriété modifiée"
+msgstr[1] "%(num)d propriétés modifiées"
+
+#: bhtheme/templates/bh_changeset.html:148
+msgid "Show previous version in browser"
+msgstr "Afficher la version précédente dans le navigateur"
+
+#: bhtheme/templates/bh_changeset.html:148
+#: bhtheme/templates/bh_ticket_change.html:127
+msgid "previous"
+msgstr "précédente"
+
+#: bhtheme/templates/bh_changeset.html:156
+msgid "Timstamp:"
+msgstr "Horodatage :"
+
+#: bhtheme/templates/bh_changeset.html:159
+msgid "(less than one hour ago)"
+msgstr "(il y a moins d'une heure)"
+
+#: bhtheme/templates/bh_changeset.html:160
+#, python-format
+msgid "(%(age)s ago)"
+msgstr "(il y a %(age)s)"
+
+#: bhtheme/templates/bh_changeset.html:174
+msgid "Message:"
+msgstr "Message :"
+
+#: bhtheme/templates/bh_changeset.html:186
+msgid "Location:"
+msgstr "Chemin :"
+
+#: bhtheme/templates/bh_changeset.html:190
+msgid "(No files)"
+msgstr "(Pas de fichiers)"
+
+#: bhtheme/templates/bh_changeset.html:195
+#, python-format
+msgid "%(num)d added"
+msgid_plural "%(num)d added"
+msgstr[0] "%(num)d ajouté"
+msgstr[1] "%(num)d ajoutés"
+
+#: bhtheme/templates/bh_changeset.html:196
+#, python-format
+msgid "%(num)d deleted"
+msgid_plural "%(num)d deleted"
+msgstr[0] "%(num)d supprimé"
+msgstr[1] "%(num)d supprimés"
+
+#: bhtheme/templates/bh_changeset.html:197
+#, python-format
+msgid "%(num)d edited"
+msgid_plural "%(num)d edited"
+msgstr[0] "%(num)d modifié"
+msgstr[1] "%(num)d modifiés"
+
+#: bhtheme/templates/bh_changeset.html:198
+#, python-format
+msgid "%(num)d copied"
+msgid_plural "%(num)d copied"
+msgstr[0] "%(num)d copié"
+msgstr[1] "%(num)d copiés"
+
+#: bhtheme/templates/bh_changeset.html:199
+#, python-format
+msgid "%(num)d moved"
+msgid_plural "%(num)d moved"
+msgstr[0] "%(num)d renommé"
+msgstr[1] "%(num)d renommés"
+
+#: bhtheme/templates/bh_changeset.html:205
+msgid "added"
+msgstr "ajouté"
+
+#: bhtheme/templates/bh_changeset.html:206
+msgid "deleted"
+msgstr "supprimé"
+
+#: bhtheme/templates/bh_changeset.html:207
+msgid "copied"
+msgstr "copié"
+
+#: bhtheme/templates/bh_changeset.html:208
+msgid "moved"
+msgstr "renommé"
+
+#: bhtheme/templates/bh_changeset.html:209
+msgid "modified"
+msgstr "modifié"
+
+#: bhtheme/templates/bh_changeset.html:219
+#: bhtheme/templates/bh_diff_view.html:76
+#: bhtheme/templates/bh_revisionlog.html:53
+msgid "Legend:"
+msgstr "Légende :"
+
+#: bhtheme/templates/bh_changeset.html:221
+#: bhtheme/templates/bh_diff_view.html:78
+msgid "Unmodified"
+msgstr "Sans modification"
+
+#: bhtheme/templates/bh_changeset.html:222
+#: bhtheme/templates/bh_diff_view.html:79
+#: bhtheme/templates/bh_revisionlog.html:55
+msgid "Added"
+msgstr "Ajouté"
+
+#: bhtheme/templates/bh_changeset.html:223
+#: bhtheme/templates/bh_diff_view.html:80
+#: bhtheme/templates/bh_revisionlog.html:57
+msgid "Removed"
+msgstr "Supprimé"
+
+#: bhtheme/templates/bh_changeset.html:225
+#: bhtheme/templates/bh_diff_view.html:81
+#: bhtheme/templates/bh_revisionlog.html:59
+msgid "Modified"
+msgstr "Modifié"
+
+#: bhtheme/templates/bh_changeset.html:232
+msgid ""
+"[1:Note:] See [2:TracChangeset]\n"
+"          for help on using the changeset viewer."
+msgstr "[1:Note :] consultez [2:TracChangeset] pour obtenir de l'aide concernant l'utilisation des options de visualisation des différences."
+
+#: bhtheme/templates/bh_diff_form.html:29
+#: bhtheme/templates/bh_diff_form.html:40
+msgid "Prepare Diff"
+msgstr "Préparation des diffs"
+
+#: bhtheme/templates/bh_diff_form.html:46
+msgid "Select the base and the target for the diff:"
+msgstr "Sélection de la base et de la cible pour les différences :"
+
+#: bhtheme/templates/bh_diff_form.html:49
+msgid "From:"
+msgstr "Depuis :"
+
+#: bhtheme/templates/bh_diff_form.html:56
+#: bhtheme/templates/bh_diff_form.html:72
+msgid "at revision:"
+msgstr "à la révision :"
+
+#: bhtheme/templates/bh_diff_form.html:65
+msgid "To:"
+msgstr "À :"
+
+#: bhtheme/templates/bh_diff_form.html:80
+msgid ""
+"For either path, you can start typing the path and will be\n"
+"              presented a list of existing directories and files to select\n"
+"              from. Select an entry by clicking on it, or by using the\n"
+"              up/down cursor keys and hitting tab."
+msgstr "Pour chaque chemin, il est possible de commencer à saisir celui-ci et une\n              liste des répertoires et fichiers existants sera affichée pour sélection.\n              Un élément peut être sélectionner soit en le cliquant ou bien\n              en utilisation les touches haut/bas de déplacement et en utilisant\n              la touche de tabulation."
+
+#: bhtheme/templates/bh_diff_form.html:88
+#: bhtheme/templates/bh_history_view.html:46
+#: bhtheme/templates/bh_history_view.html:79
+#: bhtheme/templates/bh_revisionlog.html:131
+#: bhtheme/templates/bh_revisionlog.html:242
+msgid "View changes"
+msgstr "Voir les différences"
+
+#: bhtheme/templates/bh_diff_form.html:92
+msgid ""
+"[1:\n"
+"          [2:Note:] See\n"
+"          [3:TracChangeset]\n"
+"          for help on using the diff feature.\n"
+"        ]"
+msgstr "[1:\n[2:Note :] consultez\n[3:TracChangeset] pour obtenir de l'aide sur l'utilisation de la fonctionnalité de diff.\n]"
+
+#: bhtheme/templates/bh_diff_options.html:34
+msgid "inline"
+msgstr "en ligne"
+
+#: bhtheme/templates/bh_diff_options.html:36
+msgid "side by side"
+msgstr "côte à côte"
+
+#: bhtheme/templates/bh_diff_options.html:39
+msgid ""
+"[1:]\n"
+"      [2:Show]\n"
+"      [3:]\n"
+"      [4: lines around each change]"
+msgstr "[1:[2:]\n             Afficher]\n      [3:[4:]\n             lignes autour de chaque différence]"
+
+#: bhtheme/templates/bh_diff_options.html:50
+msgid "Show the changes in full context"
+msgstr "Voir les modifications in situ"
+
+#: bhtheme/templates/bh_diff_options.html:53
+msgid "Ignore:"
+msgstr "Ignorer :"
+
+#: bhtheme/templates/bh_diff_options.html:57
+msgid "Blank lines"
+msgstr "Lignes vides"
+
+#: bhtheme/templates/bh_diff_options.html:62
+msgid "Case changes"
+msgstr "Changements minuscules/majuscules"
+
+#: bhtheme/templates/bh_diff_options.html:67
+msgid "White space changes"
+msgstr "Changements dans les espaces"
+
+#: bhtheme/templates/bh_diff_view.html:37
+#, python-format
+msgid ""
+"Changes between\n"
+"          [1:Version %(old)s] and\n"
+"          [2:Version %(new)s] of\n"
+"          [3:%(name)s]"
+msgstr "Différences entre\n          [1:version %(old)s] et\n          [2:version %(new)s] de\n          [3:%(name)s]"
+
+#: bhtheme/templates/bh_diff_view.html:42
+#, python-format
+msgid ""
+"Changes between\n"
+"          [1:Initial Version] and\n"
+"          [2:Version %(new)s] of\n"
+"          [3:%(name)s]"
+msgstr "Différences entre\n          [1:version initiale] et\n          [2:version %(new)s] de\n          [3:%(name)s]"
+
+#: bhtheme/templates/bh_diff_view.html:47
+#, python-format
+msgid ""
+"Changes from\n"
+"          [1:Version %(new)s] of\n"
+"          [2:%(name)s]"
+msgstr "Changements correspondant à la\n          [1:version %(new)s] de\n          [2:%(name)s]"
+
+#: bhtheme/templates/bh_diff_view.html:54
+msgid "Timestamp:"
+msgstr "Horodatage :"
+
+#: bhtheme/templates/bh_diff_view.html:56
+#: bhtheme/templates/bh_diff_view.html:64
+#: bhtheme/templates/bh_diff_view.html:70
+msgid "(multiple changes)"
+msgstr "(modifications multiples)"
+
+#: bhtheme/templates/bh_diff_view.html:58
+#, python-format
+msgid "%(date)s (%(duration)s ago)"
+msgstr "%(date)s (%(duration)s)"
+
+#: bhtheme/templates/bh_diff_view.html:66
+#, python-format
+msgid "(IP: %(ipnr)s)"
+msgstr "(IP: %(ipnr)s)"
+
+#: bhtheme/templates/bh_dir_entries.html:31
+msgid "View Directory"
+msgstr "Voir le répertoire"
+
+#: bhtheme/templates/bh_dir_entries.html:31
+msgid "View File"
+msgstr "Voir le fichier"
+
+#: bhtheme/templates/bh_dir_entries.html:37
+#: bhtheme/templates/bh_repository_index.html:41
+msgid "Download as Zip archive"
+msgstr "Télécharger l'archive Zip correspondante"
+
+#: bhtheme/templates/bh_dir_entries.html:37
+#: bhtheme/templates/bh_list_of_attachments.html:38
+#: bhtheme/templates/bh_list_of_attachments.html:60
+#: bhtheme/templates/bh_ticket_change.html:152
+msgid "Download"
+msgstr "Télécharger"
+
+#: bhtheme/templates/bh_dir_entries.html:41
+#: bhtheme/templates/bh_repository_index.html:45
+msgid "View Revision Log"
+msgstr "Journal des révisions"
+
+#: bhtheme/templates/bh_dir_entries.html:42
+#: bhtheme/templates/bh_repository_index.html:46
+msgid "View Changeset"
+msgstr "Voir la révision"
+
+#: bhtheme/templates/bh_dirlist_thead.html:31
+#: bhtheme/templates/bh_revisionlog.html:141
+msgid "Rev"
+msgstr "Rév."
+
+#: bhtheme/templates/bh_dirlist_thead.html:34
+msgid "Last Change"
+msgstr "Dernière modification"
+
+#: bhtheme/templates/bh_history_view.html:36
+#, python-format
+msgid "Change History for [1:%(name)s]"
+msgstr "Historique des modifications pour [1:%(name)s]"
+
+#: bhtheme/templates/bh_history_view.html:48
+msgid "Change history"
+msgstr "Historique des modifications"
+
+#: bhtheme/templates/bh_history_view.html:53
+msgid "Date"
+msgstr "Date"
+
+#: bhtheme/templates/bh_history_view.html:54
+#: bhtheme/templates/bh_revisionlog.html:143
+#: bhtheme/templates/bh_ticket.html:659
+msgid "Author"
+msgstr "Auteur"
+
+#: bhtheme/templates/bh_history_view.html:55
+msgid "Comment"
+msgstr "Commentaire"
+
+#: bhtheme/templates/bh_history_view.html:67
+msgid "View this version"
+msgstr "Explorer cette version"
+
+#: bhtheme/templates/bh_history_view.html:70
+#, python-format
+msgid "IP-Address: %(ipnr)s"
+msgstr "Addresse IP : %(ipnr)s"
+
+#: bhtheme/templates/bh_list_of_attachments.html:40
+msgid "View attachment"
+msgstr "Voir la pièce jointe"
+
+#: bhtheme/templates/bh_list_of_attachments.html:39
+#, python-format
+msgid ""
+"[1:%(file)s]\n"
+"       [2:([3:%(size)s]) -\n"
+"      added by [4:%(author)s] %(date)s.]"
+msgstr "[1:%(file)s]\n[2:​(([3:%(size)s]) -\najouté par [4:%(author)s] %(date)s.]"
+
+#: bhtheme/templates/bh_list_of_attachments.html:49
+#: bhtheme/templates/bh_list_of_attachments.html:66
+msgid "Attachments ("
+msgstr "Fichiers joints ("
+
+#: bhtheme/templates/bh_list_of_attachments.html:60
+msgid "all attachments as:"
+msgstr "tous les fichiers joints :"
+
+#: bhtheme/templates/bh_list_of_attachments.html:61
+#: bhtheme/templates/bh_list_of_attachments.html:76
+msgid ".zip"
+msgstr ".zip"
+
+#: bhtheme/templates/bh_list_of_attachments.html:76
+msgid "Download all attachments as:"
+msgstr "Télécharger tous les fichiers joints :"
+
+#: bhtheme/templates/bh_login.html:33 bhtheme/templates/bh_login.html:51
+#: bhtheme/templates/bh_login.html:86
+#: bhtheme/templates/bloodhound_theme.html:73
+#: bhtheme/templates/bloodhound_theme.html:205
+#: bhtheme/templates/bloodhound_theme.html:356
+msgid "Login"
+msgstr "Connexion"
+
+#: bhtheme/templates/bh_login.html:60
+msgid "User name"
+msgstr "Nom d'utilisateur"
+
+#: bhtheme/templates/bh_login.html:67
+msgid "Password"
+msgstr "Mot de passe"
+
+#: bhtheme/templates/bh_login.html:73 bhtheme/templates/bh_login.html:99
+#: bhtheme/templates/bh_login.html:102
+msgid "Forgot your password?"
+msgstr "Mot de passe oublié ?"
+
+#: bhtheme/templates/bh_login.html:79
+msgid "Remember me"
+msgstr "Se souvenir de moi"
+
+#: bhtheme/templates/bh_login.html:91 bhtheme/templates/bh_login.html:94
+#: bhtheme/templates/bh_register.html:33
+msgid "Register"
+msgstr "S'enregistrer"
+
+#: bhtheme/templates/bh_milestone_delete.html:30
+#: bhtheme/templates/bh_milestone_delete.html:42
+msgid "Delete Milestone"
+msgstr "Supprimer le Jalon"
+
+#: bhtheme/templates/bh_milestone_delete.html:50
+msgid "Are you sure you want to delete this milestone?"
+msgstr "Voulez-vous vraiment supprimer ce jalon ?"
+
+#: bhtheme/templates/bh_milestone_delete.html:53
+msgid "Retarget associated tickets to milestone"
+msgstr "Déplacer les tickets associés vers le jalon :"
+
+#: bhtheme/templates/bh_milestone_delete.html:55
+#: bhtheme/templates/bh_milestone_edit.html:134
+msgid "None"
+msgstr "Aucun"
+
+#: bhtheme/templates/bh_milestone_delete.html:64
+msgid "Delete milestone"
+msgstr "Supprimer le jalon"
+
+#: bhtheme/templates/bh_milestone_delete.html:73
+msgid ""
+"[1:Note] See\n"
+"          [2:TracRoadmap] for help on using\n"
+"          the roadmap."
+msgstr "[1:Note :] consultez [2:TracRoadmap] pour obtenir de l'aide sur l'utilisation de la feuille de route."
+
+#: bhtheme/templates/bh_milestone_edit.html:31
+#: bhtheme/templates/bh_milestone_edit.html:66
+msgid "Edit Milestone"
+msgstr "Modifier le Jalon"
+
+#: bhtheme/templates/bh_milestone_edit.html:32
+#: bhtheme/templates/bh_milestone_edit.html:67
+msgid "New Milestone"
+msgstr "Nouveau jalon"
+
+#: bhtheme/templates/bh_milestone_edit.html:76
+msgid "Name of the milestone:"
+msgstr "Nom du jalon :"
+
+#: bhtheme/templates/bh_milestone_edit.html:86
+msgid ""
+"[1:Tip]\n"
+"                You may use [2:WikiFormatting] here"
+msgstr "[1:Tip]\nL'utilisation du\n                          [2:WikiFormatting]\n                          est possible ici."
+
+#: bhtheme/templates/bh_milestone_edit.html:97
+msgid "Schedule"
+msgstr "Calendrier"
+
+#: bhtheme/templates/bh_milestone_edit.html:108
+#: bhtheme/templates/bh_milestone_edit.html:124
+#, python-format
+msgid ""
+"[1:Tip]\n"
+"                    Format: %(datehint)s"
+msgstr "[1:Astuce]\n                    Format : %(datehint)s"
+
+#: bhtheme/templates/bh_milestone_edit.html:132
+msgid "Retarget associated open tickets to milestone:"
+msgstr "Déplacer les tickets ouverts associés au jalon :"
+
+#: bhtheme/templates/bh_milestone_edit.html:147
+#: bhtheme/templates/bh_product_edit.html:77
+#: bhtheme/templates/bh_ticket.html:363 bhtheme/templates/bh_ticket.html:419
+#: bhtheme/templates/bh_ticket_change.html:95
+#: bhtheme/templates/bh_wiki_edit_form.html:93
+#: bhtheme/templates/bh_wiki_edit_form.html:98
+msgid "Submit changes"
+msgstr "Enregistrer les modifications"
+
+#: bhtheme/templates/bh_milestone_edit.html:149
+msgid "Add milestone"
+msgstr "Ajouter un jalon"
+
+#: bhtheme/templates/bh_milestone_edit.html:156
+msgid ""
+"[1:\n"
+"          [2:Note] See\n"
+"          [3:TracRoadmap]\n"
+"          for help on using the roadmap.\n"
+"        ]"
+msgstr "[1:\n[2:Note :] consultez [3:TracRoadmap] pour obtenir de l'aide sur l'utilisation de la feuille de route.\n]"
+
+#: bhtheme/templates/bh_milestone_view.html:35
+#, python-format
+msgid "Completed %(duration)s ago (%(date)s)"
+msgstr "Atteint %(duration)s (%(date)s)"
+
+#: bhtheme/templates/bh_milestone_view.html:40
+msgid "dateinfo(milestone.due)} late"
+msgstr "dateinfo(milestone.due)} en retard"
+
+#: bhtheme/templates/bh_milestone_view.html:45
+#, python-format
+msgid "Due in %(duration)s"
+msgstr "Échéance prévue dans %(duration)s"
+
+#: bhtheme/templates/bh_milestone_view.html:50
+msgid "Unscheduled"
+msgstr "Non planifié"
+
+#: bhtheme/templates/bh_milestone_view.html:56
+#: bhtheme/templates/bh_milestone_view.html:108
+msgid "Milestone"
+msgstr "Jalon"
+
+#: bhtheme/templates/bh_milestone_view.html:82
+#: bhtheme/templates/bh_product_view.html:71
+#: bhtheme/templates/bh_report_list.html:115
+msgid "Delete"
+msgstr "Supprimer"
+
+#: bhtheme/templates/bh_milestone_view.html:94
+#: bhtheme/templates/bh_milestone_view.html:102
+msgid "milestone="
+msgstr "Jalon="
+
+#: bhtheme/templates/bh_milestone_view.html:94
+#: bhtheme/templates/bh_product_view.html:89
+msgid ""
+"&status=!closed&group=time&col=id&col=summary&col=owner&col=status&col=priority&order=priority&groupdesc=1&desc=1"
+msgstr ""
+
+#: bhtheme/templates/bh_milestone_view.html:95
+msgid "Active tickets in milestone"
+msgstr "Tickets actifs du jalon"
+
+#: bhtheme/templates/bh_milestone_view.html:100
+#: bhtheme/templates/bh_product_view.html:112
+msgid "component"
+msgstr "Composant"
+
+#: bhtheme/templates/bh_milestone_view.html:101
+#: bhtheme/templates/bh_product_view.html:97
+#: bhtheme/templates/bh_product_view.html:105
+#: bhtheme/templates/bh_product_view.html:113
+msgid "true"
+msgstr "vrai"
+
+#: bhtheme/templates/bh_milestone_view.html:102
+#: bhtheme/templates/bh_product_view.html:114
+msgid "&group=component"
+msgstr ""
+
+#: bhtheme/templates/bh_milestone_view.html:109
+msgid "Edit this milestone"
+msgstr "Modifier ce jalon"
+
+#: bhtheme/templates/bh_path_general.html:33
+msgid "Select product to administer"
+msgstr "Sélectionner le produit à gérer"
+
+#: bhtheme/templates/bh_path_general.html:53
+msgid "View the dashboard"
+msgstr "Voir le tableau de bord"
+
+#: bhtheme/templates/bh_path_general.html:53
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: bhtheme/templates/bh_path_general.html:58
+msgid "Current product"
+msgstr "Produit actuel"
+
+#: bhtheme/templates/bh_path_general.html:69
+msgid "Back to products"
+msgstr "Retour aux produits"
+
+#: bhtheme/templates/bh_path_general.html:69
+msgid "All products"
+msgstr "Tous les produits"
+
+#: bhtheme/templates/bh_path_general.html:78
+msgid "Current milestone"
+msgstr "Jalon courant"
+
+#: bhtheme/templates/bh_path_general.html:89
+msgid "Back to roadmap"
+msgstr "Retour à la feuille de route"
+
+#: bhtheme/templates/bh_path_general.html:89
+#: bhtheme/templates/bh_roadmap.html:31 bhtheme/templates/bh_roadmap.html:37
+msgid "Roadmap"
+msgstr "Feuille de route"
+
+#: bhtheme/templates/bh_path_links.html:42
+msgid "Go to repository index"
+msgstr "Aller à l'index des dépôts"
+
+#: bhtheme/templates/bh_path_links.html:42
+msgid "Go to repository root"
+msgstr "Aller à la racine du dépôt"
+
+#: bhtheme/templates/bh_path_search.html:28
+#: bhtheme/templates/bh_search.html:32
+#: bhtheme/templates/bloodhound_theme.html:110
+msgid "Search"
+msgstr "Recherche"
+
+#: bhtheme/templates/bh_path_ticket.html:30
+msgid "Ticket #"
+msgstr "Ticket #"
+
+#: bhtheme/templates/bh_path_wikipage.html:27
+msgid "View default wiki page"
+msgstr "Voir la page wiki par défaut"
+
+#: bhtheme/templates/bh_path_wikipage.html:27
+msgid "wiki:"
+msgstr "wiki :"
+
+#: bhtheme/templates/bh_path_wikipage.html:30
+#, python-format
+msgid "View %(path)s"
+msgstr "Voir %(path)s"
+
+#: bhtheme/templates/bh_prefs.html:31
+msgid "Preferences"
+msgstr "Préférences"
+
+#: bhtheme/templates/bh_prefs.html:32
+msgid ""
+"This page lets you customize your personal settings for this site.\n"
+"    These settings are stored on the server and are identified by a session\n"
+"    key stored in a browser cookie. That cookie allows your settings to be\n"
+"    restored on subsequent visits."
+msgstr "Cette page vous permets de gérer vos paramètres personnels pour ce site.\n      Ces paramètres sont sauvegardés sur le serveur et identifiés par une\n      clé de session elle-même sauvegardée dans un « cookie » de votre\n      navigateur. Ce « cookie » permet de restaurer vos paramètres lors\n      de vos visites ultérieures."
+
+#: bhtheme/templates/bh_prefs.html:70
+msgid "Save changes"
+msgstr "Enregistrer les modifications"
+
+#: bhtheme/templates/bh_prefs.html:91
+msgid "Preferences:"
+msgstr "Préférences :"
+
+#: bhtheme/templates/bh_prefs_account.html:41
+msgid "Delete Account"
+msgstr "Supprimer le Compte"
+
+#: bhtheme/templates/bh_prefs_account.html:64
+msgid "Delete account"
+msgstr "Supprimer le compte"
+
+#: bhtheme/templates/bh_prefs_account.html:73
+#: bhtheme/templates/bh_user_table.html:39
+msgid "Account"
+msgstr "Compte"
+
+#: bhtheme/templates/bh_prefs_account.html:87
+msgid "Change Password"
+msgstr "Modifier le mot de passe"
+
+#: bhtheme/templates/bh_prefs_account.html:95
+msgid "Old Password:"
+msgstr "Ancien mot de passe :"
+
+#: bhtheme/templates/bh_prefs_account.html:103
+msgid "Type current password"
+msgstr "Entrez le mot de passe actuel"
+
+#: bhtheme/templates/bh_prefs_account.html:110
+msgid "New Password:"
+msgstr "Nouveau mot de passe :"
+
+#: bhtheme/templates/bh_prefs_account.html:118
+msgid "Type new password"
+msgstr "Entrez le nouveau mot de passe"
+
+#: bhtheme/templates/bh_prefs_account.html:133
+msgid "Must match new password"
+msgstr "Le nouveau mot de passe doit être identique"
+
+#: bhtheme/templates/bh_prefs_advanced.html:30
+msgid "Advanced"
+msgstr "Avancé"
+
+#: bhtheme/templates/bh_prefs_advanced.html:36
+msgid "Session key:"
+msgstr "Clef de session :"
+
+#: bhtheme/templates/bh_prefs_advanced.html:41
+#: bhtheme/templates/bh_prefs_advanced.html:59
+#: bhtheme/templates/bh_preview_file.html:35
+#: bhtheme/templates/bh_preview_file.html:40
+#: bhtheme/templates/bh_register.html:106
+#: bhtheme/templates/bh_register.html:154
+msgid "Notice"
+msgstr "Remarque"
+
+#: bhtheme/templates/bh_prefs_advanced.html:41
+msgid ""
+"The session key is used to identify stored custom\n"
+"          settings and session data on the server. Although it is\n"
+"          automatically generated by default, you may change it to something\n"
+"          easier to remember at any time if you wish to load your settings\n"
+"          in a different web browser."
+msgstr "La clef de session est utilisée pour identifier les réglages personnels\n      et les données de session sur le serveur. Bien que le nom d'une telle\n      clef soit généré automatiquement, il est possible de le modifier en\n      quelque chose plus facile à mémoriser pour que ces réglages soient\n      aisément rechargés dans un navigateur Web différent."
+
+#: bhtheme/templates/bh_prefs_advanced.html:48
+msgid "Change"
+msgstr "Modifier"
+
+#: bhtheme/templates/bh_prefs_advanced.html:55
+msgid "Restore session:"
+msgstr "Restaurer une session :"
+
+#: bhtheme/templates/bh_prefs_advanced.html:59
+msgid ""
+"You may load a previously created session by entering the\n"
+"          corresponding session key below. This lets you share settings between\n"
+"          multiple computers and web browsers."
+msgstr "Il est possible de recharger une session précédemment créée en fournissant\n      la clef de session correspondante dans le champ suivant. Cette\n      fonctionnalité permet de conserver les même réglages sur de multiples\n      machines et/ou navigateurs Web."
+
+#: bhtheme/templates/bh_prefs_advanced.html:64
+msgid "Load"
+msgstr "Charger"
+
+#: bhtheme/templates/bh_prefs_datetime.html:30
+msgid "Date & Time"
+msgstr "Date et heure"
+
+#: bhtheme/templates/bh_prefs_datetime.html:37
+msgid "Time zone:"
+msgstr "Fuseau horaire :"
+
+#: bhtheme/templates/bh_prefs_datetime.html:40
+msgid "Default time zone"
+msgstr "Fuseau horaire par défaut"
+
+#: bhtheme/templates/bh_prefs_datetime.html:47
+msgid ""
+"Configuring your time zone will result in all\n"
+"        dates and times displayed on this site to use your time zone\n"
+"        instead of that of the server."
+msgstr "L'utilisation d'un fuseau horaire particulier permet d'afficher toutes les\n      dates et les heures sur ce site en fonction de l'heure locale plutôt\n      que celle du serveur."
+
+#: bhtheme/templates/bh_prefs_datetime.html:56
+#, python-format
+msgid "[1:Example] The current time is [2:%(time)s] [3:UTC]."
+msgstr "[1:Exemple] : l'heure actuelle est [2:%(time)s] [3:UTC]."
+
+#: bhtheme/templates/bh_prefs_datetime.html:61
+#, python-format
+msgid ""
+"In your time zone %(tz)s, this would be displayed as\n"
+"              [1:%(formatted)s]."
+msgstr "Dans votre fuseau horaire %(tz)s, le temps serait affiché comme ceci\n            [1:%(formatted)s]."
+
+#: bhtheme/templates/bh_prefs_datetime.html:67
+#, python-format
+msgid ""
+"In the default time zone, this would be displayed as [1:%(formatted)s]."
+msgstr "Dans le fuseau horaire par défaut, le temps serait affiché comme ceci [1:%(formatted)s]."
+
+#: bhtheme/templates/bh_prefs_datetime.html:73
+msgid ""
+"[1:Note] Universal Co-ordinated Time ( [2:UTC] ) is also known as Greenwich Mean Time ( [3:GMT] ).[4:]\n"
+"          A positive offset is used to indicate a timezone at the east of Greenwich, i.e. ahead of Universal Time."
+msgstr "[1:Note] Le Temps Universel Coordonné ([2:UTC]) correspond au fuseau horaire de Greenwich ([3:GMT]).[4:]\n        Un décalage positif est utilisé pour indiquer un fuseau horaire situé à l'est de Greenwich, c.à.d. en avance sur l'heure universelle."
+
+#: bhtheme/templates/bh_prefs_datetime.html:83
+msgid "Date format:"
+msgstr "Choix dans la date :"
+
+#: bhtheme/templates/bh_prefs_datetime.html:86
+msgid "Default date format"
+msgstr "Format de date par défaut"
+
+#: bhtheme/templates/bh_prefs_datetime.html:88
+msgid "Your language setting"
+msgstr "Vos paramètres de langage"
+
+#: bhtheme/templates/bh_prefs_datetime.html:94
+msgid ""
+"Configuring your date format will result in formatting\n"
+"        and parsing datetime displayed on this site to use your date format\n"
+"        instead of that of the server."
+msgstr "L'utilisation d'un format de date particulier permet d'afficher toutes les\n      dates et les heures sur ce site selon ce format plutôt\n      que selon celui du serveur."
+
+#: bhtheme/templates/bh_prefs_datetime.html:103
+msgid "Date relative/absolute format:"
+msgstr "Temps écoulé ou date :"
+
+#: bhtheme/templates/bh_prefs_datetime.html:106
+msgid "Default format"
+msgstr "Format par défaut"
+
+#: bhtheme/templates/bh_prefs_datetime.html:108
+msgid "Relative format"
+msgstr "Temps écoulé"
+
+#: bhtheme/templates/bh_prefs_datetime.html:110
+msgid "Absolute format"
+msgstr "Dates"
+
+#: bhtheme/templates/bh_prefs_datetime.html:114
+msgid ""
+"Configuring your relative/absolute format will result in\n"
+"        formatting datetime displayed on this site to use your format instead of\n"
+"        that of the server."
+msgstr "Le choix temps écoulé / dates permet de choisir le type d'affichage \n      des dates selon vos préférences plutôt\n      que celle du serveur."
+
+#: bhtheme/templates/bh_prefs_general.html:30
+msgid "General"
+msgstr "Général"
+
+#: bhtheme/templates/bh_prefs_general.html:35
+msgid "Full name:"
+msgstr "Nom complet :"
+
+#: bhtheme/templates/bh_prefs_general.html:37
+msgid "Jack Pumpkinhead"
+msgstr "Jack Pumpkinhead"
+
+#: bhtheme/templates/bh_prefs_general.html:43
+msgid "Email address:"
+msgstr "Adresse électronique :"
+
+#: bhtheme/templates/bh_prefs_general.html:45
+msgid "jack@marvelous.land-of.oz"
+msgstr "jack@marvelous.land-of.oz"
+
+#: bhtheme/templates/bh_prefs_general.html:52
+msgid ""
+"This information is used to automatically populate some forms\n"
+"        on this site with your contact details."
+msgstr "Ces informations sont utilisées pour remplir automatiquement certains\n        formulaires sur ce site avec les informations utilisateur."
+
+#: bhtheme/templates/bh_prefs_general.html:56
+msgid ""
+"This information is used to associate your login name with your\n"
+"        email address and full name, which is used for email\n"
+"        notification and RSS feeds, for example."
+msgstr "Cette information permet d'associer le nom de connexion avec l'adresse\n        de courriel et le nom complet qui sont utilisés, par exemple,\n        pour l'envoi des notifications et les flux RSS"
+
+#: bhtheme/templates/bh_prefs_keybindings.html:30
+msgid "Keyboard Shortcuts"
+msgstr "Raccourcis clavier"
+
+#: bhtheme/templates/bh_prefs_keybindings.html:38
+msgid "Enable access keys"
+msgstr "Activer les raccourcis clavier"
+
+#: bhtheme/templates/bh_prefs_keybindings.html:41
+msgid ""
+"[1:Note]\n"
+"      This site provides keyboard shortcuts for\n"
+"      faster access to certain functions of this site. As these shortcuts can\n"
+"      cause conflicts with shortcuts provided by the desktop system or\n"
+"      web browser, they are disabled by default. See\n"
+"      [2:TracAccessibility]\n"
+"      for more information on access keys."
+msgstr "[1:Note]\nCe site permet l'utilisation de raccourcis clavier pour accéder plus\n      rapidement à certaines fonctions du site. Néanmoins comme ces\n      raccourcis peuvent dans certains cas engendrer des conflits avec les\n      raccourcis du système d'exploitation ou du navigateur Web, ils sont\n      désactivés par défaut. Voir [2:TracAccessibility] pour de plus amples\n      information sur les raccourcis clavier."
+
+#: bhtheme/templates/bh_prefs_language.html:30
+msgid "Language"
+msgstr "Langues"
+
+#: bhtheme/templates/bh_prefs_language.html:35
+msgid "Language:"
+msgstr "Langue :"
+
+#: bhtheme/templates/bh_prefs_language.html:37
+msgid "Default language"
+msgstr "Langue par défaut"
+
+#: bhtheme/templates/bh_prefs_language.html:43
+msgid ""
+"Configuring your language will result in all text\n"
+"      displayed on this site to use your language instead of that of the\n"
+"      server."
+msgstr "La sélection d'une langue permets d'afficher tous les messages\nde ce site dans cette langue plutôt que dans celle du serveur."
+
+#: bhtheme/templates/bh_prefs_language.html:47
+msgid ""
+"The [1:Default language] option uses the browser's\n"
+"        language negotiation feature to select the appropriate language."
+msgstr "L'option [1:langue par défaut] utilise la capacité de votre navigateur\n      à négocier avec le serveur la langue appropriée."
+
+#: bhtheme/templates/bh_prefs_pygments.html:30
+msgid "Syntax Highlighting"
+msgstr "Coloration syntaxique"
+
+#: bhtheme/templates/bh_prefs_pygments.html:59
+msgid "Overview"
+msgstr "Vue d'ensemble"
+
+#: bhtheme/templates/bh_prefs_pygments.html:59
+msgid ""
+"The Pygments syntax highlighter can be used with\n"
+"        different coloring styles."
+msgstr "La coloration syntaxique proposée par la librairie Pygments peut être\n      utilisée avec des thèmes couleurs différents."
+
+#: bhtheme/templates/bh_prefs_pygments.html:63
+msgid "Style:"
+msgstr "Style :"
+
+#: bhtheme/templates/bh_prefs_pygments.html:68
+msgid "Preview:"
+msgstr "Aperçu :"
+
+#: bhtheme/templates/bh_prefs_userinterface.html:30
+msgid "User Interface"
+msgstr "Interface utilisateur"
+
+#: bhtheme/templates/bh_prefs_userinterface.html:39
+msgid "Use only symbols for buttons."
+msgstr "N'utiliser que des symboles pour les boutons."
+
+#: bhtheme/templates/bh_prefs_userinterface.html:42
+msgid ""
+"[1:Note]\n"
+"        Display only the icon or symbol for short inline buttons, and hide the text caption."
+msgstr "[1:Note]\nNe montrer que le dessin ou le symbole pour les boutons secondaires présents dans le corps de l'interface, et cacher le texte correspondant."
+
+#: bhtheme/templates/bh_prefs_userinterface.html:52
+msgid "Hide help links."
+msgstr "Cacher les liens vers le guide d'utilisation."
+
+#: bhtheme/templates/bh_prefs_userinterface.html:55
+msgid ""
+"[1:Note]\n"
+"        Don't show the various help links. This reduces the verbosity of the pages."
+msgstr "[1:Note]\nNe pas montrer les différents liens vers les pages d'aide. Ceci permet de réduire la verbosité des pages."
+
+#: bhtheme/templates/bh_preview_file.html:36
+msgid "(The file is empty)"
+msgstr "(le fichier est vide)"
+
+#: bhtheme/templates/bh_preview_file.html:41
+#, python-format
+msgid ""
+"[1:HTML preview not available], since the file size exceeds %(size)s bytes."
+msgstr "[1:L'aperçu HTML n'est pas disponible] car la taille du fichier dépasse %(size)s octets."
+
+#: bhtheme/templates/bh_preview_file.html:44
+msgid ""
+"[1:HTML preview not available], since no preview renderer could handle it."
+msgstr "[1:L'aperçu HTML n'est pas disponible] car aucun module de création d'aperçu ne peut traiter ce contenu."
+
+#: bhtheme/templates/bh_preview_file.html:48
+msgid "Try [1:downloading] the file instead."
+msgstr "Essayez plutôt de [1:télécharger] le fichier."
+
+#: bhtheme/templates/bh_product_edit.html:32
+#: bhtheme/templates/bh_product_edit.html:40
+msgid "Edit Product"
+msgstr "Modifier le Produit"
+
+#: bhtheme/templates/bh_product_edit.html:33
+#: bhtheme/templates/bh_product_edit.html:41
+msgid "New Product"
+msgstr "Nouveau Produit"
+
+#: bhtheme/templates/bh_product_edit.html:69
+msgid ""
+"[1:Tip]\n"
+"                    You may use [2:WikiFormatting] here."
+msgstr "[1:Tip]\n                    L'utilisation du [2:WikiFormatting] est possible ici."
+
+#: bhtheme/templates/bh_product_edit.html:78
+msgid "Add Product"
+msgstr "Ajouter Produit"
+
+#: bhtheme/templates/bh_product_list.html:43
+msgid "Add new product"
+msgstr "Ajouter un nouveau Produit"
+
+#: bhtheme/templates/bh_product_view.html:34
+msgid "Owned by"
+msgstr "Responsable :"
+
+#: bhtheme/templates/bh_product_view.html:44
+#: bhtheme/templates/bh_product_view.html:120
+msgid "Product"
+msgstr "Produit"
+
+#: bhtheme/templates/bh_product_view.html:82
+#: bhtheme/templates/bh_product_view.html:89
+#: bhtheme/templates/bh_product_view.html:98
+#: bhtheme/templates/bh_product_view.html:106
+#: bhtheme/templates/bh_product_view.html:114
+msgid "product="
+msgstr "produit="
+
+#: bhtheme/templates/bh_product_view.html:82
+msgid ""
+"&status=!closed&group=time&col=id&col=summary&col=owner&col=status&col=priority&order=priority&groupdesc=1&desc=1&owner=$USER"
+msgstr ""
+
+#: bhtheme/templates/bh_product_view.html:83
+msgid "My Tickets"
+msgstr "Mes Tickets"
+
+#: bhtheme/templates/bh_product_view.html:90
+msgid "Active Tickets"
+msgstr "Tickets Actifs"
+
+#: bhtheme/templates/bh_product_view.html:96
+msgid "version"
+msgstr "Version"
+
+#: bhtheme/templates/bh_product_view.html:98
+msgid "&group=version"
+msgstr ""
+
+#: bhtheme/templates/bh_product_view.html:104
+msgid "milestone"
+msgstr "jalon"
+
+#: bhtheme/templates/bh_product_view.html:106
+msgid "&group=milestone"
+msgstr ""
+
+#: bhtheme/templates/bh_product_view.html:121
+msgid "Edit this product"
+msgstr "Modifier ce produit"
+
+#: bhtheme/templates/bh_query.html:55 bhtheme/templates/bh_report_view.html:41
+#, python-format
+msgid "%(num)s match"
+msgid_plural "%(num)s matches"
+msgstr[0] "%(num)s résultat correspondant"
+msgstr[1] "%(num)s résultats correspondants"
+
+#: bhtheme/templates/bh_query.html:66
+msgid "Filters"
+msgstr "Filtres"
+
+#: bhtheme/templates/bh_query.html:67
+msgid "Query filters"
+msgstr "Filtres de requête"
+
+#: bhtheme/templates/bh_query.html:73 bhtheme/templates/bh_query.html:177
+msgid "Or"
+msgstr "Ou"
+
+#: bhtheme/templates/bh_query.html:101
+#: bhtheme/templates/bloodhound_theme.html:74
+msgid "or"
+msgstr "ou"
+
+#: bhtheme/templates/bh_query.html:136
+msgid "yes"
+msgstr "oui"
+
+#: bhtheme/templates/bh_query.html:139
+msgid "no"
+msgstr "non"
+
+#: bhtheme/templates/bh_query.html:149
+msgid ""
+"[1:between]\n"
+"                                [2:]\n"
+"                                [3:and]\n"
+"                                [4:]"
+msgstr "[1:entre]\n                            [2:]\n                            [3:et]\n                            [4:]"
+
+#: bhtheme/templates/bh_query.html:163
+msgid "And"
+msgstr "Et"
+
+#: bhtheme/templates/bh_query.html:200
+msgid "Columns"
+msgstr "Colonnes"
+
+#: bhtheme/templates/bh_query.html:218
+msgid "Group results by"
+msgstr "Grouper les résultats par"
+
+#: bhtheme/templates/bh_query.html:230
+msgid "descending"
+msgstr "décroissant"
+
+#: bhtheme/templates/bh_query.html:233
+#: bhtheme/templates/bh_report_view.html:76
+msgid "Max items per page"
+msgstr "Nombre maximum d'objets par page"
+
+#: bhtheme/templates/bh_query.html:239
+msgid "Show under each result:"
+msgstr "Afficher sous chaque résultat :"
+
+#: bhtheme/templates/bh_query.html:275
+#, python-format
+msgid "Edit report {%(id)s} corresponding to this query"
+msgstr "Modifier le rapport {%(id)s} correspondant à cette requête"
+
+#: bhtheme/templates/bh_query.html:275
+msgid "Edit query"
+msgstr "Modifier la requête"
+
+#: bhtheme/templates/bh_query.html:284
+msgid "Save query"
+msgstr "Enregistrer la requête"
+
+#: bhtheme/templates/bh_query.html:284
+#, python-format
+msgid "Save updated query in report {%(id)s}"
+msgstr "Enregister la requête mise à jour dans le rapport {%(id)s}"
+
+#: bhtheme/templates/bh_query.html:284
+msgid "Create new report from current query"
+msgstr "Créer un nouveau rapport à partir de la requête actuelle"
+
+#: bhtheme/templates/bh_query.html:293
+#, python-format
+msgid "Delete report {%(id)s} corresponding to this query"
+msgstr "Supprimer le rapport {%(id)s} correspondant à cette requête"
+
+#: bhtheme/templates/bh_query.html:293
+msgid "Delete query"
+msgstr "Supprimer la requête"
+
+#: bhtheme/templates/bh_query.html:300
+msgid ""
+"[1:\n"
+"          [2:Note]\n"
+"          See [3:TracQuery] for help on using queries.\n"
+"        ]"
+msgstr "[1:\n          [2:Note]\n          Consultez [3:TracQuery] pour obtenir de l'aide sur l'utilisation des requêtes.\n        ]"
+
+#: bhtheme/templates/bh_register.html:39
+msgid "@name=username"
+msgstr ""
+
+#: bhtheme/templates/bh_register.html:43
+msgid "Register an account"
+msgstr "Enregistrer un compte"
+
+#: bhtheme/templates/bh_register.html:56
+msgid "Required"
+msgstr "Requis"
+
+#: bhtheme/templates/bh_register.html:63
+msgid "e.g. newuser"
+msgstr "p. ex. newuser"
+
+#: bhtheme/templates/bh_register.html:75
+msgid "Better use letters and numbers"
+msgstr "Utilisation de lettres et de chiffres recommandée"
+
+#: bhtheme/templates/bh_register.html:95
+#: bhtheme/templates/bh_register.html:144
+msgid "Email:"
+msgstr "Courriel :"
+
+#: bhtheme/templates/bh_register.html:106
+msgid ""
+"The email \n"
+"                    address is required for Trac to send you a\n"
+"                    verification token."
+msgstr "L'adresse de courriel est requises pour que Trac puisse vous envoyer un jeton de vérification."
+
+#: bhtheme/templates/bh_register.html:111
+msgid ""
+"Entering your email address\n"
+"                    will also enable you to reset your password if you ever \n"
+"                    forget it."
+msgstr "Entrer votre adresse de courriel vous permettra de réinitialiser votre mot de passe si vous l'oubliez."
+
+#: bhtheme/templates/bh_register.html:120
+msgid "Create account"
+msgstr "Créer un compte"
+
+#: bhtheme/templates/bh_register.html:131
+msgid "Optional"
+msgstr "Optionnel"
+
+#: bhtheme/templates/bh_register.html:154
+msgid ""
+"Entering your email address\n"
+"                      will enable you to reset your password if \n"
+"                      you ever forget it."
+msgstr "Entrer une adresse de courriel vous permettra de réinitialiser votre mot de passe si vous l'oubliez."
+
+#: bhtheme/templates/bh_report_delete.html:38
+msgid "Are you sure you want to delete this report?"
+msgstr "Voulez-vous vraiment confirmer la suppression du rapport ?"
+
+#: bhtheme/templates/bh_report_delete.html:42
+#: bhtheme/templates/bh_report_list.html:115
+#: bhtheme/templates/bh_report_view.html:66
+msgid "Delete report"
+msgstr "Supprimer le rapport"
+
+#: bhtheme/templates/bh_report_delete.html:51
+#: bhtheme/templates/bh_report_edit.html:90
+msgid ""
+"[1:Note]\n"
+"          See [2:TracReports] for help on using and creating reports."
+msgstr "[1:Note :] consultez [2:TracReports] pour obtenir de l'aide sur l'utilisation et la création des rapports."
+
+#: bhtheme/templates/bh_report_edit.html:37
+msgid "New Report"
+msgstr "Nouveau rapport"
+
+#: bhtheme/templates/bh_report_edit.html:45
+msgid "Report Title:"
+msgstr "Titre du rapport :"
+
+#: bhtheme/templates/bh_report_edit.html:57
+msgid ""
+"[1:Tip]\n"
+"                  You may use [2:WikiFormatting] here."
+msgstr "[1:Tip]\nL'utilisation du\n                          [2:WikiFormatting]\n                          est possible ici."
+
+#: bhtheme/templates/bh_report_edit.html:65
+msgid "Error:"
+msgstr "Erreur :"
+
+#: bhtheme/templates/bh_report_edit.html:67
+msgid "Query for Report:"
+msgstr "Requête pour le rapport :"
+
+#: bhtheme/templates/bh_report_edit.html:73
+msgid ""
+"[1:Tip]\n"
+"                  Can be either SQL or, if starting with [2:query:],\n"
+"                  a [3:TracQuery] expression."
+msgstr "[1:Astuce]\nPeut être soit en SQL ou, si cela commence par [2:query:], une expression [3:TracQuery]."
+
+#: bhtheme/templates/bh_report_edit.html:81
+msgid "Save report"
+msgstr "Enregistrer le rapport"
+
+#: bhtheme/templates/bh_report_list.html:30
+#: bhtheme/templates/bh_report_list.html:48
+msgid "Reports"
+msgstr "Rapports"
+
+#: bhtheme/templates/bh_report_list.html:55
+msgid "Forget last query"
+msgstr "Oublier la dernière requête"
+
+#: bhtheme/templates/bh_report_list.html:55
+msgid "Clear"
+msgstr "Effacer"
+
+#: bhtheme/templates/bh_report_list.html:59
+msgid "Return to Last Query"
+msgstr "Retourner à la dernière requête"
+
+#: bhtheme/templates/bh_report_list.html:62
+#: bhtheme/templates/bh_report_list.html:72
+msgid "Tip"
+msgstr "Astuce"
+
+#: bhtheme/templates/bh_report_list.html:62
+msgid ""
+"Continue browsing through the current list of results,\n"
+"              from the last selected report or custom query."
+msgstr "Continuer à parcourir la liste actuelle des résultats,\n              correspondant au rapport ou à la requête personnalisée              activée en dernier."
+
+#: bhtheme/templates/bh_report_list.html:69
+msgid "Custom Query"
+msgstr "Requête personnalisée"
+
+#: bhtheme/templates/bh_report_list.html:72
+msgid ""
+"Compose a new ticket query by selecting filters and columns to display."
+msgstr "Composer une nouvelle requête personnalisée en sélectionnant les\nfiltres et les colonnes"
+
+#: bhtheme/templates/bh_report_list.html:82
+msgid "Show Descriptions"
+msgstr "Voir les descriptions"
+
+#: bhtheme/templates/bh_report_list.html:92
+msgid "SQL reports and saved custom queries"
+msgstr "Rapports SQL et requêtes sauvegardées"
+
+#: bhtheme/templates/bh_report_list.html:94
+msgid "Sort by:"
+msgstr "Trier par :"
+
+#: bhtheme/templates/bh_report_list.html:98
+msgid "Identifier"
+msgstr "Numéro"
+
+#: bhtheme/templates/bh_report_list.html:104
+msgid "Title"
+msgstr "Titre"
+
+#: bhtheme/templates/bh_report_list.html:121
+#: bhtheme/templates/bh_report_view.html:53
+msgid "Edit report"
+msgstr "Modifier le rapport"
+
+#: bhtheme/templates/bh_report_list.html:124
+msgid "View report"
+msgstr "Voir le rapport"
+
+#: bhtheme/templates/bh_report_list.html:132
+#: bhtheme/templates/bloodhound_theme.html:287
+msgid "Warning"
+msgstr "Attention :"
+
+#: bhtheme/templates/bh_report_list.html:132
+msgid "No reports available."
+msgstr "Aucun rapport disponible"
+
+#: bhtheme/templates/bh_report_list.html:142
+msgid "Create new report"
+msgstr "Créer un nouveau rapport"
+
+#: bhtheme/templates/bh_report_list.html:147
+msgid ""
+"[1:\n"
+"          [2:Note]\n"
+"          See [3:TracReports] for help on using and creating reports.\n"
+"        ]"
+msgstr "[1:\n[2:Note]\nconsultez [3:TracReports] pour obtenir de l'aide sur l'utilisation et la création des rapports.\n]"
+
+#: bhtheme/templates/bh_report_view.html:60
+msgid "Copy report"
+msgstr "Copier le rapport"
+
+#: bhtheme/templates/bh_report_view.html:82
+msgid "Arguments"
+msgstr "Paramètres"
+
+#: bhtheme/templates/bh_report_view.html:83
+msgid "Report arguments"
+msgstr "Paramètres du rapport"
+
+#: bhtheme/templates/bh_report_view.html:110
+msgid ""
+"[1:Note]\n"
+"        See [2:TracReports] for help on using and creating reports."
+msgstr "[1:Note :] consultez [2:TracReports] pour obtenir de l'aide sur l'utilisation et la création des rapports."
+
+#: bhtheme/templates/bh_repository_index.html:34
+msgid "View Root Directory"
+msgstr "Aller au répertoire racine"
+
+#: bhtheme/templates/bh_reset_password.html:33
+#: bhtheme/templates/bh_reset_password.html:43
+msgid "Reset Password"
+msgstr "Réinitialiser le mot de passe"
+
+#: bhtheme/templates/bh_reset_password.html:47
+msgid "Already logged in"
+msgstr "Déjà connecté"
+
+#: bhtheme/templates/bh_reset_password.html:48
+msgid ""
+"You're already logged in. If you\n"
+"          need to change your password please use the\n"
+"          [1:Account Preferences] page."
+msgstr "Vous êtes déjà connecté. Si vous voulez changer votre mot de passe, merci d'utiliser la page de [1:Prédférences du compte]."
+
+#: bhtheme/templates/bh_reset_password.html:54
+#, python-format
+msgid "A new password has been emailed to you at %(email)s ."
+msgstr "A nouveau mot de passe vous a été envoyé à %(email)s ."
+
+#: bhtheme/templates/bh_reset_password.html:59
+msgid ""
+"If you've forgotten your password, enter\n"
+"        your username and email address below and you'll be emailed a new\n"
+"        password."
+msgstr "Si vous avez oublié votre mot de passe, entrez votre nom d'utilisateur ou adresse de courriel ci-dessous et un nouveau mot de passe vous sera envoyé."
+
+#: bhtheme/templates/bh_reset_password.html:95
+msgid "Reset password"
+msgstr "Réinitialiser le mot de passe"
+
+#: bhtheme/templates/bh_revisionlog.html:30
+msgid "(log)"
+msgstr "(journal)"
+
+#: bhtheme/templates/bh_revisionlog.html:49
+msgid "Revision log"
+msgstr "Journal des révisions"
+
+#: bhtheme/templates/bh_revisionlog.html:60
+msgid "Copied or renamed"
+msgstr "Copié ou renommé"
+
+#: bhtheme/templates/bh_revisionlog.html:73
+msgid "Revision Log Mode:"
+msgstr "Options du journal des révisions"
+
+#: bhtheme/templates/bh_revisionlog.html:77
+msgid "Stop on copy"
+msgstr "Arrêt sur copie"
+
+#: bhtheme/templates/bh_revisionlog.html:83
+msgid "Follow copies"
+msgstr "Suivre les copies"
+
+#: bhtheme/templates/bh_revisionlog.html:89
+msgid "Show only adds and deletes"
+msgstr "Afficher uniquement les ajouts et suppressions"
+
+#: bhtheme/templates/bh_revisionlog.html:95
+msgid ""
+"[1:View log starting at]\n"
+"                  [2:\n"
+"                    [3:]\n"
+"                  ]\n"
+"                  [4:and back to]\n"
+"                  [5:\n"
+"                    [6:]\n"
+"                  ]"
+msgstr "[1:Afficher le journal à partir de]\n[2:\n[3:]\n]\n[4:et jusqu'à]\n[5:\n[6:]\n]"
+
+#: bhtheme/templates/bh_revisionlog.html:105
+msgid ""
+"[1:Show at most]\n"
+"                  [2:\n"
+"                    [3:]\n"
+"                    revisions per page.\n"
+"                  ]"
+msgstr "[1:Afficher au plus]\n[2:\n[3:]\nrévisions par page.\n]"
+
+#: bhtheme/templates/bh_revisionlog.html:115
+msgid "Show full log messages"
+msgstr "Afficher l'intégralité des messages"
+
+#: bhtheme/templates/bh_revisionlog.html:131
+#: bhtheme/templates/bh_revisionlog.html:242
+msgid ""
+"Diff from Old Revision to New Revision (as selected in the Diff column)"
+msgstr "Diff d'une ancienne révision à une nouvelle (conforme à la sélection dans la colonne Diff)"
+
+#: bhtheme/templates/bh_revisionlog.html:137
+msgid "Graph"
+msgstr "Graphe"
+
+#: bhtheme/templates/bh_revisionlog.html:138
+msgid "Old / New"
+msgstr "Ancien / Nouveau"
+
+#: bhtheme/templates/bh_revisionlog.html:139
+msgid "Diff"
+msgstr "Diff."
+
+#: bhtheme/templates/bh_revisionlog.html:142
+msgid "Age"
+msgstr "Âge"
+
+#: bhtheme/templates/bh_revisionlog.html:144
+msgid "Log Message"
+msgstr "Message de la révision"
+
+#: bhtheme/templates/bh_revisionlog.html:152
+msgid "No revisions found"
+msgstr "Aucune révision trouvée"
+
+#: bhtheme/templates/bh_revisionlog.html:167
+#, python-format
+msgid "copied from [1:%(path)s]:"
+msgstr "copié de [1:%(path)s] :"
+
+#: bhtheme/templates/bh_revisionlog.html:174
+#, python-format
+msgid "From [%(rev)s]"
+msgstr "De [%(rev)s]"
+
+#: bhtheme/templates/bh_revisionlog.html:178
+#, python-format
+msgid "To [%(rev)s]"
+msgstr "À [%(rev)s]"
+
+#: bhtheme/templates/bh_revisionlog.html:185
+msgid "View log starting at this revision"
+msgstr "Afficher le journal en débutant à cette révision"
+
+#: bhtheme/templates/bh_revisionlog.html:192
+#, python-format
+msgid "Browse at revision %(rev)s"
+msgstr "Explorer à la version %(rev)s"
+
+#: bhtheme/templates/bh_revisionlog.html:196
+#, python-format
+msgid "View removal changeset [%(rev)s]"
+msgstr "Afficher la révision correspondant à la suppression [%(rev)s]"
+
+#: bhtheme/templates/bh_revisionlog.html:198
+#, python-format
+msgid "View changeset [%(rev)s] restricted to %(path)s"
+msgstr "Afficher la révision [%(rev)s] restreinte à %(path)s"
+
+#: bhtheme/templates/bh_revisionlog.html:248
+msgid ""
+"[1:Note:] See [2:TracRevisionLog]\n"
+"          for help on using the revision log."
+msgstr "[1:Note :] consultez [2:TracRevisionLog] pour obtenir de l'aide relative au journal des révisions."
+
+#: bhtheme/templates/bh_roadmap.html:45
+msgid ""
+"Show completed\n"
+"                milestones"
+msgstr "Afficher les jalons déjà atteints"
+
+#: bhtheme/templates/bh_roadmap.html:50
+msgid "Hide milestones with no due date"
+msgstr "Cacher les jalons sans date d'échéance"
+
+#: bhtheme/templates/bh_roadmap.html:63
+msgid "Milestone:"
+msgstr "Jalon :"
+
+#: bhtheme/templates/bh_roadmap.html:67
+#, python-format
+msgid ""
+"Completed %(duration)s ago\n"
+"                  (%(date)s)"
+msgstr "Atteint il y a %(duration)s (%(date)s)"
+
+#: bhtheme/templates/bh_roadmap.html:73
+#, python-format
+msgid ""
+"[1:%(duration)s late]\n"
+"                  (%(date)s)"
+msgstr "[1:%(duration)s en retard] (%(date)s)"
+
+#: bhtheme/templates/bh_roadmap.html:79
+#, python-format
+msgid ""
+"Due in %(duration)s\n"
+"                  (%(date)s)"
+msgstr "Échéance prévue dans %(duration)s (%(date)s)"
+
+#: bhtheme/templates/bh_roadmap.html:85
+msgid "No date set"
+msgstr "Aucune date d'échéance"
+
+#: bhtheme/templates/bh_roadmap.html:104
+msgid "Add new milestone"
+msgstr "Ajouter un nouveau jalon"
+
+#: bhtheme/templates/bh_roadmap.html:108
+msgid ""
+"[1:\n"
+"          [2:Note]\n"
+"          See [3:TracRoadmap] for help on using the roadmap.\n"
+"        ]"
+msgstr "[1:\n          [2:Note]\n          Consultez [3:TracRoadmap] pour obtenir de l'aide sur l'utilisation de la feuille de route.\n        ]"
+
+#: bhtheme/templates/bh_search.html:31
+msgid "Search Results"
+msgstr "Résultat de la recherche"
+
+#: bhtheme/templates/bh_search.html:46
+msgid "Results"
+msgstr "Résultats"
+
+#: bhtheme/templates/bh_search.html:56
+msgid "Apply filters"
+msgstr "Appliquer les filtres"
+
+#: bhtheme/templates/bh_search.html:76
+#, python-format
+msgid "Quickjump to %(name)s"
+msgstr "Accès direct à %(name)s"
+
+#: bhtheme/templates/bh_search.html:84
+#, python-format
+msgid "By %(author)s"
+msgstr "Par %(author)s"
+
+#: bhtheme/templates/bh_search.html:95
+msgid "No matches found."
+msgstr "Aucun résultat trouvé."
+
+#: bhtheme/templates/bh_search.html:102
+msgid ""
+"[1:Note:]\n"
+"      See [2:TracSearch]\n"
+"      for help on searching."
+msgstr "[1:Note :] consultez [2:TracSearch] pour obtenir de l'aide concernant les modalités de recherche."
+
+#: bhtheme/templates/bh_sortable_th.html:37
+#, python-format
+msgid "Sort by %(col)s %(direction)s"
+msgstr "Trier selon %(col)s %(direction)s"
+
+#: bhtheme/templates/bh_ticket.html:55 bhtheme/templates/bh_ticket.html:341
+#: bhtheme/templates/bloodhound_theme.html:156
+#: bhtheme/templates/bloodhound_theme.html:308
+msgid "New Ticket"
+msgstr "Nouveau ticket"
+
+#: bhtheme/templates/bh_ticket.html:328
+#, python-format
+msgid "Ticket #%(id)s"
+msgstr "Ticket #%(id)s"
+
+#: bhtheme/templates/bh_ticket.html:333
+msgid "at [1:Initial Version]"
+msgstr "à la [1:version initiale]"
+
+#: bhtheme/templates/bh_ticket.html:336
+#, python-format
+msgid "at [1:Version %(version)s]"
+msgstr "à la [1:version %(version)s]"
+
+#: bhtheme/templates/bh_ticket.html:346
+msgid "Assigned to"
+msgstr "Affecté à"
+
+#: bhtheme/templates/bh_ticket.html:350
+#, python-format
+msgid "last modified %(modified)s"
+msgstr "ernière modification %(modified)s"
+
+#: bhtheme/templates/bh_ticket.html:352
+msgid "(ticket not yet created)"
+msgstr "(ticket pas encore créé)"
+
+#: bhtheme/templates/bh_ticket.html:359 bhtheme/templates/bh_ticket.html:520
+msgid "Modify Ticket"
+msgstr "Modifier le ticket"
+
+#: bhtheme/templates/bh_ticket.html:366 bhtheme/templates/bh_ticket.html:422
+msgid "Discard changes"
+msgstr "Abandonner les changements"
+
+#: bhtheme/templates/bh_ticket.html:375
+msgid "Go to the ticket editor"
+msgstr "Aller à l'éditeur de ticket"
+
+#: bhtheme/templates/bh_ticket.html:375
+msgid "Modify"
+msgstr "Modifier"
+
+#: bhtheme/templates/bh_ticket.html:413 bhtheme/templates/bh_ticket.html:506
+msgid "Enter new comment"
+msgstr "Entrez un nouveau commentaire"
+
+#: bhtheme/templates/bh_ticket.html:432
+msgid "I have files to attach to this ticket"
+msgstr "Joindre des fichiers à ce ticket"
+
+#: bhtheme/templates/bh_ticket.html:441
+msgid "Create ticket"
+msgstr "Créer ticket"
+
+#: bhtheme/templates/bh_ticket.html:463
+msgid ""
+"[1:Note:] See\n"
+"            [2:TracTickets] for help on using tickets."
+msgstr "[1:Note :] consultez [2:TracTickets] pour obtenir de l'aide sur l'utilisation des tickets."
+
+#: bhtheme/templates/bh_ticket.html:474
+msgid "Newest first"
+msgstr "Récents d'abord"
+
+#: bhtheme/templates/bh_ticket.html:478
+msgid "Oldest first"
+msgstr "Anciens d'abord"
+
+#: bhtheme/templates/bh_ticket.html:492
+msgid "View ticket fields and description"
+msgstr "Voir les champs du ticket et la description"
+
+#: bhtheme/templates/bh_ticket.html:492
+msgid "View"
+msgstr "Voir"
+
+#: bhtheme/templates/bh_ticket.html:494
+msgid ""
+"[1:Warning]\n"
+"                  This ticket has been modified since you started editing. You should review the\n"
+"                  [2:other modifications] which have been appended above,\n"
+"                  and any [3:conflicts] shown in the preview below.\n"
+"                  You can nevertheless proceed and submit your changes if you wish so."
+msgstr "[1:Avertissement]\nCe ticket a été modifié par quelqu'un d'autre dans l'intervalle. Vous devez passer en revue ces\n              [2:autres modifications] qui ont été rajoutées ci-dessus,\n              ainsi que tout [3:conflit] montré dans l'aperçu ci-dessous.\n              Vous pouvez toutefois continuer et valider vos modifications si vous le souhaitez."
+
+#: bhtheme/templates/bh_ticket.html:508
+msgid "Submit"
+msgstr "Soumettre"
+
+#: bhtheme/templates/bh_ticket.html:509
+msgid ""
+"[1:Tip]\n"
+"                    You may use\n"
+"                    [2:WikiFormatting]\n"
+"                    here."
+msgstr "[1:Tip]\nL'utilisation du\n                          [2:WikiFormatting]\n                          est possible ici."
+
+#: bhtheme/templates/bh_ticket.html:526
+msgid "Change Properties"
+msgstr "Modification des propriétés"
+
+#: bhtheme/templates/bh_ticket.html:527
+msgid "Properties"
+msgstr "Propriétés"
+
+#: bhtheme/templates/bh_ticket.html:533
+msgid "Product:"
+msgstr "Produit :"
+
+#: bhtheme/templates/bh_ticket.html:543
+msgid "Summary:"
+msgstr "Résumé :"
+
+#: bhtheme/templates/bh_ticket.html:550
+msgid "Reporter:"
+msgstr "Rapporteur :"
+
+#: bhtheme/templates/bh_ticket.html:561
+msgid ""
+"[1:Tip]\n"
+"                            You may use\n"
+"                            [2:WikiFormatting] here."
+msgstr "[1:Tip]\nL'utilisation du\n                          [2:WikiFormatting]\n                          est possible ici."
+
+#: bhtheme/templates/bh_ticket.html:575
+#, python-format
+msgid "%(field)s:"
+msgstr "%(field)s :"
+
+#: bhtheme/templates/bh_ticket.html:609
+msgid "This checkbox allows you to add or remove yourself from the CC list."
+msgstr "Cette case à cocher vous permet de vous ajouter ou de vous enlever de la liste des utilisateurs en copie CC."
+
+#: bhtheme/templates/bh_ticket.html:615
+msgid "Space or comma delimited email addresses and usernames are accepted."
+msgstr "Sont acceptés, les noms d'utilisateur ou adresses électroniques séparés par des espaces ou des virgules."
+
+#: bhtheme/templates/bh_ticket.html:660
+#: bhtheme/templates/bh_ticket_box.html:76
+msgid "Reporter"
+msgstr "Rapporteur"
+
+#: bhtheme/templates/bh_ticket.html:673
+#: bhtheme/templates/bh_wiki_edit_form.html:71
+msgid "E-mail address and user name can be saved in the [1:Preferences]."
+msgstr "L'adresse électronique et le nom d'utilisateur peuvent être enregistrés dans les [1:préférences]."
+
+#: bhtheme/templates/bh_ticket.html:680
+msgid "Go to the list of attachments"
+msgstr "Allez à la liste des pièces jointes"
+
+#: bhtheme/templates/bh_ticket.html:680
+msgid "Attachments"
+msgstr "Fichiers joints"
+
+#: bhtheme/templates/bh_ticket_box.html:46
+#, python-format
+msgid "%(field)s"
+msgstr "%(field)s"
+
+#: bhtheme/templates/bh_ticket_box.html:73
+msgid "Details"
+msgstr "Détails"
+
+#: bhtheme/templates/bh_ticket_box.html:85
+#: bhtheme/templates/bh_ticket_box.html:86
+msgid "Keywords"
+msgstr "Mots-clés"
+
+#: bhtheme/templates/bh_ticket_box.html:127
+msgid "Reply, quoting this description"
+msgstr "Répondre, en citant cette description"
+
+#: bhtheme/templates/bh_ticket_box.html:130
+#: bhtheme/templates/bh_ticket_change.html:79
+msgid "Reply"
+msgstr "Répondre"
+
+#: bhtheme/templates/bh_ticket_box.html:140
+#, python-format
+msgid "Last modified by %(author)s"
+msgstr "(dernière modification par %(author)s)"
+
+#: bhtheme/templates/bh_ticket_box.html:141
+#: bhtheme/templates/bh_ticket_change.html:135
+msgid "diff"
+msgstr "modification"
+
+#: bhtheme/templates/bh_ticket_change.html:71
+#, python-format
+msgid "Edit comment %(cnum)s"
+msgstr "Modifier le commentaire %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:79
+#, python-format
+msgid "Reply to comment %(cnum)s"
+msgstr "Répondre au commentaire %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:93
+#: bhtheme/templates/bh_wiki_edit.html:115
+#: bhtheme/templates/bh_wiki_edit_form.html:91
+msgid "Preview"
+msgstr "Aperçu"
+
+#: bhtheme/templates/bh_ticket_change.html:93
+#, python-format
+msgid "Preview changes to comment %(cnum)s"
+msgstr "Aperçu du commentaire %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:95
+#, python-format
+msgid "Submit changes to comment %(cnum)s"
+msgstr "Enregistrer les modifications apportées au commentaire %(cnum)s"
+
+#: bhtheme/templates/bh_ticket_change.html:98
+msgid "Cancel comment edit"
+msgstr "Annuler"
+
+#: bhtheme/templates/bh_ticket_change.html:117
+#, python-format
+msgid ""
+"Version %(version)s, edited %(date)s\n"
+"              by %(author)s"
+msgstr "Version %(version)s, édité le %(date)s\n              par %(author)s"
+
+#: bhtheme/templates/bh_ticket_change.html:121
+#, python-format
+msgid ""
+"Last modified %(date)s\n"
+"              by %(author)s"
+msgstr "Dernière modification le %(date)s par %(author)s"
+
+#: bhtheme/templates/bh_ticket_change.html:131
+msgid "next"
+msgstr "suivante"
+
+#: bhtheme/templates/bh_ticket_change.html:150
+#, python-format
+msgid ""
+"[1:[2:%(name)s]][3:​]\n"
+"            added"
+msgstr "[1:[2:%(name)s]][3:​]\n          ajoutée"
+
+#: bhtheme/templates/bh_ticket_change.html:157
+#, python-format
+msgid "changed from [1:%(old)s] to [2:%(new)s]"
+msgstr "modifié de [1:%(old)s] à [2:%(new)s]"
+
+#: bhtheme/templates/bh_ticket_change.html:160
+#, python-format
+msgid "set to [1:%(value)s]"
+msgstr "défini à [1:%(value)s]"
+
+#: bhtheme/templates/bh_ticket_change.html:163
+#, python-format
+msgid "[1:%(value)s] deleted"
+msgstr "[1:%(value)s] supprimé"
+
+#: bhtheme/templates/bh_ticket_change.html:167
+msgid "- by"
+msgstr "- par"
+
+#: bhtheme/templates/bh_ticket_delete.html:31
+#, python-format
+msgid "Delete Ticket #%(id)s"
+msgstr "Supprimer le ticket #%(id)s"
+
+#: bhtheme/templates/bh_ticket_delete.html:32
+#: bhtheme/templates/bh_ticket_delete.html:68
+#, python-format
+msgid "Delete comment %(num)s on Ticket #%(id)s"
+msgstr "Supprimer le commentaire %(num)s pour le ticket #%(id)s"
+
+#: bhtheme/templates/bh_ticket_delete.html:40
+#, python-format
+msgid "Delete [1:Ticket #%(id)s]"
+msgstr "Supprimer le [1:ticket #%(id)s]"
+
+#: bhtheme/templates/bh_ticket_delete.html:52
+msgid "Are you sure you want to delete this ticket?"
+msgstr "Voulez-vous réellement supprimer le ticket ?"
+
+#: bhtheme/templates/bh_ticket_delete.html:53
+#, python-format
+msgid ""
+"(comments: %(comments)s,\n"
+"                 attachments: %(attachments)s)"
+msgstr "(commentaires : %(comments)s,\n                 pièces jointes : %(attachments)s)"
+
+#: bhtheme/templates/bh_ticket_delete.html:62
+msgid "Delete ticket"
+msgstr "Suppression du ticket"
+
+#: bhtheme/templates/bh_ticket_delete.html:81
+msgid "Are you sure you want to delete this ticket comment?"
+msgstr "Voulez-vous réellement supprimer le commentaire ?"
+
+#: bhtheme/templates/bh_ticket_delete.html:85
+msgid "Delete comment"
+msgstr "Supprimer le commentaire"
+
+#: bhtheme/templates/bh_timeline.html:30 bhtheme/templates/bh_timeline.html:41
+msgid "Timeline"
+msgstr "Activité"
+
+#: bhtheme/templates/bh_timeline.html:46
+msgid ""
+"[1:View changes from [2:]]\n"
+"              and [3:[4:] days back]\n"
+"              [5:done by [6:]]"
+msgstr "[1:Afficher les modifications pour le [2:]]\n        et les [3:[4:] jours précédents]\n        [5:Auteur : [6:]]"
+
+#: bhtheme/templates/bh_timeline.html:68
+msgid ""
+"[1:\n"
+"          [2:Note:] See\n"
+"          [3:TracTimeline]\n"
+"          for information about the timeline view.\n"
+"        ]"
+msgstr "[1:\n[2:Note :] consultez [3:TracTimeline] pour obtenir\n        de l'aide relative aux activités.\n]"
+
+#: bhtheme/templates/bh_user_table.html:41
+msgid "Email"
+msgstr "Courriel"
+
+#: bhtheme/templates/bh_user_table.html:42
+msgid "Last Login"
+msgstr "Dernière connexion"
+
+#: bhtheme/templates/bh_user_table.html:57
+msgid "Account locked"
+msgstr "Compte verrouillé"
+
+#: bhtheme/templates/bh_user_table.html:60
+msgid "Permanently locked"
+msgstr "Bloqué définitivement"
+
+#: bhtheme/templates/bh_verify_email.html:33
+#: bhtheme/templates/bh_verify_email.html:44
+msgid "Verify Email"
+msgstr "Vérifier le courriel"
+
+#: bhtheme/templates/bh_verify_email.html:46
+#, python-format
+msgid ""
+"An email was sent to\n"
+"        %(email)s with a token to verify your new address.\n"
+"        Please check your email and enter the token in the form below."
+msgstr "Un courriel vous a été envoyé à %(email)s avec un jeton pour vérifier votre nouvelle adresse.\nMerci de consulter votre courriel et d'entrer le jeton dans le formulaire ci-dessous."
+
+#: bhtheme/templates/bh_verify_email.html:49
+msgid ""
+"You can [1:change\n"
+"        your email address], if it is incorrect."
+msgstr "Vous pouvez [1:changer votre adresse de courriel], si elle est incorrecte."
+
+#: bhtheme/templates/bh_verify_email.html:53
+msgid "Verification Token:"
+msgstr "Jeton de vérification :"
+
+#: bhtheme/templates/bh_verify_email.html:57
+#: bhtheme/templates/bh_verify_email.html:60
+msgid "Verify"
+msgstr "Vérifier"
+
+#: bhtheme/templates/bh_verify_email.html:62
+#: bhtheme/templates/bh_verify_email.html:65
+msgid "Resend Email"
+msgstr "Renvoyer le courriel"
+
+#: bhtheme/templates/bh_wiki_delete.html:39
+#, python-format
+msgid "Delete versions %(from)s to %(to)s of [1:%(name)s]"
+msgstr "Supprimer les versions de %(from)s à %(to)s de [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_delete.html:44
+#, python-format
+msgid "Delete version %(version)s of [1:%(name)s]"
+msgstr "Supprimer la version %(version)s de [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_delete.html:49
+#, python-format
+msgid "Delete [1:%(name)s]"
+msgstr "Supprimer [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_delete.html:60
+#, python-format
+msgid ""
+"[1:\n"
+"                    Are you sure you want to delete versions %(from)s to %(to)s of this page?\n"
+"                  ]\n"
+"                  [2:]\n"
+"                    Removing [3:\n"
+"                      %(versions)s versions] of the page, \n"
+"                    which was first modified %(first_modified)s and last modified %(last_modified)s."
+msgstr "[1:\n                  Êtes-vous sûr de vouloir supprimer les versions %(from)s à %(to)s de cette page ?\n                ]\n                [2:]\n                  Suppression de [3:\n                    %(versions)s versions] de cette page,\n                  qui a été modifiée la première fois le %(first_modified)s et modifiée la dernière fois le %(last_modified)s."
+
+#: bhtheme/templates/bh_wiki_delete.html:72
+#, python-format
+msgid "Are you sure you want to delete version %(version)s of this page?"
+msgstr "Voulez-vous réellement supprimer la version %(version)s de cette page ?"
+
+#: bhtheme/templates/bh_wiki_delete.html:79
+#, python-format
+msgid ""
+"This is the only [1:\n"
+"                        version] of the page,\n"
+"                      created %(created)s, so the page will be removed completely!"
+msgstr "Ceci est l'unique [1:\n                       version] de la page,\n                    créée %(created)s, donc elle sera totalement \nsupprimée !"
+
+#: bhtheme/templates/bh_wiki_delete.html:86
+#, python-format
+msgid "Modified %(modified)s."
+msgstr "modifié %(modified)s."
+
+#: bhtheme/templates/bh_wiki_delete.html:93
+msgid "Are you sure you want to completely delete this page?"
+msgstr "Voulez-vous réellement supprimer complètement cette page ?"
+
+#: bhtheme/templates/bh_wiki_delete.html:99
+#, python-format
+msgid ""
+"Removing the one and only [1:\n"
+"                          version] of the page, which was created %(created)s."
+msgstr "Ceci est l'unique [1:\n                       version] de la page,\n                    créée il y a %(created)s, donc elle sera totalement \nsupprimée."
+
+#: bhtheme/templates/bh_wiki_delete.html:105
+#, python-format
+msgid ""
+"Removing all [1:\n"
+"                          %(versions)s versions] of the page, \n"
+"                        which was created %(created)s and last modified %(modified)s."
+msgstr "Suppression de toutes les [1:\n                        %(versions)s versions] de la page,\n                      qui a été créée le %(created)s et modifiée la dernière fois le %(modified)s."
+
+#: bhtheme/templates/bh_wiki_delete.html:120
+msgid "Delete those versions"
+msgstr "Supprimer ces versions"
+
+#: bhtheme/templates/bh_wiki_delete.html:120
+#: bhtheme/templates/bh_wiki_view.html:151
+msgid "Delete this version"
+msgstr "Supprimer cette version"
+
+#: bhtheme/templates/bh_wiki_delete.html:120
+#: bhtheme/templates/bh_wiki_view.html:153
+msgid "Delete page"
+msgstr "Supprimer la page"
+
+#: bhtheme/templates/bh_wiki_diff.html:38
+#, python-format
+msgid "Delete version %(old_version)d to version %(version)d"
+msgstr "Supprimer les versions %(old_version)d à %(version)d"
+
+#: bhtheme/templates/bh_wiki_diff.html:39
+#, python-format
+msgid "Delete version %(version)d"
+msgstr "Supprimer la version %(version)d"
+
+#: bhtheme/templates/bh_wiki_edit.html:114
+msgid "See the diffs"
+msgstr "Voir les différences"
+
+#: bhtheme/templates/bh_wiki_edit.html:114
+msgid "Review"
+msgstr "Passer en revue"
+
+#: bhtheme/templates/bh_wiki_edit.html:115
+msgid "See the preview"
+msgstr "Voir l'aperçu"
+
+#: bhtheme/templates/bh_wiki_edit.html:118
+#, python-format
+msgid "Editing %(name)s"
+msgstr "Éditer %(name)s"
+
+#: bhtheme/templates/bh_wiki_edit.html:147
+msgid ""
+"[1:Oops !]\n"
+"              Sorry, this page has been modified by somebody else since you started\n"
+"              editing. Your changes cannot be saved."
+msgstr "[1:Oops !]\nDésolé, cette page a été modifiée par un autre utilisateur depuis\nle début de l'édition. Les modifications ne peuvent être enregistrées."
+
+#: bhtheme/templates/bh_wiki_edit.html:162
+msgid "Important"
+msgstr "Important"
+
+#: bhtheme/templates/bh_wiki_edit.html:162
+msgid "Someone else has modified that page since you started your edits."
+msgstr "Un autre utilisateur a modifié cette page pendant votre édition."
+
+#: bhtheme/templates/bh_wiki_edit.html:164
+msgid ""
+"[1:If you save right away, you risk to revert those changes\n"
+"            (highlighted below as deletions).]"
+msgstr "[1:Une sauvegarde directe écraserait ces modifications]\n        (mises en évidence ci-dessous en tant que suppressions)."
+
+#: bhtheme/templates/bh_wiki_edit.html:166
+msgid ""
+"Please review all those changes and manually merge them with your\n"
+"            own changes. [1:]\n"
+"            If you're unsure about what you're doing, please press [2:Cancel]\n"
+"            (losing your changes) and start editing the latest version of the page\n"
+"            again."
+msgstr "Merci de revoir l'ensemble de ces modifications et de les fusionner manuellement\n        avec les changements locaux. [1:]\n        Si vous avez des doutes sur ce que vous faites, merci d'appuyer sur [2:Annuler]\n        (vos modifications seront perdues) et recommencez l'édition à partir de la\n        toute dernière version de cette page."
+
+#: bhtheme/templates/bh_wiki_edit.html:177
+#, python-format
+msgid ""
+"Change information for future version %(version)s (modified by %(author)s):"
+msgstr "Commentaire concernant la future version %(version)s (modifiée par %(author)s) :"
+
+#: bhtheme/templates/bh_wiki_edit.html:192
+msgid "Go to the editor"
+msgstr "Éditer la page"
+
+#: bhtheme/templates/bh_wiki_edit.html:195
+#: bhtheme/templates/bh_wiki_edit_form.html:97
+msgid "Review Changes"
+msgstr "Passer en revue les modifications"
+
+#: bhtheme/templates/bh_wiki_edit.html:197
+msgid "No changes"
+msgstr "Pas de modifications"
+
+#: bhtheme/templates/bh_wiki_edit.html:208
+msgid "Go to Save, Preview, Review or Cancel buttons"
+msgstr "Aller aux boutons Enregistrer, Aperçu, … Annuler"
+
+#: bhtheme/templates/bh_wiki_edit.html:209
+msgid "Actions"
+msgstr "Actions"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:36
+msgid "Adjust edit area height:"
+msgstr "Ajustement de la hauteur de la zone d'édition :"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:45
+msgid ""
+"Selecting and pressing 'Preview' enters a two-column [edit|preview] mode"
+msgstr "Sélectionner et appuyer « Aperçu » active le mode [édition|aperçu] en deux colonnes"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:46
+msgid "Edit side-by-side"
+msgstr "Éditer côte à côte"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:56
+msgid ""
+"[1:Note]\n"
+"        See [2:WikiFormatting] and\n"
+"        [3:TracWiki] for help on editing wiki content."
+msgstr "[1:Note]\nconsultez [2:WikiFormatting] et [3:TracWiki] pour obtenir de l'aide sur l'édition de contenus Wiki."
+
+#: bhtheme/templates/bh_wiki_edit_form.html:64
+msgid "Change information"
+msgstr "Modification des informations"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:75
+msgid "Comment about this change (optional):"
+msgstr "Commentaires sur cette modification (optionnel)"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:82
+msgid "Page is read-only"
+msgstr "La page est en lecture seule"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:92
+msgid "Merge changes"
+msgstr "Fusionner les modifications"
+
+#: bhtheme/templates/bh_wiki_edit_form.html:96
+msgid "Preview Page"
+msgstr "Afficher l'aperçu"
+
+#: bhtheme/templates/bh_wiki_rename.html:36
+#, python-format
+msgid "Rename [1:%(name)s]"
+msgstr "Renommer [1:%(name)s]"
+
+#: bhtheme/templates/bh_wiki_rename.html:41
+msgid ""
+"Renaming the page will rename all existing versions of the page in place."
+msgstr "En renommant la page, toutes les versions existantes de la page seront renommées."
+
+#: bhtheme/templates/bh_wiki_rename.html:41
+msgid "The complete history of the page will be moved to the new location."
+msgstr "L'historique complet de la page sera deplacé au nouvel emplacement."
+
+#: bhtheme/templates/bh_wiki_rename.html:44
+msgid "New name:"
+msgstr "Nouveau nom :"
+
+#: bhtheme/templates/bh_wiki_rename.html:48
+msgid "Leave a redirection page at the old location"
+msgstr "Laisser une page de redirection à l'ancien emplacement"
+
+#: bhtheme/templates/bh_wiki_rename.html:53
+#: bhtheme/templates/bh_wiki_view.html:143
+msgid "Rename page"
+msgstr "Renommer la page"
+
+#: bhtheme/templates/bh_wiki_view.html:35
+msgid "Revert page to this version"
+msgstr "Rétablir la page à cette version"
+
+#: bhtheme/templates/bh_wiki_view.html:35
+#: bhtheme/templates/bh_wiki_view.html:120
+msgid "Edit this page"
+msgstr "Modifier la page"
+
+#: bhtheme/templates/bh_wiki_view.html:57
+#, python-format
+msgid ""
+"Version %(version)s (modified by %(author)s, %(date)s)\n"
+"                 ([1:diff])"
+msgstr "Version %(version)s (modifié par %(author)s, %(date)s)\n               ([1:différences])"
+
+#: bhtheme/templates/bh_wiki_view.html:73
+#, python-format
+msgid "Version %(version)s by %(author)s: %(comment)s"
+msgstr "Version %(version)s par %(author)s : %(comment)s"
+
+#: bhtheme/templates/bh_wiki_view.html:73
+#, python-format
+msgid "Version %(version)s by %(author)s"
+msgstr "Version %(version)s par %(author)s"
+
+#: bhtheme/templates/bh_wiki_view.html:81
+#, python-format
+msgid "[1:Last modified] %(reldate)s"
+msgstr "[1:Dernière modification] %(reldate)s"
+
+#: bhtheme/templates/bh_wiki_view.html:85
+#, python-format
+msgid "Last modified on %(date)s"
+msgstr "Dernière modification le %(date)s)"
+
+#: bhtheme/templates/bh_wiki_view.html:90
+#, python-format
+msgid "The page %(name)s does not exist. You can create it here."
+msgstr "La page %(name)s n'existe pas. Vous pouvez la créer ici."
+
+#: bhtheme/templates/bh_wiki_view.html:92
+msgid "You could also create the same page higher in the hierarchy:"
+msgstr "Il vous est également possible de créer la page plus haut dans la hiérarchie :"
+
+#: bhtheme/templates/bh_wiki_view.html:117
+msgid "Revert to this version"
+msgstr "Rétablir à cette version"
+
+#: bhtheme/templates/bh_wiki_view.html:123
+msgid "Create this page"
+msgstr "Création de cette page"
+
+#: bhtheme/templates/bh_wiki_view.html:125
+msgid "Using the template:"
+msgstr "En utilisant le modèle :"
+
+#: bhtheme/templates/bh_wiki_view.html:128
+msgid "(blank page)"
+msgstr "(page vierge)"
+
+#: bhtheme/templates/bh_wiki_view.html:161
+msgid ""
+"The following pages have a name similar to this page, and may be related:"
+msgstr "Les pages qui suivent ont un nom similaire à cette page et sont \npeut-être en rapport :"
+
+#: bhtheme/templates/bloodhound_theme.html:60
+msgid "Bloodhound Logo"
+msgstr "Recherche Bloodhound"
+
+#: bhtheme/templates/bloodhound_theme.html:102
+msgid "Search all products. Try TracLinks."
+msgstr "Recherche dans tous les produits. Tente les TracLinks."
+
+#: bhtheme/templates/bloodhound_theme.html:147
+msgid "Create Ticket"
+msgstr "Créer Ticket"
+
+#: bhtheme/templates/bloodhound_theme.html:162
+#: bhtheme/templates/bloodhound_theme.html:315
+msgid "Summary"
+msgstr "Résumé"
+
+#: bhtheme/templates/bloodhound_theme.html:163
+#: bhtheme/templates/bloodhound_theme.html:316
+msgid "Ticket summary"
+msgstr "Résumé du ticket"
+
+#: bhtheme/templates/bloodhound_theme.html:169
+#: bhtheme/templates/bloodhound_theme.html:322
+msgid "Ticket description"
+msgstr "Description du ticket"
+
+#: bhtheme/templates/bloodhound_theme.html:187
+#: bhtheme/templates/bloodhound_theme.html:340
+msgid "Create"
+msgstr "Créer"
+
+#: bhtheme/templates/bloodhound_theme.html:188
+#: bhtheme/templates/bloodhound_theme.html:341
+msgid "More fields"
+msgstr "Plus de champs"
+
+#: bhtheme/templates/bloodhound_theme.html:197
+#: bhtheme/templates/bloodhound_theme.html:348
+msgid "TICKET_CREATE"
+msgstr ""
+
+#: bhtheme/templates/bloodhound_theme.html:197
+msgid ""
+"privileges are required to perform this operation.\n"
+"                            You don't have the required permissions"
+msgstr "Ce droit est nécessaire pour effectuer cette opération.\nVous n'avez pas les permissions suffisantes."
+
+#: bhtheme/templates/bloodhound_theme.html:207
+msgid ""
+"Please contact your administrator or team leader to \n"
+"                                request these."
+msgstr "Merci de contacter votre administrateur ou bien votre responsable d'équipe pour les obtenir."
+
+#: bhtheme/templates/bloodhound_theme.html:238
+msgid "More"
+msgstr "Plus"
+
+#: bhtheme/templates/bloodhound_theme.html:295
+msgid "Success"
+msgstr "Succès"
+
+#: bhtheme/templates/bloodhound_theme.html:348
+msgid ""
+"privileges are required to perform this operation.\n"
+"                    You don't have the required permissions"
+msgstr "Ce droit est nécessaire pour effectuer cette opération.\nVous n'avez pas les permissions suffisantes."
+
+#: bhtheme/templates/bloodhound_theme.html:358
+msgid ""
+"Please contact your administrator or team leader to \n"
+"                        request these."
+msgstr "Merci de contacter votre administrateur ou bien votre responsable d'équipe pour les obtenir."
+
+#: bhtheme/templates/bloodhound_theme.html:363
+msgid "Close"
+msgstr "Fermé"
+
+#: bhtheme/templates/bloodhound_theme.html:394
+msgid "Powered by"
+msgstr "Animé par"

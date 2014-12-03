@@ -1,0 +1,117 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html"/>
+  <xi:include href="widget_macros.html"/>
+  <head>
+    <title>Roadmap</title>
+  </head>
+
+  <body>
+    <div id="content" class="roadmap row">
+
+      <h1 class="span12">Roadmap</h1>
+
+      <div class="span12">
+        <div class="well">
+          <form id="prefs" class="form-inline" role="form" method="get" action="">
+            <div>
+              <label class="checkbox">
+                <input type="checkbox" id="showcompleted" name="show" value="completed"
+                       checked="${'completed' in show or None}"/> Show completed
+                milestones
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="hidenoduedate" name="show" value="noduedate"
+                       checked="${'noduedate' in show or None}"/> Hide milestones with no due date
+              </label>
+              <input class="btn btn-default pull-right" type="submit" value="${_('Update')}"/>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="milestones span12">
+        <div py:for="idx, milestone in enumerate(milestones)" class="milestone">
+
+          <div class="info trac-progress" py:with="mstats = milestone_stats[idx]">
+            <h2><a href="${href.milestone(milestone.name)}">
+              <span> Milestone:</span> <em>${milestone.name}</em>
+            </a></h2>
+            <py:choose>
+              <p py:when="milestone.completed" class="date">
+                <i18n:msg params="duration, date">
+                  Completed ${dateinfo(milestone.completed)} ago
+                  (${format_datetime(milestone.completed)})
+                </i18n:msg>
+              </p>
+              <p py:when="milestone.is_late" class="date">
+                <i18n:msg params="duration, date">
+                  <strong>${dateinfo(milestone.due)} late</strong>
+                  (${format_datetime(milestone.due)})
+                </i18n:msg>
+              </p>
+              <p py:when="milestone.due" class="date">
+                <i18n:msg params="duration, date">
+                  Due in ${dateinfo(milestone.due)}
+                  (${format_datetime(milestone.due)})
+                </i18n:msg>
+              </p>
+              <p py:otherwise="" class="date">
+                <span class="label label-warning">No date set</span>
+              </p>
+            </py:choose>
+            <xi:include href="widget_progress.html" py:if="mstats.stats.count"
+                        py:with="view = 'standard'; legend = True;
+                                 stats = mstats.stats; interval_hrefs = mstats.interval_hrefs;
+                                 stats_href = mstats.stats_href;" />
+          </div>
+
+          <div py:if="milestone.description" class="description well" xml:space="preserve">
+            ${wiki_to_html(context.child(milestone.resource), milestone.description)}
+          </div>
+
+        </div>
+      </div>
+
+      <div py:if="'MILESTONE_CREATE' in perm" class="buttons btn-toolbar span12">
+        <form id="add" method="get" action="${href.milestone()}"><div>
+          <input type="hidden" name="action" value="new" />
+          <input class="btn btn-default" type="submit" value="${_('Add new milestone')}" />
+        </div></form>
+      </div>
+
+      <div id="help" class="span12" i18n:msg="">
+        <p class="help-block pull-right">
+          <span class="label label-info">Note</span>
+          See <a href="${href.wiki('TracRoadmap')}">TracRoadmap</a> for help on using the roadmap.
+        </p>
+      </div>
+
+    </div>
+  </body>
+</html>

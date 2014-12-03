@@ -1,0 +1,131 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="layout.html" />
+  <head>
+    <title>$title</title>
+  </head>
+
+  <body>
+    <div id="content" class="wiki row"
+        py:with="current_href = href.wiki(page.name)">
+      <div class="span12">
+        <h1 py:choose="what">
+          <py:when test="'multiple'">
+            <i18n:msg params="from, to, name">
+              Delete versions ${old_version + 1} to $new_version of <a href="$current_href">$page.name</a>
+            </i18n:msg>
+          </py:when>
+          <py:when test="'single'">
+            <i18n:msg params="version, name">
+              Delete version $new_version of <a href="$current_href">$page.name</a>
+            </i18n:msg>
+          </py:when>
+          <py:otherwise>
+            <i18n:msg params="name">
+              Delete <a href="$current_href">$page.name</a>
+            </i18n:msg>
+          </py:otherwise>
+        </h1>
+        <form action="$current_href" method="post">
+          <input type="hidden" name="action" value="delete" />
+          <p class="alert">
+            <span class="label label-important">Caution</span>
+            <py:choose test="what">
+              <py:when test="'multiple'">
+                <i18n:msg params="from, to, versions, first_modified, last_modified">
+                  <strong>
+                    Are you sure you want to delete versions ${old_version + 1} to $new_version of this page?
+                  </strong>
+                  <br />
+                    Removing <a href="${href.wiki(page.name, action='history', version=page.version)}">
+                      $num_versions versions</a> of the page, 
+                    which was first modified ${pretty_dateinfo(old_date)} and last modified ${pretty_dateinfo(new_date)}.
+                </i18n:msg>
+              </py:when>
+              <py:when test="'single'">
+                <strong>
+                <i18n:msg params="version">
+                  Are you sure you want to delete version $new_version of this page?
+                </i18n:msg>
+                </strong>
+                <br />
+                <py:choose test="num_versions">
+                  <py:when test="1">
+                    <i18n:msg params="created">
+                      This is the only <a href="${href.wiki(page.name, action='history', version=page.version)}">
+                        version</a> of the page,
+                      created ${pretty_dateinfo(new_date)}, so the page will be removed completely!
+                    </i18n:msg>
+                  </py:when>
+                  <py:otherwise>
+                    <i18n:msg params="modified">
+                      Modified ${pretty_dateinfo(new_date)}.
+                    </i18n:msg>
+                  </py:otherwise>
+                </py:choose>
+              </py:when>
+              <py:otherwise>
+                <strong>
+                  Are you sure you want to completely delete this page?
+                </strong>
+                <br />
+                <py:choose test="num_versions">
+                  <py:when test="1">
+                    <i18n:msg params="created">
+                        Removing the one and only <a href="${href.wiki(page.name, action='history', version=page.version)}">
+                          version</a> of the page, which was created ${pretty_dateinfo(new_date)}.
+                    </i18n:msg>
+                  </py:when>
+                  <py:otherwise>
+                    <i18n:msg params="versions, created, modified">
+                        Removing all <a href="${href.wiki(page.name, action='history', version=page.version)}">
+                          $num_versions versions</a> of the page, 
+                        which was created ${pretty_dateinfo(old_date)} and last modified ${pretty_dateinfo(new_date)}.
+                    </i18n:msg>
+                  </py:otherwise>
+                </py:choose>
+              </py:otherwise>
+            </py:choose>
+            <input py:if="new_version" type="hidden" name="version" value="$new_version" />
+            <input py:if="old_version" type="hidden" name="old_version" value="$old_version" />
+            <br />
+            <strong>This is an irreversible operation.</strong>
+          </p>
+          <div class="control-group">
+            <input class="btn" type="submit"
+                   value="${what == 'multiple' and _('Delete those versions')
+                            or what == 'single' and _('Delete this version')
+                            or _('Delete page')}" />
+            <input class="btn-link" type="submit" name="cancel"
+                   value="${_('Cancel')}" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

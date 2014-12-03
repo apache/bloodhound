@@ -1,0 +1,161 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="bh_admin.html" />
+  <head>
+    <title>Versions</title>
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        $("#releaseddate").datetimepicker();
+      });
+    /*]]>*/</script>
+  </head>
+
+  <body>
+    <h2>Manage Versions</h2>
+
+    <py:choose test="view">
+      <form py:when="'detail'" class="well form-horizontal" id="modifyversion"
+          method="post" action="">
+        <fieldset>
+          <legend>Modify Version:</legend>
+          <div class="control-group">
+            <label class="control-label" for="name">Name:</label>
+            <div class="controls">
+              <input type="text" id="name" name="name" value="${version.name}" />
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="releaseddate">Released:</label>
+            <div class="controls">
+              <input type="text" id="releaseddate" name="time" size="${len(datetime_hint)}"
+                  value="${format_datetime(version.time)}"
+                  placeholder="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
+            </div>
+          </div>
+          <div class="control-group">
+            <fieldset class="iefix">
+              <label class="control-label" for="description" i18n:msg="">
+                Description:
+              </label>
+              <div class="controls">
+                <textarea id="description" name="description" 
+                    class="wikitext trac-resizable" rows="6"
+                    placeholder="${_('Describe this version using WikiFormatting')}"
+                    cols="60">$version.description</textarea>
+                <p class="help-block" i18n:msg="">
+                  <span class="label label-info">Tip</span>
+                  you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here
+                </p>
+              </div>
+            </fieldset>
+          </div>
+          <div class="control-group">
+            <input class="btn" type="submit" name="save"
+                   value="${_('Save')}"/>
+            <input class="btn-link" type="submit" name="cancel"
+                   value="${_('Cancel')}"/>
+          </div>
+        </fieldset>
+      </form>
+
+      <py:otherwise>
+        <div class="row">
+          <div class="span9">
+            <form id="addversion" class="well form-horizontal" method="post" action="">
+              <fieldset>
+                <legend>Add Version:</legend>
+                <div class="control-group">
+                  <label class="control-label" for="name">Name:</label>
+                  <div class="controls">
+                    <input type="text" id="name" class="input-large" name="name" />
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="releaseddate">Released:</label>
+                  <div class="controls">
+                    <input type="text" id="releaseddate"
+                           name="time" size="${len(datetime_hint)}"
+                           value="${format_datetime()}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                  <input type="submit" class="btn" name="add" value="${_('Add')}" />
+                </div>
+              </fieldset>
+            </form>
+          </div>
+          <div class="span9">
+            <py:choose>
+              <form py:when="versions" id="version_table" method="post" action="">
+                <table id="verlist"
+                    class="table table-striped table-condensed table-bordered">
+                  <thead>
+                    <tr><th class="sel"><i class="icon-check"></i></th>
+                      <th class="full-x">Name</th>
+                      <th>Released</th><th>Default</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr py:for="version in versions">
+                      <td><input type="checkbox" name="sel" value="${version.name}"/></td>
+                      <td><a href="${panel_href(version.name)}">${version.name}</a></td>
+                      <td>${version.time and format_datetime(version.time)}</td>
+                      <td class="default">
+                        <input type="radio" name="default" value="${version.name}"
+                               checked="${version.name==default or None}" />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="control-group">
+                  <input class="btn" type="submit" name="remove"
+                      value="${_('Remove selected items')}" />
+                  <input class="btn" type="submit" name="apply"
+                      value="${_('Apply changes')}" />
+                </div>
+                <p class="help-block">
+                  <span class="label label-info">Note</span>
+                  You can remove all items from this list to completely hide this
+                  field from the user interface.
+                </p>
+              </form>
+    
+              <p py:otherwise="" class="help-block">
+                <span class="label label-info">Note</span>
+                As long as you don't add any items to the list, this field
+                will remain completely hidden from the user interface.
+              </p>
+            </py:choose>
+          </div>
+        </div>
+      </py:otherwise>
+    </py:choose>
+  </body>
+
+</html>
+

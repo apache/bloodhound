@@ -1,0 +1,167 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <py:choose test="milestone.exists">
+      <title py:when="True">Edit Milestone ${milestone.name}</title>
+      <title py:otherwise="">New Milestone</title>
+    </py:choose>
+    <link rel="stylesheet" type="text/css"
+          href="${chrome.htdocs_location}css/roadmap.css" />
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        function updateDueDate() {
+          $("#duedate").enable($("#due").checked());
+        }        
+        $("#due").click(updateDueDate);        
+        updateDueDate();
+        function updateCompletedDate() {
+          var checked = $("#completed").checked();
+          $("#completeddate").enable(checked);
+          var retarget = $("#retarget");
+          retarget.enable(checked);
+          $("#target").enable(checked && retarget.checked());
+        }
+        $("#completed").click(updateCompletedDate);
+        updateCompletedDate();
+        $("#retarget").click(function(){
+          $("#target").enable(this.checked);
+        });
+        $("#name").get(0).focus()
+        $("#duedate").datetimepicker();
+        $("#completeddate").datetimepicker();
+      });
+    /*]]>*/</script>
+  </head>
+
+  <body>
+    <div id="content" class="milestone row">
+      <span class="span12">
+        <py:choose test="milestone.exists">
+          <h1 py:when="True">Edit Milestone ${milestone.name}</h1>
+          <h1 py:otherwise="">New Milestone</h1>
+        </py:choose>
+      </span>
+
+      <form id="edit" action="" method="post" class="form-horizontal">
+        <input type="hidden" name="id" value="${milestone.name}" />
+        <input type="hidden" name="action" value="edit" />
+        <div class="span6">
+          <div class="field control-group">
+            <label for="name" class="control-label">Name of the milestone:</label>
+            <div class="controls">
+              <input type="text" id="name" name="name" size="32" value="${milestone.name or req.args.get('name')}" />
+            </div>
+          </div>
+          <div class="field">
+            <fieldset class="iefix">
+              <label for="description" i18n:msg="">Description</label>
+              <p><textarea id="description" name="description" class="wikitext trac-resizable" rows="10" cols="78" placeholder="${_('Describe this milestone using WikiFormatting')}">
+${milestone.description}</textarea></p>
+              <p class="help-block pull-right" i18n:msg="">
+                <span class="label label-info">Tip</span>
+                You may use <a tabindex="42"
+                     href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here
+              </p>
+            </fieldset>
+          </div>
+        </div>
+        <div class="span6">
+          <div class="well">
+            <fieldset>
+              <legend>Schedule</legend>
+              <div class="field control-group">
+                <label class="control-label">
+                  <input type="checkbox" id="due" name="due" checked="${milestone.due or None}" />
+                  Due:<br />
+                </label>
+                <div class="controls">
+                  <input type="text" id="duedate" name="duedate" size="${len(datetime_hint)}"
+                         value="${format_datetime(milestone.due or default_due)}" 
+                         title="${_('Format: %(datehint)s', datehint=datetime_hint)}"
+                         placeholder="$datetime_hint" />
+                  <p class="help-block" i18n:msg="datehint">
+                    <span class="label label-info">Tip</span>
+                    Format: ${datetime_hint}
+                  </p>
+                </div>
+              </div>          
+              <div class="field control-group">
+                <label class="control-label">
+                  <input type="checkbox" id="completed" name="completed" checked="${milestone.completed or None}" />
+                  Completed:<br />
+                </label>
+                <div class="controls">
+                  <input type="text" id="completeddate" name="completeddate" size="${len(datetime_hint)}"
+                         value="${format_datetime(milestone.completed)}"
+                         title="${_('Format: %(datehint)s', datehint=datetime_hint)}"
+                         plaveholder="$datetime_hint" />
+                  <p class="help-block" i18n:msg="datehint">
+                    <span class="label label-info">Tip</span>
+                    Format: ${datetime_hint}
+                  </p>
+                </div>
+                <py:if test="milestone_groups">
+                  <br/>
+                  <input type="checkbox" id="retarget" name="retarget" checked="${not milestone.completed or None}" />
+                  <label for="retarget">Retarget associated open tickets to milestone:</label>
+                  <select id="target" name="target" class="controls">
+                    <option value="">None</option>
+                    <optgroup py:for="(label, milestones) in milestone_groups"
+                              py:if="milestones" label="${label}">
+                      <option py:for="milestone in milestones"
+                              value="${milestone.name}" py:content="milestone.name"></option>
+                    </optgroup>
+                  </select>
+                </py:if>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="buttons span12" py:choose="milestone.exists">
+          <input py:when="True" type="submit" value="${_('Submit changes')}" 
+                 class="btn" />
+          <input py:otherwise="" type="submit" value="${_('Add milestone')}" 
+                 class="btn" />
+          <input type="submit" name="cancel" value="${_('Cancel')}" 
+                 class="btn-link" />
+        </div>
+      </form>
+
+      <div id="help" class="span12" i18n:msg="">
+        <p class="help-block pull-right">
+          <span class="label label-info">Note</span> See
+          <a href="${href.wiki('TracRoadmap')}">TracRoadmap</a>
+          for help on using the roadmap.
+        </p>
+      </div>
+
+    </div>
+  </body>
+</html>
+

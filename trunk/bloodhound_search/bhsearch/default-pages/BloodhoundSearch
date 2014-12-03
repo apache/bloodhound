@@ -1,0 +1,83 @@
+= Bloodhound Search =
+
+Bloodhound Search is currently in prototype phase. Read more about proposed functionality on [wiki:Proposals/BEP-0004 BEP-0004]
+
+== How to enable Bloodhound Search==
+Currently, Bloodhound Search is available only for dev configuration. Make sure that Bloodhound was installed using requirements-dev.txt:
+{{{
+pip install -r requirements-dev.txt
+}}}
+
+Enable bhsearch.* components in trac.ini file and set Bloodhound Search as default search component
+{{{
+[components]
+...
+bhsearch.* = enabled
+
+[bhsearch]
+is_default = true
+}}}
+
+Run initial index rebuild using trac-admin command line tool. TODO: reindexing using admin web interface should be supported later
+{{{
+trac-admin <path_to_trac_environment> bhsearch rebuild
+}}}
+ 
+== How to search == #search
+Click Apps menu and select Bloodhound Search item. You can search use free text search or combine search with query syntax. Please consider below a few search samples: 
+* Free text search through multiple fields e.g. "some text"
+* Combination of free text and field specific query e.g. "test status:new keyword:starter" (default operator is AND)
+* Field specific query e.g. "status:new keyword:starter" (default operator is AND)
+* Boolean queries e.g. "test OR (status:new and keyword:starter)"
+* Use meta-keywords e.g. "some text $resolved". Read more in [#meta-keywords Meta-keywords] chapter
+For more information on query syntax see wiki:Proposals/BEP-0004/ResourceQuery. 
+
+Currently, you can search in tickets, wiki pages and milestones (later more resources will be added). Use All | Ticket | Wiki | Milestone tabs to search entries of specific type.
+
+Bloodhound Search provides basic faceting functionality. Facets are specific for each resource type. More complex faceting can be introduced later, for example: date rages, pivot faces etc.
+
+== Supported fields #fields
+=== Common fields for all resources
+ * id - resource id. For ticket it is ticket id, for wiki it is wiki page name.
+ * type - resource type e.g. ticket, wiki, milestone etc.
+ * time - resource change time
+ * author - resource author. For ticket it is ticket reporter.
+ * content - ticket description, wiki page content
+
+=== Ticket specific fields
+ * component
+ * status 
+ * resolution
+ * keywords
+ * milestone
+ * summary
+ * changes - ticket comments
+
+=== Milestone specific fields
+ * status - possible values are "completed" or "open"
+ * due - milestone due value in date-time format
+ 
+== Meta-keywords #meta-keywords
+Consider Bloodhound Search meta-keywords as shortcuts for commonly used query expressions. Meta-keyword starts with "$" character. Bloodhound Search supports the following meta-keywords:
+ * $resolved - resolved to {{{status:(resolved OR closed)}}} query
+ * $unresolved - resolved to {{{NOT $resolved}}} query
+ * $ticket, $milestone, $wiki - resolved to {{{type:ticket|milestone|wiki}}} query
+ * $me - resolved to currently logged in user name
+ * $my - resolved to {{{owner:$me}}}
+{{{
+#!comment
+Add wiki macro in order to automatically generate list of supported meta-keywords and help description
+}}}
+
+== URL query parameters #parameters
+Bloodhound Search supports the following URL query parameters:
+ * '''q''' - query string, for example: .../bhsearch?q=test
+ * '''type''' - type of resource to search in. Currently, supported types are ticket, wiki and milestone, for example: .../bhsearch?type=ticke
+ * '''fq''' - filter query. Filter queries are not boosted and used to additionally filter search output. Bloodhound Search joins multiple filter queries using AND operator, for example: .../bhsearch?fq=status:"new"&fq=component:"c1" results to filter query: status:"new" AND component:"c1"
+ * '''pagelen''' - number of rows that should be returned in a single page, for example .../bhsearch?pagelen=20. Default pagelen value is 10
+ * '''page''' - number of page in the current result set that should be returned
+ * '''view''' - the parameter specify hor search results should presented. Currently supported value is {{{grid}}}. If parameter is missing, free text presentation will be used. Usage sample: {{{view=grid}}}
+ * '''sort''' - specifies search results sorting. By default, results are sorted by relevance score and resource time ({{{sort=score, time desc}}}). 
+  * A sort parameter must include a field name (or the pseudo-field {{{score}}}), optionally followed by whitespace (escaped as + or %20 in URL strings) and followed by a sort direction ({{{asc}}} or {{{desc}}}). If if direction is missing, {{{asc}}} is used by default.
+  * Multiple sort orderings can be separated by a comma, ie: {{{sort=<field name>+<direction>[,<field name>+<direction>]...}}} For example: {{{sort=component, milestone desc}}}
+   

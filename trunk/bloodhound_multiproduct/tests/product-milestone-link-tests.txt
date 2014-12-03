@@ -1,0 +1,24 @@
+============================================================
+
+        Product milestone links
+
+============================== %(tc_title_prefix)s - milestone: link resolver
+%(link_prefix)smilestone:foo
+[%(link_prefix)smilestone:boo Milestone Boo]
+[%(link_prefix)smilestone:roo Milestone Roo]
+------------------------------
+<p>
+<a class="missing milestone" href="%(path_prefix)s/milestone/foo" rel="nofollow">%(link_prefix_escaped)smilestone:foo</a>
+<a class="milestone" href="%(path_prefix)s/milestone/boo">Milestone Boo</a>
+<a class="closed milestone" href="%(path_prefix)s/milestone/roo">Milestone Roo</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - milestone: link resolver + arguments
+%(link_prefix)smilestone:?action=new
+[%(link_prefix)smilestone:boo#KnownIssues Known Issues for 1.0]
+------------------------------
+<p>
+<a class="missing milestone" href="%(path_prefix)s/milestone/?action=new" rel="nofollow">%(link_prefix_escaped)smilestone:?action=new</a>
+<a class="milestone" href="%(path_prefix)s/milestone/boo#KnownIssues">Known Issues for 1.0</a>
+</p>
+------------------------------

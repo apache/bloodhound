@@ -1,0 +1,40 @@
+#!/bin/bash -x
+
+basedir=`dirname $0`
+options=""
+while [ $# -gt 1 ]; do
+    options="$options $1"
+    shift
+done
+config="$1"
+if [ ! -e "$config" ]; then
+    echo "Syntax error: requires a .ini file to work with." >&2
+    exit 1
+fi
+
+dot=`echo "$config" | sed 's/\.ini$/.dot/g'`
+ps=`echo "$config" | sed 's/\.ini$/.ps/g'`
+pdf=`echo "$config" | sed 's/\.ini$/.pdf/g'`
+png=`echo "$config" | sed 's/\.ini$/.png/g'`
+
+$basedir/workflow_parser.py $options "$config" "$dot"
+if [ $? -ne 0 ]; then
+    echo "Failed to parse \"$config\", exiting." >&2
+    exit 1
+fi
+
+cat "$dot"
+if [ "$OSTYPE" = cygwin ]; then
+    dot -T png -o "$png" "$dot"
+    cmd /c start $png
+else
+    dot -T ps -o "$ps" "$dot"
+    dot -T pdf -o "$pdf" "$dot"
+    # attempt to find a Linux pdf viewer
+    for viewer in kpdf okular evince; do
+        if which $viewer >/dev/null 2>&1; then
+            break
+        fi
+    done
+    $viewer "$pdf"
+fi

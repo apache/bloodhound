@@ -1,0 +1,31 @@
+Apache Bloodhound
+Copyright 2012-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/)
+
+Trac - licensed under the BSD License
+This product include software (Trac) developed by
+Edgewall Software (http://trac.edgewall.org/)
+
+Bootstrap - licensed under the Apache License, version 2
+This product includes software (Bootstrap) developed by
+Twitter (http://twitter.github.com/bootstrap/)
+
+jQuery - licensed under the MIT License
+This product includes software (jQuery) developed by
+jQuery (http://jquery.org/)
+
+jQuery UI - licensed under MIT License
+This product includes software (jQuery UI) developed by
+jQuery UI (http://jqueryui.com/)
+
+jQuery Timepicker Addon - licensed under MIT License
+This product includes software (jQuery Timepicker Addon)
+developed by Trent Richardson
+(http://trentrichardson.com/examples/timepicker/)
+
+LRU and LFU cache decorators - licensed under the PSF License
+This product includes code (LRU and LFU cache decorators) developed by
+Raymond Hettinger
+(http://code.activestate.com/recipes/498245-lru-and-lfu-cache-decorators/)

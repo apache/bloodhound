@@ -1,0 +1,82 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+
+  <py:match path="head" once="true"><head>
+    <title py:with="title = list(select('title/text()'))">
+      <py:if test="title">${title} – </py:if>${project.name or 'Trac'}
+    </title>
+    <py:if test="chrome.content_type == 'text/html'">
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    </py:if>
+    <meta py:for="meta in chrome.metas" py:attrs="meta"/>
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+    <py:if test="chrome.links">
+      <py:for each="rel, links in chrome.links.items()">
+        <link rel="${rel}" py:for="link in links" py:attrs="link" />
+      </py:for>
+    </py:if>
+    <py:if test="not defined('trac_error_rendering') and 'SEARCH_VIEW' in perm" id="search">
+      <link type="application/opensearchdescription+xml" rel="search"
+            href="${href.search('opensearch')}"
+            title="${_('Search %(project)s', project=project.name)}"/>
+    </py:if>
+    <script py:if="chrome.script_data" type="text/javascript">
+      <py:for each="key, value in chrome.script_data.iteritems()">
+      var ${key}=${to_json(value)};
+      </py:for>
+    </script>
+    <py:for each="script in chrome.scripts">
+      ${script.prefix}<script type="${script.type}" charset="${script.charset}" src="${script.href}"></script>${script.suffix}
+    </py:for>
+    <script py:if="chrome.warnings or chrome.notices" type="text/javascript">
+      jQuery(document).ready(function($) {
+        $(".trac-close-msg").show().click(function () {
+          $(this).closest(".system-message").hide();
+          return false;
+        });
+      });
+    </script>
+    ${select("*[local-name() != 'title']|text()|comment()")}
+  </head></py:match>
+
+  <py:match path="body" once="true" buffer="false"><body>
+    ${select('*|text()|comment()')}
+
+    <script type="text/javascript" py:if="chrome.late_links">
+      <py:for each="link in chrome.late_links.get('stylesheet', [])">
+        jQuery.loadStyleSheet("${link.href}", "${link.type}");
+      </py:for>
+    </script>
+    <script py:if="chrome.late_script_data" type="text/javascript">
+      <py:for each="key, value in chrome.late_script_data.iteritems()">
+      var ${key}=${to_json(value)};
+      </py:for>
+    </script>
+    <py:for each="script in chrome.late_scripts">
+      ${script.prefix}<script type="${script.type}" charset="${script.charset}" src="${script.href}"></script>${script.suffix}
+    </py:for>
+
+    <div id="altlinks" py:if="'alternate' in chrome.links">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li py:for="idx, link in enumerate(chrome.links.alternate)"
+            class="${first_last(idx, chrome.links.alternate)}">
+          <a rel="nofollow" href="${link.href}" class="${link['class']}"
+             py:content="link.title" />
+        </li>
+      </ul>
+    </div>
+  </body></py:match>
+
+  <xi:include href="$chrome.theme"><xi:fallback /></xi:include>
+  <xi:include href="site.html"><xi:fallback /></xi:include>
+</html>

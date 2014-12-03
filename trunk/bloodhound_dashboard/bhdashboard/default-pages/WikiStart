@@ -1,0 +1,22 @@
+= Welcome to Apache Bloodhound =
+
+Apache Bloodhound is a tool created for issue tracking and managing of software projects.
+
+At the heart of this are [wiki:TracTickets Tickets]. They provide the means to record information about a task, bug or feature request.
+
+Get started by [/newticket creating tickets] and categorise them using [/admin/ticket/products Products], [/admin/ticket/components Components], [/admin/ticket/versions Versions] or [/admin/ticket/milestones Milestones] (admin permissions required).
+
+You can also [/wiki/TracWiki?action=edit&edit_page_button= edit this page] and create new pages, just like in any other [wiki:TracWiki Wiki].
+
+Any questions you have should be answered in the [wiki:TracGuide extensive documentation] provided.
+
+== Further reading ==
+
+ * [wiki:TracGuide Guide] -  Built-in Documentation
+ * [https://bloodhound.apache.org The Apache Bloodhound project home]
+ * [https://issues.apache.org/bloodhound The Apache Bloodhound issue tracker]
+ * [http://trac.edgewall.org/ The Trac project], which Bloodhound is built on
+ * [wiki:TracSupport Support]
+
+For a complete list of local wiki pages, see TitleIndex.
+

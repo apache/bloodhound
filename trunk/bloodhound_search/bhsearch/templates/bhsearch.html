@@ -1,0 +1,203 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhsearch"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+
+  <py:def function="display_value(value)">
+    <py:choose test="value">
+      <py:when test="None">
+        <span class="label">empty</span>
+      </py:when>
+      <py:when test="''">
+        <span class="label">empty</span>
+      </py:when>
+      <py:otherwise>${value}</py:otherwise>
+    </py:choose>
+  </py:def>
+
+  <head>
+    <title py:choose="">
+      <py:when test="query">Bloodhound Search Results</py:when>
+      <py:otherwise>Bloodhound Search</py:otherwise>
+    </title>
+    <py:if test="results">
+        <meta name="startIndex" content="${results.span[0] + 1}"/>
+        <meta name="totalResults" content="$results.num_items"/>
+        <meta name="itemsPerPage" content="$results.max_per_page"/>
+    </py:if>
+
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {$("#q").get(0).focus()});
+    </script>
+  </head>
+  <body>
+    <div id="content" class="row">
+      <div class="span12">
+        <py:if test="quickjump">
+          <dt id="quickjump">
+            <a href="${quickjump.href}" i18n:msg="name">Quickjump to ${quickjump.name}</a>
+          </dt>
+          <dd>${quickjump.description}</dd>
+        </py:if>
+
+        <div py:if="results" class="row">
+          <div class="span3 facets">
+            <py:if test="facet_counts">
+              <!--Render facet counts-->
+              <ul id="facet_counts">
+                <li py:for="field, per_value_counts in facet_counts">
+                  <h4 style="display: inline;">${field}</h4>
+                  <ul id="facet_counts_value">
+                    <li py:for="value, item in per_value_counts.iteritems()">
+                      <a href="${item.href}"><strong>${display_value(value)}</strong></a>
+                      <span class="badge badge-info">${item.count}</span>
+                    </li>
+                    </ul>
+                </li>
+
+              </ul>
+            </py:if>
+          </div>
+
+            <div class="${'span12' if not facet_counts else 'span9'}${
+                        ' search_results'}">
+            <div class='query_suggestion' py:if='query_suggestion'>
+                Did you mean <a href="${query_suggestion.href}">${query_suggestion.query}</a>?
+            </div>
+            <h2>
+              Results <small>(${results.displayed_items()})</small>
+            </h2>
+
+            <div class="pull-right" py:if="all_views">
+              <!--TODO: change presentation. Current implementation is very basic. -->
+              View as:
+              <py:for each="idx, view in enumerate(all_views)">
+                <b py:if="view.is_active">${view.label}</b>
+                <a href="${view.href}" py:if="not view.is_active">${view.label}</a>
+                <py:if test="idx+1!=len(all_views)"> | </py:if>
+              </py:for>
+            </div>
+
+            <div>
+              <py:if test="view=='grid'">
+                <!--todo: implement rendering in pluggable manner-->
+                <!--Rendering results in grid view-->
+                <table class="listing tickets table table-bordered table-condensed query" style="border-radius: 0px 0px 4px 4px">
+                  <!--render table header-->
+                  <thead>
+                    <tr class="trac-columns">
+                        <th py:for="header in headers"
+                            class="$header.name${(' desc' if header.sort=='desc' else ' asc') if header.sort else ''}"  py:with="">
+                          <?python asc = _('(ascending)'); desc = _('(descending)') ?>
+                          <a title="${_('Sort by %(col)s %(direction)s', col=header.label,
+                                        direction=(desc if header.sort=='asc' else asc))}"
+                             href="${header.href}">
+                            ${header.label}
+                            <i py:if="header.sort"
+                                class="${'icon-chevron-down' if header.sort=='desc' else 'icon-chevron-up'}"></i>
+                          </a>
+                        </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <!--render table rows-->
+                    <py:for each="idx, result in enumerate(results)">
+                      <tr class="${'odd' if idx % 2 else 'even'} prio${result.priority_value}${
+                        ' added' if 'added' in result else ''}${
+                        ' changed' if 'changed' in result else ''}${
+                        ' removed' if 'removed' in result else ''} highlight_matches">
+                        <py:for each="idx, header in enumerate(headers)" py:choose="">
+                          <py:with vars="name = header.name; value = result[name]; hilited_value=result['hilited_' + name]; title = _('View ')+ result['type']">
+                            <td py:when="name == 'id'" class="id"><a href="$result.href" title="${title}"
+                                class="${classes(closed=result.status == 'closed')}">${
+                                '#' if result.type == 'ticket' else ''}${result.hilited_id or result.id}</a></td>
+                            <td py:otherwise="" class="$name" py:choose="">
+                              <a py:when="name == 'summary'" href="$result.href" title="title">${hilited_value or value}</a>
+                              <py:when test="isinstance(value, datetime)">${pretty_dateinfo(value, dateonly=True)}</py:when>
+                              <py:when test="name == 'reporter'">${authorinfo(value)}</py:when>
+                              <py:when test="name == 'cc'">${format_emails(ticket_context, value)}</py:when>
+                              <py:when test="name == 'owner' and value">${authorinfo(value)}</py:when>
+                              <py:when test="name == 'milestone'"><a py:if="value" title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
+                              <!--<py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>-->
+                              <py:otherwise>${hilited_value or value}</py:otherwise>
+                            </td>
+                          </py:with>
+                        </py:for>
+                      </tr>
+                    </py:for>
+                  </tbody>
+                </table>
+              </py:if>
+
+              <!--<py:if test="not headers">-->
+              <py:if test="not view">
+                <!--Rendering results in free form-->
+                <dl id="results">
+                  <py:for each="result in results">
+                    <dt><a href="${result.href}" class="highlight_matches">${result.title}</a></dt>
+                    <dd class="highlight_matches">${result.hilited_content or result.content}</dd>
+                    <dd>
+                      <py:if test="result.author"><span class="author" i18n:msg="author">By ${format_author(result.author)}</span> &mdash;</py:if>
+                      <span class="date">${result.date}</span>
+                    </dd>
+                  </py:for>
+                </dl>
+              </py:if>
+            </div>
+
+            <xi:include py:with="paginator = results" href="bh_page_index.html" />
+          </div>
+        </div>
+      </div>
+
+      <div class="span12"
+          py:if="query and not (results or quickjump)">
+        <p id="notfound" class="alert">
+          No matches found.
+          <py:if test='query_suggestion'>
+          Did you mean
+          <a href="${query_suggestion.href}">${query_suggestion.query}</a>?
+          </py:if>
+        </p>
+      </div>
+
+      <div py:if="debug.enabled" class="span12">
+        <p>DEBUG INFO:
+        <pre>${pprint(debug)}</pre>
+        </p>
+      </div>
+
+      <div id="help" class="help-block pull-right" i18n:msg="">
+        <strong>Note:</strong> See <a href="${href.wiki('BloodhoundSearch')}">BloodhoundSearch</a>
+        for help on searching.
+      </div>
+
+    </div>
+  </body>
+</html>

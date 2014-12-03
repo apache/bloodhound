@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="css/bloodhound-custom.css" />
+<html>
+<head>
+	<title>MultiSite - Apache Bloodhound</title>
+</head>
+<body>
+	<div class="container">
+	<header>
+		<div class="row" id="logo-container"></div>
+		<div class="row">
+<!-- Search box -->
+			<div class="span4">
+			<form class="form-inline" style="margin-bottom:0px;">
+				<input type="text" class="span3" placeholder="Search anything. Try #EF-492." style="margin-bottom:0px;" />
+				<input type="button" value="Search" href="search.html" class="btn btn-warning" />
+			</form>
+			</div>
+
+<!-- Create button -->
+			<div class="span4">
+			  	<button class="btn btn-primary" href="#">Create Ticket</button>
+			</div>
+			
+<!-- Main navigation tabs -->
+			<div class="span4">
+				<ul class="nav nav-tabs pull-right" style="margin-bottom:0px; border-bottom: 0px;">
+					<li class="active"><a href="dashboard.html">Tickets</a></li>
+					<li><a href="wiki.html">Wiki</a></li>
+					<li><a href="source.html">Source</a></li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="#">SuperAdmin</a></li>
+							<li><a href="#">Tag Cloud</a></li>
+							<li><a href="#">Blog</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Something</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+      		<div class="span12">
+      			<ul class="breadcrumb">
+      				<li><a href="dashboard.html">Dashboard</a> <span class="divider">/</span></li>
+      				<li class="active"><a href="#">MultiSite</a></li>
+      				<li class="pull-right"><a href="#">Custom Query</a><a href="#" style="margin-left:15px;">Reports</a></li>
+				</ul>
+			</div>
+      		<div class="span3" style="text-align:right;"></div>
+     	</div>
+		</header>
+		<div class="row">
+			<div id="content" class="span8">
+				<div id="stickyStatus">
+					<div id="whitebox"></div>
+					<div style="position: absolute; z-index: 20;">
+					<hgroup>
+						<h1>MultiSite</h1>
+						<h6>Owned by <a href="profile.html">Warren Warwick</a></h6>
+					</hgroup>
+					<div id="statusBar">
+					<div id="statusBarBox"></div>
+						<div style="width: 150px; margin-left: 40px;" class="first">
+							<p style="margin-bottom:-2px;">24% complete</p>
+							<div class="progress progress-danger">
+								<div class="bar" style="width: 24%;"></div>
+							</div>
+						</div>
+					<div id="status" class="other">
+						<p style="margin-bottom:-2px;">In progress</p>
+						<p style="font-size:150%;"><a href="#">10</a></p>
+					</div>
+					<div id="type" class="other">
+						<p style="margin-bottom:-2px;">Open</p>
+						<p style="font-size:150%;"><a href="#">24</a></p>
+					</div>
+					<div id="type" class="other">
+						<p style="margin-bottom:-2px;">Complete</p>
+						<p style="font-size:150%;"><a href="#">76</a></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="belowStatus">
+			<div id="description" class="well">
+				<h3>Replication, mirroring and clustering for enterprise performance</h3>
+				<div>
+					<p><i class="icon-tags"></i> <a href="#">Apache Subversion</a>, <a href="#">replication</a>, <a href="#">mirroring</a>, <a href="#">clustering</a>, <a href="#">enterprise performance</a>, <a href="#">scalability</a>, <a href="#">backup</a>, <a href="#">distributed</a></p>
+				</div>
+				<p>This is the product description. Nay lad ipsum dolor sit t'foot o' our stairs ah'll box thi ears big girl's blouse ey up donec ee by gum ah'll learn thi soft southern pansy at mardy bum phasellus soft southern pansy.</p>
+				<ul>
+					<li>Michael palin gi' o'er felis nah then mi bloomin' 'eck t' molestie nunc accumsan.</li>
+					<li>Varius tempor gerritetten eget 'sup wi' 'im.</li>
+				</ul>
+				<button	class="btn" style="margin-right: 10px;"><i class="icon-edit"></i> Edit</button> <button class="btn"><i class="icon-file"></i> Attach file</button>
+			</div>
+			<div id="tickets" class="section">
+				<h2>Tickets</h2>
+				<div class="well">
+					-<a href="#ticketEdit" data-toggle="modal"><i class="icon-edit"></i></a>
+					<a href="#ticketList" data-toggle="modal"><i class="icon-list"></i></a>-
+				</div>
+				<div class="modal hide fade" id="ticketEdit" style="display: none;">
+				  <div class="modal-header">
+				    <a class="close" data-dismiss="modal">&times;</a>
+				    <h3>New Ticket</h3>
+				  </div>
+				  <div class="modal-body">
+				  </div>
+				  <div class="modal-footer">
+				    <a href="#" class="btn" data-dismiss="modal">Close</a>
+				    <a href="#" class="btn btn-primary">Save changes</a>
+				  </div>
+				</div>
+				<div class="modal hide fade" id="ticketList" style="display: none;">
+				  <div class="modal-header">
+				    <a class="close" data-dismiss="modal">&times;</a>
+				    <h3>All Tickets</h3>
+				  </div>
+				  <div class="modal-body">
+				  	<p>test</p>
+				  </div>
+				  <div class="modal-footer">
+				    <a href="#" class="btn" data-dismiss="modal">Close</a>
+				    <a href="#" class="btn btn-primary">Save changes</a>
+				  </div>
+				</div>
+				<div id="ticketlist-container"></div>
+			</div>
+			<div id="versions" class="section">
+				<h2>Versions</h2>
+				<div class="modal hide fade" id="versionEdit" style="display: none;">
+				  <div class="modal-header">
+				    <a class="close" data-dismiss="modal">&times;</a>
+				    <h3>Edit versions</h3>
+				  </div>
+				  <div class="modal-body">
+					<p>edit body</p>
+				  </div>
+				  <div class="modal-footer">
+				    <a href="#" class="btn">Close</a>
+				    <a href="#" class="btn btn-primary">Save changes</a>
+				  </div>
+				</div>
+				<div class="modal hide fade" id="versionList" style="display: none;">
+				  <div class="modal-header">
+				    <a class="close" data-dismiss="modal">&times;</a>
+				    <h3>Versions</h3>
+				  </div>
+				  <div class="modal-body">
+				  <ul class="oocss" style="margin-left: 100px;">
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  				<h3><a href="version.html">14.3 Rutland</a></h3>
+				  				<h6>Due in <time datetime="2012-04-27"><a href="#">1 month</a></time></h6>
+				  			</li>
+				  			<li><p style="position: relative; top: -17px;">40%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-warning">
+				  					<div class="bar" style="width: 40%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.2.2 Bugfix</h3></a>
+				  			<h6>Due in <time datetime="2012-04-27"><a href="#">6 days</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">90%</p>
+				  				<div class="progressbar">
+				  					<div class="progress progress-info">
+				  						<div class="bar" style="width: 90%;"></div>
+				  					</div>
+				  				</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.2.1 Bugfix sprint</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.2 Oklahoma</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">3 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.1.2 Bugfix</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>	
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.1.1 - Bugfix</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.1 Castel Gadolfo</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.0.1 Bugfix</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14 - Amadeus</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>13.2 - Bugfix sprint</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.2.1 - Bugfix sprint</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.2.1 - Bugfix sprint</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  	<li>
+				  		<ul class="statusitems">
+				  			<li class="first">
+				  			<a href="version.html"><h3>14.2.1 - Bugfix sprint</h3></a>
+				  			<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+				  			<li><p style="position: relative; top: -17px;">100%</p>
+				  			<div class="progressbar">
+				  				<div class="progress progress-success">
+				  					<div class="bar" style="width: 100%;"></div>
+				  				</div>
+				  			</div>
+				  			</li>
+				  		</ul>
+				  	</li>
+				  </ul>	  
+				  </div>
+				  <div class="modal-footer">
+				    <a href="#" class="btn" data-dismiss="modal">Close</a>
+				    <a href="#" class="btn btn-primary">Save changes</a>
+				  </div>
+				</div>
+				<div class="well">
+					-<a href="#versionEdit" data-toggle="modal"><i class="icon-edit"></i></a>
+					<a href="#versionList" data-toggle="modal"><i class="icon-list"></i></a>-
+				</div>
+				<ul class="oocss">
+					<li>
+						<ul class="statusitems">
+							<li class="first">
+								<h3><a href="version.html">14.3 Rutland</a></h3>
+								<h6>Due in <time datetime="2012-04-27"><a href="#">1 month</a></time></h6>
+							</li>
+							<li><p style="position: relative; top: -17px;">40%</p>
+							<div class="progressbar">
+								<div class="progress progress-warning">
+									<div class="bar" style="width: 40%;"></div>
+								</div>
+							</div>
+							</li>
+							<li><p>In progress</p><a href="#">14</a></li>
+							<li><p>Open</p><a href="#">20</a></li>
+							<li><p>Complete</p><a href="#">24</a></li>
+						</ul>
+					</li>
+					<li>
+						<ul class="statusitems">
+							<li class="first">
+							<a href="version.html"><h3>14.2.2 - Bugfix</h3></a>
+							<h6>Due in <time datetime="2012-04-27"><a href="#">6 days</a></time></h6></li>
+							<li><p style="position: relative; top: -17px;">90%</p>
+								<div class="progressbar">
+									<div class="progress progress-info">
+										<div class="bar" style="width: 90%;"></div>
+									</div>
+								</div>
+							</li>
+							<li><p>In progress</p><a href="#">1</a></li>
+							<li><p>Open</p><a href="#">2</a></li>
+							<li><p>Complete</p><a href="#">8</a></li>
+						</ul>
+					</li>
+					<li>
+						<ul class="statusitems">
+							<li class="first">
+							<a href="version.html"><h3>14.2.1 - Bugfix sprint</h3></a>
+							<h6>Completed <time datetime="2012-04-27"><a href="#">2 months ago</a></time></h6></li>
+							<li><p style="position: relative; top: -17px;">100%</p>
+							<div class="progressbar">
+								<div class="progress progress-success">
+									<div class="bar" style="width: 100%;"></div>
+								</div>
+							</div></li>
+							<li><p>In progress</p><a href="#">0</a></li>
+							<li><p>Open</p><a href="#">0</a></li>
+							<li><p>Complete</p><a href="#">12</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div id="projects" class="section">
+			<h2>Projects</h2>
+			<div class="well">
+				-<a href="#projectEdit" data-toggle="modal"><i class="icon-edit"></i></a>
+				<a href="#projectList" data-toggle="modal"><i class="icon-list"></i></a>-
+			</div>
+			<div class="modal hide fade" id="projectEdit" style="display: none;">
+			  <div class="modal-header">
+			    <a class="close" data-dismiss="modal">&times;</a>
+			    <h3>New Project</h3>
+			  </div>
+			  <div class="modal-body">
+			  </div>
+			  <div class="modal-footer">
+			    <a href="#" class="btn" data-dismiss="modal">Close</a>
+			    <a href="#" class="btn btn-primary">Save changes</a>
+			  </div>
+			</div>
+			<div class="modal hide fade" id="projectList" style="display: none;">
+			  <div class="modal-header">
+			    <a class="close" data-dismiss="modal">&times;</a>
+			    <h3>All Projects</h3>
+			  </div>
+			  <div class="modal-body">
+			  	<p>test</p>
+			  </div>
+			  <div class="modal-footer">
+			    <a href="#" class="btn" data-dismiss="modal">Close</a>
+			    <a href="#" class="btn btn-primary">Save changes</a>
+			  </div>
+			</div>
+			<ul class="oocss">
+				<li>
+					<ul class="statusitems">
+						<li class="first"><a href="project.html"><h3 style="display: block;">Rebranding</h3></a>
+						<h6>Due in <time datetime="2012-05-27"><a href="#">3 weeks</a></time></h6>
+						</li>
+						<li><p style="position: relative; top: -17px;">100%</p>
+						<div class="progressbar">
+							<div class="progress progress-success">
+								<div class="bar" style="width: 100%;"></div>
+							</div>
+						</div></li>
+						<li><p>In progress</p><a href="#">0</a></li>
+						<li><p>Open</p><a href="#">0</a></li>
+						<li><p>Complete</p><a href="#">40</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+			<div id="components" class="section">
+					<h2>Components</h2>
+					<div class="well">
+						-<a href="#componentEdit" data-toggle="modal"><i class="icon-edit"></i></a>
+						<a href="#componentList" data-toggle="modal"><i class="icon-list"></i></a>-
+					</div>
+					<div class="modal hide fade" id="componentEdit" style="display: none;">
+					  <div class="modal-header">
+					    <a class="close" data-dismiss="modal">&times;</a>
+					    <h3>New Component</h3>
+					  </div>
+					  <div class="modal-body">
+					  </div>
+					  <div class="modal-footer">
+					    <a href="#" class="btn" data-dismiss="modal">Close</a>
+					    <a href="#" class="btn btn-primary">Save changes</a>
+					  </div>
+					</div>
+					<div class="modal hide fade" id="componentList" style="display: none;">
+					  <div class="modal-header">
+					    <a class="close" data-dismiss="modal">&times;</a>
+					    <h3>All Components</h3>
+					  </div>
+					  <div class="modal-body">
+					  	<p>test</p>
+					  </div>
+					  <div class="modal-footer">
+					    <a href="#" class="btn" data-dismiss="modal">Close</a>
+					    <a href="#" class="btn btn-primary">Save changes</a>
+					  </div>
+					</div>
+					<ul class="oocss block">
+						<li>
+							<a href="component.html"><h3>Interface</h3></a>
+							<h6>Owned by <a href="profile.html">Warren Warwick</a></h6>
+						</li>
+						<li>
+							<a href="component.html"><h3>Database</h3></a>
+							<h6>Owned by <a href="profile.html">Warren Warwick</a></h6>
+						</li>
+						<li>
+							<a href="component.html"><h3>Core</h3></a>
+							<h6>Owned by <a href="profile.html">Warren Warwick</a></h6>
+						</li>
+					</ul>
+				</div>
+  		</div>
+	</div>
+<!-- Activity -->
+			<div id="activity" class="span4">
+				<div id="stickyActivity">
+					<h1>Activity</h1>
+				</div>
+				<div id="activity-container"></div>
+      		</div>
+      		
+     	</div>
+     	<!-- This is only here to force the footer further down! -->
+     	<div style="height:50px;"></div>
+     	<!-- Likely due to a poisition: style that I got wrong somewhere in the 'content' div -->
+     	
+<!-- Footer -->
+     	<div class="row" id="footer-container"></div>
+    </div>
+    
+<!-- Scripts -->
+    <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+    <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="js/bootstrap-button.js"></script>
+    <script type="text/javascript" src="js/bootstrap-modal.js"></script>
+    <script type="text/javascript" src="js/bloodhound-stickyscroll.js"></script>
+    <script type="text/javascript">
+	    $('div#logo-container').load('placeholders/header.html #logo-user');
+	    $('div#ticketlist-container').load('placeholders/ticketlist.html #myHigh');
+	    $('div#activity-container').load('placeholders/activity.html');
+	    $('div#footer-container').load('placeholders/header.html footer');
+    </script>
+</body>
+</html>
+

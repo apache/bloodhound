@@ -1,0 +1,57 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:strip="" >
+
+  <xi:include href="widget_macros.html" />
+
+  <div class="btn-toolbar">
+    <div class="btn-group offset1" data-toggle="buttons-radio">
+      <py:with vars="max_idx = len(layout.toolbar) - 1">
+      <py:for each="idx, g in enumerate(layout.toolbar)" >
+      <py:for each="tb_item in g" >
+      <button data-target="#tb-item-${tb_item.id}" data-toggle="tab" 
+          disabled="${tb_item.widget is None and 'true' or None}" 
+          class="btn ${tb_item.widget is None and 'disabled' or None} ${tb_item.active and 'active' or None}">
+        ${tb_item.caption}
+      </button>
+      </py:for>
+      <py:if test="idx != max_idx">
+        <button disabled="true" class="btn disabled invisible">
+        </button>
+      </py:if>
+      </py:for>
+      </py:with>
+    </div>
+  </div>
+  <div class="tab-content">
+    <py:for each="g in layout.toolbar">
+      <div py:for="tb_item in g" py:if="tb_item.widget is not None"
+          class="tab-pane ${tb_item.active and 'active' or None}" 
+          id="tb-item-${tb_item.id}">
+        ${widget_container(widgets[tb_item.widget])}
+      </div>
+    </py:for>
+  </div>
+</html>
+

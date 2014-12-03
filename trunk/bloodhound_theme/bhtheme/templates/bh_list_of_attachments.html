@@ -1,0 +1,81 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!--!
+Display a list of attachments.
+
+Arguments:
+ - alist: the data for the list of attachments
+ - compact=False: if True, show the list in compact format (e.g. as used in the wiki view)
+ - add_button_title=None: the title of the "Attach" button
+ - foldable=False: if True, make the list of attachments foldable
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      py:with="compact = value_of('compact', False);
+               add_button_title = value_of('add_button_title', None);
+               foldable = value_of('foldable', False)" py:strip="">
+  <py:def function="show_one_attachment(attachment)">
+    <a href="${url_of(attachment.resource, format='raw')}" class="trac-rawlink" title="Download"></a>
+    <i18n:msg params="file, size, author, date">
+      <a href="${url_of(attachment.resource)}" title="View attachment">${attachment.filename
+        }</a>
+       <span class="attachment-info">(<span title="${_('%(size)s bytes', size=attachment.size)}">${pretty_size(attachment.size)}</span>) -
+      added by <em>${authorinfo(attachment.author)}</em> ${pretty_dateinfo(attachment.date)}.</span>
+    </i18n:msg>
+  </py:def>
+  <py:if test="alist.attachments or alist.can_create">
+    <div id="attachments" py:choose="">
+      <py:when test="compact and alist.attachments">
+        <h3 class="${'foldable' if foldable else None}">Attachments (${len(alist.attachments)})</h3>
+        <div>
+          <ul>
+            <py:for each="attachment in alist.attachments">
+              <li>
+                ${show_one_attachment(attachment)}
+                <q py:if="compact and attachment.description">${wiki_to_oneliner(context, attachment.description)}</q>
+              </li>
+            </py:for>
+          </ul>
+          <p py:if="alist.download_href">
+            <span class="label label-info">Download</span>
+            all attachments as: <a rel="nofollow" href="$alist.download_href">.zip</a>
+          </p>
+        </div>
+      </py:when>
+      <py:when test="not compact">
+        <h3 id="comment:attachments">Attachments (${len(alist.attachments) if alist.attachments else 0})</h3>
+        <div py:if="alist.attachments or alist.can_create" class="attachments">
+          <dl py:if="alist.attachments" class="attachments">
+            <py:for each="attachment in alist.attachments">
+              <dt>${show_one_attachment(attachment)}</dt>
+              <dd py:if="attachment.description">
+                ${wiki_to_oneliner(context, attachment.description)}
+              </dd>
+            </py:for>
+          </dl>
+          <xi:include href="bh_attach_file_form.html"/><span py:if="alist.attachments and alist.download_href" style="margin-left: 10px;">Download all attachments as: <a rel="nofollow" href="$alist.download_href">.zip</a></span>
+        </div>
+      </py:when>
+    </div>
+  </py:if>
+</html>

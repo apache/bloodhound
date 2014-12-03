@@ -1,0 +1,58 @@
+
+= Search and query plugin for Apache(TM) Bloodhound =
+
+
+== !ToDo ==
+
+
+== Dependencies ==
+
+This plugin depends on the following components to be installed:
+
+
+  - [http:trac.edgewall.org Trac]  ,,Since version 
+    ''' 1.0 ''',, . 
+
+
+== Installation ==
+
+This plugin has been tested with 
+[http://trac.edgewall.org/ Trac]  .
+
+The first step to make it work is to [wiki:TracPlugins install this plugin] 
+either for a particular environment or otherwise make it available to
+all the environments:
+
+{{{
+$ easy_install /path/to/unpacked/BloodhoundSearchPlugin-x.y.z.zip
+}}}
+
+,, where ''x.y.z'' is the version of the plugin,,
+
+... or alternately ...
+
+{{{
+$ easy_install BloodhoundSearchPlugin
+}}}
+
+In case of having internet connection and access to 
+[http://pypi.python.org/pypi PyPI] or a similar repository, both these
+methods '''should''' automatically retrieve the [#Dependencies external 
+dependencies] from there.
+
+== Configuration ==
+
+In order to enable [wiki:/En/Devel/BloodhoundSearchPlugin BloodhoundSearchPlugin] plugin,
+the only thing to do is to add the following lines to [wiki:TracIni trac.ini].
+
+{{{
+[components]
+bhsearch.* = enabled
+}}}
+
+== Bug / feature requests ==
+
+Existing bugs and feature requests for [wiki:/En/Devel/BloodhoundSearchPlugin BloodhoundSearchPlugin] are
+[query:status=new|assigned|reopened&keywords=~bep-0004 here].
+If you have any issues, please create a [/newticket?keywords=bep-0004 new ticket].
+

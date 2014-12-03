@@ -1,0 +1,18 @@
+============================================================
+
+        Product milestone links
+
+============================== %(tc_title_prefix)s - milestone: link resolver
+%(link_prefix)smilestone:foo
+------------------------------
+<p>
+<a class="missing milestone" href="%(path_prefix)s/milestone/foo" rel="nofollow">%(link_prefix_escaped)smilestone:foo</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - milestone: link resolver + arguments
+%(link_prefix)smilestone:?action=new
+------------------------------
+<p>
+<a class="missing milestone" href="%(path_prefix)s/milestone/?action=new" rel="nofollow">%(link_prefix_escaped)smilestone:?action=new</a>
+</p>
+------------------------------

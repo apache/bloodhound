@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!--
+	Licensed to the Apache Software Foundation (ASF) under one
+	or more contributor license agreements.  See the NOTICE file
+	distributed with this work for additional information
+	regarding copyright ownership.  The ASF licenses this file
+	to you under the Apache License, Version 2.0 (the
+	"License"); you may not use this file except in compliance
+	with the License.  You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing,
+	software distributed under the License is distributed on an
+	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, either express or implied.  See the License for the
+	specific language governing permissions and limitations
+	under the License.
+-->
+<html>
+<head>
+	<title>wiki-5476 - Apache Bloodhound</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css" />
+	<link rel="stylesheet" type="text/css" href="css/bloodhound-custom.css" />
+</head>
+<body>
+	<div class="container">
+		<header>
+		<div class="row">
+			<div id="logo-container"></div>
+		</div>
+		<div class="row">
+<!-- Search box -->
+			<div class="span7">
+			<form class="form-inline" style="margin-bottom: 5px; display: inline-block;">
+				<div class="input-append">
+					<input type="text" class="span3 hidden-phone" placeholder="Search" />
+					<input type="button" value="Search" href="search.html" class="btn btn-warning" />
+					</div>
+			</form>
+			<button class="btn btn-primary" href="#">Create Ticket</button>     
+			</div>
+<!-- Main navigation tabs -->
+	<!-- TODO: Fix navigation on all resolutions -->
+			<div class="span5">
+				<ul class="nav nav-tabs pull-right hidden-phone" style="margin-bottom:0px; border-bottom: 0px;">
+					<li class="active"><a href="dashboard.html">Tickets</a></li>
+					<li><a href="wiki.html">Wiki</a></li>
+					<li><a href="source.html">Source</a></li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">More<b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="#">SuperAdmin</a></li>
+							<li><a href="#">Tag Cloud</a></li>
+							<li><a href="#">Blog</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Something</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+<!-- Breadcrumb -->
+		<div class="row">
+			<div class="span12">
+				<ul class="breadcrumb">
+					<li class="hidden-phone"><a href="dashboard.html">Dashboard</a> <span class="divider">/</span></li>
+					<li class="hidden-phone"><a href="product.html">MultiSite</a> <span class="divider">/</span></li>
+					<li class="hidden-phone"><a href="version.html">14.3</a> <span class="divider">/</span></li>
+					<li><a href="milestone.html">Milestone 2</a> <span class="divider">/</span></li>
+					<li class="active">AP-5476</li>
+					<li class="pull-right hidden-phone"><a href="#">Custom Query</a><a href="#" style="margin-left:15px;">Reports</a></li>
+					<li class="pull-right visible-phone">&#x2261; Nav</li>
+				</ul>
+			</div>
+		</div>
+		</header>
+
+<!--  # Header ends 
+		# Main body begins  -->
+
+	<!-- Local navigation -->
+		<div class="row">
+			<div id="stickyStatus" class="span12">
+				<div class="row">
+					<div class="span8">
+						<h2>&#9734; SQL report realm/id decoration</h2>
+						<span class="ownership"><a href="">Ticket 25</a> - Due in <time datetime="2012-04-27"><a href="#">2 days</a></time>, assigned to <a href="profile.html">Fred Feuerstein</a></span>
+						<div>
+							<ul class="btn-group local-nav">
+								<li class="btn"><a href="#description"><i class="icon-tasks"></i> <span class="hidden-phone">Description</span></a></li>
+								<li class="btn"><a href="#attachments"><i class="icon-file"></i> <span class="hidden-phone hidden-tablet">Attachments</span></a></li>
+								<li class="btn"><a href="#comments"><i class="icon-comment"></i> <span class="hidden-phone">Comments</span></a></li>
+								<li class="btn"><a href="#newComment"><i class="icon-plus"></i> <span class="hidden-phone hidden-tablet">Add comment</span></a></li>
+								<li class="btn hidden-tablet hidden-desktop"><a href="#activity"><i class="icon-user"></i> <span class="hidden-phone">Activity</span></a></li>
+								<li class="btn"><a href="#edit"><i class="icon-edit"></i> <span class="hidden-phone">Edit</span></a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="span4 hidden-phone">
+						<h2>Activity</h2>
+					</div>
+				</div>
+			</div>
+			<div id="mobileStickyStatus" class="visible-phone">
+				<a href="#" style="margin-left: 10px;">Top</a><a href="" style="margin-left: 25%;">Ticket 25</a><span  class="pull-right" style="margin-right: 20px;">&#x2261; Nav</span>
+			</div>
+		</div>
+		<div class="row">
+<!-- Main element starts -->
+			<div class="span8" id="content">			
+<!-- Status -->
+				<div id="belowStatus">
+					<div class="stickyOffset"></div>
+					<div class="row">
+						<div class="span3">
+							<table class="status-overview">
+								<tr>
+									<td>Priority</td>
+									<td>High</td>
+								</tr>
+								<tr>
+									<td>Status</td>
+									<td>Reviewed</td>
+								</tr>
+								<tr>
+									<td>Type</td>
+									<td>Defect</td>
+								</tr>
+							</table>
+						</div>
+						<div class="span3">
+						<table class="status-overview">
+								<tr>
+									<td>Component</td>
+									<td>Interface</td>
+								</tr>
+								<tr>
+									<td>Product</td>
+									<td>+ Assign</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+<!-- Description -->
+				<div id="description" class="row">
+					<div class="span8">
+						<p><i class="icon-tags"></i> <a href="#">bloodhound</a>, <a href="#">design</a>, <a href="#">SQL</a></p>
+					</div>
+					<div class="span8">
+						<p id="full_description">
+						What you're reading now is the description. While doing a GET operation on /, Trac issued an internal error.<br>
+						Request parameters:<br>
+						<q>{} User agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; ko-kr) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4</q></p>
+						<button class="btn"><i class="icon-file"></i> Attach file</button>
+					</div>
+				</div>
+
+<!-- TODO: Add attachments section -->
+				<div id="attachments" class="row">
+					<div class="span8">
+						<h3>Attachments</h3>
+					</div>
+				</div>
+<!-- Comments -->
+	<!-- TODO: Fix comment-meta overlap with comments body -->
+				<div id="comments" class="row">
+					<div class="span8">
+						<h3>Comments</h3>
+
+						<div id="comment1" class="row">
+						</div>
+
+						<div id="comment2" class="row">
+						</div>
+			<!-- TODO: Show more clearly that files are attached to tickets but potentially displayed in tandem with a comment -->
+
+						<div id="comment3" class="row">
+						</div>
+						
+						<div id="comment4" class="row">
+						</div>
+
+						<div id="add-comment" class="row">
+							<div class="span8">
+								<h3 style="margin-top: 20px;">Add comment</h3> <br>
+								<textarea></textarea>
+								<button class="btn" style="margin-top: 2px;"><i class="icon-comment"></i> Add comment</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- Activity starts -->
+			<div id="activity" class="span4">
+				<div class="visible-phone">
+					<h2>Activity</h2>
+				</div>
+				<div id="activity-container"></div>
+			</div>
+		</div>
+	</div>
+<!-- Footer -->
+	</div>
+	<div class="container">
+		<div class="row" id="footer-container"></div>
+	</div>
+
+
+<script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+<script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="js/bootstrap-button.js"></script>
+<script type="text/javascript" src="js/bloodhound-activitysize.js"></script>
+<script type="text/javascript" src="js/bloodhound-stickyscroll.js"></script>
+<script type="text/javascript">
+	$('div#logo-container').load('placeholders/header.html #logo-user');
+	$('div#ticketlist-container').load('placeholders/ticketlist.html #myAll');
+	$('div#activity-container').load('placeholders/activity.html');
+	$('div#footer-container').load('placeholders/header.html footer');
+	$('div#comment1').load('placeholders/comments.html #comment1placeholder');
+	$('div#comment2').load('placeholders/comments.html #comment2placeholder');
+	$('div#comment3').load('placeholders/comments.html #comment3placeholder');
+	$('div#comment4').load('placeholders/comments.html #comment4placeholder');
+</script>
+</body>
+</html>
+

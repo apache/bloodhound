@@ -1,0 +1,100 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="bh_admin.html" />
+  <head>
+    <title>Basics</title>
+  </head>
+
+  <body>
+    <h2>Basic Settings</h2>
+
+    <form class="well form-horizontal" id="modbasic" method="post" action="">
+      <fieldset>
+        <legend>Project</legend>
+        <div class="control-group">
+          <label class="control-label" for="name">Name:</label>
+          <div class="controls">
+            <input id="name" type="text" name="name" value="${project.name}" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="url">URL:</label>
+          <div class="controls">
+            <input id="url" type="text" name="url" size="48" value="${project.url}" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="descr">Description:</label>
+          <div class="controls">
+            <textarea id="descr" name="descr" class="trac-resizable"
+                      rows="3" cols="50">${project.descr}</textarea>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="default_timezone">Default timezone:</label>
+          <div class="controls">
+            <select id="default-timezone" name="default_timezone">
+              <option value="">Server's local time zone</option>
+              <option py:for="tzname in timezones" value="${tzname}"
+                      selected="${tzname == default_timezone or None}">${tzname}</option>
+            </select>
+            <span py:if="has_pytz is False" class="help-inline" i18n:msg="">
+              <span class="label label-info">Note</span>
+              Install <code>pytz</code> for a complete list of timezones.
+            </span>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="default_language">Default language:</label>
+          <div class="controls">
+            <select id="default_language" name="default_language">
+              <option value="">Browser's language</option>
+              <option py:for="locale, language in languages" value="${locale}"
+                      selected="${locale == default_language or None}">${language}</option>
+            </select>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="default_date_format">Default date format:</label>
+          <div class="controls">
+            <select id="default_date_format" name="default_date_format">
+              <option value="">Browser's language</option>
+              <option value="iso8601"
+                      selected="${default_date_format == 'iso8601' or None}">ISO 8601 format</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+      <div class="control-group">
+        <input type="submit" class="btn" 
+            value="${_('Apply changes')}" />
+      </div>
+    </form>
+  </body>
+
+</html>

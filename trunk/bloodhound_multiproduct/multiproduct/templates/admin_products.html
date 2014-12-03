@@ -1,0 +1,144 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="multiproduct">
+  <xi:include href="admin.html" />
+  <head>
+    <title>Products</title>
+  </head>
+
+  <body>
+    <h2>Manage Products</h2>
+
+    <py:def function="owner_field(default_owner='')">
+      <div class="field">
+        <label>Owner: <br />
+          <py:choose>
+            <select py:when="owners" size="1" id="owner" name="owner">
+              <option py:for="owner in owners"
+                      selected="${owner==default_owner or None}" value="$owner">$owner</option>
+              <option py:if="default_owner and default_owner not in owners"
+                      selected="selected" value="$default_owner">$default_owner</option>
+            </select>
+            <input py:otherwise="" type="text" name="owner" value="$default_owner" />
+          </py:choose>
+        </label>
+      </div>
+    </py:def>
+
+    <py:choose test="view">
+      <form py:when="'detail'" class="mod" id="modifyproduct" method="post" action="">
+        <fieldset>
+          <legend>Modify Product:</legend>
+          <div class="field">
+            <label>Prefix:<br /><input type="text" name="prefix" value="$product.prefix" readonly="readonly" /></label>
+          </div>
+          <div class="field">
+            <label>Name:<br /><input type="text" name="name" value="$product.name"/></label>
+          </div>
+          ${owner_field(product.owner)}
+          <div class="field">
+            <fieldset class="iefix">
+              <label for="description" i18n:msg="">
+                Description (you may use
+                <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+                here):
+              </label>
+              <p>
+                <textarea id="description" name="description" class="wikitext trac-resizable"
+                          rows="6" cols="60">
+$product.description</textarea>
+              </p>
+            </fieldset>
+          </div>
+          <div class="buttons">
+            <input type="submit" name="save" value="${_('Save')}" />
+            <input type="submit" name="cancel" value="${_('Cancel')}" />
+          </div>
+        </fieldset>
+      </form>
+
+      <py:otherwise>
+        <form class="addnew" id="addproduct" method="post" action="">
+          <fieldset>
+            <legend>Add Product:</legend>
+            <div class="field">
+              <label>Prefix:<br /><input type="text" name="prefix" value="$prefix" /></label>
+            </div>
+            <div class="field">
+              <label>Name:<br /><input type="text" name="name" value="$name" /></label>
+            </div>
+            ${owner_field(owner)}
+            <div class="buttons">
+              <input type="submit" name="add" value="${_('Add')}"/>
+            </div>
+          </fieldset>
+        </form>
+
+        <py:choose>
+          <form py:when="products" id="product_table" method="post" action="">
+            <table class="listing" id="prodlist">
+              <thead>
+                <tr><th class="sel">&nbsp;</th>
+                  <th>Prefix</th><th>Name</th><th>Owner</th><th>Default</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr py:for="prod in products">
+                  <td class="sel"><input type="checkbox" name="sel" value="$prod.prefix" /></td>
+                  <td class="prefix">
+                    <a href="${panel_href(prod.prefix)}">$prod.prefix</a>
+                  </td>
+                  <td class="name">$prod.name</td>
+                  <td class="owner">$prod.owner</td>
+                  <td class="default">
+                    <input type="radio" name="default" value="$prod.prefix"
+                           checked="${prod.prefix==default or None}" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="buttons">
+              <input type="submit" name="remove" value="${_('Remove selected items')}" />
+              <input type="submit" name="apply" value="${_('Apply changes')}" />
+              <input type="submit" name="clear" value="${_('Clear default')}" />
+            </div>
+            <p class="help">
+              You can remove all items from this list to completely hide this
+              field from the user interface.
+            </p>
+          </form>
+
+          <p py:otherwise="" class="help">
+            As long as you don't add any items to the list, this field
+            will remain completely hidden from the user interface.
+          </p>
+        </py:choose>
+      </py:otherwise>
+    </py:choose>
+  </body>
+
+</html>

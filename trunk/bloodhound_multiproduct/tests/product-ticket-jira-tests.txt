@@ -1,0 +1,63 @@
+============================================================
+
+        A subset of product ticket links rewritten using JIRA compact syntax
+
+============================== %(tc_title_prefix)s - JIRA syntax link resolver
+%(setup_product)s-1
+%(setup_product)s-12
+%(setup_product)s-abc
+------------------------------
+<p>
+<a class="new ticket" href="%(path_prefix)s/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">%(setup_product)s-1</a>
+<a class="missing ticket">%(setup_product)s-12</a>
+%(setup_product)s-abc
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - JIRA syntax link resolver + arguments
+%(setup_product)s-1?format=csv
+%(setup_product)s-1#comment:3
+------------------------------
+<p>
+<a class="new ticket" href="%(path_prefix)s/ticket/1?format=csv" title="%(link_title_prefix)sThis is the summary (new)">%(setup_product)s-1?format=csv</a>
+<a class="new ticket" href="%(path_prefix)s/ticket/1#comment:3" title="%(link_title_prefix)sThis is the summary (new)">%(setup_product)s-1#comment:3</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - JIRA syntax link shorthand form
+%(setup_product)s-1, %(setup_product)s-2
+%(setup_product)s-12, %(setup_product)s-abc
+------------------------------
+<p>
+<a class="new ticket" href="%(path_prefix)s/ticket/1" title="%(link_title_prefix)sThis is the summary (new)">%(setup_product)s-1</a>, <a class="missing ticket">%(setup_product)s-2</a>
+<a class="missing ticket">%(setup_product)s-12</a>, %(setup_product)s-abc
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - JIRA syntax escaping the above
+!%(setup_product)s-1
+------------------------------
+<p>
+%(setup_product)s-1
+</p>
+------------------------------
+%(setup_product)s-1
+============================== %(tc_title_prefix)s - JIRA syntax InterTrac for tickets
+%(link_prefix)strac-2041
+[%(link_prefix)strac-2041 Trac #2041]
+%(link_prefix)sT-2041
+------------------------------
+<p>
+<a class="missing product">trac-2041</a>
+<a class="missing product">trac-2041</a>
+<a class="missing product">T-2041</a>
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - JIRA syntax with unicode digits
+%(setup_product)s-４２
+%(link_prefix)sT-２０４１
+%(link_prefix)strac-２０４１
+------------------------------
+<p>
+<a class="missing ticket">%(setup_product)s-４２</a>
+<a class="missing product">T-２０４１</a>
+<a class="missing product">trac-２０４１</a>
+</p>
+------------------------------

@@ -1,0 +1,53 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="bh_prefs.html" />
+  <head>
+    <title>Keyboard Shortcuts</title>
+  </head>
+  <body>
+
+    <div class="control-group">
+      <input type="hidden" id="accesskeys_cb" name="accesskeys_cb" value="" />
+      <input type="checkbox" name="accesskeys" value="1"
+          checked="${settings.session.get('accesskeys') or None}" />
+      <label for="accesskeys">
+        Enable access keys
+      </label>
+      <p class="help-block" i18n:msg="">
+      <span class="label label-info">Note</span>
+      This site provides keyboard shortcuts for
+      faster access to certain functions of this site. As these shortcuts can
+      cause conflicts with shortcuts provided by the desktop system or
+      web browser, they are disabled by default. See
+      <a href="${href.wiki('TracAccessibility')}">TracAccessibility</a>
+      for more information on access keys.</p>
+    </div>
+
+  </body>
+</html>
+

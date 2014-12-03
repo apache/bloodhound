@@ -1,0 +1,55 @@
+============================================================
+
+        Product report links
+
+============================== %(tc_title_prefix)s - report link shorthand form
+{%(setup_product)s 1}, {%(setup_product)s 2}
+{%(setup_product)s 12}, {%(setup_product)s abc}
+{product:%(setup_product)s 1}, {product:%(setup_product)s 2}
+{product:%(setup_product)s 12}, {product:%(setup_product)s abc}
+------------------------------
+<p>
+<a class="report" href="%(path_prefix)s/report/1">{%(setup_product)s 1}</a>, <a class="report" href="%(path_prefix)s/report/2">{%(setup_product)s 2}</a>
+<a class="report" href="%(path_prefix)s/report/12">{%(setup_product)s 12}</a>, {%(setup_product)s abc}
+<a class="report" href="%(path_prefix)s/report/1">{product:%(setup_product)s 1}</a>, <a class="report" href="%(path_prefix)s/report/2">{product:%(setup_product)s 2}</a>
+<a class="report" href="%(path_prefix)s/report/12">{product:%(setup_product)s 12}</a>, {<a class="product" href="%(path_prefix)s" title="%(setup_product_name)s">product:%(setup_product)s</a> abc}
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - escaping the above
+!{%(setup_product)s 1}
+!{product:%(setup_product)s 1}
+------------------------------
+<p>
+{%(setup_product)s 1}
+{product:%(setup_product)s 1}
+</p>
+------------------------------
+{%(setup_product)s 1}
+{product:%(setup_product)s 1}
+============================== %(tc_title_prefix)s - ticket shorthands, not numerical HTML entities
+&#1; &#23;
+------------------------------
+<p>
+&amp;#1; &amp;#23;
+</p>
+------------------------------
+&amp;#1; &amp;#23;
+============================== %(tc_title_prefix)s - report syntax with unicode digits
+{%(setup_product)s ⁴²} !{%(setup_product)s ⁴²}
+{%(setup_product)s T⁴²}
+{%(setup_product)s trac⁴²}
+{product:%(setup_product)s ⁴²} !{product:%(setup_product)s ⁴²}
+{product:%(setup_product)s T⁴²}
+{product:%(setup_product)s trac⁴²}
+product:%(setup_product)s:{⁴²} !product:%(setup_product)s:{⁴²}
+------------------------------
+<p>
+{%(setup_product)s ⁴²} !{%(setup_product)s ⁴²}
+{%(setup_product)s T⁴²}
+{%(setup_product)s trac⁴²}
+{<a class="product" href="%(path_prefix)s" title="%(setup_product_name)s">product:%(setup_product)s</a> ⁴²} !{<a class="product" href="%(path_prefix)s" title="%(setup_product_name)s">product:%(setup_product)s</a> ⁴²}
+{<a class="product" href="%(path_prefix)s" title="%(setup_product_name)s">product:%(setup_product)s</a> T⁴²}
+{<a class="product" href="%(path_prefix)s" title="%(setup_product_name)s">product:%(setup_product)s</a> trac⁴²}
+product:%(setup_product)s:{⁴²} product:%(setup_product)s:{⁴²}
+</p>
+------------------------------

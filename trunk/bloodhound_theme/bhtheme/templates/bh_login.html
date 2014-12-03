@@ -1,0 +1,115 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="layout.html" />
+  <?python
+    if _dgettext is not None:
+        dgettext = _dgettext ?>
+  <head>
+    <title>Login</title>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("body").addClass("login");
+        $('#user').focus();
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="content" class="login">
+
+      <div class="central system-message" py:if="login_error">
+        <xi:include href="widget_alert.html" 
+            py:with="msglabel = 'Failed'; msgbody = login_error"/>
+      </div>
+      <div class="spacer" py:if="not login_error"></div>
+
+      <h1>Login</h1>
+
+      <form class="form-horizontal" method="post" id="acctmgr_loginform" action="">
+        <div>
+          <input type="hidden" name="referer" value="${referer}" />
+        </div>
+        <div class="textbox control-group">
+          <label for="user" class="control-label">Username:</label>
+          <div class="controls">
+            <input type="text" id="user" name="user" class="textwidget"
+                size="20" placeholder="${_('User name')}" />
+          </div>
+        </div>
+        <div class="textbox control-group">
+          <label for="password" class="control-label">Password:</label>
+          <div class="controls">
+            <input type="password" id="password" name="password"
+                class="textwidget" size="20" placeholder="${_('Password')}"/>
+            <div id="login_options" class="central"
+                 py:if="reset_password_enabled and login_opt_list != True">
+              
+              <p class="hint">
+                <a href="${href.reset_password()}">Forgot your password?</a>
+              </p> 
+            </div>
+            <div class="textbox" py:if="persistent_sessions">
+              <input type="checkbox" id="rememberme" name="rememberme"
+                     value="1" />
+              <label for="rememberme">Remember me</label>
+            </div>
+          </div>
+        </div>
+        <div class="textbox control-group">
+          <div class="controls">
+            <div id="login_options" class="buttons central nav">
+              <input type="submit" value="${dgettext('acct_mgr', 'Login')}" 
+                  class="btn" />
+              <ul py:if="login_opt_list == True" style="list-style: none">
+                <py:choose py:if="registration_enabled">
+                  <li class="first" py:when="reset_password_enabled">
+                    <a href="${href.register()}">Register</a>
+                  </li>
+                  <li class="first last" py:otherwise="">
+                    <a href="${href.register()}">Register</a>
+                  </li>
+                </py:choose>
+                <py:choose py:if="reset_password_enabled">
+                  <li class="last" py:when="registration_enabled">
+                    <a href="${href.reset_password()}">Forgot your password?</a>
+                  </li>
+                  <li class="first last" py:otherwise="">
+                    <a href="${href.reset_password()}">Forgot your password?</a>
+                  </li>
+                </py:choose>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+  </body>
+</html>
+

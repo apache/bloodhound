@@ -1,0 +1,160 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>About ${chrome.labels.application_short}</title>
+    <link rel="stylesheet" type="text/css" href="${chrome.htdocs_location}css/about.css" />
+    <script type="text/javascript">
+      //<![CDATA[
+      jQuery(document).ready(function ($) {
+        $("#systeminfo table").append("<tr><th>jQuery</th><td>"+$().jquery+"</td></tr>");
+      });
+      //]]>
+    </script>
+  </head>
+
+  <body>
+    <div id="content" class="about">
+      <a href="https://bloodhound.apache.org/"
+         style="border: none; float: right; margin-left: 2em">
+        <img style="display: block" src="${href.chrome('theme/img/bh_logo.png')}"
+             alt="${chrome.labels.application_full}: Integrated SCM &amp; Project Management"/>
+      </a>
+      <h1>About ${chrome.labels.application_short}
+          ${chrome.labels.application_version}
+      </h1>
+      <p i18n:msg="Trac,Bloodhound">Standing on the shoulders of
+        <a href="http://trac.edgewall.org/">Trac ${trac.version}</a>,
+        <a href="http://incubator.apache.org/bloodhound/">${chrome.labels.application_full}</a>
+        is a project hosted by the Apache Software Foundation's Incubator project.
+        <br/>
+        Currently, it has three key aims:
+        <h4>Multiple Projects</h4>
+        It will manage anything from your one pet project to dozens of 
+        commercial or open source projects, and scale seamlessly in-between. 
+        The built-in Wiki allows you to create proposals and store other 
+        information.
+        <h4>Easy to install</h4>
+        It will provide an installation process for Windows, Linux and Mac OS X. 
+        Everything you need to run Bloodhound with your favourite web server 
+        and database will be provided.
+        <h4>User-friendly design</h4>
+        It provides a consistent experience throughout. 
+        It will be obvious even to beginners how to carry out common tasks. 
+        A dashboard will provide an overview of work assigned to you, 
+        or watched by you.
+      </p>
+      <a href="http://trac.edgewall.org/"
+        style="border: none; float: right; margin-left: 2em">
+        <img style="display: block" src="${chrome.htdocs_location}trac_banner.png"
+          alt="Trac: Integrated SCM &amp; Project Management"/>
+      </a>
+      <h1>About Trac</h1>
+      <p>Trac is a web-based software project management and bug/issue
+        tracking system emphasizing ease of use and low ceremony.
+        It provides an integrated Wiki, an interface to version control
+        systems, and a number of convenient ways to stay on top of events
+        and changes within a project.
+      </p>
+      <p i18n:msg="">Trac is distributed under the modified BSD License.<br />
+        The complete text of the license can be found
+        <a href="http://trac.edgewall.org/wiki/TracLicense">online</a>
+        as well as in the <code>COPYING</code> file included in the distribution.</p>
+      <a href="http://www.python.org/" style="border: none; float: right">
+        <img style="display: block" src="${chrome.htdocs_location}python.png"
+          alt="python powered" width="140" height="56" />
+      </a>
+      <p i18n:msg="">Please visit the Trac open source project:
+        <a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+      <p class="copyright" xml:lang="en" i18n:msg="">Copyright &copy; 2003-2013
+        <a href="http://www.edgewall.org/">Edgewall Software</a>
+      </p>
+
+      <py:if test="systeminfo or plugins or config">
+        <hr />
+
+        <div py:if="systeminfo" id="systeminfo">
+          <h2>System Information</h2>
+          <table class="listing">
+            <thead><tr><th>Package</th><th>Version</th></tr></thead>
+            <tbody>
+              <tr py:for="name, value in systeminfo">
+                <th>$name</th>
+                <td>$value</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div py:if="plugins" id="plugins">
+          <h2>Installed Plugins</h2>
+          <table class="listing">
+            <thead><tr><th>Name</th><th>Version</th><th>Location</th></tr></thead>
+            <tbody>
+              <tr py:for="plugin in plugins"
+                  class="${'disabled' if all(not component.enabled for module in plugin.modules.itervalues()
+                                             for component in module.components.itervalues()) else None}">
+                <th py:with="url = plugin.info.home_page or plugin.info.author_email and 'mailto:' + plugin.info.author_email">
+                  <a py:strip="not url" href="$url">$plugin.name</a>
+                </th>
+                <td>${plugin.version or _('N/A')}</td>
+                <td class="file">$plugin.path</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div py:if="config" id="config">
+          <h2>Configuration</h2>
+          <table class="listing">
+            <thead>
+              <tr>
+                <th class="section">Section</th>
+                <th class="name">Name</th>
+                <th class="value">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <py:for each="section in config">
+                <tr py:for="idx,option in enumerate(section.options)"
+                    class="${'modified' if option.modified else None}">
+                  <th py:if="idx == 0" class="section"
+                      rowspan="${len(section.options)}">${section.name}</th>
+                  <td class="name">${option.name}</td>
+                  <td class="value">${option.value}</td>
+                </tr>
+              </py:for>
+            </tbody>
+          </table>
+        </div>
+      </py:if>
+
+    </div>
+  </body>
+</html>
+

@@ -1,0 +1,87 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="bh_admin.html" />
+  <head>
+    <title>Logging</title>
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        $("#log_type").change(function() {
+          $("#log_level").enable(this.selectedIndex > 0);
+          $("#log_file").enable(this.options[this.selectedIndex].value == "file");
+        }).change();
+      });
+    /*]]>*/</script>
+  </head>
+
+  <body>
+    <h2>Logging</h2>
+
+    <form class="well form-horizontal" id="modlog" method="post" action="">
+      <fieldset>
+        <legend>Configuration</legend>
+        <div class="control-group">
+          <label class="control-label" for="log_type">Type:</label>
+          <div class="controls">
+            <select id="log_type" name="log_type" class="input-medium">
+              <option py:for="type in log.types" value="${type.name}"
+                      selected="${type.selected or None}"
+                      disabled="${type.disabled or None}">${type.label}</option>
+            </select>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="log_level">Log level:</label>
+          <div class="controls">
+            <select id="log_level" name="log_level" class="input-medium">
+              <option py:for="level in log.levels"
+                      selected="${level==log.level or None}">$level</option>
+            </select>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="log_file">Log file:</label>
+          <div class="controls">
+            <input type="text" id="log_file" name="log_file" value="$log.file"
+                class="input-xlarge" />
+            <p class="help-block" i18n:msg="dir">
+              <span class="label label-info">Note</span> If you specify a
+              relative path, the log file will be stored inside the
+              <code>log</code> directory of the project environment
+              (<code>$log.dir</code>).
+            </p>
+          </div>
+        </div>
+        <div class="control-group">
+          <input type="submit" class="btn"
+              value="${_('Apply changes')}"/>
+        </div>
+      </fieldset>
+    </form>
+  </body>
+
+</html>

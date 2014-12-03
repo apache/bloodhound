@@ -1,0 +1,31 @@
+
+= Ticket Relations plugin for Apache(TM) Bloodhound =
+
+
+== Dependencies ==
+
+This plugin depends on the following components to be installed:
+
+
+  - [http:trac.edgewall.org Trac]  ,,Since version 
+    ''' 1.0.1 ''',, .
+
+== Configuration ==
+
+In order to enable [wiki:/En/Devel/BloodhoundTicketRelationsPlugin BloodhoundTicketRelationsPlugin] plugin,
+the only thing to do is to add the following lines to [wiki:TracIni trac.ini].
+
+{{{
+[components]
+bhrelations.* = enabled
+}}}
+
+== Bug / feature requests ==
+
+Existing bugs and feature requests for [wiki:/En/Devel/BloodhoundTicketRelationsPlugin BloodhoundTicketRelationsPlugin] are
+[query:status=new|assigned|reopened&keywords=~bep-0006 here].
+If you have any issues, please create a [/newticket?keywords=bep-0006 new ticket].
+
+== The Trac ticket-links branch
+Bloodhound Relations plugin contains the code from the Trac ticket-links branch, which
+is licensed under the same license as Trac (http://trac.edgewall.org/wiki/TracLicense).

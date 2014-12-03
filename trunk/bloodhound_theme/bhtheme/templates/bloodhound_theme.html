@@ -1,0 +1,411 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      py:strip="">
+
+  <py:match path="head" once="true"><head>
+    <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap.css')}" type="text/css" />
+    <link rel="stylesheet" href="${href.chrome('dashboard/css/bootstrap-responsive.css')}" type="text/css" />
+    <meta py:if="responsive_layout" name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title py:with="title = list(select('title/text()'))" py:choose="">
+      <py:when test="title">${title}</py:when>
+      <py:otherwise>${project.name or 'Apache(TM) Bloodhound'}</py:otherwise>
+    </title>
+    ${Markup('&lt;!--[if lt IE 7]&gt;')}
+    <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
+    ${Markup('&lt;![endif]--&gt;')}
+    ${select("*[local-name() != 'title']")}
+
+    <script src="${href.chrome('theme/js/theme.js')}"
+        type="text/javascript"></script>
+    <script src="${href.chrome('dashboard/js/bootstrap.js')}"
+        type="text/javascript"></script>
+    <script src="${href.chrome('dashboard/js/bloodhound-stickyscroll.js')}"
+        type="text/javascript" ></script>
+
+  </head></py:match>
+
+  <py:match path="body" once="true" buffer="false"><body>
+    <div class="container">
+      <!--! header -->
+      <header>
+        <div class="row nonsticky-header">
+          <!--! logo -->
+          <div id="logo" class="span4">
+            <a href="${chrome.logo.link or href()}">
+              <img src="${chrome.logo.src or href.chrome('theme/img/bh_logo.png')}"
+                    alt="Bloodhound Logo" />
+            </a>
+          </div>
+          <!--! top menu (login, logout...) -->
+          <py:with vars="meta_items = dict([i.name, i] for i in chrome.nav.metanav);">
+            <div id="usermenu" class="span8">
+              <div class="metanav pull-right">
+                <span id="nav_login" py:choose="">
+                  <py:when test="req.authname and req.authname != 'anonymous'">
+                    <a href="${href.prefs()}"><i class="icon-user"/> ${req.authname}</a>
+                  </py:when>
+                  <py:otherwise>
+                    <a href="${req.href.login()}">${_("Login")}</a>
+                    <py:if test="'register' in meta_items">or ${meta_items.register.label}</py:if>
+                    <span py:if="'prefs' in meta_items">${meta_items.prefs.label}</span>
+                  </py:otherwise>
+                </span>
+                <span py:if="'logout' in meta_items" id="nav_logout">
+                  ${meta_items.logout.label}
+                </span>
+                <span py:if="'admin' in meta_items">
+                  ${meta_items.admin.label}
+                </span>
+                <span py:if="'help' in meta_items">
+                  ${meta_items.help.label}
+                </span>
+              </div>
+            </div>
+          </py:with>
+        </div>
+
+        <!--! search + main nav -->
+        <div class="row">
+          <!--! search box -->
+          <div class="span6">
+            <div id="searchbox" class="btn-toolbar">
+              <div class="btn-group">
+                <form id="mainsearch" class="form-inline"
+                      action="${search_handler or href.search()}"
+                      method="get">
+                  <div class="input-append">
+                    <input type="text" class="input-medium" id="q" name="q"
+                        placeholder="${dgettext('bhtheme', 'Search all products. Try TracLinks.')}"
+                        value="${req.search_query}" />
+                    <input py:for="name, value in extra_search_fields"
+                            type="hidden"
+                            name="$name"
+                            value="$value" />
+                    <button type="submit" class="btn btn-warning">
+                      <span class="hidden-phone hidden-tablet">Search</span>
+                      <i class="icon-search icon-white"></i>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!--! create ticket button + dropdown -->
+              <py:def function="field_select(field)">
+                <select id="field-${field.name}" name="field_${field.name}"
+                        class="input-block-level" data-field="${field.name}"
+                        data-optional="${'true' if field.optional else 'false'}">
+                  <option value="">${'' if field.optional else 'Choose...'}</option>
+                  <option py:for="option in field.options"
+                          py:with="description = option.description or option;
+                                   value = option.value or option"
+                          selected="${field.value == value or None}"
+                          value = "$value"
+                          data-product-new-ticket-url = "$option.new_ticket_url"
+                          py:content="description"></option>
+                  <optgroup py:for="optgroup in field.optgroups"
+                            py:if="optgroup.options"
+                            label="${optgroup.label}">
+                    <option py:for="option in optgroup.options"
+                            selected="${field.value == option or None}"
+                            value = "$option"
+                            py:content="option"></option>
+                  </optgroup>
+                </select>
+              </py:def>
+
+              <py:choose test="">
+                <py:when test="qct">
+                  <div class="btn-group">
+                    <a href="#" class="btn btn-primary dropdown-toggle hidden-phone"
+                        id="qct-newticket" data-animation="true" data-html="true" 
+                        data-trigger="manual" data-toggle="dropdown">
+                      <span>Create Ticket&nbsp;<span class="caret"></span></span>
+                    </a>
+                    <a href="#" class="btn btn-primary dropdown-toggle visible-phone"
+                        id="qct-inline-newticket">
+                      <i class="icon-plus-sign icon-white"></i> <span class="caret"></span>
+                    </a>
+
+                    <div id="qct-box" class="dropdown-menu" py:choose="">
+                      <div class="popover-title">
+                        <h3>New Ticket</h3>
+                      </div>
+                      <div class="popover-content">
+                        <py:when test="'TICKET_CREATE' in perm">
+                          <form id="qct-form" name="qct" method="post">
+                            <div class="control-group">
+                              <label for="field-summary">Summary</label>
+                              <input type="text" id="field-summary" class="input-block-level"
+                                  name="field_summary" placeholder="${dgettext('bhtheme', 'Ticket summary')}" />
+                            </div>
+
+                            <div class="control-group">
+                              <label for="field-description">Description</label>
+                              <textarea id="field-description" class="input-block-level"
+                                  name="field_description" rows="3" cols="28"
+                                  placeholder="${dgettext('bhtheme', 'Ticket description')}"></textarea>
+                            </div>
+
+                            <div class="control-group">
+                              <py:for each="field in qct.fields">
+                                <label for="field-${field.name}">${field.label}</label>
+                                ${field_select(field)}
+                              </py:for>
+                            </div>
+
+                            <py:for each="field in qct.hidden_fields">
+                              <input class="qct-product-scope-extra" type="hidden" name="field_${field.name}" value="${field.value}" />
+                            </py:for>
+                          </form>
+
+                          <div class="controls">
+                            <button id="qct-create" class="btn btn-primary" data-target="${href()}">Create</button>
+                            <a id="qct-more" class="btn btn-link" href="${href.newticket()}">More fields</a>
+                            <button id="qct-cancel" class="btn btn-link">Cancel</button>
+                          </div>
+                          <div id="qct-last-container" style="display:none">
+                            <small class="pull-right" id="qct-last"></small>&nbsp;
+                          </div>
+                        </py:when>
+                        <div py:otherwise="" class="alert alert-info">
+                          <p>
+                            <span class="label label-important">TICKET_CREATE</span>
+                            privileges are required to perform this operation.
+                            You don't have the required permissions
+			  </p>
+			  <p>
+                            <py:choose>
+                              <py:when test="req.authname == 'anonymous'">
+                                <br/><br/>
+                                <a href="${href.login()}" class="btn" style="display: inline;">Login</a>
+                              </py:when>
+                              <py:otherwise>
+                                Please contact your administrator or team leader to 
+                                request these.
+                              </py:otherwise>
+                            </py:choose>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </py:when>
+                <py:otherwise>
+                  &nbsp;
+                </py:otherwise>
+              </py:choose>
+            </div>
+          </div>
+
+          <!--! main navigation tabs -->
+          <div class="span6">
+            <ul py:if="chrome.nav.mainnav or chrome.nav.metanav"
+                class="nav nav-tabs pull-right" id="mainnav"
+                py:with="mainnav_show = ('wiki', 'tickets', 'browser');
+                         metanav_hide = ('login', 'logout', 'prefs', 'help', 'about', 'register', 'admin')">
+              <!--! TODO: Parameterize visible mainnav items in trac.ini -->
+              <li py:if="chrome.nav.mainnav"
+                  py:for="idx, item in enumerate(i for i in chrome.nav.mainnav if i.name in mainnav_show)" 
+                  class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+              <li class="dropdown ${all(not i.active for i in chrome.nav.mainnav if i.name in mainnav_show) and 'active' or None}"
+                  py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide] +
+                             [i for i in chrome.nav.mainnav if i.name not in mainnav_show])">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">More<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li py:if="chrome.nav.mainnav"
+                      py:for="idx, item in enumerate(i for i in chrome.nav.mainnav
+                                                     if i.name not in mainnav_show)"
+                      class="${classes(first_last(idx, chrome.nav.mainnav), active=item.active)}">${item.label}</li>
+                  <py:if test="chrome.nav.metanav">
+                    <li py:if="len([i for i in chrome.nav.metanav if i.name not in metanav_hide])"
+                        class="divider"></li>
+                    <li py:for="idx, item in enumerate(chrome.nav.metanav)"
+                        py:if="item.name not in metanav_hide"
+                        class="${classes(first_last(idx, chrome.nav.metanav), active=item.active)}">
+                      ${item.label}
+                    </li>
+                  </py:if>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sticky-header">
+          <div class="row" id="breadcrumb-row">
+            <!--! breadcrumb (TODO: which ones do we hide on the phones/tablets?) -->
+            <div id="stickyStatus" class="span12">
+              <ul class="breadcrumb">
+                <li py:choose="">
+                  <xi:include py:when="value_of('resourcepath_template')" 
+                      href="${resourcepath_template}" />
+                  <py:otherwise>&nbsp;</py:otherwise>
+                </li>
+                <li class="pull-right hidden-phone">
+                  <py:for py:if="chrome.ctxtnav"
+                      py:with="max_idx = len(chrome.ctxtnav) - 1"
+                      each="idx, item in enumerate(chrome.ctxtnav)">
+                    $item
+                    <py:if test="idx &lt; max_idx">&nbsp;&nbsp;&nbsp;&nbsp;</py:if>
+                  </py:for>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!--! alerts (warnings, notices) -->
+          <div class="row">
+            <div class="span12" py:if="chrome.warnings or chrome.notices">
+              <div id="warning" py:if="chrome.warnings" class="alert fade in">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <py:choose test="len(chrome.warnings)">
+                  <span class="label label-warning">Warning</span>
+                  <py:when test="1">${chrome.warnings[0]}</py:when>
+                  <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
+                </py:choose>
+              </div>
+              <div id="notice" py:if="chrome.notices" class="alert alert-success fade in">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <py:choose test="len(chrome.notices)">
+                  <span class="label label-success">Success</span>
+                  <py:when test="1">${chrome.notices[0]}</py:when>
+                  <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
+                </py:choose>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--! quick create ticket, inline version for the phone layout -->
+        <div py:if="qct" class="row visible-phone">
+          <div id="qct-inline" class="span12 hide popover">
+            <div class="popover-title">
+              <h4>New Ticket</h4>
+            </div>
+            <div class="popover-content">
+              <py:choose test="">
+                <py:when test="'TICKET_CREATE' in perm">
+                  <form id="qct-inline-form" name="qct" method="post">
+                    <div class="control-group">
+                      <label for="inline-field-summary">Summary</label>
+                      <input type="text" id="inline-field-summary" class="input-block-level"
+                          name="field_summary" placeholder="${dgettext('bhtheme', 'Ticket summary')}" />
+                    </div>
+
+                    <div class="control-group">
+                      <label for="inline-field-description">Description</label>
+                      <textarea id="inline-field-description" class="input-block-level"
+                          name="field_description" rows="3" cols="28"
+                          placeholder="${dgettext('bhtheme', 'Ticket description')}"></textarea>
+                    </div>
+
+                    <div class="control-group">
+                      <py:for each="field in qct.fields">
+                        <label for="field-${field.name}">${field.label}</label>
+                        ${field_select(field)}
+                      </py:for>
+                    </div>
+
+                    <py:for each="field in qct.hidden_fields">
+                     <input type="hidden" name="field_${field.name}" value="${field.value}" />
+                    </py:for>
+                  </form>
+
+                  <div class="controls">
+                    <button id="qct-inline-create" class="btn btn-primary" data-target="${href()}">Create</button>
+                    <a id="qct-inline-more" class="btn btn-link" href="${href.newticket()}">More fields</a>
+                    <button id="qct-inline-cancel" class="btn btn-link">Cancel</button>
+                  </div>
+                </py:when>
+
+                <div py:otherwise="" class="alert alert-info">
+                  <p>
+                    <span class="label label-important">TICKET_CREATE</span>
+                    privileges are required to perform this operation.
+                    You don't have the required permissions
+		  </p>
+		  <p>
+                    <py:choose>
+                      <py:when test="req.authname == 'anonymous'">
+                        <br/><br/>
+                        <a href="${href.login()}" class="btn" style="display: inline;">Login</a>
+                      </py:when>
+                      <py:otherwise>
+                        Please contact your administrator or team leader to 
+                        request these.
+                      </py:otherwise>
+                    </py:choose>
+                    <a id="qct-inline-alert-cancel" class="btn">Close</a>
+                  </p>
+                </div>
+              </py:choose>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="span12">
+            <div id="qct-inline-notice-success" class="alert alert-success hide fade in">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              <span></span>
+            </div>
+            <div id="qct-inline-notice-error" class="alert alert-error hide">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div class="stickyOffset" style="height: 0px;"></div>
+
+      <!--! main content -->
+      ${select('*|text()|comment()')}
+    </div>
+
+    <!--! footer -->
+    <div class="container">
+      <div class="row footer">
+        <div class="span8">
+          ${chrome.labels.footer_left_prefix}
+          Powered by  
+          <a href="${href.about()}">${chrome.labels.application_full} 
+          ${chrome.labels.application_version}</a>
+          ${chrome.labels.footer_left_postfix}
+        </div>
+        <div class="span4">
+          <div class="pull-right">
+            ${chrome.labels.footer_right or chrome.footer}
+          </div>
+        </div>
+      </div>
+    </div>
+  </body></py:match>
+  
+  <xi:include href="bh_admin.html" py:with="bh_fix_legacy = True" />
+  <xi:include href="bh_prefs.html" py:with="bh_fix_legacy = True" />
+</html>

@@ -1,0 +1,228 @@
+# Japanese translations for Trac.
+# Copyright (C) 2010-2013 Edgewall Software
+# This file is distributed under the same license as the Trac project.
+# Jun Omae <jun66j5@gmail.com>, 2010-2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Trac 1.0\n"
+"Report-Msgid-Bugs-To: trac-dev@googlegroups.com\n"
+"POT-Creation-Date: 2013-01-27 11:21+0900\n"
+"PO-Revision-Date: 2010-05-25 18:45+0900\n"
+"Last-Translator: Jun Omae <jun66j5@gmail.com>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6dev-r0\n"
+
+#: trac/htdocs/js/blame.js:84
+msgid "(no changeset information)"
+msgstr "(チェンジセットの情報がありません)"
+
+#: trac/htdocs/js/blame.js:87
+msgid "Close"
+msgstr "閉じる"
+
+#: trac/htdocs/js/diff.js:119
+msgid "Tabular"
+msgstr "Tabular"
+
+#: trac/htdocs/js/diff.js:125
+msgid "Unified"
+msgstr "Unified"
+
+#: trac/htdocs/js/expand_dir.js:42
+msgid "Expand sub-directory in place"
+msgstr "この場でサブディレクトリを開く"
+
+#: trac/htdocs/js/expand_dir.js:71
+msgid "Re-expand directory"
+msgstr "再度ディレクトリを開く"
+
+#: trac/htdocs/js/expand_dir.js:121
+#, python-format
+msgid "Loading %(entry)s..."
+msgstr "%(entry)s をロードしています…"
+
+#: trac/htdocs/js/expand_dir.js:149
+msgid "(empty)"
+msgstr "(なし)"
+
+#: trac/htdocs/js/expand_dir.js:157
+msgid "(error)"
+msgstr "(エラー)"
+
+#: trac/htdocs/js/expand_dir.js:164
+msgid "Fold directory"
+msgstr "ディレクトリを閉じる"
+
+#: trac/htdocs/js/folding.js:62
+#, python-format
+msgid "Show %(title)s"
+msgstr "%(title)sの表示"
+
+#: trac/htdocs/js/folding.js:78
+#, python-format
+msgid "%(title)s (click to hide column)"
+msgstr "%(title)s (クリックすると列を非表示になります)"
+
+#. TRANSLATOR: Format in month heading in the datepicker, extracts yearSuffix
+#. and showMonthAfterYear
+#: trac/htdocs/js/jquery-ui-i18n.js:4
+msgid "$month$year"
+msgstr "$year年$month"
+
+#. TRANSLATOR: Link that closes the datepicker
+#. TRANSLATOR: Link that closes the timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:7 trac/htdocs/js/jquery-ui-i18n.js:39
+msgid "Done"
+msgstr "閉じる"
+
+#. TRANSLATOR: Link to the previous month in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:9
+msgid "Prev"
+msgstr "前"
+
+#. TRANSLATOR: Link to the next month in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:11
+msgid "Next"
+msgstr "次"
+
+#. TRANSLATOR: Link to the current day in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:13
+msgid "Today"
+msgstr "今日"
+
+#. TRANSLATOR: Heading for the week-of-the-year column in the datepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:20
+msgid "Wk"
+msgstr "週"
+
+#. TRANSLATOR: Heading of the standalone timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:30
+msgid "Choose Time"
+msgstr "時間を選択"
+
+#. TRANSLATOR: Time selector label
+#: trac/htdocs/js/jquery-ui-i18n.js:32
+msgid "Time"
+msgstr "時間"
+
+#. TRANSLATOR: Time labels in the timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:34
+msgid "Hour"
+msgstr "時"
+
+#: trac/htdocs/js/jquery-ui-i18n.js:34
+msgid "Minute"
+msgstr "分"
+
+#: trac/htdocs/js/jquery-ui-i18n.js:34
+msgid "Second"
+msgstr "秒"
+
+#: trac/htdocs/js/jquery-ui-i18n.js:35
+msgid "Time Zone"
+msgstr "タイムゾーン"
+
+#. TRANSLATOR: Link to pick the current time in the timepicker
+#: trac/htdocs/js/jquery-ui-i18n.js:37
+msgid "Now"
+msgstr "現時刻"
+
+#: trac/htdocs/js/query.js:132
+msgid "A filter already exists for that property"
+msgstr "このプロパティは既にフィルタで使っています"
+
+#: trac/htdocs/js/query.js:159
+msgid "or"
+msgstr "or"
+
+#: trac/htdocs/js/query.js:182 trac/htdocs/js/query.js:310
+msgid "yes"
+msgstr "はい"
+
+#: trac/htdocs/js/query.js:185 trac/htdocs/js/query.js:313
+msgid "no"
+msgstr "いいえ"
+
+#: trac/htdocs/js/query.js:188
+msgid "between"
+msgstr " "
+
+#: trac/htdocs/js/query.js:190
+msgid "and"
+msgstr "から"
+
+#: trac/htdocs/js/query.js:337
+msgid " remove:"
+msgstr " 削除:"
+
+#: trac/htdocs/js/query.js:347
+msgid " add:"
+msgstr " 追加:"
+
+#: trac/htdocs/js/query.js:376
+#, python-format
+msgid "Select ticket %(id)s for modification"
+msgstr "更新対象としてチケット %(id)s を選択する"
+
+#: trac/htdocs/js/query.js:387
+msgid "Toggle selection of all tickets shown in this group"
+msgstr "このグループに表示しているすべてのチケットに対し、選択を切り替える"
+
+#: trac/htdocs/js/trac.js:7
+msgid "Link here"
+msgstr "ここにリンクする"
+
+#: trac/htdocs/js/wikitoolbar.js:56
+msgid "Bold text: '''Example'''"
+msgstr "太字: '''例'''"
+
+#: trac/htdocs/js/wikitoolbar.js:59
+msgid "Italic text: ''Example''"
+msgstr "斜体: '''例'''"
+
+#: trac/htdocs/js/wikitoolbar.js:62
+msgid "Heading: == Example =="
+msgstr "ヘッダ: == 例 =="
+
+#: trac/htdocs/js/wikitoolbar.js:65
+msgid "Link: [http://www.example.com/ Example]"
+msgstr "リンク: [http://www.example.com/ 例]"
+
+#: trac/htdocs/js/wikitoolbar.js:68
+msgid "Code block: {{{ example }}}"
+msgstr "コードブロック: {{{ 例 }}}"
+
+#: trac/htdocs/js/wikitoolbar.js:71
+msgid "Horizontal rule: ----"
+msgstr "横罫線: ----"
+
+#: trac/htdocs/js/wikitoolbar.js:74
+msgid "New paragraph"
+msgstr "段落"
+
+#: trac/htdocs/js/wikitoolbar.js:77
+msgid "Line break: [[BR]]"
+msgstr "改行: [[BR]]"
+
+#: trac/htdocs/js/wikitoolbar.js:80
+msgid "Image: [[Image()]]"
+msgstr "画像: [[Image()]]"
+
+#: trac/ticket/templates/ticket.html:3 trac/wiki/templates/wiki_view.html:3
+msgid "Link to this section"
+msgstr "このセクションににリンクする"
+
+#: trac/versioncontrol/templates/changeset.html:7
+msgid "Link to this diff"
+msgstr "この差分にリンクする"
+
+#: trac/wiki/templates/wiki_view.html:5
+#, python-format
+msgid "Link to #%(id)s"
+msgstr "#%(id)s にリンクする"
+

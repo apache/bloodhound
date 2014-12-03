@@ -1,0 +1,154 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div class="report"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhdashboard">
+  <!--! TODO: Add description icon plus tooltip -->
+  <!--! div py:if="description" id="description" xml:space="preserve">
+    ${wiki_to_html(context, description)}
+  </div -->
+  <py:choose test="">
+    <div py:when="paginator.has_more_pages">
+      <div class="report-result" style="float: left; margin-right: 1.6em;" i18n:msg="displayed_items">
+        Results <span class="numresults">(${paginator.displayed_items()})</span>
+      </div>
+      <xi:include href="page_index.html" />
+    </div>
+    <div py:when="numrows" class="numrows" i18n:msg="numrows">($numrows total rows)</div>
+  </py:choose>
+
+  <py:choose test="">
+    <table class="table table-condensed tickets" py:when="numrows"
+        py:with="use_groups = len(row_groups) &gt; 1 or row_groups[0][0] is not None">
+      <thead>
+        <tr py:for="header_group in header_groups"
+            py:if="not all(header.hidden for header in header_group)">
+          <th py:if="use_groups"></th>
+          <th py:for="header in header_group" py:if="not header.hidden" py:with="fullrow = header is header_group[-1]"
+              colspan="${fullrow and '100' or None}">
+            ${header.title}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <py:for each="(value_for_group, row_group) in row_groups">
+          <py:for each="idx, row in enumerate(row_group)">
+            <tr py:for="cell_group in row.cell_groups"
+                py:if="not all(cell.header.hidden for cell in cell_group)"
+                py:with="fullrow = len(cell_group) == 1;
+                       td_attrs = fullrow and {'class': 'fullrow', 'colspan': 100} or {}"
+                class="${'__color__' in row and 'color'+row.__color__+'-' or ''}${row.__idx__ % 2 and 'odd' or 'even'}"
+                style="${'__bgcolor__' in row and 'background: '+row.__bgcolor__+';' or None
+                }${'__fgcolor__' in row and 'color: '+row.__fgcolor__+';' or None
+                }${'__style__' in row and row.__style__+';' or None
+                }${fullrow and 'border: none; padding: 0;' or None}">
+
+              <td py:if="use_groups" py:choose="" 
+                  style="background: none repeat scroll 0 0 #FFFFFF; color: #333333;">
+                <py:when test="idx == 0 and value_for_group and not fullrow">
+                  $value_for_group
+                </py:when>
+                <py:when test="idx == 0 and not value_for_group and not fullrow">
+                  <span class="label">empty</span>
+                </py:when>
+                <py:otherwise>&nbsp;</py:otherwise>
+              </td>
+              <py:for each="cell in cell_group">
+                <py:if test="not cell.header.hidden">
+                  <py:with vars="col = cell.header.col.strip('_')">
+                    <py:choose>
+  
+                      <!--! for the report listing -->
+                      <py:when test="col == 'report'">
+                        <td class="$col" py:attrs="td_attrs">
+                          <a title="View report" href="${href.report(cell.value)}">{$cell.value}</a>
+                        </td>
+                      </py:when>
+  
+                      <py:when test="col == 'title'">
+                        <td class="$col" py:attrs="td_attrs">
+                          <a title="View report" href="${href.report(row.id)}">$cell.value</a>
+                        </td>
+                      </py:when>
+  
+                      <!--! for the ticket listing -->
+                      <py:when test="col in ('ticket', 'id')">
+                        <td class="ticket" py:attrs="td_attrs">
+                          <a title="View ${row.resource.realm}" href="${row.href if row.href else url_of(row.resource)}">${shortname_of(row.resource)}</a>
+                        </td>
+                      </py:when>
+  
+                      <py:when test="col == 'summary' and row.id">
+                        <td class="$col" py:attrs="td_attrs">
+                          <a title="View ${row.resource.realm}" href="${row.href if row.href else url_of(row.resource)}">$cell.value</a>
+                        </td>
+                      </py:when>
+  
+                      <!--! generic fields -->
+                      <py:when test="col == 'time'" py:with="value = int(cell.value) if isinstance(cell.value, basestring) else cell.value">
+                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_time(value) or '--'}
+                        </td>
+                      </py:when>
+
+                      <py:when test="col in ('date', 'created', 'modified')" py:with="value = int(cell.value) if isinstance(cell.value, basestring) else cell.value">
+                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_date(value) or '--'}
+                        </td>
+                      </py:when>
+
+                      <py:when test="col == 'datetime'" py:with="value = int(cell.value) if isinstance(cell.value, basestring) else cell.value">
+                        <td class="date" py:attrs="td_attrs">${cell.value != '' and format_datetime(value) or '--'}
+                        </td>
+                      </py:when>
+
+                      <py:when test="col == 'description'">
+                        <td class="$col" py:attrs="td_attrs" xml:space="preserve">
+                          ${wiki_to_html(context(row.resource), cell.value)}
+                        </td>
+                      </py:when>
+  
+                      <py:when test="col == 'milestone'">
+                        <td class="$col" py:attrs="td_attrs">
+                          <a title="View milestone" href="${href.milestone(cell.value)}">$cell.value</a>
+                        </td>
+                      </py:when>
+  
+                      <py:otherwise>
+                        <td class="$col" py:attrs="td_attrs">$cell.value
+                        </td>
+                      </py:otherwise>
+  
+                    </py:choose>
+                  </py:with>
+                </py:if>
+              </py:for>
+            </tr>
+          </py:for>
+        </py:for>
+      </tbody>
+    </table>
+    <div class="alert alert-info" py:otherwise="">
+      <span class="label label-info">Info</span> Items list is empty
+    </div>
+  </py:choose>
+</div>
+

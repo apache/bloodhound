@@ -1,0 +1,101 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>Prepare Diff</title>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#anydiff input[name$='_path']").suggest();
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="content" class="changeset row">
+      <div id="title" class="span12">
+        <h1>Prepare Diff</h1>
+      </div>
+
+      <div id="anydiff" class="span12">
+        <form action="${href.changeset()}" method="get" class="form well">
+          <fieldset>
+            <legend>Select the base and the target for the diff:</legend>
+            <div class="controls controls-row">
+              <div class="control-group span9">
+                <label class="control-label" for="new_path">From:</label>
+                <div class="controls">
+                  <input type="text" id="old_path" name="old_path" value="$old_path"
+                         class="input-block-level" />
+                </div>
+              </div>
+                <div class="control-group span2">
+                  <label class="control-label" for="old">at revision:</label>
+                  <div class="controls">
+                    <input type="text" id="old" name="old" value="$old_rev"
+                           class="input-block-level" />
+                  </div>
+                </div>
+            </div>
+            <div class="controls controls-row">
+              <div class="control-group span9">
+                <label class="control-label" for="new_path">To:</label>
+                <div class="controls">
+                  <input type="text" id="new_path" name="new_path" value="$new_path"
+                         class="input-block-level" />
+                </div>
+              </div>
+                <div class="control-group span2">
+                  <label class="control-label" for="new">at revision:</label>
+                  <div class="controls">
+                    <input type="text" id="new" name="new" value="$new_rev"
+                           class="input-block-level" />
+                  </div>
+                </div>
+            </div>
+            <p class="help-block">
+              <span class="label label-info">Note</span>
+              For either path, you can start typing the path and will be
+              presented a list of existing directories and files to select
+              from. Select an entry by clicking on it, or by using the
+              up/down cursor keys and hitting tab.
+            </p>
+          </fieldset>
+          <div class="form-actions">
+            <button type="submit" class="btn">View changes</button>
+          </div>
+        </form>
+      </div>
+      <div id="help" class="span12" i18n:msg="">
+        <p class="help-block">
+          <strong>Note:</strong> See
+          <a href="${href.wiki('TracChangeset')}#ExaminingDifferencesBetweenBranches">TracChangeset</a>
+          for help on using the diff feature.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

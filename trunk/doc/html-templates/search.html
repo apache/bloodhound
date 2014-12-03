@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<html>
+<head>
+	<title>Search - Apache Bloodhound</title>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div id="logo-container"></div>
+		</div>
+		<div class="row">
+	<!-- Search box -->
+				<div class="span4">
+				<form class="form-inline" style="margin-bottom:0px;">
+					<input type="text" class="span3" placeholder="project requirement" style="margin-bottom:0px;" />
+					<input type="button" value="Search" href="search.html" class="btn btn-warning" />
+				</form>
+				</div>
+	
+	<!-- Create button -->
+				<div class="span4">
+				  	<button class="btn btn-primary" href="#">Create Ticket</a>
+				</div>
+				
+	<!-- Main navigation tabs -->
+				<div class="span4">
+					<ul class="nav nav-tabs pull-right" style="margin-bottom:0px; border-bottom: 0px;">
+						<li><a href="dashboard.html">Tickets</a></li>
+						<li><a href="wiki.html">Wiki</a></li>
+						<li><a href="source.html">Source</a></li>
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps<b class="caret"></b></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">SuperAdmin</a></li>
+								<li><a href="#">Tag Cloud</a></li>
+								<li><a href="#">Blog</a></li>
+								<li class="divider"></li>
+								<li><a href="#">Something</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+	
+	     		<div class="span12">
+	      			<ul class="breadcrumb">
+	      				<li class="active"><a href="dashboard.html">Search</a> <span class="divider">/</span></li>
+	      				<li><code>project requirement</code></li>
+	      				<li class="pull-right"><a href="#">Custom Query</a><a href="#" style="margin-left:15px;">Reports</a></li>
+					</ul>
+				</div>
+	     	</div>
+		<div class="row">
+      		<div class="span12">
+				<div class="btn-toolbar" style="margin-left: 25%; margin-top:20px;">
+					<div class="btn-group" data-toggle="buttons-checkbox">
+						<button class="btn active">Products</button>
+						<button class="btn active">Versions</button>
+						<button class="btn active">Milestones</button>
+						<button class="btn active">Projects</button>
+						<button class="btn active">Components</button>
+						<button class="btn active">People</button>
+					</div>
+				</div>
+				<div style="height:400px;">
+				<p>Some results</p>
+				</div>
+				<div class="pagination">
+				  <ul style="margin-left:35%;">
+				    <li><a href="#">Prev</a></li>
+				    <li class="active">
+				      <a href="#">1</a>
+				    </li>
+				    <li><a href="#">2</a></li>
+				    <li><a href="#">3</a></li>
+				    <li><a href="#">4</a></li>
+				    <li><a href="#">Next</a></li>
+				  </ul>
+				</div>
+      		</div>
+     	</div>
+<!-- Footer -->
+     	<div class="row" id="footer-container"></div>
+     	
+    </div>
+    <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+    <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="js/bootstrap-button.js"></script>
+    <script type="text/javascript">
+        $('div#logo-container').load('placeholders/header.html #logo-user');
+        $('div#ticketlist-container').load('placeholders/ticketlist.html #myAll');
+        $('div#activity-container').load('placeholders/activity.html');
+        $('div#footer-container').load('placeholders/header.html footer');
+    </script>
+</body>
+</html>
+

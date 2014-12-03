@@ -1,0 +1,7 @@
+
+include CHANGES LICENSE NOTICE README TODO
+graft bhdashboard/templates
+graft bhdashboard/htdocs
+graft bhdashboard/widgets/templates
+graft bhdashboard/widgets/htdocs
+graft bhdashboard/tests/data

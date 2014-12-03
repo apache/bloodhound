@@ -1,0 +1,84 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<form xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:py="http://genshi.edgewall.org/"
+     xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+     xmlns:xi="http://www.w3.org/2001/XInclude"
+     id="batchmod_form" method="post" action="${req.href + '/batchmodify'}"
+     class="form-horizontal" >
+
+<fieldset id="batchmod_fieldset">
+  <legend class="foldable">Batch Modify</legend>
+  <table summary="Batch modification fields">
+    <tr id="batchmod_comment">
+      <th colspan="2">
+        <label for="batchmod_value_comment">Comment:</label>
+      </th>
+      <td class="fullrow"><textarea
+          id="batchmod_value_comment" name="batchmod_value_comment" cols="70" rows="5"
+          placeholder="${_('Describe changes using WikiFormatting')}" />
+      </td>
+    </tr>
+    
+    <tr id="add_batchmod_field_row">
+      <td colspan="3">
+        <div class="control-group">
+          <label class="batchmod_label control-label" for="add_batchmod_field">Add Field:</label>
+          <div class="controls">
+            <select id="add_batchmod_field"
+                py:with="field_names = sorted(fields.iterkeys(), key=lambda name: fields[name].label.lower())">
+              <option></option>
+              <option py:for="field_name in field_names" py:with="field = fields[field_name]"
+                      py:if="field_name not in ('id', 'resolution', 'status', 'owner', 'time', 'changetime', 'summary', 'reporter', 'description') and fields[field_name].type != 'text-area'"
+                      value="$field_name">${field.label}</option>
+            </select>
+          </div>
+        </div>
+      </td>
+    </tr>
+    
+    <tr>
+      <td colspan="3">
+        <fieldset id="batchmod_action"> 
+          <legend>Action</legend>
+          <xi:include href="bh_ticket_actions.html" />
+        </fieldset>
+      </td>
+    </tr>
+  </table>
+  
+  <div>
+    <input type="hidden" name="selected_tickets" value=""/>
+    <input type="hidden" name="query_href" value="${query_href}"/>
+    <input type="submit" id="batchmod_submit" name="batchmod_submit" 
+        class="btn" value="${_('Change tickets')}" />
+  </div>
+  
+  <div id="batchmod_help" i18n:msg="">
+    <p class="help-block pull-right">
+      <span class="label label-info">Note</span> See <a href="${href.wiki('TracBatchModify')}">TracBatchModify</a> for help on using batch modify.
+    </p>
+  </div>
+
+</fieldset>
+
+</form>
+

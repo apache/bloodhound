@@ -1,0 +1,73 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+
+<!--! Add diff option fields (to be used inside a form)
+ 
+     `diff` the datastructure which contains diff options
+-->
+<div xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    i18n:domain="bhtheme"
+    py:strip="">
+  <label for="style">View differences</label>
+  <select id="style" name="style" class="input-medium">
+    <option selected="${diff.style == 'inline' or None}"
+            value="inline">inline</option>
+    <option selected="${diff.style == 'sidebyside' or None}"
+            value="sidebyside">side by side</option>
+  </select>
+  <div class="control-group">
+    <i18n:msg>
+      <input type="radio" name="contextall" value="0"
+                    checked="${not diff.options.contextall or None}"/>
+      <label>Show</label>
+      <input type="text" name="contextlines" size="2" class="input-mini"
+                    maxlength="3" value="${diff.options.contextlines &lt; 0 and 
+                                           'all' or diff.options.contextlines}"/>
+      <label> lines around each change</label>
+    </i18n:msg><br/>
+    <input type="radio" name="contextall" value="1"
+                  checked="${diff.options.contextall or None}"/>
+    <label>Show the changes in full context</label>
+  </div>
+  <fieldset id="ignore" py:with="options = diff.options" style="padding: 0px">
+    <legend>Ignore:</legend>
+    <div class="field">
+      <input type="checkbox" id="ignoreblanklines" name="ignoreblanklines"
+             checked="${options.ignoreblanklines or None}" />
+      <label for="ignoreblanklines">Blank lines</label>
+    </div>
+    <div class="field">
+      <input type="checkbox" id="ignorecase" name="ignorecase"
+             checked="${options.ignorecase or None}" />
+      <label for="ignorecase">Case changes</label>
+    </div>
+    <div class="field">
+      <input type="checkbox" id="ignorewhitespace" name="ignorewhitespace"
+             checked="${options.ignorewhitespace or None}" />
+      <label for="ignorewhitespace">White space changes</label>
+    </div>
+  </fieldset>
+  <div class="control-group">
+    <input class="btn" type="submit" name="update" value="${_('Update')}" />
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+
+  <py:def function="admin_nav_list(phone)">
+    <div class="${'btn-group' if phone else 'well'}">
+      <py:if test="phone">
+        <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#">Select Module&nbsp;&nbsp;<span class="caret"></span></a>
+      </py:if>
+
+      <ul class="nav nav-list${' dropdown-menu' if phone else None}">
+        <py:for each="category, panels in groupby(panels, lambda p: p.category)"
+            py:with="cat_is_active = category.id == active_cat">
+          <li class="nav-header${' nav-header-selected' if cat_is_active else None}">
+            ${category.label}
+          </li>
+          <li py:for="panel in panels" py:with="panel = panel.panel;
+                  pan_is_active = cat_is_active and panel.id == active_panel"
+              class="${'active' if pan_is_active else None}">
+            <a href="${href.admin(category.id, panel.id)}">${panel.label}</a>
+          </li>
+        </py:for>
+      </ul>
+    </div>
+  </py:def>
+  <py:def function="admin_function(fix_legacy)">
+    <div id="content" class="admin row">
+      <h1 class="span12">Administration${' - ' + admin_current_product[1] if admin_current_product else None}</h1>
+
+      <div id="tabs" class="span3 hidden-phone">
+        ${admin_nav_list(False)}
+      </div>
+
+      <div class="span9 visible-phone">
+        ${admin_nav_list(True)}
+      </div>
+
+      <div id="tabcontent" class="span9">
+        <py:choose>
+        <py:when test="fix_legacy">
+          ${select("div[@id='tabcontent']/*|text()")}
+        </py:when>
+        <py:otherwise>
+          ${select("*|text()")}
+        </py:otherwise>
+        </py:choose>
+        <br style="clear: right" />
+      </div>
+    </div>
+  </py:def>
+
+  <py:choose>
+    <py:when test="bh_fix_legacy">
+      <py:match path="div[@id='content' and @class='admin']" once="true"
+          buffer="false">
+        ${admin_function(True)}
+      </py:match>
+    </py:when>
+    <py:otherwise>
+      <py:match path="head" once="true"><head>
+        <title>Administration: ${select('title/text()')}</title>
+        ${select("*[local-name() != 'title']")}
+      </head></py:match>
+    
+      <py:match path="body" once="true" buffer="false"><body>
+        ${admin_function(False)}
+      </body></py:match>
+      <xi:include href="layout.html" />
+    </py:otherwise>
+  </py:choose>
+</html>
+

@@ -1,0 +1,73 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<div
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  i18n:domain="bhdashboard">
+
+  <py:choose test="">
+    <py:when test="relations">
+      <table class="table table-condensed table-bordered">
+        <colgroup>
+            <col span="3" class="width-standard"/>
+            <col class="width-wide" />
+            <col span="2" class="width-standard" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Type</th><th>Product</th><th>Ticket</th><th>Comment</th><th>Author</th><th class="hidden-phone">Changed</th>
+          </tr>
+        </thead>
+
+        <tbody py:for="relgroup,items in relations.iteritems()">
+          <tr py:for="item in items" class="relation">
+            <td>$relgroup</td>
+            <td>
+              <a href="${href.products(item['destticket'].env.product.prefix)}">
+                <span class="hidden-phone">${item['destticket'].env.product.name} (${item['destticket'].env.product.prefix})</span>
+                <span class="visible-phone">${item['destticket'].env.product.prefix}</span>
+              </a>
+            </td>
+            <td><a href="${item['desthref']}" class="${classes(item['destticket'].status, 'ticket')}">
+              ${get_resource_shortname(item['destticket'].env, item['destticket'].resource)}</a> - ${get_resource_summary(item['destticket'].env, item['destticket'].resource)}
+            </td>
+            <td>$item.comment</td>
+            <td>$item.author</td>
+            <td class="hidden-phone">${pretty_dateinfo(item.when)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </py:when>
+    <py:otherwise>
+      <div class="alert alert-info">
+        No defined relations for this ticket.
+      </div>
+    </py:otherwise>
+  </py:choose>
+
+  <div class="btn-group">
+    <form method="get" action="${href.ticket(ticket.id, 'relations')}">
+      <button type="submit" class="btn" id="manage-relations"><i class="icon-retweet"></i> Manage relations</button>
+    </form>
+  </div>
+</div>
+

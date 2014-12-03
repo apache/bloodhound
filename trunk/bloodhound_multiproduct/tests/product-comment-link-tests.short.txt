@@ -1,0 +1,18 @@
+============================================================
+
+        Product comment links
+
+============================== %(tc_title_prefix)s - comment: link resolver (deprecated)
+%(link_prefix)scomment:ticket:123:2 (deprecated)
+------------------------------
+<p>
+<a href="%(path_prefix)s/ticket/123#comment:2" title="%(link_title_prefix)sComment 2 for Ticket #123">%(link_prefix_escaped)scomment:ticket:123:2</a> (deprecated)
+</p>
+------------------------------
+============================== %(tc_title_prefix)s - comment: link resolver
+%(link_prefix)scomment:2:ticket:123
+------------------------------
+<p>
+<a href="%(path_prefix)s/ticket/123#comment:2" title="%(link_title_prefix)sComment 2 for Ticket #123">%(link_prefix_escaped)scomment:2:ticket:123</a>
+</p>
+------------------------------

@@ -1,0 +1,123 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="bh_prefs.html" />
+  <head>
+    <title>Date &amp; Time</title>
+  </head>
+  <body>
+
+    <div class="control-group" 
+        py:with="session_tzname = settings.session.get('tz');
+                    selected_tz = timezone(session_tzname) or utc">
+      <label for="tz" class="control-label">Time zone:</label>
+      <div class="controls">
+        <select id="tz" name="tz">
+          <option value="">Default time zone</option>
+          <option py:for="tzname in timezones" value="$tzname"
+                  selected="${session_tzname != None and
+                              session_tzname.startswith('Etc/') and
+                              selected_tz == timezone(tzname) or
+                              session_tzname == tzname or None}">$tzname</option>
+        </select>
+        <p class="help-block">Configuring your time zone will result in all
+        dates and times displayed on this site to use your time zone
+        instead of that of the server.</p>
+  
+        <!-- This currently crashes Genshi's extractor if you add i18n:msg -->
+        <p class="help-block" py:with="now = datetime.now(utc);
+                                 nowtz = selected_tz.normalize(now.astimezone(selected_tz));
+                                 formatted = format_time(now, 'iso8601', tzinfo=req.tz)"
+                        py:choose="">
+          <i18n:msg params="time">
+            <span class="label label-info">Example</span> The current time is <strong>${format_time(now, 'iso8601', tzinfo=utc)}</strong> <span class="label">UTC</span>.
+          </i18n:msg>
+          <br />
+          <py:when test="session_tzname">
+            <i18n:msg params="tz, formatted">
+              In your time zone ${nowtz.tzname()}, this would be displayed as
+              <strong>$formatted</strong>.
+            </i18n:msg>
+          </py:when>
+          <py:otherwise>
+            <i18n:msg params="formatted">
+              In the default time zone, this would be displayed as <strong>$formatted</strong>.
+            </i18n:msg>
+          </py:otherwise>
+        </p>
+  
+        <p class="help-block" i18n:msg="">
+          <span class="label label-info">Note</span> Universal Co-ordinated Time ( <span class="label">UTC</span> ) is also known as Greenwich Mean Time ( <span class="label">GMT</span> ).<br />
+          A positive offset is used to indicate a timezone at the east of Greenwich, i.e. ahead of Universal Time.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="control-group"
+        py:with="session_lc_time = settings.session.get('lc_time')">
+      <label class="control-label" for="lc_time">Date format:</label>
+      <div class="controls">
+        <select name="lc_time" id="lc_time">
+          <option value="">Default date format</option>
+          <option value="locale" py:if="locales and languages"
+                  selected="${session_lc_time == 'locale' or None}">Your language setting</option>
+          <option value="iso8601"
+                  selected="${session_lc_time == 'iso8601' or None}">ISO 8601 format</option>
+        </select>
+
+        <p class="help-block">
+        <span class="label label-info">Note</span>
+        Configuring your date format will result in formatting
+        and parsing datetime displayed on this site to use your date format
+        instead of that of the server.</p>
+      </div>
+    </div>
+
+    <div class="control-group"
+        py:with="session_dateinfo = settings.session.get('dateinfo')">
+      <label class="control-label" for="dateinfo">Date relative/absolute format:</label>
+      <div class="controls">
+        <select name="dateinfo">
+          <option value="">Default format</option>
+          <option value="relative"
+                  selected="${session_dateinfo == 'relative' or None}">Relative format</option>
+          <option value="absolute"
+                  selected="${session_dateinfo == 'absolute' or None}">Absolute format</option>
+        </select>
+
+        <p class="help-block">
+        <span class="label label-info">Note</span>
+        Configuring your relative/absolute format will result in
+        formatting datetime displayed on this site to use your format instead of
+        that of the server.</p>
+      </div>
+    </div>
+
+  </body>
+</html>
+

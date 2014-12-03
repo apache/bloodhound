@@ -1,0 +1,78 @@
+<!--!
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      i18n:domain="bhtheme">
+  <xi:include href="layout.html" />
+  <head>
+    <title>Timeline</title>
+    <script type="text/javascript">/*<![CDATA[*/
+      jQuery(document).ready(function($) {
+        $("#fromdate").datepicker();
+      });
+    /*]]>*/</script>
+  </head>
+
+  <body>
+    <div id="content" class="timeline row">
+
+      <h1 class="span12">Timeline</h1>
+
+      <div class="span12">
+        <div class="well">
+          <form id="prefs" method="get" action="" class="form-inline">
+            <div i18n:msg="">
+              <label>View changes from <input type="text" id="fromdate" size="10" name="from" value="${format_date(fromdate)}" /></label>
+              and <label><input type="text" class="input-mini" name="daysback" value="$daysback" /> days back</label>
+              <label>done by <input type="text" size="16" name="authors" value="$authors" /></label>
+            </div>
+            <fieldset>
+              <label py:for="filter in filters">
+                <input type="checkbox" name="${filter.name}"
+                       checked="${filter.enabled or None}"/> ${filter.label}
+              </label>
+            </fieldset><br />
+            <div class="buttons">
+              <input type="submit" class="btn" name="update" value="${_('Update')}" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="span12">
+        <xi:include href="widget_timeline.html" />
+      </div>
+
+      <div id="help" class="span12" i18n:msg="">
+        <p class="help-block pull-right">
+          <span class="label label-info">Note:</span> See
+          <a href="${href.wiki('TracTimeline')}">TracTimeline</a>
+          for information about the timeline view.
+        </p>
+      </div>
+
+    </div>
+  </body>
+</html>

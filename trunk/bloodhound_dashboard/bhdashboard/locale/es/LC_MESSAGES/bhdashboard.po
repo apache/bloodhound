@@ -1,0 +1,473 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+# Translations template for BloodhoundDashboardPlugin.
+# Copyright (C) 2014 ORGANIZATION
+# This file is distributed under the same license as the BloodhoundDashboardPlugin project.
+# Translators:
+# Olemis Lang <olemis+bh@gmail.com>, 2014
+# SaintGermain <saintger@gmail.com>, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version: bloodhound\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2014-02-08 22:55+0100\n"
+"PO-Revision-Date: 2014-02-08 22:28+0000\n"
+"Last-Translator: SaintGermain <saintger@gmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/bloodhound/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: bhdashboard/admin.py:103
+#, python-format
+msgid "Ignoring %(page)s : The page %(new_page)s already exists"
+msgstr "Ignorando %(page)s : La página %(new_page)s ya existe"
+
+#: bhdashboard/admin.py:111
+#, python-format
+msgid "Error moving %(page)s : %(message)s"
+msgstr "Error moviendo %(page)s : %(message)s"
+
+#: bhdashboard/admin.py:117
+#, python-format
+msgid "See [wiki:\"%(name)s\"]."
+msgstr "Consulte [wiki:\"%(name)s\"]."
+
+#: bhdashboard/admin.py:169
+#, python-format
+msgid "The file '%(fname)s' does not exist"
+msgstr "El fichero '%(fname)s' no existe"
+
+#: bhdashboard/admin.py:176
+msgid ""
+"This command is only intended to run on fresh environments as it will overwrite the database.\n"
+"If it is safe to lose bloodhound data, delete the environment and re-run python bloodhound_setup.py before attempting to load the fixture again."
+msgstr "Este comando solo debe ejecutarse en entornos no inicializados debido a la consecuente modificación de datos.\nSi no hay riesgo de pérdida de datos, elimine el entorno de Bloodhound y ejecute nuevamente python bloodhound_setup.py antes de reintentar la carga de datos de prueba."
+
+#: bhdashboard/api.py:165 bhdashboard/api.py:184
+msgid "Widget documentation"
+msgstr "Documentación de los controles visuales"
+
+#: bhdashboard/api.py:189
+msgid "Help"
+msgstr "Ayuda"
+
+#: bhdashboard/api.py:237
+msgid "Parameters"
+msgstr "Parámetros"
+
+#: bhdashboard/api.py:322
+msgid "Invalid argument"
+msgstr "Argumento no válido"
+
+#: bhdashboard/api.py:359 bhdashboard/api.py:365
+msgid "Datetime conversion error"
+msgstr "Error convirtiendo datos de tipo fecha"
+
+#: bhdashboard/api.py:387
+msgid "List conversion error"
+msgstr "Error convirtiendo lista de datos"
+
+#: bhdashboard/api.py:404
+#, python-format
+msgid "Expected one of `%s` but got `%s`"
+msgstr "Se esperaba una instancia de `%s` pero se obtuvo `%s`"
+
+#: bhdashboard/api.py:405
+msgid "Enum conversion error"
+msgstr "Error convirtiendo dato de tipo enumerado"
+
+#: bhdashboard/macros.py:77
+msgid "Table of Contents"
+msgstr "Tabla de Contenidos"
+
+#: bhdashboard/web_ui.py:58
+msgid "Dashboard label in mainnav"
+msgstr "Etiqueta del enlace principal de navegación a la vista resumida del proyecto"
+
+#: bhdashboard/web_ui.py:61
+msgid "Default widget height in pixels"
+msgstr "Valor predeterminado de la altura de los controles visuales"
+
+#: bhdashboard/web_ui.py:93 bhdashboard/web_ui.py:110
+msgid "Reports"
+msgstr "Reportes"
+
+#: bhdashboard/web_ui.py:108 bhdashboard/widgets/query.py:134
+msgid "Custom Query"
+msgstr "Consulta personalizada"
+
+#: bhdashboard/web_ui.py:211
+msgid "Active Tickets"
+msgstr "Incidencias activas"
+
+#: bhdashboard/web_ui.py:225
+msgid "My Tickets"
+msgstr "Mis incidencias"
+
+#: bhdashboard/web_ui.py:269 bhdashboard/widgets/timeline.py:153
+msgid "Warning"
+msgstr "Aviso"
+
+#: bhdashboard/web_ui.py:270
+#, python-format
+msgid "Unknown widget %(name)s"
+msgstr "Control visual desconocido %(name)s"
+
+#: bhdashboard/web_ui.py:284
+msgid ""
+"Exception raised while rendering widget. Contact your administrator for "
+"further details."
+msgstr "Se ha detectado un error al tratar de presentar datos en un control visual. Contacte a su administrador para conocer más detalles."
+
+#: bhdashboard/web_ui.py:293
+msgid "Widget error"
+msgstr "Error en control visual"
+
+#: bhdashboard/layouts/templates/bs_btnbar_full.html:36
+#: bhdashboard/layouts/templates/bs_grid_full.html:38
+msgid ""
+"[1:Note:] See\n"
+"        [2:BloodhoundDashboard]\n"
+"        for help on using the dashboard."
+msgstr "[1:Nota:] Consulte\n        [2:BloodhoundDashboard]\n        para conocer cómo utilizar la vista resumida del proyecto."
+
+#: bhdashboard/layouts/templates/bs_grid_full.html:35
+#, python-format
+msgid "Dashboard for product [1:%(name)s]"
+msgstr "Vista resumida del producto [1:%(name)s]"
+
+#: bhdashboard/templates/bh_model_view.html:61
+#: bhdashboard/widgets/timeline.py:151 bhdashboard/widgets/timeline.py:214
+#: bhdashboard/widgets/timeline.py:224
+msgid "Activity"
+msgstr "Actividad"
+
+#: bhdashboard/templates/bh_model_view.html:71
+msgid "compact"
+msgstr "compact"
+
+#: bhdashboard/templates/widget_macros.html:42
+msgid "Download"
+msgstr "Descargar"
+
+#: bhdashboard/templates/widget_macros.html:59
+msgid ""
+"[1:Error]\n"
+"    Dashboard data is missing . \n"
+"    Is [2:bhdashboard.web_ui.DashboardModule] component disabled?"
+msgstr "[1:Error]\n    No se encontraron datos esperados. \n    ¿Está deshabilitado el componente [2:bhdashboard.web_ui.DashboardModule]?"
+
+#: bhdashboard/widgets/product.py:114
+msgid "... more"
+msgstr "... más"
+
+#: bhdashboard/widgets/product.py:150
+msgid "Products"
+msgstr "Productos"
+
+#: bhdashboard/widgets/product.py:158 bhdashboard/widgets/query.py:137
+#: bhdashboard/widgets/report.py:106
+msgid "More"
+msgstr "Más"
+
+#: bhdashboard/widgets/report.py:99
+msgid "Report"
+msgstr "Reporte"
+
+#: bhdashboard/widgets/report.py:108
+msgid "Edit"
+msgstr "Editar"
+
+#: bhdashboard/widgets/ticket.py:109
+msgid "Types"
+msgstr "Tipos"
+
+#: bhdashboard/widgets/ticket.py:112
+msgid "Statuses"
+msgstr "Estados"
+
+#: bhdashboard/widgets/ticket.py:115
+msgid "Priorities"
+msgstr "Prioridades"
+
+#: bhdashboard/widgets/ticket.py:118
+#: bhdashboard/widgets/templates/widget_product.html:41
+msgid "Milestones"
+msgstr "Hitos"
+
+#: bhdashboard/widgets/ticket.py:121
+#: bhdashboard/widgets/templates/widget_product.html:55
+msgid "Components"
+msgstr "Componentes"
+
+#: bhdashboard/widgets/ticket.py:124
+#: bhdashboard/widgets/templates/widget_product.html:69
+msgid "Versions"
+msgstr "Versiones"
+
+#: bhdashboard/widgets/ticket.py:127
+msgid "Severities"
+msgstr "Niveles de gravedad"
+
+#: bhdashboard/widgets/ticket.py:130
+msgid "Resolutions"
+msgstr "Soluciones"
+
+#: bhdashboard/widgets/ticket.py:139
+msgid "Error loading ticket system (disabled?)"
+msgstr "Error interno cargando sistema de gestión de incidencias (¿deshabilitado?)"
+
+#: bhdashboard/widgets/ticket.py:150
+#, python-format
+msgid "You can add one or more <a href=\"%(url)s\">here</a>."
+msgstr "Es posible añadir uno o más <a href=\"%(url)s\">aquí</a>."
+
+#: bhdashboard/widgets/ticket.py:152
+msgid "Contact your administrator for further details"
+msgstr "Contacte a su administrador para conocer más detalles"
+
+#: bhdashboard/widgets/ticket.py:158
+#, python-format
+msgid ""
+"No values are\n"
+"                                        defined for ticket field\n"
+"                                        <em>%(field)s</em>. %(hint)s"
+msgstr "No se han definido valores \n                                        para el campo \n                                        <em>%(field)s</em>. %(hint)s"
+
+#: bhdashboard/widgets/timeline.py:79
+msgid "Maximum number of items displayed by default"
+msgstr "Valor predetrminado del número máximo de elementos a mostrar"
+
+#: bhdashboard/widgets/timeline.py:146
+msgid "administration page."
+msgstr "página de administración"
+
+#: bhdashboard/widgets/timeline.py:147
+msgid "Plugin Administration Page"
+msgstr "Panel de Administración de Plugins"
+
+#: bhdashboard/widgets/timeline.py:155
+#, python-format
+msgid ""
+"The TimelineWidget is disabled because the Timeline component is not "
+"available. Is the component disabled? You can enable from the %(page)s"
+msgstr "El componente TimelineWidget está deshabilitado porque los componentes de base no están disponibles. ¿Están deshabilitados? Es posible activarlos desde la %(page)s"
+
+#: bhdashboard/widgets/timeline.py:304
+msgid "Ticket updates"
+msgstr "Actualizaciones de la incidencia"
+
+#: bhdashboard/widgets/templates/widget_cloud.html:31
+#: bhdashboard/widgets/templates/widget_cloud.html:34
+#: bhdashboard/widgets/templates/widget_grid.html:72
+msgid "empty"
+msgstr "vacío"
+
+#: bhdashboard/widgets/templates/widget_cloud.html:88
+msgid "Qty"
+msgstr "No."
+
+#: bhdashboard/widgets/templates/widget_grid.html:32
+#, python-format
+msgid "Results [1:(%(displayed_items)s)]"
+msgstr "Resultados [1:(%(displayed_items)s)]"
+
+#: bhdashboard/widgets/templates/widget_grid.html:37
+#, python-format
+msgid "(%(numrows)s total rows)"
+msgstr "(%(numrows)s total rows)"
+
+#: bhdashboard/widgets/templates/widget_grid.html:84
+#: bhdashboard/widgets/templates/widget_grid.html:90
+msgid "View report"
+msgstr "Ver reporte"
+
+#: bhdashboard/widgets/templates/widget_grid.html:131
+#: bhdashboard/widgets/templates/widget_query_results.html:116
+msgid "View milestone"
+msgstr "Ver hito"
+
+#: bhdashboard/widgets/templates/widget_grid.html:150
+msgid "Info"
+msgstr "Información"
+
+#: bhdashboard/widgets/templates/widget_grid.html:150
+msgid "Items list is empty"
+msgstr "No hay elementos para mostrar en esta vista"
+
+#: bhdashboard/widgets/templates/widget_product.html:30
+#, python-format
+msgid ""
+"☆ [1:%(name)s (%(prefix)s)]\n"
+"            \n"
+"              [2:]\n"
+"              [3:owned by\n"
+"                [4:%(owner)s]\n"
+"                [5:(nobody)]\n"
+"              ]"
+msgstr "☆ [1:%(name)s (%(prefix)s)]\n            \n              [2:]\n              [3:pertenece a\n                [4:%(owner)s]\n                [5:(nadie)]\n              ]"
+
+#: bhdashboard/widgets/templates/widget_product.html:50
+msgid "(No milestones for this product)"
+msgstr "(No hay hitos en este producto)"
+
+#: bhdashboard/widgets/templates/widget_product.html:64
+msgid "(No components for this product)"
+msgstr "(No hay componentes en este producto)"
+
+#: bhdashboard/widgets/templates/widget_product.html:78
+msgid "(No versions for this product)"
+msgstr "(No hay versiones en este producto)"
+
+#: bhdashboard/widgets/templates/widget_progress.html:33
+#, python-format
+msgid "%(count)s/%(total)s %(title)s"
+msgstr "%(count)s/%(total)s %(title)s"
+
+#: bhdashboard/widgets/templates/widget_progress.html:41
+msgid "completed"
+msgstr "completados"
+
+#: bhdashboard/widgets/templates/widget_progress.html:45
+#, python-format
+msgid "Total number of %(unit)s: %(count)s"
+msgstr "Número total de %(unit)s: %(count)s"
+
+#: bhdashboard/widgets/templates/widget_progress.html:54
+msgid "progress-success"
+msgstr "progress-success"
+
+#: bhdashboard/widgets/templates/widget_progress.html:55
+msgid "progress-info"
+msgstr "progress-info"
+
+#: bhdashboard/widgets/templates/widget_progress.html:56
+msgid "progress-warning"
+msgstr "progress-warning"
+
+#: bhdashboard/widgets/templates/widget_progress.html:57
+msgid "progress-danger"
+msgstr "progress-danger"
+
+#: bhdashboard/widgets/templates/widget_progress.html:73
+#, python-format
+msgid "%(title)s (%(count)s)"
+msgstr "%(title)s (%(count)s)"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:40
+msgid "Results"
+msgstr "Resultados"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:46
+#, python-format
+msgid "%(grouplabel)s: %(groupname)s [1:(%(count)s)]"
+msgstr "%(grouplabel)s: %(groupname)s [1:(%(count)s)]"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:59
+msgid "(ascending)"
+msgstr "(ascendente)"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:59
+msgid "(descending)"
+msgstr "(descendente)"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:60
+#, python-format
+msgid "Sort by %(col)s %(direction)s"
+msgstr "Ordenar por %(col)s %(direction)s"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:94
+msgid "No tickets found"
+msgstr "No hay incidencias"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:108
+#: bhdashboard/widgets/templates/widget_query_results.html:111
+msgid "View ticket"
+msgstr "Ver incidencia"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:128
+msgid "(this ticket)"
+msgstr "(esta incidencia)"
+
+#: bhdashboard/widgets/templates/widget_query_results.html:144
+msgid "(more results for this group on next page)"
+msgstr "(más resultados para este grupo en la próxima página)"
+
+#: bhdashboard/widgets/templates/widget_relations.html:37
+msgid "Type"
+msgstr "Tipo"
+
+#: bhdashboard/widgets/templates/widget_relations.html:37
+msgid "Product"
+msgstr "Producto"
+
+#: bhdashboard/widgets/templates/widget_relations.html:37
+msgid "Ticket"
+msgstr "Incidencia"
+
+#: bhdashboard/widgets/templates/widget_relations.html:37
+msgid "Comment"
+msgstr "Commentario"
+
+#: bhdashboard/widgets/templates/widget_relations.html:37
+msgid "Author"
+msgstr "Autor"
+
+#: bhdashboard/widgets/templates/widget_relations.html:37
+msgid "Changed"
+msgstr "Modificado"
+
+#: bhdashboard/widgets/templates/widget_relations.html:61
+msgid "No defined relations for this ticket."
+msgstr "No se han definido relaciones para esta incidencia."
+
+#: bhdashboard/widgets/templates/widget_relations.html:69
+msgid "Manage relations"
+msgstr "Administrar relaciones"
+
+#: bhdashboard/widgets/templates/widget_timeline.html:37
+msgid "Today"
+msgstr "Hoy"
+
+#: bhdashboard/widgets/templates/widget_timeline.html:37
+msgid "Yesterday"
+msgstr "Ayer"
+
+#: bhdashboard/widgets/templates/widget_timeline.html:45
+#, python-format
+msgid ""
+"[1:%(time)s]: [2:%(event)s]\n"
+"              by [3:%(author)s]"
+msgstr "[1:%(time)s]: [2:%(event)s]\n              por [3:%(author)s]"
+
+#: bhdashboard/widgets/templates/widget_timeline.html:58
+#, python-format
+msgid ""
+"No events reported \n"
+"      \n"
+"        for [1:%(resource)s]\n"
+"      \n"
+"      in the last [2:%(daysback)s] days since \n"
+"      [3:%(fromdate)s].\n"
+"      This may happen if system is not configured correctly. \n"
+"      Please contact your administrator if you think this is the case."
+msgstr "No se han reportado eventos \n      \n        para [1:%(resource)s]\n      \n      en los últimos [2:%(daysback)s] días desde \n      [3:%(fromdate)s].\n      Esto puede ocurrir si el sistema no está correctamente configurado. \n      Contacte a su administrador si sospecha que hay un problema."
