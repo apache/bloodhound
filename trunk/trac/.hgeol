@@ -1,4 +1,0 @@
-[patterns]
-contrib/trac-svn-hook = LF
-**.cmd = CRLF
-** = native

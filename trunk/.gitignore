@@ -1,8 +1,0 @@
-*.pyc
-*.idea
-*.egg-info
-*.egg
-*.orig
-*.rej
-.svn
-installer/bloodhound
