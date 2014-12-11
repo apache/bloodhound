@@ -55,7 +55,7 @@ except ImportError:
 
 setup(
     name = 'BloodhoundMultiProduct',
-    version = '0.8.0',
+    version = '0.9.0',
     description = "Multiproduct support for Apache(TM) Bloodhound.",
     author = "Apache Bloodhound",
     license = "Apache License v2",
