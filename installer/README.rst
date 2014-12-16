@@ -108,7 +108,7 @@ or on windows::
 
   $ cd bloodhound\installer
   $ virtualenv --system-site-packages bloodhound
-  $ bloodhound\bin\activate.bat
+  $ bloodhound\Scripts\activate.bat
 
 From now on, all shell commands should be run within the activated virtualenv
 so run::
@@ -117,7 +117,7 @@ so run::
 
 or::
 
-  $ bloodhound\bin\activate.bat
+  $ bloodhound\Scripts\activate.bat
 
 as appropriate if you need to continue running these instructions in a fresh 
 shell.
