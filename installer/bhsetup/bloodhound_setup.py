@@ -56,6 +56,8 @@ SUPPORTED_DBTYPES = ('sqlite', 'postgres', 'mysql')
 DEFAULT_DB_USER = 'bloodhound'
 DEFAULT_DB_NAME = 'bloodhound'
 DEFAULT_ADMIN_USER = 'admin'
+DEFAULT_PROJECT = 'main'
+DEFAULT_ENVSDIR = os.path.join('bloodhound', 'environments')
 
 BH_PROJECT_SITE = 'https://issues.apache.org/bloodhound/'
 BASE_CONFIG = {'components': {'bhtheme.*': 'enabled',
@@ -128,10 +130,9 @@ class BloodhoundSetup(object):
         self.options = options
 
         if 'project' not in options:
-            options['project'] = 'main'
+            options['project'] = DEFAULT_PROJECT
         if 'envsdir' not in options:
-            options['envsdir'] = os.path.join('bloodhound',
-                                              'environments')
+            options['envsdir'] = DEFAULT_ENVSDIR
 
         # Flags used when running the functional test suite
         self.apply_bhwiki_upgrades = True
@@ -350,13 +351,13 @@ def handle_options():
 
     # Base Trac Options
     parser.add_option('--project', dest='project',
-                      help='Set the top project name', default='main')
+                      help='Set the top project name', default='')
     parser.add_option('--source_directory', dest='sourcedir',
                       help='Specify root source code directory',
                       default=os.path.normpath(os.path.join(os.getcwd(), '../'))),
     parser.add_option('--environments_directory', dest='envsdir',
                       help='Set the directory to contain environments',
-                      default=os.path.join('bloodhound', 'environments'))
+                      default='')
     parser.add_option('-d', '--database-type', dest='dbtype',
                       help="Specify as either 'sqlite', 'postgres' or 'mysql'",
                       default='')
@@ -465,6 +466,18 @@ database will be empty. DB name [%s]: """, DEFAULT_DB_NAME)
 Please supply a username for the admin user [%s]: """, DEFAULT_ADMIN_USER)
     if not options.adminpass:
         options.adminpass = ask_password(options.adminuser)
+
+    if not options.project:
+        options.project = ask_question("""
+For the installation process, you can specify the top project name.
+This installer currently assumes that project name is 'main'.
+Project name [%s]: """, DEFAULT_PROJECT)
+
+    if not options.envsdir:
+        options.envsdir = ask_question("""
+For the installation process, you can specify the directory to contain environments.
+This installer currently assumes that environments directory is './bloodhound/environments'.
+Environments directory [%s]: """, DEFAULT_ENVSDIR)
 
     return options
 
