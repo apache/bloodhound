@@ -15,7 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-Pygments
+Pygments==1.6
 pytz==2013b
 sqlparse==0.1.7
 Babel==0.9.6
