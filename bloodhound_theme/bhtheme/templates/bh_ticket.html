@@ -445,7 +445,7 @@
             </div>
           </form>
 
-          <div py:if="bhrelations and ticket.exists and has_property_editor" class="relations">
+          <div py:if="bhrelations and ticket.exists" class="relations">
             <bh:widget urn="TicketRelations">
               <bh:args>
                 <bh:arg name="tid">$ticket.id</bh:arg>

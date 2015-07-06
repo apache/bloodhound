@@ -22,7 +22,14 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
-  i18n:domain="bhdashboard">
+  i18n:domain="bhdashboard"
+  py:with="can_append = 'TICKET_APPEND' in perm(ticket.resource);
+     can_create = 'TICKET_CREATE' in perm(ticket.resource) and not ticket.exists;
+     can_modify = 'TICKET_CHGPROP' in perm(ticket.resource);
+     can_edit = 'TICKET_EDIT_DESCRIPTION' in perm(ticket.resource);
+     has_property_editor = not version and version != 0 and not cnum_edit
+                           and (can_append or can_modify or can_edit or can_create);
+  ">
 
   <py:choose test="">
     <py:when test="relations">
@@ -64,7 +71,7 @@
     </py:otherwise>
   </py:choose>
 
-  <div class="btn-group">
+  <div py:if="has_property_editor" class="btn-group">
     <form method="get" action="${href.ticket(ticket.id, 'relations')}">
       <button type="submit" class="btn" id="manage-relations"><i class="icon-retweet"></i> Manage relations</button>
     </form>

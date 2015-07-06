@@ -65,7 +65,8 @@ class RelationManagementModule(Component):
         except ValueError:
             raise TracError(_('Invalid ticket id.'))
 
-        req.perm.require('TICKET_VIEW')
+        # For access to the relation management, TICKET_MODIFY is required.
+        req.perm.require('TICKET_MODIFY')
         relsys = RelationsSystem(self.env)
 
         data = {
@@ -74,7 +75,6 @@ class RelationManagementModule(Component):
         if req.method == 'POST':
             # for modifying the relations TICKET_MODIFY is required for
             # both the source and the destination tickets
-            req.perm.require('TICKET_MODIFY')
 
             if 'remove' in req.args:
                 rellist = req.args.get('sel')
