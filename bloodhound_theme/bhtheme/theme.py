@@ -720,8 +720,9 @@ class BatchCreateTicketsMacro(WikiMacroBase):
 	* `Milestone`
 	* `Component`
 
-	`BatchCreateTickets` has also make it possible to increase or decrease the size of the empty table created. After filling 	the appropriate ticket fields you can create that batch of tickets and will be able to view the details of the created 		tickets as a ticket table.
-
+	`BatchCreateTickets` has also make it possible to increase or decrease the size of the empty table created. After
+	filling 	the appropriate ticket fields you can create that batch of tickets and will be able to view the
+	details of the created 	tickets as a ticket table.
     """)
 
     bct_fields = ListOption(
@@ -763,7 +764,6 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                 self.env.product is not None) and (
                 self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None) and (
                 self.rqst.perm.has_permission('TRAC_ADMIN') or self.rqst.perm.has_permission('TICKET_BATCH_CREATE')):
-            add_script(self.rqst, 'theme/js/batchcreate.js')
 
             # generate the required data to be parsed to the js functions too create the empty ticket table.
 
@@ -775,36 +775,26 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             components = self.env.db_query(
                 "SELECT * FROM component WHERE product=%s", (product_id,))
             form = tag.form(
-                method="get",
-                style="display:inline",
-                id="batchcreate")
-            div = tag.div(
-                style="display:inline-block;position:relative;left: -30px;",
-                id="div-empty-table")
-            span = tag.span(class_="input-group-btn")
-            # pass the relevant arguments to the js function as JSON parameters.
-            style1 = tag.style(
-                id="js-caller",
-                onload="Javascript:emptyTable(" +
-                to_json(str(self.rows)) +
-                "," +
-                to_json(product_name) +
-                "," +
-                to_json(milestones) +
-                "," +
-                to_json(components) +
-                "," +
-                to_json(
-                    self.rqst.href() +
-                    "/bct") +
-                "," +
-                to_json(
-                    str(
-                        self.rqst.environ["HTTP_COOKIE"])) +
-                ")")
-            span.append(style1)
-            div.append(span)
-            form.append(div)
+                            tag.div(
+                                tag.span(
+                                    tag.script(
+                                        type="text/javascript",
+                                         charset="utf-8",
+                                         src=str(self.rqst.href.chrome('theme/js/batchcreate.js'))),
+                                    tag.script(
+                                        # pass the relevant arguments to the js function as JSON parameters.
+                                        "emptyTable(" + to_json(str(self.rows)) + "," + to_json(product_name) + "," +
+                                        to_json(milestones) + "," + to_json(components) + "," +
+                                        to_json(self.rqst.href() + "/bct") + "," +
+                                        to_json(str(self.rqst.environ["HTTP_COOKIE"])) + ")",
+                                        id="js-caller",
+                                        type="text/javascript"),
+                                    class_="input-group-btn"),
+                                    style="display:inline-block;position:relative;left: -30px;",
+                                    id="div-empty-table"),
+                                method="get",
+                                style="display:inline",
+                                id="batchcreate")
             try:
                 int(self.rows)
             except TracError:
