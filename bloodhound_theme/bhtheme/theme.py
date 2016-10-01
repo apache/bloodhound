@@ -17,14 +17,20 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import sys
 import re
+import sys
 
+from bhdashboard import wiki
+from bhdashboard.util import dummy_request
+from bhdashboard.web_ui import DashboardModule
+from bhtheme.translation import _, add_domain
 from genshi.builder import tag
 from genshi.core import TEXT
 from genshi.filters.transform import Transformer
 from genshi.output import DocType
-
+from multiproduct.env import ProductEnvironment
+from multiproduct.web_ui import PRODUCT_RE, ProductModule
+from themeengine.api import ThemeBase, ThemeEngineSystem
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
@@ -43,17 +49,8 @@ from trac.web.chrome import (add_stylesheet, add_warning, INavigationContributor
 from trac.web.main import IRequestHandler
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.formatter import format_to_html
-
-from themeengine.api import ThemeBase, ThemeEngineSystem
-
-from bhdashboard.util import dummy_request
-from bhdashboard.web_ui import DashboardModule
-from bhdashboard import wiki
-
-from multiproduct.env import ProductEnvironment
-from multiproduct.web_ui import PRODUCT_RE, ProductModule
-from bhtheme.translation import _, add_domain
 from trac.wiki.macros import WikiMacroBase
+import random, string
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
@@ -764,7 +761,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                 self.env.product is not None) and (
                 self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None) and (
                 self.rqst.perm.has_permission('TRAC_ADMIN') or self.rqst.perm.has_permission('TICKET_BATCH_CREATE')):
-
+            #todo let the user select the product when creating tickets
             # generate the required data to be parsed to the js functions too create the empty ticket table.
 
             product_id = str(self.env.product.resource.id)
@@ -774,6 +771,8 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                 "SELECT * FROM milestone WHERE product=%s", (product_id,))
             components = self.env.db_query(
                 "SELECT * FROM component WHERE product=%s", (product_id,))
+
+            random_string = '%s%s'%('-',''.join(random.choice(string.lowercase) for i in range(10)))
             form = tag.form(
                             tag.div(
                                 tag.span(
@@ -786,15 +785,16 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                                         "emptyTable(" + to_json(str(self.rows)) + "," + to_json(product_name) + "," +
                                         to_json(milestones) + "," + to_json(components) + "," +
                                         to_json(self.rqst.href() + "/bct") + "," +
-                                        to_json(str(self.rqst.environ["HTTP_COOKIE"])) + ")",
-                                        id="js-caller",
+                                        to_json(str(self.rqst.environ["HTTP_COOKIE"])) + "," +
+                                        to_json(random_string)+ ")",
+                                        id="js-caller" + random_string,
                                         type="text/javascript"),
                                     class_="input-group-btn"),
                                     style="display:inline-block;position:relative;left: -30px;",
-                                    id="div-empty-table"),
+                                    id="div-empty-table" + random_string),
                                 method="get",
                                 style="display:inline",
-                                id="batchcreate")
+                                id="batchcreate" + random_string)
             try:
                 int(self.rows)
             except TracError:
@@ -1048,7 +1048,8 @@ class CreatedTicketsMacro(WikiMacroBase):
         """
 	Helps to generate a ticket table within the wiki.
 
-	You can use this macro in order to display the details of a batch of tickets. `CreatedTickets` macro takes exactly two 		integer arguments. The arguments defines the range of the tickets that will be displayed in the ticket table.
+	You can use this macro in order to display the details of a batch of tickets. `CreatedTickets` macro takes exactly
+	two integer arguments. The arguments defines the range of the tickets that will be displayed in the ticket table.
 
 	Example:
 	{{{
@@ -1085,8 +1086,9 @@ class CreatedTicketsMacro(WikiMacroBase):
         """
         if self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None:
             # Extract the macro arguments.
-            start_id = int(args.split(',')[0])
-            end_id = int(args.split(',')[1])
+            id_range = args.split(',')
+            start_id = int(id_range[0])
+            end_id = int(id_range[1])
 
             display_tickets = self.env.db_query(
                 "SELECT id,summary,product,status,milestone,component FROM ticket WHERE uid>=%s and uid<=%s",
@@ -1095,7 +1097,6 @@ class CreatedTicketsMacro(WikiMacroBase):
                  end_id),
             )
             display_tickets_list = []
-            display_tickets_dict = {}
             for i in range(0, end_id - start_id):
                 tres = Neighborhood(
                     'product',
@@ -1117,26 +1118,27 @@ class CreatedTicketsMacro(WikiMacroBase):
                             'milestone': display_tickets[i][4],
                             'component': display_tickets[i][5]
                         }))
-            display_tickets_dict["tickets"] = display_tickets_list
 
+            random_string = '%s%s' % ('-', ''.join(random.choice(string.lowercase) for i in range(10)))
             # Send the ticket data to be displayed on the ticket table as JSON parameters.
-            add_script(self.rqst, 'theme/js/batchcreate.js')
             form = tag.form(
-                method="get",
-                style="display:inline",
-                id="batchcreate")
-            div = tag.div(
-                style="display:inline-block;position:relative;left: -30px;",
-                id="div-created-ticket-table")
-            span = tag.span(class_="input-group-btn")
-            body = tag.body(
-                id="js-caller",
-                onload="Javascript:display_created_tickets(" +
-                to_json(display_tickets_dict) +
-                ")")
-            span.append(body)
-            div.append(span)
-            form.append(div)
+                tag.div(
+                    tag.span(
+                        tag.script(
+                            type='text/javascript',
+                            charset='utf-8',
+                            src=str(self.rqst.href.chrome('theme/js/batchcreate.js'))),
+                        tag.script(
+                            'display_created_tickets(' + to_json(display_tickets_list) + ',' +
+                            to_json(random_string) + ')',
+                            id='js-caller' + random_string,
+                            type='text/javascript'),
+                        class_='input-group-btn'),
+                    style='display:inline-block;position:relative;left: -30px;',
+                    id='div-created-ticket-table' + random_string),
+                method='get',
+                style='display:inline',
+                id='batchcreate' + random_string)
             return form
         else:
             return None
