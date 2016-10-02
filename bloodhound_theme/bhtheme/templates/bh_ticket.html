@@ -411,7 +411,7 @@
 
                 <py:if test="ticket.exists">
                   <textarea id="edit-comment" class="trac-resizable span7 hide" name="edit-comment"
-                      rows="4" placeholder="Enter new comment" onfocus="this.placeholder = ''"
+                      rows="4" placeholder="${_('Enter new comment')}" onfocus="this.placeholder = ''"
                       onblur="this.placeholder = 'Enter new comment'"></textarea>
 
                   <div id="edit-state-buttons-below" class="btn-toolbar hide">
@@ -445,7 +445,7 @@
             </div>
           </form>
 
-          <div py:if="bhrelations and ticket.exists and has_property_editor" class="relations">
+          <div py:if="bhrelations and ticket.exists" class="relations">
             <bh:widget urn="TicketRelations">
               <bh:args>
                 <bh:arg name="tid">$ticket.id</bh:arg>
@@ -504,7 +504,7 @@
                 <!--! Comment field -->
                 <fieldset class="iefix">
                   <textarea id="comment" name="comment" class="trac-resizable" rows="2"
-                      placeholder="Enter new comment" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
+                      placeholder="${_('Enter new comment')}" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter new comment'">${comment}</textarea>
                   <input type="submit" id="comment-submit" class="btn pull-right" name="submit" value="${_('Submit')}" />
                   <label for="comment" class="help-block" i18n:msg="">
                     <span class="label label-info">Tip</span>

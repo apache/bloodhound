@@ -36,6 +36,7 @@ from trac.core import Component, TracError, implements
 from trac.mimeview.api import get_mimetype
 from trac.perm import IPermissionRequestor
 from trac.resource import get_resource_url, Neighborhood, Resource
+from trac.ticket.api import TicketSystem
 from trac.ticket.model import Ticket, Milestone
 from trac.ticket.notification import TicketNotifyEmail
 from trac.ticket.web_ui import TicketModule

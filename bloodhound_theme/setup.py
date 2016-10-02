@@ -42,7 +42,7 @@ except ImportError:
 
 setup(
   name = 'BloodhoundTheme',
-  version = '0.8.0',
+  version = '0.9.0',
   description = "Theme for Apache(TM) Bloodhound.",
   author = "Apache Bloodhound",
   license = "Apache License v2",
@@ -56,6 +56,7 @@ setup(
       'Framework :: Trac',
     ],
   install_requires = ['BloodhoundDashboardPlugin', 'TracThemeEngine'],
+  test_suite = 'bhtheme.tests.suite',
   tests_require = ['unittest2'] if sys.version_info < (2, 7) else [],
   entry_points = {
       'trac.plugins': [

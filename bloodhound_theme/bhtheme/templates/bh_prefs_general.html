@@ -35,7 +35,7 @@
       <label class="control-label" for="name">Full name:</label>
       <div class="controls">
         <input type="text" id="name" name="name" size="30"
-            placeholder="Jack Pumpkinhead"
+            placeholder="${_('Jack Pumpkinhead')}"
             value="${settings.session.get('name')}" />
       </div>
     </div>
@@ -43,7 +43,7 @@
       <label class="control-label" for="email">Email address:</label>
       <div class="controls">
         <input type="text" id="email" name="email" size="30"
-            placeholder="jack@marvelous.land-of.oz"
+            placeholder="${_('jack@marvelous.land-of.oz')}"
             value="${settings.session.get('email')}" />
       </div>
     </div>

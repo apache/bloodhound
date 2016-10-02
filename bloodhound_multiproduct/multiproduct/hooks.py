@@ -37,6 +37,8 @@ PRODUCT_RE = re.compile(r'^/products(?:/(?P<pid>[^/]*)(?P<pathinfo>.*))?')
 
 class MultiProductEnvironmentFactory(EnvironmentFactoryBase):
     def open_environment(self, environ, env_path, global_env, use_cache=False):
+        # clearing product environment cache - bh:ticket:613
+        multiproduct.env.ProductEnvironment.clear_env_cache()
         environ.setdefault('SCRIPT_NAME', '')  # bh:ticket:594
 
         env = pid = product_path = None

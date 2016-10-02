@@ -68,7 +68,7 @@
                 </py:if>
                 <label>Description of the file:</label>
                 <input type="text" name="description" class="input-xlarge"
-                       placeholder="optional" value="$attachment.description" />
+                       placeholder="${_('optional')}" value="$attachment.description" />
                 <br />
                 <label py:if="authname and authname != 'anonymous'"
                        class="checkbox">

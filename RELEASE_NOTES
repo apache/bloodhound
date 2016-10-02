@@ -1,6 +1,5 @@
 0.8
  * i18n internationalization.
- * Multiproduct support for CommitTicketUpdater.
  * Quick Create Ticket form sets product based on context and forwards
    values to the ticket form when "More fields" is selected.
  * Fixed caching issue that prevented product-scope trac-admin commands
@@ -8,16 +7,19 @@
  * Improved presentation of the Products page.
  * Improvements to ticket timeline (comments section).
  * BloodhoundSearch now supports Whoosh >= 2.5.1 (upgraded from 2.4.1).
- * Fixed errors in BloodhoundRelations validation logic.
+ * Fixed several errors in BloodhoundRelations validation logic.
  * Bootstrap template for the Roadmap and Edit Product views.
  * Bloodhound installer support for MySQL database.
+ * Product edits were always reported as anonymous.
+ * Quick Create Ticket displays the last created ticket for a short time
+   after it is created.
  * Numerous other important fixes and minor enhancements.
 
 
  * Not fixed for this release
   * Cache is not properly refreshed for resources including wiki pages,
-    milestones, components and permissions; leading to stale data being
-    displayed after INSERTs and DELETEs (#613, #614, #620, #681, #719, #748).
+    components and permissions; leading to stale data being displayed
+    after INSERTs and DELETEs (#614, #620, #681, #719, #748).
   * Products cannot be deleted (#517).
   * Duplicate relation is not added when batch modifying tickets (#761).
   * TicketDeleter component can't be used with BloodhoundTheme (#427).

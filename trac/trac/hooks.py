@@ -15,12 +15,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-import imp
-import inspect
+import abc
 import os
 import pkg_resources
 
-from trac.config import Configuration
 from trac.env import open_environment
 from trac.util import exception_to_unicode
 from trac.util.concurrency import threading
@@ -32,39 +30,38 @@ __all__ = ['environment_factory', 'install_global_hooks']
 
 
 class EnvironmentFactoryBase(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def open_environment(self, environ, env_path, global_env, use_cache=False):
-        raise NotImplementedError("Must override method 'open_environment'")
+        pass
 
 
 class RequestFactoryBase(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def create_request(self, env, environ, start_response):
-        raise NotImplementedError("Must override method 'create_request'")
+        pass
 
 
-def _get_plugins_dir(env_path):
-    return os.path.normcase(os.path.realpath(os.path.join(env_path, 'plugins')))
+def load_class(fqn):
+    try:
+        pkg, resource = fqn.rsplit('.', 1)
+    except ValueError:
+        class_ = None
+    else:
+        try:
+            module = __import__(pkg, fromlist=[resource])
+        except ImportError:
+            class_ = None
+        else:
+            try:
+                class_ = getattr(module, resource)
+            except AttributeError:
+                class_ = None
+    return class_
 
-
-def _get_config(env_path):
-    return Configuration(os.path.join(env_path, 'conf', 'trac.ini'),
-                         {'envname': os.path.basename(env_path)})
-
-
-def _hook_load(env_path, hook_path):
-    hook_name = os.path.basename(hook_path[:-3])
-    plugins_dir = _get_plugins_dir(env_path)
-    load_path = os.path.join(plugins_dir, hook_path)
-    module = imp.load_source(hook_name, load_path)
-    return module
-
-
-def _get_hook_class(env_path, hook_path, class_type):
-    module = _hook_load(env_path, hook_path)
-    for (name, cls) in inspect.getmembers(module, inspect.isclass):
-        if issubclass(cls, class_type) and \
-           not cls is class_type:
-            return cls
-    return None
 
 _global_hooks_installed = False
 _global_hooks_lock = threading.Lock()
@@ -90,15 +87,11 @@ def install_global_hooks():
 
 
 def environment_factory(env):
-    hook_path = env.config.get('trac', 'environment_factory', default=None)
-    return _get_hook_class(env.path, hook_path, EnvironmentFactoryBase) \
-           if hook_path else None
+    return load_class(env.config.get('trac', 'environment_factory'))
 
 
 def request_factory(env):
-    hook_path = env.config.get('trac', 'request_factory', default=None)
-    return _get_hook_class(env.path, hook_path, RequestFactoryBase) \
-           if hook_path else None
+    return load_class(env.config.get('trac', 'request_factory'))
 
 
 class BootstrapHandlerBase(object):
@@ -265,19 +258,18 @@ class DefaultBootstrapHandler(BootstrapHandlerBase):
                                    'environment(s).')
         run_once = environ['wsgi.run_once']
     
-        env = None
-        self.global_env = global_env = None
         try:
-            self.global_env = global_env = \
-                open_environment(env_path, use_cache=not run_once)
+            global_env = open_environment(env_path, use_cache=not run_once)
             factory = environment_factory(global_env)
-            factory_env = \
-                factory().open_environment(environ, env_path, global_env,
-                                           use_cache=not run_once) \
-                if factory else None
-            env = factory_env if factory_env else global_env
+            factory_env = factory().open_environment(environ, env_path,
+                                                     global_env,
+                                                     use_cache=not run_once) \
+                          if factory else None
         except Exception:
             raise
+        else:
+            self.global_env = global_env
+            env = factory_env if factory_env else global_env
         return env
 
     def create_request(self, env, environ, start_response):

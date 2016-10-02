@@ -33,6 +33,13 @@ from multiproduct.model import Product
 from multiproduct.env import ProductEnvironment
 from tests.env import MultiproductTestCase
 
+try:
+    import threading
+except ImportError:
+    threading = None
+from Queue import Queue
+
+
 class ProductTicketTestCase(TicketTestCase, MultiproductTestCase):
 
     def setUp(self):
@@ -145,6 +152,70 @@ class ProductMilestoneTestCase(MilestoneTestCase, MultiproductTestCase):
         shutil.rmtree(self.global_env.path)
         self.global_env.reset_db()
         self.env = self.global_env = None
+
+    @unittest.skipUnless(threading, 'Threading required for test')
+    def test_milestone_threads(self):
+        """ Ensure that in threaded (e.g. mod_wsgi) situations, we get
+        an accurate list of milestones from Milestone.list
+
+        The basic strategy is:
+            thread-1 requests a list of milestones
+            thread-2 adds a milestone
+            thread-1 requests a new list of milestones
+        To pass, thread-1 should have a list of milestones that matches
+        those that are in the database.
+        """
+        lock = threading.RLock()
+        results = []
+        # two events to coordinate the workers and ensure that the threads
+        # alternate appropriately
+        e1 = threading.Event()
+        e2 = threading.Event()
+
+        def task(add):
+            """the thread task - either we are discovering or adding events"""
+            with lock:
+                env = ProductEnvironment(self.global_env,
+                                         self.default_product)
+                if add:
+                    name = 'milestone_from_' + threading.current_thread().name
+                    milestone = Milestone(env)
+                    milestone.name = name
+                    milestone.insert()
+                else:
+                    # collect the names of milestones reported by Milestone and
+                    # directly from the db - as sets to ease comparison later
+                    results.append({
+                        'from_t': set([m.name for m in Milestone.select(env)]),
+                        'from_db': set(
+                            [v[0] for v in self.env.db_query(
+                                "SELECT name FROM milestone")])})
+
+        def worker1():
+            """ check milestones in this thread twice either side of ceding
+            control to worker2
+            """
+            task(False)
+            e1.set()
+            e2.wait()
+            task(False)
+
+        def worker2():
+            """ adds a milestone when worker1 allows us to then cede control
+            back to worker1
+            """
+            e1.wait()
+            task(True)
+            e2.set()
+
+        t1, t2 = [threading.Thread(target=f) for f in (worker1, worker2)]
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+        r = results[-1]  # note we only care about the final result
+        self.assertEqual(r['from_t'], r['from_db'])
 
     def test_update_milestone(self):
 
