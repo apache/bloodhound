@@ -18,453 +18,458 @@
  */
 
 /*
-    This function will be invoked from the BatchCreateTickets wiki macro.
-    The wiki macro will send the relevant details to create the empty ticket table within the wiki.
-    Then this function will generate the empty ticket table containing appropriate number of rows to enter ticket data.
+ This function will be invoked from the BatchCreateTickets wiki macro.
+ The wiki macro will send the relevant details to create the empty ticket table within the wiki.
+ Then this function will generate the empty ticket table containing appropriate number of rows to enter ticket data.
  */
 function emptyTable(numOfRows, products, milestones, components, href, token, unique_key) {
 
-	var created_rows=numOfRows;
-	var form_token = token.split(";")[0].split("=")[1];
+  var created_rows = numOfRows;
+  var form_token = token.split(";")[0].split("=")[1];
 
-    var headers = {"ticket":"","summary":"Summary","description":"Description","product":"Product",
-        "priority":"Priority","milestone":"Milestone","component":"Component"};
-	var priorities = ["blocker", "critical", "major", "minor", "trivial"];
-    var types = ["defect", "enhancement", "task"];
+  var headers = {
+    "ticket": "", "summary": "Summary", "description": "Description", "product": "Product",
+    "priority": "Priority", "milestone": "Milestone", "component": "Component"
+  };
+  var priorities = ["blocker", "critical", "major", "minor", "trivial"];
+  var types = ["defect", "enhancement", "task"];
 
-	var contentDiv = $('#div-empty-table' + unique_key);
+  var contentDiv = $('#div-empty-table' + unique_key);
 
-    var div = $('<div/>', {
-    'id':'empty-table' + unique_key,
-    'class':'span12'
-    }).appendTo(contentDiv);
+  var div = $('<div/>', {
+    'id': 'empty-table' + unique_key,
+    'class': 'span12'
+  }).appendTo(contentDiv);
 
-	var h5 = $('<h5/>').html('Batch Create Tickets').appendTo(div);
-	
-	var form = $('<form/>', {
-	    'id':'bct-form' + unique_key,
-        'name':'bct',
-        'method':'post'
-    }).appendTo(div);
+  var h5 = $('<h5/>').html('Batch Create Tickets').appendTo(div);
 
-	$('<input/>', {
-	    'type':'hidden',
-        'name':'__FORM_TOKEN',
-        'value':form_token
-    }).appendTo($('<div>').appendTo(form));
-	
-	var table = $('<table/>', {
-	    'class':'listing tickets table table-bordered table-condensed query',
-        'style':'border-radius: 0px 0px 4px 4px'
-    }).appendTo(form);
-	
-	var tr = $('<tr/>', {
-	    'class':'trac-columns'
-    }).appendTo(table);
+  var form = $('<form/>', {
+    'id': 'bct-form' + unique_key,
+    'name': 'bct',
+    'method': 'post'
+  }).appendTo(div);
 
-	for (header in headers){
-	    var th = $('<th/>').appendTo(tr);
-	    $('<font/>', {
-	        'color':'#1975D1'
-        }).html(headers[header]).appendTo(th);
-	}
-	
-	var tbody = $('<tbody>').appendTo(table);
+  $('<input/>', {
+    'type': 'hidden',
+    'name': '__FORM_TOKEN',
+    'value': form_token
+  }).appendTo($('<div>').appendTo(form));
 
-	for (var i=0; i < numOfRows; i++) {
+  var table = $('<table/>', {
+    'class': 'listing tickets table table-bordered table-condensed query',
+    'style': 'border-radius: 0px 0px 4px 4px'
+  }).appendTo(form);
 
-		var tr_rows = $('<tr>').appendTo(tbody);
+  var tr = $('<tr/>', {
+    'class': 'trac-columns'
+  }).appendTo(table);
 
-		for (var header in headers) {
-		    var td;
-			if(header == "ticket") {
+  for (header in headers) {
+    var th = $('<th/>').appendTo(tr);
+    $('<font/>', {
+      'color': '#1975D1'
+    }).html(headers[header]).appendTo(th);
+  }
 
-				td = $('<td>').appendTo(tr_rows);
-				var input_ticket = $('<input/>', {
-				    'id':'field-ticket' + unique_key + '-' + i,
-	                'type':'checkbox',
-                    'name':'field_ticket' + i,
-                    'class':'input-block-level'
-                }).appendTo(td);
+  var tbody = $('<tbody>').appendTo(table);
 
-			} else if (header == "summary"){
+  for (var i = 0; i < numOfRows; i++) {
 
-			    td = $('<td>').appendTo(tr_rows);
-				var input_summary = $('<input/>', {
-				    'id':'field-summary' + unique_key + '-' + i,
-	                'type':'text',
-                    'name':'field_summary' + i,
-                    'class':'input-block-level'
-                }).appendTo(td);
+    var tr_rows = $('<tr>').appendTo(tbody);
 
-			} else if (header == "description") {
+    for (var header in headers) {
+      var td;
+      if (header == "ticket") {
 
-			    td = $('<td>').appendTo(tr_rows);
-				var input_description = $('<textarea/>', {
-				    'id':'field-description' + unique_key + '-' + i,
-                    'name':'field_description' + i,
-                    'class':'input-block-level',
-                    'rows':'2',
-                    'cols':'28'
-                }).appendTo(td);
+        td = $('<td>').appendTo(tr_rows);
+        var input_ticket = $('<input/>', {
+          'id': 'field-ticket' + unique_key + '-' + i,
+          'type': 'checkbox',
+          'name': 'field_ticket' + i,
+          'class': 'input-block-level'
+        }).appendTo(td);
 
-			} else if (header == "priority") {
+      } else if (header == "summary") {
 
-			    td = $('<td>').appendTo(tr_rows);
-				var input_priority = $('<select/>', {
-				    'id':'field-priority' + unique_key + '-' + i,
-                    'name':'field_priority' + i,
-                    'class':'input-block-level'
-                }).appendTo(td);
+        td = $('<td>').appendTo(tr_rows);
+        var input_summary = $('<input/>', {
+          'id': 'field-summary' + unique_key + '-' + i,
+          'type': 'text',
+          'name': 'field_summary' + i,
+          'class': 'input-block-level'
+        }).appendTo(td);
 
-				for (var priority in priorities){
-				    $('<option/>', {
-				        'value':priorities[priority]
-                    }).html(priorities[priority]).appendTo(input_priority);
-				}
+      } else if (header == "description") {
 
-			} else if (header == "product") {
+        td = $('<td>').appendTo(tr_rows);
+        var input_description = $('<textarea/>', {
+          'id': 'field-description' + unique_key + '-' + i,
+          'name': 'field_description' + i,
+          'class': 'input-block-level',
+          'rows': '2',
+          'cols': '28'
+        }).appendTo(td);
 
-			    td = $('<td>').appendTo(tr_rows);
-				var field_product = $('<select/>', {
-				    'id':'field-product' + unique_key + '-' + i,
-                    'name':'field_product' + i,
-                    'class':'input-block-level'
-                }).appendTo(td);
+      } else if (header == "priority") {
 
-				for (var product in products){
-				    $('<option/>', {
-				        'value':(products[product])[0]
-                    }).html((products[product])[1]).appendTo(field_product);
-				}
+        td = $('<td>').appendTo(tr_rows);
+        var input_priority = $('<select/>', {
+          'id': 'field-priority' + unique_key + '-' + i,
+          'name': 'field_priority' + i,
+          'class': 'input-block-level'
+        }).appendTo(td);
 
-			} else if (header == "milestone") {
-
-			    td = $('<td>').appendTo(tr_rows);
-				var field_milestone = $('<select/>', {
-				    'id':'field-milestone' + unique_key + '-' + i,
-                    'name':'field_milestone' + i,
-                    'class':'input-block-level'
-                }).appendTo(td);
-
-				for (var milestone in milestones){
-				    $('<option/>', {
-				        'value':(milestones[milestone])[0]
-                    }).html((milestones[milestone])[0]).appendTo(field_milestone);
-				}
-
-			} else if (header == "component") {
-
-			    td = $('<td>').appendTo(tr_rows);
-				var field_component = $('<select/>', {
-				    'id':'field-component' + unique_key + '-' + i,
-                    'name':'field_component' + i,
-                    'class':'input-block-level'
-                }).appendTo(td);
-
-				for (var component in components){
-				    $('<option/>', {
-				        'value':(components[component])[0]
-                    }).html((components[component])[0]).appendTo(field_component);
-				}
-			}
-		}
-	}
-
-	$('<button/>', {
-	    'id':'bct-rmv-empty-row' + unique_key,
-        'type':'button',
-        'class':'btn pull-right',
-        'click':function() {
-            numOfRows = parseInt(numOfRows) - parseInt(remove_row_btn_action(numOfRows, unique_key));
+        for (var priority in priorities) {
+          $('<option/>', {
+            'value': priorities[priority]
+          }).html(priorities[priority]).appendTo(input_priority);
         }
-	}).html('-').appendTo(form);
 
-    $('<button/>', {
-	    'id':'bct-add-empty-row' + unique_key,
-        'type':'button',
-        'class':'btn pull-right',
-        'click':function() {
-	        add_row_btn_action(products, milestones, components, created_rows, unique_key, headers, tbody);
-            numOfRows = parseInt(numOfRows) + 1;
-            created_rows = parseInt(created_rows) + 1;
+      } else if (header == "product") {
+
+        td = $('<td>').appendTo(tr_rows);
+        var field_product = $('<select/>', {
+          'id': 'field-product' + unique_key + '-' + i,
+          'name': 'field_product' + i,
+          'class': 'input-block-level'
+        }).appendTo(td);
+
+        for (var product in products) {
+          $('<option/>', {
+            'value': (products[product])[0]
+          }).html((products[product])[1]).appendTo(field_product);
         }
-	}).html('+').appendTo(form);
 
-    $('<button/>', {
-	    'id':'bct-create' + unique_key,
-        'type':'button',
-        'class':'btn pull-right',
-        'data-target':href,
-        'click':function() {
-	        var empty_row=false;
-            var cnt=0;
-            for (var k = 0; k < parseInt(numOfRows) + parseInt(cnt); k++) {
+      } else if (header == "milestone") {
 
-                var element = $("#field-summary" + k);
-                if(element == null) {
-                    cnt = parseInt(cnt) + 1;
-                    continue;
-                }
+        td = $('<td>').appendTo(tr_rows);
+        var field_milestone = $('<select/>', {
+          'id': 'field-milestone' + unique_key + '-' + i,
+          'name': 'field_milestone' + i,
+          'class': 'input-block-level'
+        }).appendTo(td);
 
-                var summary_val = element.val();
-                if(summary_val == ""){
-                    var line_number = parseInt(k) + 1;
-                    var confirmation = confirm("Summery field of one or more tickets are empty. " +
-                        "They will not get created!");
-                    empty_row=true;
-                    break;
-                }
-            }
-            if(confirmation == true || !empty_row){
-                submit_btn_action(unique_key);
-            }
+        for (var milestone in milestones) {
+          $('<option/>', {
+            'value': (milestones[milestone])[0]
+          }).html((milestones[milestone])[0]).appendTo(field_milestone);
         }
-	}).html('save').appendTo(form);
 
-	$('<button/>', {
-        'type':'button',
-        'class':'btn pull-right',
-        'click':function() {
-	        deleteForm(unique_key);
+      } else if (header == "component") {
+
+        td = $('<td>').appendTo(tr_rows);
+        var field_component = $('<select/>', {
+          'id': 'field-component' + unique_key + '-' + i,
+          'name': 'field_component' + i,
+          'class': 'input-block-level'
+        }).appendTo(td);
+
+        for (var component in components) {
+          $('<option/>', {
+            'value': (components[component])[0]
+          }).html((components[component])[0]).appendTo(field_component);
         }
-	}).html('cancel').appendTo(form);
+      }
+    }
+  }
+
+  $('<button/>', {
+    'id': 'bct-rmv-empty-row' + unique_key,
+    'type': 'button',
+    'class': 'btn pull-right',
+    'click': function () {
+      numOfRows = parseInt(numOfRows) - parseInt(remove_row_btn_action(numOfRows, unique_key));
+    }
+  }).html('-').appendTo(form);
+
+  $('<button/>', {
+    'id': 'bct-add-empty-row' + unique_key,
+    'type': 'button',
+    'class': 'btn pull-right',
+    'click': function () {
+      add_row_btn_action(products, milestones, components, created_rows, unique_key, headers, tbody);
+      numOfRows = parseInt(numOfRows) + 1;
+      created_rows = parseInt(created_rows) + 1;
+    }
+  }).html('+').appendTo(form);
+
+  $('<button/>', {
+    'id': 'bct-create' + unique_key,
+    'type': 'button',
+    'class': 'btn pull-right',
+    'data-target': href,
+    'click': function () {
+      var empty_row = false;
+      var cnt = 0;
+      for (var k = 0; k < parseInt(numOfRows) + parseInt(cnt); k++) {
+
+        var element = $("#field-summary" + k);
+        if (element == null) {
+          cnt = parseInt(cnt) + 1;
+          continue;
+        }
+
+        var summary_val = element.val();
+        if (summary_val == "") {
+          var line_number = parseInt(k) + 1;
+          var confirmation = confirm("Summery field of one or more tickets are empty. " +
+            "They will not get created!");
+          empty_row = true;
+          break;
+        }
+      }
+      if (confirmation == true || !empty_row) {
+        submit_btn_action(unique_key);
+      }
+    }
+  }).html('save').appendTo(form);
+
+  $('<button/>', {
+    'type': 'button',
+    'class': 'btn pull-right',
+    'click': function () {
+      deleteForm(unique_key);
+    }
+  }).html('cancel').appendTo(form);
 
 }
 
-function submitForm(){
-	document.getElementById("bct-form").submit();
+function submitForm() {
+  document.getElementById("bct-form").submit();
 }
 
 /*
  Then this function will remove the empty table from the wiki.
  */
-function deleteForm(unique_key){
-	$("#empty-table" + unique_key).remove();
+function deleteForm(unique_key) {
+  $("#empty-table" + unique_key).remove();
 }
 
 /*
-This function will send a HTTP POST request to the backend.
-The form containing the empty table and its data will be submitted.
-Then the empty table will be replaced with the ticket table containing details of the created tickets.
+ This function will send a HTTP POST request to the backend.
+ The form containing the empty table and its data will be submitted.
+ Then the empty table will be replaced with the ticket table containing details of the created tickets.
  */
 function submit_btn_action(unique_key) {
 
-    // data-target is the base url for the product in current scope
-	var product_base_url = $('#bct-create' + unique_key).attr('data-target');
+  // data-target is the base url for the product in current scope
+  var product_base_url = $('#bct-create' + unique_key).attr('data-target');
 
-    $.post(product_base_url , $('#bct-form' + unique_key).serialize(),
-    function(ticket) {
-        deleteForm(unique_key);
+  $.post(product_base_url, $('#bct-form' + unique_key).serialize(),
+    function (ticket) {
+      deleteForm(unique_key);
 
-        var headers = {"ticket":"Ticket", "summary":"Summary", "product":"Product", "status":"Status",
-            "milestone":"Milestone", "component":"Component"};
+      var headers = {
+        "ticket": "Ticket", "summary": "Summary", "product": "Product", "status": "Status",
+        "milestone": "Milestone", "component": "Component"
+      };
 
-        var contentDiv = $("#div-empty-table" + unique_key);
+      var contentDiv = $("#div-empty-table" + unique_key);
 
-        var div = $('<div/>', {
-            'class':'span12'
-        }).appendTo(contentDiv);
+      var div = $('<div/>', {
+        'class': 'span12'
+      }).appendTo(contentDiv);
 
-        var h5 = $('<h5/>', {
-            'class':'span12'
-        }).html("Created Tickets").appendTo(div);
+      var h5 = $('<h5/>', {
+        'class': 'span12'
+      }).html("Created Tickets").appendTo(div);
 
-        var table = $('<table/>', {
-            'class':'listing tickets table table-bordered table-condensed query',
-            'style':'border-radius: 0px 0px 4px 4px'
-        }).appendTo(div);
+      var table = $('<table/>', {
+        'class': 'listing tickets table table-bordered table-condensed query',
+        'style': 'border-radius: 0px 0px 4px 4px'
+      }).appendTo(div);
 
-        var header_tr = $('<tr/>', {
-            'class':'trac-columns'
-        }).appendTo(table);
+      var header_tr = $('<tr/>', {
+        'class': 'trac-columns'
+      }).appendTo(table);
 
-        for (var header in headers){
+      for (var header in headers) {
 
-            var th = $('<th/>', {
-                'class':'trac-columns'
-            }).appendTo(header_tr);
+        var th = $('<th/>', {
+          'class': 'trac-columns'
+        }).appendTo(header_tr);
 
-            $('<font/>', {
-                'color':'#1975D1'
-            }).html(headers[header]).appendTo(th);
+        $('<font/>', {
+          'color': '#1975D1'
+        }).html(headers[header]).appendTo(th);
+      }
+
+      for (var json_ticket in ticket.tickets) {
+        var tr = $('<tr/>').appendTo(table);
+        var tkt = JSON.parse(json_ticket);
+        for (var j = 0; j < 6; j++) {
+          var td = $('<td/>').appendTo(tr);
+          if (j < 2) {
+            $('<a/>', {
+              'href': tkt.url
+            }).html(j == 0 ? '#' + tkt.id : tkt.summary).appendTo(td);
+          } else {
+            td.html(j == 2 ? tkt.product : (j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component)));
+          }
         }
-
-        for (var json_ticket in ticket.tickets) {
-            var tr = $('<tr/>').appendTo(table);
-            var tkt = JSON.parse(json_ticket);
-            for (var j = 0; j < 6; j++) {
-                var td = $('<td/>').appendTo(tr);
-                if(j < 2) {
-                    $('<a/>', {
-                        'href':tkt.url
-                    }).html(j == 0 ? '#' + tkt.id : tkt.summary).appendTo(td);
-                } else {
-                    td.html(j == 2 ? tkt.product : (j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component)));
-                }
-            }
-        }
+      }
     });
 }
 
 /*
-This function will be called when the users add a new row to the empty table.
-The new empty row will be always appended to the end row of the empty table.
+ This function will be called when the users add a new row to the empty table.
+ The new empty row will be always appended to the end row of the empty table.
  */
 function add_row_btn_action(products, milestones, components, i, random, headers, tbody) {
 
-	var statuses = ["new", "accepted", "assigned", "closed", "reopened"];
-	var priorities = ["blocker", "critical", "major", "minor", "trivial"];
-	var types = ["defect", "enhancement", "task"];
+  var statuses = ["new", "accepted", "assigned", "closed", "reopened"];
+  var priorities = ["blocker", "critical", "major", "minor", "trivial"];
+  var types = ["defect", "enhancement", "task"];
 
-    var tr = $('<tr/>').appendTo(tbody);
+  var tr = $('<tr/>').appendTo(tbody);
 
-    for (var header in headers) {
+  for (var header in headers) {
 
-        var td = $('<td/>').appendTo(tr);
-        var unique_key = random + '-' + i;
+    var td = $('<td/>').appendTo(tr);
+    var unique_key = random + '-' + i;
 
-        if(header == 'ticket') {
-			$('<input/>', {
-			    'id':'field-ticket' + unique_key,
-                'name':'field_ticket' + unique_key,
-                'class':'input-block-level',
-			    'type':'checkbox'
-            }).appendTo(td);
-		} else if (header == "summary") {
+    if (header == 'ticket') {
+      $('<input/>', {
+        'id': 'field-ticket' + unique_key,
+        'name': 'field_ticket' + unique_key,
+        'class': 'input-block-level',
+        'type': 'checkbox'
+      }).appendTo(td);
+    } else if (header == "summary") {
 
-		    $('<input/>', {
-			    'id':'field-summary' + unique_key,
-                'name':'field_summary' + unique_key,
-                'class':'input-block-level',
-			    'type':'text'
-            }).appendTo(td);
-		} else if (header == "description") {
+      $('<input/>', {
+        'id': 'field-summary' + unique_key,
+        'name': 'field_summary' + unique_key,
+        'class': 'input-block-level',
+        'type': 'text'
+      }).appendTo(td);
+    } else if (header == "description") {
 
-		    $('<textarea/>', {
-			    'id':'field-description' + unique_key,
-                'name':'field_description' + unique_key,
-                'class':'input-block-level',
-			    'rows':'2',
-                'cols':'28'
-            }).appendTo(td);
-		} else if (header == "priority") {
+      $('<textarea/>', {
+        'id': 'field-description' + unique_key,
+        'name': 'field_description' + unique_key,
+        'class': 'input-block-level',
+        'rows': '2',
+        'cols': '28'
+      }).appendTo(td);
+    } else if (header == "priority") {
 
-		    var input_priority = $('<select/>', {
-			    'id':'field-priority' + unique_key,
-                'name':'field_priority' + unique_key,
-                'class':'input-block-level'
-            }).appendTo(td);
-			for (var priority in priorities){
-				$('<option/>', {
-				    'value':priorities[priority]
-                }).html(priorities[priority]).appendTo(input_priority);
-			}
-		} else if (header == "product") {
+      var input_priority = $('<select/>', {
+        'id': 'field-priority' + unique_key,
+        'name': 'field_priority' + unique_key,
+        'class': 'input-block-level'
+      }).appendTo(td);
+      for (var priority in priorities) {
+        $('<option/>', {
+          'value': priorities[priority]
+        }).html(priorities[priority]).appendTo(input_priority);
+      }
+    } else if (header == "product") {
 
-		    var field_product = $('<select/>', {
-			    'id':'field-product' + unique_key,
-                'name':'field_product' + unique_key,
-                'class':'input-block-level'
-            }).appendTo(td);
-			for (var product in products) {
-				$('<option/>', {
-				    'value':(products[product])[0]
-                }).html((products[product])[1]).appendTo(field_product);
-			}
-		} else if (header == "milestone") {
+      var field_product = $('<select/>', {
+        'id': 'field-product' + unique_key,
+        'name': 'field_product' + unique_key,
+        'class': 'input-block-level'
+      }).appendTo(td);
+      for (var product in products) {
+        $('<option/>', {
+          'value': (products[product])[0]
+        }).html((products[product])[1]).appendTo(field_product);
+      }
+    } else if (header == "milestone") {
 
-		    var field_milestone = $('<select/>', {
-			    'id':'field-milestone' + unique_key,
-                'name':'field_milestone' + unique_key,
-                'class':'input-block-level'
-            }).appendTo(td);
-			for (var milestone in milestones) {
-				$('<option/>', {
-				    'value':(milestones[milestone])[0]
-                }).html((milestones[milestone])[0]).appendTo(field_milestone);
-			}
-		} else if (header == "component") {
+      var field_milestone = $('<select/>', {
+        'id': 'field-milestone' + unique_key,
+        'name': 'field_milestone' + unique_key,
+        'class': 'input-block-level'
+      }).appendTo(td);
+      for (var milestone in milestones) {
+        $('<option/>', {
+          'value': (milestones[milestone])[0]
+        }).html((milestones[milestone])[0]).appendTo(field_milestone);
+      }
+    } else if (header == "component") {
 
-		    var field_component = $('<select/>', {
-			    'id':'field-component' + unique_key,
-                'name':'field_component' + unique_key,
-                'class':'input-block-level'
-            }).appendTo(td);
-			for (var component in components) {
-				$('<option/>', {
-				    'value':(components[component])[0]
-                }).html((components[component])[0]).appendTo(field_component);
-			}
-		}
-	}
+      var field_component = $('<select/>', {
+        'id': 'field-component' + unique_key,
+        'name': 'field_component' + unique_key,
+        'class': 'input-block-level'
+      }).appendTo(td);
+      for (var component in components) {
+        $('<option/>', {
+          'value': (components[component])[0]
+        }).html((components[component])[0]).appendTo(field_component);
+      }
+    }
+  }
 }
 
 /*
-This function will be called when the user removes a table row of the empty table.
+ This function will be called when the user removes a table row of the empty table.
  */
 function remove_row_btn_action(numOfRows, unique_key) {
-	var cnt = 0;
-	for(var i = 0; i < parseInt(numOfRows) - parseInt(cnt); i++) {
-		if(document.getElementById('empty-table' + unique_key).childNodes[1].childNodes[1].childNodes[1].childNodes[i].childNodes[0].childNodes[0].checked) {
-			document.getElementById('empty-table' + unique_key).childNodes[1].childNodes[1].childNodes[1].childNodes[i].remove();
-			cnt=cnt+1;
-			i--;
-		}
-	}
-	return cnt;
+  var cnt = 0;
+  for (var i = 0; i < parseInt(numOfRows) - parseInt(cnt); i++) {
+    if (document.getElementById('empty-table' + unique_key).childNodes[1].childNodes[1].childNodes[1].childNodes[i].childNodes[0].childNodes[0].checked) {
+      document.getElementById('empty-table' + unique_key).childNodes[1].childNodes[1].childNodes[1].childNodes[i].remove();
+      cnt = cnt + 1;
+      i--;
+    }
+  }
+  return cnt;
 }
 
 /*
-Take ticket data sent through the CreatedTickets wiki macro and display those data as a ticket table within the wiki.
-This function will create a div element containing the ticket table data and append that div to div with
-"div-created-ticket-table".
+ Take ticket data sent through the CreatedTickets wiki macro and display those data as a ticket table within the wiki.
+ This function will create a div element containing the ticket table data and append that div to div with
+ "div-created-ticket-table".
  */
 function display_created_tickets(tickets, unique_key) {
 
-	var headers = {"ticket":"Ticket", "summary":"Summary", "product":"Product", "status":"Status",
-        "milestone":"Milestone", "component":"Component"};
+  var headers = {
+    "ticket": "Ticket", "summary": "Summary", "product": "Product", "status": "Status",
+    "milestone": "Milestone", "component": "Component"
+  };
 
-	var contentDiv = $('#div-created-ticket-table' + unique_key);
-	var div = $('<div/>', {
-	    'class':'span12'
-    }).appendTo(contentDiv);
+  var contentDiv = $('#div-created-ticket-table' + unique_key);
+  var div = $('<div/>', {
+    'class': 'span12'
+  }).appendTo(contentDiv);
 
-	$('<h5/>').html('Created Tickets').appendTo(div);
+  $('<h5/>').html('Created Tickets').appendTo(div);
 
-	var table = $('<table/>', {
-	    'class':'listing tickets table table-bordered table-condensed query',
-        'style':'border-radius: 0px 0px 4px 4px'
-    }).appendTo(div);
+  var table = $('<table/>', {
+    'class': 'listing tickets table table-bordered table-condensed query',
+    'style': 'border-radius: 0px 0px 4px 4px'
+  }).appendTo(div);
 
-    var tr_headers = $('<tr/>', {
-        'class':'trac-columns'
-    }).appendTo(table);
-			
-	for (var header in headers){
-		var th = $('<th/>').appendTo(tr_headers);
-		var font = $('<font/>', {
-		    'color':'#1975D1'
-        }).html(headers[header]).appendTo(th);
-	}
+  var tr_headers = $('<tr/>', {
+    'class': 'trac-columns'
+  }).appendTo(table);
 
-	for (var index in tickets) {
-		var tr = $('<tr/>').appendTo(table);
-        var tkt = JSON.parse(tickets[index]);
+  for (var header in headers) {
+    var th = $('<th/>').appendTo(tr_headers);
+    var font = $('<font/>', {
+      'color': '#1975D1'
+    }).html(headers[header]).appendTo(th);
+  }
 
-		for (var j = 0; j < 6; j++) {
-		    var td = $('<td/>');
-			if(j < 2) {
+  for (var index in tickets) {
+    var tr = $('<tr/>').appendTo(table);
+    var tkt = JSON.parse(tickets[index]);
 
-				$('<a/>', {
-				    'href':tkt.url
-                }).html(j == 0 ? "#" + tkt.id : tkt.summary).appendTo(td);
-			}
-			else {
-			    td.html(j ==2 ? tkt.product : (j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component)))
-			}
-			td.appendTo(tr)
-		}
-	}
- }
-//line 537
+    for (var j = 0; j < 6; j++) {
+      var td = $('<td/>');
+      if (j < 2) {
+
+        $('<a/>', {
+          'href': tkt.url
+        }).html(j == 0 ? "#" + tkt.id : tkt.summary).appendTo(td);
+      }
+      else {
+        td.html(j == 2 ? tkt.product : (j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component)))
+      }
+      td.appendTo(tr)
+    }
+  }
+}
