@@ -1390,4 +1390,17 @@ input[type="radio"]:not(:checked) + label span {
 }
 /* @end */
 
+/* @group Related tickets */
+
+/*#wikipage form[id^='batchcreate-'] div[id^='div-empty-table-'] div[id^='empty-table-'] form[id^='bct-form-'] table
+tbody tr td input.id {
+    width: 5%;
+}*/
+#wikipage form[id^='batchcreate-'] div[id^='div-empty-table-'] div[id^='empty-table-'] form[id^='bct-form-'] table
+tbody tr td select{
+    width: 100%;
+}
+
+/* @end */
+
 #batchmod_action { line-height: 2.75em }

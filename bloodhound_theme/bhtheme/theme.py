@@ -17,7 +17,9 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+import random
 import re
+import string
 import sys
 
 from bhdashboard import wiki
@@ -30,6 +32,7 @@ from genshi.filters.transform import Transformer
 from genshi.output import DocType
 from multiproduct.env import ProductEnvironment
 from multiproduct.web_ui import PRODUCT_RE, ProductModule
+from pkg_resources import get_distribution
 from themeengine.api import ThemeBase, ThemeEngineSystem
 from trac.config import ListOption, Option
 from trac.core import Component, TracError, implements
@@ -51,7 +54,6 @@ from trac.web.main import IRequestHandler
 from trac.wiki.admin import WikiAdmin
 from trac.wiki.formatter import format_to_html
 from trac.wiki.macros import WikiMacroBase
-import random, string
 
 try:
     from multiproduct.ticket.web_ui import ProductTicketModule
@@ -382,7 +384,7 @@ class BloodhoundTheme(ThemeBase):
         self._modify_resource_breadcrumb(req, template, data, content_type,
                                          is_active)
 
-        #add a creation event to the changelog if the ticket exists
+        # add a creation event to the changelog if the ticket exists
         ticket = data['ticket']
         if ticket.exists:
             data['changes'] = [{'comment': '',
@@ -394,7 +396,7 @@ class BloodhoundTheme(ThemeBase):
                                 'date': ticket['time'],
                                 },
                                ] + data['changes']
-        #and set default order
+        # and set default order
         if not req.session.get('ticket_comments_order'):
             req.session['ticket_comments_order'] = 'newest'
 
@@ -466,7 +468,7 @@ class BloodhoundTheme(ThemeBase):
                 SELECT product, value FROM bloodhound_productconfig
                 WHERE product IN (%s) AND section='project' AND
                 option='icon'""" % ', '.join(["%s"] * len(products)),
-                tuple(p.prefix for p in products))
+                               tuple(p.prefix for p in products))
         icons = dict(icons)
         data['thumbsize'] = 64
         # FIXME: Gray icon for missing products
@@ -481,11 +483,11 @@ class BloodhoundTheme(ThemeBase):
                                                    product_ctx(product),
                                                    product.description),
                         links={'extras': (([{'href': req.href.products(
-                                                product.prefix, action='edit'),
-                                             'title': _('Edit product %(prefix)s',
-                                                        prefix=product.prefix),
-                                             'icon': tag.i(class_='icon-edit'),
-                                             'label': _('Edit')},]
+                            product.prefix, action='edit'),
+                            'title': _('Edit product %(prefix)s',
+                                       prefix=product.prefix),
+                            'icon': tag.i(class_='icon-edit'),
+                            'label': _('Edit')}, ]
                                            if 'PRODUCT_MODIFY' in req.perm
                                            else []) +
                                           [{'href': product.href(),
@@ -521,6 +523,7 @@ class BloodhoundTheme(ThemeBase):
                        tag.a(_('Source'),
                              href=req.href.wiki('TracRepositoryAdmin')))
 
+
 class QCTSelectFieldUpdate(Component):
     implements(IRequestHandler)
 
@@ -532,8 +535,8 @@ class QCTSelectFieldUpdate(Component):
         fields_to_update = req.args.get('fields_to_update[]');
         env = ProductEnvironment(self.env.parent, req.args.get('product'))
         ticket_fields = TicketSystem(env).get_ticket_fields()
-        data = dict([f['name'], f['options']]  for f in ticket_fields
-            if f['type'] == 'select' and f['name'] in fields_to_update)
+        data = dict([f['name'], f['options']] for f in ticket_fields
+                    if f['type'] == 'select' and f['name'] in fields_to_update)
         req.send(to_json(data), 'application/json')
 
 
@@ -542,7 +545,7 @@ class QuickCreateTicketDialog(Component):
 
     qct_fields = ListOption('ticket', 'quick_create_fields',
                             'product, version, type',
-        doc="""Multiple selection fields displayed in create ticket menu""",
+                            doc="""Multiple selection fields displayed in create ticket menu""",
                             doc_domain='bhtheme')
 
     def __init__(self, *args, **kwargs):
@@ -593,8 +596,7 @@ class QuickCreateTicketDialog(Component):
                     dict(value=p,
                          new_ticket_url=dum_req.href.products(p, 'newticket'),
                          description=ProductEnvironment.lookup_env(self.env, p)
-                                                       .product.name
-                    )
+                                                       .product.name)
                 for p in product_field['options']
                     if req.perm.has_permission('TICKET_CREATE',
                                                Neighborhood('product', p)
@@ -612,7 +614,7 @@ class QuickCreateTicketDialog(Component):
                 'fields': [all_fields[k] for k in self.qct_fields
                            if k in all_fields],
                 'hidden_fields': [all_fields[k] for k in all_fields.keys()
-                                  if k not in self.qct_fields] }
+                                  if k not in self.qct_fields]}
         return template, data, content_type
 
     # IRequestHandler methods
@@ -689,11 +691,13 @@ class QuickCreateTicketDialog(Component):
                                    "of ticket #%s: %s" % (t.id, e))
         return t['product'], t.id
 
-from pkg_resources import get_distribution
 application_version = get_distribution('BloodhoundTheme').version
 
 
 class BatchCreateTicketsMacro(WikiMacroBase):
+    def parse_macro(self, parser, name, content):
+        pass
+
     implements(
         IRequestFilter,
         IRequestHandler,
@@ -759,10 +763,11 @@ class BatchCreateTicketsMacro(WikiMacroBase):
         self.rows = args
         # check the permission conditions and allow the feature only on wiki formatted pages.
         if (
-                self.env.product is not None) and (
-                self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None) and (
-                self.rqst.perm.has_permission('TRAC_ADMIN') or self.rqst.perm.has_permission('TICKET_BATCH_CREATE')):
-            #todo let the user select the product when creating tickets
+                    self.env.product is not None) and (
+                            self.file == 'bh_wiki_view.html' or self.file == 'bh_wiki_edit.html' or self.file is None) and (
+                    self.rqst.perm.has_permission('TRAC_ADMIN') or self.rqst.perm.has_permission(
+                    'TICKET_BATCH_CREATE')):
+            # todo let the user select the product when creating tickets
             # generate the required data to be parsed to the js functions too create the empty ticket table.
 
             product_id = str(self.env.product.resource.id)
@@ -773,29 +778,29 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             components = self.env.db_query(
                 "SELECT * FROM component WHERE product=%s", (product_id,))
 
-            random_string = '%s%s'%('-',''.join(random.choice(string.lowercase) for i in range(10)))
+            random_string = '%s%s' % ('-', ''.join(random.choice(string.lowercase) for i in range(10)))
             form = tag.form(
-                            tag.div(
-                                tag.span(
-                                    tag.script(
-                                        type="text/javascript",
-                                         charset="utf-8",
-                                         src=str(self.rqst.href.chrome('theme/js/batchcreate.js'))),
-                                    tag.script(
-                                        # pass the relevant arguments to the js function as JSON parameters.
-                                        "emptyTable(" + to_json(str(self.rows)) + "," + to_json(product_name) + "," +
-                                        to_json(milestones) + "," + to_json(components) + "," +
-                                        to_json(self.rqst.href() + "/bct") + "," +
-                                        to_json(str(self.rqst.environ["HTTP_COOKIE"])) + "," +
-                                        to_json(random_string)+ ")",
-                                        id="js-caller" + random_string,
-                                        type="text/javascript"),
-                                    class_="input-group-btn"),
-                                    style="display:inline-block;position:relative;left: -30px;",
-                                    id="div-empty-table" + random_string),
-                                method="get",
-                                style="display:inline",
-                                id="batchcreate" + random_string)
+                tag.div(
+                    tag.span(
+                        tag.script(
+                            type="text/javascript",
+                            charset="utf-8",
+                            src=str(self.rqst.href.chrome('theme/js/batchcreate.js'))),
+                        tag.script(
+                            # pass the relevant arguments to the js function as JSON parameters.
+                            "emptyTable(" + to_json(str(self.rows)) + "," + to_json(product_name) + "," +
+                            to_json(milestones) + "," + to_json(components) + "," +
+                            to_json(self.rqst.href()) + "," +
+                            to_json(str(self.rqst.environ["HTTP_COOKIE"])) + "," +
+                            to_json(random_string) + ")",
+                            id="js-caller" + random_string,
+                            type="text/javascript"),
+                        class_="input-group-btn"),
+                    class_='report',
+                    id="div-empty-table" + random_string),
+                method="get",
+                style="display:inline",
+                id="batchcreate" + random_string)
             try:
                 int(self.rows)
             except TracError:
@@ -838,7 +843,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                 # product at current scope. When at global scope the default
                 # selection is determined by [ticket] default_product
                 if self.env.product and \
-                        self.env.product.prefix in product_field['options']:
+                                self.env.product.prefix in product_field['options']:
                     product_field['value'] = self.env.product.prefix
                 # Transform the options field to dictionary of product
                 # attributes and filter out products for which user doesn't
@@ -847,7 +852,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                     dict(value=p,
                          new_ticket_url=dum_req.href.products(p, 'newticket'),
                          description=ProductEnvironment.lookup_env(self.env, p)
-                                                       .product.name
+                         .product.name
                          )
                     for p in product_field['options']
                     if req.perm.has_permission('TICKET_CREATE',
@@ -856,7 +861,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             else:
                 msg = _("Missing ticket field '%(field)s'.", field='product')
                 if ProductTicketModule is not None and \
-                        self.env[ProductTicketModule] is not None:
+                                self.env[ProductTicketModule] is not None:
                     # Display warning alert to users
                     add_warning(req, msg)
                 else:
@@ -876,7 +881,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
         """
         m = PRODUCT_RE.match(req.path_info)
         return req.path_info == '/bct' or \
-            (m and m.group('pathinfo').strip('/') == 'bct')
+               (m and m.group('pathinfo').strip('/') == 'bct')
 
     def process_request(self, req):
 
@@ -1135,7 +1140,7 @@ class CreatedTicketsMacro(WikiMacroBase):
                             id='js-caller' + random_string,
                             type='text/javascript'),
                         class_='input-group-btn'),
-                    style='display:inline-block;position:relative;left: -30px;',
+                    class_='report',
                     id='div-created-ticket-table' + random_string),
                 method='get',
                 style='display:inline',

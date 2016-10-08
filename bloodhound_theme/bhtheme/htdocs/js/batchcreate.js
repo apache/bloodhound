@@ -26,6 +26,7 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
 
   var created_rows = numOfRows;
   var form_token = token.split(";")[0].split("=")[1];
+  href = href + "/bct";
 
   var headers = {
     "ticket": "", "summary": "Summary", "description": "Description", "product": "Product",
@@ -37,16 +38,19 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
   var contentDiv = $('#div-empty-table' + unique_key);
 
   var div = $('<div/>', {
-    'id': 'empty-table' + unique_key,
-    'class': 'span12'
+    'id': 'empty-table' + unique_key
   }).appendTo(contentDiv);
 
-  var h5 = $('<h5/>').html('Batch Create Tickets').appendTo(div);
+  $('<div/>', {
+    'id': 'numrows' + unique_key,
+    'class': 'numrows'
+  }).html('(' + numOfRows + ' total rows.)').appendTo(div);
 
   var form = $('<form/>', {
     'id': 'bct-form' + unique_key,
     'name': 'bct',
-    'method': 'post'
+    'method': 'post',
+    'style': 'margin-bottom:60px'
   }).appendTo(div);
 
   $('<input/>', {
@@ -56,58 +60,68 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
   }).appendTo($('<div>').appendTo(form));
 
   var table = $('<table/>', {
-    'class': 'listing tickets table table-bordered table-condensed query',
-    'style': 'border-radius: 0px 0px 4px 4px'
+    'id': 'table' + unique_key,
+    'class': 'table table-condensed tickets'
   }).appendTo(form);
 
-  var tr = $('<tr/>', {
-    'class': 'trac-columns'
-  }).appendTo(table);
+  var thead = $('<thead/>').appendTo(table);
+  var header_tr = $('<tr/>', {
+    'class': 'row'
+  }).appendTo(thead);
 
   for (header in headers) {
-    var th = $('<th/>').appendTo(tr);
-    $('<font/>', {
-      'color': '#1975D1'
-    }).html(headers[header]).appendTo(th);
+    var th = $('<th/>').html(headers[header]).appendTo(header_tr);
   }
 
-  var tbody = $('<tbody>').appendTo(table);
+  var tbody = $('<tbody>', {
+    'id': 'tbody' + unique_key
+  }).appendTo(table);
 
   for (var i = 0; i < numOfRows; i++) {
 
-    var tr_rows = $('<tr>').appendTo(tbody);
+    var tr_rows = $('<tr>', {
+      'class': 'row'
+    }).appendTo(tbody);
 
     for (var header in headers) {
       var td;
       if (header == "ticket") {
 
         td = $('<td>').appendTo(tr_rows);
-        var input_ticket = $('<input/>', {
-          'id': 'field-ticket' + unique_key + '-' + i,
-          'type': 'checkbox',
-          'name': 'field_ticket' + i,
-          'class': 'input-block-level'
+
+        var button = $('<button/>', {
+          'id': 'bct-rmv-empty-row' + i + '' + unique_key,
+          'type': 'button',
+          'class': 'btn pull-right',
+          'click': function () {
+            numOfRows = $("#tbody" + unique_key).children().length - 1;
+            $('#numrows' + unique_key).empty();
+            $('#numrows' + unique_key).html('(' + numOfRows + ' total rows.)');
+            $(this).parent().parent().remove();
+          }
         }).appendTo(td);
+
+        $('<i/>', {
+          'class': 'icon-trash'
+        }).appendTo(button);
 
       } else if (header == "summary") {
 
         td = $('<td>').appendTo(tr_rows);
-        var input_summary = $('<input/>', {
+        $('<input/>', {
           'id': 'field-summary' + unique_key + '-' + i,
           'type': 'text',
           'name': 'field_summary' + i,
-          'class': 'input-block-level'
+          'class': 'summary'
         }).appendTo(td);
 
       } else if (header == "description") {
 
         td = $('<td>').appendTo(tr_rows);
-        var input_description = $('<textarea/>', {
+        $('<textarea/>', {
           'id': 'field-description' + unique_key + '-' + i,
           'name': 'field_description' + i,
-          'class': 'input-block-level',
-          'rows': '2',
-          'cols': '28'
+          'class': 'description'
         }).appendTo(td);
 
       } else if (header == "priority") {
@@ -116,7 +130,7 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
         var input_priority = $('<select/>', {
           'id': 'field-priority' + unique_key + '-' + i,
           'name': 'field_priority' + i,
-          'class': 'input-block-level'
+          'class': 'priority'
         }).appendTo(td);
 
         for (var priority in priorities) {
@@ -131,7 +145,7 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
         var field_product = $('<select/>', {
           'id': 'field-product' + unique_key + '-' + i,
           'name': 'field_product' + i,
-          'class': 'input-block-level'
+          'class': 'product'
         }).appendTo(td);
 
         for (var product in products) {
@@ -146,7 +160,7 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
         var field_milestone = $('<select/>', {
           'id': 'field-milestone' + unique_key + '-' + i,
           'name': 'field_milestone' + i,
-          'class': 'input-block-level'
+          'class': 'milestone'
         }).appendTo(td);
 
         for (var milestone in milestones) {
@@ -161,7 +175,7 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
         var field_component = $('<select/>', {
           'id': 'field-component' + unique_key + '-' + i,
           'name': 'field_component' + i,
-          'class': 'input-block-level'
+          'class': 'component'
         }).appendTo(td);
 
         for (var component in components) {
@@ -172,15 +186,6 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
       }
     }
   }
-
-  $('<button/>', {
-    'id': 'bct-rmv-empty-row' + unique_key,
-    'type': 'button',
-    'class': 'btn pull-right',
-    'click': function () {
-      numOfRows = parseInt(numOfRows) - parseInt(remove_row_btn_action(numOfRows, unique_key));
-    }
-  }).html('-').appendTo(form);
 
   $('<button/>', {
     'id': 'bct-add-empty-row' + unique_key,
@@ -222,15 +227,16 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
         submit_btn_action(unique_key);
       }
     }
-  }).html('save').appendTo(form);
+  }).html('Create tickets').appendTo(form);
 
   $('<button/>', {
-    'type': 'button',
+    'type': 'hidden',
     'class': 'btn pull-right',
     'click': function () {
       deleteForm(unique_key);
     }
   }).html('cancel').appendTo(form);
+  //todo remove wiki macro from wiki content
 
 }
 
@@ -266,32 +272,21 @@ function submit_btn_action(unique_key) {
 
       var contentDiv = $("#div-empty-table" + unique_key);
 
-      var div = $('<div/>', {
-        'class': 'span12'
-      }).appendTo(contentDiv);
+      var div = $('<div/>').appendTo(contentDiv);
 
       var h5 = $('<h5/>', {
         'class': 'span12'
       }).html("Created Tickets").appendTo(div);
 
       var table = $('<table/>', {
-        'class': 'listing tickets table table-bordered table-condensed query',
-        'style': 'border-radius: 0px 0px 4px 4px'
+        'class': 'table table-condensed tickets'
       }).appendTo(div);
 
-      var header_tr = $('<tr/>', {
-        'class': 'trac-columns'
-      }).appendTo(table);
+      var thead = $('<thead/>').appendTo(table);
+      var header_tr = $('<tr/>').appendTo(thead);
 
       for (var header in headers) {
-
-        var th = $('<th/>', {
-          'class': 'trac-columns'
-        }).appendTo(header_tr);
-
-        $('<font/>', {
-          'color': '#1975D1'
-        }).html(headers[header]).appendTo(th);
+        var th = $('<th/>').html(headers[header]).appendTo(header_tr);
       }
 
       for (var json_ticket in ticket.tickets) {
@@ -332,7 +327,6 @@ function add_row_btn_action(products, milestones, components, i, random, headers
       $('<input/>', {
         'id': 'field-ticket' + unique_key,
         'name': 'field_ticket' + unique_key,
-        'class': 'input-block-level',
         'type': 'checkbox'
       }).appendTo(td);
     } else if (header == "summary") {
@@ -340,24 +334,19 @@ function add_row_btn_action(products, milestones, components, i, random, headers
       $('<input/>', {
         'id': 'field-summary' + unique_key,
         'name': 'field_summary' + unique_key,
-        'class': 'input-block-level',
         'type': 'text'
       }).appendTo(td);
     } else if (header == "description") {
 
       $('<textarea/>', {
         'id': 'field-description' + unique_key,
-        'name': 'field_description' + unique_key,
-        'class': 'input-block-level',
-        'rows': '2',
-        'cols': '28'
+        'name': 'field_description' + unique_key
       }).appendTo(td);
     } else if (header == "priority") {
 
       var input_priority = $('<select/>', {
         'id': 'field-priority' + unique_key,
-        'name': 'field_priority' + unique_key,
-        'class': 'input-block-level'
+        'name': 'field_priority' + unique_key
       }).appendTo(td);
       for (var priority in priorities) {
         $('<option/>', {
@@ -368,8 +357,7 @@ function add_row_btn_action(products, milestones, components, i, random, headers
 
       var field_product = $('<select/>', {
         'id': 'field-product' + unique_key,
-        'name': 'field_product' + unique_key,
-        'class': 'input-block-level'
+        'name': 'field_product' + unique_key
       }).appendTo(td);
       for (var product in products) {
         $('<option/>', {
@@ -380,8 +368,7 @@ function add_row_btn_action(products, milestones, components, i, random, headers
 
       var field_milestone = $('<select/>', {
         'id': 'field-milestone' + unique_key,
-        'name': 'field_milestone' + unique_key,
-        'class': 'input-block-level'
+        'name': 'field_milestone' + unique_key
       }).appendTo(td);
       for (var milestone in milestones) {
         $('<option/>', {
@@ -392,8 +379,7 @@ function add_row_btn_action(products, milestones, components, i, random, headers
 
       var field_component = $('<select/>', {
         'id': 'field-component' + unique_key,
-        'name': 'field_component' + unique_key,
-        'class': 'input-block-level'
+        'name': 'field_component' + unique_key
       }).appendTo(td);
       for (var component in components) {
         $('<option/>', {
@@ -432,26 +418,21 @@ function display_created_tickets(tickets, unique_key) {
   };
 
   var contentDiv = $('#div-created-ticket-table' + unique_key);
-  var div = $('<div/>', {
-    'class': 'span12'
-  }).appendTo(contentDiv);
+  var div = $('<div/>').appendTo(contentDiv);
 
-  $('<h5/>').html('Created Tickets').appendTo(div);
+  $('<div/>', {
+    'class': 'numrows'
+  }).html('(' + tickets.length + ' total rows.)').appendTo(div);
 
   var table = $('<table/>', {
-    'class': 'listing tickets table table-bordered table-condensed query',
-    'style': 'border-radius: 0px 0px 4px 4px'
+    'class': 'table table-condensed tickets'
   }).appendTo(div);
 
-  var tr_headers = $('<tr/>', {
-    'class': 'trac-columns'
-  }).appendTo(table);
+  var thead = $('<thead/>').appendTo(table);
+  var header_tr = $('<tr/>').appendTo(thead);
 
   for (var header in headers) {
-    var th = $('<th/>').appendTo(tr_headers);
-    var font = $('<font/>', {
-      'color': '#1975D1'
-    }).html(headers[header]).appendTo(th);
+    var th = $('<th/>').html(headers[header]).appendTo(header_tr);
   }
 
   for (var index in tickets) {
