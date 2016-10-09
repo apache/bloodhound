@@ -22,14 +22,13 @@
  The wiki macro will send the relevant details to create the empty ticket table within the wiki.
  Then this function will generate the empty ticket table containing appropriate number of rows to enter ticket data.
  */
-function emptyTable(numOfRows, products, milestones, components, href, token, unique_key) {
+function emptyTable(numOfRows, product, milestones, components, href, token, unique_key) {
 
   var created_rows = numOfRows;
   var form_token = token.split(";")[0].split("=")[1];
-  href = href + "/bct";
 
   var headers = {
-    "ticket": "", "summary": "Summary", "description": "Description", "product": "Product",
+    "ticket": "", "summary": "Summary", "description": "Description",
     "priority": "Priority", "milestone": "Milestone", "component": "Component"
   };
   var priorities = ["blocker", "critical", "major", "minor", "trivial"];
@@ -137,21 +136,6 @@ function emptyTable(numOfRows, products, milestones, components, href, token, un
           $('<option/>', {
             'value': priorities[priority]
           }).html(priorities[priority]).appendTo(input_priority);
-        }
-
-      } else if (header == "product") {
-
-        td = $('<td>').appendTo(tr_rows);
-        var field_product = $('<select/>', {
-          'id': 'field-product' + unique_key + '-' + i,
-          'name': 'field_product' + i,
-          'class': 'product'
-        }).appendTo(td);
-
-        for (var product in products) {
-          $('<option/>', {
-            'value': (products[product])[0]
-          }).html((products[product])[1]).appendTo(field_product);
         }
 
       } else if (header == "milestone") {
@@ -274,9 +258,9 @@ function submit_btn_action(unique_key) {
 
       var div = $('<div/>').appendTo(contentDiv);
 
-      var h5 = $('<h5/>', {
-        'class': 'span12'
-      }).html("Created Tickets").appendTo(div);
+      $('<div/>', {
+        'class': 'numrows'
+      }).html('(' + ticket.tickets.length + ' total rows.)').appendTo(div);
 
       var table = $('<table/>', {
         'class': 'table table-condensed tickets'
@@ -291,15 +275,19 @@ function submit_btn_action(unique_key) {
 
       for (var json_ticket in ticket.tickets) {
         var tr = $('<tr/>').appendTo(table);
-        var tkt = JSON.parse(json_ticket);
+        var tkt = JSON.parse(ticket.tickets[json_ticket]);
         for (var j = 0; j < 6; j++) {
           var td = $('<td/>').appendTo(tr);
-          if (j < 2) {
+          if (j == 0) {
+            if (json_ticket == 0) {
+             td.html(tkt.product)
+            }
+          } else if (j < 3) {
             $('<a/>', {
               'href': tkt.url
-            }).html(j == 0 ? '#' + tkt.id : tkt.summary).appendTo(td);
+            }).html(j == 1 ? "#" + tkt.id : tkt.summary).appendTo(td);
           } else {
-            td.html(j == 2 ? tkt.product : (j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component)));
+            td.html(j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component))
           }
         }
       }
@@ -413,7 +401,7 @@ function remove_row_btn_action(numOfRows, unique_key) {
 function display_created_tickets(tickets, unique_key) {
 
   var headers = {
-    "ticket": "Ticket", "summary": "Summary", "product": "Product", "status": "Status",
+    "product": "", "ticket": "Ticket", "summary": "Summary", "status": "Status",
     "milestone": "Milestone", "component": "Component"
   };
 
@@ -441,14 +429,16 @@ function display_created_tickets(tickets, unique_key) {
 
     for (var j = 0; j < 6; j++) {
       var td = $('<td/>');
-      if (j < 2) {
-
+      if (j == 0) {
+        if (index == 0) {
+          td.html(tkt.product)
+        }
+      } else if (j < 3) {
         $('<a/>', {
           'href': tkt.url
-        }).html(j == 0 ? "#" + tkt.id : tkt.summary).appendTo(td);
-      }
-      else {
-        td.html(j == 2 ? tkt.product : (j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component)))
+        }).html(j == 1 ? "#" + tkt.id : tkt.summary).appendTo(td);
+      } else {
+        td.html(j == 3 ? tkt.status : (j == 4 ? tkt.milestone : tkt.component))
       }
       td.appendTo(tr)
     }

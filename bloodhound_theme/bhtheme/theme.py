@@ -771,8 +771,6 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             # generate the required data to be parsed to the js functions too create the empty ticket table.
 
             product_id = str(self.env.product.resource.id)
-            product_name = self.env.db_query(
-                "SELECT * FROM bloodhound_product WHERE prefix=%s", (product_id,))
             milestones = self.env.db_query(
                 "SELECT * FROM milestone WHERE product=%s", (product_id,))
             components = self.env.db_query(
@@ -788,9 +786,9 @@ class BatchCreateTicketsMacro(WikiMacroBase):
                             src=str(self.rqst.href.chrome('theme/js/batchcreate.js'))),
                         tag.script(
                             # pass the relevant arguments to the js function as JSON parameters.
-                            "emptyTable(" + to_json(str(self.rows)) + "," + to_json(product_name) + "," +
+                            "emptyTable(" + to_json(str(self.rows)) + "," + to_json(self.env.product._data['name']) + "," +
                             to_json(milestones) + "," + to_json(components) + "," +
-                            to_json(self.rqst.href()) + "," +
+                            to_json(self.rqst.href() + "/bct") + "," +
                             to_json(str(self.rqst.environ["HTTP_COOKIE"])) + "," +
                             to_json(random_string) + ")",
                             id="js-caller" + random_string,
@@ -983,7 +981,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
     def batch_create(self, req, attributes={}, notify=False):
         """ Create batch of tickets, returning created tickets.
         """
-        num_of_tkts = attributes.__len__() / 6
+        num_of_tkts = attributes.__len__() / 5
         created_tickets = []
         loop_condition = True
         i = -1
@@ -1015,7 +1013,6 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             description = attributes.pop('description' + str(i))
             status = 'new'
             summary = attributes.pop('summary' + str(i))
-            product = attributes.pop('product' + str(i))
             priority = attributes.pop('priority' + str(i))
             milestone = attributes.pop('milestone' + str(i))
             component = attributes.pop('component' + str(i))
@@ -1027,7 +1024,7 @@ class BatchCreateTicketsMacro(WikiMacroBase):
             t['reporter'] = req.authname
             t['status'] = status
             t['resolution'] = ''
-            t['product'] = product
+            t['product'] = self.env.product._data['prefix']
             t['priority'] = priority
             t['milestone'] = milestone
             t['component'] = component
@@ -1136,7 +1133,7 @@ class CreatedTicketsMacro(WikiMacroBase):
                             src=str(self.rqst.href.chrome('theme/js/batchcreate.js'))),
                         tag.script(
                             'display_created_tickets(' + to_json(display_tickets_list) + ',' +
-                            to_json(random_string) + ')',
+                            to_json(random_string) + ',' + to_json(self.env.product._data['name']) + ')',
                             id='js-caller' + random_string,
                             type='text/javascript'),
                         class_='input-group-btn'),
