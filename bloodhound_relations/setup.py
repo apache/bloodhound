@@ -152,6 +152,6 @@ setup(
     classifiers = cats,
     long_description= DESC,
     test_suite='bhrelations.tests.test_suite',
-    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else ''],
+    tests_require=['unittest2'] if sys.version_info < (2, 7) else [],
     **extra
     )

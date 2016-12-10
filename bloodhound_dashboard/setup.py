@@ -19,6 +19,7 @@
 #  under the License.
 
 
+import sys
 try:
     from setuptools import setup
 except ImportError:
@@ -158,7 +159,8 @@ setup(
     license = "Apache License v2",
     url = "https://bloodhound.apache.org/",
     requires = ['trac'],
-    tests_require = ['dutest>=0.2.4', 'TracXMLRPC'],
+    tests_require = ['dutest>=0.2.4', 'TracXMLRPC'] +
+                    ['unittest2'] if sys.version_info < (2, 7) else [],
     package_dir = dict([p, i[0]] for p, i in PKG_INFO.iteritems()),
     packages = PKG_INFO.keys(),
     package_data = dict([p, i[1]] for p, i in PKG_INFO.iteritems()),

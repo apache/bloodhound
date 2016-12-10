@@ -74,6 +74,6 @@ setup(
             'multiproduct.web_ui = multiproduct.web_ui',
         ],},
     test_suite='tests.test_suite',
-    tests_require=['unittest2' if parse_version(sys.version) < parse_version('2.7') else ''],
+    tests_require=['unittest2'] if sys.version_info < (2, 7) else [],
     **extra
 )
