@@ -18,19 +18,21 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from setuptools import setup
 import sys
+
+from setuptools import setup
 
 extra = {}
 try:
     from trac.util.dist import get_l10n_js_cmdclass
+
     cmdclass = get_l10n_js_cmdclass()
     if cmdclass:
         extra['cmdclass'] = cmdclass
         extractors = [
-            ('**.py',                'trac.dist:extract_python', None),
+            ('**.py', 'trac.dist:extract_python', None),
             ('**/templates/**.html', 'genshi', None),
-            ('**/templates/**.txt',  'genshi', {
+            ('**/templates/**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
         ]
@@ -41,26 +43,25 @@ except ImportError:
     pass
 
 setup(
-  name = 'BloodhoundTheme',
-  version = '0.9.0',
-  description = "Theme for Apache(TM) Bloodhound.",
-  author = "Apache Bloodhound",
-  license = "Apache License v2",
-  url = "https://bloodhound.apache.org/",
-  keywords = "trac plugin theme bloodhound",
-  packages = ['bhtheme'],
-  package_data = {'bhtheme': ['htdocs/*.*', 'htdocs/img/*.*',
+    name='BloodhoundTheme',
+    version='0.9.0',
+    description="Theme for Apache(TM) Bloodhound.",
+    author="Apache Bloodhound",
+    license="Apache License v2",
+    url="https://bloodhound.apache.org/",
+    keywords="trac plugin theme bloodhound",
+    packages=['bhtheme'],
+    package_data={'bhtheme': ['htdocs/*.*', 'htdocs/img/*.*',
                               'htdocs/js/*.js', 'htdocs/css/*.css',
-                              'templates/*.*',  'locale/*/LC_MESSAGES/*.mo']},
-  classifiers = [
-      'Framework :: Trac',
+                              'templates/*.*', 'locale/*/LC_MESSAGES/*.mo']},
+    classifiers=[
+        'Framework :: Trac',
     ],
-  install_requires = ['BloodhoundDashboardPlugin', 'TracThemeEngine'],
-  test_suite = 'bhtheme.tests.suite',
-  tests_require = ['unittest2'] if sys.version_info < (2, 7) else [],
-  entry_points = {
-      'trac.plugins': [
-            'bhtheme.theme = bhtheme.theme',
-        ]},
+    install_requires=['BloodhoundDashboardPlugin', 'TracThemeEngine'],
+    test_suite='bhtheme.tests.suite',
+    tests_require=['unittest2'] if sys.version_info < (2, 7) else [],
+    entry_points={
+        'trac.plugins': ['bhtheme.theme = bhtheme.theme']
+    },
     **extra
 )
