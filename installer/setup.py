@@ -17,16 +17,12 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-try:
-    from setuptools import setup
-except ImportError:
-    from ditutils.core import setup
+from setuptools import setup
 
 DESC = """Installer for Apache Bloodhound
 
 Adds the bloodhound_setup cli command.
 """
-
 
 versions = [
     (0, 8, 0),
