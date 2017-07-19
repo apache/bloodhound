@@ -21,8 +21,7 @@
 # Vagrant configuration version 2
 # Please don't change it unless you know what you're doing.
 Vagrant.configure(2) do |config|
-  config.vm.box = "precise64"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.box = "bento/ubuntu-16.04"
 
   # Forwarded port mappings:
   # For apache served bloodhound use http://localhost:8280/

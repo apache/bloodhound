@@ -29,6 +29,7 @@ pg_hb.conf:
     - group: postgres
     - mode: 644
     - require:
+      - postgres_cluster: bhcluster
       - pkg: {{ pillar['postgresql'] }}
 
 postgresql:
@@ -40,5 +41,16 @@ postgresql:
     - enable: True
     - watch:
       - file: {{ pillar['pg_hba_file'] }}
+
+bhcluster:
+  postgres_cluster.present:
+    - name: 'bhcluster'
+    - version: '{{ pillar["pg_version"] }}'
+    - encoding: 'UTF8'
+    - port: '{{ data["dbport"] }}'
+    - require:
+      - pkg: {{ pillar['postgresql'] }}
+    - unless: test -d /etc/postgresql/{{ pillar["pg_version"] }}/bhcluster
+
 {% endif %}
 {% endif %} {% endfor %}

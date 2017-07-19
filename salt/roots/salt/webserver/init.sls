@@ -40,7 +40,7 @@ bloodhound_site:
   file:
     - managed
     - template: jinja
-    - name: /etc/apache2/sites-available/bloodhound
+    - name: /etc/apache2/sites-available/bloodhound.conf
     - source: salt://webserver/bloodhound.site
     - require:
       - pkg: apache2
@@ -48,14 +48,14 @@ bloodhound_site:
 {% if grains['os_family'] == 'Debian' %}
 a2dissite 000-default:
   cmd.run:
-    - onlyif: test -L /etc/apache2/sites-enabled/000-default
+    - onlyif: test -L /etc/apache2/sites-enabled/000-default.conf
     - require:
       - pkg: apache2
 {% endif %}
 
 a2ensite bloodhound:
   cmd.run:
-    - unless: test -L /etc/apache2/sites-enabled/bloodhound
+    - unless: test -L /etc/apache2/sites-enabled/bloodhound.conf
     - watch:
       - file: bloodhound_site
     - require:

@@ -22,9 +22,9 @@ include:
 
 /home/vagrant/bhenv:
   virtualenv.managed:
-    - no_site_packages: True
+    - system_site_packages: False
     - user: vagrant
-    - requirements: salt://bloodhound/requirements.txt
+    - requirements: /vagrant/installer/requirements-dev.txt
     - cwd: /vagrant/installer/
     - require:
       - pkg: python-dev
@@ -36,7 +36,7 @@ project environment requirements:
     - user: vagrant
     - cwd: /vagrant/installer/
     - name: "source /home/vagrant/bhenv/bin/activate
-             && pip install -r requirements-dev.txt"
+             && pip install -r pgrequirements.txt"
     - require:
       - virtualenv: /home/vagrant/bhenv
 
@@ -81,17 +81,20 @@ bloodhounduser for {{ project }}:
     - name: {{ data['dbuser'] }}
     - password: {{ data['dbpassword'] }}
     - user: postgres
+    - db_port: {{ data['dbport'] }}
     - require:
       - pkg: {{ pillar['postgresql'] }}
       - service: {{ pillar['postgresql_service'] }}
 
+
 bloodhounddb for {{ project }}:
   postgres_database.present:
     - name: {{ data['dbname'] }}
-    - encoding: UTF8
+    - encoding: 'UTF8'
     - template: template0
     - owner: {{ data['dbuser'] }}
     - user: postgres
+    - db_port: {{ data['dbport'] }}
     - require:
       - postgres_user: bloodhounduser for {{ project }}
 {% endif %}
