@@ -25,6 +25,11 @@
     Order deny,allow
     Allow from all
   </Directory>
+  <Directory /home/vagrant/environments/{{ project }}/site/>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+  </Directory>
   <LocationMatch "/{{ project }}/[^/]+/login">
     AuthType Digest
     AuthName "Bloodhound"

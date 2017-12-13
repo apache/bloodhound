@@ -22,6 +22,7 @@
 # Please don't change it unless you know what you're doing.
 Vagrant.configure(2) do |config|
   config.vm.box = "bento/ubuntu-16.04"
+  config.vm.define "bloodhound"
 
   # Forwarded port mappings:
   # For apache served bloodhound use http://localhost:8280/

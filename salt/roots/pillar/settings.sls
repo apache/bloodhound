@@ -19,6 +19,7 @@
 enabled_projects:
   - postgres
   - sqlite
+  - bloodhound
 
 # controls whether webserver is required:
 enable_webserver: True
@@ -71,3 +72,15 @@ projects:
     adminpassword: adminpass
     project: test
     prodprefix: TEST
+  bloodhound:
+    dbtype: postgres
+    dbname: bloodhound
+    dbuser: bloodhound
+    dbpassword: bloodhound
+    dbhost: localhost
+    dbport: 5434
+    adminuser: admin
+    adminpassword: adminpass
+    project: Bloodhound
+    prodprefix: BLDHND
+
