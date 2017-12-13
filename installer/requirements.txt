@@ -17,7 +17,7 @@
 
 Pygments
 pytz
-Babel
+Babel==0.9.6
 Genshi
 ../trac
 TracAccountManager
