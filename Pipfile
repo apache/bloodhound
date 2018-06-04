@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+selenium = "*"
+pytest-django = "*"
+PyYAML = "*"
+
+[packages]
+django = ">=2.0.0"
+pyyaml = "*"
+
+[requires]
+python_version = "3.6"
