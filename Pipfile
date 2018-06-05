@@ -10,7 +10,6 @@ PyYAML = "*"
 
 [packages]
 django = ">=2.0.0"
-pyyaml = "*"
 
 [requires]
 python_version = "3.6"

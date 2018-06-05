@@ -23,6 +23,13 @@ pipenv install
 If this doesn't work, it should be done from the same directory as the
 `Pipenv` file.
 
+Additionally, to run tests described later, you'll also need to install the
+development dependencies:
+
+```
+pipenv install --dev
+```
+
 Though possibly annoying, the commands in this file will assume the use of
 `pipenv` but not that the pipenv shell has been activated.
 
@@ -61,7 +68,7 @@ pipenv run python manage.py test
 Fixtures for tests when required can be generated with:
 
 ```
-pipenv python manage.py dumpdata bh-core --format=yaml --indent=2 > bh-core/fixtures/[fixture-name].yaml
+pipenv run python manage.py dumpdata trackers --format=yaml --indent=2 > trackers/fixtures/[fixture-name].yaml
 ```
 
 ## Integration Tests
@@ -79,9 +86,8 @@ tar -x geckodriver -zf "$TMP_DIR/geckodriver-$LATEST-$PLATFORM_EXT" -O > "$BIN_L
 chmod +x "$BIN_LOCATION"/geckodriver
 ```
 
-If `$BIN_LOCATION` is on the system path, it should be possible to run the integration tests.
-
-So, assuming the use of pipenv:
+If `$BIN_LOCATION` is on the system path, and the development server is
+running, it should be possible to run the integration tests.
 
 ```
 pipenv run python functional_tests.py
