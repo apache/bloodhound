@@ -24,14 +24,18 @@ from django.db import models
 
 logger = logging.getLogger(__name__)
 
-
-class Ticket(models.Model):
+class ModelCommon(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
 
+    class Meta:
+        abstract = True
+
+class Ticket(ModelCommon):
+
     def last_update(self):
-        last_event = self.changeevent_set.order_by('event_time').last()
-        return self.created if last_event is None else last_event.event_time
+        last_event = self.changeevent_set.order_by('created').last()
+        return self.created if last_event is None else last_event.created
 
     def add_field_event(self, field, newvalue):
         current_lines = self.get_field_value(field).splitlines(keepends=True)
@@ -48,25 +52,16 @@ class Ticket(models.Model):
         except TicketField.DoesNotExist as e:
             return ''
 
-        event = self.changeevent_set.filter(field=tfield).order_by('event_time').last()
+        event = self.changeevent_set.filter(field=tfield).order_by('created').last()
         return '' if event is None else event.value()
 
 
-class TicketField(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class TicketField(ModelCommon):
     name = models.CharField(max_length=32)
 
-class Label(TicketField):
-    pass
-
-class SharedField(TicketField):
-    pass
-
-class ChangeEvent(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class ChangeEvent(ModelCommon):
     ticket = models.ForeignKey(Ticket, models.CASCADE, editable=False, null=False)
     field = models.ForeignKey(TicketField, models.CASCADE, editable=False, null=False)
-    event_time = models.DateTimeField(auto_now_add=True, editable=False)
     diff = models.TextField(editable=False)
 
     def value(self, which=2):
