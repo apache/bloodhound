@@ -18,15 +18,19 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import generics
+from trackers.serializers import TicketSerializer
+from trackers.models import Ticket
 
 def home(request):
     return HttpResponse('<html><title>Bloodhound Trackers</title></html>')
 
 
-from trackers.serializers import TicketSerializer
-from trackers.models import Ticket
-
-
-class TicketList(generics.ListCreateAPIView):
+class TicketListCreate(generics.ListCreateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+
+
+class TicketViewUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializer
+    lookup_field = 'id'
