@@ -20,4 +20,5 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('ticket', views.TicketList.as_view()),
 ]

@@ -27,6 +27,6 @@ from trackers.serializers import TicketSerializer
 from trackers.models import Ticket
 
 
-class PlanetList(generics.ListCreateAPIView):
+class TicketList(generics.ListCreateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
