@@ -20,6 +20,9 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('schema_view/', views.schema_view),
+    path('field/', views.TicketFieldListCreate.as_view()),
     path('ticket/', views.TicketListCreate.as_view()),
     path('ticket/<uuid:id>', views.TicketViewUpdate.as_view()),
+    path('ticket/<uuid:id>/event/', views.ChangeEventListCreate.as_view()),
 ]

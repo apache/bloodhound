@@ -18,19 +18,36 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import generics
-from trackers.serializers import TicketSerializer
-from trackers.models import Ticket
+from . import serializers
+from . import models
+
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='Bloodhound Core API')
+
 
 def home(request):
     return HttpResponse('<html><title>Bloodhound Trackers</title></html>')
 
 
 class TicketListCreate(generics.ListCreateAPIView):
-    queryset = Ticket.objects.all()
-    serializer_class = TicketSerializer
+    queryset = models.Ticket.objects.all()
+    serializer_class = serializers.TicketSerializer
 
 
 class TicketViewUpdate(generics.RetrieveUpdateAPIView):
-    queryset = Ticket.objects.all()
-    serializer_class = TicketSerializer
+    queryset = models.Ticket.objects.all()
+    serializer_class = serializers.TicketSerializer
     lookup_field = 'id'
+
+
+class TicketFieldListCreate(generics.ListCreateAPIView):
+    queryset = models.TicketField.objects.all()
+    serializer_class = serializers.TicketFieldSerializer
+    lookup_field = 'ticket'
+
+
+class ChangeEventListCreate(generics.ListCreateAPIView):
+    queryset = models.ChangeEvent.objects.all()
+    serializer_class = serializers.ChangeEventSerializer
+    lookup_field = 'ticket'

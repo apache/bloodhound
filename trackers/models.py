@@ -24,12 +24,14 @@ from django.db import models
 
 logger = logging.getLogger(__name__)
 
+
 class ModelCommon(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
         abstract = True
+
 
 class Ticket(ModelCommon):
     title = models.CharField(max_length=200, null=True)
@@ -61,10 +63,11 @@ class Ticket(ModelCommon):
 class TicketField(ModelCommon):
     name = models.CharField(max_length=32)
 
+
 class ChangeEvent(ModelCommon):
-    ticket = models.ForeignKey(Ticket, models.CASCADE, editable=False, null=False)
-    field = models.ForeignKey(TicketField, models.CASCADE, editable=False, null=False)
-    diff = models.TextField(editable=False)
+    ticket = models.ForeignKey(Ticket, models.CASCADE, null=False)
+    field = models.ForeignKey(TicketField, models.CASCADE)
+    diff = models.TextField()
 
     def value(self, which=2):
         return ''.join(difflib.restore(self.diff.splitlines(keepends=True), which)).strip()
@@ -74,4 +77,3 @@ class ChangeEvent(ModelCommon):
     def __str__(self):
         return "Change to: {}; Field: {}; Diff: {}".format(
             self.ticket, self.field, self.diff)
-
