@@ -32,6 +32,8 @@ class ModelCommon(models.Model):
         abstract = True
 
 class Ticket(ModelCommon):
+    title = models.CharField(max_length=200, null=True)
+    description = models.TextField(null=True)
 
     def last_update(self):
         last_event = self.changeevent_set.order_by('created').last()

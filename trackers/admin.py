@@ -19,3 +19,7 @@
 from django.contrib import admin
 
 # Register your models here.
+from trackers.models import Ticket, ChangeEvent
+
+admin.site.register(Ticket)
+admin.site.register(ChangeEvent)

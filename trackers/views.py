@@ -17,6 +17,16 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
+from rest_framework import generics
 
 def home(request):
     return HttpResponse('<html><title>Bloodhound Trackers</title></html>')
+
+
+from trackers.serializers import TicketSerializer
+from trackers.models import Ticket
+
+
+class PlanetList(generics.ListCreateAPIView):
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializer
