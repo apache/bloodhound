@@ -21,6 +21,7 @@ import logging
 import uuid
 
 from django.db import models
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,9 @@ class ModelCommon(models.Model):
 class Ticket(ModelCommon):
     title = models.CharField(max_length=200, null=True)
     description = models.TextField(null=True)
+
+    def api_url(self):
+        return reverse('ticket_view', args=(self.id,))
 
     def last_update(self):
         last_event = self.changeevent_set.order_by('created').last()
