@@ -2,9 +2,25 @@
 
 ## Requirements
 
-Bloodhound uses pipenv for development process.
+### Python
 
-If you have pip installed already, installation can be a simple as
+Bloodhound core is currently written in Python3. It should be possible to
+install and run the core successfully with Python 3.6 or newer. You may
+find that versions from Python 3.4 work but this is not currently tested
+and it is possible that Python features from newer versions may sneak in.
+
+If you do not already have an appropriate version of Python installed, you
+may wish to follow instructions for your platform here:
+
+  https://docs.python-guide.org/starting/installation/
+
+### Pipenv
+
+Pipenv is used for looking after Python package dependencies and virtual
+environment management.
+
+If you already have the `pip` program installed already, installation of
+pipenv can be as simple as
 
 ```
 pip install --user pipenv
@@ -13,27 +29,40 @@ pip install --user pipenv
 For more information on installing and usage of pipenv, see
 https://docs.pipenv.org/.
 
-Once pipenv is installed, the remaining job of installing should be as simple
-as
+Once pipenv is installed, the final bit of setup ahead of installing the
+rest of the project dependencies is to ensure that you have picked out the
+appropriate version of Python for your environment. For the same directory
+as the `Pipfile` for the project, you should run:
+
+```
+pipenv --python 3
+```
+
+If you have multiple versions of Python 3 installed, you may need to be
+more specific about the version.
+
+### Pipfile Specified Requirements
+
+With pipenv installed and the Python version selected, the rest of the
+Python based requrements can be installed with the following command from
+the same director as the `Pipfile` for the project:
 
 ```
 pipenv install
 ```
 
-If this doesn't work, it should be done from the same directory as the
-`Pipenv` file.
-
-Additionally, to run tests described later, you'll also need to install the
+Additionally, to run tests described later, you should install the
 development dependencies:
 
 ```
 pipenv install --dev
 ```
 
-Though possibly annoying, the commands in this file will assume the use of
-`pipenv` but not that the pipenv shell has been activated.
-
 ## Setup
+
+Although it will make the commands more verbose, where a command requires
+the pipenv environment that has been created, we will use the `pipenv run`
+command in preference to requiring that the environment is 'activated'.
 
 The basic setup steps to get running are:
 
