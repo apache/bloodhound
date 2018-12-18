@@ -83,6 +83,22 @@ models gain stability.
 pipenv run python manage.py runserver
 ```
 
+Amongst the initial output of that command will be something like:
+
+```
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+```
+
+Currently there is not much to see at the specified location. More work has
+been done on the core API. The following views may be of interest as you
+explore:
+
+ * http://127.0.0.1:8000/ticket/
+ * http://127.0.0.1:8000/schema_view/
+
+These paths are subject to change.
+
 ## Unit Tests
 
 Unit tests are currently being written with the standard unittest framework.
