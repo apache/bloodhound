@@ -35,11 +35,12 @@ class ModelCommon(models.Model):
 
 
 class Ticket(ModelCommon):
-    title = models.CharField(max_length=200, null=True)
-    description = models.TextField(null=True)
 
     def api_url(self):
-        return reverse('ticket_view', args=(self.id,))
+        return reverse('ticket-detail', args=(self.id,))
+
+    def api_events_url(self):
+        return reverse('changeevent-list', args=(self.id,))
 
     def last_update(self):
         last_event = self.changeevent_set.order_by('created').last()
@@ -67,6 +68,9 @@ class Ticket(ModelCommon):
 class TicketField(ModelCommon):
     name = models.CharField(max_length=32)
 
+    def api_url(self):
+        return reverse('ticketfield-detail', args=(self.id,))
+
 
 class ChangeEvent(ModelCommon):
     ticket = models.ForeignKey(Ticket, models.CASCADE, null=False)
@@ -81,3 +85,9 @@ class ChangeEvent(ModelCommon):
     def __str__(self):
         return "Change to: {}; Field: {}; Diff: {}".format(
             self.ticket, self.field, self.diff)
+
+    def api_url(self):
+        return reverse('changeevent-detail', args=(self.ticket.id, self.id,))
+
+    def api_ticket_url(self):
+        return reverse('ticket-detail', args=(self.ticket.id,))

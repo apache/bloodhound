@@ -16,13 +16,22 @@
 #  under the License.
 
 from django.urls import path
+from django.conf.urls import include
+from rest_framework import routers
 from . import views
+
+router = routers.DefaultRouter()
+router.register('users', views.UserViewSet)
+router.register('groups', views.GroupViewSet)
+router.register('tickets', views.TicketViewSet)
+router.register('ticketfields', views.TicketFieldViewSet)
+
+ticket_router = routers.DefaultRouter()
+ticket_router.register('ticketevents', views.ChangeEventViewSet)
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('api/', include(router.urls)),
+    path('api/tickets/<uuid:id>/', include(ticket_router.urls)),
     path('schema_view/', views.schema_view),
-    path('field/', views.TicketFieldListCreate.as_view()),
-    path('ticket/', views.TicketListCreate.as_view()),
-    path('ticket/<uuid:id>', views.TicketViewUpdate.as_view(), name='ticket_view'),
-    path('ticket/<uuid:id>/event/', views.ChangeEventListCreate.as_view()),
 ]

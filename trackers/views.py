@@ -15,9 +15,9 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
+from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
-from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import viewsets
 from . import serializers
 from . import models
 
@@ -30,24 +30,26 @@ def home(request):
     return HttpResponse('<html><title>Bloodhound Trackers</title></html>')
 
 
-class TicketListCreate(generics.ListCreateAPIView):
-    queryset = models.Ticket.objects.all()
-    serializer_class = serializers.TicketSerializer
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
 
 
-class TicketViewUpdate(generics.RetrieveUpdateAPIView):
-    queryset = models.Ticket.objects.all()
-    serializer_class = serializers.TicketSerializer
-    lookup_field = 'id'
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = serializers.GroupSerializer
 
 
-class TicketFieldListCreate(generics.ListCreateAPIView):
+class TicketFieldViewSet(viewsets.ModelViewSet):
     queryset = models.TicketField.objects.all()
     serializer_class = serializers.TicketFieldSerializer
-    lookup_field = 'ticket'
 
 
-class ChangeEventListCreate(generics.ListCreateAPIView):
+class TicketViewSet(viewsets.ModelViewSet):
+    queryset = models.Ticket.objects.all()
+    serializer_class = serializers.TicketSerializer
+
+
+class ChangeEventViewSet(viewsets.ModelViewSet):
     queryset = models.ChangeEvent.objects.all()
     serializer_class = serializers.ChangeEventSerializer
-    lookup_field = 'ticket'
