@@ -12,3 +12,5 @@ PyYAML = "*"
 django = ">=2.0.0"
 djangorestframework = "*"
 django-rest-swagger = "*"
+
+[requires]
