@@ -18,7 +18,7 @@
 Pygments==1.6
 pytz==2013b
 sqlparse==0.1.7
-Babel==0.9.6
+Babel==2.9.1
 Genshi==0.6.1
 ../trac
 TracAccountManager
